@@ -1,0 +1,384 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2012-2018, ENPC - EDF R&D - INERIS
+!!     Author(s): Hilel Dergaoui, Edouard Debry, Karine Sartelet
+!!
+!!     This file is part of the Size Composition Resolved Aerosol Model (SCRAM), a
+!!     component of the SSH-aerosol model.
+!!
+!!     SSH-aerosol is a free software; you can redistribute it and/or modify
+!!     it under the terms of the GNU General Public License as published
+!!     by the Free Software Foundation; either version 2 of the License,
+!!     or (at your option) any later version.
+!!
+!!     SSH-aerosol is distributed in the hope that it will be useful, but
+!!     WITHOUT ANY WARRANTY; without even the implied warranty of
+!!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+!!     General Public License for more details.
+!!
+!!-----------------------------------------------------------------------
+!!
+!!     -- DESCRIPTION
+!!    This module contains methods read coefficient repartition data
+!!
+!!-----------------------------------------------------------------------
+Module bCoefficientRepartition
+  use aInitialization
+  use netcdf
+  implicit none
+
+  ! Parameter and variable definitions
+  type :: ptr_to_real_array
+     integer n
+     double precision, dimension(:), pointer :: arr
+  end type ptr_to_real_array
+
+  type :: ptr_to_integer_array
+     integer n
+     integer, dimension(:), pointer :: arr
+  end type ptr_to_integer_array
+
+  ! Repartition coefficients.
+  type(ptr_to_real_array), dimension(:), allocatable :: repartition_coefficient
+  type(ptr_to_real_array), dimension(:), allocatable :: repartition_coefficient_nc
+  ! Index of repartition coefficients.
+  type(ptr_to_integer_array), dimension(:), allocatable :: index1_repartition_coefficient
+  type(ptr_to_integer_array), dimension(:), allocatable :: index1_repartition_coefficient_nc
+  type(ptr_to_integer_array), dimension(:), allocatable :: index2_repartition_coefficient
+  type(ptr_to_integer_array), dimension(:), allocatable :: index2_repartition_coefficient_nc
+
+  ! Monte Carlo method.
+  integer (kind=8) :: number_monte_carlo
+
+  ! MPI
+  integer :: rank, rank_size, ierr, tag = 2, master = 0
+  integer, parameter :: size_buf = 100000
+
+
+contains
+
+  ! Read repartition coefficients and their indexes from file.
+  ! Size and composition discretization must correspond.
+  subroutine ReadCoefficient(file,tag_file)
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine reads coefficient repartition data
+!     based on its directory and format (*.nc; *.txt; *.bin)
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     file: directory of coefficient repartition file
+!     tag_file: tag of file format 1=NetCDF 2=TXT 3=BIN
+!
+!------------------------------------------------------------------------   
+    implicit none 
+
+    integer:: tag_file! Judge the type of input files NetCDF or Bin .TRUE. or .FALSE.
+    double precision:: TempCoef
+    integer::j, l, i, Ncoef, varid, dimid, ncid, i1, i2 , Ncfix
+    character (len=30), intent(in) :: file
+    ! This is the name of the data file we will read.
+    character (len = *), parameter :: NCP_NAME = "Ncompute"
+    double precision::sum_coef(N_size,N_size)
+
+       !TMP
+       character( len = 5 ) :: cTemp
+       character( len = 5 ) :: Temp
+       character (len = 11):: DIM_NAME
+       character (len = 11):: VAR_NAME
+    
+    if(tag_file.eq.1)then !in case of NetCDF input
+        print *, " Read repartition coefficients and their indexes from NetCDF file."
+       ! Open the file.
+       call check( nf90_open(file, NF90_NOWRITE, ncid) )
+       ! Allocate memory.
+       allocate(index1_repartition_coefficient(N_size))
+       allocate(index1_repartition_coefficient_nc(N_size))!to read the oringinal version
+       allocate(index2_repartition_coefficient(N_size))
+       allocate(index2_repartition_coefficient_nc(N_size))
+       allocate(repartition_coefficient(N_size))
+       allocate(repartition_coefficient_nc(N_size))
+      !OPEN(12,file='coeff_reff.txt')
+      do i = 1, N_size
+              write( cTemp,'(i4)' ) (i-1)
+             Temp=trim(adjustl(cTemp ))
+             DIM_NAME = 'Ncoef_'//Temp
+              ! Get the varid of the data variable, based on its name.
+              call check( nf90_inq_dimid(ncid, DIM_NAME, dimid) )
+              ! Read the data.
+              call check( nf90_inquire_dimension(ncid, dimid, len= Ncoef) )
+	      ! Print the variables.
+	      index1_repartition_coefficient_nc(i)%n = Ncoef
+	      index2_repartition_coefficient_nc(i)%n = Ncoef
+	      repartition_coefficient_nc(i)%n= Ncoef
+              allocate(index1_repartition_coefficient_nc(i)%arr(Ncoef))
+              allocate(index2_repartition_coefficient_nc(i)%arr(Ncoef))
+              allocate(repartition_coefficient_nc(i)%arr(Ncoef))
+                  VAR_NAME= 'index1_'//Temp
+		  ! Get the varid of the data variable, based on its name.
+		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  ! Read the data.
+		  call check( nf90_get_var(ncid, varid, index1_repartition_coefficient_nc(i)%arr))
+                  VAR_NAME= 'index2_'//Temp
+		  ! Get the varid of the data variable, based on its name.
+		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  ! Read the data.
+		  call check( nf90_get_var(ncid, varid, index2_repartition_coefficient_nc(i)%arr) )
+                  VAR_NAME= 'coef_'//Temp
+		  ! Get the varid of the data variable, based on its name.
+		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  ! Read the data.
+		  call check( nf90_get_var(ncid, varid, repartition_coefficient_nc(i)%arr) )
+		  !Problem: In NetCDF index of grid start from 0; However, in bin and fortran index of grid start from 1
+                  Ncfix=0
+                  do l=1,repartition_coefficient_nc(i)%n
+                  index1_repartition_coefficient_nc(i)%arr(l)=index1_repartition_coefficient_nc(i)%arr(l)+1
+                  i1=index1_repartition_coefficient_nc(i)%arr(l)
+                  index2_repartition_coefficient_nc(i)%arr(l)=index2_repartition_coefficient_nc(i)%arr(l)+1
+                  i2=index2_repartition_coefficient_nc(i)%arr(l)
+                  enddo
+      end do
+    do j = 1, N_size
+         Ncfix=repartition_coefficient_nc(j)%n
+         Ncoef=Ncfix
+         do l=1,repartition_coefficient_nc(j)%n! ckeck symmetric case
+	    i1=index1_repartition_coefficient_nc(j)%arr(l)
+	    i2=index2_repartition_coefficient_nc(j)%arr(l)
+	    if(i1/=i2) then
+		Ncoef=Ncoef+1
+	    endif
+        enddo
+        repartition_coefficient(j)%n=Ncoef
+        index1_repartition_coefficient(j)%n=Ncoef
+        index2_repartition_coefficient(j)%n=Ncoef
+        allocate(repartition_coefficient(j)%arr(Ncoef))
+        allocate(index1_repartition_coefficient(j)%arr(Ncoef))
+        allocate(index2_repartition_coefficient(j)%arr(Ncoef))
+        do l=1,repartition_coefficient_nc(j)%n! Reassign the coefficient and add missing symmetric coefficients
+	    i1=index1_repartition_coefficient_nc(j)%arr(l)
+	    index1_repartition_coefficient(j)%arr(l)=i1
+	    i2=index2_repartition_coefficient_nc(j)%arr(l)
+	    index2_repartition_coefficient(j)%arr(l)=i2
+            Tempcoef=repartition_coefficient_nc(j)%arr(l)
+	    repartition_coefficient(j)%arr(l)=Tempcoef
+	    if(i1/=i2) then
+	      Ncfix=Ncfix+1
+	      index1_repartition_coefficient(j)%arr(Ncfix)=i2!set symmetric coefficient
+	      index2_repartition_coefficient(j)%arr(Ncfix)=i1
+	      repartition_coefficient(j)%arr(Ncfix)=Tempcoef
+	      if(Ncfix>Ncoef) then
+		  print*,"Error: CoefficientRepartition Aarry out of bounds...."
+		  STOP
+	      endif
+	    endif
+	  enddo
+    end do
+    sum_coef=0.d0
+    do i = 1, N_size
+          do l=1,repartition_coefficient(i)%n
+             i1=index1_repartition_coefficient(i)%arr(l)
+             i2=index2_repartition_coefficient(i)%arr(l)
+             sum_coef(i1,i2)=sum_coef(i1,i2)+repartition_coefficient(i)%arr(l)
+           enddo
+    enddo
+    
+    do i1  = 1, N_size
+      do i2= 1, N_size
+      enddo
+    enddo
+    
+    !stop
+    elseif (tag_file.eq.2) then
+    write (*,'(A, F8.3)') ' Read repartition coefficients and their indexes from TXT file.'
+    open(11, file = file , status = "old")  
+       allocate(index1_repartition_coefficient(N_size))
+       allocate(index1_repartition_coefficient_nc(N_size))!to read the oringinal version
+       allocate(index2_repartition_coefficient(N_size))
+       allocate(index2_repartition_coefficient_nc(N_size))
+       allocate(repartition_coefficient(N_size))
+       allocate(repartition_coefficient_nc(N_size))
+
+    do j = 1,N_size
+       read(11,*)repartition_coefficient_nc(j)%n
+       allocate(repartition_coefficient_nc(j)%arr(repartition_coefficient_nc(j)%n))
+       allocate(index1_repartition_coefficient_nc(j)%arr(repartition_coefficient_nc(j)%n))
+       allocate(index2_repartition_coefficient_nc(j)%arr(repartition_coefficient_nc(j)%n))
+
+       do l=1,repartition_coefficient_nc(j)%n 
+          read(11,*)i1
+          index1_repartition_coefficient_nc(j)%arr(l)=i1+1
+          read(11,*)i2
+          index2_repartition_coefficient_nc(j)%arr(l)=i2+1
+          read(11,*)repartition_coefficient_nc(j)%arr(l)
+       enddo
+    enddo
+    !reversed and ignore symmetric case
+     do j = 1, N_size
+         Ncfix=repartition_coefficient_nc(j)%n
+         Ncoef=Ncfix
+         do l=1,repartition_coefficient_nc(j)%n! ckeck symmetric case
+	    i1=index1_repartition_coefficient_nc(j)%arr(l)
+	    i2=index2_repartition_coefficient_nc(j)%arr(l)
+	    if(i1/=i2) then
+		Ncoef=Ncoef+1
+	    endif
+        enddo
+        repartition_coefficient(j)%n=Ncoef
+        index1_repartition_coefficient(j)%n=Ncoef
+        index2_repartition_coefficient(j)%n=Ncoef
+        allocate(repartition_coefficient(j)%arr(Ncoef))
+        allocate(index1_repartition_coefficient(j)%arr(Ncoef))
+        allocate(index2_repartition_coefficient(j)%arr(Ncoef))
+        do l=1,repartition_coefficient_nc(j)%n! Reassign the coefficient and add missing symmetric coefficients
+	    i1=index1_repartition_coefficient_nc(j)%arr(l)
+	    index1_repartition_coefficient(j)%arr(l)=i1
+	    i2=index2_repartition_coefficient_nc(j)%arr(l)
+	    index2_repartition_coefficient(j)%arr(l)=i2
+            Tempcoef=repartition_coefficient_nc(j)%arr(l)
+	    repartition_coefficient(j)%arr(l)=Tempcoef
+	    if(i1/=i2) then
+	      Ncfix=Ncfix+1
+	      index1_repartition_coefficient(j)%arr(Ncfix)=i2!set symmetric coefficient
+	      index2_repartition_coefficient(j)%arr(Ncfix)=i1
+	      repartition_coefficient(j)%arr(Ncfix)=Tempcoef
+	      if(Ncfix>Ncoef) then
+		  print*,"Error: CoefficientRepartition Aarry out of bounds...."
+		  STOP
+	      endif
+	    endif
+	  enddo
+    end do
+    
+
+      do i = 1, N_size
+	  TempCoef=0.d0
+          do l=1,repartition_coefficient(i)%n
+             i1=index1_repartition_coefficient(i)%arr(l)
+             i2=index2_repartition_coefficient(i)%arr(l)
+             TempCoef=TempCoef+repartition_coefficient(i)%arr(l)
+           enddo
+           print*,'coef sum',i,TempCoef
+    enddo
+    close(11)
+    else ! in case of BIN input
+    write (*,'(A, F8.3)') ' Read repartition coefficients and their indexes from BIN file.'
+    open(11, file = file ,form="unformatted" , status = "old")  
+
+    allocate(repartition_coefficient(N_size))
+    allocate(index1_repartition_coefficient(N_size))
+    allocate(index2_repartition_coefficient(N_size))
+
+    do j = 1,N_size
+       read(11)repartition_coefficient(j)%n
+       allocate(repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+       allocate(index1_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+       allocate(index2_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+
+       do l=1,repartition_coefficient(j)%n 
+          read(11)index1_repartition_coefficient(j)%arr(l)
+          i1=index1_repartition_coefficient(j)%arr(l)
+          read(11)index2_repartition_coefficient(j)%arr(l)
+          i2=index2_repartition_coefficient(j)%arr(l)
+          read(11)repartition_coefficient(j)%arr(l)
+       enddo
+    enddo
+    close(11)
+    endif
+    
+  end subroutine ReadCoefficient
+
+  subroutine check(status)
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine reads the netCDF file based on status
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     status: variables to be read from netCDF files
+!
+!------------------------------------------------------------------------ 
+    integer, intent ( in) :: status
+
+    if(status /= nf90_noerr) then
+      print *, trim(nf90_strerror(status))
+      stop 2
+    end if
+  end subroutine check
+
+  subroutine check_repart_coeff()
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine checks the quality of coefficient repartition data
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!------------------------------------------------------------------------
+    implicit none
+    integer::k,i,j,l
+    double precision:: sumcr(N_size,N_size)
+    
+    sumcr=0.d0
+    do k=1,N_size 
+       do l=1,repartition_coefficient(k)%n    
+          i=index1_repartition_coefficient(k)%arr(l)! index of grid 1
+          j=index2_repartition_coefficient(k)%arr(l)! index of grid 2
+	  sumcr(i,j)=sumcr(i,j)+repartition_coefficient(k)%arr(l)
+	  !print*,k,"=",i,"+",j,repartition_coefficient(k)%arr(l)*100.d0,"%"
+      enddo
+    enddo
+    !do i=1,N_size
+      !do j=1,N_size
+	!print*,i,j,sumcr(i,j)
+      !enddo
+    !enddo
+    
+    do k=1,N_size 
+       do l=1,repartition_coefficient(k)%n    
+          i=index1_repartition_coefficient(k)%arr(l)! index of grid 1
+          j=index2_repartition_coefficient(k)%arr(l)! index of grid 2
+	  if(sumcr(i,j).ne.1.d0) then
+! 	    print*,'repartition_coefficient not right'
+! 	    stop
+	    if(repartition_coefficient(k)%arr(l)*sumcr(i,j).gt.0.d0) then
+	      repartition_coefficient(k)%arr(l)=repartition_coefficient(k)%arr(l)/sumcr(i,j)
+	    endif
+	  endif
+      enddo
+    enddo    
+  end subroutine
+
+  subroutine DeallocateCoefficientRepartition
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine Deallocate Coefficient Repartition arrays
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!------------------------------------------------------------------------  
+    implicit none
+
+    integer :: j
+
+    do j=1,N_size
+       deallocate (repartition_coefficient(j)%arr)
+       deallocate (index1_repartition_coefficient(j)%arr)
+       deallocate (index2_repartition_coefficient(j)%arr)
+    end do
+
+    deallocate (repartition_coefficient)
+    deallocate (index1_repartition_coefficient)
+    deallocate (index2_repartition_coefficient)
+  end subroutine DeallocateCoefficientRepartition
+
+end module bCoefficientRepartition

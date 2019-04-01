@@ -1,0 +1,43 @@
+#!/bin/bash
+
+cd src
+scons -c
+
+rm -f `find -iname "*.bck"` 
+rm -f `find -iname "*.o"`
+rm -f `find -iname "ssh-aerosol-cb05"`
+rm -rf .scon*
+
+cd ..
+
+file="unifac.csv"
+if [ -f $file ] 
+then
+    rm -f $file
+fi
+
+
+file="ssh-aerosol-cb05"
+if [ -h $file ] 
+then
+    rm -f $file
+fi
+
+file="ssh-aerosol-cb05en"
+if [ -h $file ] 
+then
+    rm -f $file
+fi
+
+
+# if [ "$1" = "all" ]; then
+#    lst=`ls -d tmp* 2>/dev/null`
+#    for di in ${lst}; do
+#       [ -d ${di} ] && { echo "removing ${di}...";  rm -rf ${di}; }
+#    done
+#    rm -rf ./exe-*
+# fi
+# echo "Remaining .nc files:"
+# find -iname "*.nc"
+# echo -n "Total directory space: "
+# du -sh .

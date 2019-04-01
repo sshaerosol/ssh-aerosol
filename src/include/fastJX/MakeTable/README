@@ -1,0 +1,43 @@
+**************************
+Program fastJX57_makeTab.f
+**************************
+
+##########
+Objectives : to create a tabulation for photolysis rates equivalent to the tabulation created by J-PROC used in Polyphemus.
+##########
+
+################
+Input parameter:
+################
+      - File FJX_Polytable.dat : define the year (only useful to indicate if the year is bisextil), the number of SZA and latitude used for the tabulation, the timestep between the SZA, the surface albedo and the boundary altitudes at which photolysis rates are calculated. It should be noticed that these values are boundary values and photolysis rates are calculated at the center between 2 boundaries altitude. Moreover, photolysis rates between altitudes 2 and 3 are not outputted.
+
+		- File ratj.dat : define the number of species for which photolysis rates are calculated. The file is as followed:
+NUM  FAST-J NAME                                                                FACTOR  OUTPUT NAME
+22       ACRO       PHOTON     NO         O(3P)                0.00E+00  0.00    100.0   ACROLEIN
+
+FAST-J NAME is the name used in the cross sections definition (in FJX_spec.dat) and OUTPUT NAME ... the specie name for the output !
+
+        - FJX_spec.dat: contain the cross-sections of the species.
+
+NB: the output directory is hard-written (Table/)
+			
+###########################################################
+To run the program : 
+make
+##########################################################
+
+###########################
+To add a new cross sections 
+###########################
+
+  - First the cross-sections must be given on 18 wavelenght path. For this go to the directory CSections.
+  - In FJX_spec.dat, add the new cross-sections at the end of the file and change the number on line 2 :
+example: for 26 cross-sections:
+NW-JValues   26   26   18    1   18  NJVAL,NQQQ, NWWW, NW1:NW2=01:18 or 12:18
+
+  It should be notice that the number of cross-sections always include O2 cross-sections that is needed for photolysis rates calcul.
+  
+  - Change JVN_ in parm_CTM.f - Set JVN_ to the number of cross-sections given in FJX_spec.dat (Rayleigh and SOL data are not cross-section) (JVN_ = 26 in the previous example)	 
+  - Add the new species in ratj.dat. 
+  
+  

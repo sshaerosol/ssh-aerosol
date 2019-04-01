@@ -1,0 +1,24 @@
+&aerosol_species
+mineral_dust = "PMD",
+black_carbon = "PBC",
+isorropia_species_name = "PNA", "PSO4", "PNH4", "PNO3","PHCL",
+organic_species_name = "PBiA2D", "PBiA1D", "PBiA0D", "PAGLY", "PAMGLY","PBiMT", "PBiPER", "PBiDER", "PBiMGA", "PAnBlP", "PAnBmP", "PBiBlP", "PBiBmP", "PBiNGA", "PBiNIT3", "PBiNIT", "PAnClP", "PPOAlP", "PPOAmP", "PPOAhP", "PSOAlP", "PSOAmP", "PSOAhP"
+/
+
+&gas_species_aerosol_interact
+PSO4 = "SULF",
+/
+
+&aerosol_size
+N_sizebin = 6
+/
+
+&init_data
+init_bin_number = 6451052544.0,3622992384.0,728901952.0,98222960.0,2169696.0,11957.2246094
+/
+
+&output
+output_directory = "results",
+output_type = 1 ! 1: text, 2: binary
+/
+

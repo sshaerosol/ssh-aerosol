@@ -1,0 +1,57 @@
+*** What is SSH-aerosol ***
+
+
+
+*** Installation ***
+
+Buliding
+--------
+
+$ compile
+
+The arguement for the chemical mechanism can be used. 
+Default mechanism is cb05 and the available mechanisms are cb05, racm, racm2
+and cb05en.
+    
+    -c or --chemisty
+    
+$ compile -c=cb05
+or 
+$ compile --chemistry=cb05
+
+Run
+---
+
+$ ssh-aerosol-cb05 ssh-aerosol.cfg
+
+
+Input files
+-----------
+
+## --- ssh-aerosol.cfg
+
+This file is the main configuration fiile.
+
+
+## --- species-list-cb05.dat
+
+This file contains the list of gas-phase species.
+
+## --- species-list-aerosol.dat
+
+This file contains the list of aerosol species.
+
+## --- init_gas.dat
+
+This file contains initial data for gas-phase species.
+
+## --- init_aerosol.dat
+
+This file contains initial data for aerosol species.
+
+## --- coef_s1_f1_b7.nc and coef_s5_f3_b7.nc
+
+This file contains an example coagulation coefficient data for 
+internal mixing (coef_s1_f1_b7.nc) and external mixing (coef_s5_f3_b7.nc).
+
+

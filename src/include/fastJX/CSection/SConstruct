@@ -1,0 +1,7 @@
+import os
+
+env = Environment(FORTRAN = 'ifort', ENV = os.environ, CC= 'ifort')
+env.Program(target = "wn10", source = "wn10.f")
+env.Program(target = "add_xsect", source = "add_xsect.f")
+
+

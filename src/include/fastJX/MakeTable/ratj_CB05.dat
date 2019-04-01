@@ -1,0 +1,27 @@
+    1 NO2        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  NO2
+    2 O3O1D      PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  O3O1D
+    3 O3O3P      PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  O3O3P   
+    4 HONO       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HONO    
+    5 HNO3       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HNO3 
+    6 HNO4       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HNO4    
+    7 NO3NO      PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  NO3NO    
+    8 NO3NO2     PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  NO3NO2 
+    9 H2O2       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  H2O2  
+   10 HCHOmol    PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HCHOmol  
+   11 HCHOrad    PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HCHOrad   
+   12 ALD        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  ALD     
+   13 MHP        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  MHP   
+   14 HOP        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  HOP   
+   15 PAA        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  PAA    
+   16 KETONE     PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  KETONE   
+   17 GLYform    PHOTON     O2         O(1D)                0.00E+00  0.00    100.0  GLYform 
+   18 GLYmol     PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  GLYmol      
+   19 MGLY       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  MGLY   
+   20 UDC        PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  UDC 
+   21 ORGNIT     PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  ORGNIT  
+   22 ACRO       PHOTON     NO         O(3P)                0.00E+00  0.00    100.0  ACRO   
+   23 PAN        PHOTON	    N2         O(3P)                0.00E+00  0.00    100.0  PAN 
+   24 N2O5       PHOTON	    N2         O(3P)                0.00E+00  0.00    100.0  N2O5  
+   25 C2CHO      PHOTON	    N2         O(3P)                0.00E+00  0.00    100.0  C2CHO
+   26 PACD       PHOTON     N2         O(3P)                0.00E+00  0.00    100.0  PACD
+ 9999                                                       0.00E-00  0.00      0.0          

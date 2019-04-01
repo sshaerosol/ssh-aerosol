@@ -1,0 +1,1534 @@
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+!% File for gas-phase mechanism RACM
+!%
+!% Reference: see below.
+!%
+!% Modifications:
+!% 05/02/2003 (BS): CO2 is now omitted (only a product).
+!% 05/02/2003 (BS): bug in R34 (HO2 missing in the reactants ?).
+!% 12/02/2003 (BS/VM): inversed pre-exponential factors for RCFE.
+!% 25/06/2003 (BS): update data with TUV/RACM (in directory radiatif/)
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+! **********************************************************************
+!!  FILE:        RACM1_3.mch
+!!  DATE:        21.08.1997
+!!  VERSION:     1.3
+!!  ID: RACM Version 1.3, 21.08.1997
+!!  LAST UPDATE: 21.08.1997 14:20:00
+!!  --------------------------------------------------------------------
+!!  REGIONAL ATMOSPHERIC CHEMISTRY MECHANISM  (RACM)  Version 1.3
+!!  Reference: W.R. Stockwell, F. Kirchner, M. Kuhn, and S. Seefeld, "A
+!!  New Mechanism for Regional Atmospheric Chemistry Modeling", J. of
+!!  Geophys. Res., 1997.
+!!  --------------------------------------------------------------------
+!!  FOR MORE INFORMATION REGARDING THIS MECHANISM CONTACT:
+!!  William R. Stockwell
+!!  Fraunhofer Institute for Atmospheric Environmental Research (IFU)
+!!  Kreuzeckbahnstr. 19, D-82467 Garmisch-Partenkirchen, Germany
+!!  E-MAIL:      stockwel@ifu.fhg.de
+!!  Telephone:   +(49) 8821 183-262
+!!  FAX:         +(49) 8821 73-5-73
+! **********************************************************************
+! The RACM mechanism is based upon the earlier Regional Acid Deposition
+! Model, version 2 (RADM2) mechanism.  It is intended to be valid for
+! conditions ranging from remote to polluted and from the Earth's
+! surface through the upper troposphere.  The RACM mechanism includes
+! 237 reactions and 77 species: 17 stable inorganic species, 4
+! inorganic intermediates, 32 stable organic species (4 of these are
+! primarily of biogenic origin) and 24 organic intermediates.
+! **********************************************************************
+!
+! Modifications for Version 1.1  (12.05.97)
+!
+!  059 OLT yield changed for ISO + O3P ->
+!      from 0.85 OLT + ... + 0.01  OLT to 0.86 OLT
+!
+!  071 rate parameter changed for API + HO -> APIP
+!      from  A-FACT 5.45E-11 E/R 0.0 to A-FACT 1.21E-11  E/R  -444.0
+!
+!  072 rate parameter changed for LIM + HO -> LIMP
+!      from A-FACT 1.70E-10  E/R 0.0 to A-FACT 1.71E-10 E/R     0.0
+!
+!  103 rate parameter changed for API + NO3 ->
+!      from A-FACT 6.160E-12 E/R 0.0 to A-FACT 1.19E-12 E/R -490.0
+!
+!  111 rate parameter changed for API + O3 ->
+!      from A-FACT 8.69E-17 E/R 0.0 to  A-FACT 1.01E-15 E/R 732.0
+!
+!      The changes in rate constant parameters for 071, 072, 103, 111
+!      did NOT change the value of the rate constant at 298 K
+!      significantly (difference < 1.5%).
+!
+!-----------------------------------------------------------------------
+! Modifications for Version 1.2  (28.05.97)
+!
+!  065 Extra space inserted into reaction to correct format for HKET
+!  065 HC8   HO        -> .951 HC8P   .025 ALD   .024  HKET
+!  &                      .049 HO2         H2O
+!
+!-----------------------------------------------------------------------
+! Modifications for Version 1.3  (21.08.97)
+!
+!  018   add product: 0.15  H2  to GLY-photolysis as follows:
+!  018 GLY             -> 0.45 HCHO   1.55 CO    0.80  HO2
+!  &                      0.15 H2
+!
+!  Revised and updated references to rate constants and products
+!  to be consistent with JGR manuscript (proof read on Aug. 14, 1997)
+!
+!
+SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
+! R1
+NO2 -> O3P + NO
+KINETIC PHOTOLYSIS   0.931026E-02  0.921901E-02  0.890995E-02  0.837928E-02  0.760031E-02  0.652988E-02  0.510803E-02  0.329332E-02  0.174121E-02  0.511393E-03  0.163208E-03
+! R2
+O3 -> O1D + O2
+KINETIC PHOTOLYSIS   0.352348E-04  0.339820E-04  0.301078E-04  0.242445E-04  0.172587E-04  0.102977E-04  0.463950E-05  0.128749E-05  0.290804E-06  0.487557E-07  0.185350E-07
+! R3
+O3 -> O3P + O2
+KINETIC PHOTOLYSIS   0.492758E-03  0.489069E-03  0.476368E-03  0.454585E-03  0.423344E-03  0.381150E-03  0.324899E-03  0.247082E-03  0.160308E-03  0.397670E-04  0.557331E-05
+! R4
+HONO            ->      HO   +       NO
+KINETIC PHOTOLYSIS   0.204671E-02  0.202572E-02  0.195491E-02  0.183337E-02  0.165516E-02  0.141113E-02  0.109002E-02  0.689444E-03  0.361035E-03  0.108950E-03  0.346516E-04
+! R5
+HNO3            ->      HO    +      NO2
+KINETIC PHOTOLYSIS   0.747531E-06  0.729946E-06  0.674094E-06  0.585322E-06  0.470402E-06  0.339698E-06  0.208199E-06  0.964783E-07  0.382903E-07  0.830301E-08  0.224170E-08
+! R6
+HNO4 -> 0.65 HO2 + 0.65 NO2 + 0.35  HO + 0.35 NO3
+KINETIC PHOTOLYSIS   0.503836E-05  0.492337E-05  0.455701E-05  0.397119E-05  0.320567E-05  0.232384E-05  0.142322E-05  0.648606E-06  0.246502E-06  0.469613E-07  0.118499E-07
+! R7
+NO3             ->      NO     +     O2
+KINETIC PHOTOLYSIS   0.265649E-01  0.264102E-01  0.258524E-01  0.249074E-01  0.235172E-01  0.215841E-01  0.188522E-01  0.147419E-01  0.971212E-02  0.225719E-02  0.250693E-03
+! R8
+NO3             ->      NO2    +     O3P
+KINETIC PHOTOLYSIS   0.212996      0.211689      0.207152      0.199076      0.187348      0.170929      0.147742      0.113042      0.718608E-01  0.162667E-01  0.252856E-02
+! R9
+H2O2            ->      HO    +      HO
+KINETIC PHOTOLYSIS   0.839458E-05  0.825592E-05  0.780494E-05  0.706032E-05  0.603528E-05  0.475883E-05  0.329698E-05  0.180604E-05  0.842157E-06  0.221356E-06  0.624535E-07
+! R10
+HCHO            ->      H2   +       CO
+KINETIC PHOTOLYSIS   0.466946E-04  0.460643E-04  0.439841E-04  0.404765E-04  0.354845E-04  0.289656E-04  0.210065E-04  0.121895E-04  0.597941E-05  0.166295E-05  0.476221E-06
+! R11
+HCHO            ->      HO2  +  HO2  +  CO
+KINETIC PHOTOLYSIS   0.322056E-04  0.316290E-04  0.297592E-04  0.266797E-04  0.224649E-04  0.172798E-04  0.114907E-04  0.587024E-05  0.250654E-05  0.553383E-06  0.139443E-06
+! R12
+ALD             ->      MO2  +  HO2  +  CO
+KINETIC PHOTOLYSIS   0.610507E-05  0.595723E-05  0.548715E-05  0.473800E-05  0.376612E-05  0.266260E-05  0.156576E-05  0.668185E-06  0.236179E-06  0.423517E-07  0.111857E-07
+! R13
+OP1             ->      HCHO  +  HO2  +  HO
+KINETIC PHOTOLYSIS   0.570462E-05  0.561354E-05  0.531667E-05  0.482525E-05  0.414587E-05  0.329411E-05  0.230820E-05  0.128524E-05  0.608525E-06  0.163756E-06  0.471643E-07
+! R14
+OP2             ->      ALD    +     HO2    +  HO
+KINETIC PHOTOLYSIS   0.570462E-05  0.561354E-05  0.531667E-05  0.482525E-05  0.414587E-05  0.329411E-05  0.230820E-05  0.128524E-05  0.608525E-06  0.163756E-06  0.471643E-07
+! R15
+PAA             ->      MO2    +     HO
+KINETIC PHOTOLYSIS   0.222443E-05  0.218748E-05  0.206735E-05  0.186913E-05  0.159652E-05  0.125753E-05  0.870017E-06  0.475757E-06  0.221534E-06  0.581609E-07  0.164095E-07
+! R16
+KET             ->      ACO3   +     ETHP
+KINETIC PHOTOLYSIS   0.106563E-05  0.104198E-05  0.966425E-06  0.844984E-06  0.685160E-06  0.499504E-06  0.308206E-06  0.142186E-06  0.551369E-07  0.111617E-07  0.290941E-08
+! R17
+GLY -> 0.13 HCHO + 1.87 CO
+KINETIC PHOTOLYSIS   0.680341E-04  0.675303E-04  0.657747E-04  0.627420E-04  0.582325E-04  0.518682E-04  0.429463E-04  0.302375E-04  0.171566E-04  0.447208E-05  0.137939E-05
+! R18
+GLY -> 0.45 HCHO + 1.55 CO + 0.80 HO2
+KINETIC PHOTOLYSIS   0.278101E-04  0.273762E-04  0.259585E-04  0.236004E-04  0.203173E-04  0.161665E-04  0.113226E-04  0.627890E-05  0.296166E-05  0.784215E-06  0.216505E-06
+! R19
+MGLY            ->      ACO3    +    HO2   +  CO
+KINETIC PHOTOLYSIS   0.120477E-03  0.119066E-03  0.114362E-03  0.106443E-03  0.951654E-04  0.803121E-04  0.616157E-04  0.390953E-04  0.204535E-04  0.566664E-05  0.177264E-05
+! R20
+DCB             ->      TCO3    +    HO2
+KINETIC PHOTOLYSIS   0.560926E-03  0.553653E-03  0.529584E-03  0.488917E-03  0.430840E-03  0.354544E-03  0.260370E-03  0.154006E-03  0.770333E-04  0.223373E-04  0.667801E-05
+! R21
+ONIT  -> 0.20 ALD  +  0.80 KET  +  HO2 + NO2
+KINETIC PHOTOLYSIS   0.337909E-05  0.330632E-05  0.307366E-05  0.269949E-05  0.220592E-05  0.162928E-05  0.102758E-05  0.491847E-06  0.199146E-06  0.422739E-07  0.108005E-07
+! R22
+MACR            ->      HCHO + ACO3 + CO + HO2
+KINETIC PHOTOLYSIS   0.176977E-05  0.174636E-05  0.166900E-05  0.153840E-05  0.135225E-05  0.110852E-05  0.809392E-06  0.474670E-06  0.235099E-06  0.668358E-07  0.197291E-07
+! R23
+HKET            ->      ACO3  +  HCHO + HO2
+KINETIC PHOTOLYSIS   0.106563E-05  0.104198E-05  0.966425E-06  0.844984E-06  0.685160E-06  0.499504E-06  0.308206E-06  0.142186E-06  0.551369E-07  0.111617E-07  0.290941E-08
+! R24
+BiPER    ->
+KINETIC PHOTOLYSIS   3.47E-4   3.42E-4  3.23E-4  2.92-4  2.50E-4  1.97E-4  1.36E-4  7.48E-5  3.49E-5  9.16E-6  2.59E-6
+!
+! END GENERATION BY TUV/RACM
+!
+!
+! R25:  O3P +  O2        ->      O3
+O3P -> O3
+KINETIC TB O2 SPEC -1
+!SPECIAL RWK(#) = CM*6.00E-34*(TEMP/300)**(-2.3)
+!  --- NASA 1994
+!
+! R26:  O3P +  O3        ->  2.0 O2
+O3P +  O3 ->
+KINETIC ARR2    8.00E-12    2060.0
+!  --- NASA 1994
+!
+! R27 (N2 as product)
+O1D       ->      O3P
+KINETIC TB N2 ARR2    1.80E-11     -110.0
+!  --- NASA 1994
+!
+! R28:  O1D +  O2        ->      O3P   + O2
+O1D -> O3P
+KINETIC TB O2 ARR2    3.20E-11      -70.0
+!  --- NASA 1994
+!
+! R29
+O1D -> 2. HO
+KINETIC TB H2O ARR2    2.20E-10        0.0
+!  --- NASA 1994
+!
+! R30:  (+ O2 as product)
+O3 +   HO        ->      HO2
+KINETIC ARR2    1.60E-12      940.0
+!  --- NASA 1994
+!
+! R31 (+ 2.0 O2 as product)
+O3 +  HO2       ->      HO
+KINETIC ARR2    1.10E-14      500.0
+!  --- NASA 1994
+!
+! R32 (H20 + O2 as product)
+HO +   HO2       ->
+KINETIC ARR2    4.80E-11     -250.0
+!  --- NASA 1994
+!
+! R33 (H20 as product)
+H2O2 + HO        ->      HO2
+KINETIC ARR2    2.90E-12      160.0
+!  --- NASA 1994
+!
+! R34 (O2 as product)
+HO2 +  HO2       ->      H2O2
+KINETIC SPEC -2
+!SPECIAL RWK(#) = 2.3E-13*EXP(600./TEMP) +1.7E-33 * CM * EXP(1000./TEMP)
+!  --- NASA 1994
+!
+! R35 (O2 + H20 as product)
+! BUG in the initial version (HO2 + H20 ??? BS 05/02/2003)
+HO2 +  HO2 ->      H2O2
+KINETIC TB H2O SPEC -3
+!SPECIAL RWK(#) = 3.22E-34 * EXP(2800./TEMP)+2.38E-54*CM*EXP(3200./TEMP)
+!  --- NASA 1994
+!
+! R36
+O3P +  NO        ->      NO2
+KINETIC TROE4  9.00E-32  1.5   3.00E-11   0.0
+!  --- NASA 1994
+!
+! R37 (O2 as product)
+O3P +  NO2       ->      NO
+KINETIC ARR2    6.50E-12     -120.0
+!  --- NASA 1994
+!
+! R38
+O3P +  NO2       ->      NO3
+KINETIC TROE4  9.00E-32  2.0  2.20E-11  0.0
+!  --- NASA 1994
+!
+! R39
+HO +  NO        ->      HONO
+KINETIC TROE4  7.00E-31  2.6   1.50E-11   0.5
+!  --- NASA 1994
+!
+! R40
+HO +   NO2       ->      HNO3
+KINETIC TROE4  2.60E-30   3.2   2.40E-11   1.3
+!  --- NASA 1994
+!
+! R41
+HO +   NO3       ->      NO2   +      HO2
+KINETIC ARR1    2.20E-11
+!  --- NASA 1994
+!
+! R42
+HO2 +  NO        ->      NO2   +      HO
+KINETIC ARR2    3.70E-12     -250.0
+!  --- NASA 1994
+!
+! R43
+HO2 +  NO2       ->      HNO4
+KINETIC TROE4  1.80E-31   3.2   4.70E-12  1.4
+!  --- NASA 1994
+!
+! R44
+HNO4            ->      HO2   +      NO2
+KINETIC RCFE 1.80E-31  3.2  4.70E-12  1.4  4.76D26  10900.
+!  --- NASA 1994
+!
+! R45
+HO2 +  NO3       ->  0.3 HNO3 +   0.7 NO2 +   0.7  HO
+KINETIC ARR1    3.50E-12
+! --- RATE CONSTANT NASA 1994
+! PRODUCTS COMBINATION OF SEVERAL MEASUREMENTS
+!
+! R46 (H2O as product)
+HO  +  HONO      ->  NO2
+KINETIC ARR2    1.80E-11     390.0
+!  --- NASA 1994
+!
+! R47 (H2O as product)
+HO +   HNO3      ->      NO3
+KINETIC SPEC -4
+!SPECIAL TMP0 = 7.2E-15*EXP(785/TEMP)
+!SPECIAL TMP2 = 4.1E-16*EXP(1440/TEMP)
+!SPECIAL TMP3 = 1.9E-33*EXP(725/TEMP)*CM
+!SPECIAL RWK(#) = TMP0 + TMP3/(1+TMP3/TMP2)
+!  --- NASA 1994
+!
+! R48 (O2 + H2O as product)
+HO +   HNO4      ->      NO2
+KINETIC ARR2    1.30E-12     -380.0
+! --- NASA 1994
+! PRODUCTS USELMAN ET AL. IN NITROGENEOUS AIR POLLUTANTS
+! CHEMICAL AND BIOLOGICAL IMPLICATIONS
+!
+! R49 (O2 as product)
+O3 +   NO        ->      NO2
+KINETIC ARR2    2.00E-12     1400.0
+!  --- NASA 1994
+!
+! R50 (O2 as product)
+O3  +  NO2       ->      NO3
+KINETIC ARR2    1.20E-13     2450.0
+!  --- NASA 1994
+!
+! R51
+NO  +  NO  ->      NO2    +     NO2
+KINETIC TB O2 ARR2    3.30E-39     -530.0
+!  --- ATKINSON 1992
+!
+! R52
+NO3 +  NO        ->      NO2    +     NO2
+KINETIC ARR2    1.50E-11     -170.0
+!  --- NASA 1994
+!
+! R53 (O2 as product)
+NO3 +  NO2       ->      NO    +      NO2
+KINETIC ARR2    4.50E-14        1260.0
+!  --- NASA 1994
+!
+! R54
+NO3 +  NO2       ->      N2O5
+KINETIC TROE4   2.20E-30  3.9   1.50E-12   0.7
+!  --- NASA 1994
+!
+! R55
+N2O5            ->      NO2    +     NO3
+KINETIC RCFE 2.20E-30  3.9  1.50E-12  0.7   3.70D26    11000.0
+!  --- NASA 1994
+!
+! R56 (O2 as product)
+NO3 +  NO3       ->      NO2    +     NO2
+KINETIC ARR2    8.50E-13    2450.0
+!  --- NASA 1994
+!
+! R57 (H2O as product)
+HO  ->  HO2
+KINETIC TB H2 ARR2    5.50E-12    2000.0
+!  ---  NASA 1994
+!
+! R58
+HO +   SO2       ->      SULF   +     HO2
+KINETIC TROE4   3.00E-31   3.3    1.50E-12    0.0
+!  --- NASA 1994
+!
+! R59 (BE CAREFUL: CO2 is a product BS 05/02/2003)
+CO  +  HO        ->      HO2
+KINETIC SPEC -5
+!SPECIAL  RWK(#) = 1.5E-13 * (1. + 2.439E-20 * CM)
+!  --- NASA 1994
+!
+! R60
+ISO +  O3P       -> 0.86 OLT +   0.05 HCHO + 0.02  HO +  //
+                    0.01 CO  +   0.13 DCB +  0.28  HO2 + //
+                    0.15 XO2
+KINETIC ARR1    6.00E-11
+!  --- PAULSON ET AL. 1992
+!
+! R61
+MACR + O3P       ->      ALD
+KINETIC ARR2    1.59E-11     -13.0
+! --- RATE FROM ISO-BUTENE + O3P
+! CVETANOVIC 1987
+!
+! R62 (H2O as product)
+CH4 +  HO        ->      MO2
+KINETIC ARR3    7.44E-18  2.  1361.
+!  --- ATKINSON 1994
+!
+! R63 (H2O as product)
+ETH +  HO        ->      ETHP
+KINETIC ARR3    1.51E-17  2.  492.
+! --- ETH REPRESENTS ETHANE
+! ATKINSON 1994
+!
+! R64 (H2O as product)
+HC3 +  HO        -> .583 HC3P + .381 HO2 + .335 ALD + //
+                    .036 ORA1 + .036 CO  + .036 GLY + //
+                    .036 HO   + .010 HCHO
+KINETIC ARR2    5.26E-12     260.0
+! --- HC3 REPRESENTS ALKANES AND SIMILAR
+! SPECIES OF "LOW" REACTIVITY, HO RATE CONSTANT LESS THAN 3.4E-12
+! BUT GREATER THAN ETHANE AT 2.7E-13 (AT 298.15 1 ATM).
+! FOR EXAMPLE PROPANE, BUTANE, METHANOL, ETHANOL.
+! PRODUCTS ARE ADJUSTED ACCORDINGLY
+! PRODUCTS OTHER THAN HC3P RESULTING FROM ETHANOL + HO,
+! METHANOL + HO AND CH2CH2 + HO
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+!
+!
+! R65 (H2O as product)
+HC5 +  HO        -> .750 HC5P +  .250 KET +  .250  HO2
+KINETIC ARR2  8.02E-12    155.0
+! --- HC5 REPRESENTS ALKANES OF "MEDIUM" REACTIVITY
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+! FOR SPECIES WITH HO RATE CONSTANTS BETWEEN
+! 3.4E-12 AND 6.8E-12 AT 298, 1 ATM
+!  TAKEN TO BE SIMILAR TO N-OCTANE ATKINSON 1986
+! XO2 FACTOR ACCOUNT FOR EXTRA NO TO NO2 CONVERSIONS
+! KET AND HO2 RESULTING FROM ISOPROPANOL + HO
+! XO2 IS MOVED TO THE HC5P REACTIONS
+!
+! R66 (H2O as product)
+% Modif ED : formation of SOA for aecbox
+HC8 +  HO        -> .951 HC8P +  .025 ALD +  .024  HKET + //
+                    .049 HO2
+KINETIC ARR2    1.64E-11    125.0
+! --- HC8 REPRESENTS ALKANES OF HIGH REACTIVITY
+! FOR SPECIES WITH HO RATE CONSTANTS GREATER THAN 6.8E-12 AT 298, 1 ATM
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+! XO2 IS MOVED TO THE HC8P REACTIONS
+!
+!
+! R67
+ETE +  HO        ->      ETEP
+KINETIC ARR2    1.96E-12    -438.0
+! --- ETE REPRESENTS ETHENE
+! ATKINSON 1994
+!
+! R68
+% Modif ED : formation of SOA for aecbox
+OLT +  HO        ->      OLTP
+KINETIC ARR2    5.72E-12    -500.0
+! --- OLT REPRESENTS PROPENE, TERMINAL ALKENES.
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+!
+! R69
+% Modif ED : formation of SOA for aecbox
+OLI +  HO        ->      OLIP
+KINETIC ARR2    1.33E-11    -500.0
+! --- OLI REPRESENTS T-2-BUTENE AND INTERNAL ALKENES
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+!
+! R70
+DIEN + HO        ->      ISOP
+KINETIC ARR2    1.48E-11    -448.0
+!  --- RATE CONSTANT ATKINSON 1994
+!
+! R71
+% Modif ED : formation of SOA for aecbox
+ISO +  HO        ->      ISOP + 0.62 HCHO + 0.23 MACR
+KINETIC ARR2    2.54E-11    -410.0
+!  --- RATE CONSTANT ATKINSON 1994
+!
+! R72
+% Modif ED : formation of SOA for aecbox
+API +  HO        ->      APIP + 0.30 BiA0D + 0.17 BiA1D + 0.10 BiA2D
+KINETIC ARR2    1.21E-11    -444.0
+!  --- ATKINSON 1994
+!
+! R73
+% Modif ED : formation of SOA for aecbox
+LIM +  HO        ->      LIMP + 0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D
+KINETIC ARR1    1.71E-10
+!  --- ATKINSON 1994
+!
+! R74
+TOL +  HO        -> 0.90 ADDT +  0.10 XO2 +  0.10  HO2
+KINETIC ARR2    1.81E-12    -355.0
+!  --- ATKINSON 1994
+!
+! R75
+XYL +  HO        -> 0.90 ADDX +  0.10 XO2 +  0.10  HO2
+KINETIC ARR2    7.30E-12    -355.0
+! --- RATE CONSTANT M-XYLENE ATKINSON 1994
+!  FROM TOLUENE
+!
+! R76
+% Modif ED : formation of SOA for aecbox
+CSL +  HO        -> 0.85 ADDC +  0.10 PHO +  0.05  HO2 + 0.05 XO2
+KINETIC ARR2    6.00E-11       0.0
+!  --- RATE CONSTANT M-CRESOL ATKINSON 1994
+!
+! R77 (H2O as product)
+HCHO + HO        ->      HO2    +     CO
+KINETIC ARR1    1.00E-11
+!  --- NASA 1994
+!
+! R78 (H2O as product)
+ALD +  HO        ->      ACO3
+KINETIC ARR2    5.55E-12    -331.0
+!  --- ATKINSON 1994
+!
+! R79 (H2O as product)
+KET +  HO        ->      KETP
+KINETIC ARR3    5.68E-18  2.  -92.0
+! --- KETONE TREATED AS MIXTURE OF METHYL ETHYL KETONE
+! AND ACETONE, ATKINSON 1994
+!
+! R80 (H2O as product)
+HKET + HO        ->      HO2    +     MGLY
+KINETIC ARR1    3.00E-12
+!  --- ATKINSON 1994
+! R81 (H2O as product)
+GLY +  HO        ->      HO2  +  2.0  CO
+KINETIC ARR1    1.14E-11
+! --- ATKINSON 1994 RECOMMENDS 40% O2-ADDITION,
+! BUT IT DOESN'T SEEM RESONABLE TO ADD THIS TO ACO3 BECAUSE
+! OF MUCH FASTER HO-REACTION AND PHOTOLYSIS OF THE RESULTING
+! PEROXYNITRATE, THE PRODUCTS OF THE NO REACTION OF THE
+! PEROXY RADICAL AND OF THE REACTIONS OF THE PEROXYNITRATE
+! ARE RELATIVELY SIMILAR TO THE PRODUCTS GIVEN ABOVE
+!
+! R82 (H2O as product)
+MGLY + HO        ->      ACO3    +    CO
+KINETIC ARR1    1.72E-11
+!  --- ATKINSON 1994
+!
+! R83
+MACR +  HO        -> 0.51 TCO3 +  0.41 HKET + 0.08  MGLY + //
+                      0.41 CO  +   0.08 HCHO + 0.49  HO2 + //
+                      0.49 XO2
+KINETIC ARR2    1.86E-11    -175.0
+! --- MACR= METHACROLEIN, ATKINSON 1994
+! TUAZON/ATKINSON 1990
+!
+! R84
+HO  +  DCB       -> 0.50 TCO3 +  0.50 HO2 +  0.50  XO2 + //
+                     0.35 UDD +   0.15 GLY +  0.15  MGLY
+KINETIC ARR2    2.80E-11    -175.
+! --- RATE K: BIERBACH ET AL.1994
+!  FROM MACR+ HO
+!
+! R85
+HO  +  UDD       -> 0.88 ALD  +  0.12 KET   +      HO2
+KINETIC ARR1    2.70E-10
+!  --- RATE K: WIESEN ET AL.1995
+!
+! R86
+OP1 +  HO        -> .65  MO2 +   .35  HCHO +  0.35  HO
+KINETIC ARR2    2.93E-12    -190.0
+!  --- ATKINSON 1994
+!
+! R87
+OP2 +  HO        -> 0.44 HC3P +  0.08 ALD +  0.49  HO + //
+                      0.07 XO2 +   0.41 KET
+KINETIC ARR2    3.40E-12    -190.0
+!  --- ESTIMATED FOR PROPYL HYDROPEROXIDE
+!
+! R88
+PAA +  HO        -> 0.65 ACO3 +  0.35 HO2 +  0.35  HCHO + 0.35 XO2
+KINETIC ARR2    2.93E-12    -190.0
+!  --- FROM OP1 + HO
+!
+! R89 (H2O as product)
+PAN +  HO -> HCHO + NO3 + XO2
+KINETIC ARR1    4.00E-14
+!  --- UPPER LIMIT NASA 1994
+!
+! R90
+TPAN + HO -> 0.60 HKET + 0.60 NO3 + 0.40 PAN + 0.40 HCHO + 0.40 HO2 + //
+                 XO2 + 0.08167 BiMGA + 0.05702 BiNGA
+KINETIC ARR2    3.25E-13    -500.0
+! --- RATE CONSTANT: GROSJEAN 1993,  FROM KIRCHNER AND STOCKWELL 1996
+! PRODUCTS GROSJEAN 1993
+!
+! R91 (H2O as product)
+ONIT + HO -> HC3P + NO2
+KINETIC ARR2    5.31E-12     260.0
+! --- RATE CONSTANT TAKEN TO BE AS HC3,
+! DECOMPOSITION ASSUMED
+!
+! R92
+HCHO + NO3 -> HO2 + HNO3 + CO
+KINETIC ARR2    3.40E-13    1900.0
+! --- RATE CONSTANT NASA 1994
+!  FROM ALD + NO3
+!
+! R93
+ALD + NO3 -> ACO3 + HNO3
+KINETIC ARR2    1.40E-12    1900.0
+!  --- NASA 1994
+!
+! R94
+GLY + NO3 -> HNO3 + HO2 +  2.0 CO
+KINETIC ARR2    2.90E-12    1900.0
+! --- ASSUMED TO BE THE SAME AS 2*K(ALD)-K(ETH)
+!  FROM ALD + NO3
+!
+! R95
+MGLY + NO3 -> HNO3 + ACO3 + CO
+KINETIC ARR2    1.40E-12    1900.0
+!  --- ASSUMED TO SAME AS ALD + NO3 ATKINSON 1994
+!
+! R96
+MACR + NO3 -> 0.20 TCO3 + 0.20 HNO3 + 0.80 OLNN + 0.80 CO
+KINETIC ARR2    8.27E-15     150.0
+! --- K FROM CROTONALDEHYDE (ATKINSON 1994)
+!  FROM KIRCHNER AND STOCKWELL, 1996,
+! PRODUCTS: ASSUMING 20% ABSTRACTION, 80% ADDITION
+! (ESTIMATED FROM COMPARISON OF THE HO AND NO3 DATA FROM
+! CROTONALDEHYDE, ACROLEINE, OL01, OL11, OL02 (ATKINSON 1994))
+!
+! R97
+DCB + NO3 -> 0.50 TCO3 +  0.50 HO2  + 0.50  XO2 + //
+             0.25 GLY +   0.25 ALD +  0.50  NO2 + //
+             0.03 KET  +  0.25 MGLY + 0.50  HNO3
+KINETIC ARR2    2.87E-13    1000.0
+! --- RATE K: BIERBACH ET AL.1994,
+! : MEAN OF OL11 AND ALD
+!
+! R98
+% Modif ED : formation of SOA for aecbox
+CSL + NO3 -> HNO3 + PHO
+KINETIC ARR1    2.20E-11
+! --- ESTIMATED MEAN VALUE FOR 50% METHYLPHENOL
+! AND 50% DIMETHYLPHENOL USING ATKINSON 1994
+!
+! R99
+ETE + NO3 -> 0.80 OLNN + 0.20 OLND
+KINETIC ARR3    4.88E-18  2.   2282.0
+!  --- RATE K ATKINSON 1994
+!
+! R100
+% Modif ED : formation of SOA for aecbox
+OLT + NO3 -> 0.43 OLNN + 0.57 OLND
+KINETIC ARR2    1.79E-13    450.0
+!  --- DIFFICULT TO LUMP BECAUSE OF VERY DIFFERENT K
+!
+! R101
+% Modif ED : formation of SOA for aecbox
+OLI + NO3 -> 0.11 OLNN + 0.89 OLND
+KINETIC ARR2    8.64E-13    -450.
+!  --- DIFFICULT TO LUMP BECAUSE OF VERY DIFFERENT K
+!
+! R102
+DIEN + NO3       -> 0.90 OLNN +  0.10 OLND + 0.90  MACR
+KINETIC ARR1    1.00E-13
+! From ATKINSON 1991, Value for 298
+!
+! R103
+ISO +  NO3       -> 0.90 OLNN +  0.10 OLND + 0.90  MACR + ISON
+KINETIC ARR2    4.00E-12     446.
+! --- KIRCHNER AND STOCKWELL, 1996
+! --- MEAN OF 8 MEASUREMENTS
+! AFTER REACTION WITH NO,NO3 OR RO2 WE GET
+! AN ONIT WITH ALDEHYDE AND ALKENE FUNCTION
+! WHICH IS COUNTED AS ONIT (LATER) + MACR(NOW)
+!
+! R104
+% Modif ED : formation of SOA for aecbox
+API +  NO3       -> 0.10 OLNN +  0.90 OLND + 0.7 BiA0D + 0.10 BiNIT
+KINETIC ARR2    1.19E-12    -490.0
+!  --- ATKINSON 1994
+!
+! R105
+% Modif ED : formation of SOA for aecbox
+LIM +  NO3       -> 0.13 OLNN +  0.87 OLND + 0.69 BiA0D + 0.27 BiNIT
+KINETIC ARR1    1.22E-11
+!  --- ATKINSON 1994
+!
+! R106
+TPAN + NO3       -> 0.60 ONIT +  0.60 NO3 +  0.40  PAN + //
+                      0.40 HCHO +  0.40 NO2  +       XO2
+KINETIC ARR2    2.20E-14     500.0
+! --- RATE CONSTANT = 0.8 * MACR FROM KIRCHNER AND STOCKWELL, 1996
+! (EUROTRAC)
+! PRODUCTS LIKE TPAN + NO3
+!
+! R107
+ETE +  O3        ->      HCHO +  0.43 CO +   0.37  ORA1 + //
+                      0.26 HO2 +   0.13 H2 +   0.12  HO
+KINETIC ARR2    9.14E-15    2580.0
+!  --- RATE CONSTANT AND PRODUCTS FROM ATKINSON 1994
+!
+! R 108
+% Modif ED : formation of SOA for aecbox
+OLT +  O3        -> 0.64 HCHO +  0.44 ALD  + 0.37  CO   + //
+                    0.14 ORA1 +  0.10 ORA2 + 0.25  HO2  + //
+                    0.40 HO   +  0.03 KET  + 0.03  KETP + //
+                    0.06 CH4  +  0.05 H2   + 0.03  ETH  + //
+                   .006 H2O2  +  0.19 MO2  + 0.10  ETHP
+KINETIC ARR2    4.33E-15    1800.0
+!  --- RATE CONSTANT AND PRODUCTS ESTIMATED FROM ATKINSON 1994
+!  --- RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+!
+! R109
+% Modif ED : formation of SOA for aecbox
+OLI +  O3        -> 0.02 HCHO +  0.99 ALD  + 0.16  KET  + //
+                    0.30 CO   + .011 H2O2  + 0.14  ORA2 + //
+                    0.07 CH4  +  0.22 HO2  + 0.63  HO   + //
+                    0.23 MO2  +  0.12 KETP + 0.06  ETH  + //
+                    0.18 ETHP
+KINETIC ARR2    4.40E-15    845.0
+!  --- RATE CONSTANT AND PRODUCTS ESTIMATED FROM ATKINSON 1994
+!  --- RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+!
+! R110
+DIEN + O3        -> 0.90 HCHO +  0.39 MACR + 0.36  CO   + //
+                    0.15 ORA1 +  0.09 O3P  + 0.30  HO2  + //
+                    0.35 OLT  +  0.28 HO   + 0.05  H2   + //
+                    0.15 ACO3 +  0.03 MO2  + 0.02  KETP + //
+                    0.13 XO2  +  .001 H2O2
+KINETIC ARR2    1.34E-14    2283.0
+! --- RATE CONSTANT ATKINSON 1994
+! PRODUCTS SAME AS FOR ISO + O3
+!
+! R111
+ISO +  O3        -> 0.90 HCHO +  0.39 MACR + 0.36  CO   + //
+                    0.15 ORA1 +  0.09 O3P  + 0.30  HO2  + //
+                    0.35 OLT  +  0.28 HO   + 0.05  H2   + //
+                    0.15 ACO3 +  0.03 MO2  + 0.02  KETP + //
+                    0.13 XO2  + .001 H2O2
+KINETIC ARR2    7.86E-15    1913.0
+! --- RATE CONSTANT ATKINSON 1994
+! PRODUCT YIELDS FITTED TO EXPERIMENTAL DATA FROM:
+! ASCHMANN, 1994; GROSJEAN ET AL., 1993; TREACY ET AL., 1992,
+! KAMES ET AL., 1982
+!
+! R112
+% Modif ED : formation of SOA for aecbox
+API +  O3        -> 0.65 ALD  +  0.53 KET  + 0.14  CO  + //
+                    0.20 ETHP +  0.42 KETP + 0.85  HO  + //
+                    0.10 HO2  +  0.02 H2O2 + //
+                    0.18 BiA0D  + 0.16 BiA1D + 0.05 BiA2D
+KINETIC ARR2    1.01E-15     732.0
+!  --- ATKINSON 1994
+!
+! R 113
+% Modif ED : formation of SOA for aecbox
+LIM +  O3        -> 0.04 HCHO +  0.46 OLT  +  0.14  CO  + //
+                    0.16 ETHP +  0.42 KETP + 0.85  HO   + //
+                    0.10 HO2  +  0.02 H2O2 + 0.79  MACR + //
+                    0.01 ORA1 +  0.07 ORA2 + //
+                    0.09 BiA0D + 0.10 BiA1D
+KINETIC ARR1    2.00E-16
+!  --- ATKINSON 1994
+!
+! R114
+MACR + O3        -> 0.40 HCHO +  0.60 MGLY + 0.13  ORA2  + //
+                    0.54 CO   +  0.08 H2   + 0.22  ORA1  + //
+                    0.29 HO2  +  0.07 HO   + 0.13  OP2   + //
+                    0.13 ACO3
+KINETIC ARR2    1.36E-15    2112.0
+! --- MACR= METHACROLEIN, ATKINSON 1994
+! PRODUCTS FROM KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R 115
+DCB +  O3        -> 0.21 HO   +  0.29 HO2  + 0.66  CO   + //
+                    0.50 GLY  +  0.62 MGLY + 0.28  ACO3 + //
+                    0.16 ALD  +  0.11 PAA  + 0.11  ORA1 + //
+                    0.21 ORA2
+KINETIC ARR1    2.00E-18
+!  --- RATE K: BIERBACH ET AL.1994
+!
+! R116
+TPAN + O3        -> 0.70 HCHO +  0.30 PAN +  0.70  NO2  + //
+                    0.13 CO   +  0.04 H2  +  0.11  ORA1 + //
+                    0.08 HO2  +  .036 HO  +  0.70  ACO3
+KINETIC ARR2    2.46E-15    1700.0
+! --- TPAN = MPAN, RATE CONSTANT GROSJEAN 1993
+!  FROM OL02
+! PRODUCT YIELD OF HCHO AGREES WITH GROSJEAN
+! OTHER PRODUCTS FROM KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R117
+PHO +  NO2 -> 0.10 CSL + ONIT
+KINETIC ARR1  2.00E-11
+!  --- AS CH3O + NO2
+!
+! R 118
+PHO + HO2 ->  CSL
+KINETIC ARR1    1.00E-11
+!  --- AS C6H5CH2O2 + HO2 (LEBRAS, 1997)
+!
+! R119
+ADDT + NO2 -> CSL + HONO
+KINETIC ARR1    3.60E-11
+!  --- ATKINSON 1994
+!
+! R 120
+ADDT -> 0.98 TOLP +  0.02 CSL +  0.02  HO2
+KINETIC TB O2 ARR2    1.66E-17    -1044.0
+!  --- ATKINSON 1994
+!
+! R121
+ADDT + O3        ->      CSL    +     HO
+KINETIC ARR1    5.00E-11
+! --- ASSUMED FROM DIFFERENCE BETWEEN BIERBACH 1994
+! AND ATKINSON 1994
+!
+! R122
+ADDX + NO2       ->      CSL   +      HONO
+KINETIC ARR1    3.60E-11
+!  --- AS ADDT
+!
+! R123
+ADDX       -> 0.98 XYLP +  0.02 CSL +  0.02  HO2
+KINETIC TB O2 ARR2    1.66E-17    -1044.0
+!  --- AS ADDT
+!
+! R124
+ADDX + O3        ->      CSL   +      HO
+KINETIC ARR1    1.00E-11
+! --- AS ADDT
+!
+! R125
+ADDC + NO2       ->      CSL   +      HONO
+KINETIC ARR1    3.60E-11
+!  --- AS ADDT
+!
+! R126
+ADDC       -> 0.98 CSLP +  0.02 CSL +  0.02  HO2
+KINETIC TB O2 ARR2    1.66E-17    -1044.0
+!  --- AS ADDT
+!
+! R127
+ADDC + O3        ->      CSL    +     HO
+KINETIC ARR1    5.00E-11
+!  --- AS ADDT
+!
+! R128
+ACO3 + NO2       ->      PAN
+KINETIC TROE4   9.70E-29    5.6   9.30E-12   1.5
+!  --- NASA 1994
+!
+! R129
+PAN             ->      ACO3    +    NO2
+KINETIC RCFE 9.70E-29 5.6 9.30E-12  1.5  1.16D28   13954.
+!  --- ATKINSON 1994
+!
+! R130
+TCO3 + NO2       ->      TPAN
+KINETIC TROE4   9.70E-29    5.6   9.30E-12    1.5
+!  --- AS PAN
+!
+! R131
+TPAN            ->      TCO3   +     NO2
+KINETIC RCFE  9.70E-29    5.6   9.30E-12   1.5  1.16D28    13954.
+!  --- AS PAN
+!
+! R132
+MO2 +  NO        ->      HCHO   +     HO2      +   NO2
+KINETIC ARR2    4.20E-12    -180.0
+!  --- NASA 1994
+!
+! R133
+ETHP + NO        ->      ALD    +     HO2   +      NO2
+KINETIC ARR1    8.70E-12
+!  --- NASA 1994
+!
+! R134
+HC3P + NO        -> .047 HCHO +  .233 ALD +  .623  KET  + //
+                    .063 GLY  +  .742 HO2 +  .150  MO2  + //
+                    .048 ETHP +  .048 XO2 +  .059  ONIT + //
+                    .941 NO2
+KINETIC ARR1    4.00E-12
+! --- RATE K FROM 2-N-C4H9O2 + NO (LACTOZ) AND
+! --- FROM T-C4H9O2 + NO (LIGHTFOOT 1992) AS REFERENCED BY
+! --- KIRCHNER AND STOCKWELL, 1996
+!
+! R135
+HC5P + NO        -> .021 HCHO +  .211 ALD  +  .722  KET  + //
+                    .599 HO2  +  .031 MO2  +  .245  ETHP + //
+                    .334 XO2  +  .124 ONIT +  .876  NO2
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R136
+HC8P + NO        -> .150 ALD  +  .642 KET +  .133  ETHP + //
+                    .261 ONIT +  .739 NO2 +  .606  HO2  + //
+                    .416 XO2
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R137
+ETEP + NO -> 1.6 HCHO + HO2 + NO2 + 0.2 ALD
+KINETIC ARR1    9.00E-12
+!  --- ATKINSON 1994
+!
+! R138
+OLTP + NO -> 0.94 ALD + HCHO + HO2 + NO2 + 0.06 KET
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R139
+OLIP + NO -> HO2 + 1.71 ALD + 0.29  KET + NO2
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R140
+ISOP + NO -> .446 MACR + .354 OLT  + .847  HO2  + //
+              .847 NO2 + .153 ONIT + .606  HCHO
+KINETIC ARR1    4.00E-12
+! --- KIRCHNER AND STOCKWELL, 1996
+!
+! R141
+APIP + NO -> 0.80 HO2 + 0.80 ALD + 0.80  NO2 + //
+             0.80 KET + 0.20 ONIT
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R142
+LIMP + NO -> 0.65 HO2  +  0.40 MACR  + 0.25  OLI + //
+             0.25 HCHO +  0.65 NO2   + 0.35  ONIT
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R143
+% Modif ED : formation of SOA for aecbox
+TOLP + NO -> 0.95 NO2  +  0.95 HO2  +  1.20  GLY + //
+             0.50 DCB  +  0.05 ONIT +  0.65  MGLY + //
+             0.027 AnBlP + 0.211 AnBmP
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R144
+% Modif ED : formation of SOA for aecbox
+XYLP +  NO -> 0.95 NO2 +  0.95 HO2  + 0.35  GLY  + //
+              0.95 DCB +  0.05 ONIT + 0.60  MGLY + //
+              0.020 AnBlP + 0.13 AnBmP
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R145
+CSLP + NO -> GLY + MGLY + NO2 + HO2
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R146
+ACO3 + NO -> MO2 + NO2
+KINETIC ARR1    2.00E-11
+!  --- ATKINSON 1994, LIGHTFOOD 1992
+!
+! R147
+TCO3 + NO -> NO2 + ACO3 + HCHO
+KINETIC ARR1    2.00E-11
+! --- TCO3 FOR METHACROLEINYL PEROXY RADICAL
+! RATE CONSTANT FROM ACO3, KIRCHNER AND STOCKWELL, 1996
+!
+! R148
+KETP + NO -> 0.54 MGLY +  0.46 ALD +  0.23  ACO3  + //
+             0.77 HO2  +  0.16 XO2 +  NO2
+KINETIC ARR1    4.00E-12
+! --- RATE K FROM HCP3 + NO
+! PRODUCTS 50% FROM ACETÓNE AND 50% FROM MEK
+!
+! R149
+OLNN + NO -> ONIT + NO2 + HO2
+KINETIC ARR1   4.00E-12
+! --- RATE K FROM HCP3 + NO
+! IT IS ASSUMED THAT NO3 + ISOPRENE IS THE MOST IMPORTANT
+! REACTION ON THE REGIONAL SCALE. THEREFORE THE PRODUCTS
+! YIELDS ARE SET TO ISOPRENE
+!
+! R150
+OLND + NO -> .287 HCHO + 1.24 ALD + .464  KET + 2.00 NO2
+KINETIC ARR1    4.00E-12
+!  --- RATE K FROM HCP3 + NO
+!
+! R151
+MO2 + HO2 -> OP1
+KINETIC ARR2    3.80E-13   -800.0
+!  --- NASA 1994
+!
+! R152
+ETHP + HO2 -> OP2
+KINETIC ARR2    7.50E-13   -700.0
+!  --- NASA 1994
+!
+! R153
+HC3P + HO2 -> OP2
+KINETIC ARR2    1.66E-13   -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R154
+HC5P + HO2 -> OP2
+KINETIC ARR2    1.66E-13   -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R155
+HC8P + HO2 -> OP2
+KINETIC ARR2    1.66E-13   -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R156
+ETEP + HO2 -> OP2
+KINETIC ARR2    1.90E-13   -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+!
+! R157
+OLTP + HO2 -> OP2
+KINETIC ARR2    1.66E-13   -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R158
+OLIP + HO2 -> OP2
+KINETIC ARR2    1.66E-13   -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+!
+! R159
+ISOP + HO2 -> OP2 + 0.2818 BiPER + 0.02970 BiDER
+KINETIC ARR2    1.28E-13   -1300.0
+!  --- AS HO2 + CH2=CHCH2O, LEBRAS  1997
+!
+! R160
+APIP + HO2 -> OP2
+KINETIC ARR1    1.50E-11
+! --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+!
+! R161
+LIMP + HO2 -> OP2
+KINETIC ARR1    1.50E-11
+! --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+!
+! R162
+% Modif ED : formation of SOA for aecbox
+TOLP + HO2 -> OP2 + 0.22 AnClP
+KINETIC ARR2    3.75E-13    -980.0
+!  --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+!
+! R163
+% Modif ED : formation of SOA for aecbox
+XYLP + HO2 -> OP2 + 0.22 AnClP
+KINETIC ARR2    3.75E-13    -980.0
+!  --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+!
+! R164
+CSLP + HO2 -> OP2
+KINETIC ARR2    3.75E-13    -980.0
+!  --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+!
+! R165
+ACO3 + HO2 -> PAA
+KINETIC ARR2    1.15E-12    -550.0
+! --- LEBRAS 1997
+!
+! R166
+ACO3 + HO2 -> ORA2 + O3
+KINETIC ARR2    3.86E-16   -2640.0
+!  --- LEBRAS 1997
+!
+! R167
+TCO3 + HO2 -> OP2
+KINETIC ARR2    1.15E-12    -550.0
+! --- KIRCHNER AND STOCKWELL, 1996
+!
+! R168
+TCO3 + HO2 -> ORA2 + O3
+KINETIC ARR2    3.86E-16   -2640.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R169
+KETP + HO2 -> OP2
+KINETIC ARR2    1.15E-13   -1300.0
+!   --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+!
+! R170
+OLNN + HO2 -> ONIT
+KINETIC ARR2    1.66E-13   -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! THIS IS ALSO A PEROXIDE, BUT IT IS TREATED AS AN
+! ONIT TO ALLOW FOR NITROGEN CONSERVATION
+!
+! R171
+OLND + HO2 -> ONIT
+KINETIC ARR2    1.66E-13   -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! THIS IS ALSO A PEROXIDE, BUT IT IS TREATED AS AN
+! ONIT TO ALLOW FOR NITROGEN CONSERVATION
+!
+! R172
+MO2 +  MO2 -> 1.33 HCHO +  0.66 HO2
+KINETIC ARR2    9.10E-14    -416.0
+! --- RATE CONSTANT AS MO2 + MO2, LIGHTFOOT 1992
+! 33% RO + 67% ROH LIGHTFOOT 1992
+!
+! R173
+ETHP + MO2 -> 0.75 HCHO + HO2 + 0.75  ALD
+KINETIC ARR2    1.18E-13    -158.0
+! --- AS 2*SQRT(KM*KP)
+! --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+! R174
+HC3P + MO2 -> .810 HCHO + .992 HO2 +  .580  ALD  + //
+              .018 KET  + .007 MO2 +  .005  MGLY + //
+              .085 XO2  +  .119 GLY
+KINETIC ARR2    9.46E-14    -431.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R175
+HC5P + MO2       -> .829 HCHO +  .946 HO2  +  .523  ALD  + //
+                    .240 KET  +  .014 ETHP +  .245  XO2  + //
+                    .049 MO2
+KINETIC ARR2    1.00E-13    -467.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R176
+HC8P + MO2       -> .753 HCHO +  .993 HO2 + .411  ALD  + //
+                    .419 KET  +  .322 XO2 + .013  ETHP
+KINETIC ARR2    4.34E-14    -633.
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R177
+ETEP + MO2       -> 1.55 HCHO  + HO2 +  0.35  ALD
+KINETIC ARR2    1.71E-13    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R178
+OLTP + MO2 -> 1.25 HCHO + HO2 + .669  ALD + .081 KET
+KINETIC ARR2    1.46E-13    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+!
+! R179
+OLIP + MO2 -> .755 HCHO + HO2 + .932  ALD + .313 KET
+KINETIC ARR2    9.18E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+!
+! R180
+ISOP + MO2 -> .550 MACR + .370 OLT + HO2 + .080 OLI + 1.09 HCHO + 0.16 DIOL
+KINETIC ARR2    1.36E-13    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+!
+! R181
+APIP + MO2 -> 2.00 HO2 + ALD + HCHO + KET
+KINETIC ARR2    3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+!
+! R182
+LIMP + MO2 -> 2.00 HO2 + 0.60 MACR + 0.40 OLI + 1.40 HCHO
+KINETIC ARR2    3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+!
+! R183
+% Modif ED : formation of SOA for aecbox
+TOLP + MO2 -> HCHO + HO2 + 0.65 GLY + DCB + 0.35 MGLY + 0.22 AnClP
+KINETIC ARR2    3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! ONLY RADICAL CHANNEL ASSUMED
+!
+! R184
+% Modif ED : formation of SOA for aecbox
+XYLP + MO2 -> HCHO + HO2 + 0.37 GLY + DCB + 0.63 MGLY + 0.22 AnClP
+KINETIC ARR2    3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! ONLY RADICAL CHANNEL ASSUMED
+!
+! R185
+CSLP + MO2 -> GLY + MGLY + 2.00 HO2 + HCHO
+KINETIC ARR2    3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! ONLY RADICAL CHANNEL ASSUMED
+!
+! R186
+ACO3 + MO2 -> HCHO + HO2 + MO2
+KINETIC ARR2    3.21E-11     440.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R187
+ACO3 + MO2 -> HCHO + ORA2
+KINETIC ARR2    2.68E-16   -2510.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R188
+TCO3 + MO2 -> ACO3 +  2.00 HCHO  + HO2
+KINETIC ARR2    3.21E-11     440.0
+!  --- AS MO2 + ACO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R189
+TCO3 + MO2 -> HCHO + ORA2
+KINETIC ARR2    2.68E-16   -2510.0
+!  --- AS MO2 + ACO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R190
+KETP + MO2 -> 0.40 MGLY +  0.30 ALD +  0.30  HKET + //
+              0.88 HO2  +  0.08 XO2 +  0.12  ACO3 + 0.75 HCHO
+KINETIC ARR2    6.91E-13    -508.0
+! --- K,  ESTIMATED FOR KET = ACETONE,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R191
+OLNN + MO2 -> 0.75 HCHO + HO2 + ONIT
+KINETIC ARR2    1.60E-13    -708.0
+!  --- AS ISO-ONO2 + MO2
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R192
+OLND + MO2 -> .960 HCHO +  .500 HO2 +  .640  ALD  + //
+              .149 KET  + .500 NO2  +  .500  ONIT
+KINETIC ARR2    9.68E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R193
+ETHP + ACO3 -> ALD + .500 HO2 + 0.5 MO2 + 0.5 ORA2
+KINETIC ARR2    1.03E-12    -211.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+!
+! R194
+HC3P + ACO3      -> .724 ALD  +  .127 KET  +  .488  HO2  + //
+                    .508 MO2  +  .499 ORA2 +  .091  HCHO + //
+                    .006 ETHP +  .071 XO2  +  .004  MGLY + //
+                    .100 GLY
+KINETIC ARR2    6.90E-13    -460.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R195
+HC5P + ACO3      -> .677 ALD  + .330 KET  + .438  HO2  + //
+                    .554 MO2  + .495 ORA2 + .076  HCHO + //
+                    .018 ETHP + .237 XO2
+KINETIC ARR2    5.59E-13    -522.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R196
+HC8P + ACO3      -> .497 ALD +   .581 KET  + .489  HO2  + //
+                    .507 MO2 +   .495 ORA2 + .015  ETHP + //
+                    .318 XO2
+KINETIC ARR2    2.47E-13     -683.
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R197
+ETEP +  ACO3      -> 0.8 HCHO +  0.6  ALD +  0.5   HO2 + //
+                     0.5 MO2  +  0.5  ORA2
+KINETIC ARR2    9.48E-13    -765.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+!
+! R198
+OLTP + ACO3      -> .859 ALD +   .501 HCHO + .501  HO2  + //
+                    .501 MO2 +   .499 ORA2 + .141  KET
+KINETIC ARR2    8.11E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! --- K,  ESTIMATED FROM SELF REACTIONS,
+! 50% RO + 50% ROH ASSUMED
+!
+! R199
+OLIP +  ACO3      -> .941 ALD +   .510 HO2 +  .510  MO2 + //
+                     .569 KET +   .490 ORA2
+KINETIC ARR2    5.09E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996,
+! 50% RO + 50% ROH ASSUMED
+!
+! R200
+ISOP + ACO3      -> .771 MACR +  .229 OLT  + .506  HO2  + //
+                    .494 ORA2 +  .340 HCHO + .506  MO2 + 0.16 DIOL
+KINETIC ARR2    7.60E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R201
+APIP +  ACO3      -> HO2 + ALD + MO2 + KET
+KINETIC ARR2    7.40E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R202
+LIMP + ACO3 -> HO2 + 0.60 MACR + 0.40 OLI + 0.40 HCHO + MO2
+KINETIC ARR2    7.40E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R203
+% Modif ED : formation of SOA for aecbox
+TOLP + ACO3 -> MO2 + HO2 + DCB + 0.65 GLY  +  0.35 MGLY + 0.22 AnClP
+KINETIC ARR2    7.40E-13    -765.0
+!  --- K,  ESTIMATED (TOLUENE)
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R204
+% Modif ED : formation of SOA for aecbox
+XYLP + ACO3 -> MO2 + HO2 + DCB + 0.37 GLY +   0.63 MGLY + 0.22 AnClP
+KINETIC ARR2    7.40E-13    -765.0
+!  --- K,  ESTIMATED (TOLUENE)
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R205
+CSLP + ACO3 -> GLY + MGLY + HO2 + MO2
+KINETIC ARR2    7.40E-13    -765.0
+! ---  K,  ESTIMATED (TOLUENE)
+!  --- KIRCHNER AND STOCKWELL, 1996
+! ONLY RADICAL CHANNEL ASSUMED
+!
+! R206
+ACO3 + ACO3      ->  2.0 MO2
+KINETIC ARR2    2.80E-12    -530.0
+!  --- LIGHTFOOT 1992
+!
+! R207
+TCO3 + ACO3      ->      MO2    +     ACO3   +     HCHO
+KINETIC ARR2    2.80E-12    -530.0
+!  --- ACO3 + ACO3 LIGHTFOOT 1992
+!
+! R208
+KETP + ACO3      -> 0.54 MGLY +  0.35 ALD +  0.11  KET  + //
+                    0.12 ACO3 +  0.38 HO2 +  0.08  XO2  + //
+                    0.50 MO2  +  0.50 ORA2
+KINETIC ARR2    7.51E-13    -565.0
+! --- K,  ESTIMATED,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R209
+OLNN + ACO3 -> ONIT +  0.50 MO2 +  0.50  ORA2 + 0.50 HO2
+KINETIC ARR2    8.85E-13    -765.0
+!  --- AS ISO-ONO2 + ACO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R210
+OLND + ACO3      -> .207 HCHO + .650 ALD  + .167  KET  + //
+                    .516 MO2  + .484 ORA2 + .484  ONIT + //
+                    .516 NO2
+KINETIC ARR2    5.37E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R211
+OLNN + OLNN      -> 2.00 ONIT  +      HO2
+KINETIC ARR2    7.00E-14   -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R212
+OLNN + OLND      -> .202 HCHO + .640 ALD +  .149  KET  + //
+                    .500 HO2  + .500 NO2 +  1.50  ONIT
+KINETIC ARR2    4.25E-14   -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R213
+OLND + OLND -> .504 HCHO + 1.21 ALD + .285 KET + ONIT + NO2
+KINETIC ARR2    2.96E-14   -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R214
+MO2 +  NO3       ->      HCHO  +      HO2  +       NO2
+KINETIC ARR1    1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R215
+ETHP + NO3       ->      ALD +        HO2   +      NO2
+KINETIC ARR1    1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R216
+HC3P + NO3       -> .048 HCHO +  .243 ALD  + .670  KET  + //
+                    .063 GLY  +  .792 HO2  + .155  MO2  + //
+                    .053 ETHP +  .051 XO2  +       NO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R217
+HC5P + NO3       -> .021 HCHO  +  .239 ALD +  .828  KET  + //
+                    .699 HO2   +  .040 MO2 +  .262  ETHP + //
+                    .391 XO2   +       NO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R218
+HC8P + NO3       -> .187 ALD  +  .880 KET +  .155  ETHP  + //
+                         NO2  +  .845 HO2 +  .587  XO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R219
+ETEP + NO3 -> 1.6 HCHO + HO2 + NO2 + 0.2 ALD
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R220
+OLTP + NO3 -> 0.94 ALD + HCHO + HO2 + NO2 + 0.06 KET
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R221
+OLIP + NO3 -> HO2 + 1.71 ALD + 0.29  KET + NO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R222
+ISOP + NO3 -> .600 MACR + .400 OLT + HO2 + NO2 + .686 HCHO
+KINETIC ARR1    1.20E-12
+!  --- RATE CONSTANT EQUAL HCP + NO3
+!
+! R223
+APIP + NO3 -> HO2 + ALD + NO2 + KET
+KINETIC ARR1    1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R224
+LIMP + NO3 -> HO2 + 0.60 MACR + 0.40 OLI + 0.40 HCHO + NO2
+KINETIC ARR1    1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+!
+! R225
+% Modif ED : formation of SOA for aecbox
+TOLP + NO3 -> NO2 + HO2 + 0.50 DCB + 1.30 GLY +  0.70 MGLY + //
+              0.027 AnBlP + 0.211 AnBmP
+KINETIC ARR1    1.20E-12
+! --- KIRCHNER AND STOCKWELL, 1996
+! --- RATE K FROM HCP3 + NO3
+! TOLP REPRESENTS BOTH HO ABSTRACTION AND HO ADDUCT RADICAL
+!
+! R226
+% Modif ED : formation of SOA for aecbox
+XYLP + NO3 -> NO2 + HO2 + DCB + 0.74 GLY +  1.26 MGLY + //
+              0.020 AnBlP + 0.13 AnBmP
+KINETIC ARR1    1.20E-12
+! --- KIRCHNER AND STOCKWELL, 1996
+! --- RATE K FROM HCP3 + NO3
+! TOLP REPRESENTS BOTH HO ABSTRACTION AND HO ADDUCT RADICAL
+!
+! R227
+CSLP + NO3 -> GLY + MGLY + NO2 + HO2
+KINETIC ARR1    1.20E-12
+!  --- RATE CONSTANT FROM MO2+NO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R228
+ACO3 + NO3       ->      MO2   +      NO2
+KINETIC ARR1    4.00E-12
+!  --- WAYNE 1995
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R229
+TCO3 + NO3       ->      NO2    +     ACO3   +     HCHO
+KINETIC ARR1    4.00E-12
+!  --- ESTIMATED TO BE EQUAL TO ACO3 + NO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R230
+KETP +  NO3       -> 0.54 MGLY +  0.46 ALD +  0.23  ACO3 + //
+                     0.77 HO2  +  0.16 XO2 +        NO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R231
+OLNN + NO3       ->      ONIT  +      NO2  +       HO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R232
+OLND + NO3 -> .280 HCHO +  1.24 ALD +  .469  KET + 2.00 NO2
+KINETIC ARR1    1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R233
+XO2 +  HO2       ->      OP2
+KINETIC ARR2    1.66E-13   -1300.0
+!  --- AS PROP + HO2
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R234
+XO2 +  MO2       ->      HCHO  +      HO2
+KINETIC ARR2    5.99E-15   -1510.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R235
+XO2 +  ACO3      ->      MO2
+KINETIC ARR2    3.40E-14   -1560.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R236
+XO2 +  XO2       ->
+KINETIC ARR2    7.13E-17   -2950.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R237
+XO2 +  NO        ->      NO2
+KINETIC ARR1    4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R238
+XO2 +  NO3       ->      NO2
+KINETIC ARR1    1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!
+! R239
+HO2              ->      0.5 H2O2
+KINETIC ARR1    1.20E-12
+!  --- HETEROGENEOUS REACTION !! change rate after spack
+!
+! R240
+NO2              ->      0.5 HONO + 0.5 HNO3
+KINETIC ARR1    1.20E-12
+!  --- HETEROGENEOUS REACTION !! change rate after spack
+!
+! R241
+NO3              ->      HNO3
+KINETIC ARR1    1.20E-12
+!  --- HETEROGENEOUS REACTION !! change rate after spack
+!
+! R242
+N2O5             ->      2 HNO3
+KINETIC ARR1    1.20E-12
+!  --- HETEROGENEOUS REACTION !! change rate after spack
+!
+! R243
+% Modif ED : formation of SOA for aecbox
+HUM + HO -> 0.74 BiBmP + 0.26 BiBlP + HO
+KINETIC ARR1    2.93E-10
+!
+! R247
+DIOL + HO       ->    0.16 BiMT + HO
+KINETIC ARR1  13.0E-11
+! Yields taken from from Böge et al.
+!
+! R248
+ISON + NO3       ->      0.07385 BiNIT3 + NO3
+KINETIC ARR1   6.61E-13
+! END OF MECHANISM
+!
+! R249
+% Modif ED : formation of SOA for aecbox
+BPI +  HO        ->      APIP + 0.07 BiA0D + 0.08 BiA1D + 0.06 BiA2D
+KINETIC ARR2    2.38E-11    -357.0
+!  --- ATKINSON 1994
+!
+! R250
+% Modif ED : formation of SOA for aecbox
+BPI +  NO3       -> 0.10 OLNN +  0.90 OLND + 0.02 BiA0D + 0.63 BiNIT
+KINETIC ARR1    2.51E-12
+!  --- ATKINSON 1994
+!
+! R251
+% Modif ED : formation of SOA for aecbox
+BPI +  O3        -> 0.65 ALD  +  0.53 KET  + 0.14  CO  + //
+                    0.20 ETHP +  0.42 KETP + 0.85  HO  + //
+                    0.10 HO2  +  0.02 H2O2 + //
+                    0.09 BiA0D  + 0.13 BiA1D + 0.04 BiA2D
+KINETIC ARR1    1.50E-17
+!  --- ATKINSON 1994
+!
+! R252
+POAlP + HO       -> SOAlP + HO
+KINETIC ARR1   2.00E-11
+!
+! R253
+POAmP + HO       -> SOAmP + HO
+KINETIC ARR1   2.00E-11
+!
+! R254
+POAhP + HO       -> SOAhP + HO
+KINETIC ARR1   2.00E-11
+END
+

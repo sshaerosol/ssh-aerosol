@@ -1,0 +1,2184 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File for gas-phase mechanism RACM2
+%
+% Reference: see below
+%
+% Modifications:
+%
+% 2009/08/28(YS): Modification for the SOA model
+% 2010/02/26(Youngseob KIM): the rate constant of R066 is corrected by
+%         the recommendation of IUPAC from 2.50E-22 to 1.0E-22
+% 2010/03/03(Youngseob KIM): SOA formations modified to consider NOx dependencies
+% 2010/03/04(YK): Two reactions added (TOLP+HO2 and XYLP + HO2)
+%
+% 2011/07/27 (Youngseob KIM and Christian Seigneur):
+% - The reaction no.50 is updated from "Mollner et al., Rate of gas phase
+%   association of hydroxyl radical and nitrogen dioxide, Science, vol 330,
+%   2010"
+% - The rate constant of the reaction is changed as 0.868 x k_racm2
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+!! **********************************************************************
+!!  FILE:        RACM2.5Gb.mch final frozen (I hope)
+!!  DATE:        December 2, 2007
+!!  VERSION:     2.5.F9 - include PAN photo and changing ORA1+HO prods
+!!  ID: RACM Version 2.5F9, December 23, 2008
+!!  LAST UPDATE: DEC 23, 2008, 4:00 PM
+!!  --------------------------------------------------------------------
+!!  Based on REGIONAL ATMOSPHERIC CHEMISTRY MECHANISM  (RACM)  Version 1.3
+!!  Reference: W.R. Stockwell, F. Kirchner, M. Kuhn, and S. Seefeld, "A
+!!  New Mechanism for Regional Atmospheric Chemistry Modeling", J. of
+!!  Geophys. Res., 1997.
+!!  --------------------------------------------------------------------
+!!  FOR MORE INFORMATION REGARDING THIS MECHANISM CONTACT:
+!!  William R. Stockwell or Wendy Goliff
+!!  Division of Atmospheric Sciences
+!!  Desert Research Institute
+!!  2215 Raggio Parkway
+!!  Reno, NV 89512-1095
+!!  E-MAIL:      wstock@dri.edu or Wendy.Goliff@dri.edu
+!!  Telephone:   (775) 674-7058 or (775) 674-7026
+!!  FAX:         (775) 674-7060
+! **********************************************************************
+! The RACM2 mechanism is based upon the earlier Regional Atmospheric
+! Chemistry Mechanism (RACM) mechanism.  It is intended to be valid for
+! conditions ranging from remote to polluted and from the Earth's
+! surface through the upper troposphere.  The RACM2 mechanism includes
+! 275 reactions and 89 species: 17 stable inorganic species, 4
+! inorganic intermediates, 32 stable organic species (4 of these are
+! primarily of biogenic origin) and 24 organic intermediates.
+! **********************************************************************
+!
+! Modifications for Version 2.0  (Feb. 14, 2000)
+!
+!
+SET UNIT GAS MOLCM3
+SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
+% R001
+NO2             ->      O3P    +     NO
+KINETIC PHOTOLYSIS   0.931026E-02  0.921901E-02  0.890995E-02  0.837928E-02  0.760031E-02  0.652988E-02  0.510803E-02  0.329332E-02  0.174121E-02  0.511393E-03  0.163208E-03
+!  --- C.S. AND Q.Y. NASA 2006
+% R002
+O3              ->      O1D    +     O2
+KINETIC PHOTOLYSIS   0.352348E-04  0.339820E-04  0.301078E-04  0.242445E-04  0.172587E-04  0.102977E-04  0.463950E-05  0.128749E-05  0.290804E-06  0.487557E-07  0.185350E-07
+! --- CROSS SECTIONS: NASA 2006
+! QUANTUM YIELDS: NASA 2006
+% R003
+O3              ->      O3P    +     O2
+KINETIC PHOTOLYSIS   0.492758E-03  0.489069E-03  0.476368E-03  0.454585E-03  0.423344E-03  0.381150E-03  0.324899E-03  0.247082E-03  0.160308E-03  0.397670E-04  0.557331E-05
+!8.87492E-05  8.69750E-05  8.29119E-05  7.55582E-05  6.44918E-05  5.21011E-05  3.98963E-05  2.75217E-05  1.61441E-05  !1.32389E-05  9.60889E-06
+! --- CROSS SECTIONS: NASA 2006
+! QUANTUM YIELDS: ASSUMED TO BE 1-Q.Y.(O3->O1D)
+% R004
+HONO            ->      HO     +     NO
+KINETIC PHOTOLYSIS   0.204671E-02  0.202572E-02  0.195491E-02  0.183337E-02  0.165516E-02  0.141113E-02  0.109002E-02  0.689444E-03  0.361035E-03  0.108950E-03  0.346516E-04
+!  --- CROSS SECTIONS: NASA 2006
+% R005
+HNO3            ->      HO     +     NO2
+KINETIC PHOTOLYSIS   0.747531E-06  0.729946E-06  0.674094E-06  0.585322E-06  0.470402E-06  0.339698E-06  0.208199E-06  0.964783E-07  0.382903E-07  0.830301E-08  0.224170E-08
+! --- CROSS SECTIONS: NASA 2006
+! QUANTUM YIELDS: ASSUMED TO BE UNITY OVER UV ABSORPTION RANGE
+% R006
+HNO4            -> 0.80 HO2  +  0.80 NO2 +  0.20  HO + 0.20 NO3
+KINETIC PHOTOLYSIS   0.503836E-05  0.492337E-05  0.455701E-05  0.397119E-05  0.320567E-05  0.232384E-05  0.142322E-05  0.648606E-06  0.246502E-06  0.469613E-07  0.118499E-07
+! --- CROSS SECTIONS: NASA 2006 - Q.Y. assumed to be 1
+! as done by Molina - STOICHIOMETRY NASA 2006 ABOVE 200 NM
+% R007
+NO3             ->      NO     +     O2
+KINETIC PHOTOLYSIS   0.265649E-01  0.264102E-01  0.258524E-01  0.249074E-01  0.235172E-01  0.215841E-01  0.188522E-01  0.147419E-01  0.971212E-02  0.225719E-02  0.250693E-03
+!  --- C.S. AND Q.Y. NASA 2006
+% R008
+NO3             ->      NO2    +     O3P
+KINETIC PHOTOLYSIS   0.212996      0.211689      0.207152      0.199076      0.187348      0.170929      0.147742      0.113042      0.718608E-01  0.162667E-01  0.252856E-02
+!  --- C.S. AND Q.Y. NASA 2006
+% R009
+H2O2            ->      HO     +     HO
+KINETIC PHOTOLYSIS   0.839458E-05  0.825592E-05  0.780494E-05  0.706032E-05  0.603528E-05  0.475883E-05  0.329698E-05  0.180604E-05  0.842157E-06  0.221356E-06  0.624535E-07
+! --- C.S. NASA 2006  Q.Y. is believed to be unity
+% R010
+HCHO            ->      H2     +     CO
+KINETIC PHOTOLYSIS   0.466946E-04  0.460643E-04  0.439841E-04  0.404765E-04  0.354845E-04  0.289656E-04  0.210065E-04  0.121895E-04  0.597941E-05  0.166295E-05  0.476221E-06
+! --- CROSS SECTIONS AND QY: NASA 2006
+% R011
+HCHO            ->      HO2    +     HO2    +     CO
+KINETIC PHOTOLYSIS   0.322056E-04  0.316290E-04  0.297592E-04  0.266797E-04  0.224649E-04  0.172798E-04  0.114907E-04  0.587024E-05  0.250654E-05  0.553383E-06  0.139443E-06
+! --- CROSS SECTIONS AND QY: NASA 2006
+% R012
+ACD             ->      MO2    +     HO2    +     CO
+KINETIC PHOTOLYSIS   0.610507E-05  0.595723E-05  0.548715E-05  0.473800E-05  0.376612E-05  0.266260E-05  0.156576E-05  0.668185E-06  0.236179E-06  0.423517E-07  0.111857E-07
+! --- CROSS SECTIONS AND QY: NASA 2006
+! --- USE REACTION 1 IN NASA 2006 ONLY
+% R013
+ALD             ->      ETHP   +     HO2    +     CO
+KINETIC PHOTOLYSIS    3.33230E-05  3.25001E-05  3.05718E-05  2.72085E-05  2.23195E-05  1.75064E-05  1.31494E-05  8.91010E-06  4.87297E-06  4.07420E-06  2.91244E-06
+! --- CROSS SECTIONS: NASA 2006
+! --- NASA 2006 HAS NO RECOMMENDATION FOR QY
+! --- HEICKLEN ET AL. 1986 FOR QY
+% R014
+ACT             ->      ACO3   +     MO2
+KINETIC PHOTOLYSIS   3.75547E-06  3.61571E-06  3.29098E-06  2.74387E-06  2.01174E-06  1.41825E-06  9.89407E-07  6.22747E-07  2.60195E-07  2.30611E-07  1.52424E-07
+! --- ACETONE
+! --- CROSS SECTIONS: NASA 2006
+% R015
+MEK             ->      ACO3  +  0.50 ETHP +  0.50  MO2
+KINETIC PHOTOLYSIS   2.32094E-05  2.26238E-05  2.12508E-05  1.88562E-05  1.53810E-05  1.19876E-05  8.96004E-06  6.04283E-06  3.25604E-06  2.72663E-06  1.93833E-06
+! --- CH3COC2H5
+! --- CROSS SECTIONS:  Yujing and Mellouki 2000
+! --- QUANTUM YIELDS:  0.34 Raben and Moortgat 1996
+% R016
+KET             ->      ACO3   +     ETHP
+KINETIC PHOTOLYSIS   0.106563E-05  0.104198E-05  0.966425E-06  0.844984E-06  0.685160E-06  0.499504E-06  0.308206E-06  0.142186E-06  0.551369E-07  0.111617E-07  0.290941E-08
+!2.32094E-05  2.26238E-05  2.12508E-05  1.88562E-05  1.53810E-05  1.19876E-05  8.96004E-06  6.04283E-06  3.25604E-06  !2.72663E-06  1.93833E-06
+! --- SPECIES TREATED AS CH3COC2H5
+! --- CROSS SECTIONS:  Yujing and Mellouki 2000
+! --- QUANTUM YIELDS:  0.34 Raben and Moortgat 1996
+% R017
+HKET            ->      ACO3    +    HCHO    +    HO2
+KINETIC PHOTOLYSIS   0.106563E-05  0.104198E-05  0.966425E-06  0.844984E-06  0.685160E-06  0.499504E-06  0.308206E-06  0.142186E-06  0.551369E-07  0.111617E-07  0.290941E-08
+!2.32094E-05  2.26238E-05  2.12508E-05  1.88562E-05  1.53810E-05  1.19876E-05  8.96004E-06  6.04283E-06  3.25604E-06  !2.72663E-06  1.93833E-06
+! --- RATE CONSTANT TAKEN FROM KET
+! PRODUCTS FROM HYDROXYACETONE
+% R018
+MACR            -> 0.66 HO2 +  0.33 MACP + 0.67 CO + //
+                      0.67 HCHO +  0.67 ACO3 +  0.34  HO + //
+                      0.34 XO2
+KINETIC PHOTOLYSIS   0.176977E-05  0.174636E-05  0.166900E-05  0.153840E-05  0.135225E-05  0.110852E-05  0.809392E-06  0.474670E-06  0.235099E-06  0.668358E-07  0.197291E-07
+! --- NASA 2006
+% R019
+MVK             -> 0.7  UALD +  0.7  CO +   0.3   MO2 + 0.3  MACP
+KINETIC PHOTOLYSIS   1.61228E-06  1.58741E-06  1.53020E-06  1.43026E-06  1.27595E-06  1.08988E-06  8.71601E-07  6.24106E-07  4.00412E-07  3.28779E-07  2.48407E-07
+! --- NASA 2006
+% R020
+UALD            -> 1.22 CO  +   .434 ALD +  0.35  HCHO + //
+                      .216 KET  +   1.22 HO2 +  .784  ACO3
+KINETIC PHOTOLYSIS   2.09640E-05  2.07371E-05  2.02323E-05  1.93650E-05  1.79813E-05  1.60391E-05  1.32945E-05  9.77963E-06  6.76709E-06  5.51234E-06  4.28552E-06
+! --- BASED UPON CROTONALDEHYDE
+! --- MAGNERON ET AL. 2002
+% R021
+GLY             -> 2.00 HO2  +  2.00 CO
+KINETIC PHOTOLYSIS   1.05316E-04  1.04155E-04  1.01551E-04  9.70650E-05  9.00485E-05  8.07463E-05  6.80330E-05  5.05570E-05  3.62574E-05  2.91495E-05  2.30528E-05
+! --- REACTION (1) IN NASA 2006
+! --- C.S. AND Q.Y.: NASA 2006
+% R022
+GLY             -> 1.00 H2   +  2.00 CO
+KINETIC PHOTOLYSIS   1.16562E-05  1.14377E-05  1.09291E-05  1.00376E-05  8.68964E-06  7.19340E-06  5.61656E-06  3.94228E-06  2.39170E-06  1.97474E-06  1.46205E-06
+! --- REACTION (2) IN NASA 2006
+! --- C.S. AND Q.Y.: NASA 2006
+% R023
+GLY             -> 1.00 HCHO +  2.00 CO
+KINETIC PHOTOLYSIS   5.05456E-05  4.97388E-05  4.78764E-05  4.46129E-05  3.95885E-05  3.36475E-05  2.68457E-05  1.91777E-05  1.22537E-05  1.00539E-05  7.59130E-06
+! --- REACTION (3) IN NASA 2006
+! --- C.S. AND Q.Y.: NASA 2006
+% R024
+MGLY            ->      ACO3   +    HO2   +     CO
+KINETIC PHOTOLYSIS   0.120477E-03  0.119066E-03  0.114362E-03  0.106443E-03  0.951654E-04  0.803121E-04  0.616157E-04  0.390953E-04  0.204535E-04  0.566664E-05  0.177264E-05
+! --- C.S. AND Q.Y.: NASA 2006
+% R025
+DCB1            -> 2.0  XO2  +   1.5  HO2 +  0.5   ACO3 + //
+                           CO  +   0.5  GLY +  0.5   MGLY
+KINETIC PHOTOLYSIS   0.120477E-03  0.119066E-03  0.114362E-03  0.106443E-03  0.951654E-04  0.803121E-04  0.616157E-04  0.390953E-04  0.204535E-04  0.566664E-05  0.177264E-05
+!--- Photolysis treated like MGLY.
+% R026
+DCB2            -> 2.0  XO2  +  1.5  HO2  + 0.5   ACO3 + //
+                           CO  +   0.5  GLY +  0.5   MGLY
+KINETIC PHOTOLYSIS   0.120477E-03  0.119066E-03  0.114362E-03  0.106443E-03  0.951654E-04  0.803121E-04  0.616157E-04  0.390953E-04  0.204535E-04  0.566664E-05  0.177264E-05
+!Photolysis treated like MGLY.
+% R027
+DCB3            ->      ACO3   +     HO2    +     CO + OLIP
+KINETIC PHOTOLYSIS   0.120477E-03  0.119066E-03  0.114362E-03  0.106443E-03  0.951654E-04  0.803121E-04  0.616157E-04  0.390953E-04  0.204535E-04  0.566664E-05  0.177264E-05
+! --- treat as MGLY, ADD OLIP FOR MASS BALANCE (12/14/05)
+% R028
+BALD            ->      CHO    +     HO2    +     CO
+KINETIC PHOTOLYSIS   6.09951E-05  6.03113E-05  5.87884E-05  5.61778E-05  5.20341E-05  4.62878E-05  3.82686E-05  2.81028E-05  1.93450E-05  1.57686E-05  1.22336E-05
+! --- SAPRC07 FOR C.S. AND Q.Y.
+! --- ZHU AND CRONIN 2000 FOR PRODUCTS
+% R029
+OP1             ->      HCHO   +     HO2    +     HO
+KINETIC PHOTOLYSIS   0.570462E-05  0.561354E-05  0.531667E-05  0.482525E-05  0.414587E-05  0.329411E-05  0.230820E-05  0.128524E-05  0.608525E-06  0.163756E-06  0.471643E-07
+! --- CROSS SECTIONS: NASA 2006
+! Q.Y. =1 (NASA 2006)
+% R030
+OP2             ->      ALD    +     HO2    +     HO
+KINETIC PHOTOLYSIS   0.570462E-05  0.561354E-05  0.531667E-05  0.482525E-05  0.414587E-05  0.329411E-05  0.230820E-05  0.128524E-05  0.608525E-06  0.163756E-06  0.471643E-07
+!  --- CROSS SECTIONS AND Q.Y. AS OP1
+% R031
+PAA             ->      MO2    +     HO
+KINETIC PHOTOLYSIS   0.222443E-05  0.218748E-05  0.206735E-05  0.186913E-05  0.159652E-05  0.125753E-05  0.870017E-06  0.475757E-06  0.221534E-06  0.581609E-07  0.164095E-07
+! --- CROSS SECTIONS: NASA 2006
+% R032
+ONIT            -> 0.20 ALD  +  0.80 KET  +    HO2 + NO2
+KINETIC PHOTOLYSIS   0.337909E-05  0.330632E-05  0.307366E-05  0.269949E-05  0.220592E-05  0.162928E-05  0.102758E-05  0.491847E-06  0.199146E-06  0.422739E-07  0.108005E-07
+! --- Talukdar et al. 1997
+% R033
+PAN             ->      ACO3    +    NO2
+KINETIC PHOTOLYSIS   9.31954E-07  9.13823E-07  8.63482E-07  7.76606E-07  6.49116E-07  5.22031E-07  4.00326E-07  2.76791E-07  1.61794E-07  1.34426E-07  9.88679E-08
+! --- JPL 2006
+% R034
+PAN             ->      MO2    +     CO2    +     NO3
+KINETIC PHOTOLYSIS   6.01194E-07  5.88553E-07  5.57097E-07  5.02767E-07  4.23318E-07  3.42599E-07  2.63862E-07  1.83051E-07  1.07748E-07  8.94267E-08  6.58031E-08
+! --- JPL 2006
+% R035
+BiPER    ->
+KINETIC PHOTOLYSIS   3.47E-4   3.42E-4  3.23E-4  2.92-4  2.50E-4  1.97E-4  1.36E-4  7.48E-5  3.49E-5  9.16E-6  2.59E-6
+% END OF THE PHOTOLYSIS REACTIONS
+%
+% R036 O3P +  O2        ->      O3
+O3P    ->      O3
+KINETIC TB O2 SPEC -1
+!SPECIAL RWK(#) = CM*5.74E-34*(TEMP/300)**(-2.6)
+!  --- IUPAC WEB VERSION OCTOBER 2006
+!  --- WEIGHTED AVERAGE OF N2 AND O2 RATE CONSTANTS
+% R037 O3P +  O3        ->  2.0 O2
+O3P +  O3        ->
+KINETIC ARR2  8.00E-12  2060.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R038 O1D +  N2        ->      O3P   +      N2
+O1D      ->      O3P
+KINETIC TB N2 ARR2   1.80E-11   -107.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+%
+% R039 O1D +  O2        ->      O3P   +      O2
+O1D      ->      O3P
+KINETIC TB O2 ARR2   3.20E-11  -67
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R040 O1D +  H2O       ->      HO    +      HO
+O1D      ->    2. HO
+KINETIC TB H2O ARR1  2.20E-10
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R041 O3  +   HO       ->      HO2   +      O2
+O3  +   HO       ->      HO2
+KINETIC ARR2   1.70E-12    940.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R042 O3  +  HO2       ->      HO    +   2.   O2
+O3  +  HO2       ->      HO
+KINETIC ARR2    1.00E-14   490.0
+!  --- NASA 2006
+% R043 HO  +  HO2       ->      H2O   +      O2
+HO  +  HO2       ->
+KINETIC ARR2   4.80E-11   -250.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R044 H2O2 +  HO        ->      HO2   +      H2O
+H2O2 +  HO        ->      HO2
+KINETIC ARR2   2.90E-12   160.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R045 HO2 +  HO2       ->      H2O2   +     O2
+HO2 +  HO2       ->      H2O2
+KINETIC SPEC -2
+!SPECIAL RWK(#) = 2.2E-13*EXP(600./TEMP) +1.90E-33*CM*EXP(980./TEMP)
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R046 HO2 +  HO2 +  H2O ->      H2O2   +     H2O   +      O2
+HO2 +  HO2  ->      H2O2
+KINETIC TB H2O SPEC -3
+!SPECIAL RWK(#) = 3.08E-34*EXP(2800./TEMP)+2.59E-54*CM*EXP(3180./TEMP)
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R047 O3P +  NO        ->      NO2
+O3P +  NO        ->      NO2
+KINETIC TROE4   9.00E-32   1.5   3.00E-11   0.0
+!  --- NASA 2006
+% R048 O3P +  NO2       ->      NO    +      O2
+O3P +  NO2       ->      NO
+KINETIC ARR2     5.50E-12   -188.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R049 O3P +  NO2       ->      NO3
+O3P +  NO2       ->      NO3
+KINETIC TROE4   2.50E-31   1.8   2.20E-11   0.7
+!  --- NASA 2006
+% R050 HO +   NO        ->      HONO
+HO +   NO        ->      HONO
+KINETIC TROE4   7.00E-31   2.6   3.60E-11   0.1
+!  --- NASA 2006
+% R051 HO +   NO2       ->      HNO3
+HO  +  NO2       ->      HNO3
+KINETIC RCFE    1.80E-30   3.00  2.80E-11   0.0  0.868 0.0
+%KINETIC TROE4    1.80E-30   3.00  2.80E-11   0.0
+!  --- NASA 2006
+% R052 HO +   NO3       ->      NO2    +     HO2
+HO +   NO3       ->      NO2    +     HO2
+KINETIC ARR1  2.00E-11
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R053 HO2 +  NO        ->      NO2    +     HO
+HO2 +  NO        ->      NO2    +     HO
+KINETIC ARR2   3.60E-12    -270.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R054 HO2 +  NO2       ->      HNO4
+HO2 +  NO2       ->      HNO4
+KINETIC TROE4   2.0E-31   3.4   2.90E-12   1.1
+!  --- NASA 2006
+%
+% R055
+HNO4            ->      HO2    +     NO2
+KINETIC RCFE   2.00E-31   3.4   2.90E-12   1.1  4.76D26  10900.
+!  --- NASA 2006
+% the inverse of the equilibrium constant taken: Stockwell et al, 1997
+%
+% R056
+HO2 +  NO3       ->  0.3 HNO3 +   0.7 NO2 +   0.7  HO
+KINETIC ARR1   4.00E-12
+! --- IUPAC WEB VERSION OCTOBER 2006
+! PRODUCTS LA BRAS 1997
+%
+% R057 HO +   HONO      ->      H2O   +      NO2
+HO +   HONO      ->      NO2
+KINETIC ARR2  2.50E-12   -260.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R058 HO +   HNO3      ->      NO3   +      H2O
+HO +   HNO3      ->      NO3
+KINETIC SPEC -4
+!SPECIAL TMP0 = 2.4E-14*EXP(460/TEMP)
+!SPECIAL TMP2 = 2.4E-17*EXP(2199/TEMP)
+!SPECIAL TMP3 = 6.5E-34*EXP(1335/TEMP)*CM
+!SPECIAL RWK(#) = TMP0 + TMP3/(1+TMP3/TMP2)
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R059 HO +   HNO4      ->      NO2   +      H2O   +      O2
+HO +   HNO4      ->      NO2
+KINETIC ARR2  1.30E-12  -380.0
+! --- NASA 2006
+! PRODUCTS USELMAN ET AL. IN NITROGENEOUS AIR POLLUTANTS
+! CHEMICAL AND BIOLOGICAL IMPLICATIONS
+% R060 O3 +   NO        ->      NO2   +      O2
+O3 +   NO        ->      NO2
+KINETIC ARR2  1.40E-12  1310.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R061 O3 +   NO2       ->      NO3   +      O2
+O3 +   NO2       ->      NO3
+KINETIC ARR2   1.40E-13   2470.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R062 NO +   NO +   O2  ->      NO2   +      NO2
+NO +   NO   ->      NO2   +      NO2
+KINETIC TB O2 ARR2   3.30E-39   -530.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R063 NO3 +  NO        ->      NO2   +      NO2
+NO3 +  NO        ->      NO2   +      NO2
+KINETIC ARR2   1.80E-11  -110.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R064 NO3 +  NO2       ->      NO    +      NO2    +     O2
+NO3 +  NO2       ->      NO    +      NO2
+KINETIC ARR2 4.50E-14  1260.0
+!  --- NASA 2006
+% R065 NO3 +  NO2       ->      N2O5
+NO3 +  NO2       ->      N2O5
+KINETIC TROE4   2.00E-30  4.4  1.40E-12  0.7
+!  --- NASA 2006
+%
+% R066
+N2O5            ->      NO2   +      NO3
+KINETIC RCFE   2.20E-30  3.9  1.50E-12  0.7   3.70D26    11000.0
+!  --- NASA 2006
+% the inverse of the equilibrium constant taken: Stockwell et al, 1997
+%
+% R067 N2O5 +  H2O       ->      HNO3   +     HNO3
+N2O5        ->      HNO3   +     HNO3
+KINETIC TB H2O ARR1  1.00E-22
+!  --- IUPAC WEB VERSION OCTOBER 2006
+%
+% R068 NO3 +  NO3       ->      NO2   +      NO2   +      O2
+NO3 +  NO3       ->      NO2   +      NO2
+KINETIC ARR2  8.50E-13   2450.0
+!  --- NASA 2006
+%
+% R069 HO +   H2        ->      H2O   +      HO2
+HO         ->      HO2
+KINETIC TB H2  ARR2   7.70E-12   2100.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R070 HO +   SO2       ->      SULF   +     HO2
+HO +   SO2       ->      SULF   +     HO2
+KINETIC TROE4  3.30E-31   4.3  1.60E-12  0.0
+!  --- NASA 2006
+% R071 CO +   HO        ->      HO2   +      CO2
+CO +   HO        ->      HO2
+KINETIC SPEC -5
+!SPECIAL  RWK(#) = 1.44E-13*(1.+0.8*CM/4E19)
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R072 CH4 +  HO        ->      MO2   +      H2O
+CH4 +  HO        ->      MO2
+KINETIC ARR2   1.85E-12  1690.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R073 ETH +  HO        ->      ETHP    +    H2O
+ETH +  HO        ->      ETHP
+KINETIC ARR2  6.90E-12   1000.0
+!  --- ETH REPRESENTS ETHANE
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% R074 MOH +  HO        ->      HO2    +     HCHO
+MOH +  HO        ->      HO2    +     HCHO
+KINETIC ARR2   2.85E-12   345.0
+! --- METHANOL RATE BASED ON IUPAC 2006
+%R 075 EOH +  HO        ->      HO2    +     ACD
+EOH +  HO        ->      HO2    +     ACD
+KINETIC ARR2   3.00E-12    20.0
+! --- ETHANOL RATE BASED ON IUPAC 2006
+% R076 ROH +  HO        -> .719 ALD +   .184 ACD    +     HO2
+ROH +  HO        -> .719 ALD +   .184 ACD    +     HO2
+KINETIC ARR2   2.60E-12    200.0
+! --- BASED ON 2-PROPANOL - IUPAC 2006
+%
+% R077
+ACE +  HO  -> .350 ORA1 + .350 CO + .650 GLY + .650 HO + .350 HO2
+KINETIC TROE4   5.50E-30   0.0   8.30E-13   -2.0
+! --- ACE REPRESENTS ACETYLENE
+! --- PRODUCTS HATAKEYAMA ET AL 1986
+! --- HO2 YIELD FROM BOHN AND ZETZSCH 1998
+! --- RATE BASED ON JPL 2006
+% R078 HC3 +  HO        ->      HC3P
+HC3 +  HO        ->      HC3P
+KINETIC ARR2    7.68E-12    370.0
+! --- HC3 REPRESENTS ALKANES AND SIMILAR
+! SPECIES OF "LOW" REACTIVITY, HO RATE CONSTANT LESS THAN 3.4E-12
+! BUT GREATER THAN ETHANE AT 2.7E-13 (AT 298.15 1 ATM).
+! FOR EXAMPLE PROPANE, BUTANE,
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+% R079 HC5 +  HO        ->      HC5P   +     H2O
+HC5 +  HO        ->      HC5P
+KINETIC ARR2   1.01E-11   245.0
+! --- HC5 REPRESENTS ALKANES OF "MEDIUM" REACTIVITY
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+! FOR SPECIES WITH HO RATE CONSTANTS BETWEEN
+! 3.4E-12 AND 6.8E-12 AT 298, 1 ATM
+! E/R TAKEN TO BE SIMILAR TO N-OCTANE ATKINSON 1986
+! XO2 FACTOR ACCOUNT FOR EXTRA NO TO NO2 CONVERSIONS
+! XO2 IS MOVED TO THE HC5P REACTIONS
+%
+% R080 (H2O as a product)
+HC8 +  HO  -> .951 HC8P +  .025 ALD +  .024  HKET + .049 HO2
+KINETIC ARR2  2.82E-11  273.0
+! --- HC8 REPRESENTS ALKANES OF HIGH REACTIVITY
+! FOR SPECIES WITH HO RATE CONSTANTS GREATER THAN 6.8E-12 AT 298, 1 ATM
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+! XO2 IS MOVED TO THE HC8P REACTIONS
+% SOA modification (YS)
+%
+% R081
+ETE +  HO        ->      ETEP
+KINETIC TROE4   1.00E-28   4.5  8.80E-12  .85
+! --- RATE BASED ON JPL 2006
+! --- ETE REPRESENTS ETHENE
+% R082
+OLT +  HO        ->      OLTP
+KINETIC ARR2  5.72E-12  -500.0
+! --- OLT REPRESENTS PROPENE, TERMINAL ALKENES.
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+% SOA modification (YS)
+%
+% R083
+OLI +  HO        ->      OLIP
+KINETIC ARR2   1.33E-11   -500.0
+! --- OLI REPRESENTS T-2-BUTENE AND INTERNAL ALKENES
+! RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+% SOA modification (YS)
+%
+% R084
+DIEN + HO        ->      OLIP
+KINETIC ARR2  1.48E-11   -448.0
+!  --- RATE CONSTANT ATKINSON AND AREY 2003
+% RS085
+ISO +  HO        ->      ISOP
+KINETIC ARR2  2.54E-11    -410.
+!2.54E-11  -408  k(298) = 9.97E-11
+!  --- GEIGER ET AL. 2003
+% SOA module (YK)
+%
+% R086
+API +  HO        ->      APIP  +  //
+                         0.30 BiA0D + 0.17 BiA1D + 0.10 BiA2D
+KINETIC ARR2   1.21E-11    -440.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+% SOA modification (YS)
+%
+% R087
+LIM +  HO        ->      LIMP + //
+                  0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D
+KINETIC ARR2   4.20E-11   -401.0
+!  --- GILL AND HITES 2002
+% SOA modification (YS)
+%
+% R088
+ISHP +  HO        ->      MACR   +     HO + 0.2818 BiPER + 0.02970 BiDER
+KINETIC ARR1   1.00E-10
+!  --- GEIGER ET AL. 2003
+% R089
+ISON +  HO        ->      NALD   +     HACE
+KINETIC ARR1   1.30E-11
+!  --- GEIGER ET AL. 2003
+% R090
+MAHP +  HO        ->      MACP
+KINETIC ARR1   3.00E-11
+!  --- GEIGER ET AL. 2003
+% R091
+HACE +  HO        ->      MGLY    +    HO2
+KINETIC ARR1   3.00E-12
+!  --- GEIGER ET AL. 2003
+% R092
+NALD +  HO        ->      HCHO   +     NO2   +      CO
+KINETIC ARR2   5.60E-12    -270.
+!  --- GEIGER ET AL. 2003
+% R093
+ETEG +  HO        ->      ALD    +     HO2
+KINETIC ARR1   1.47E-11
+!  --- ASCHMANN AND ATKINSON 1998 (ROOM TEMP ONLY)
+!  --- THIS IS THE DOMINANT LOSS MECHANISM FOR ETEG
+% R094
+BEN +  HO   -> .352 BENP +  .118 UALD + .530  PHEN + .648 HO2
+KINETIC ARR2   2.33E-12   193.0
+! --- BASED ON THE MCM V3.1
+%
+% R095
+TOL +  HO   -> .060 TLP1 +  .890 TR2 +  .050  CSL + .050 HO2
+KINETIC ARR2   1.81E-12    -354.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+% SOA modification (YS)
+% R096
+TLP1 +  NO        -> 1.00 NO2  +  1.00 BALD
+KINETIC ARR1   4.00E-12
+! -- RATE CONST FROM HC5P + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R097
+TR2             -> .280 DCB2 +  .280 EPX +  .010  CSL + //
+                      .280 TOLP +  .150 PER1 + .290  HO2 + //
+                      .280 HO + 0.280 TOLPAEC
+KINETIC ARR1  1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R098
+TOLP            -> .490 DCB2 +  .010 HO2 +  .010  CSL + //
+                      .490 HO  +   .500 PER1
+KINETIC ARR1   1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+% R099
+TOLP + NO  -> 0.95 DCB2 +  0.95 NO2 +  0.95  HO2 + .050 ONIT
+KINETIC ARR2  2.70E-12   -360.
+! RATE CONST FROM TOLP + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R100
+PER1 + NO        -> 0.95 DCB1 +  0.95 NO2 +  0.95  MGLY + //
+                      0.95 HO2 +   .050 ONIT
+KINETIC ARR2  2.70E-12   -360.
+! RATE CONST FROM TOLP + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R101
+XYO +  HO        -> .060 XYL1 +  .890 XYO2 + .050  CSL + //
+                      .050 HO2
+KINETIC ARR1   1.37E-11
+!  --- BASED ON XYL
+%
+% R102
+XYL +  HO        -> .060 XYL1 +  .890 XY2 +  .050  CSL + //
+                      .050 HO2
+KINETIC ARR1  2.13E-11
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+% SOA modification (YS)
+%
+% R103
+XYL1 + NO        -> 1.00 NO2  +  1.00 BALD
+KINETIC ARR1   4.00E-12
+! -- RATE CONST FROM HC5P + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R104
+XY2             -> .224 DCB2 +  .840 EPX +  .010  CSL + //
+                      .308 XYLP +  .150 PER2 + .308  HO2 + //
+                      .308 HO + 0.308 XYLPAEC
+KINETIC ARR1  1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R105
+XYO2            -> .224 DCB2 +  .840 EPX +  .010  CSL + //
+                      .308 XYOP +  .150 PER2 + .308  HO2 + //
+                      .308 HO + 0.308 XYLPAEC
+KINETIC ARR1  1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R106
+XYLP            -> .490 DCB2 +  .010 HO2 +  .010  CSL + //
+                      .490 HO  +   .500 PER2
+KINETIC ARR1  1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R107
+XYOP            -> .490 DCB2 +  .010 HO2 +  .010  CSL + //
+                      .490 HO  +   .500 PER2
+KINETIC ARR1  1.00E+03
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R108
+XYLP + NO        -> 0.95 DCB2 +  0.95 NO2 +  0.95  HO2 + //
+                      .050 ONIT
+KINETIC ARR2   2.70E-12   -360.
+! RATE CONST FROM TOLP + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R109
+PER2 + NO        -> 0.95 DCB1 +  0.95 NO2 +  0.95  MGLY + //
+                      0.95 HO2 +   .050 ONIT + 1.95  DCB3
+KINETIC ARR2  2.70E-12   -360.
+! RATE CONST FROM TOLP + NO
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+% R110 BALD + HO        ->      BALP  +      H2O
+BALD + HO        ->      BALP
+KINETIC ARR2  5.32E-12    -243.
+! --- Ferri et al. 2001 and Semaduni et al. 1995
+%
+% R111
+BALP + NO        ->      BAL1   +     NO2
+KINETIC ARR1  4.00E-12
+! --- Ferri et al. 2001
+% R112
+BAL1 + NO        ->      BAL2   +     NO2
+KINETIC ARR1  4.00E-12
+! --- Ferri et al. 2001
+% R113
+BAL2 + NO2       ->      ONIT
+KINETIC ARR1   2.00E-11
+! --- Ferri et al. 2001 - rate constant Carter 2000
+%
+% R114
+PHEN + HO        -> 0.07 CHO +   0.20 ADDC +  0.73 MCT + //
+                      0.73 HO2
+KINETIC ARR2   6.75E-12   -405.
+!  --- DEGRADATION COMBINED WITH CSL FROM MCMV3.1
+% modification for SOA formation (YS:2009/10/06)
+%
+% R115
+CSL +  HO        -> 0.07 CHO +   0.20 ADDC +  0.73 MCT + //
+                      0.73 HO2
+KINETIC ARR1   4.65E-11
+!  --- PRODUCTS AND RATE CONSTANT FROM MCM V3.1
+% SOA modification
+%
+% R116
+MCT +  HO        ->      MCTO
+KINETIC ARR1  2.05E-10
+!PRODUCTS FROM MCM V3.1
+% R117
+MCT +  NO3       ->      MCTO   +     HNO3
+KINETIC ARR1  2.01E-10
+! --- PRODUCTS FROM MCM V3.1
+% R118
+MCTO + O3        ->      MCTP
+KINETIC ARR1   2.86E-13
+!PRODUCTS FROM MCM V3.1
+% R119
+MCTO + NO2       ->      ONIT
+KINETIC ARR1   2.08E-12
+!PRODUCTS FROM MCM V3.1
+% R120
+MCTP + NO        ->      MCTO   +     NO2
+KINETIC ARR2   2.70E-12     -360.
+!PRODUCTS FROM MCM V3.1
+% R121
+MCTP + MO2       ->      HCHO   +     HO2     +    MCTO
+KINETIC ARR2   3.56E-14     -708.
+! --- PRODUCTS FROM MCM V3.1
+% R122
+MCTP + ACO3      ->      MO2    +     HO2    +     MCTO
+KINETIC ARR2   7.40E-13     -708.
+! --- PRODUCTS FROM MCM V3.1
+% R123
+MCTP + HO2       ->      OP2
+KINETIC ARR2  3.75E-13     -980.
+! --- PRODUCTS FROM MCM V3.1
+% R124
+MCTP + NO3       ->      MCTO   +     NO2
+KINETIC ARR1   1.20E-12
+% R125 HCHO + HO        ->      HO2    +     CO    +      H2O
+HCHO + HO        ->      HO2    +     CO
+KINETIC ARR2  5.50E-12     -125.0
+!  --- NASA 2006
+% R126 ACD +  HO        ->      ACO3  +      H2O
+ACD +  HO        ->      ACO3
+KINETIC ARR2  4.38E-12   -366.0
+!  --- Sivakuman and Crowley, 2002
+% R127 ALD +  HO        ->      RCO3  +      H2O
+ALD +  HO        ->      RCO3
+KINETIC ARR2   5.10E-12   -405.0
+!  --- IUPAC 2006 PROPANAL RATE (WEB VERSION OCTOBER 2006)
+%
+% R128 ACT +  HO        ->      ACTP   +     H2O
+ACT +  HO        ->      ACTP
+KINETIC SPEC -8
+!SPECIAL RWK(#) = 1.39E-13+3.72E-11*EXP(-2044./TEMP)
+! --- ACETONE RATE TAKEN FROM GIERCZAK ET AL., 2003
+%
+% R129 MEK +  HO        ->      MEKP   +     H2O
+MEK +  HO        ->      MEKP
+KINETIC ARR2  1.30E-12     25.0
+! --- METHYL ETHYL KETONE
+! --- IUPAC WEB VERSION OCTOBER 2006
+% R130 KET +  HO        ->      KETP   +     H2O
+KET +  HO        ->      KETP
+KINETIC ARR2  2.80E-12   - 10.0
+! --- KETONE TREATED AS DIETHYL KETONE
+! WALLINGTON AND KURYLO, 1987
+% R131 HKET + HO        ->      HO2   +      MGLY   +     H2O
+HKET + HO        ->      HO2   +      MGLY
+KINETIC ARR1  3.00E-12
+!  --- ORLANDO ET AL. 1999
+% R132 GLY +  HO        ->      HO2  +  2.0  CO     +     H2O
+GLY +  HO        ->      HO2  +  2.0  CO
+KINETIC ARR1  1.10E-11
+! --- ATKINSON AND AREY 2003 RECOMMENDS 40% O2-ADDITION,
+! BUT IT DOESN'T SEEM RESONABLE TO ADD THIS TO ACO3 BECAUSE
+! OF MUCH FASTER HO-REACTION AND PHOTOLYSIS OF THE RESULTING
+! PEROXYNITRATE, THE PRODUCTS OF THE NO REACTION OF THE
+! PEROXY RADICAL AND OF THE REACTIONS OF THE PEROXYNITRATE
+! ARE RELATIVELY SIMILAR TO THE PRODUCTS GIVEN ABOVE
+% R133 MGLY + HO        ->      ACO3    +    CO    +      H2O
+MGLY + HO        ->      ACO3    +    CO
+KINETIC ARR2   9.26E-13   -830.
+!  --- ATKINSON ET AL. 2006 RECOMMENDED ROOM TEMP K
+!  --- WITH TYNDALL ET AL. 1995 E/R
+% R134
+MACR + HO        -> 1.0  MACP
+KINETIC ARR2  1.86E-11  -176.
+!1.86E-11  -176  3.36E-11
+!  --- GEIGER ET AL. 2003
+% R135
+MVK +  HO        ->      MVKP
+KINETIC ARR2   2.60E-12   -610.
+!4.14E-12  -453  1.89E-11
+!  --- ATKINSON AND AREY 2003
+% R136
+UALD + HO        -> .313 ACO3 +  .687 UALP
+KINETIC ARR2   5.77E-12   -533.0
+!  --- BASED ON CROTONALDEHYDE C4H6O
+!  --- MAGNERON ET AL. 2002
+%
+% R137
+EPX +  HO        ->      XO2   +      HO2  +   ALD + //
+                           CO
+KINETIC ARR2   2.8E-11    -175.
+!  --- CARTER 2000 -- WAS DCB1
+% R138
+DCB2 + HO        ->      XO2   +      ACO3   +     ALD
+KINETIC ARR2  2.8E-11    -175.
+!  --- CARTER 2000
+% R139
+DCB1 + HO        ->      XO2    +     ACO3   +     ALD
+KINETIC ARR2   2.8E-11    -175.
+!  --- CARTER 2000 - WAS DCB3
+% R140 DCB3 + HO        ->      ACO3  +      CO    +      H2O
+DCB3 + HO        ->      ACO3  +      CO
+KINETIC ARR1   1.00E-13
+!  --- CARTER 2000 - a new DCB3 - same products and rate as MGLY
+! --- bigger decrease in rate constant
+% R141
+OP1 +  HO        -> .65  MO2  +  .35  HCHO + 0.35  HO
+KINETIC ARR2   2.90E-12   -190.0
+!  --- ATKINSON AND AREY 2003
+%
+% R142
+OP2 +  HO        -> 0.44 HC3P +  0.08 ALD +  0.49  HO + //
+                      0.07 XO2 +   0.41 KET
+KINETIC ARR2   3.40E-12   -190.0
+!  --- ESTIMATED FOR PROPYL HYDROPEROXIDE
+%
+% R143
+PAA +  HO        -> 0.65 ACO3 +  0.35 HO  +  0.35  HCHO + //
+                      0.35 XO2
+KINETIC ARR2   2.93E-12   -190.0
+!  --- FROM OP1 + HO
+!  --- Yields corrected according to Kirchner communication
+% R144 PAN +  HO    ->   HCHO  +    NO3   +  XO2 +  H2O
+PAN +  HO    ->   HCHO  +    NO3   +  XO2
+KINETIC ARR1   4.00E-14
+!  --- UPPER LIMIT NASA 2006
+% R145 PPN +  HO    ->   HCHO  +   NO3  +    XO2 +  H2O
+PPN +  HO    ->   HCHO  +   NO3  +    XO2
+KINETIC ARR1   4.00E-14
+!  --- UPPER LIMIT NASA 2006 (same as PAN)
+% R146
+MPAN + HO        -> 1.00 HACE +  1.00 NO2 + 0.06741 BiMGA + 0.04706 BiNGA
+KINETIC ARR1   3.20E-11
+! --- ORLANDO ET AL. 2002
+% R147 ONIT + HO        ->      HC3P   +     NO2   +      H2O
+ONIT + HO        ->      HC3P   +     NO2
+KINETIC ARR2   5.31E-12   260.0
+! --- RATE CONSTANT TAKEN TO BE AS HC3,
+! DECOMPOSITION ASSUMED
+% R148 ORA1 + HO        ->      HO2   +      CO2
+ORA1 + HO        ->      HO2
+KINETIC ARR1   4.50E-13
+! --- SINGLETON ET AL. 1988
+% R149
+ORA2 + HO        -> 0.64 MO2 +   0.64 CO2 +  0.36  ORAP
+KINETIC ARR2   2.20E-14   -1012.0
+! --- BUTKOVSKAYA ET AL. 2004 AND SMEDT ET AL. 2005
+% R150
+HCHO + NO3       ->      HO2    +     HNO3   +     CO
+KINETIC ARR2   2.00E-12    2440.0
+! --- RATE CONST ATKINSON ET AL. 2006 ATMOS CHEM PHYS V6
+!  (ACTUAL TEMP DEPENDENCE UNKNOWN)
+% R151
+ACD +  NO3       ->      ACO3   +     HNO3
+KINETIC ARR2   1.40E-12   1900.0
+!  --- NASA 2006
+% R152
+ALD +  NO3       ->      RCO3   +     HNO3
+KINETIC ARR2   3.76E-12   1900.0
+!  ---  (BASED ON PROPANAL)
+!  ---  USED PREFERRED VALUE OF K(298) ATKINSON ET AL.
+!  ---  TO FIND A FACTOR USING ACD E/R
+% R153
+GLY +  NO3       ->      HNO3   +     HO2 +  2.0   CO
+KINETIC ARR2   2.90E-12   1900.0
+! --- ASSUMED TO BE THE SAME AS 2*K(ALD)-K(ETH)
+! E/R FROM ALD + NO3
+% R154
+MGLY + NO3       ->      HNO3   +     ACO3    +    CO
+KINETIC ARR2   3.76E-12   1900.0
+!  --- ASSUMED TO SAME AS ALD + NO3
+%
+% R155 (0.5 CO2 as a product)
+EPX +  NO3       -> 1.50 HO2 +   0.50 HO  +  1.50  CO + //
+                   GLY +   0.50  NO2 + 0.50 HNO3
+KINETIC ARR2   2.87E-13   1000.0
+! --- RATE K: BIERBACH ET AL.1994,
+! E/R: MEAN OF OL11 AND ALD. Products from DCB1 + O3 -- WAS DCB1
+% R156
+PHEN + NO3       -> 0.5  HNO3 +  0.4  CHO +  0.5   ADCN + //
+                      0.1  ADDC
+KINETIC ARR1   3.78E-12
+!  --- CARTER 2000
+% modification for SOA formation (YS: 2009/10/06)
+%
+% R157
+CSL +  NO3       -> 0.5  HNO3 +  0.4  CHO +  0.5   ADCN + //
+                      0.1  ADDC
+KINETIC ARR1   1.06E-12
+!  ---PRODUCTS FROM MCM V3.1
+% SOA modification (YS)
+%
+% R158
+ADCN +  NO        ->      GLY +   2.00 NO2   +      OP2
+KINETIC ARR2   2.70E-12   -360.
+!  --- PRODUCTS FROM MCM V3.1
+% R159
+ADCN +  NO3       ->      OP2   +      GLY +  2.0   NO2
+KINETIC ARR1   1.20E-12
+!  --- PRODUCTS FROM MCM V3.1
+% R160
+ADCN +  MO2       ->      HCHO  +      HO2 +  0.7   OP2 + //
+                      0.7  GLY +   0.7  NO2 +  0.3   ONIT
+KINETIC ARR1   3.56E-14
+!  --- PRODUCTS FROM MCM V3.1
+% R161
+ADCN + ACO3      ->      MO2   +      HO2 +  0.7   OP2 + //
+                      0.7  GLY +   0.7  NO2 +  0.3   ONIT
+KINETIC ARR2   7.40E-13   -708.
+! --- PRODUCTS FROM MCM V3.1
+%
+% R162
+ADCN + HO2       ->      OP2
+KINETIC ARR2  3.75E-13   -980.
+! --- PRODUCTS FROM MCM V3.1
+% R163
+ETE +  NO3       -> 0.80 OLNN +  0.20 OLND
+KINETIC ARR3   4.88E-18  2.  2282.0
+!  --- RATE K ATKINSON AND AREY 2003
+% R164
+OLT +  NO3       -> 0.43 OLNN +  0.57 OLND
+KINETIC ARR2   1.79E-13    450.0
+!  --- DIFFICULT TO LUMP BECAUSE OF VERY DIFFERENT K
+% SOA modification (YS)
+%
+% R165
+OLI +  NO3       -> 0.11 OLNN +  0.89 OLND
+KINETIC ARR2   8.64E-13    -450.
+!  --- DIFFICULT TO LUMP BECAUSE OF VERY DIFFERENT K
+% SOA modification (YS)
+%
+% R166
+DIEN + NO3       -> 0.90 OLNN +  0.10 OLND + 0.90  MACR
+KINETIC ARR1   1.00E-13
+! From ATKINSON AND AREY 2003, Value for 298
+% R167
+ISO +  NO3       -> 1.00 ISON
+KINETIC ARR2   3.03E-12     446.
+! --- GEIGER ET AL. 2003
+% R168
+MACR + NO3       -> 0.5  MACP +  0.5  HNO3 + 0.5   CO + //
+                      0.5  HO2  +  0.5  ONIT + 0.5   XO2
+KINETIC ARR1   3.40E-12
+! --- ATKINSON ET AL. 2006
+% R169
+UALD + NO3       -> .668 CO  +  .332  HCHO + .332  ALD + //
+                           ONIT  +      HO2   +      XO2
+KINETIC ARR2   5.02E-13    1076.0
+!  --- BASED ON CROTONALDEHYDE
+!  --- SALGADO ET AL. 2008
+% R170
+API +  NO3       -> 0.10 OLNN +  0.90 OLND + //
+                    0.70 BiA0D + 0.10 BiNIT
+KINETIC ARR2   1.19E-12   -490.0
+!  --- ATKINSON AND AREY 2003
+% SOA module (YK)
+%
+% R171
+LIM +  NO3       -> 0.13 OLNN +  0.87 OLND + //
+                    0.69 BiA0D + 0.27 BiNIT
+KINETIC ARR1   1.22E-11
+!  --- ATKINSON AND AREY 2003
+% SOA module (YK)
+%
+% R172
+MPAN + NO3       -> 1.00 MACP +  1.00 NO2
+KINETIC ARR2   2.20E-14    500.0
+!  -- ACTS LIKE A PEROXY RADICAL -- BASED ON GEIGER ET AL. 2003
+% R173 (0.13 H2 as a product)
+ETE +  O3        ->      HCHO +  0.43 CO  +  0.37  ORA1 + //
+                      0.26 HO2   +  0.12  HO
+KINETIC ARR2  9.14E-15   2580.0
+!  --- RATE CONSTANT AND PRODUCTS FROM ATKINSON 1994
+!  --- RATE CONSTANT UNCHANGED IN IUPAC 2006
+% R174 (0.05 H2 as a product)
+OLT +  O3        -> 0.64 HCHO +  0.44 ALD +  0.37  CO + //
+                      0.14 ORA1 +  0.10 ORA2 + 0.25  HO2 + //
+                      0.40 HO  +   0.03 KET +  0.03  KETP + //
+                      0.06 CH4  +  0.03  ETH + //
+                      .006 H2O2 +  0.19 MO2 +  0.10  ETHP
+KINETIC ARR2   4.33E-15   1800.0
+!  --- RATE CONSTANT AND PRODUCTS ESTIMATED FROM ATKINSON 1994
+!  --- RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+% SOA modification (YS)
+%
+% R175
+OLI +  O3        -> 0.02 HCHO  + 0.99 ALD  + 0.16  KET + //
+                      0.30 CO  +   .011 H2O2 + 0.14  ORA2 + //
+                      0.07 CH4  +  0.22 HO2  + 0.63  HO + //
+                      0.23 MO2  +  0.12 KETP + 0.06  ETH + //
+                      0.18 ETHP
+KINETIC ARR2   4.40E-15   845.0
+!  --- RATE CONSTANT AND PRODUCTS ESTIMATED FROM ATKINSON 1994
+!  --- RATE CONSTANT IS TAKEN AS AVERAGE FOR US EMISSIONS
+% SOA modification (YS)
+%
+% R176 (0.05 H2 as a product)
+DIEN + O3        -> 0.90 HCHO +  0.39 MACR + 0.36  CO + //
+                      0.15 ORA1 +  0.09 O3P +  0.30  HO2 + //
+                      0.35 OLT  +  0.28 HO  + //
+                      0.15 ACO3 +  0.03 MO2 +  0.02  KETP + //
+                      0.13 XO2  +  .001 H2O2
+KINETIC ARR2   1.34E-14    2283.0
+! --- RATE CONSTANT ATKINSON AND AREY 2003
+! PRODUCTS SAME AS FOR ISO + O3
+% R177
+ISO +  O3        -> 0.58 HCHO +  .461 MACR + .189  MVK + //
+                      0.28 ORA1 +  0.25 HO  +  0.25  HO2 + //
+                      0.14 CO  +    0.1 ACO3 + 0.08  MO2 + //
+                      0.09 H2O2 +  0.1  MACP
+KINETIC ARR2   7.86E-15   1913.
+!7.86E-15  1912  1.29E-17
+!  --- GEIGER ET AL. 2003
+!  --- MACR-MVK split according to Carter 1996
+% R178
+MACR + O3        -> 0.10 ACO3 +  0.90 MGLY + 0.32  HO2 + //
+                      0.22 CO  +   0.19 HO  +  0.45  ORA1
+KINETIC ARR2   1.36E-15   2112.0
+! --- MACR= METHACROLEIN, ATKINSON 1994
+!  --- GEIGER ET AL. 2003
+% R179 (0.17CO2 as a product)
+MVK +  O3        -> 0.67 ORA1 +  0.11 HO  +  0.11  HO2 + //
+                      0.11 CO  +    0.95  MGLY + //
+                      0.05 HCHO +  0.05 HO  +  0.05  XO2 + //
+                      0.05 HCHO +  0.05 ACO3
+KINETIC ARR2   7.51E-16   1520.
+!7.51E-16  1520  4.59E-18
+! --- CARTER SAPRAC-99
+% R180
+UALD + O3        -> .476 HO  +   .072 HO2 +  .168  MO2 + //
+                      .237 ACO3 +  0.1  XO2 +  .243  CO + //
+                      .218 HCHO +  .062 ALD +  .278  KET + //
+                      .031 GLY  +  .653 MGLY  + .044  ORA1
+KINETIC ARR1   1.66E-18
+!  --- BASED ON CROTONALDEHYDE
+!  --- K AVE OF GROSJEAN AND GROSJEAN 1998 AND SATO ET
+!  --- AL. 2004
+% R181
+API +  O3        -> 0.65 ALD  +  0.53 KET +  0.14  CO + //
+                      0.20 ETHP +  0.42 KETP + 0.85  HO + //
+                      0.10 HO2  +  0.02 H2O2 + //
+                      0.18 BiA0D + 0.16 BiA1D + 0.05 BiA2D
+KINETIC ARR2   5.00E-16    530.0
+!  --- ATKINSON AND AREY 2003
+% SOA modification (YS)
+%
+% R182
+LIM  + O3        -> 0.04 HCHO +  0.46 OLT +  0.14  CO + //
+                      0.16 ETHP +  0.42 KETP + 0.85  HO + //
+                      0.10 HO2  +  0.02 H2O2 + 0.79  MACR + //
+                      0.01 ORA1 +  0.07 ORA2 + //
+                      0.09 BiA0D + 0.10 BiA1D
+KINETIC ARR2   2.95E-15     783.0
+!  --- ATKINSON AND AREY 2003
+% SOA modification (YS)
+%
+% R183 (0.5 CO2 as a product)
+EPX + O3        -> 1.5  HO2 +   0.5  HO +   1.5   CO + //
+                      GLY
+KINETIC ARR1   1.0E-16
+!  --- CARTER 2000 -- increased A-FACT to be more like to OLI+O3 - WAS DCB1
+!  --- increase rate constant by a factor of 5
+% R184
+DCB3 + O3        -> 1.0  HO2  +  0.5  HO  +   1.5  CO + //
+                      0.5  CO2  +  0.25 ORA1 +  0.25 ORA2 + //
+                     0.11  PAA +   2.48 MGLY
+KINETIC ARR1   8.0E-17
+!  --- new reaction for DCB3 - lower rate const by one order of magnitude
+% R185
+CHO +  NO2       ->      ONIT
+KINETIC ARR1   2.00E-11
+!  --- CARTER 2000
+% R186
+ACO3 + NO2       ->      PAN
+KINETIC TROE4    8.50E-29   6.5   1.10E-11  1.0
+!  --- Tyndall et al. 2001
+% R187
+RCO3 + NO2       ->      PPN
+KINETIC TROE4   8.50E-29   6.5   1.10E-11   1.0
+!  --- Tyndall et al. 2001 for PAN (based upon ACD scheme)
+%
+% R188
+PAN             ->      ACO3   +     NO2
+KINETIC RCFE  9.70E-29 5.6 9.30E-12  1.5  1.16D28   13954.
+!  --- NASA 2006
+% the inverse of the equilibrium constant taken: Stockwell et al, 1997
+%
+% R189
+PPN             ->      RCO3   +     NO2
+KINETIC RCFE  9.70E-29 5.6 9.30E-12  1.5  1.16D28   13954.
+!  --- NASA 2006 for PAN
+% the inverse of the equilibrium constant taken: Stockwell et al, 1997
+%
+% R190
+MACP + NO2       ->      MPAN
+KINETIC ARR2   2.80E-12   -181.
+!2.80E-12  -181  5.14E-12
+% R191
+MPAN            ->      MACP    +    NO2
+KINETIC ARR2   1.60E+16   13486.
+!1.60E+16  13486  3.63E-04
+! --- GEIGER ET AL. 2003 -- RATE CONST FROM ROBERTS AND BERTMAN 1992
+!  --- AS USED BY CARTER AND ATKINSON 1996
+% R192
+MO2  + NO        ->      HCHO   +     HO2    +     NO2
+KINETIC ARR2   2.80E-12   -300.0
+!  --- NASA 2006
+% R193
+ETHP + NO        ->      ACD    +     HO2    +     NO2
+KINETIC ARR2   2.60E-12    -365.0
+!  --- NASA 2006
+% R194
+HC3P + NO        -> .047 HCHO +  .233 ALD +  .623  ACT + //
+                      .063 GLY  +  .742 HO2 +  .150  MO2 + //
+                      .048 ETHP +  .048 XO2 +  .059  ONIT + //
+                      .941 NO2
+KINETIC ARR1   4.00E-12
+! --- RATE K FROM 2-N-C4H9O2 + NO (LACTOZ) AND
+! --- FROM T-C4H9O2 + NO (LIGHTFOOT 1992) AS REFERENCED BY
+! --- KIRCHNER AND STOCKWELL, 1996
+! --- REPLACED KET WITH ACT -- PRODUCED FROM PROPANE OXID
+% R195
+HC5P +  NO        -> .021 HCHO +  .211 ALD +  .500  KET + //
+                      .599 HO2 +   .031 MO2  + .245  ETHP + //
+                      .334 XO2 +   .124 ONIT + .876  NO2 + //
+                      .122 MEK +   .100 ACT
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- DIVIDED KET AMONG KET, MEK AND ACT FOR MASS BALANCE
+% R196
+HC8P + NO        -> .150 ALD +   .642 KET +  .133  ETHP + //
+                      .261 ONIT +  .739 NO2 +  .606  HO2 + //
+                      .416 XO2
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+% R197
+ETEP + NO        -> 1.6  HCHO  +      HO2   +      NO2 + //
+                      0.2  ALD
+KINETIC ARR1   9.00E-12
+!  --- ATKINSON AND AREY 2003
+% R198
+OLTP + NO        -> 0.94 ALD   +      HCHO   +     HO2 + //
+                           NO2 +   0.06 KET
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+% R199
+OLIP + NO        ->      HO2  +  1.71 ALD +  0.29  KET + //
+                           NO2
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R200
+ISOP + NO        -> .046 ISON +  .954 NO2 +  .954  HO2 + //
+                      1.00 HCHO +  .418 MACR + .582  MVK
+KINETIC ARR2   2.43E-12   -360.
+! --- GEIGER ET AL. 2003
+!  --- MACR AND MVK split according to Carter 1996
+% R201
+MACP + NO        ->      NO2  +  0.25 ACO3 + 0.25  HACE + //
+                      0.25 CO  +   0.75 HCHO + 0.50  MGLY + //
+                      0.75 HO2
+KINETIC ARR2   2.54E-12    -360.
+!  --- GEIGER ET AL. 2003
+%
+% R202
+MVKP + NO        ->      NO2  +  0.7  ALD +  0.7   XO2 + //
+                      0.7  ACO3 +  0.3  HCHO + 0.3   MGLY + //
+                      0.3  HO2
+KINETIC ARR2  4.20E-12   -181.
+!4.20E-12  -181  7.71E-12
+% R203
+MEKP + NO        -> 0.67 DCB1 +  0.67 HO2 +  0.33  HCHO + //
+                           NO2
+KINETIC ARR1  4.00E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+% R204
+UALP + NO        ->      NO2    +     HO2  + 0.61  CO + //
+                      0.27 ALD  +  0.03 HCHO + 0.18  GLY + //
+                      0.21 MGLY +  0.7  KET
+KINETIC ARR2   4.20E-12   -181.
+!4.20E-12  -181  7.71E-12
+% R205
+APIP + NO        -> 0.82 HO2  +  0.43 ALD +  0.82  NO2 + //
+                      0.44 KET  +  0.18 ONIT + 0.23  HCHO + //
+                      0.11 ACT  +  0.07 ORA1
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- PRODUCTS FROM ATKINSON REVIEW 2003(?)
+%
+% R206
+LIMP + NO        -> 0.90 HO2  +  0.25 MACR + 0.25  KET + //
+                      0.03 ACT  +  0.90 NO2 +  0.10  ONIT
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- PRODUCTS FROM ATKINSON REVIEW 2003(?)
+% R207
+BENP + NO        -> .082 ONIT + .918 HO2 +  .459  UALD + //
+                      .918 NO2  +  .459 OLI +  .918  GLY  + //
+                      0.844 AnBmP + 0.102 AnBlP
+KINETIC ARR2   2.54E-12   -360.
+!  --- FROM MCM V3.1
+% R208
+XYOP + NO        -> 0.95 HO2  +  .350 GLY +  .600  MGLY + //
+                      .700 DCB1 +  .073 DCB2 + .177  DCB3 + //
+                      0.05 ONIT +  0.95 NO2
+KINETIC ARR2   2.70E-12   -360.
+!  --- using RACM1 product yields and dividing DCB value among DCB1,2,3
+% R209
+ADDC + NO        ->      NO2  +       HO2  +  0.68  GLY + //
+                      0.68 OP2  +  0.32 HKET
+KINETIC ARR2   2.70E-12   -360.
+! --- PRODUCTS FROM MCM V3.1
+% R210
+ACO3 + NO        ->      MO2    +     NO2
+KINETIC ARR2   8.10E-12    -270
+!  --- Tyndall et al. 2001
+% R211
+RCO3 + NO        ->      ETHP   +     NO2
+KINETIC ARR2   8.10E-12    -270
+!  --- Tyndall et al. 2001
+% R212
+KETP + NO        -> 0.54 MGLY +  0.46 ALD +  0.23  ACO3 + //
+                      0.77 HO2  +  0.16 XO2  +       NO2
+KINETIC ARR1   4.00E-12
+! --- RATE K FROM HCP3 + NO
+! PRODUCTS 50% FROM ACET\356NE AND 50% FROM MEK
+! --- RATE K FROM HCP3 + NO
+% R213
+ACTP + NO        -> 1.00 ACO3 +  1.00 NO2 +  1.00  HCHO
+KINETIC ARR2   2.90E-12  -300.0
+! --- JPL 2006 RATE CONSTANT
+% R214
+OLNN + NO        ->      ONIT    +    NO2    +     HO2
+KINETIC ARR1   4.00E-12
+! --- RATE K FROM HCP3 + NO
+% R215
+OLND + NO        -> .287 HCHO +  1.24 ALD +  .464  KET + //
+                      2.00 NO2
+KINETIC ARR1   4.00E-12
+!  --- RATE K FROM HCP3 + NO
+%
+% R216
+MO2 +  HO2       ->      OP1
+KINETIC ARR2   4.10E-13  -750.0
+!  --- NASA 2006
+%
+% R217
+ETHP + HO2       ->      OP2
+KINETIC ARR2   7.50E-13  -700.0
+!  --- NASA 2006
+%
+% R218
+HC3P + HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R219
+HC5P + HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R220
+HC8P + HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R221
+ETEP + HO2       ->      OP2
+KINETIC ARR2   1.90E-13  -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+%
+% R222
+OLTP + HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R223
+OLIP + HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+%
+% R224
+ISOP + HO2       ->      ISHP
+KINETIC ARR2   2.05E-13  -1300.
+!   --- GEIGER ET AL. 2003
+%
+% R225
+MACP + HO2       ->      MAHP
+KINETIC ARR2   1.82E-13   -1300.
+!  --- GEIGER ET AL. 2003
+%
+% R226
+MVKP + HO2       ->      OP2
+KINETIC ARR2   7.70E-14  -1298.
+!7.70E-14  -1298  5.99E-12
+%
+% R227
+UALP + HO2       ->      OP2
+KINETIC ARR2   7.70E-14  -1298.
+!7.70E-14  -1298  5.99E-12
+%
+% R228
+APIP + HO2       ->      OP2
+KINETIC ARR1   1.50E-11
+! --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+%
+% R229
+LIMP + HO2       ->      OP2
+KINETIC ARR1   1.50E-11
+! --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+%
+% R230
+BENP + HO2       ->      OP2   + 0.415 AnClP
+KINETIC ARR2   2.91E-13   -1300.
+!  --- MCM V3.1
+%
+% R231
+XYOP + HO2       ->      OP2
+KINETIC ARR2   3.75E-13   -980.
+!  --- CARTER 2000
+%
+% R232
+ADDC + HO2       ->      OP2
+KINETIC ARR2   3.75E-13  -980.
+!  --- CARTER 2000
+%
+% R233
+CHO +  HO2       ->      CSL
+KINETIC ARR1   1.00E-11
+!  --- CARTER 2000
+%
+% R234 (0.4 CO2 as a product)
+ACO3 + HO2       ->  0.4 PAA  +   0.2 ORA2 +  0.4  MO2 + //
+                       0.4 HO
+KINETIC ARR2   4.3E-13   -1040
+! --- products Hasson et al. 2004
+! --- Rate constant Tyndall et al. 2001
+%
+% R235 (0.4 CO2 as a product)
+RCO3 + HO2       ->  0.4 PAA  +   0.2 ORA2 +  0.4  ETHP + //
+                       0.4 HO
+KINETIC ARR2   4.3E-13   -1040
+! --- products Hasson et al. 2004
+! --- Rate constant Tyndall et al. 2001
+%
+% R236
+ACTP + HO2       -> .330 OP2  +  .670 HO  +  .670  HCHO + //
+                      .670 ACO3
+KINETIC ARR2   1.15E-13  -1300.0
+!   --- RATE FROM KIRCHNER AND STOCKWELL, 1996
+!   --- PRODUCTS FROM HASSON ET AL. 2004
+%
+% R237
+MEKP + HO2       ->      OP2
+KINETIC ARR2   1.15E-13 -1300.0
+!   --- SAME AS KETP + HO2
+%
+% R238
+KETP + HO2       ->      OP2
+KINETIC ARR2   1.15E-13  -1300.0
+!   --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+%
+% R239
+OLNN + HO2       ->      ONIT
+KINETIC ARR2   1.66E-13  -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! THIS IS ALSO A PEROXIDE, BUT IT IS TREATED AS AN
+! ONIT TO ALLOW FOR NITROGEN CONSERVATION
+%
+% R240
+OLND + HO2       ->      ONIT
+KINETIC ARR2   1.66E-13 -1300.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! THIS IS ALSO A PEROXIDE, BUT IT IS TREATED AS AN
+! ONIT TO ALLOW FOR NITROGEN CONSERVATION
+%
+% R241
+MO2 +  MO2       -> 1.37 HCHO +  0.74 HO2 +  0.63  MOH
+KINETIC ARR2   9.50E-14   -390.0
+! --- RATE CONSTANT AS MO2 + MO2, TYNDALL ET AL. 2001
+! 33% RO + 67% ROH LIGHTFOOT 1992
+%
+% R242
+ETHP + MO2       -> 0.75 HCHO    +    HO2 +  0.75  ACD + //
+                      .250 MOH  +  .250 EOH
+KINETIC ARR2   1.18E-13   -158.0
+! --- AS 2*SQRT(KM*KP)
+! --- KIRCHNER AND STOCKWELL, 1996; LEBRAS 1997
+%
+% R243
+HC3P + MO2       -> .827 HCHO  + .894 HO2 +  .198  ALD + //
+                      .497 KET +   .080 MO2 +  .250  MOH + //
+                      .026 XO2  +  .050 GLY +  .026  ETHP + //
+                      .250 ROH
+KINETIC ARR2   9.46E-14   -431.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R244
+HC5P + MO2       -> .777 HCHO +  .842 HO2 +  .251  ALD + //
+                      .618 KET  +  .140 ETHP + .191  XO2 + //
+                      .018 MO2  +  .250 MOH +  .250  ROH
+KINETIC ARR2   1.00E-13   -467.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R245
+HC8P + MO2       -> .750 HCHO  + .910 HO2  + .197  ALD + //
+                      .652 KET  +  .281 XO2 +  .090  ETHP + //
+                      .250 MOH  +  .250 ROH
+KINETIC ARR2   4.34E-14   -633.
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R246
+ETEP + MO2       -> 1.95 HCHO   +     HO2 +  0.15  ALD + //
+                      .250 MOH  +  .250 ETEG
+KINETIC ARR2   1.71E-13   -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- ETEG is new species ethylene glycol
+%
+% R247
+OLTP + MO2       -> 1.50 HCHO   +     HO2  + .705  ALD + //
+                      .045 KET +   .250 MOH +  .250  ROH
+KINETIC ARR2   1.46E-13   -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+%
+% R248
+OLIP + MO2       -> .750 HCHO   +     HO2 +  1.28  ALD + //
+                      .218 KET  +  .250 MOH +  .250  ROH
+KINETIC ARR2   9.18E-14   -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+%
+% R249
+ISOP + MO2       -> 1.54 HCHO +  1.0  HO2 +  .305  MVK + //
+                      .219 MACR +  .250 MOH +  .250  ROH + //
+                      .16 DIOL
+KINETIC ARR2   3.40E-14  -221.
+!  --- BASED ON GEIGER ET AL. 2003
+%
+% R250
+MACP + MO2       -> 1.50 HCHO +  1.00 HO2 +  .167  HACE + //
+                      .167 CO  +   .167 ACO3 + .333  MGLY + //
+                      .042 ORA2 +  .250 MOH +  .250  ROH
+KINETIC ARR2   3.40E-14  -221.
+!3.40E-14  -221  7.14E-14
+! --- BASED ON GEIGER ET AL. 2003
+%
+% R251
+MVKP + MO2       -> 1.5  HCHO +  1.0  HO2 +  1.75  ALD + //
+                      1.16 XO2  +  .292 ORA2 + .500  MGLY + //
+                      1.16 ACO3 +  .250 MOH +  .250  ROH
+KINETIC ARR2   3.40E-14   -221.
+!3.40E-14  -221  7.14E-14
+%
+% R252
+UALP + MO2       -> .773 HCHO +  1.0  HO2 +  .203  ALD + //
+                      .525 KET  +  .305 CO  +  .105  MGLY + //
+                      .135 GLY  +  .250 MOH +  .250  ROH
+KINETIC ARR2   3.40E-14    -221.
+!3.40E-14  -221  7.14E-14
+%
+% R253
+APIP + MO2       -> 1.00 HO2  +  .750 ALD +  .750  HCHO + //
+                      .750 KET  +  .250 MOH +  .250  ROH
+KINETIC ARR2   3.56E-14   -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+%
+% R254
+LIMP + MO2       -> 1.00 HO2  +  .308 MACR + .192  OLI + //
+                      1.04 HCHO +  .250 MOH +  .250  ROH
+KINETIC ARR2   3.56E-14    -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC)
+%
+% R255
+BENP + MO2       ->      HCHO +  1.6  HO2 +  .600  GLY + //
+                      .300 OLI +   0.7  UALD   +     HO2 + //
+                      0.415 AnClP
+KINETIC ARR2   3.56E-14   -708.
+!  --- PRODUCTS FROM MCMV3.1 (EXACT CAMPAIGN)
+!  --- CHANGE .3 TO .7 UALD AND .7 TO .3 OLI
+%
+% R256
+TOLP + MO2       ->      HCHO +  2.0  HO2 +  .271  GLY + //
+                           DCB2
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R257
+TLP1 + MO2       ->      HCHO +  1.0  HO2    +     BALD
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R258
+PER1 + MO2       ->      HCHO +  2.0  HO2    +     MGLY + //
+                           DCB1
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R259
+XYOP + MO2       ->      HCHO +  2.0  HO2  + .368  GLY + //
+                      .632 MGLY +  .737 DCB1 + .077  DCB2 + //
+                      .186 DCB3
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R260
+XYL1 + MO2       ->      HCHO +  1.0  HO2   +      BALD
+KINETIC ARR2   3.56E-14    -708.
+!  --- CARTER 2000
+%
+% R261
+XYLP + MO2       ->      HCHO  + 2.0  HO2   +      DCB2
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R262
+PER2 + MO2       ->      HCHO +  2.0  HO2   +      MGLY + //
+                           DCB1 +  2.05 DCB3
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R263
+BALP + MO2       ->      HCHO +  1.0  HO2    +     BAL1
+KINETIC ARR2   3.56E-14   -708.
+!  --- CARTER 2000
+%
+% R264
+BAL1 + MO2       ->      HCHO +  1.0  HO2    +     BAL2
+KINETIC ARR2   3.56E-14    -708.
+!  --- CARTER 2000
+%
+% R265
+ADDC + MO2       ->      HCHO +  2.0  HO2  +  .68  GLY + //
+                      0.32 HKET +  0.68 OP2
+KINETIC ARR2   3.56E-14   -708.
+!  ---PRODUCTS FROM MCM V3.1
+%
+% R266 (0.4  CO2 as a product)
+ACO3 + MO2       ->      HCHO +  0.9  HO2 +  0.90  MO2 + //
+                      0.1  ORA2
+KINETIC ARR2   2.0E-11    -500.0
+!  --- Products and rate constant Tyndall et al. 2001
+%
+% R267 (0.4  CO2 as a product)
+RCO3 + MO2       ->      HCHO +  0.9  HO2 +  0.9   MO2 + //
+                      0.1  ORA2
+KINETIC ARR2   2.0E-11    -500.0
+!  --- Products and rate constant Tyndall et al. 2001
+%
+% R268
+ACTP + MO2       -> 0.25 ROH  +  1.50 HCHO + 0.50  ACO3 + //
+                      0.25 MOH +   0.50 HO2 +  .125  ORA2
+KINETIC ARR2   7.50E-13   -500.0
+! --- JPL 2006 RATE CONSTANT
+%
+% R269
+MEKP + MO2       -> .334 DCB1 +  .834 HO2 +  0.25  MOH + //
+                      1.00 HCHO +  0.25 ROH
+KINETIC ARR2   6.91E-13  -508.0
+! --- K, E/R ESTIMATED FOR KET = ACETONE,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R270
+KETP + MO2       -> 0.50 DCB1 +  1.00 HO2 +  0.25  MOH + //
+                      0.75 HCHO +  0.25 ROH
+KINETIC ARR2   6.91E-13   -508.0
+! --- K, E/R ESTIMATED FOR KET = ACETONE,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R271
+OLNN + MO2       ->      HCHO +  2.00 HO2   +      ONIT
+KINETIC ARR2   1.60E-13    -708.0
+!  --- AS ISO-ONO2 + MO2
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R272
+OLND + MO2       -> .965 HCHO +  .500 HO2 +  .930  ALD + //
+                      .348 KET  +  .500 NO2 +  .250  MOH + //
+                      0.25 ROH  +  .500 ONIT
+KINETIC ARR2   9.68E-14   -708.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R273
+ETHP + ACO3      ->      ACD  +  .500 HO2 +  0.5   MO2 + //
+                      0.5  ORA2
+KINETIC ARR2   1.03E-12   -211.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+%
+% R274
+HC3P + ACO3      -> .273 ALD  +  .662 KET +  .394  HO2 + //
+                      .580 MO2 +   .500 ORA2 + .130  HCHO + //
+                      .026 ETHP +  .026 XO2 +  .067  GLY
+KINETIC ARR2   6.90E-13   -460.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R275
+HC5P + ACO3      -> .381 ALD  +  .824 KET +  .342  HO2 + //
+                      .518 MO2  +  .500 ORA2 + .042  HCHO + //
+                      .140 ETHP +  .191 XO2
+KINETIC ARR2   5.59E-13    -522.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R276
+HC8P + ACO3      -> .217 ALD +   .642 KET +  .303  HO2 + //
+                      .500 MO2 +   .495 ORA2 + .067  ETHP + //
+                      .208 XO2
+KINETIC ARR2   2.47E-13   -683.
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R277
+ETEP + ACO3      -> 1.6  HCHO +  0.2  ALD +  0.5   HO2 + //
+                      0.5  MO2 +   0.5  ORA2
+KINETIC ARR2   9.48E-13   -765.0
+! --- KIRCHNER AND STOCKWELL, 1996
+! 50% RO + 50% ROH ASSUMED
+%
+% R278
+OLTP + ACO3      -> .940 ALD    +     HCHO + .500  HO2 + //
+                      .500 MO2  +  .500 ORA2 + .060  KET
+KINETIC ARR2   8.11E-13   -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+! --- K, E/R ESTIMATED FROM SELF REACTIONS,
+! 50% RO + 50% ROH ASSUMED
+%
+% R279
+OLIP + ACO3      -> 1.71 ALD  +  .500 HO2 +  .500  MO2 + //
+                      .290 KET  +  .500 ORA2
+KINETIC ARR2   5.09E-13   -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996,
+! 50% RO + 50% ROH ASSUMED
+%
+% R280
+ISOP + ACO3      -> 0.5  HO2 +   0.5  MO2 +  0.5   ORA2 + //
+                     1.048 HCHO +  .219 MACR + .305  MVK + //
+                       0.16 DIOL
+KINETIC ARR2   8.40E-14   -221.
+!8.40E-14  E/R  -221.  1.77E-13 -- SAME AS UALP + ACO3
+!  --- BASED ON GEIGER ET AL. 2003
+%
+% R281
+MACP + ACO3      -> .500 HO2  +  0.5  MO2 +  0.583 ORA2 + //
+                      .167 HACE +  .167 CO  +  0.167 ACO3 + //
+                      0.33 MGLY  +      HCHO
+KINETIC ARR2   8.40E-14   -221.
+!8.40E-14  -221  1.77E-13
+!  --- BASED ON GEIGER ET AL. 2003 FOR THE MACP+NO REACTION
+%
+% R282
+MVKP + ACO3      -> 0.5  HO2 +   0.5  MO2 + 1.083  ORA2 + //
+                      2.3  ALD +   1.16 XO2  +       HCHO + //
+                      0.5  MGLY +  1.16 ACO3
+KINETIC ARR2   8.40E-14   -221.
+!8.40E-14  -221  1.77E-13
+%
+% R283
+UALP + ACO3      -> 0.5  HO2  +  0.5  MO2 +  0.5   ORA2 + //
+                      0.27 ALD  +  0.7  KET +  .105  MGLY + //
+                      0.5  CO  +  .030  HCHO + 0.18  GLY
+KINETIC ARR2   8.40E-14   -221.
+!8.40E-14  -221  1.77E-13
+%
+% R284
+APIP + ACO3      ->  .5  HO2   +      ALD  +   .5  MO2 + //
+                           KET   +      ORA2
+KINETIC ARR2   7.40E-13   -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+%
+% R285
+LIMP + ACO3      ->  .5  HO2 +   .308 MACR + 0.192 OLI + //
+                      .385 HCHO  +   .5 MO2  +   .5  ORA2
+KINETIC ARR2   7.40E-13    -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+%
+% R286
+BENP + ACO3      ->      MO2  +  0.60 HO2 +  .600  GLY + //
+                      .700 UALD +  0.30 OLI + 0.415 AnClP
+KINETIC ARR2   7.40E-13    -765.
+!  --- PRODUCTS FROM MCMV3.1
+! - change 0.3 uald to 0.7 uald and change .7 to .3 oli
+%
+% R287
+TOLP + ACO3      ->      DCB2   +     HO2   +      MO2
+KINETIC ARR2   7.40E-13   -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R288
+TLP1 + ACO3      -> 1.00 MO2  +  1.00 BALD
+KINETIC ARR2   7.40E-13   -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R289
+PER1 + ACO3      ->      DCB1   +     MO2    +     MGLY + //
+                           HO2
+KINETIC ARR2   7.40E-13    -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R290
+PER2 + ACO3      ->      DCB1   +     MO2    +     MGLY + //
+                           HO2 +   2.05 DCB3
+KINETIC ARR2   7.40E-13   -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R291
+BALP + ACO3      ->      BAL1    +    MO2
+KINETIC ARR2   7.40E-13   -765.
+!same as NO reaction but with different rate constant
+%
+% R292
+BAL1 + ACO3      ->      BAL2    +    MO2
+KINETIC ARR2   7.40E-13    -765.
+!same as NO reaction but with different rate constant
+%
+% R293
+XYOP + ACO3      ->      MO2     +    HO2 +  .368  GLY + //
+                      .632 MGLY +  .737 DCB1 + .077  DCB2 + //
+                      .186 DCB3
+KINETIC ARR2   7.40E-13   -765.
+!  --- CARTER 2000
+%
+% R294
+XYL1 + ACO3      -> 1.00 MO2  +  1.00 BALD
+KINETIC ARR2   7.40E-13  -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R295
+XYLP + ACO3      ->      DCB2   +     MO2    +     HO2
+KINETIC ARR2   7.40E-13   -765.
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R296
+ADDC + ACO3      ->      MO2  +   2.0 HO2  +  .68  GLY + //
+                      0.32 HKET +  0.68 OP2
+KINETIC ARR2   7.40E-13   -708.
+!  --- CARTER 2000
+%
+% R297 (2.0 CO2 as a product)
+ACO3 + ACO3      ->  2.0 MO2
+KINETIC ARR2   2.50E-12   -500.0
+!  --- LIGHTFOOT 1992, Rate constant Tyndall et al. 2001
+%
+% R298 (2.0 CO2 as a product)
+RCO3 + RCO3      ->  2.0 ETHP
+KINETIC ARR2   2.50E-12    -500.0
+!  --- LIGHTFOOT 1992, Rate constant Tyndall et al. 2001
+%
+% R299
+KETP + ACO3      -> 0.50 DCB1 +  0.50 HO2 +  0.50  ORA2 + //
+                      0.50 MO2
+KINETIC ARR2   7.51E-13  -565.0
+! --- K, E/R ESTIMATED,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R300
+ACTP + ACO3      -> 0.50 MO2   +      HCHO + 0.75  ORA2 + //
+                      0.50 ACO3
+KINETIC ARR2   7.51E-13   -565.0
+! --- K, E/R ESTIMATED,
+! --- 50% RO + 50% ROH ASSUMED
+!  --- BRIDIER ET AL. 1993 FOR PRODUCTS
+!  --- KIRCHNER AND STOCKWELL, 1996 FOR RATE
+%
+% R301
+MEKP + ACO3      -> 0.50 MO2  +  0.50 ORA2 + 0.334 DCB1 + //
+                      0.33 HO2 +   0.33 HCHO
+KINETIC ARR2   7.51E-13   -565.0
+! --- K, E/R ESTIMATED,
+! 50% RO + 50% ROH ASSUMED
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R302
+OLNN + ACO3      ->      ONIT  + 1.00 MO2 +  1.00  HO2
+KINETIC ARR2   8.85E-13   -765.0
+!  --- AS ISO-ONO2 + ACO3
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R303
+OLND + ACO3      -> .287 HCHO +  1.24 ALD +  .464  KET + //
+                      .500 MO2  +  .500 ORA2   +     NO2
+KINETIC ARR2   5.37E-13   -765.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R304
+OLNN + OLNN      -> 2.00 ONIT    +    HO2
+KINETIC ARR2   7.00E-14  -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R305
+OLNN + OLND      -> .202 HCHO +  .640 ALD +  .149  KET + //
+                      .500 HO2  +  .500 NO2 +  1.50  ONIT
+KINETIC ARR2   4.25E-14  -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R306
+OLND + OLND      -> .504 HCHO +  1.21 ALD +  .285  KET + //
+                           ONIT   +     NO2
+KINETIC ARR2   2.96E-14  -1000.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R307
+MO2 +  NO3       ->      HCHO    +    HO2   +      NO2
+KINETIC ARR1   1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R308
+ETHP + NO3       ->      ACD    +     HO2   +      NO2
+KINETIC ARR1   1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R309
+HC3P + NO3       -> .050 HCHO +  .248 ALD  + .662  KET + //
+                      .067 GLY  +  .789 HO2 +  .159  MO2 + //
+                      .051 ETHP +  .051 XO2  +       NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R310
+HC5P + NO3       -> .024 HCHO +  .241 ALD  + .824  KET + //
+                      .684 HO2  +  .035 MO2 +  .280  ETHP + //
+                      .381 XO2  +       NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R311
+HC8P + NO3       -> .203 ALD  +  .869 KET +  .180  ETHP + //
+                           NO2  +  .820 HO2 +  .563  XO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R312
+ETEP + NO3       -> 1.6  HCHO    +    HO2    +     NO2 + //
+                      0.2  ALD
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R313
+OLTP + NO3       -> 0.94 ALD    +     HCHO    +    HO2 + //
+                           NO2  +  0.06 KET
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R314
+OLIP + NO3       ->      HO2  +  1.71 ALD +  0.29  KET + //
+                           NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R315
+ISOP + NO3       -> .438 MACR +  .610 MVK   +      HO2 + //
+                           NO2  +  1.05 HCHO
+KINETIC ARR1   1.20E-12
+!  --- RATE CONSTANT EQUAL HCP + NO3
+!  --- BASED ON GEIGER ET AL. 2003
+%
+% R316
+APIP + NO3       ->      HO2    +     ALD    +     NO2 + //
+                           KET
+KINETIC ARR1   1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+%
+% R317
+LIMP + NO3       ->      HO2  +  .615 MACR + 0.385 OLI + //
+                      .385 HCHO   +     NO2
+KINETIC ARR1   1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996 (EUROTRAC-PROCEEDINGS)
+%
+% R318
+BENP + NO3       ->      HO2    +     GLY  + .500  UALD + //
+                           NO2 +   0.50 OLI + //
+                           0.844 AnBmP + 0.102 AnBlP
+KINETIC ARR1   1.20E-12
+!  --- PRODUCTS FROM MCMV3.1
+%
+% R319
+XYOP + NO3       ->      HO2 +   .368 GLY +  .632  MGLY + //
+                      .737 DCB1 +  .077 DCB2 + .186  DCB3 + //
+                           NO2
+KINETIC ARR1   1.20E-12
+!  --- CARTER 2000
+%
+% R320
+ADDC + NO3       ->      NO2    +     HO2  +  .68  GLY + //
+                      0.68 OP2  +  0.32 HKET
+KINETIC ARR1   1.20E-12
+!  ---PRODUCTS FROM MCM V3.1
+%
+% R321
+ACO3 + NO3       ->      MO2    +     NO2
+KINETIC ARR1   4.00E-12
+!  --- WAYNE 1995
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- NO UPDATES
+%
+% R322
+RCO3 + NO3       ->      ETHP   +     NO2
+KINETIC ARR1   4.00E-12
+!  --- WAYNE 1995
+!  --- KIRCHNER AND STOCKWELL, 1996
+!  --- NO UPDATES
+%
+% R323
+MEKP + NO3       -> 0.67 DCB1 +  0.67 HO2 +  0.33  HCHO + //
+                           NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R324
+KETP + NO3       -> 1.00 DCB1    +    HO2    +     NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R325
+ACTP + NO3       -> 1.00 ACO3 +  1.00 NO2 +  1.00  HCHO
+KINETIC ARR1   1.20E-12
+!  --- PRODUCTS FROM THE ACTP+NO REACTION
+!  --- RATE FROM KIRCHNER AND STOCKWELL, 1996
+%
+% R326
+OLNN + NO3       ->      ONIT    +    NO2    +     HO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R327
+OLND + NO3       -> .287 HCHO  + 1.24 ALD +  .464  KET + //
+                      2.00 NO2
+KINETIC ARR1   1.20E-12
+!  --- ESTIMATED TO EQUAL TO MO2 AND ETHP
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R328
+MVKP + NO3       ->      NO2  +  0.7  ALD  + 2.3   XO2 + //
+                      2.3  ACO3 +  0.3  HCHO   +     MGLY + //
+                           HO2
+KINETIC ARR1   1.20E-12
+!same as NO reaction but with different rate constant
+%
+% R329
+MACP + NO3       ->      NO2  +  0.33 ACO3 + 0.33  HACE + //
+                      0.33 CO    +      HCHO + 0.667 MGLY + //
+                           HO2
+KINETIC ARR1   1.20E-12
+!  --- GEIGER ET AL. 2003 - same as NO reaction but with different rate constant
+%
+% R330
+TLP1 + NO3       -> 1.00 NO2  +  1.00 BALD
+KINETIC ARR1   1.20E-12
+! -- same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R331
+TOLP + NO3       ->      DCB2   +     NO2   +      HO2
+KINETIC ARR1   1.20E-12
+! -- same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R332
+PER1 + NO3       ->      DCB1   +     NO2   +      MGLY + //
+                           HO2
+KINETIC ARR1   1.20E-12
+! same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR TOL BASED ON CALVERT 2002 FOR TOL
+%
+% R333
+XYL1 + NO3       -> 1.00 NO2  +  1.00 BALD
+KINETIC ARR1   1.20E-12
+! -- same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR XYL BASED ON CALVERT 2002 FOR TOL
+%
+% R334
+XYLP + NO3       ->      DCB2   +     NO2    +     HO2
+KINETIC ARR1   1.20E-12
+! same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR XYL BASED ON CALVERT 2002 FOR TOL
+%
+% R335
+PER2 + NO3       ->      DCB1   +     NO2    +     MGLY + //
+                           HO2  +  2.05 DCB3
+KINETIC ARR1   1.20E-12
+! same as NO reaction but with different rate constant
+! --- NEW MECHANISM FOR XYL BASED ON CALVERT 2002 FOR TOL
+%
+% R336
+BALP + NO3       ->      BAL1   +     NO2
+KINETIC ARR1   1.20E-12
+!same as NO reaction but with different rate constant
+%
+% R337
+BAL1 + NO3       ->      BAL2   +     NO2
+KINETIC ARR1   1.20E-12
+!same as NO reaction but with different rate constant
+%
+% R338
+UALP + NO3       ->      NO2    +     HO2 +  0.61  CO + //
+                      0.27 ALD  +  0.03 HCHO + 0.18  GLY + //
+                      0.21 MGLY +  0.7  KET
+KINETIC ARR1   1.20E-12
+!same as NO reaction but with different rate constant
+%
+% R339
+XO2 +  HO2       ->      OP2
+KINETIC ARR2   1.66E-13  -1300.0
+!  --- AS PROP + HO2
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R340
+XO2 + MO2       ->      HCHO   +     HO2
+KINETIC ARR2   5.99E-15  -1510.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R341
+XO2 + ACO3      ->      MO2
+KINETIC ARR2   3.40E-14  -1560.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R342
+XO2 +  XO2       ->
+KINETIC ARR2   7.13E-17 -2950.0
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R343
+XO2 +  NO        ->      NO2
+KINETIC ARR1   4.00E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+% R344
+XO2 +  NO3       ->      NO2
+KINETIC ARR1   1.20E-12
+!  --- KIRCHNER AND STOCKWELL, 1996
+%
+!342 HCHO  HO2       ->      HCO3
+!THERMAL  A-FACT  9.70E-15  E/R -625.0
+!
+!343 HCO3            ->      HCHO        HO2
+!THERMAL  A-FACT  2.40E+12  E/R 7000.0
+!
+!344 HCO3  NO        ->      ORA1        NO2         HO2
+!THERMAL  A-FACT  5.60E-12  E/R   0.0
+!
+!345 HCO3  HO2       ->      OP1
+!THERMAL  A-FACT  5.60E-15  E/R -2300.0
+%
+% R345
+ORAP + NO        ->      NO2    +     GLY   +      HO2
+KINETIC ARR1   4.00E-12
+! --- RATE FROM ACTP + NO
+%
+% R346
+ORAP + HO2       ->      OP2
+KINETIC ARR2   1.15E-13  -1300.0
+! --- RATE FROM ACTP + HO2
+%
+% R347
+ORAP + MO2       ->      HCHO   +     HO2    +     GLY
+KINETIC ARR2   7.50E-13  -500.0
+! --- SAME AS ACTP + MO2 - JPL 2006 RATE CONSTANT
+%
+% R348
+ORAP + ACO3      ->      MO2    +     GLY
+KINETIC ARR2   7.51E-13   -565.0
+! --- FROM ACTP+ACO3
+%
+% R349
+ORAP + NO3       ->      NO2    +     GLY    +     HO2
+KINETIC ARR1   1.20E-12
+! ---  RATE FROM ACTP + NO2
+%
+% R350 (2.00  CO2 as a product)
+RCO3 + ACO3      ->      ETHP   +     MO2
+KINETIC ARR2   2.50E-12   -500.0
+! --- LIGHTFOOT 1992, RATE CONST TYNDALL ET AL. 2001
+%
+% R351
+DIOL + HO       ->    0.16 BiMT + HO
+KINETIC ARR1  13.0E-11
+! Yields taken from from Böge et al.
+! Other Possibilty: Put higher yeld for BiMT
+%
+% R352
+% Modif ED : formation of SOA for aecbox
+HUM + HO -> 0.74 BiBmP + 0.26 BiBlP + HO
+KINETIC ARR1    2.93E-10
+%
+%--------------------353--------------------
+POAlP + HO       -> SOAlP + HO
+KINETIC ARR1   2.00E-11
+%
+%--------------------354--------------------
+POAmP + HO       -> SOAmP + HO
+KINETIC ARR1   2.00E-11
+%
+%--------------------355--------------------
+POAhP + HO       -> SOAhP + HO
+KINETIC ARR1   2.00E-11
+%
+% R356
+XYLP + HO2       ->      OP2
+KINETIC ARR2   3.75E-13   -980.
+!  --- CARTER 2000
+% R357
+TOLP + HO2       ->      OP2
+KINETIC ARR2   3.75E-13   -980.
+!  --- CARTER 2000
+! END OF MECHANISM
+% R358
+ISON + NO3       ->      0.07385 BiNIT3 + NO3
+KINETIC ARR1   6.61E-13
+%
+%%%%%%%%%%%%%%%%%%%%%
+% SVOC formation: Toluene and xylenes
+%
+% R359
+TOLPAEC + NO -> .097 AnBlP + .748 AnBmP + NO
+KINETIC ARR2  2.70E-12   -360.
+% Rate from TOLP + NO
+%
+% R360
+TOLPAEC + NO3 -> .097 AnBlP + .748 AnBmP + NO3
+KINETIC ARR1   1.20E-12
+% Rate from TOLP + NO3
+%
+% R361
+TOLPAEC + HO2 -> 0.78 AnClP + HO2
+KINETIC ARR2   3.75E-13   -980.
+% Rate from TOLP + HO2
+%
+% R362
+TOLPAEC + MO2 -> 0.78 AnClP + MO2
+KINETIC ARR2   3.56E-14   -708.
+% Rate from TOLP + MO2
+%
+% R363
+TOLPAEC + ACO3 -> 0.78 AnClP + ACO3
+KINETIC ARR2   7.40E-13   -765.
+% Rate from TOLP + ACO3
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R364
+XYLPAEC + NO -> .063 AnBlP + .424 AnBmP + NO
+KINETIC ARR2   2.70E-12   -360.
+% Rate from XYLP + NO
+%
+% R365
+XYLPAEC + NO3 -> .063 AnBlP + .424 AnBmP + NO3
+KINETIC ARR1   1.20E-12
+% Rate from XYLP + NO3
+%
+% R366
+XYLPAEC + HO2 -> 0.71 AnClP + HO2
+KINETIC ARR2   3.75E-13   -980.
+% Rate from XYLP + HO2
+%
+% R367
+XYLPAEC + MO2 -> 0.71 AnClP + MO2
+KINETIC ARR2   3.56E-14   -708.
+% Rate from XYLP + MO2
+%
+% R368
+XYLPAEC + ACO3 -> 0.71 AnClP + ACO3
+KINETIC ARR2   7.40E-13   -765.
+% Rate from XYLP + ACO3
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Heterogeneous reactions
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%--------------------369, HR1---------------
+HO2              ->      0.5 H2O2
+KINETIC ARR1    1.20E-12
+%  --- HETEROGENEOUS REACTION !! change rate after spack
+%
+%--------------------370, HR2---------------
+NO2              ->      0.5 HONO + 0.5 HNO3
+KINETIC ARR1    1.20E-12
+%  --- HETEROGENEOUS REACTION !! change rate after spack
+%
+%--------------------371, HR3---------------
+NO3              ->      HNO3
+KINETIC ARR1    1.20E-12
+%  --- HETEROGENEOUS REACTION !! change rate after spack
+%
+%--------------------372, HR4---------------
+N2O5             ->      2 HNO3
+KINETIC ARR1    1.20E-12
+%  --- HETEROGENEOUS REACTION !! change rate after spack
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 373
+BPI +  HO        ->      APIP  +  //
+                         0.07 BiA0D + 0.08 BiA1D + 0.06 BiA2D
+KINETIC ARR2   2.38E-11    -357.0
+!  --- IUPAC WEB VERSION OCTOBER 2006
+%
+% 374
+BPI +  NO3       -> 0.10 OLNN +  0.90 OLND + //
+                    0.02 BiA0D + 0.63 BiNIT
+KINETIC ARR1   2.51E-12
+!  --- ATKINSON AND AREY 2003
+%
+% 375
+BPI +  O3        -> 0.65 ALD  +  0.53 KET +  0.14  CO + //
+                      0.20 ETHP +  0.42 KETP + 0.85  HO + //
+                      0.10 HO2  +  0.02 H2O2 + //
+                      0.09 BiA0D + 0.13 BiA1D + 0.04 BiA2D
+KINETIC ARR1   1.5E-17
+!  --- ATKINSON AND AREY 2003
+% SOA modification (YS)
+END
+
+

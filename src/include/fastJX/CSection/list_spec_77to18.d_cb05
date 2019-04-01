@@ -1,0 +1,9 @@
+#  List of filenames and labels to read in for Fast-J ACS code
+#
+# directory ----------------------------------------------------
+#
+  Xsect_77wl        X-section input directory
+  Xsect_18wl        X-section output directory
+#
+# filename ----******* label ********---------------------------
+PACD

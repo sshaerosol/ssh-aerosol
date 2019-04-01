@@ -1,0 +1,28 @@
+Input file for stand-alone test version of Fast-J2 code -(ver 5.7-3/07)
+>>>>>>>this version is keyed to test with EC T42 grid and 37-level model
+-----------------------------------------------------------------------
+  2008    Year
+   080    Day of year
+     9    Number of steps to run
+	 9    Number of latitude to run (each run = 1 latitude)
+  12.0    Start time of day (UT) to calculate J's
+   1.0    Time step (hours, if multiple steps)
+    36    JLatitude
+     1    ILongitude
+  0.10    Surface Albedo
+    12    Cloud's Mie index for OD below
+       Z (m)     Temp (K)     OD
+  1        0.0  287.00000    0.0
+  2        1.0  280.00000    0.0
+  3      500.0  272.00000    0.0
+  4     1500.0  260.00000    0.0
+  5     2500.0  257.00000    0.0
+  6     3500.0  246.00000    0.0
+  7     4500.0  220.00000    0.0
+  8     5500.0  194.00000    0.0
+  9    14500.0  186.00000    0.0
+ 10    15500.0  186.00000    0.0
+ 11    24500.0  186.00000    0.0
+ 12    40000.0  191.00000    0.0
+-----------------------------------------------------------------------
+

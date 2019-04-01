@@ -1,0 +1,1485 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2012-2018, ENPC - EDF R&D - INERIS
+!!     Author(s): Shupeng Zhu
+!!
+!!     This file is part of the Size Composition Resolved Aerosol Model (SCRAM), a
+!!     component of the SSH-aerosol model.
+!!
+!!     SSH-aerosol is a free software; you can redistribute it and/or modify
+!!     it under the terms of the GNU General Public License as published
+!!     by the Free Software Foundation; either version 2 of the License,
+!!     or (at your option) any later version.
+!!
+!!     SSH-aerosol is distributed in the hope that it will be useful, but
+!!     WITHOUT ANY WARRANTY; without even the implied warranty of
+!!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+!!     General Public License for more details.
+!!
+!!-----------------------------------------------------------------------
+!!
+!!     -- DESCRIPTION
+!!    This module read configuration file and initialize all global variables
+!!-----------------------------------------------------------------------
+module aInitialization
+    implicit none
+    INCLUDE 'CONST.INC'
+    INCLUDE 'CONST_A.INC'
+    include 'pointer.inc'
+
+    !!part 1: parameters of system dimension
+    Integer :: N_gas   !complete gas species number
+    integer :: N_size   ! total number of size and composition sections
+    integer :: N_groups!Number of groups
+    integer :: N_fracmax! maximum number of composition sections per size section
+    integer :: N_aerosol !Number of aerosol species
+    integer :: N_sizebin!number of  size sections
+    integer :: N_organics !Number of organics aerosol species
+    integer :: N_inorganic!Number of inorganic aerosol species
+    integer :: N_inert!number of inert aerosol species
+    integer :: N_liquid!Number of liquid internal species
+    integer :: N_solid!Number of solid internal species
+    integer :: N_inside_aer!Number of internal species
+    integer :: N_hydrophilic!Number of hydrophilic organics aerosol species
+    integer :: N_species
+    integer :: N_frac !the Number of fraction of each species
+    integer :: kind_grid
+    integer :: nesp_loc
+    integer :: n_reaction ! Number of gas-phase reactions
+    integer :: n_photolysis ! Number of photolyses
+    integer :: nt ! Number of iteration
+
+    parameter (N_organics=27,N_inorganic=5,N_inert=2,N_liquid=12)
+!    parameter (N_aerosol = N_organics + N_inorganic + N_inert + 1)
+    parameter (N_solid=9,N_inside_aer=21)
+    parameter(N_hydrophilic=9)
+!    parameter (n_reaction = 197, n_photolysis = 24)
+
+    !!part 2: parameters of system option    
+    integer :: tag_thrm!method for wet diameter computation0 h2o 1 isorropia
+    integer :: dynamic_solver  !KDSLV Tag type of solver
+    integer :: sulfate_computation !ISULFCOND tag of sulfate condensation method
+    integer :: redistribution_method !tag of redistribution method
+    integer :: with_coag !Tag gCoagulation
+    integer :: with_cond !Tag fCondensation
+    integer :: with_nucl !Tag nucleation
+    Integer :: aqueous_module!ICLD
+    Integer :: with_incloud_scav!IINCLD
+    Integer :: with_kelvin_effect!IKELV
+    Integer :: with_fixed_density!IDENS
+    integer :: ICUT!cutting_bin
+    integer :: section_pass
+    Integer :: nucl_model!ITERN
+    Integer :: wet_diam_estimation!ITHRM
+    Integer :: with_oligomerization!IOLIGO
+!    Integer :: thermodynamic_model!ITHERMO
+    Integer :: ISOAPDYN
+    Integer :: with_number!INUM
+    integer :: ncycle_aer
+
+    integer :: init_scenario !Initial distribution conditions 1.hazy 2.urban 3.clear
+    integer :: Tag_external
+    integer :: Tag_init
+
+
+    integer NITER_PKW,NITER_AEC_AQ
+    integer NITER_POA,NITER_AEC_DRY    
+    double precision ::  ALFHP! percentage of H+ allowed to c/e(0.1)
+    double precision ::  EPSER
+    double precision ::  TINYM,TINYN,MTSBL
+    double precision ::  DTMAX,DTAEROMIN
+    double precision ::  Diam_MIN,Diam_MAX
+    parameter(EPSER = 1.D-2)
+    parameter(ALFHP = 0.1D0)
+    parameter(TINYM = 1.D-20)
+    parameter(TINYN = 1.D-15)
+    parameter(DTMAX =10.D0)
+    parameter(DTAEROMIN =1.D0)
+    parameter(NITER_AEC_AQ = 1)
+    parameter(NITER_AEC_DRY = 1)
+    parameter(NITER_PKW = 5)
+    parameter(NITER_POA = 10)
+    parameter(MTSBL = 1.0D0)
+
+    integer :: with_heterogeneous ! 
+    integer :: with_adaptive !
+    double precision :: adaptive_time_step_tolerance, min_adaptive_time_step
+    integer :: opt_photolysis
+    double precision :: longitude, latitude
+
+
+    !!part 3: System pointers
+    Integer :: E1,E2,G1,G2!Mark the begin and end of dynamic aerosol (except EH2O)
+    ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
+    Integer :: ictmNH3,ictmHNO3,ictmHCl,ictmSO2,ictmH2O2,ictmHCHO,ictmHNO2
+    Integer :: ictmO3,ictmOH,ictmHO2,ictmNO3,ictmNO,ictmNO2,ictmPAN,ictmH2SO4!pointers of cloud species.
+    ! Integer :: IH,INa,INH4,ICl,ISO4,IHSO4,INO3,IH2O,INH3,IHCl,IHNO3,IOH
+    ! Integer :: SNaNO3,SNH4NO3,SNACl,SNH4Cl,SLC,SNa2SO4,SNH42S4,SNaHSO4,SNH4HS4
+    ! Parameter (IH=1,INa=2,INH4=3,ICl=4,ISO4=5,IHSO4=6,INO3=7,IH2O=8,INH3=9)
+    ! Parameter (IHCl=10,IHNO3=11,IOH=12,SNaNO3=13,SNH4NO3=14,SNACl=15)
+    ! Parameter (SNH4Cl=16,SNa2SO4=17,SNH42S4=18,SNaHSO4=19,SNH4HS4=20,SLC=21)
+    
+    Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom!Number of different species group
+    Integer, dimension(:), allocatable :: isorropia_species
+    Integer, dimension(:), allocatable :: aec_species
+    Integer, dimension(:), allocatable :: pankow_species
+    Integer, dimension(:), allocatable :: poa_species
+
+
+    parameter (nesp_isorropia=5,nesp_aec=20,nesp_pankow=1,nesp_pom=6)
+
+
+
+    !!part 4: System state parameters    
+    integer :: tagrho
+    integer :: tag_coag,tag_cond,tag_nucl
+    integer :: kind_composition
+    double precision :: timestep_splitting,sub_timestep_splitting
+    double precision :: final_time,dt,timestep_emis! Time step and finnal time
+    double precision :: initial_time_splitting,current_sub_time,final_sub_time!current time=initial_time_splitting+current_sub_time
+    double precision :: Temperature,Relative_Humidity,Pressure,Humidity, pH
+    double precision :: fixed_density,fixed_density_l!density of overall partical
+    double precision :: Cut_dim!cuting diameter between equi/dynamic
+    double precision :: viscosity!Dynamic viscosity ([kg/m/s]).
+    double precision :: air_free_mean_path
+    double precision :: total_water!total mass of water
+    double precision :: total_IH!total mass of H+
+    double precision :: total_PH!overall PH value
+    double precision :: n_grow_nucl,n_grow_coag,n_emis
+    double precision :: m_grow_cond,m_emis
+    double precision :: total_number,o_total_mass,total_mass_t
+    double precision :: record_time
+    Double precision :: p_fact,k_fact!??
+    Double precision :: DQLIMIT
+    double precision :: rho1, rho2
+    double precision :: lwc_cloud_threshold
+
+
+    !!part5: 1 dimension data array    
+    integer, dimension(:), allocatable :: Index_groups!index of which group the species belongs to
+    integer, dimension(:), allocatable :: List_species!read species defined in cfg files
+    Integer, dimension(:), allocatable :: aerosol_species_interact
+    integer, dimension(:), allocatable :: N_fracbin!vector of number of composition sections for each section
+    integer, dimension(:), allocatable :: photolysis_reaction_index
+    Double precision,dimension(:), allocatable :: density_aer_bin !density of each grid bins
+    Double precision,dimension(:), allocatable :: density_aer_size !density of each size section
+    Double precision,dimension(:), allocatable :: diam_bound! DBF diameter bounds of each size section
+    double precision, dimension(:), allocatable :: diameter
+    DOUBLE PRECISION, dimension(:), allocatable ::  bin_bound ! in um
+    Double precision,dimension(:), allocatable :: mass_bound! MBF
+    Double precision,dimension(:), allocatable :: log_bound!XBF
+    Double precision,dimension(:), allocatable :: total_bin_mass!total mass of each size section
+    Double precision,dimension(:), allocatable :: size_sect!HSF log size of each section
+    Double precision,dimension(:), allocatable :: size_diam_av!DSF average diameter of each size section
+    Double precision,dimension(:), allocatable :: size_mass_av!MSF average mass of each size section
+    Double precision,dimension(:), allocatable :: size_log_av!XSF
+    Double precision,dimension(:), allocatable :: cell_diam_av!!DSF average diameter of each grid cell
+    Double precision,dimension(:), allocatable :: cell_mass_av!!MSF average mass of each grid cell
+    Double precision,dimension(:), allocatable :: cell_log_av!XSF
+    Double precision,dimension(:), allocatable :: total_mass, total_mass_old!total mass of each species
+    Double precision,dimension(:), allocatable :: mass_total_grid!total mass of each grid cell
+    Double precision,dimension(:), allocatable :: total_aero_mass!total aerosol mass of each species
+    Double precision,dimension(:), allocatable :: bin_mass!mass concentration of each size section
+    Double precision,dimension(:), allocatable :: bin_number!number concentration of each size section
+    Double precision,dimension(:), allocatable :: concentration_number_tmp!first order approximation of number
+    Double precision,dimension(:), allocatable :: concentration_number!number concentration of each grid cell
+    Double precision,dimension(:), allocatable :: concentration_gas! gas concentration of each species
+    Double precision,dimension(:), allocatable :: wet_diameter!Aerosol wet diameter (µm). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_mass!Aerosol wet mass (µg). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_volume!Aerosol wet volume (µm^3). of each grid cell
+    Double precision , dimension(:), allocatable :: rho_wet_cell
+    Double precision , dimension(:), allocatable :: cell_mass
+
+    double precision, dimension(:), allocatable :: discretization_mass! vector storing discretization of size, µg
+    double precision, dimension(:), allocatable :: gas_emis! vector storing Gas consentration (emission in 12 h) micm^3cm^-3
+    double precision, dimension(:), allocatable :: number_init
+    double precision, dimension(:), allocatable :: mass_init
+
+    double precision, dimension(:), allocatable :: gas_init! vector storing initial gas consentration µm^3 cm^-3
+    double precision, dimension(:), allocatable :: per_mass_init!initial percentage of each species within aerosol
+    double precision,dimension(:), allocatable:: frac_bound
+    double precision,dimension(:), allocatable:: init_mass
+    double precision,dimension(:), allocatable:: init_bin_number
+    double precision,dimension(:), allocatable:: gas_emission_rate
+    double precision,dimension(:), allocatable:: gas_mass_init
+    Double precision,dimension(:), allocatable :: photolysis
+
+    !!part6: 2+ dimension data array
+    double precision,dimension(:,:), allocatable:: init_bin_mass
+    double precision,dimension(:,:), allocatable:: init_bin_emission
+    integer, dimension(:,:), allocatable :: concentration_index !matrix from grid index to size and composition index
+    integer, dimension(:,:), allocatable :: concentration_index_iv !matrix from size and composition to grid index
+    double precision , dimension(:,:), allocatable :: kernel_coagulation
+    double precision , dimension(:,:), allocatable :: ce_kernal_coef!c/e kernal
+    double precision , dimension(:,:), allocatable :: Kelvin_effect_ext!kelvin effect
+    double precision , dimension(:,:), allocatable :: frac_grid !excat fraction of each species in each grid
+    double precision , dimension(:,:), allocatable :: concentration_mass
+    double precision , dimension(:,:), allocatable :: concentration_mass_tmp!first order apporximation
+    double precision , dimension(:,:), allocatable :: concentration_inti!internal inorganic aerosol concentration ([ï¿½g.m-3]).
+    double precision , dimension(:,:), allocatable :: dqdt
+    double precision , dimension(:,:), allocatable :: emission_rate
+    double precision , dimension(:,:,:), allocatable :: discretization_composition! multi-array storing discretization of composition
+
+    !! part 7: basic physical and chemical parameters
+    double precision :: mass_density_solid(SNaNO3:SLC)!molar weight of internal solids species
+    double precision :: molecular_weight_inside(N_liquid)!molar weight of inorganic species in aqueous_phase
+    double precision :: molecular_weight_solid(SNaNO3:SLC)!molar weight of solids
+    double precision ,dimension(:), allocatable :: saturation_pressure
+    double precision ,dimension(:), allocatable :: partition_coefficient
+    double precision ,dimension(:), allocatable :: vaporization_enthalpy
+    double precision ,dimension(:), allocatable :: accomodation_coefficient
+    double precision ,dimension(:), allocatable :: surface_tension
+    double precision ,dimension(:), allocatable :: saturation_pressure_mass
+    double precision ,dimension(:), allocatable :: saturation_pressure_torr
+    double precision ,dimension(:), allocatable :: deliquescence_relative_humidity
+    double precision ,dimension(:), allocatable :: molecular_weight_aer! (µg/mol)
+    double precision ,dimension(:), allocatable :: molecular_diameter
+    double precision ,dimension(:), allocatable :: collision_factor_aer
+    double precision ,dimension(:), allocatable :: mass_density!(µg/m3) liquid mass density
+    double precision ,dimension(:), allocatable :: quadratic_speed! (m.s-1)
+    double precision ,dimension(:), allocatable :: diffusion_coef! (m2.s-1)
+    double precision ,dimension(:), allocatable :: soa_sat_conc! (µg.m-3)
+    double precision ,dimension(:), allocatable :: soa_part_coef!(m3/microg)
+
+    DOUBLE PRECISION, dimension(:), allocatable :: concentration_gas_all
+!    DOUBLE PRECISION, dimension(:,:), allocatable :: DLconc_aer
+    DOUBLE PRECISION, dimension(:), allocatable :: DLnum_conc_aer
+
+    double precision ,dimension(:), allocatable :: molecular_weight! (µg/mol)
+
+    integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
+    double precision, dimension(:), allocatable :: coefficient
+    integer :: coef_size
+    double precision :: delta_t, initial_time
+    double precision :: dorg
+    integer :: nlayer
+    double precision, dimension(:), allocatable :: lwc_nsize, &
+         ionic_nsize, proton_nsize
+    double precision, dimension(:,:), allocatable :: liquid_nsize
+    
+    !! part 8: divers parameters (species, I/O)
+    character (len=40) :: Coefficient_file!repartition coefficient file
+    character (len=40) :: initaeroconc_file ! File for initial concentrations
+    character (len=40) :: initgasconc_file ! File for gas-phase initial conc.
+    character (len=40) :: species_list_file ! File for species list.
+    character (len=40) :: aerosol_species_list_file ! File for species list.
+    character (len=40) :: namelist_species ! Namelist file for species list.
+    character (len=40) :: emisgas_file
+    character (len=40) :: emisaero_file
+    character (len=40), dimension(:), allocatable :: species_name
+    character (len=40), dimension(:), allocatable :: aerosol_species_name
+    character (len=100) :: output_directory
+    integer :: output_type
+
+    integer, dimension(:), allocatable :: aer_index 
+    character (len=40) :: mineral_dust(10), black_carbon(10)
+    character (len=40) :: isorropia_species_name(10)
+    character (len=40) :: organic_species_name(30)
+    namelist /aerosol_species/ mineral_dust, black_carbon,&
+         isorropia_species_name, organic_species_name
+
+    character (len=40) :: PSO4
+    namelist /gas_species_aerosol_interact/ PSO4
+
+ contains
+
+   subroutine read_configuration(configuration_file)
+
+     integer :: k,i,j,s,js, ind, count, ierr
+     integer :: ngas_init, ngas_emis
+
+     double precision::  f1,f2
+     character (len=40), intent(in) :: configuration_file
+     double precision weight!Molecular weight (g/mol).
+     double precision :: temp
+     character (len=40) :: ic_name, sname
+
+
+     open(unit = 10, file = configuration_file, status = "old")
+     read(10,*)Coefficient_file
+     read(10,*)with_coag
+     read(10,*)with_cond
+     read(10,*)with_nucl,nucl_model
+     read(10,*)sulfate_computation
+     read(10,*)dynamic_solver,tag_thrm
+     read(10,*)redistribution_method
+     read(10,*)init_scenario
+     read(10,*)tag_external
+     read(10,*) latitude
+     read(10,*) longitude
+     read(10,*) initial_time
+     read(10,*)Temperature
+     read(10,*)Pressure
+     read(10,*)Humidity
+     read(10,*)tagrho,rho1
+     read(10,*)final_time,timestep_emis
+     read(10,*)delta_t
+     read(10,*)Cut_dim!Tag_equi!ICUT
+     read(10,*)N_sizebin, kind_grid
+     read(10,*)N_groups
+
+
+     ! Read aerosol species
+     read(10,*) namelist_species
+     
+
+     ! Read gas-phase species
+     read(10,*) species_list_file
+ 
+     open(unit = 11, file = namelist_species, status = "old")
+     read(11, nml = aerosol_species)
+ 
+     write(*,*) mineral_dust
+     write(*,*) black_carbon
+     write(*,*) isorropia_species_name
+     write(*,*) organic_species_name
+     close(11)
+     allocate(molecular_weight(N_gas))
+     allocate(species_name(N_gas))
+     allocate(concentration_gas_all(N_gas))
+
+     write(*,*) "Number of gas-phase species:", N_gas
+     open(unit = 13, file = species_list_file, status = "old")
+     read(13, *)
+     do s = 1, N_gas
+        read(13, *) species_name(s), molecular_weight(s)
+     enddo
+     close(13)
+     ! Read gas-phase initial concentrations
+
+     read(10,*) initgasconc_file
+
+     ! Read gas-phase emission data
+     read(10, *) emisgas_file
+
+     ! open(unit=12, file = emisgas_file, status = "old")
+     ! read(12,*)
+     ! read(12,*) ngas_emis
+     ! read(12,*)
+     ! concentration_gas_all = 0.d0
+     ! do s= 1, ngas_init !read initial information of each species, one species one line
+     !    read(12,*) ic_name, temp
+     !    ind = 0
+     !    do js = 1, N_gas
+     !       if (species_name(js) .eq. ic_name) then
+     !          ind = 1
+     !          concentration_gas_all(js) = temp
+     !       endif
+     !    enddo
+     !    if (ind .eq. 0) then
+     !       write(*,*) "Error: wrong species name is given in ",initgasconc_file, ic_name
+     !       stop
+     !    endif
+     ! enddo
+     ! close(12)
+
+     ! Read aerosol species
+     read(10,*) aerosol_species_list_file
+
+     ! Count the number of aerosol species.
+     count = 0
+     ierr = 0
+     open(unit = 14, file = aerosol_species_list_file, status = "old")
+     do while(ierr .eq. 0)
+        read(14, *, iostat=ierr) sname, temp
+        if (ierr == 0) count = count + 1
+     end do
+     close(14)
+     N_aerosol = count
+     write(*,*) "Number of aerosol species:", N_aerosol
+
+     allocate(molecular_weight_aer(N_aerosol))
+     allocate(aerosol_species_name(N_aerosol))
+     allocate(aer_index(N_aerosol))
+
+     open(unit = 14, file = aerosol_species_list_file, status = "old")
+     do s = 1, N_aerosol
+        read(14, *) aerosol_species_name(s), molecular_weight_aer(s)
+        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to µg/mol
+        aer_index(s) = s
+     enddo
+     close(14)
+
+!     read(10,*)N_species,Tag_init
+     read(10,*) initaeroconc_file
+
+
+     ! Read aerosol initial concentrations
+     open(unit = 11, file = initaeroconc_file, status = "old")
+     
+     read(11,*) N_species,Tag_init
+
+     allocate(Index_groups(N_species))
+     allocate(gas_emis(N_species))
+     allocate(gas_init(N_species))
+     allocate(List_species(N_aerosol))
+     allocate(per_mass_init(N_species))
+     allocate(init_mass(N_species))
+     init_mass=0.d0
+     allocate(init_bin_mass(N_sizebin,N_species))
+     allocate(init_bin_emission(N_sizebin,N_species))
+     allocate(init_bin_number(N_sizebin))
+     init_bin_emission=0.d0
+
+     do s= 1, N_species!read initial information of each species, one species one line
+        if(Tag_init.eq.0) then
+           read(11,*) List_species(s),ic_name, Index_groups(s),gas_emis(s),init_mass(s)
+        else
+           read(11,*) List_species(s),ic_name, Index_groups(s),&
+                gas_emis(s),(init_bin_mass(k,s),k=1,N_sizebin)
+           do k=1,N_sizebin
+              init_mass(s)=init_mass(s)+init_bin_mass(k,s)
+           enddo
+        endif
+
+        ind = 0
+        do js = 1, N_aerosol
+           if (aerosol_species_name(js) .eq. ic_name) then
+              ind = 1
+           endif
+        enddo
+        if (ind .eq. 0) then
+           write(*,*) "Error: wrong species name is given in ",initaeroconc_file, ic_name
+           stop
+        endif
+     enddo
+
+     ! Read gas-phase concentrations
+     open(unit = 12, file = initgasconc_file, status = "old")
+     read(12,*)
+     read(12,*) ngas_init
+     read(12,*)
+     concentration_gas_all = 0.d0
+     do s= 1, ngas_init !read initial information of each species, one species one line
+        read(12,*) ic_name, temp
+        ind = 0
+        do js = 1, N_gas
+           if (species_name(js) .eq. ic_name) then
+              ind = 1
+              concentration_gas_all(js) = temp
+           endif
+        enddo
+        if (ind .eq. 0) then
+           write(*,*) "Error: wrong species name is given in ",initgasconc_file, ic_name
+           stop
+        endif
+     enddo
+     close(12)
+
+     read(10,*) emisaero_file
+
+     read(10,*) (init_bin_number(k),k=1,N_sizebin)
+     do s=1,min(N_species,2)
+        read(10,*) (init_bin_emission(k,s),k=1,N_sizebin)
+     enddo
+     
+     List_species(N_species + 1) = N_species + 1
+
+     if(init_scenario.eq.1) then
+        print*,'Initial Condition Hazy'
+     elseif(init_scenario.eq.2) then
+        print*,'Initial Condition Urban'
+     else
+        print*,'Initial Condition Clear'
+     endif
+     print*,'Method',dynamic_solver
+     print*,'Cuting Diameter',Cut_dim
+     print*,'Temperature',Temperature
+     print*,'Pressure',Pressure
+     print*,'Specific Humidity',Humidity
+     print*,'Simulation Time',final_time,'s'
+     print*,'Initial Time Step',delta_t,'s'
+
+!!!!!!!!!!!!!
+!! Read fraction discretization 
+!!!!!!!!!!!!!!
+
+
+    allocate(discretization_mass(N_sizebin+1))
+    allocate(N_fracbin(N_sizebin))
+    allocate(size_diam_av(N_sizebin))
+    allocate(size_mass_av(N_sizebin))
+    allocate(number_init(N_sizebin))
+    allocate(mass_init(N_sizebin))
+    allocate(diameter(N_sizebin+1))
+    allocate(diam_bound(N_sizebin+1))
+    allocate(size_sect(N_sizebin))
+    allocate(bin_bound(N_sizebin+1))
+
+    discretization_mass = 0.d0
+    n_fracbin = 0
+    size_diam_av=0.d0
+    size_mass_av=0.d0
+    number_init = 0.d0
+    mass_init = 0.d0
+    diameter = 0.d0
+    diam_bound=0.d0    
+    size_sect=0.d0
+    bin_bound = 0.d0
+
+
+    ! diameter in µm
+    if (kind_grid == 0) then
+      read(10,*) diam_min,diam_max
+      do k = 1,N_sizebin+1
+	  diameter(k)= diam_min * (diam_max / diam_min)**((k - 1) / dble(N_sizebin))
+	  diam_bound(k) = diameter(k)
+	  discretization_mass(k) = rho1 * pi * diameter(k)**3 / 6.d0!diameter into mass
+      enddo
+    else
+      read(10,*)(diameter(k),k=1,N_sizebin+1)
+      do k = 1,N_sizebin+1
+	  diam_bound(k) = diameter(k)
+	  discretization_mass(k) = rho1 * pi * diameter(k)**3 / 6.d0
+      enddo
+    endif
+
+    bin_bound = diam_bound
+
+    do k =1,N_sizebin
+       size_sect(k)=dlog10(diameter(k+1)/diameter(k))
+    enddo
+
+    do k= 1, N_sizebin
+	size_diam_av(k)=dsqrt (diameter(k)*diameter(k+1))!average
+	size_mass_av(k) = size_diam_av(k)**3 *rho1*pi/6.d0
+    enddo
+    read(10,*) kind_composition
+
+    read(10,*) N_frac
+    allocate(frac_bound(N_frac+1))
+    if (kind_composition == 1) then
+      call discretization() !auto fraction discretization
+    elseif(kind_composition == 0) then
+      read(10,*)(frac_bound(k),k=1,N_frac+1)!set fraction bounds manully
+      call discretization() !auto fraction discretization
+    endif
+
+    allocate(concentration_index(N_size, 2))
+    allocate(concentration_index_iv(N_sizebin, N_fracmax))
+
+    if(N_frac.eq.1) then
+      do k = 1,N_sizebin
+	N_fracbin(k)=1
+      enddo
+    endif
+    
+    j = 1
+    do k = 1,N_sizebin
+      do i = 1, N_fracbin(k)
+	  concentration_index(j, 1) = k
+	  concentration_index(j, 2) = i
+	  concentration_index_iv(k,i) = j
+	  j = j + 1
+      enddo
+    enddo
+ 
+    !calculate ICUT the corresponding cell index of the cuting diameter
+    if(Cut_dim.gt.diam_bound(1)) then
+       do k= 1,N_sizebin
+          if(diam_bound(k).lt.Cut_dim.and.diam_bound(k+1).ge.Cut_dim) then
+             ICUT=concentration_index_iv(k,N_fracbin(k))
+          endif
+       enddo
+    else
+       ICUT=0
+    endif
+
+!      character (len=40), intent(in) :: configuration_file
+! !     character (len=40), intent(in) :: species_file
+
+!      open(unit = 10, file = configuration_file, status = "old")
+
+!      read(10,*) with_coag     
+
+
+!      k_fact = 0.d0
+!      p_fact = 0.d0
+! !     read(10,*) species_file
+!      ncycle_aer = 1
+
+    read(10,*) output_directory
+    read(10,*) output_type
+
+    close(10)
+    close(11)
+
+    with_fixed_density = 0
+
+    wet_diam_estimation = 1
+    with_oligomerization = 1
+    ISOAPDYN = 0
+    with_number = 0
+
+    !     Species to be computed
+    IF(ICUT.GT.0.D0) THEN
+      section_pass=concentration_index(ICUT,1)
+    ELSE
+      section_pass=1
+    ENDIF
+
+    call compute_relative_humidity(humidity, Temperature, &
+         Pressure, relative_humidity)
+
+
+    allocate(lwc_nsize(n_size))
+    allocate(ionic_nsize(n_size))
+    allocate(proton_nsize(n_size))
+    allocate(liquid_nsize(12,n_size))
+
+
+    !relation between Aerosol and GAS
+    allocate(aerosol_species_interact(N_aerosol))
+    aerosol_species_interact = 0
+    count = 0
+
+    do s = 1, N_gas
+       if (species_name(s) .eq. "SULF") then
+          aerosol_species_interact(ESO4) = s
+          count = count + 1
+       else if (species_name(s) .eq. "NH3") then
+          aerosol_species_interact(ENH4) = s
+          count = count + 1
+       else if (species_name(s) .eq. "HNO3") then
+          aerosol_species_interact(ENO3) = s
+          count = count + 1
+       else if (species_name(s) .eq. "HCl") then
+          aerosol_species_interact(ECl) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiA2D") then
+          aerosol_species_interact(EBiA2D) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiA1D") then
+          aerosol_species_interact(EBiA1D) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiA0D") then
+          aerosol_species_interact(EBiA0D) = s
+          count = count + 1
+       else if (species_name(s) .eq. "MGLY") then
+          aerosol_species_interact(EAMGLY) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiMT") then
+          aerosol_species_interact(EBiMT) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiPER") then
+          aerosol_species_interact(EBiPER) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiDER") then
+          aerosol_species_interact(EBiDER) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiMGA") then
+          aerosol_species_interact(EBiMGA) = s
+          count = count + 1
+       else if (species_name(s) .eq. "AnBlP") then
+          aerosol_species_interact(EAnBlP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "AnBmP") then
+          aerosol_species_interact(EAnBmP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiBlP") then
+          aerosol_species_interact(EBiBlP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiBmP") then
+          aerosol_species_interact(EBiBmP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiNGA") then
+          aerosol_species_interact(EBiNGA) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiNIT3") then
+          aerosol_species_interact(EBiNIT3) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiNIT") then
+          aerosol_species_interact(EBiNIT) = s
+          count = count + 1
+       else if (species_name(s) .eq. "AnClP") then
+          aerosol_species_interact(EAnClP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "SOAlP") then
+          aerosol_species_interact(ESOAlP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "SOAmP") then
+          aerosol_species_interact(ESOAmP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "SOAhP") then
+          aerosol_species_interact(ESOAhP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "POAlP") then
+          aerosol_species_interact(EPOAlP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "POAmP") then
+          aerosol_species_interact(EPOAmP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "POAhP") then
+          aerosol_species_interact(EPOAhP) = s
+          count = count + 1
+       else if (species_name(s) .eq. "Monomer") then
+          aerosol_species_interact(EMonomer) = s
+          count = count + 1
+       else if (species_name(s) .eq. "Dimer") then
+          aerosol_species_interact(EDimer) = s
+          count = count + 1
+       else if (species_name(s) .eq. "BiA3D") then
+          aerosol_species_interact(EBiA3D) = s
+          count = count + 1
+       else if (species_name(s) .eq. "orgNIT") then
+          aerosol_species_interact(EorgNIT) = s
+          count = count + 1
+       end if
+    end do
+
+    ! Initialize the concentrations of percursors
+    write(*,*) "Number of precursors: ", count
+    do s = 1, N_aerosol
+       if (aerosol_species_interact(s) .gt. 0) then
+          gas_init(s) = concentration_gas_all(aerosol_species_interact(s))
+          ! write(*,*) aerosol_species_interact(s), &
+          !      species_name(aerosol_species_interact(s)), &
+          !      gas_init(s)
+       endif
+    enddo
+
+   end subroutine read_configuration
+
+  subroutine read_pointer()
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine initialize system pointers
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!------------------------------------------------------------------------   
+    implicit none
+
+    integer jesp,j,s, count
+
+    !!initialize basic physical and chemical parameters
+    allocate(saturation_pressure(N_aerosol))
+    allocate(partition_coefficient(N_aerosol))
+    allocate(vaporization_enthalpy(N_aerosol))
+    allocate(accomodation_coefficient(N_aerosol))
+    allocate(surface_tension(N_aerosol))
+    allocate(saturation_pressure_mass(N_aerosol))
+    allocate(saturation_pressure_torr(N_aerosol))
+    allocate(deliquescence_relative_humidity(N_aerosol))
+!    allocate(molecular_weight_aer(N_aerosol))
+    allocate(collision_factor_aer(N_aerosol))
+    allocate(mass_density(N_aerosol))
+    allocate(quadratic_speed(N_aerosol))
+    allocate(diffusion_coef(N_aerosol))
+    allocate(soa_sat_conc(N_aerosol))
+    allocate(soa_part_coef(N_aerosol))
+    allocate(molecular_diameter(N_aerosol)) 
+
+    G1=ESO4
+    G2=ECl
+    E1=EMD
+    E2=EPOAhP
+
+    
+!    nesp_aer=N_aerosol !number of aerosol species
+    ! nesp_aec=16!number of H2O species
+    ! nesp_pankow=1 !number of pankow species AnClP
+    ! nesp_pom=6!number of primary SVOC species (including their oxydation products)
+    ! nesp_isorropia=5
+			    ! POAlP,POAmP,POAhP,SOAlP,SOAmP,SOAhP
+    allocate(isorropia_species(nesp_isorropia))
+    allocate(aec_species(nesp_aec))
+    allocate(pankow_species(nesp_pankow)) 
+    allocate(poa_species(nesp_pom))
+    isorropia_species(1)=ENa
+    isorropia_species(2)=ESO4
+    isorropia_species(3)=ENH4
+    isorropia_species(4)=ENO3
+    isorropia_species(5)=ECl
+
+    aec_species(1)=EBiA2D
+    aec_species(2)=EBiA1D
+    aec_species(3)=EBiA0D
+    aec_species(4)=EAGLY
+    aec_species(5)=EAMGLY
+    aec_species(6)=EBiMT
+    aec_species(7)=EBiPER
+    aec_species(8)=EBiDER
+    aec_species(9)=EBiMGA
+    aec_species(10)=EAnBlP
+    aec_species(11)=EAnBmP
+    aec_species(12)=EBiBlP
+    aec_species(13)=EBiBmP
+    aec_species(14)=EBiNGA
+    aec_species(15)=EBiNIT3
+    aec_species(16)=EBiNIT
+    aec_species(17)=EMonomer
+    aec_species(18)=EDimer
+    aec_species(19)=EBiA3D
+    aec_species(20)=EorgNIT
+
+    pankow_species(1)=EAnCLP
+
+    poa_species(1)=ESOAlP
+    poa_species(2)=ESOAmP
+    poa_species(3)=ESOAhP
+    poa_species(4)=EPOAlP
+    poa_species(5)=EPOAmP
+    poa_species(6)=EPOAhP
+
+
+    ! Index for photolysis 
+    ! [photolysis_reaction_index]
+
+    ! NO2     0   O3O3P   7   O3O1D   8     NO3NO2 13
+    ! NO3NO   14  HONO    23  H2O2    34    HNO4   49
+    ! HNO3    50  N2O5    51  ORGNIT  60    HOP    62
+    ! MHP     69  HCHOrad 72  HCHOmol 73    ALD    84
+    ! PAN     88  PACD    94  C2CHO   99    PANX   103
+    ! OPEN    133 MGLY    138 ISPD    146   BiPER  189
+    allocate(photolysis_reaction_index(n_photolysis))    
+    photolysis_reaction_index = [1, 8, 9 ,14, &
+         15, 24, 35, 50, &
+         51, 52, 61, 63, &
+         70, 73, 74, 85, &
+         89, 95, 100, 104, &
+         134, 139, 147, 190]
+
+
+   end subroutine read_pointer
+
+
+   subroutine read_parameter()
+
+    integer b,jesp,j,f,k,s
+    integer :: nsize_section_aer,nesp_oc
+    integer :: aerosol_species_interact_loc(N_aerosol)
+    integer :: ncomposition_aer,ngroup_aer
+    double precision :: totv, totm
+    ! integer :: nesp_cloud_interact
+    ! integer :: cloud_species_interact(nesp_cloud_interact)
+
+    !INIT physical parameters
+    do jesp=EMD,ENa
+      diffusion_coef(jesp)=0.D0
+      accomodation_coefficient(jesp)=0.D0
+      collision_factor_aer(jesp)=1.000D10
+      surface_tension(jesp)=0.D0
+      molecular_diameter(jesp)=1.000D10
+      saturation_pressure_mass(jesp)=0.D0
+      saturation_pressure_torr(jesp)=0.D0
+      deliquescence_relative_humidity(jesp)=0.D0
+      partition_coefficient(jesp)=0.D0
+      soa_part_coef(jesp)=0.d0
+  enddo
+
+    saturation_pressure_mass(EBiA2D)=1.43d0
+    saturation_pressure_mass(EBiA1D)=1.98d0
+    saturation_pressure_mass(EBiA0D)=2.44d3
+    saturation_pressure_mass(EAGLY)=6.86d8
+    saturation_pressure_mass(EAMGLY)=8.51d8
+    saturation_pressure_mass(EBiMT)=10.7d0
+    saturation_pressure_mass(EBiPER)=30.4d0
+    saturation_pressure_mass(EBiDER)=3.80d0
+    saturation_pressure_mass(EBiMGA)=90.4d0
+
+    saturation_pressure_torr(EBiA2D)=1.43d-7
+    saturation_pressure_torr(EBiA1D)= 2.17d-7
+    saturation_pressure_torr(EBiA0D)=2.7d-4
+    saturation_pressure_torr(EAGLY)=219.8d0
+    saturation_pressure_torr(EAMGLY)=219.8d0
+    saturation_pressure_torr(EBiMT)=1.46d-6
+    saturation_pressure_torr(EBiPER)=2.61d-6
+    saturation_pressure_torr(EBiDER)=4.10d-7
+    saturation_pressure_torr(EBiMGA)=1.4d-5
+    saturation_pressure_torr(EAnBlP)=6.8d-8
+    saturation_pressure_torr(EAnBmP)=8.4d-6
+    saturation_pressure_torr(EBiBlP)=6.0d-10
+    saturation_pressure_torr(EBiBmP)=3.0d-7
+    saturation_pressure_torr(EBiNGA)=1.39d-5
+    saturation_pressure_torr(EBiNIT3)=1.45d-6
+    saturation_pressure_torr(EBiNIT)=2.5d-6
+
+    partition_coefficient(EBiA2D)=6.25d-3
+    partition_coefficient(EBiA1D)= 2.73d-3
+    partition_coefficient(EBiA0D)=4.82d-5
+    partition_coefficient(EAGLY)=6.56d-4
+    partition_coefficient(EAMGLY)=5.78d-12
+    partition_coefficient(EBiMT)=0.8052d0
+    partition_coefficient(EBiPER)=0.1109d0
+    partition_coefficient(EBiDER)=2.8d0
+    partition_coefficient(EBiMGA)=1.1281d-2
+    partition_coefficient(EAnClP)=55.56d0
+    partition_coefficient(EPOAlP)=1.1d0
+    partition_coefficient(EPOAmP)=0.0116d0
+    partition_coefficient(EPOAhP)=0.00031d0
+    partition_coefficient(ESOAlP)=110.0d0
+    partition_coefficient(ESOAmP)=1.16d0
+    partition_coefficient(ESOAhP)=0.031d0
+
+    deliquescence_relative_humidity(EBiA2D)=0.79d0
+
+    collision_factor_aer(4)=77.3d0
+    collision_factor_aer(5)=558.3d0
+    collision_factor_aer(6)=475.9d0
+    collision_factor_aer(7)=344.7d0
+    molecular_diameter(4)=5.5d0
+    molecular_diameter(5)=2.9d0
+    molecular_diameter(6)=3.3d0
+    molecular_diameter(7)=3.339d0
+    do jesp=ESO4,ECl
+	surface_tension(jesp)=80.D-03!ero fixed surf tension (N.m-1)
+    enddo
+    do jesp=G1,E2
+	accomodation_coefficient(jesp)=0.5D0
+    enddo
+    do jesp=EBiA2D,EPOAhP
+      collision_factor_aer(jesp)=687.d0
+      molecular_diameter(jesp)=8.39d0
+      surface_tension(jesp)=30.D-03
+    enddo
+    collision_factor_aer(EH2O)=1.000D10
+    molecular_diameter(EH2O)=1.000D10
+    accomodation_coefficient(EH2O)=0.D0
+
+!molecular_weight_aer(!C)   molar weight of external species  µg.mol-1
+    ! molecular_weight_aer(EMD)=28.0D06
+    ! molecular_weight_aer(EBC)=12.0D06
+    ! molecular_weight_aer(ENa)=23.0D06
+    ! molecular_weight_aer(ESO4)=96.0D06
+    ! molecular_weight_aer(ENH4)=18.0D06
+    ! molecular_weight_aer(ENO3)=63.0D06
+    ! molecular_weight_aer(ECl)=35.5D06
+    ! molecular_weight_aer(EBiA2D)=186.0D06
+    ! molecular_weight_aer(EBiA1D)=170.0D06
+    ! molecular_weight_aer(EBiA0D)=168.0D06
+    ! molecular_weight_aer(EAGLY)=58.0D06
+    ! molecular_weight_aer(EAMGLY)=72.0D06
+    ! molecular_weight_aer(EBiMT)=136.0D06
+    ! molecular_weight_aer(EBiPER)=168.0D06
+    ! molecular_weight_aer(EBiDER)=136.0D06
+    ! molecular_weight_aer(EBiMGA)=120.0D06
+    ! molecular_weight_aer(EAnBlP)=167.0D06
+    ! molecular_weight_aer(EAnBmP)=152.0D06
+    ! molecular_weight_aer(EBiBlP)=298.0D06
+    ! molecular_weight_aer(EBiBmP)=236.0D06
+    ! molecular_weight_aer(EBiNGA)=165.0D06
+    ! molecular_weight_aer(EBiNIT3)=272.0D06
+    ! molecular_weight_aer(EBiNIT)=215.0D06
+    ! molecular_weight_aer(EAnCLP)=167.0D06
+    ! molecular_weight_aer(ESOAlP)=392.0D06
+    ! molecular_weight_aer(ESOAmP)=392.0D06
+    ! molecular_weight_aer(ESOAhP)=392.0D06
+    ! molecular_weight_aer(EPOAlP)=280.0D06
+    ! molecular_weight_aer(EPOAmP)=280.0D06
+    ! molecular_weight_aer(EPOAhP)=280.0D06
+    ! molecular_weight_aer(EH2O)= 18.0D06
+
+!LIQUID MASS DENSITIES EXPRESSED IN µg.µm-3
+    mass_density(EMD)=2.33D-06
+    mass_density(EBC)=2.25D-06
+    mass_density(ENa)=0.97D-06
+    mass_density(ESO4)=1.80D-06
+    mass_density(ENH4)=0.91D-06
+    mass_density(ENO3)=1.50D-06
+    mass_density(ECl)=1.15D-06
+    do jesp=EBiA2D,EPOAhP
+      mass_density(jesp)=1.30D-06
+    enddo
+    mass_density(EH2O)=1.00D-06
+
+    do jesp=1,ECl
+      saturation_pressure(jesp)=0.d0
+    enddo
+    saturation_pressure(EBiA2D)=1.9D-5
+    saturation_pressure(EBiA1D)=2.89D-5
+    saturation_pressure(EBiA0D)=3.6D-2
+    saturation_pressure(EAGLY)=29.3D3
+    saturation_pressure(EAMGLY)=29.3D3
+    saturation_pressure(EBiMT)=1.93D-4
+    saturation_pressure(EBiPER)=3.48D-4
+    saturation_pressure(EBiDER)=5.46D-5
+    saturation_pressure(EBiMGA)=1.86D-3
+    saturation_pressure(EAnBlP)=9.06D-6
+    saturation_pressure(EAnBmP)=1.12D-3
+    saturation_pressure(EBiBlP)=8.0D-8
+    saturation_pressure(EBiBmP)=4.0D-5
+    saturation_pressure(EBiNGA)=1.86D-3
+    saturation_pressure(EBiNIT3)=1.93D-4
+    saturation_pressure(EBiNIT)=3.33D-4
+    saturation_pressure(EAnCLP)=2.67D-7
+    saturation_pressure(ESOAlP)=8.98D-7
+    saturation_pressure(ESOAmP)=8.52D-5
+    saturation_pressure(ESOAhP)=3.19D-3
+    saturation_pressure(EPOAlP)=8.98D-6
+    saturation_pressure(EPOAmP)=8.52D-4
+    saturation_pressure(EPOAhP)=3.19D-2
+    saturation_pressure(EH2O)= 0.0D0
+
+    do jesp=1,ECl
+      vaporization_enthalpy(jesp)=0.d0
+    enddo
+    vaporization_enthalpy(EBiA2D)=109.0d3
+    vaporization_enthalpy(EBiA1D)=50.0D3
+    vaporization_enthalpy(EBiA0D)=50.0D3
+    vaporization_enthalpy(EAGLY)=25.0D3
+    vaporization_enthalpy(EAMGLY)=38.0D03
+    vaporization_enthalpy(EBiMT)=38.4D03
+    vaporization_enthalpy(EBiPER)=38.4D03
+    vaporization_enthalpy(EBiDER)=38.4D03
+    vaporization_enthalpy(EBiMGA)=43.2D03
+    vaporization_enthalpy(EAnBlP)=50.0D03
+    vaporization_enthalpy(EAnBmP)=50.0D03
+    vaporization_enthalpy(EBiBlP)=175.0D3
+    vaporization_enthalpy(EBiBmP)=175.0D3
+    vaporization_enthalpy(EBiNGA)=43.2D3
+    vaporization_enthalpy(EBiNIT3)=38.4D03
+    vaporization_enthalpy(EBiNIT)=50.0D03
+    vaporization_enthalpy(EAnCLP)=50.0D03
+    vaporization_enthalpy(ESOAlP)=106.0D03
+    vaporization_enthalpy(ESOAmP)=91.0D03
+    vaporization_enthalpy(ESOAhP)=79.0D03
+    vaporization_enthalpy(EPOAlP)=106.0D03
+    vaporization_enthalpy(EPOAmP)=91.0D03
+    vaporization_enthalpy(EPOAhP)=79.0D03
+    vaporization_enthalpy(EH2O)= 0.0D0
+ 
+
+     fixed_density = 1400 ! ug/m3
+     pH = 4.d5
+
+! SOAP parameters
+     dorg = 1.d-12
+     nlayer = 1
+     ! soa_equilibrium = 1
+     ! activity_model = 1 !! ideal, unifac, aiomfac
+     ! compute_long_and_medium_range_interactions
+
+!    N_gas=nesp_loc
+    nesp=N_gas
+
+    allocate(total_mass(N_aerosol))
+    allocate(total_mass_old(N_aerosol))
+
+    allocate(concentration_gas(N_aerosol))
+    allocate(concentration_number(N_size))
+    allocate(concentration_number_tmp(N_size))
+    allocate(concentration_mass(N_size,N_aerosol))
+    allocate(concentration_mass_tmp(N_size,N_aerosol))
+    allocate(concentration_inti(N_size,N_inside_aer))
+
+    allocate(cell_mass_av(N_size))
+    allocate(cell_mass(N_size))
+    allocate(cell_diam_av(N_size))
+    allocate(cell_log_av(N_size))
+    
+    allocate(total_aero_mass(N_aerosol))
+    allocate(mass_total_grid(N_size))
+    allocate(wet_mass(N_size))
+    allocate(wet_diameter(N_size))
+    allocate(wet_volume(N_size))
+    allocate(size_log_av(N_sizebin))
+
+    allocate(mass_bound(N_sizebin+ 1))
+    allocate(log_bound(N_sizebin+ 1))
+    allocate(density_aer_bin(N_size))
+    allocate(density_aer_size(N_sizebin))
+    allocate(bin_mass(N_sizebin))
+    allocate(bin_number(N_sizebin))
+
+    allocate(rho_wet_cell(N_size))
+    allocate(kernel_coagulation(N_size,N_size))
+    allocate(total_bin_mass(N_sizebin))
+    allocate(ce_kernal_coef(N_size,N_aerosol))
+    allocate(Kelvin_effect_ext(N_size,N_aerosol))
+    allocate(frac_grid(N_size,N_groups))
+    allocate(dqdt(N_size,N_aerosol))
+
+    allocate(DLnum_conc_aer(N_size))
+    
+    total_mass=0.d0
+    total_mass_old=0.d0
+
+    concentration_gas=0.d0
+    concentration_number=0.d0
+    concentration_number_tmp=0.d0
+    concentration_mass=0.d0
+    concentration_mass_tmp=0.d0
+    concentration_inti=0.d0
+
+    cell_mass_av=0.d0
+    cell_mass = 0.d0
+    cell_diam_av=0.d0
+    cell_log_av=0.d0
+
+    total_aero_mass=0.d0
+    mass_total_grid=0.d0
+    wet_mass=0.d0
+    wet_diameter=0.d0
+    wet_volume=0.d0
+    size_log_av=0.d0
+
+    mass_bound=0.d0
+    log_bound=0.d0
+    density_aer_bin=fixed_density
+    density_aer_size=fixed_density
+    bin_mass = 0.d0
+    bin_number = 0.d0
+
+    rho_wet_cell = fixed_density
+    kernel_coagulation = 0.d0
+    total_bin_mass = 0.d0
+    ce_kernal_coef = 0.d0
+    Kelvin_effect_ext = 0.d0
+    frac_grid = 0.d0
+    dqdt = 0.d0
+
+!    dlconc_aer = 0.d0
+    dlnum_conc_aer = 0.d0
+
+
+!*       molecular_weight_inside(*)   molar weight of inorganic species *
+!*       in aqueous_phase           µg.mol-1                *
+    molecular_weight_inside(IH)=1.0D06
+    molecular_weight_inside(INa)=23.0D06
+    molecular_weight_inside(INH4)=18.0D06
+    molecular_weight_inside(ICl)=35.5D06
+    molecular_weight_inside(ISO4)=96.0D06
+    molecular_weight_inside(IHSO4)=97.0D06
+    molecular_weight_inside(INO3)=63.0D06
+    molecular_weight_inside(IH2O)=18.0D06
+    molecular_weight_inside(INH3)=17.0D06
+    molecular_weight_inside(IHCl)=36.5D06
+    molecular_weight_inside(IHNO3)=63.0D06
+    molecular_weight_inside(IOH)=17.0D06
+!      molar weight of solids
+    molecular_weight_solid(SNaNO3)=85.0D06
+    molecular_weight_solid(SNH4NO3)=80.0D06
+    molecular_weight_solid(SNACl)=58.5D06
+    molecular_weight_solid(SNH4Cl)=53.5D06
+    molecular_weight_solid(SNa2SO4)=142.0D06
+    molecular_weight_solid(SNH42S4)=132.0D06
+    molecular_weight_solid(SNaHSO4)=120.0D06
+    molecular_weight_solid(SNH4HS4)=115.0D06
+    molecular_weight_solid(SLC)=247.0D06
+!      DENSITIES of solids
+    mass_density_solid(SNaNO3)=2.260D-06
+    mass_density_solid(SNH4NO3)=1.725D-06
+    mass_density_solid(SNACl)=2.165D-06
+    mass_density_solid(SNH4Cl)=1.530D-06
+    mass_density_solid(SNa2SO4)=2.700D-06
+    mass_density_solid(SNH42S4)=1.770D-06
+    mass_density_solid(SNaHSO4)=2.740D-06
+    mass_density_solid(SNH4HS4)=1.780D-06
+    mass_density_solid(SLC)=1.770D-06    
+
+!     coef_size = 2
+!     allocate(Ncoefficient(N_sizebin))
+!     allocate(index_first(coef_size))
+!     allocate(index_second(coef_size))
+!     allocate(coefficient(coef_size))
+
+
+     totm=0.d0
+     do s = 1, N_species
+        totm=totm+init_mass(s)
+     enddo
+     do s = 1, N_species
+        per_mass_init(s)=init_mass(s)/totm!init percentage of each species
+     enddo
+     print*,"N_sizebin=",N_sizebin
+     print*, "tagrho=", tagrho
+  
+
+     if(tagrho.eq.1) then
+        totv=0.d0
+        totm=100.d0
+        do s=1,N_species ! N_aerosol YK
+           totv=totv+(totm*per_mass_init(s))/mass_density(s)!µg/µm3
+        enddo
+        rho1=totm/totv!average density
+        rho2= rho1 * 1.0d+18
+     else
+        mass_density(EH2O)=rho1
+        rho2= rho1 * 1.0d+9 !µg/m3	       ! convert from kg/m3 to µg/µm3 or µg/m3
+        rho1 = rho1 * 1.0d-9 !µg/µm3
+        do s=1,N_species
+           mass_density(s)=rho1!LMDL(4)!LMDL(List_species(s))
+        enddo
+        print*,'Fixed Density',rho1,rho2
+     endif
+
+     ! allocate(molecular_weight(n_gas))
+! HC8 NH3 HCL O1D ETOH 
+! CH4 ETHA TOL XYL SO2 
+! SULF HUM BiBmP BiBlP POAlP 
+! POAmP POAhP SOAlP SOAmP SOAhP 
+! MEOH TO2 N2O5 BiMGA BiNGA 
+! BiPER BiDER BiNIT3 PAN ROR 
+! H2O2 HONO HCO3 API LIM 
+! BiNIT BiA1D BiA2D HNO4 BiMT 
+! PANX BPI BiA0D MEPX CRES 
+! OPEN MGLY CRO ROOH PACD 
+! AnBlP AnBmP ETH FACD OLE 
+! IOLE MPAN TERP AnClP ISON 
+! ISOP ISPD NTR PAR ALDX 
+! ISOR MACR CO TOLP XYLP 
+! HNO3 AACD MEO2 XO2N FORM 
+! O OH NO3 ALD2 O3 
+! CXO3 XO2 C2O3 NO NO2 
+! HO2
+     ! molecular_weight = [114.d0, 17.d0, 36.5d0, 16.d0, 46.07d0,& 
+     !      16.04d0, 30.07d0, 92.14d0, 106.16d0, 64.06d0,&
+     !      98.08d0, 204.36d0, 236.d0, 298.d0, 280.d0,&
+     !      280.d0, 280.d0, 392.d0, 392.d0,  392.d0,&
+     !      32.04d0, 141.15d0, 108.01d0, 120.d0, 165.d0,&
+     !      168.d0, 136.d0, 272.d0, 121.05d0, 16.d0,&
+     !      34.01d0, 47.01d0, 63.03d0, 136.d0, 136.d0,& 
+     !      215.d0, 170.d0, 186.d0, 79.01d0, 136.d0,&
+     !      120.04d0, 136.d0, 168.d0, 48.04d0, 108.14d0,&
+     !      48.04d0,  72.06d0, 108.14d0, 47.03d0, 76.05d0,&
+     !      167.0d0, 152.0d0, 28.05d0, 46.03d0, 27.05d0,&
+     !      56.11d0, 148.0d0, 136.24d0, 167.0d0, 147.0d0,&
+     !      68.18d0, 70.09d0, 77.04d0, 15.03d0, 43.04d0,&
+     !      117.0d0, 70.0d0, 28.01d0, 141.0d0, 155.0d0,&
+     !      63.01d0, 60.05d0, 47.03d0, 47.03d0, 30.03d0,&
+     !      16.0d0,  17.01d0, 62.01d0, 44.05d0, 48.0d0,& 
+     !      74.04d0, 47.03d0, 75.04d0, 30.0d0, 46.0d0,&
+     !      33.01d0]
+
+     !# Liquid water content threshold above which cloud is present (in g/m3).
+     lwc_cloud_threshold = 0.05d0
+
+     allocate(photolysis(n_photolysis))
+     photolysis = 0.d0
+
+   end subroutine read_parameter
+
+  subroutine free_allocated_memory()
+    
+    integer ierr
+
+    deallocate(Index_groups)
+
+    deallocate(gas_emis)
+
+    deallocate(gas_init)
+    deallocate(list_species)
+    deallocate(per_mass_init)
+    deallocate(init_mass)
+    deallocate(init_bin_mass)
+    deallocate(init_bin_emission)
+    deallocate(init_bin_number)
+
+    deallocate(discretization_mass)
+
+
+    deallocate(n_fracbin)
+    deallocate(size_diam_av)
+    deallocate(size_mass_av)
+    deallocate(number_init)
+    deallocate(mass_init)
+    deallocate(diameter)
+    deallocate(diam_bound)
+    deallocate(size_sect)
+    deallocate(bin_bound)
+
+    deallocate(concentration_index)
+    deallocate(concentration_index_iv)
+
+    deallocate(saturation_pressure)
+    deallocate(partition_coefficient)
+    deallocate(vaporization_enthalpy)
+    deallocate(accomodation_coefficient)
+    deallocate(surface_tension)
+    deallocate(saturation_pressure_mass)
+    deallocate(saturation_pressure_torr)
+    deallocate(deliquescence_relative_humidity)
+    deallocate(molecular_weight_aer)
+    deallocate(collision_factor_aer)
+    deallocate(mass_density)
+    deallocate(quadratic_speed)
+    deallocate(diffusion_coef)
+    deallocate(soa_sat_conc)
+    deallocate(soa_part_coef)
+    deallocate(molecular_diameter)
+
+    deallocate(isorropia_species)
+    deallocate(aec_species)
+    deallocate(pankow_species)
+    deallocate(poa_species)
+
+    deallocate(aerosol_species_interact)
+
+    deallocate(total_mass)
+    deallocate(total_mass_old)
+
+    deallocate(concentration_gas)
+    deallocate(concentration_number)
+    deallocate(concentration_number_tmp)
+    deallocate(concentration_mass)
+    deallocate(concentration_mass_tmp)
+    deallocate(concentration_inti)
+
+    deallocate(cell_mass_av)
+    deallocate(cell_mass)
+    deallocate(cell_diam_av)
+    deallocate(cell_log_av)
+
+    deallocate(total_aero_mass)
+    deallocate(mass_total_grid)
+    deallocate(wet_mass)
+    deallocate(wet_diameter)
+    deallocate(wet_volume)
+    deallocate(size_log_av)
+
+    deallocate(mass_bound)
+    if (allocated(log_bound)) then
+       deallocate(log_bound, stat=ierr)
+    endif
+    if (allocated(density_aer_bin)) then
+       deallocate(density_aer_bin, stat=ierr)
+    endif
+    if (allocated(density_aer_size)) then
+       deallocate(density_aer_size, stat=ierr)
+       if (ierr .ne. 0) then
+          stop "Deallocation error"
+       endif
+    endif
+    deallocate(bin_mass)
+    deallocate(bin_number)
+    deallocate(rho_wet_cell)
+    deallocate(kernel_coagulation)
+    deallocate(total_bin_mass)
+    deallocate(ce_kernal_coef)
+    deallocate(Kelvin_effect_ext)
+    deallocate(frac_grid)
+    deallocate(dqdt)
+
+    deallocate(concentration_gas_all)
+!    deallocate(dlconc_aer)
+    deallocate(dlnum_conc_aer)
+
+    ! deallocate(Ncoefficient)
+    ! deallocate(index_first)
+    ! deallocate(index_second)
+    ! deallocate(coefficient)
+
+    deallocate(discretization_composition)
+
+    deallocate(emission_rate)
+    deallocate(gas_emission_rate)
+    deallocate(gas_mass_init)
+
+    deallocate(photolysis_reaction_index)
+    deallocate(photolysis)
+
+    deallocate(molecular_weight)
+    deallocate(species_name)
+    deallocate(aerosol_species_name)
+
+    deallocate(lwc_nsize)
+    deallocate(ionic_nsize)
+    deallocate(proton_nsize)
+    deallocate(liquid_nsize)
+
+  END subroutine free_allocated_memory
+
+  subroutine discretization()
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine automatically computes particle compositions.
+!     Information of particle compositions is saved under "INIT/fractions.txt"
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!------------------------------------------------------------------------   
+    implicit none
+
+    double precision:: sumfrac
+    integer,dimension(:), allocatable:: counter
+    integer:: Nubvaild
+    integer:: i,s,j,k,s1,rankk
+
+    open(unit = 11, file = "INIT/fractions.txt")
+    Nubvaild=0
+    rankk=0
+    allocate(counter(N_groups-1))
+    !auto define the fraction bounds
+    if (kind_composition == 1) then
+      do i = 1, N_frac+1
+	frac_bound(i)= dble(i-1) / N_frac
+      enddo
+    endif
+
+    !calculate the maximum fraction combinations
+    do i = 1, N_frac
+      do s = 1, N_groups-1
+	counter(s)=1!initial the counter
+      enddo
+      if(N_groups.gt.2) then
+      ! when the index counter of second species reaches its top, move to the N_aerosol fraction bin of first species
+	do while(counter(2).le.N_frac)!Traversal all the possible combination
+	  sumfrac=frac_bound(i)!(i+1)!take the base fraction bounds of current bin of first species
+	  do s =2, N_groups-1
+	      rankk=rankk+1
+	      j=counter(s)!the fraction bin index for species s
+	      sumfrac=sumfrac+frac_bound(j)!(j+1)!calculate one possible combination
+	  enddo
+	  if (sumfrac.lt.1.d0) then
+	    Nubvaild=Nubvaild+1!get one possible combination
+	    write(unit=11,FMT=*) frac_bound(i), frac_bound(i+1)!for first species
+	    do s=2, N_groups-1
+	      j=counter(s)!write down possible combinations
+	      write(unit=11,FMT=*) frac_bound(j), frac_bound(j+1)
+	    enddo
+	    write(unit=11,FMT=*) frac_bound(1), frac_bound(N_frac+1)!for last species
+	  endif
+	!when the second last species hasn't reaches its top,
+	  if(counter(N_groups-1).le.N_frac) then
+	    counter(N_groups-1)=counter(N_groups-1)+1!move the index of second last species
+	  endif
+	!!optimized rank method
+	  do s=3,N_groups-1!check every neighbor counter, form back to forward
+	    j=N_groups+2-s
+	    sumfrac=frac_bound(counter(j-1))+frac_bound(counter(j))
+	    if(sumfrac.ge.1.d0) then
+	      do s1=j,N_groups-1
+		counter(s1)=1
+	      enddo
+		  counter(j-1)=counter(j-1)+1
+	    endif
+	  enddo
+	enddo
+      else!in case of only two/one species
+	Nubvaild=N_frac
+	do s=1, N_groups-1
+	  j=counter(s)
+	  write(unit=11,FMT=*) frac_bound(i), frac_bound(i+1)
+	enddo
+	write(unit=11,FMT=*) frac_bound(1), frac_bound(N_frac+1)
+      endif
+    enddo
+    CLOSE(11)
+
+    N_fracmax=Nubvaild!get the N_fracmax
+    allocate(discretization_composition(N_fracmax, N_groups, 2))
+
+    n_size = 0
+    do k = 1,N_sizebin!k is the number of bins
+      N_fracbin(k) = N_fracmax
+      N_size = N_size + N_fracbin(k)
+    enddo
+
+    open(unit = 11, file = "INIT/fractions.txt",status = "old")
+
+    do i = 1, N_fracmax
+      do s = 1, N_groups
+         read(11,*)discretization_composition(i, s, 1), discretization_composition(i, s, 2)
+      enddo
+   enddo
+
+   CLOSE(11)
+  end subroutine  discretization
+
+end module aInitialization

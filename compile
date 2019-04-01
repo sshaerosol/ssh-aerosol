@@ -1,0 +1,28 @@
+#!/bin/bash
+
+for i in "$@"
+do
+case $i in
+    -c=*|--chemistry=*)
+    chemistry="${i#*=}"
+    shift
+    ;;
+esac
+done
+if [ -z $chemistry]; then
+    chemistry="cb05en"
+fi
+echo "Chemistry: $chemistry"
+
+
+file="ssh-aerosol-$chemistry"
+if [ -h $file ] 
+then
+    rm -f $file
+fi
+
+cd src
+scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry 
+
+cd ..
+ln -s src/ssh-aerosol-$chemistry .

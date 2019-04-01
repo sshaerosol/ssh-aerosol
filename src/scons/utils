@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2007-2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+"""A SConscript file that returns an instance of scons_ext.Utils."""
+
+import scons_ext
+
+
+def init_utils(user_variables = None):
+
+    # The user_variables exported with SCons 'Export' are put into the global module
+    # namespace (it is unavoidable due to SCons behavior).
+    # Besides, it must be done from a SConstript file, not a module, which is
+    # why this was not done in 'scons_ext'.
+    former_globals = set(globals().keys())
+    Import("*")
+    new_globals = list(set(globals().keys()) - former_globals)
+
+    exported_variables = {}
+    for name in new_globals:
+        if name[0] != '_':
+            exported_variables[name] = globals()[name]
+
+    return scons_ext.Utils(user_variables, exported_variables)
+
+
+Return("init_utils")

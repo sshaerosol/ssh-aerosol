@@ -1,0 +1,89 @@
+# Copyright (C) 2008, ENPC - INRIA - EDF R&D
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+import os
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+polyphemus_path = "./"
+
+utils = SConscript(polyphemus_path + '/scons/utils')(globals())
+
+# Include paths: put the absolute paths, the relative paths or the paths
+# into the Polyphemus directory.
+include_path_template = """
+    include/common
+    include/Talos
+    include/SeldonData
+    include/AtmoData
+    include/isorropia_aec
+    include/fastJX
+    include/CHEMISTRY/{chemistry}
+    include/CHEMISTRY/common_scram
+    include/INC
+    include/RDB
+    include/SOAP
+    include/Module
+    """
+
+# [Optional] Compiled library paths: put absolute paths, relative paths or
+# paths that are in the Polyphemus directory. Put the list of paths to
+# compiled libraries that may not be installed in your system root.
+library_path = None
+
+exclude_dependency = [ ]
+
+# Default chemistry: cb05
+if 'chemistry' not in ARGUMENTS:
+    ARGUMENTS["chemistry"] = 'cb05'
+
+# Default: without nacl in thermodynamics
+if 'nacl' not in ARGUMENTS:
+    ARGUMENTS["nacl"] = 'no'
+
+chemistry_list = utils.create_list("chemistry", 
+                                   ["racm", "racm2", "cb05", "cb05en"], "*")
+nacl_list = utils.create_list("nacl", ["yes", "no"], "*")
+
+# src_dependencies is nececessary in scons/scons_ext/utils.py
+# to compile soap.cpp
+src_dependencies = os.path.join(polyphemus_path,
+   "include/SOAP/soap.cpp") 
+
+flag_fortran = "-I /usr/include -cpp"
+
+for chemistry in chemistry_list:
+    for nacl in nacl_list:
+        include_path = include_path_template.format(chemistry=chemistry)
+# Hack in Polair3DChemistry.
+        preprocessor_defines = ["POLYPHEMUS_WITH_AEROSOL_MODULE"]
+        build_flavor = []
+        program_suffix = [chemistry]
+
+        if nacl == "no":
+            preprocessor_defines.append("WITHOUT_NACL_IN_THERMODYNAMICS")
+        elif nacl == "yes":
+            build_flavor.append("nacl")
+
+        utils.create_programs()
+
+        # Avoids displaying the libraries checking next time since libraries
+        # does not change in this case.
+        utils.run.quiet(True)
