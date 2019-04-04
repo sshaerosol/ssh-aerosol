@@ -1,0 +1,19 @@
+# -*-sh-*-
+
+### Directories
+
+
+### Binaries
+*.o
+*.a
+*.so
+*.os
+*.py[cod]
+*.mod
+
+### Emacs files
+*~
+\#*\#
+.\#*
+
+src/.build/*
