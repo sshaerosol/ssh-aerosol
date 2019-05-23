@@ -1,0 +1,99 @@
+File for chemical species RACM (name and molar mass)
+# gaseous species # aqueous species
+82	0
+---Gas-phase----
+SO2           64.
+HC3           44.
+HC5           72.
+HC8          114.
+TOL           92.
+XYL          106.
+O1D           16.
+SULF          98.
+N2O5         108.
+UDD          119.
+ETE           28.
+DIEN          54.
+API          136.
+LIM          136.
+HNO4          79.
+OP1           48.
+ADDT         109.
+ADDX         123.
+ISO           68.
+CH4           16.
+ETH           30.
+ADDC         125.
+HONO          47.
+HKET          74.
+TPAN         147. 
+PAN          121.
+H2O2          34.
+PAA           76.
+PHO          107.
+CSL          108.
+TOLP         141.
+XYLP         155.
+CSLP         157.
+ORA1          46.
+O3P           16.
+HC5P         103.
+HC8P         145.
+ETEP          77.
+ISOP         117.
+OLT           42.
+OLTP          91.
+APIP         185.
+LIMP         185.
+OLI           68.
+OLIP         117.
+OLND         136.
+OLNN         136.
+DCB           87.
+MACR          70.
+O3            48.
+GLY           58.
+CO            28.
+OP2           62.
+MGLY          72.
+HNO3          63.
+TCO3         115.
+ORA2          60.
+KETP         103.
+KET           72.
+ETHP          61.
+ALD           44.
+HO            17.
+MO2           47.
+HC3P          75.
+XO2           44.
+HCHO          30.
+NO            30.
+NO3           62.
+ACO3          75.
+ONIT         119.
+HO2           33.
+NO2           46.
+CVAR01        150.
+CVAR02        150.
+CVALK1        140.
+CVOLE1        140.
+CVAPI1        184.
+CVAPI2        184.
+CVLIM1        200.
+CVLIM2        200.
+NH3           17.
+HCL           36.5
+
+! DMS is not in the mechanism. ORA1, ORA2 and SULF are only products. 
+! CO2 only products : not taken into account.
+!
+! Differences with ciRADM: 
+! in RADM: OL2, OL2P, OLN, XNO2
+! in RACM: ETE, DIEN, API, MACR, UDD, HKET, ETEP, ISOP, APIP, LIMP, PHO,
+!          ADDT, ADDX, ADDC, CSLP, OLNN, OLND, LIM.
+! Actually: ETE = OL2 and ETEP = OL2P
+
+! New semi-volatil species for SOA formation: CV*.
+
+! NH3 and HCL added for aerosol mechanism only. 

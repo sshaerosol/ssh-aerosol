@@ -1,0 +1,372 @@
+% ! especes chimiques de "base", MOCA-2.10 TRACIN  /50.0/ avant VPOZO
+%
+% NOELEMENTS
+%
+% SPECIES
+%
+% Les operateurs de Carter sont notes entre accolades, car les signes inf, sup
+% sont utilises pour decoder les reactions
+%
+%
+% ! mecanisme chimique de base, MOCA-2.10
+%
+% REACTIONS                                          MOLECULES     KELVINS
+SET UNIT GAS MOLCM3
+SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
+%
+  O3 + NO > NO2 
+  KINETIC ARR2                             1.80D-12     1370
+  O3 + NO2 > NO3                            
+  KINETIC ARR2                             1.20D-13     2450
+  O3 + OH > HO2                            
+  KINETIC ARR2                             1.90D-12     1000
+  O3 + HO2 > OH    
+  KINETIC ARR2                             1.40D-14      600
+  NO + NO3 > NO2 + NO2   
+  KINETIC ARR2                             1.80D-11     -110
+  NO + HO2 > NO2 + OH  
+  KINETIC ARR2                             3.70D-12     -240
+  NO2 + NO3 > NO + NO2   
+  KINETIC ARR2                             7.20D-14     1414
+  OH + HO2 >  
+  KINETIC ARR2                             4.80D-11     -250
+  OH + H2O2 > HO2
+  KINETIC ARR2                             2.90D-12      160
+  HO2 + HO2 > H2O2 
+  KINETIC ARR2                             2.20D-13     -620
+  HO2 + HO2 > H2O2  
+  KINETIC TB M ARR2                        1.90D-33     -980
+  NO3 + HO2 > HNO3 
+  KINETIC ARR1                             9.20D-13        0
+  NO3 + HO2 > OH + NO2 
+  KINETIC ARR1                             3.60D-12        0
+  NO + NO  > NO2 + NO2 
+  KINETIC TB M ARR2                        6.93D-40    -530
+  OH + HNO4 > NO2
+  KINETIC ARR2                             1.50D-12     -360
+  OH + CO > HO2
+  KINETIC ARR1                             1.50D-13        0
+  OH + CO  > HO2 
+  KINETIC TB M ARR1                        3.66D-33 
+  NO + OH > HONO
+  KINETIC TROE10  3.20D-11  0     0  7.4D-31  -2.4  0.0  0.   1300.   1.  0.
+  NO2 + OH > HNO3                                
+  KINETIC TROE10  6.00D-11  0     0  2.6D-30  -2.9  0.   0.43     0.  0.  0.
+  NO2 + HO2 > HNO4                                   
+  KINETIC TROE10  4.70D-12  0     0  1.8D-31  -3.2  0.   0.6      0.  0.  0.
+  HNO4 > NO2 + HO2                                  
+  KINETIC TROE10  2.60E15   0 10900  5D-6      0.   1E4  0.6      0.  0.  0.
+  NO2 + NO3 > N2O5                                    
+  KINETIC TROE10  2.00D-12  0.2   0  2.7D-30  -3.4  0.   0.     250.  1. 1050.
+  N2O5 > NO2 + NO3                                   
+  KINETIC TROE10 9.70E14   0.1 11080  2.2D-3 -4.4 11080.   0.  250.  1. 1050.
+  OH + SO2 > HO2 + H2SO4                               
+  KINETIC TROE10  2.00D-12  0     0    4.0D-31 -3.3  0.  0.45     0.  0.  0.
+% ! combine 2 reaction - 1: avec H2O, 2: avec H2O et M (para dans EXTRA)
+  HO2 + HO2 > H2O2                                      
+  KINETIC TB H2O SPEC -3
+%          rk = 3.08d-34 * dexp(2820.0d0 
+%    &                 / temp) + 2.66d-54 * xair * dexp(3180.0d0 / temp) 
+  N2O5 > HNO3 + HNO3                                  
+  KINETIC TB H2O ARR1 2.00D-21 
+%          une reaction avec l'eau (qui n'etant pas explicite est confondu avec un tiers corps)
+%  Photolytiques
+  O3 > 2 OH
+  KINETIC EXTRA  3.912D-05 3.759D-05 3.322D-05 2.661D-05 1.879D-05 1.107D-05 4.940D-06 1.407D-06 3.569D-07 5.943D-08 0.
+  NO2 > NO + O3    
+  KINETIC PHOTOLYSIS   1.070D-02 1.056D-02 1.017D-02 9.483D-03 8.490D-03 7.146D-03 5.415D-03 3.335D-03 1.721D-03 5.366D-04 0.
+  H2O2 > OH + OH
+  KINETIC PHOTOLYSIS   9.661D-06 9.475D-06 8.922D-06 8.013D-06 6.771D-06 5.246D-06 3.548D-06 1.898D-06 8.918D-07 2.460D-07 0.
+  NO3 > NO
+  KINETIC PHOTOLYSIS   3.089D-02 3.062D-02 2.995D-02 2.873D-02 2.691D-02 2.434D-02 2.069D-02 1.523D-02 8.992D-03 1.720D-03 0.
+  NO3 > NO2 + O3
+  KINETIC PHOTOLYSIS   2.485D-01 2.460D-01 2.410D-01 2.307D-01 2.153D-01 1.936D-01 1.629D-01 1.178D-01 6.796D-02 1.383D-02 0.
+  HONO > NO + OH 
+  KINETIC PHOTOLYSIS   2.374D-03 2.344D-03 2.252D-03 2.096D-03 1.869D-03 1.563D-03 1.172D-03 7.125D-04 3.681D-04 1.167D-04 0. 
+%
+  {RO2} + NO > NO2 + HO2       
+  KINETIC ARR3                             4.20D-12  0   -180
+  {RO2} + HO2 > ROOH                        
+  KINETIC ARR3                             4.10D-13  0   -790
+  {RONO2} + NO > RONO2                      
+  KINETIC ARR3                             4.20D-12  0   -180
+  {RONO2} + HO2 > ROOH                      
+  KINETIC ARR3                             4.10D-13  0   -790
+  {R2O2} + NO > NO2 + {RO2}                   
+  KINETIC ARR3                             4.20D-12  0   -180
+  {R2O2} + HO2 > ROOH                       
+  KINETIC ARR3                             4.10D-13  0   -790
+  {RO2NP} + NO > NPHE                       
+  KINETIC ARR3                             4.20D-12  0   -180
+  {RO2NP} + HO2 > ROOH                      
+  KINETIC ARR3                             4.10D-13  0   -790
+  {NONO2} + NO > NO2                        
+  KINETIC ARR3                             4.20D-12  0   -180
+  {NONO2} + HO2 > ROOH                       
+  KINETIC ARR3                             4.10D-13  0   -790
+  OH + HCHO > HO2 + CO                        
+  KINETIC ARR3                             1.25D-17  2   -648
+  OH + CH3CHO > CH3COO2                     
+  KINETIC ARR3                             5.55D-12  0   -311
+  CH3COO2 + NO > NO2 + HCHO + {RO2}              
+  KINETIC ARR1                             2.00D-11  0      0
+  HO2 + CH3COO2 > 0.3 O3 + 0.7 ROOH           
+  KINETIC ARR3                             4.30D-13  0  -1040
+  C2H5CHO + OH > C2H5COO2                    
+  KINETIC ARR3                             8.50D-12  0   -252
+  C2H5COO2 + NO > NO2 + CH3CHO + {RO2}  
+  KINETIC ARR3                             2.00D-11  0      0
+  C2H5COO2 + HO2 > 0.3 O3 + 0.7 ROOH          
+  KINETIC ARR3                             4.30D-13  0  -1040
+  C2H5COO2 + NO2 > PPN                      
+  KINETIC ARR1                             8.40D-12  0      0
+  PPN > C2H5COO2 + NO2 
+  KINETIC ARR3                             1.60D+17  0  14073
+  OH + ACET > 0.2 HCHO + 0.2 CH3COO2 + 0.2 {NONO2} + 0.8 {RO2} + 0.8 MGLYOX
+  KINETIC ARR3                             2.13D-18  2    -53
+  OH + MEK > 0.5 CH3CHO + 0.5 CH3COO2 + 1.5 {NONO2} + 0.5 HCHO + 0.5 C2H5COO2
+  KINETIC ARR3                             3.24D-18  2   -414
+  OH + CRESOL > 0.15 {RO2NP} + 0.2 MGLYOX + 0.85 {RO2}
+  KINETIC ARR1                             4.20D-11  0      0
+  NO3 + CRESOL > HNO3 + PHO                   
+  KINETIC ARR1                             2.10D-11  0      0
+  OH + PHENOL > 0.15 {RO2NP} + 0.2 GLYOX + 0.85 {RO2}
+  KINETIC ARR1                             2.63D-11  0      0
+  NO3 + PHENOL > HNO3 + PHO                   
+  KINETIC ARR1                             3.60D-12  0      0
+  BENZAL + OH > BENCO3                      
+  KINETIC ARR1                             1.29D-11  0      0
+  BENCO3 + NO > NO2 + PHO2                    
+  KINETIC ARR1                             2.00D-11  0      0
+  BENCO3 + HO2 > 0.3 O3 + 0.7 ROOH            
+  KINETIC ARR3                             4.30D-13  0  -1040
+  BENCO3 + NO2 > PBZN                       
+  KINETIC ARR1                             8.40D-12  0      0
+  PBZN > BENCO3 + NO2                       
+  KINETIC ARR3                             1.60D+17  0  14073
+  PHO2 + NO > PHO + NO2                       
+  KINETIC ARR3                             4.20D-12  0   -180
+  PHO2 + HO2 > ROOH                         
+  KINETIC ARR3                             4.10D-13  0   -790
+  PHO + NO2 > NPHE                          
+  KINETIC ARR3                             1.30D-11  0   -300
+  PHO + HO2 > PHENOL                        
+  KINETIC ARR3                             4.10D-13  0   -790
+  PHO > PHENOL                            
+  KINETIC ARR1                             1.00D-03  0      0
+  NPHE + NO3 > HNO3 + BZ(NO2)O                
+  KINETIC ARR1                             3.60D-12  0      0
+  BZ(NO2)O + NO2 > 
+  KINETIC ARR3                             1.30D-11  0   -300
+  BZ(NO2)O + HO2 > NPHE                     
+  KINETIC ARR3                             4.10D-13  0   -790
+  BZ(NO2)O > NPHE                          
+  KINETIC ARR1                             1.00D-3   0      0
+  ARX1 + OH > CHOCOO2                        
+  KINETIC ARR1                             1.14D-11  0      0
+  ARX2 + OH > C2H5COO2                       
+  KINETIC ARR1                             1.72D-11  0      0
+  GLYOX + OH > 1.2 CO + 0.6 HO2 + 0.4 CHOCOO2    
+  KINETIC ARR1                             1.14D-11  0      0
+  CHOCOO2 + NO > NO2 + CO + HO2                  
+  KINETIC ARR1                             2.00D-11  0      0
+  CHOCOO2 + HO2 > 0.3 O3 + 0.7 ROOH            
+  KINETIC ARR3                             4.30D-13  0  -1040
+  MGLYOX + OH > CH3COO2 + CO                   
+  KINETIC ARR1                             1.72D-11  0      0
+  O3OLSB + SO2 > H2SO4                      
+  KINETIC ARR1                             1.00D-13  0      0
+  ROOH + OH > OH                           
+  KINETIC ARR3                             1.00D-12  0   -190
+  ROOH + OH > {RO2}                          
+  KINETIC ARR3                             1.90D-12  0   -190
+  RONO2 + OH > NO2 + 0.155 MEK + 1.05 C2H5CHO + 0.48 CH3CHO + 0.16 HCHO + 1.39 {NONO2}
+  KINETIC ARR3                             2.19D-11  0    708
+  CH3COO2 + NO2 > PAN              
+  KINETIC TROE10 1.20D-11 -0.9    0 2.7D-28 -7.1  0. 0.3   0.  0.  0.
+  PAN > CH3COO2 + NO2                                 
+  KINETIC TROE10 4.00E16   0  13600 4.9D-3 0. 12100. 0.3   0.  0.  0.
+  CHOCOO2 + NO2 > GPAN                                
+  KINETIC TROE10 1.20D-11 -0.9    0 2.7D-28 -7.1  0. 0.3   0.  0.  0.
+  GPAN > CHOCOO2 + NO2                                
+  KINETIC TROE10 4.00E16   0  13600 4.9D-3 0. 12100. 0.3   0.  0.  0.
+  HCHO > 2 HO2 + CO                                       
+  KINETIC PHOTOLYSIS  3.839D-05 3.761D-05 3.528D-05 3.144D-05 2.624D-05 1.992D-05 1.304D-05 6.617D-06 2.926D-06 7.214D-07 0.
+  HCHO > CO                             
+  KINETIC PHOTOLYSIS  5.529D-05 5.441D-05 5.177D-05 4.733D-05 4.106D-05 3.300D-05 2.342D-05 1.330D-05 6.585D-06 1.928D-06 0.
+  CH3CHO > HCHO + {RO2} + HO2 + CO
+  KINETIC PHOTOLYSIS  7.976D-06 7.761D-06 7.131D-06 6.129D-06 4.836D-06 3.381D-06 1.962D-06 8.378D-07 3.104D-07 6.192D-08 0.
+  C2H5CHO > CH3CHO + {RO2} + HO2 + CO             
+  KINETIC PHOTOLYSIS  2.435D-05 2.375D-05 2.198D-05 1.915D-05 1.543D-05 1.114D-05 6.805D-06 3.150D-06 1.282D-06 2.918D-07 0.
+  ACET > HCHO + {RO2} + CH3COO2
+  KINETIC PHOTOLYSIS  1.403D-06 1.369D-06 1.269D-06 1.109D-06 8.976D-07 6.527D-07 4.023D-07 1.884D-07 7.734D-08 1.765D-08 0.
+  MEK > CH3COO2 + CH3CHO + {RO2}  
+  KINETIC PHOTOLYSIS  1.908D-06 1.861D-06 1.724D-06 1.504D-06 1.215D-06 8.813D-07 5.422D-07 2.540D-07 1.046D-07 2.409D-08 0.
+  GLYOX > 0.8 HO2 + 0.45 HCHO + 1.55 CO 
+  KINETIC PHOTOLYSIS  5.653D-05 5.540D-05 5.202D-05 4.647D-05 3.892D-05 2.971D-05 1.961D-05 1.009D-05 4.543D-06 1.159D-06 0.
+  GLYOX > 0.13 HCHO + 1.87 CO               
+  KINETIC PHOTOLYSIS  6.344D-04 6.282D-04 6.092D-04 5.765D-04 5.280D-04 4.603D-04 3.676D-04 2.428D-04 1.283D-04 3.610D-05 0.
+  MGLYOX > CH3COO2 + CO + HO2 
+  KINETIC PHOTOLYSIS  1.866D-04 1.846D-04 1.786D-04 1.683D-04 1.532D-04 1.324D-04 1.046D-04 6.826D-05 3.582D-05 1.017D-05 0.
+  ARX1 > HO2 + CHOCOO2 
+  KINETIC PHOTOLYSIS  6.579D-05 6.478D-05 6.174D-05 5.662D-05 4.937D-05 3.998D-05 2.869D-05 1.655D-05 8.298D-06 2.510D-06 0.
+  ARX2 > HO2 + CO + CH3COO2  
+  KINETIC PHOTOLYSIS  6.579D-04 6.478D-04 6.174D-04 5.662D-04 4.937D-04 3.998D-04 2.869D-04 1.655D-04 8.298D-05 2.510D-05 0.
+  BENZAL >     
+  KINETIC PHOTOLYSIS  5.304D-05 5.230D-05 5.005D-05 4.623D-05 4.077D-05 3.358D-05 2.467D-05 1.465D-05 7.469D-06 2.324D-06 0.
+  ROOH > HO2 + OH          
+  KINETIC PHOTOLYSIS  6.980D-06 6.852D-06 6.468D-06 5.836D-06 4.967D-06 3.890D-06 2.671D-06 1.459D-06 6.975D-07 1.981D-07 0.
+  RONO2 > NO2 + 1.315 MEK + 0.119 CH3CHO + 0.503 HO2 + 0.497 {RO2}
+  KINETIC PHOTOLYSIS  4.056D-06 3.956D-06 3.664D-06 3.196D-06 2.582D-06 1.875D-06 1.156D-06 5.441D-07 2.252D-07 5.186D-08 0.
+%
+% ! ******* chimie des esp. explicites *******
+%
+  CH4 + OH > HCHO + {RO2} 
+  KINETIC ARR3                             6.95D-18  2   1282
+  C2H6 + OH > CH3CHO + {RO2}
+  KINETIC ARR3                             1.42D-17  2    462
+%
+%  CVAR
+%       Les coefficents variables seront evites en introduisant des reactions supplementaires
+%
+% C3H8 + OH > HCHO + CH3CHO + C2H5CHO + ACET + MEK + {RO2} + {R2O2} + {NONO2} + {RONO2} + RO2OLD   
+% KINETIC CVAR                      43204  1.50D-17  2     44
+%
+% Nouvelle ecriture proposee
+%
+ C3H8 + OH >    
+ KINETIC ARR3                             1.50D-17  2     44  
+ C3H8 + OH > C3H8 + OH + HCHO + CH3CHO + {R2O2}
+ KINETIC CVAR                             1.50D-17  2     44  0.    0.    0.000 0.008 
+ C3H8 + OH > C3H8 + OH + C2H5CHO    
+ KINETIC CVAR                             1.50D-17  2     44  0.212 0.238 0.261 0.283 
+ C3H8 + OH > C3H8 + OH + ACET    
+ KINETIC CVAR                             1.50D-17  2     44  0.729 0.713 0.699 0.677 
+ C3H8 + OH > C3H8 + OH + {RO2}   
+ KINETIC CVAR                             1.50D-17  2     44  0.942 0.951 0.960 0.960 
+ C3H8 + OH > C3H8 + OH + {RONO2}   
+ KINETIC CVAR                             1.50D-17  2     44  0.058 0.049 0.040 0.032 
+%
+ C2H4 + OH > {RO2}
+ KINETIC ARR2                             1.96D-12  0   -438
+ C2H4 + OH > C2H4 + OH + HCHO 
+ KINETIC CVAR                             1.96D-12  0   -438 0.338 1.014 1.614 1.868
+ C2H4 + OH > C2H4 + OH + CH3CHO 
+ KINETIC CVAR                             1.96D-12  0   -438 0.831 0.493 0.193 0.066
+%
+  C2H4 + O3 > HCHO + 0.37 O3OLSB + 0.44 CO + 0.12 HO2 
+  KINETIC ARR2                             9.14D-15     2580
+  C3H6 + OH > CH3CHO + HCHO + {RO2}              
+  KINETIC ARR2                             4.85D-12     -504
+  C3H6 + O3 > 0.53 HCHO + 0.5 CH3CHO + 0.225 O3OLSB + 0.28 HO2 + 0.4 CO + 0.31 HCHO + 0.31 {RO2} + 0.07 CH4 + 0.15 OH
+  KINETIC ARR2                             5.51D-15     1878
+  ISOP + OH > HCHO + C2H5CHO + {RO2}           
+  KINETIC ARR2                             2.54D-11     -410
+  ISOP + O3 > 0.5 HCHO + 0.5 C2H5CHO + 0.275 O3OLSB + 0.40 CO + 0.28 HO2 + 0.34 CH3CHO + 0.07 C2H6 + 0.15 OH + 0.31 {RO2}                                       
+  KINETIC ARR2                             1.23D-14     2013
+  ISOP + NO3 > HCHO + C2H5CHO + NO2 + {NONO2}    
+  KINETIC ARR2                             2.54D-11     1080
+  C2H2 + OH > 0.36 CO + 0.36 HO2 + 0.64 GLYOX + 0.64 OH  
+  KINETIC TROE10 9.00D-13  2      0 5.0D-30 -1.5 0. 0.62 0. 0. 0.
+  BENZ + OH > 0.236 HO2 + 0.236 PHENOL + 0.207 GLYOX + 0.490 ARX1 + 0.764 {RO2}
+  KINETIC ARR2                             2.47D-12      207
+  STYRENE + OH > 1.000 HCHO + 1.000 BENZAL + 1.000 {RO2}
+  KINETIC ARR1                             5.80D-11  0      0
+  CH3OH + OH > HO2 + HCHO
+  KINETIC ARR3                             6.39D-18  2   -148
+  C2H5OH + OH > CH3CHO + HO2   
+  KINETIC ARR3                             6.18D-18  2   -532
+%
+% ! ******* chimie des esp. modeles *******
+%
+ ALKANE1 + OH > 
+ KINETIC ARR2                            6.63D-12       303
+ ALKANE1 + OH > ALKANE1 + OH + HCHO 
+ KINETIC CVAR                            6.63D-12  0    303  3.110D-01  2.970D-01  2.960D-01  2.940D-01
+ ALKANE1 + OH > ALKANE1 + OH + CH3CHO
+ KINETIC CVAR                            6.63D-12  0    303  1.440D-01  1.490D-01  2.240D-01  4.300D-01
+ ALKANE1 + OH > ALKANE1 + OH + C2H5CHO
+ KINETIC CVAR                            6.63D-12  0    303  1.000D-01  1.180D-01  1.360D-01  1.540D-01
+ ALKANE1 + OH > ALKANE1 + OH + ACET
+ KINETIC CVAR                            6.63D-12  0    303  1.540D-01  1.590D-01  1.740D-01  1.840D-01
+ ALKANE1 + OH > ALKANE1 + OH + MEK
+ KINETIC CVAR                            6.63D-12  0    303  4.200D-01  4.360D-01  4.110D-01  3.080D-01
+ ALKANE1 + OH > ALKANE1 + OH + {RO2} 
+ KINETIC CVAR                            6.63D-12  0    303  5.930D-01  5.890D-01  5.430D-01  4.340D-01
+ ALKANE1 + OH > ALKANE1 + OH + {R2O2}  
+ KINETIC CVAR                            6.63D-12  0    303  3.320D-01  3.500D-01  4.090D-01  5.290D-01
+ ALKANE1 + OH > ALKANE1 + OH + {NONO2}  
+ KINETIC CVAR                            6.63D-12  0    303  3.000D-03  1.300D-02  3.500D-02  5.200D-02
+ ALKANE1 + OH > ALKANE1 + OH + {RONO2} 
+ KINETIC CVAR                            6.63D-12  0    303  8.300D-02  6.800D-02  5.500D-02  4.300D-02
+%
+ ALKANE2 + OH > 
+ KINETIC ARR2                            6.55D-12       93
+ ALKANE2 + OH >  ALKANE2 + OH + HCHO 
+ KINETIC CVAR                            6.55D-12  0     93 4.900D-02  4.800D-02  4.500D-02  4.600D-02
+ ALKANE2 + OH >  ALKANE2 + OH + CH3CHO 
+ KINETIC CVAR                            6.55D-12  0     93 1.650D-01  1.630D-01  1.880D-01  2.500D-01
+ ALKANE2 + OH >  ALKANE2 + OH + C2H5CHO  
+ KINETIC CVAR                            6.55D-12  0     93 1.220D-01  1.410D-01  1.830D-01  2.480D-01
+ ALKANE2 + OH >  ALKANE2 + OH + ACET 
+ KINETIC CVAR                            6.55D-12  0     93 3.090D-01  3.070D-01  3.130D-01  3.290D-01
+ ALKANE2 + OH >  ALKANE2 + OH + MEK  
+ KINETIC CVAR                            6.55D-12  0     93 6.600D-01  7.110D-01  7.100D-01  6.490D-01
+ ALKANE2 + OH >  ALKANE2 + OH + {RO2}  
+ KINETIC CVAR                            6.55D-12  0     93 3.380D-01  2.910D-01  2.210D-01  1.390D-01
+ ALKANE2 + OH >  ALKANE2 + OH + {R2O2}  
+ KINETIC CVAR                            6.55D-12  0     93 4.760D-01  5.600D-01  6.570D-01  7.620D-01
+ ALKANE2 + OH >  ALKANE2 + OH + {NONO2}  
+ KINETIC CVAR                            6.55D-12  0     93 3.000D-03  9.000D-03  1.400D-02  2.500D-02
+ ALKANE2 + OH >  ALKANE2 + OH + {RONO2} 
+ KINETIC CVAR                            6.55D-12  0     93 1.880D-01  1.520D-01  1.230D-01  1.010D-01
+%
+ ALKANE3 + OH >  
+ KINETIC ARR2                            1.15D-11  105
+ ALKANE3 + OH > ALKANE3 + OH + HCHO 
+ KINETIC CVAR                            1.15D-11  0    105 4.000D-03  8.000D-03  1.400D-02  2.600D-02
+ ALKANE3 + OH > ALKANE3 + OH + CH3CHO 
+ KINETIC CVAR                            1.15D-11  0    105 2.200D-02  3.100D-02  5.000D-02  9.300D-02
+ ALKANE3 + OH >  ALKANE3 + OH + C2H5CHO  
+ KINETIC CVAR                            1.15D-11  0    105 1.880D-01  1.870D-01  2.150D-01  2.780D-01
+ ALKANE3 + OH >  ALKANE3 + OH + ACET 
+ KINETIC CVAR                            1.15D-11  0    105 3.100D-02  4.500D-02  6.700D-02  9.800D-02
+ ALKANE3 + OH >  ALKANE3 + OH + MEK  
+ KINETIC CVAR                            1.15D-11  0    105 1.008D+00  1.111D+00  1.186D+00  1.205D+00
+ ALKANE3 + OH >  ALKANE3 + OH + {RO2}  
+ KINETIC CVAR                            1.15D-11  0    105 9.600D-02  8.600D-02  6.700D-02  3.800D-02
+ ALKANE3 + OH >  ALKANE3 + OH + {R2O2}  
+ KINETIC CVAR                            1.15D-11  0    105 5.620D-01  6.320D-01  7.110D-01  7.990D-01
+ ALKANE3 + OH >  ALKANE3 + OH + {NONO2}  
+ KINETIC CVAR                            1.15D-11  0    105 5.800D-02  9.000D-02  1.390D-01  2.270D-01
+ ALKANE3 + OH >  ALKANE3 + OH + {RONO2} 
+ KINETIC CVAR                            1.15D-11  0    105 3.460D-01  2.870D-01  2.280D-01  1.740D-01
+%
+  ALKENE3 + OH > 0.927 HCHO + 0.927 C2H5CHO + 0.927 {RO2} + 0.073 {RONO2}
+  KINETIC ARR2                            8.53D-12     -398
+  ALKENE3 + O3 > 0.500 HCHO + 0.340 CH3CHO + 0.500 C2H5CHO + 0.275 O3OLSB + 0.070 C2H6 + 0.400 CO + 0.280 HO2 + 0.150 OH + 0.310 {RO2}
+  KINETIC ARR2                            3.42D-15     1721
+  ALKENE3 + NO3 > 1.000 HCHO + 1.000 C2H5CHO + 1.000 NO2 + 1.000 {NONO2}
+  KINETIC ARR2                            6.55D-12     1875
+  ALKENE4 + OH > 0.250 HCHO + 1.178 CH3CHO + 0.201 C2H5CHO + 0.250 ACET + 0.076 MEK + 0.978 {RO2} + 0.022 {RONO2}
+  KINETIC ARR2                            1.09D-11     -516
+%
+%  Attention : 16 produits differents
+%              donc ligne trop longue, on dedouble la reaction
+%        1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
+% ..v.7..x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x....v....x
+% ALKENE4 + O3 > 0.509 HCHO + 0.828 CH3CHO + 0.142 C2H5CHO + 0.118 ACET + 0.098 MEK + 0.160 O3OLSB + 0.019 MGLYOX + 0.005 CH3COO2 + 0.000 C2H5COO2 + 0.104 CH4 + 0.019 C2H6 + 0.319 CO + 0.386 HO2 + 0.286 OH + 0.561 {RO2} + 0.005 {NONO2}
+% KINETIC ARR2                            4.72D-15     1027
+  ALKENE4 + O3 > 0.509 HCHO + 0.828 CH3CHO + 0.142 C2H5CHO + 0.118 ACET + 0.098 MEK + 0.160 O3OLSB + 0.019 MGLYOX + 0.005 CH3COO2
+  KINETIC ARR2                            4.72D-15     1027
+  ALKENE4 + O3 > ALKENE4 + O3 + 0.102 CH4 + 0.020 C2H6 + 0.317 CO + 0.385 HO2 + 0.286 OH + 0.560 {RO2} + 0.005 {NONO2}
+  KINETIC ARR2                            4.72D-15     1027
+  ALKENE4 + NO3 > 0.056 HCHO + 1.122 CH3CHO + 0.060 C2H5CHO + 0.746 ACET + 0.017 MEK + 1.000 NO2 + 1.000 {NONO2}  
+  KINETIC ARR2                            3.16D-12      324
+  AROMATIC1 + OH > 0.077 BENZAL + 0.260 CRESOL + 0.118 GLYOX + 0.131 MGLYOX + 0.410 ARX2 + 0.260 HO2 + 0.732 {RO2}
+  KINETIC ARR2                            2.48D-12     -269
+  AROMATIC2 + OH > 0.034 BENZAL + 0.180 CRESOL + 0.080 GLYOX + 0.434 MGLYOX + 0.649 ARX2 + 0.180 HO2 + 0.817 {RO2}
+  KINETIC ARR1                            2.28D-11        0
+  ALKOHOL + OH > 0.062 CH3CHO + 0.395 C2H5CHO + 0.178 ACET + 0.271 MEK + 0.796 HO2 + 0.204 {RO2}
+  KINETIC ARR2                            6.69D-12     -105
+  END

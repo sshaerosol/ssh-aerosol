@@ -1,0 +1,104 @@
+File for chemical species EURORADM (name and molar mass)
+# gaseous species # aqueous species
+82	0
+---Gas-phase----
+NO2           46.
+NO            30.
+HONO          47.
+NO3           62.
+N2O5          108.
+HNO3          63.
+HNO4          79.
+O3            48.
+H2O2          34.
+SO2           64.
+SULF          98.
+CO            28.
+O3P           16.
+O1D           16.
+HO            17.
+HO2           33.
+CH4           16.
+ETH           30.
+PRO           44.
+BTN           58.
+BTI           58.
+PTN           72.
+PTI           72.
+HC            114.
+ETE           28. 
+PRE           42.
+BTE           56.
+OLT           42.
+OLI           68.
+ISO           68.
+API           136.	
+LIM           136.
+ACT           26.
+TOL           92.
+XYL           106.
+CSL           108.
+HCHO          30.
+ALD           44.
+HALD          60.
+KET           72.
+HKET          74.
+GLY           58.
+MGLY          72.
+DCB           87.
+MVK           70.
+MAC           70. 
+PAN           121.
+TPAN          147. 
+ONIT          119.
+OP1           48.
+OP2           62.
+PAA           76.
+ORA1          46.
+ORA2          60.
+ACO3          75.
+MO2           47.
+ETHP          61.
+PROP          75.0
+BTNP          103.0
+BTIP          89.0
+PTNP          103.0
+PTIP          103.0
+HCP           145.0
+ACTP          75.0
+ETEP          77.
+PREP          103.
+BTEP          105.
+OLTP          91.
+OLIP          117.
+ISOP          117.
+APIP          185.
+LIMP          185.
+TOLP          141.
+XYLP          155.
+KETP          103.
+MACP          119.
+MVKP          119.
+TCO3          115.
+OLN           136.
+ISON          1.
+XNO2          1.
+XO2           44.
+
+! The following species are not taken into account for gas-phase:
+! CO2 (mass = 44.)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+! NH3 and HCL : not in RADM (BUT TO BE ADDED FOR AEROSOLS !!!!)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! mass (XNO2) not specified.
+
+! Addition for RADM-C: ISOP, ISON, MAC, MACP, MVK, MVKP.
+! Unknown molecular weight for ISON.
+
+! Addition for EURORADM: BTI, BTIP, PTN, PTNP, PTI, PTIP,
+! ACT, ACTP, PRE, PREP, API, APIP, LIM, LIMP,
+! HALD, HKET, PRO, BTN, HC.
+
+! Substitution: PROP instead of HC3P, BTNP of HC5P, HCP of HC8P, ETEP of OL2P.
+

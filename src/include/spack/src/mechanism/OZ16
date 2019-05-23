@@ -1,0 +1,36 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File for gas-phase mechanism OZONE 16 (toy model)
+%
+% Reference:
+%
+% Modifications:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+UNIT GAS MOLCM3
+%
+%
+OD + AIR + O2 > O3 + AIR + O2
+  KINETIC ARR1 6.027D-34
+O3 + NO       > NO2
+  KINETIC ARR1 1.872D-14
+NO + HO2      > NO2 + OH
+  KINETIC ARR1 8.235D-12
+OH + NO2      > HNO3
+  KINETIC ARR1 1.1D-11
+NO2           > NO  + OD
+  KINETIC ARR1 8.88D-3
+RH + OH       > RO2
+  KINETIC ARR1 2.607D-12
+RCHO + OH     > RCO3
+  KINETIC ARR1 1.588D-11
+RCHO          > RO2 + CO + HO2
+  KINETIC ARR1 3.18D-6
+NO + RO2      > RCHO + HO2 + NO2
+  KINETIC ARR1 7.563D-12
+NO + RCO3     > NO2 + RO2 + CO2
+  KINETIC ARR1 7.563D-12
+NO2 + RCO3    > PAN
+  KINETIC ARR1 4.7D-12
+PAN           > RCO3 + NO2
+  KINETIC ARR1 4.837D-4
+  END

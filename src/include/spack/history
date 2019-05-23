@@ -1,0 +1,27 @@
+o---------------o
+| SPACK HISTORY |
+o---------------o
+
+
+Version 0.9.1 (2016-04-06)
+-----------
+
+** Bug fixes:
+
+- Made "make_config.py" compatible with Python 2.6
+- Made the build compatible with older GCC 4.x versions.
+
+
+Version 0.9 (2015-04-20)
+-----------
+
+** Improvements:
+
+- Added a configuration file for spack Fortran generator containing:
+     + the mechanism name,
+     + an optional function suffix,
+     + if aerosol formation is enabled.
+- Added automatic generation of the species and the molecular weights
+  configuration files.
+- Refactoring of the generation scripts, for added robustness and better code
+  maintainability.

@@ -1,0 +1,62 @@
+File for chemical species MELCHIOR (name and molar mass)
+# gaseous species # aqueous species
+44      0
+---Gas-phase----
+APINEN     136.
+C2H4       28.
+C2H6       30.
+C3H6       42.
+C5H8       68.
+CARNIT     1.
+CH3CHO     44.
+CH3COE     72.
+CH3COO     59.
+CH3COY     86.
+CH3O2      47.
+CH3O2H     64.
+CH4        16.
+CO         28.
+GLYOX      58.
+H2O2       34.
+HCHO       30.
+HNO3       63.
+HO2        33.
+HONO       47.
+ISNI       1.
+MAC        70.
+MEMALD     98.
+MGLYOX     72.
+MVK        70.
+N2O5       108.
+NC4H10     1.
+NO         30.          			
+NO2        46.
+NO3        62.
+O3         48.
+obio       1.
+obioH      64.
+OH         17.
+oPAN       1.
+oRN1       1.
+oRO2       1.
+oROOH      64.
+OXYL       106.
+PAN        109.
+PANH       64.
+PPA        64.
+SO2        64.
+toPAN      161.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

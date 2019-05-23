@@ -1,0 +1,79 @@
+File for chemical species MOCA (name and molar mass)
+# gaseous species # aqueous species
+66  0
+---Gas-phase----
+O3            48.0
+NO2           46.0
+NO            30.0
+HNO3          63.0
+HNO4          79.0
+HONO          47.0
+N2O5         108.0
+SO2           64.0
+H2SO4         82.0
+H2O2          34.0
+CO            28.0
+OH            17.0
+HO2           33.0
+NO3           62.0
+HCHO          30.0
+CH3CHO       44.0
+C2H5CHO       58.0
+ACET          58.0
+MEK           72.0
+BENZAL       106.0
+GLYOX         58.0
+MGLYOX        72.0
+ARX2           1.0
+ARX1           1.0
+PHENOL        94.0
+CRESOL       108.0
+PAN          121.0
+PPN          135.0
+PBZN         183.0
+GPAN         135.0
+RONO2          1.0
+NPHE           1.0
+ROOH           1.0
+{RO2}          1.0
+{R2O2}         1.0
+{NONO2}        1.0
+{RONO2}        1.0
+{RO2NP}        1.0
+CH3COO2       75.0
+C2H5COO2      89.0
+CHOCOO2       89.0
+BENCO3       137.0
+RO2OLD         1.0
+PHO2         109.0
+PHO           93.0
+BZ(NO2)O      1.0
+O3OLSB         1.0
+CH4           16.0
+C2H6          30.0
+C3H8          44.0
+C2H4          28.0
+C3H6          42.0
+ISOP          68.0
+C2H2          26.0
+BENZ          78.0
+STYRENE      104.0
+CH3OH         32.0
+C2H5OH        46.0
+ALKANE1       71.4
+ALKANE2       80.2
+ALKANE3      106.9
+ALKENE3       67.5
+ALKENE4       58.1
+AROMATIC1     96.4
+AROMATIC2    110.5
+ALKOHOL       70.2
+
+! molar mass = 1. if unknown
+
+
+
+
+
+
+

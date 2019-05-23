@@ -1,0 +1,822 @@
+file /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/scons/scons_ext/utils.py,line 496:
+	Configure(confdir = /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp)
+scons: Configure: Checking for C library ifcore... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_0
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library imf... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_1
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library svml... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_2
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library intlc... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_3
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library dl... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_4
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library m... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_5
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library stdc++... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_6
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library blas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_7
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library atlas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_8
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library lapack... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_9
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library g2c... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_10
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library gfortran... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_11
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library gslcblas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_12
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library blitz... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_13
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdff... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_14
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdf... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_15
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdf_c++... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_16
+  |
+scons: Configure: (cached) yes
+
+
+file /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/scons/scons_ext/utils.py,line 496:
+	Configure(confdir = /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp)
+scons: Configure: Checking for C library ifcore... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_17
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library imf... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_18
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library svml... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_19
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library intlc... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_20
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library dl... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_21
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library m... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_22
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library stdc++... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_23
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library blas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_24
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library atlas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_25
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library lapack... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_26
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library g2c... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_27
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library gfortran... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_28
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library gslcblas... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29.c
+  |
+scons: Configure: Building "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_29
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library blitz... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_30
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdff... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_31
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdf... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_32
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library netcdf_c++... 
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33.c" is up to date.
+scons: Configure: The original builder output was:
+  |/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33.c
+  |
+scons: Configure: "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol-0.1/src/.sconf_temp/conftest_33
+  |
+scons: Configure: (cached) yes
+
+

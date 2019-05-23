@@ -1,0 +1,71 @@
+File for chemical species RADM (name and molar mass)
+# gaseous species # aqueous species
+58	0
+---Gas-phase----
+O3            48.
+H2O2          34.
+NO            30.
+NO2           46.
+NO3           62.
+N2O5         108.
+HONO          47.
+HNO3          63.
+HNO4          79.
+SO2           64.
+CO            28.
+HO            17.
+HO2           33.
+CH4           16.
+ETH           30.
+HC3           44.
+HC5           72.
+HC8          114.
+OLT           42.
+OLI           68.
+ISO           68.
+TOL           92.
+XYL          106.
+CSL          108.
+HCHO          30.
+ALD           44.
+KET           72.
+GLY           58.
+MGLY          72.
+DCB           87.
+ONIT         119.
+PAN          121.
+TPAN         147. 
+OP1           48.
+OP2           62.
+PAA           76.
+MO2           47.
+ETHP          61.
+HC3P          75.
+HC5P         103.
+HC8P         145.
+OLTP          91.
+OLIP         117.
+TOLP         141.
+XYLP         155.
+ACO3          75.
+TCO3         115.
+KETP         103.
+XO2           44.
+O3P           16.
+O1D           16.
+SULF          98.
+ORA1          46.
+ORA2          60.
+OL2           28.
+OL2P          77.
+OLN           136.
+XNO2          1.
+
+! The following species are not taken into account for gas-phase:
+! CO2 (mass = 44.)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+! NH3 and HCL : not in RADM (BUT TO BE ADDED FOR AEROSOLS !!!!)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! mass (XNO2) not specified.
+

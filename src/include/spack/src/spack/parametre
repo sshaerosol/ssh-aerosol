@@ -1,0 +1,46 @@
+      integer nrmax,nphotmax,nespmax,nphase
+      integer ntabphotmax,nintphotmax,nbpmax
+      integer nequilx,nionx,nangl,nlo,ntab1,neqmax
+      parameter(nrmax=800)
+      parameter(nphotmax=2)
+      parameter(ntabphotmax=12)
+      parameter(nintphotmax=ntabphotmax-1)
+      parameter(nbpmax=12+ntabphotmax)
+      parameter(nespmax=300)
+      parameter(nphase=3)
+      parameter(nequilx=25)
+      parameter(nionx=25)
+      parameter(nangl=20,nlo=3*nangl,ntab1=11)
+      parameter(neqmax = nionx+nequilx)
+c===================
+c chem_mechanism:
+c     set as 1 for RACM mechanism
+c     set as 2 for CB05 mechanism
+c     set as 3 for RACM2 mechanism
+c This variable will be used for the automatic generation of
+c   some specific reaction constants in cinet.f (see generator.f also)
+c===================
+c	  integer chem_mechanism
+c	  parameter(chem_mechanism=2)
+c==================
+c aerosol_formation:
+c     set as .TRUE. if heterogeneous reactions and SVOC formations included
+c     set as .FALSE. if only gas-phase reactions
+c
+c This variable will be used for the automatic generation of
+c   some heterogeneous reactions in write_end.f and write_header.f
+c===================
+      character *16 mechanism_name
+      common mechanism_name
+
+      character *24 function_suffix
+      common function_suffix
+
+      logical aerosol_formation
+      common aerosol_formation
+
+      character *256 filespecies
+      common filespecies
+
+      character *256 filemeca
+      common filemeca
