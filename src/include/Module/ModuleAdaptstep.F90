@@ -248,8 +248,7 @@ contains
 ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
 
 
-         call  bulkequi_org(nesp_pom+nesp_pankow+nesp_aec, &
-              lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
+         call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
 
 
          call redistribution_lwcorg(lwcorg,lwcorg_Nsize)

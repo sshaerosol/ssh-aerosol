@@ -248,6 +248,8 @@ contains
          END DO
          qgas(jesp) = q(N_size * (1 + N_aerosol) + jesp)
       enddo
+      qgas(N_aerosol)=0.
+      qaero(N_aerosol)=0.
 
       if (lwc.GT.1.d-19) then
         chp = proton / lwc * 1.0e3
@@ -269,6 +271,8 @@ contains
          csol(js) = q(IQ(EMD,js)) + q(IQ(EBC,js))
       enddo
 
+      !write(*,*) 'SOAPDYN', deltat,N_aerosol,N_size
+      lwcorg=0.
       CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, neq, q, qaero, qgas, &

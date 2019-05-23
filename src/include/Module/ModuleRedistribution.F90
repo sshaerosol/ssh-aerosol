@@ -49,16 +49,19 @@ contains
     double precision:: Qesp(N_sizebin, N_aerosol)!Temperature mass concentration on each fraction
     double precision:: N(N_sizebin)!Temperature mass concentration on each fraction
     double precision:: totQ(N_sizebin)
-    double precision:: d(N_sizebin)
+    double precision:: d(N_sizebin),d_after_cond(N_sizebin)
     double precision:: tmp_n
     Qesp=0.d0
     tmp_n=0.d0
 
-    do k=1,N_sizebin
-      if(diam_bound(k).lt.1.d-2.and.diam_bound(k+1).ge.1.d-2) then
-      section_pass=k
-      endif
-    enddo
+    if(scheme.EQ.5) then
+      do k=1,N_sizebin
+        if(diam_bound(k).lt.1.d-2.and.diam_bound(k+1).ge.1.d-2) then
+         section_pass=k
+        endif
+      enddo
+    endif
+    write(*,*) 'enter redistribution size',scheme
     !see the distribution in one fixed fraction as the same case of internal mixing
     do f=1,N_fracmax
       !extrac the mass and number distribution of each fraction out
@@ -70,7 +73,8 @@ contains
 	  jesp=List_species(s)
 	  Qesp(k,jesp)=concentration_mass(j,jesp)
 	enddo
-	  d(k)=size_diam_av(k)
+	d(k)=size_diam_av(k)
+	d_after_cond(k)=cell_diam_av(j)
       enddo
 
 !      call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
@@ -79,7 +83,7 @@ contains
 
       call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
       section_pass, mass_density, DQLIMIT, Qesp, N, totQ,&
-      with_fixed_density, fixed_density)
+      with_fixed_density, fixed_density,d_after_cond)
 
 
       !update distribution of each bin in current fraction section size_diam_av
@@ -87,6 +91,7 @@ contains
 	j=concentration_index_iv(k,f)
 	concentration_number(j)=N(k)
 	cell_mass(j)=totQ(k)
+	cell_diam_av(j)=d_after_cond(k)
 	do s=1,N_aerosol
 	  jesp=List_species(s)
 	  concentration_mass(j,jesp)=Qesp(k,jesp)
@@ -102,7 +107,7 @@ contains
 !
 !     -- DESCRIPTION
 !     This subroutine redistribute mass and number
-!     based on the new fraction composation of aerosol
+!     based on the new fraction composition of aerosol
 !
 !------------------------------------------------------------------------
 !
