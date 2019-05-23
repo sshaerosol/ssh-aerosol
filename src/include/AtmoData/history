@@ -1,0 +1,260 @@
+o------------------o
+| ATMODATA HISTORY |
+o------------------o
+
+Version 1.5.2 (2018-04-10)
+-------------
+
+** Improvements:
+- Fixed GCC warnings.
+- Fixed a bug: MM5 coordinate transformations could divide zero by zero.
+- Added interpolation functions based on the Chimere code.
+- Converted text files to utf-8.
+- Fixed compilation warnings.
+
+Version 1.5.1 (2015-09-01)
+-------------
+
+** Improvements:
+
+- Added new functions for MACC boundary conditions
+  preprocessing.
+
+Version 1.5 (2015-04-20)
+-----------
+
+** Improvements:
+
+- Added MEGAN biogenic emission model.
+- Added new functions for optical and aerosol calculations.
+- Renamed 'ComputeCloudHeight' to 'ComputeCloudBaseHeight', and added
+  'ComputeCloudTopHeight'.
+- Updated formula for the Lambert conformal conic projection.
+- Better split header files and source files.
+
+** Bug fix:
+
+- The include guard of "Format.cxx" was the same as the include guard of
+  "Format.hxx".
+- There was a dimension overflow in a Blitz array (It was harmless because the
+  array is not used in this version of AtmoData).
+
+
+Version 1.4.3 (2010-11-03)
+-------------
+
+** Bug fix:
+
+- Fixed a bug: the total number of LUC cells at the boundary of the
+  computational domain was erroneous in 'GridCorrespondences'.
+
+
+Version 1.4.2 (2010-05-07)
+-------------
+
+** Bug fix:
+
+- In the function 'LonLatToWRFLccInd', the index along the north-south
+  direction was erroneous.
+
+
+Version 1.4.1 (2010-04-27)
+-------------
+
+** Bug fix:
+
+- The function 'ComputeAttenuation_LWC' miscalculated the attenuation when
+  clouds reached the upper model level.
+
+
+Version 1.4 (2009-11-09)
+-----------
+
+** Improvements:
+
+- Added coordinates transformations:
+   + LonlatToWRFLccInd
+   + LonlatToWRFMercInd
+   + LonlatToWRFStereInd
+- Added two overloaded meteorological functions 'ComputeTemperature'.
+
+** Bug fix:
+
+- The operators () of the classes defined for MM5 in "CoordTransform.cxx" were
+  shifted with an offset of 0.5 cell.
+
+
+Version 1.3.2 (2008-05-08)
+-------------
+
+** Bug fix:
+
+- Fixed a bug in 'ComputeTotalCloudiness': the numbers of points along x and y ('Nx' and 'Ny') were wrongly set.
+
+
+Version 1.3.1 (2008-04-22)
+-------------
+
+** Bug fix:
+
+- 'FormatMM5::ReadField(ifstream& FileStream)' could fail on huge input files.
+
+
+Version 1.3 (2007-10-09)
+-----------
+
+** Improvements:
+
+- Added a potential speciation for SOX.
+- Improved 64-bit portability of 'FormatMM5::ReadField(ifstream& FileStream)'.
+
+
+Version 1.2.1 (2007-06-22)
+-------------
+
+** Bug fixes:
+
+- The current date was badly updated inside time loops.
+
+
+Version 1.2 (2007-04-24)
+-----------
+
+** Improvements:
+
+- Added functions which compute nucleation and coagulation kernels for
+  aerosols.
+- Added functions to compute stability class with Pasquill formula in
+  "Meteorology.cxx".
+- Improved computation of anthropogenic emissions: an error message is thrown
+  if there is an unknown country code in the emission inventory, and
+  inventories for 10 or 11 sectors can now be used.
+- Added files "TimeDiagnosis.hxx" and "TimeDiagnosis.cxx". They contain
+  functions to compute the sun declination, hours of sunrise and sunset, and
+  to diagnose whether it is night or day at a given time and place.
+- Improved the management of the second underscore appended to given Fortran
+  external identifiers; introduced 'POLYPHEMUS_SINGLE_UNDERSCORE' and
+  'POLYPHEMUS_DOUBLE_UNDERSCORE'.
+
+** Bug fixes:
+
+- A segmentation fault occurred when a country code was unknown.
+- An error occurred when a country number was higher than a maximum number of
+  countries.
+
+
+Version 1.1 (2006-09-29)
+-----------
+
+** Improvements:
+
+- All functions related to anthropogenic emissions (previously part of
+  Polyphemus preprocessing) are now in AtmoData.
+- Added functions related to Troen & Mahrt parameterization for vertical
+  diffusion coefficients ('ComputeLMO', 'ComputePBLH_TM', 'ComputePBLH_Richardson'
+  and 'ComputeTM_Kz').
+- Added ESQUIF parameterization for attenuation.
+- Improved 'ReadEmep' (less CPU time consuming).
+- Only a part of the emissions of NH3 are now taken into account due to the
+  local deposition.
+- Added "Aerosol.f" and "Meteorology.f" in AtmoData.
+- Aggregation matrix is now limited to NMVOC in function
+'SpeciationAggregation'.
+
+** Bug fixes:
+
+- Virtual temperature was badly computed.
+- Fixed a bug in 'ComputeCloudFraction': when both the relative humidity and the
+  critical relative humidity reached 1.0, a division by zero occurred (and the
+  cloud fraction was then set to NaN).
+
+
+Version 1.0 (2004-10-13)
+-----------
+
+** Improvements:
+
+- Added 'ComputeAttenuation_LWC' to compute the cloud attenuation.
+- Added 'ComputeWesely' which computes deposition velocities according to
+  the Wesely (1989) model.
+- Added 'ComputeBiogenicRates' and 'ComputeBiogenicEmissions' to compute
+  biogenic emissions.
+- Added the class 'FormatMM5' to read MM5 files.
+- Added coordinates transformations:
+   + LaeaToLonlat
+   + MM5LccIndToLonlat / LonlatToMM5LccInd
+   + MM5MercIndToLonlat / LonlatToMM5MercInd
+   + MM5StereIndToLonlat / LonlatToMM5StereInd
+- 'LouisKz' was improved and renamed into 'ComputeLouisKz'.
+- Added meteorological functions:
+   + ComputePressure
+   + ComputeVirtualTemperature
+   + ComputePotentialTemperature
+   + ComputeModule
+   + ComputeRichardson
+   + ComputeRelativeHumidity
+   + ComputeCriticalRelativeHumidity
+   + ComputeCriticalRelativeHumidity_extended
+   + ComputeSaturationHumidity
+   + ComputeSurfaceHumidity_diag
+   + ComputeCloudHeight
+   + ComputeCloudFraction
+   + ComputeCloudiness
+   + ComputeHeight, ComputeInterfHeight and ComputeMiddleHeight
+- Added:
+   + Decumulate
+   + RelativeRMS
+   + TransformZonalWind
+   + TransformMeridionalWind
+
+** Other changes:
+
+- Warning: in 'ZenithAngle', arguments 'lat' and 'lon' were switched and
+  the date format changed from YYMMDD to YYYYMMDD.
+- Removed:
+   - NGE_interpolation
+   - Bias_interpolation
+   - RMS_interpolation
+   - RelativeRMS_interpolation
+
+** Bug fixes:
+
+
+Version 0.3 (2003-08-04)
+-----------
+
+** Improvements:
+
+- Added function 'ZenithAngle' to compute the zenith angle.
+- Removed functions 'to_num' because they are now defined in SeldonData.
+- Added functions to compute errors between data sets:
+   + NGE_interpolation
+   + NGE
+   + Bias_interpolation
+   + Bias
+   + RMS_interpolation
+   + RMS
+
+** Bug fixes:
+
+
+Version 0.2 (2003-06-10)
+-----------
+
+** Improvements:
+
+- Added format 'FormatECMWF' to read ECMWF binaries.
+
+** Bug fixes:
+
+
+Version 0.1 (2003-04-16)
+-----------
+
+** Improvements:
+
+- Louis formula for Kz
+- Vertical wind
+- Reads ".csv" files
+
+** Bug fixes:

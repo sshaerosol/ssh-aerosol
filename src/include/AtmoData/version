@@ -1,0 +1,4 @@
+AtmoData 1.5.2
+
+Depends on:
+ - SeldonData 1.7.1
