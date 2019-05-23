@@ -1,7 +1,9 @@
 # -*-sh-*-
 
 ### Directories
-
+src/.build/*
+results/*
+src/include/CHEMISTRY/cb05en/*.f
 
 ### Binaries
 *.o
@@ -16,4 +18,13 @@
 \#*\#
 .\#*
 
-src/.build/*
+### Others
+*/.nfs*
+*/.sconf_temp
+*/.scons.log
+*/.sconsign.dblite
+unifac.csv
+core
+ssh-aerosol-*
+*old
+.gitignore

@@ -7,7 +7,7 @@
     !double precision ::  Diam_MIN,Diam_MAX
     parameter(EPSER = 1.D-2) ! Relative error for time step adjustment
     parameter(ALFHP = 0.1D0)
-    parameter(TINYM = 0.)
+    parameter(TINYM = 1.d-15)
     parameter(TINYN = 1.d-6)
     parameter(DTMAX = 500.D0)
     parameter(NITER_AEC_AQ = 1)

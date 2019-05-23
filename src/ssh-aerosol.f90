@@ -1,4 +1,4 @@
-! test case 2006
+
 PROGRAM SSHaerosol
 
 
@@ -17,8 +17,6 @@ PROGRAM SSHaerosol
   character (len=40) :: namelist_ssh  ! Configuration file
   character(len=10)::vchar ! Current time 
   double precision :: current_time, ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
-  ! 
-  double precision, dimension(:), allocatable :: time_array 
 
   ! Initialisation: discretization and distribution  
   call getarg(1, namelist_ssh) 
@@ -48,19 +46,9 @@ PROGRAM SSHaerosol
 
 
   ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! simulation starts ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
-  allocate(time_array(152))
-     open(unit = 11, file = 'sirtime.txt', status = "old")
-     do s = 1, 152
-        read(11, *) time_array(s)
-     enddo
-     close(11)
 
-  nt = 151 
-  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
   do t = 1, nt
-  	current_time = time_array(t)
-  	delta_t = time_array(t+1) - time_array(t)
-     ! current_time = initial_time + (t - 1) * delta_t
+     current_time = initial_time + (t - 1) * delta_t
 
      write(*,*)
 

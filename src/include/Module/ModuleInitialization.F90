@@ -108,8 +108,8 @@ module aInitialization
     Integer, dimension(:), allocatable :: aec_species
     Integer, dimension(:), allocatable :: pankow_species
     Integer, dimension(:), allocatable :: poa_species
-    Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom
-    parameter (nesp_isorropia=5,nesp_aec=19,nesp_pankow=1,nesp_pom=6)
+    Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom, nesp_eq_org
+    parameter (nesp_isorropia=5,nesp_aec=17,nesp_pankow=1,nesp_pom=8, nesp_eq_org = 26)
  
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -290,7 +290,7 @@ module aInitialization
     character (len=40) :: mineral_dust(10), black_carbon(10)
     character (len=40) :: isorropia_species_name(10)
     character (len=40) :: aec_species_name(30)
-    character (len=40) :: pankow_species_name(5)
+    character (len=40) :: pankow_species_name(6)
     character (len=40) :: poa_species_name(10)
     character (len=40) :: PSO4
     character (len=10) :: precursor
@@ -626,6 +626,8 @@ module aInitialization
 	      print*, 'redistibution method : euler_coupled'
 	   CASE (10)
 	      print*, 'redistibution method : moving diameter'
+	   CASE (11)
+	      print*, 'redistibution method : siream'
 	   CASE DEFAULT ! default redistribution_method = 0
 	      redistribution_method = 0
 	      print*, '! ! without redistibution'

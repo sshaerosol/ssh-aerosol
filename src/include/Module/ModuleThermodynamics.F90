@@ -768,7 +768,11 @@ contains
 	  ktlim=qsum       !/timestep_splitting
 	  do j=ICUT+1,N_size
 	    ! fraction, adim
-	    frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
+            if (ce_kernal_coef_tot .ne. 0.d0) then !! YK
+               frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
+            else
+               frac = 0.d0
+            endif !! YK
 	    ! we allow only a given fraction
 	    ! of ktlim to condense on given bin
 	    klim=ktlim*frac
