@@ -26,7 +26,7 @@
   implicit none
  
 contains
-  subroutine SULFDYN(Q1,Q,N1,N,c_gas,dqdt,dtx)
+  subroutine SULFDYN(Q1,Q,N1,N,c_gas,dqdt,dtx,time_step_sulf)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -56,16 +56,17 @@ contains
     double precision :: dqdt(N_size,N_aerosol)
     double precision ::c_gas(N_aerosol)!micg/m^-3
     double precision :: ce_kernal_coef_tot ! c/e kernel coef (m3.s-1)
-    double precision :: Q1(N_size,(N_aerosol-1)) ! Mass concentration
-    double precision :: Q(N_size,(N_aerosol-1)) ! Mass concentration
+    double precision :: Q1(N_size,(N_aerosol)) ! Mass concentration
+    double precision :: Q(N_size,(N_aerosol)) ! Mass concentration  !!BUG
     double precision :: N1(N_size) ! Number concentration
     double precision :: N(N_size) ! Number concentration
     double precision :: dtx,tmp,cond_so4!Time steps
-    double precision :: dexploc
+    double precision :: dexploc,n2err,tmp_n2err,time_step_sulf
 
     jesp=ESO4!Pointer
     ce_kernal_coef_tot = 0.0d0
     cond_so4 = 0.0d0
+    n2err = 0.d0
 
     do j = 1,N_size! Reassigned distribution by mass of each species
       call compute_condensation_transfer_rate(diffusion_coef(jesp), &
@@ -79,23 +80,29 @@ contains
         dexploc = DEXP(-ce_kernal_coef_tot*dtx)
 	tmp=(dqdt(j,jesp)*N(j)/ce_kernal_coef_tot)*&
 	      (1.d0-dexploc) * c_gas(jesp)
+        if (Q(j,jesp).GT.TINYM) then
+          tmp_n2err = (dqdt(j,jesp)*N(j)*dtx*c_gas(jesp))/Q(j,jesp)
+          n2err = n2err + tmp_n2err*tmp_n2err
+        endif
         Q(j,jesp) = Q(j,jesp)+tmp!renew mass
-        cond_so4 = cond_so4+tmp
         Q1(j,jesp) = Q(j,jesp)
+        cond_so4 = cond_so4+tmp
         N1(j)=N(j)
         if(dtx.gt.0.d0) dqdt(j,jesp)=tmp/dtx!for redistribution
       endif
     enddo
     c_gas(jesp) = DMAX1(c_gas(jesp)*dexploc,0.d0)
 
-    ! if(cond_so4.gt.(c_gas(jesp)*1.1d0).or.cond_so4.gt.2.d2) then
-    !   print*,"init",c_gas(ESO4),ESO4,dtx
-    !   print*,"wet_diameter",wet_diameter
-    !   print*,"number",N
-    !   print*,"total_cond_so4",cond_so4,DEXP(-ce_kernal_coef_tot*dtx)
-    !   stop
-    ! endif !! YK test
-      
+    n2err=DSQRT(n2err)
+    if (n2err > 0.0) then
+      tmp = 1.D6
+      n2err=DMIN1(n2err,EPSER*tmp)
+      n2err=DMAX1(EPSER/tmp,n2err)
+      ! New time step new time step
+      time_step_sulf = dtx*DSQRT(EPSER/n2err)
+    else
+      time_step_sulf = 0.0
+    endif
   end subroutine SULFDYN
 
   subroutine KERCOND(qn,q,c_gas,Wet_diam,Temp,ce_kernel,ce_kernal_coef_i,jj,&
@@ -189,7 +196,8 @@ contains
       Wet_vol=Wet_diam**3.d0*cst_pi6
       !if(Wet_volume*concentration_number(jj).gt.0.d0) rhop =rhop/(Wet_volume*concentration_number(jj))     ! µg.µm-3
       rhop_tmp = rho_wet_cell(jj) * 1.d9 !1400. ! kg/m3
-      Wet_diam_used =DMAX1(Wet_diam,Diam_min)
+      !Wet_diam_used =DMAX1(Wet_diam,Diam_min)
+      Wet_diam_used =DMAX1(Wet_diam,diam_bound(1)) 
       if (wet_diam_used .lt. 1.d-3) then
          write(*,*) "kercond: too small wet_diameter",wet_diam_used
          stop

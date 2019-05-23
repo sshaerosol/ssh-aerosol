@@ -55,6 +55,126 @@ Module bCoefficientRepartition
 
 
 contains
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CHANGE!!!!!!!!!!
+  SUBROUTINE ComputeCoefficientRepartition()
+    
+    implicit none
+
+    !!integer (kind=8), parameter :: Nmc = 10000
+    integer, parameter :: Nalloc_tmp = 1000000 
+    real, dimension(:), allocatable :: repartition_coefficient_tmp
+    real, dimension(:), allocatable :: index1_repartition_coefficient_tmp
+    real, dimension(:), allocatable :: index2_repartition_coefficient_tmp
+    double precision, dimension(:), allocatable :: random_vector
+    double precision :: dsum,f1,f2,m1,m2,m12,fact,f12
+    integer :: i1,i2,l1,l2,j1,j2,n,s,i,j,k,l,g
+    integer :: ki
+
+    ! Allocate repartition coefficient
+    allocate(repartition_coefficient(N_size))
+    allocate(index1_repartition_coefficient(N_size))
+    allocate(index2_repartition_coefficient(N_size))
+    allocate(repartition_coefficient_tmp(Nalloc_tmp))
+    allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
+    allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
+    allocate(random_vector(2+2*N_groups))
+  
+    !!allocate(concentration_index_iv(N_sizebin, N_fracmax))
+    !!allocate(discretization_composition(N_fracmax, N_groups, 2))
+    ! Compute repartition coefficient
+    do j = 1,N_size
+       repartition_coefficient_tmp = 0.0
+       k = concentration_index(j, 1)
+       i = concentration_index(j, 2)         
+       ! ki = j !!!ki =  concentration_index_iv(k,i)
+       l=1
+	do j1 = 1,N_size
+          do j2 = 1,N_size
+             dsum = 0.0
+             do n = 1, Nmc
+                call random_number(random_vector)
+                l1 = concentration_index(j1, 1)
+                l2 = concentration_index(j2, 1)
+                
+                i1 = concentration_index(j1, 2)
+                i2 = concentration_index(j2, 2)
+                
+                m1 = discretization_mass(l1) +random_vector(1) &
+                     * (discretization_mass(l1+1)-discretization_mass(l1))
+                m2 = discretization_mass(l2) + random_vector(2) &
+                     * (discretization_mass(l2+1)-discretization_mass(l2))
+              
+                m12 = m1 + m2
+                fact = 0.0           
+                if(k /= N_sizebin) then
+                   if (m12 >= discretization_mass(k) &
+                        .AND. m12 <= discretization_mass(k+1)) then
+                      fact = 1.0      
+                   endif
+                endif
+          
+                if (k == N_sizebin) then
+                   if (discretization_mass(N_sizebin) <= m12) then
+                      fact = 1.0 
+                   endif
+                endif
+              
+                do s = 1,N_groups
+                    g = s !!Index_groups(s)           ! g : group number!
+                   f1 = discretization_composition(i1, g,1) + random_vector(2 + s) &
+                        *(discretization_composition(i1, g,2) - discretization_composition(i1, g, 1))
+                   f2 = discretization_composition(i2, g, 1) + random_vector(2 +N_groups + s) &
+                        * (discretization_composition(i2, g, 2) - discretization_composition(i2, g, 1))
+                   
+                   f12 = (m1 * f1 + m2 * f2) / m12
+
+                   if (f12 <discretization_composition(i, g, 1) &
+                        .OR. f12 > discretization_composition(i,g , 2)) then
+                      fact = 0.0
+                   endif
+                enddo
+                dsum = dsum + fact
+             enddo
+          
+             dsum = dsum / dble(Nmc)
+           
+
+             if (dsum > 0.0) then
+                repartition_coefficient_tmp(l) = dsum
+             
+                index1_repartition_coefficient_tmp(l) = j1
+                index2_repartition_coefficient_tmp(l) = j2
+           
+                l = l + 1
+             endif
+          enddo
+       enddo
+
+       repartition_coefficient(j)%n = 0
+       do l = 1,Nalloc_tmp
+          if (repartition_coefficient_tmp(l) > 0.0) then
+             repartition_coefficient(j)%n = repartition_coefficient(j)%n + 1
+          endif
+  
+     enddo
+    
+       index1_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+       index2_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+
+       allocate(repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+       allocate(index1_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+       allocate(index2_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+          
+       do l = 1,repartition_coefficient(j)%n
+          repartition_coefficient(j)%arr(l) = repartition_coefficient_tmp(l)
+          index1_repartition_coefficient(j)%arr(l) = index1_repartition_coefficient_tmp(l)
+          index2_repartition_coefficient(j)%arr(l) = index2_repartition_coefficient_tmp(l)
+       enddo
+    enddo
+
+  end SUBROUTINE  ComputeCoefficientRepartition
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Read repartition coefficients and their indexes from file.
   ! Size and composition discretization must correspond.

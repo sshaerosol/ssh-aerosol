@@ -22,6 +22,7 @@
 !!-----------------------------------------------------------------------
 MODULE mEmissions
   use aInitialization
+  use dPhysicalbalance
 
   implicit none
 
@@ -44,22 +45,11 @@ contains
     implicit none
 
     integer::s,i,j,jesp,k
-    double precision::qemis,current_time,time_step
-    double precision::time_emis,emis_dt
-    double precision :: elapsed_time
-
-    ! if(nucl_model.eq.5) then
-    ! time_emis=60.d0*60.d0*12.d0
-    ! else
-    time_emis=2.64376d3
-    ! endif
-    !print*,'emis'
-    ! if((current_time+time_step).lt.time_emis) then
-    !   emis_dt=time_step
-    ! else
-    !   emis_dt=time_emis-current_time
-    !   if(emis_dt.lt.0.d0) emis_dt=0.d0
-    ! endif
+    ! record emission time
+    double precision :: current_time,time_step, emis_dt, elapsed_time 
+    double precision :: qemis
+    double precision :: subrho,rho_emis 
+    !double precision, dimension() :: density_aer_emissions
 
     elapsed_time = current_time - initial_time + time_step
 
@@ -67,57 +57,140 @@ contains
       emis_dt=time_step
     else
       emis_dt=time_emis-(elapsed_time - time_step)
-    endif
+    end if
 
+      if (emis_dt .le. 0.d0) return 
+
+	print*, 'called emission()	emis_dt', emis_dt
     ! For gas-phase emissions.
-    do i = 1, ngas_emis
-       do j = 1, n_gas
-          if (species_name(j) == emis_species_name(i)) then
+     do i = 1, N_gas
+       if (gas_emis(i) .gt. 0.d0) then 
              qemis = gas_emis(i) * emis_dt
-             concentration_gas_all(j) = concentration_gas_all(j) + qemis
-          end if
-       end do
-    end do
+             concentration_gas_all(i) = concentration_gas_all(i) + qemis
+        end if
+     end do 
        
 
-      !for non C/E species
-    do j=1,N_size
-      k=concentration_index(j, 1)
-      do jesp=EMD,EBC
-	if(emission_rate(j,jesp).gt.0.d0) then
-	  if(concentration_mass(j,jesp).ne.concentration_mass(j,jesp)) then
-	    print*,j,jesp,concentration_mass(j,jesp),'emission 1'
-	  endif
-	    qemis=emission_rate(j,jesp)*emis_dt!some precision will be lost due to the different maganitude between concentration_mass and qemis
-	    !print*,'current_sub_time',current_time,time_step
-	  concentration_mass(j,jesp)=concentration_mass(j,jesp)+qemis
-	  concentration_number(j)=concentration_number(j)+qemis/size_mass_av(k)!cell_mass_av(j)
-	  n_emis=n_emis+qemis/size_mass_av(k)
-	  m_emis=m_emis+qemis
-	endif
-      enddo
-    enddo
+    ! For aerosols emissions.
 
-    do jesp=EMD,EBC
-      total_aero_mass(jesp)=0.d0
-    enddo
+    ! some precision will be lost 
+    ! due to the different maganitude between concentration_mass and qemis
 
-    do j=1,N_size
-      do jesp=EMD,EBC
-	if(concentration_mass(j,jesp).ne.concentration_mass(j,jesp)) then
-	    print*,j,jesp,concentration_mass(j,jesp),'emission 2'
-	    stop
-	  endif
-	total_aero_mass(jesp)=total_aero_mass(jesp)+concentration_mass(j,jesp)
-	total_mass(jesp)=total_aero_mass(jesp)
-      enddo
-    enddo
 
-    !     !for C/E species
-    ! do jesp=ENA,N_aerosol
-    !   concentration_gas(jesp)=concentration_gas(jesp)+gas_emission_rate(jesp)*emis_dt
-    !   total_mass(jesp)=total_mass(jesp)+gas_emission_rate(jesp)*emis_dt
-    ! enddo
+    !!!! emis_bin_number() -> emission_num_rate(N_size, N_aerosol)
+    !!!! emis_bin_massn() -> emission_rate(N_size, N_aerosol)
+
+    do j = 1,N_size
+        m_emis = 0.d0
+        subrho = 0.d0
+        k = concentration_index(j, 1) ! number for sizebin
+         do s = 1, N_aerosol  ! 
+	         qemis = emission_rate(j,s)
+                 ! add conc. mass
+	         concentration_mass(j,s)=concentration_mass(j,s)+qemis*emis_dt
+		 ! total_aero_mass(s) = total_aero_mass(s) + qemis*emis_dt
+
+                 m_emis = m_emis + qemis ! total emission mass
+                 subrho = subrho +  emission_rate(j,s) / mass_density(s)   ! emission density
+
+         end do
+
+         if(m_emis.gt.0.d0) then
+           if (with_emis_num == 0 ) then
+
+                     if(subrho.gt.0.d0) then
+                        rho_emis = m_emis / subrho
+                     else  
+                        rho_emis = fixed_density
+                     endif
+
+                     if(size_diam_av(k).gt.0.d0) then
+	                 emission_num_rate(j)=(6.d0*m_emis)/((size_diam_av(k)**3.d0)*pi*rho_emis)
+                     else
+	                 print*,"Emission number calculation : wrong size_diam_av",k,size_diam_av(k)
+         	     endif
+           end if
+         end if
+         if (emission_num_rate(j) .gt. 0.d0) then
+		concentration_number(j) = concentration_number(j) + &
+					emission_num_rate(j)* emis_dt 
+         endif
+
+    end do
+
+
+
+	! re-calculate total_mass(N_aerosol) because mass change due to emission   
+    total_aero_mass = 0.d0
+    total_mass = 0.d0
+    do s = 1, N_aerosol
+       do j=1,N_size
+         total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+       enddo
+	! update mass conc. of aerosol precursors
+	! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+       if (aerosol_species_interact(s) .gt. 0) then
+          concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
+       end if
+          total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
+    end do
+
+  
+   !do i = 1, naero_emis
+   !   jesp = 0
+	!do j =1, N_aerosol
+	 !  if (jesp == 1) exit 
+	  ! if (aerosol_species_name(j) == emis_aer_species_name(i)) then
+	!	jesp = 1
+	!	do k = 1, n_sizebin !!! NEED TO CHECK WHEN MIXING STATE RESOLVED
+         !          qemis = init_bin_emission(k,i) * emis_dt 	    
+	!	   concentration_mass(k,j)=concentration_mass(k,j)+qemis
+	!	end do 
+         !  end if
+        !end do 
+    !end do
+
+    ! init_bin_num_emis(k)
+
+
+
+  !  if (with_emis_num == 0) then
+
+  !    do s= 1, N_size
+   !      volum_cell=0.d0
+    !     k=concentration_index(s, 1)!size bins
+    !     do j= 1, (N_aerosol-1)
+    !       do i = 1, naero_emis
+  	!     if (aerosol_species_name(j) == emis_aer_species_name(i)) then
+	!       jesp = emis_aer_species_name(i)
+	!       volum_cell = volum_cell +  init_bin_emission(s,jesp)
+     !          if(mass_density(j).gt.0.d0) then
+     !             subrho = subrho +  init_bin_emission(s,jesp)/mass_density(j)
+      !         endif
+     !          if (volum_cell.eq.0.d0 .OR. subrho.eq.0.d0) then
+     !             density_aer_emissions = fixed_density
+      !         else
+     !             if(subrho.gt.0.d0) density_aer_emissions = volume_cell/subrho
+     !          endif
+     !       endif
+     !      enddo
+    !     enddo
+    !    if(density_aer_emissions.gt.0.d0) then
+   !        volum_cell=volum_cell/density_aer_emissions
+    !    else
+   !        write(*,*) 'Pb in computing density at emissions',density_aer_emissions
+  !         STOP
+  !      endif
+
+ !       if(size_diam_av(k).gt.0.d0) then
+!	  init_bin_num_emis(s)=(6.d0*volum_cell)/((size_diam_av(k)**3.d0)*pi)
+  !      else
+!	  print*,"Wrong size_diam_av",k,size_diam_av(k)
+    !    endif
+   !   enddo
+
+
+
   end subroutine emission
 
 

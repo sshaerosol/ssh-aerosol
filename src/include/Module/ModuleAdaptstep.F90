@@ -32,7 +32,7 @@ Module jAdaptstep
   use kSOAP
    implicit none
 contains
-  subroutine aerodyn(start_time,end_time)
+  subroutine aerodyn(start_time,delta_t)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -62,61 +62,49 @@ contains
     integer :: iq(N_aerosol, N_size) 
     ! integer :: ig(N_aerosol)
     double precision :: ionic, lwc, proton
-!    double precision :: lwc_Nsize(N_size),ionic_Nsize(N_size)
-   ! double precision :: ionic_Nsize(N_size)
+    ! double precision :: lwc_Nsize(N_size),ionic_Nsize(N_size)
+    ! double precision :: ionic_Nsize(N_size)
     double precision :: lwcorg_Nsize(N_size)
     ! double precision :: proton_Nsize(N_size),liquid_Nsize(12,N_size)
     double precision :: liquid(12),rhoaer,lwcorg
     double precision :: qext(N_aerosol),surface_equilibrium_conc_tmp(N_aerosol)
     double precision :: qinti_tmp(N_inside_aer)
-    integer k,s
-
-    ionic_nsize = 0.d0
-    lwc_nsize = 0.d0
+    double precision :: delta_t
+    integer k,s,b
 
     lwcorg_nsize = 0.d0
-   
-! Initialize the density of aerosols
 
-    do j1 = 1, N_size
-      ! call compute_density(N_sizebin,N_aerosol,EH2O,TINYM,concentration_mass,&
-      !        mass_density_aer,j1,rhoaer) !! YK
+! Initialize the density of aerosols
+   if (with_fixed_density.ne.1) then
+
+     do j1 = 1, N_size
       call compute_density(N_size,N_aerosol,EH2O,TINYM,concentration_mass,&
              mass_density,j1,rhoaer)
       rho_wet_cell(j1) = rhoaer
       if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
-    enddo
+     enddo
+   end if
 
     call update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
+
     call mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
 
-    IF (with_coag.EQ.1) THEN
-       do j1 = 1, N_size
+
+   if (with_coag.EQ.1) then
+	call COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,air_free_mean_path,viscosity)
+        do j1 = 1, N_size
           do j2 = 1, N_size
              call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
                   wet_diameter(j1),wet_diameter(j2),&
                   wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
           enddo
        enddo
-    ENDIF
+   endif
 
-!!     Update thermo and microphysical parameters.
-    call COMPUTE_RELATIVE_HUMIDITY(humidity,Temperature,Pressure,Relative_Humidity)
-    Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-! air free mean path
+!   Update thermo and microphysical parameters.
 
-    if (with_coag.EQ.1) then
-	call COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,&
-	air_free_mean_path,viscosity)
-    endif
-
-    if (with_cond.EQ.1) then
-
-      quadratic_speed=0.D0
-      diffusion_coef=0.D0
-      soa_sat_conc=0.D0
-      soa_part_coef=0.D0
+  if (with_cond.EQ.1) then
 
 	do jesp=1,N_aerosol
 	  if (aerosol_species_interact(jesp).GT.0) then
@@ -129,7 +117,7 @@ contains
 		  emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
 	  endIF
 	enddo
-
+	! nesp_isorropia=5,nesp_aec=19,nesp_pankow=1,nesp_pom=6
 	do i=1,nesp_pankow
 	  jesp=pankow_species(i)
 	  emw_tmp = molecular_diameter(jesp) * 1.D-6 ! g/mol
@@ -156,14 +144,10 @@ contains
 	  soa_part_coef(jesp) = Temperature / 300.D0 &! temperature dependency of partition coefficient
 	      * partition_coefficient(jesp) * DEXP(vaporization_enthalpy(jesp) * tmp)
 	enddo
-    endIF
-    
-    !call mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
+    endif
 
-    ! write(*,*) "before initstep in ModuleAdaptstep",concentration_gas(9)
-    
     initial_time_splitting = 0.D0
-    final_time = end_time-start_time
+    end_time = start_time + delta_t
     timestep_splitting=0.D0
     current_sub_time=0.D0
     final_sub_time=0.D0
@@ -174,17 +158,15 @@ contains
 !!     **************************************************
 !!     SOLVE GAS/AEROSOL GDE LAGRANGIAN EQS
 !!     **************************************************
-    do while (initial_time_splitting.lt.final_time)
+
+    do while (initial_time_splitting.lt.delta_t)
       ! Solve coagulation, condensation/evaporation and nucleation
       ! Compute the characteristic time step of each physical processes.
 
-       ! write(*,*) "timestep_coag and _cond", timestep_coag, timestep_cond
        call initstep(concentration_mass,concentration_number,&
             concentration_gas,&
-            timestep_coag,timestep_cond, timestep_splitting, final_time)
-       ! write(*,*) "after initstep"
+            timestep_coag,timestep_cond, timestep_splitting, delta_t)
 
-!       call check_nan_inf(6)
       ! Solve with the slowest process (coagulation)
       if (with_coag.eq.1) then
 	current_sub_time=initial_time_splitting
@@ -198,14 +180,12 @@ contains
 !	call  processaero(solver,ionic_Nsize,proton_Nsize,liquid_Nsize)
 	call  processaero(solver)
 
-!  	call mass_conservation(concentration_mass,concentration_number,&
-!  	concentration_gas, total_mass)
       endif
 
-      ! write(*,*) "after processaero_coag in ModuleAdaptstep",concentration_gas(9)
-
       if(N_fracmax.gt.1) then
+
 	call redistribution_fraction()!fraction redistribution
+
       endif
 
       ! Solve the fastest process (condensation/evaporation and nucleation).
@@ -220,17 +200,11 @@ contains
 !	call  processaero(solver,ionic_Nsize,proton_Nsize,liquid_Nsize)
 	call  processaero(solver)
 
-        ! write(*,*) "after processaero_cond in ModuleAdaptstep",concentration_gas(9)
-        ! write(*,*) "lwc_nsize after processaero cond", lwc_nsize
-
       endif
 
       if (with_cond+with_nucl+with_coag.eq.0) then
-	final_sub_time  = initial_time_splitting + timestep_splitting!pure emission
+	final_sub_time  = initial_time_splitting + timestep_splitting !pure emission
       endif
-
-!       ! ! Check mass conservation
-!       call mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass) !! YK removed ?
 
       initial_time_splitting = final_sub_time
 
@@ -245,7 +219,7 @@ contains
         !        lwc, ionic, proton, liquid,lwc_nsize)!equlibrium for inorganic
 
         call  bulkequi_inorg(nesp_isorropia,& 
-               lwc, ionic, proton, liquid)!equlibrium for inorganic
+               lwc, ionic, proton, liquid) !equlibrium for inorganic
 
         ! call redistribution_lwc(lwc,ionic,proton,liquid, &
         !        ionic_Nsize,proton_Nsize,liquid_Nsize)
@@ -292,6 +266,7 @@ contains
         ! call redistribution_lwc(lwc,ionic,proton,liquid, &
         !        lwc_Nsize,ionic_Nsize,proton_Nsize,liquid_Nsize) ! YK
         call redistribution_lwc(lwc,ionic,proton,liquid)
+
 ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
 !
          ! call SOAP_DYN(Relative_Humidity,&
@@ -307,30 +282,29 @@ contains
 
       endif
 
-!update wet diameter at the end of current c/e cycle
+! IS THIS UPDATE WET DIAMETER REQUIRED OR NOT?
+!update wet diameter at the end of current c/e cycle\
+
+!	call update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
  
-
-      if(N_fracmax.gt.1) then
+      if(N_fracmax.gt.1 .and. redistribution_method.ne.0) then
 	call redistribution_fraction()!fraction redistribution
       endif
 
-        call redistribution_size(redistribution_method)!size redistribution
+        if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
 
     endif
 
-!    write(*,*) "after redistribution in ModuleAdaptstep",concentration_gas(9)
+   
+    call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+                                      wet_mass,wet_diameter,wet_volume,cell_diam_av) !WZ
 
-
-! IS THIS UPDATE WET DIAMETER REQUIRED OR NOT?
-!update wet diameter at the end of current c/e cycle
-!	call update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
-    call mass_conservation(concentration_mass,concentration_number,&
-    concentration_gas, total_mass)
-
-!    write(*,*) "after mass_conservation in ModuleAdaptstep",concentration_gas(9)
-
+! KS: AVOID mass conservation after redistribution
+!    call mass_conservation(concentration_mass,concentration_number,&
+!    concentration_gas, total_mass)
 
   end subroutine aerodyn
 
@@ -353,8 +327,8 @@ contains
     implicit none
     
     integer:: solver,itrat
-    double precision:: time_t,time_p
-    integer :: j
+    double precision:: time_t,time_p,time_step_sulf
+    integer :: i,j
 !    double precision:: lwc_Nsize(N_size),ionic_Nsize(N_size)
 !    double precision:: ionic_Nsize(N_size)
 !    double precision:: proton_Nsize(N_size),liquid_Nsize(12,N_size)
@@ -365,31 +339,32 @@ contains
     itrat=0
 !    ******Dynamic time loop
     do while ( current_sub_time .lt. final_sub_time )
+       call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+            concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+     time_step_sulf = 0.0
 
      itrat=itrat+1
-     ! write(*,*) "time ", current_sub_time, final_sub_time
       if (tag_cond.eq.1) then
                    !     Compute gas mass conservation.
 	call mass_conservation(concentration_mass,concentration_number,&
             concentration_gas, total_mass)
          !     solve sulfate dynamically
         if (sulfate_computation.eq.1) then
-           if (ICUT.lt.N_size) then
- 	      call SULFDYN(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-	         concentration_number,concentration_gas,dqdt,sub_timestep_splitting)
-	   else
-	      call SULFDYN(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-	         concentration_number,concentration_gas,dqdt,time_t)	  
-	   endif
-        endif
+ 	   call SULFDYN(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
+	         concentration_number,concentration_gas,dqdt,sub_timestep_splitting,time_step_sulf)
+         endif
       endif
 
-      ! write(*,*) "after conden processaero ", solver
-
       if(ICUT.eq.N_size.AND.tag_nucl.eq.0) then
+        if ((sulfate_computation.eq.1).AND.(time_step_sulf>0)) then !Case full equilibrium but sulfate computed dynamically
+          time_p=time_p+sub_timestep_splitting
+          current_sub_time = current_sub_time + sub_timestep_splitting
+          sub_timestep_splitting = DMIN1(time_step_sulf,final_sub_time-current_sub_time)
+        else ! case full equilibrium and sulfate computed in full equilibrium
 	  sub_timestep_splitting=final_sub_time-current_sub_time
 	  current_sub_time=final_sub_time
-   
+        endif
+
       elseif (solver.eq.0) then
 			  ! euler solver used for coagulation
 	! call Euler_solver(concentration_mass,concentration_number,concentration_gas,dqdt,& 
@@ -402,7 +377,6 @@ contains
 	!       concentration_number_tmp,concentration_number,concentration_gas,dqdt,&
         !       proton_Nsize,ionic_Nsize,liquid_Nsize)
 
-         ! write(*,*) "call etr_solver"
 	call Etr_solver(concentration_mass_tmp,concentration_mass,&
 	      concentration_number_tmp,concentration_number,concentration_gas,dqdt)
       elseif (solver.eq.2) then
@@ -416,8 +390,6 @@ contains
         !       proton_Nsize,ionic_Nsize,liquid_Nsize)
       endif
 
-      ! write(*,*) "after coag processaero "
-
 	call mass_conservation(concentration_mass,concentration_number,&
 	  concentration_gas, total_mass)
 
@@ -426,8 +398,8 @@ contains
 !!     check the need to call ADAPTIME (not for the last timestep)
       If (current_sub_time.lt.final_sub_time.and.ICUT.ne.N_size) then!.and.current_time.gt.(final_time*1.d-2)
 	    call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-		concentration_number,sub_timestep_splitting)
-      endif
+		concentration_number,sub_timestep_splitting,time_step_sulf)
+     endif
     end do
 
   end subroutine processaero
@@ -445,9 +417,9 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     c_mass: aerosol mass concentration(µg/m^3)
+!     c_mass: aerosol mass concentration(\B5g/m^3)
 !     c_number: aerosol number concentration(#/m^3)
-!     c_gas: aerosol gas phase concentration(µg/m^3)
+!     c_gas: aerosol gas phase concentration(\B5g/m^3)
 !     t_total: total time limitation in current loop(s)
 !
 !     -- OUTPUT VARIABLES
@@ -473,7 +445,7 @@ contains
 !    double precision:: ionic_Nsize(N_size)
 !    double precision:: proton_Nsize(N_size),liquid_Nsize(12,N_size)
     integer::ICUT_tmp
-    double precision :: ce_kernal_coef(N_size, N_aerosol)
+    double precision :: rate,ce_kernal_coef(N_size, N_aerosol)
 
     ICUT_tmp=ICUT!avoid the influence of hybrid method
 
@@ -486,6 +458,7 @@ contains
       tag_coag=1
       tag_cond=0
       tag_nucl=0
+
       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
 !      call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,ionic_Nsize, &
 !                proton_Nsize,liquid_Nsize)
@@ -507,9 +480,8 @@ contains
       end do
     endif
 
-!    write(*,*) "initstep step 1"
 !     Cond/evap time step.
-    if (with_cond.eq.1.and.ICUT.lt.N_size) then
+    if (with_cond.eq.1.OR.with_nucl.eq.1) then
       ICUT=0
       tag_coag=0
       tag_cond=1
@@ -517,9 +489,14 @@ contains
       ! call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,ionic_Nsize, &
       !           proton_Nsize,liquid_Nsize)
       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
-
-   
-!      write(*,*) "initstep step 1-1"
+      if (sulfate_computation.eq.1) then
+        do j = 1,N_size! Reassigned distribution by mass of each species
+          call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
+            quadratic_speed(ESO4), accomodation_coefficient(ESO4), &
+             wet_diameter(j), rate)
+           dqdt1(j,ESO4) =  dqdt1(j,ESO4) + rate * c_number(j)*c_gas(ESO4)
+        enddo
+      endif 
       do j=ICUT+1,N_size
 	do s= 1, (N_aerosol-1)!s=G1,G2
 	  jesp=List_species(s)	  
@@ -562,7 +539,7 @@ contains
 
   end subroutine initstep
 
-  subroutine adaptime(q1,q2,n1,n2,T_dt)
+  subroutine adaptime(q1,q2,n1,n2,T_dt,time_step_sulf)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -574,9 +551,9 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     q1: aerosol mass concentration of first order evaluation(µg/m^3)
+!     q1: aerosol mass concentration of first order evaluation(\B5g/m^3)
 !     n1: aerosol number concentration of first order evaluation(#/m^3)
-!     q2: aerosol mass concentration of second order evaluation(µg/m^3)
+!     q2: aerosol mass concentration of second order evaluation(\B5g/m^3)
 !     n2: aerosol number concentration of second order evaluation(#/m^3)
 !
 !     -- OUTPUT VARIABLES
@@ -591,7 +568,7 @@ contains
     double precision:: n1(N_size)!1th order number concentration
     double precision:: n2(N_size)!2d order number concentration
     double precision tmp,n2err,R
-    double precision T_dt
+    double precision T_dt,time_step_sulf
 !!!     ******zero init
     n2err=0.D0
 !!!     ******local error estimation
@@ -623,6 +600,7 @@ contains
     n2err=DMAX1(EPSER/tmp,n2err)
     ! formula to compute new time step
     T_dt=T_dt*DSQRT(EPSER/n2err)
+    if(time_step_sulf > 0) T_dt = DMIN1(T_dt,time_step_sulf)
     T_dt = DMIN1( (final_sub_time-current_sub_time) , DMAX1(DTAEROMIN, T_dt) )
   end subroutine adaptime
 
@@ -640,18 +618,18 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     c_gas: aerosol gas phase concentration(µg/m^3)
+!     c_gas: aerosol gas phase concentration(\B5g/m^3)
 !
 !     -- INPUT/OUTPUT VARIABLES
 !
-!     q2: aerosol mass concentration of second order evaluation(µg/m^3)
+!     q2: aerosol mass concentration of second order evaluation(\B5g/m^3)
 !     n2: aerosol number concentration of second order evaluation(#/m^3)
 !
 !     -- OUTPUT VARIABLES
 !
-!     q1: aerosol mass concentration of first order evaluation(µg/m^3)
+!     q1: aerosol mass concentration of first order evaluation(\B5g/m^3)
 !     n1: aerosol number concentration of first order evaluation(#/m^3)
-!     dqdt: mass derivation(µg/m^3/s)
+!     dqdt: mass derivation(\B5g/m^3/s)
 !
 !------------------------------------------------------------------------
     implicit none
@@ -682,9 +660,7 @@ contains
     ! call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,ionic_Nsize, &
     !           proton_Nsize, liquid_Nsize)
 
-    ! write(*,*) "before fgde in etr_solver"
     call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef)
-    ! write(*,*) "after fgde in etr_solver"
     !     First step
     do j=1,N_size
       n1(j)=n2(j)+sub_timestep_splitting*dn1dt(j)
@@ -697,16 +673,12 @@ contains
       enddo
     enddo
 
-    ! write(*,*) " after 1st step"
-
     !     Second step
     ! call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,lwc_Nsize,ionic_Nsize, &
     !           proton_Nsize, liquid_Nsize)
     ! call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,ionic_Nsize, &
     !           proton_Nsize, liquid_Nsize)
     call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef)
-
-    ! write(*,*) " after 2nd step fgde, sub_timestep_splitting", sub_timestep_splitting
 
     dtetr=sub_timestep_splitting*5.0D-01
     current_sub_time = current_sub_time + sub_timestep_splitting
@@ -717,14 +689,11 @@ contains
       else
 	n2(j)=n2(j)+tmp
       endif
-      ! write(*,*) j, n2(j), dn1dt(j), dn2dt(j)
       n_grow_coag=n_grow_coag+tmp
       do s=1,(N_aerosol-1)
 	jesp=List_species(s)
-        ! write(*,*) dtetr, dq1dt(j,jesp),dq2dt(j,jesp)
 	tmp=dtetr*(dq1dt(j,jesp)+dq2dt(j,jesp))
 	dqdt(j,jesp)=tmp/sub_timestep_splitting
-        ! write(*,*) j, jesp !, dqdt(j,jesp)
 	if((q2(j,jesp)+tmp).lt.0.d0) then
 	  q2(j,jesp)=q1(j,jesp)
 	else
@@ -733,7 +702,6 @@ contains
       enddo
     enddo
 
-    ! write(*,*) " end of etr_solver"
   end subroutine Etr_solver
 
   ! subroutine Euler_solver(c_mass,c_number,c_gas,dqdt,lwc_Nsize,proton_Nsize,ionic_Nsize,liquid_Nsize)
@@ -749,16 +717,16 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     c_gas: aerosol gas phase concentration(µg/m^3)
+!     c_gas: aerosol gas phase concentration(\B5g/m^3)
 !
 !     -- INPUT/OUTPUT VARIABLES
 !
-!     c_mass: aerosol mass concentration (µg/m^3)
+!     c_mass: aerosol mass concentration (\B5g/m^3)
 !     c_number: aerosol number concentration (#/m^3)
 !
 !     -- OUTPUT VARIABLES
 !
-!     dqdt: mass derivation(µg/m^3/s)
+!     dqdt: mass derivation(\B5g/m^3/s)
 !
 !------------------------------------------------------------------------
     implicit none
@@ -850,18 +818,18 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     c_gas: aerosol gas phase concentration(µg/m^3)
+!     c_gas: aerosol gas phase concentration(\B5g/m^3)
 !
 !     -- INPUT/OUTPUT VARIABLES
 !
-!     q2: aerosol mass concentration of second order evaluation(µg/m^3)
+!     q2: aerosol mass concentration of second order evaluation(\B5g/m^3)
 !     n2: aerosol number concentration of second order evaluation(#/m^3)
 !
 !     -- OUTPUT VARIABLES
 !
-!     q1: aerosol mass concentration of first order evaluation(µg/m^3)
+!     q1: aerosol mass concentration of first order evaluation(\B5g/m^3)
 !     n1: aerosol number concentration of first order evaluation(#/m^3)
-!     dqdt: mass derivation(µg/m^3/s)
+!     dqdt: mass derivation(\B5g/m^3/s)
 !
 !------------------------------------------------------------------------
     implicit none
@@ -893,8 +861,6 @@ contains
     !           proton_Nsize,liquid_Nsize)!compute first order derivative
     call fgde(q2,n2,c_gas,k1,dn1dt,ce_kernal_coef)!compute first order derivative
 
-
-!    write(*,*) "ros2 step 1"
 !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
       do s= 1, nesp_isorropia!(N_aerosol-1)
@@ -907,7 +873,6 @@ contains
       enddo
     enddo
 
-    ! write(*,*) "ros2 step 2"
 !     Condensation limited by available amount (temp1) in both gas phase
 !     and small bins (assumed in equilibrium)
 !     sum of condensation rates (temp2) is distributed between
@@ -937,7 +902,6 @@ contains
      endif
     enddo
 
-    ! write(*,*) "ros2 step 3"
 !     ******2. first evaluation
 
     do j = 1 , N_size

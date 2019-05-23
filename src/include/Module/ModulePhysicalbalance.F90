@@ -67,16 +67,17 @@ contains
 	  concentration_number(j)=0.d0
 	  cell_diam_av(j)=size_diam_av(k)
 	endif
+	!print*, 'compute_average_diameter() cell_diam_av(j).lt.diam_bound(k)', j, cell_diam_av(j), k, diam_bound(k)
 	if(cell_diam_av(j).eq.0.d0) then
 	  cell_diam_av(j)=size_diam_av(k)
-	elseif(cell_diam_av(j).lt.diam_bound(k)) then
+	else if(cell_diam_av(j).lt.diam_bound(k)) then
 	  cell_diam_av(j)=diam_bound(k)
 	endif
     enddo
 
   end  subroutine compute_average_diameter
 
-  subroutine compute_average_bin_diameter()
+ ! subroutine compute_average_bin_diameter() !!! Routine to be removed
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -88,44 +89,44 @@ contains
 !     -- INPUT VARIABLES
 !
 !------------------------------------------------------------------------  
-    implicit none
-    integer::k,s,j,fr,jesp
-    double precision::mass_sizebin(N_sizebin),number_sizebin(N_sizebin)
-    double precision::volum_sizebin(N_sizebin),av_volum_sb(N_sizebin)
+ !   implicit none
+ !   integer::k,s,j,fr,jesp
+ !   double precision::mass_sizebin(N_sizebin),number_sizebin(N_sizebin)
+ !   double precision::volum_sizebin(N_sizebin),av_volum_sb(N_sizebin)
 
-!     call compute_all_density()!renew the density of each bin
+ !   call compute_all_density()!renew the density of each bin
 
-    do k= 1, N_sizebin
-      mass_sizebin(k)=0.d0
-      number_sizebin(k)=0.d0
-      av_volum_sb(k)=0.d0
-      volum_sizebin(k)=0.d0
-      do fr = 1, N_fracmax
-	j=concentration_index_iv(k,fr)
-	number_sizebin(k)=number_sizebin(k)+concentration_number(j)
-	do s= 1, (N_aerosol-1)
-	  jesp=List_species(s)
-	  mass_sizebin(k)=mass_sizebin(k)+concentration_mass(j,jesp)
-	  if(mass_density(s).gt.0.d0) then
-	    volum_sizebin(k)=volum_sizebin(k)+&
-	      concentration_mass(j,jesp)/mass_density(s)
-	  endif
-	enddo
-      enddo
-      if (number_sizebin(k).gt. 0.d0)then
-	av_volum_sb(k)=dble(volum_sizebin(k))/dble(number_sizebin(k))
-	!size_diam_av(k)=(av_volum_sb(k)/cst_PI6)**(cst_FRAC3)
-	size_mass_av(k)=dble(mass_sizebin(k))/dble(number_sizebin(k)) !mass of single particle
-      else
-	av_volum_sb(k)=(size_diam_av(k)**3)*cst_PI6
-	size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
-      endif
-      if(size_diam_av(k) .lt. diam_bound(k)) then
-	size_diam_av(k)=diam_bound(k)
-      endif
-    enddo
+ !   do k= 1, N_sizebin
+ !     mass_sizebin(k)=0.d0
+ !     number_sizebin(k)=0.d0
+ !     av_volum_sb(k)=0.d0
+ !     volum_sizebin(k)=0.d0
+ !     do fr = 1, N_fracmax
+ !	j=concentration_index_iv(k,fr)
+!	number_sizebin(k)=number_sizebin(k)+concentration_number(j)
+!	do s= 1, (N_aerosol-1)
+!	  jesp=List_species(s)
+!	  mass_sizebin(k)=mass_sizebin(k)+concentration_mass(j,jesp)
+!	  if(mass_density(s).gt.0.d0) then
+!	    volum_sizebin(k)=volum_sizebin(k)+&
+!	      concentration_mass(j,jesp)/mass_density(s)
+!	  endif
+!	enddo
+!     enddo
+!      if (number_sizebin(k).gt. 0.d0)then
+!	av_volum_sb(k)=dble(volum_sizebin(k))/dble(number_sizebin(k))
+!	!size_diam_av(k)=(av_volum_sb(k)/cst_PI6)**(cst_FRAC3)
+!	size_mass_av(k)=dble(mass_sizebin(k))/dble(number_sizebin(k)) !mass of single particle
+!      else
+!	av_volum_sb(k)=(size_diam_av(k)**3)*cst_PI6
+!	size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
+!      endif
+!      if(size_diam_av(k) .lt. diam_bound(k)) then
+!	size_diam_av(k)=diam_bound(k)
+!      endif
+!    enddo
     
-  end  subroutine compute_average_bin_diameter
+!  end  subroutine compute_average_bin_diameter
 
   subroutine compute_number()
 !------------------------------------------------------------------------
@@ -151,11 +152,12 @@ contains
 	volum_cell=volum_cell+concentration_mass(j,jesp)
       enddo
       if(density_aer_size(k).gt.0.d0) then
-       volum_cell=volum_cell/density_aer_size(k) !! YK: j or k ???
+       volum_cell=volum_cell/density_aer_size(k)
       endif
 
       if(size_diam_av(k).gt.0.d0) then
-	concentration_number(j)=(6.d0*volum_cell)/((size_diam_av(k)**3.d0)*pi)
+	concentration_number(j)= volum_cell /((size_diam_av(k)**3.d0)*cst_PI6)
+        !write(*,*) concentration_number(j),j
       else
 	  print*,"Wrong size_diam_av",k,size_diam_av(k)
       endif
@@ -207,7 +209,8 @@ contains
         masstot2(j) = masstot2(j) +  masstot(k)
       enddo
       if (masstot2(j).eq.0d0 .OR. subrho2(j).eq.0d0) then
-        density_aer_size(j) = fixed_density_l
+        !density_aer_size(j) = fixed_density_l
+        density_aer_size(j) = fixed_density
       else
         if(subrho2(j).gt.0.d0) density_aer_size(j) = masstot2(j)/subrho2(j)
       endif
@@ -256,20 +259,20 @@ contains
     do j=1,N_size
       tmp_cell=0.d0
       k=concentration_index(j, 1)
-      if(IsNaN(c_number(j))) then
-	print*,"mass_conservation number=NAN j=",j
-	c_number(j)=0.d0
-      elseif(c_number(j).lt.TINYN) then
-	c_number(j)=0.d0
-      endif
+      !if(IsNaN(c_number(j))) then
+!	print*,"mass_conservation number=NAN j=",j
+!	c_number(j)=0.d0
+ !     elseif(c_number(j).lt.TINYN) then
+!	c_number(j)=0.d0
+ !     endif
       total_number=total_number+c_number(j)
       bin_number(k)=bin_number(k)+c_number(j)
       do s=1,(N_aerosol-1)
 	jesp=List_species(s)
-	if(c_mass(j,jesp).lt.TINYM.or.c_number(j).eq.0.d0) then
-	  c_mass(j,jesp)=0.d0
-	endif
-	if(IsNaN(c_mass(j,jesp))) c_mass(j,jesp)=0.d0
+	!if(c_mass(j,jesp).lt.TINYM.or.c_number(j).eq.0.d0) then
+	!  c_mass(j,jesp)=0.d0
+	!endif
+	!if(IsNaN(c_mass(j,jesp))) c_mass(j,jesp)=0.d0
 	total_mass_t=total_mass_t+c_mass(j,jesp)
 	tmp_cell=tmp_cell+c_mass(j,jesp)
 	bin_mass(k)=bin_mass(k)+c_mass(j,jesp)
@@ -302,7 +305,7 @@ contains
     do s=1,(N_aerosol-1)
        jesp=List_species(s)
       if (aerosol_species_interact(jesp).gt.0) then      
-	!renew the gas_consentration (reduce into aerosol)
+	!renew the gas_concentration (reduce into aerosol)
 	  c_gas(jesp)=t_mass(jesp)-total_aero_mass(jesp)
       else
 	  c_gas(jesp)=0.d0
@@ -327,7 +330,7 @@ contains
 	enddo
       endif
     enddo
-!  call check_mass_number()
+
   end subroutine mass_conservation
 
   subroutine aerosol_conservation()
@@ -612,7 +615,7 @@ contains
     
     do j= 1, N_size
       k=concentration_index(j, 1)!size bins
-      mass_total_grid (j)=0.d0
+      mass_total_grid(j)=0.d0
       do s= 1, (N_aerosol-1)
 	jesp=List_species(s)
 	mass_total_grid (j)=mass_total_grid (j) + c_mass(j,jesp)

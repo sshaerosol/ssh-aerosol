@@ -1,5 +1,5 @@
 SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
-                       kloc, LMD, rho, Qesp, N)
+                       kloc, Qesp, N)
 
 !!$------------------------------------------------------------------------
 !!$     
@@ -17,11 +17,9 @@ SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
 !!$     nesp           : number of species
 !!$     dbound         : list of limit bound diameters [\mu m]
 !!$     klock          : list of location of sections after condensation/evaporation
-!!$     LMD            : list of liquid mass density of each species
 !!$ 
 !!$     -- VARIABLES
 !!$     
-!!$     rho            : density per bin
 !!$     Q_tmp     : Temporary Mass concentration 
 !!$     N_tmp     : Temporary number concentration 
 !!$
@@ -46,7 +44,6 @@ SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
   INTEGER, INTENT(in) :: ns, nesp
   INTEGER, DIMENSION(ns), INTENT(in) :: kloc
   DOUBLE PRECISION, DIMENSION(ns+1), INTENT(in) :: dbound
-  DOUBLE PRECISION, DIMENSION(nesp), INTENT(in) :: LMD
    integer eh2o
 
 !!! ------ Input/Output 
@@ -55,7 +52,6 @@ SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
 
 !!! ------  
   INTEGER k, jesp, s, i
-  DOUBLE PRECISION, DIMENSION(ns) :: rho
   DOUBLE PRECISION, DIMENSION(ns) :: N_tmp
   DOUBLE PRECISION, DIMENSION(ns) :: Q  
   DOUBLE PRECISION, DIMENSION(ns, nesp) :: Q_tmp
@@ -91,6 +87,4 @@ SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
      ENDDO
   ENDDO        
     
-  CALL TEST_MASS_NB(ns,nesp-1,rho,dbound,Q,N,Qesp)
-
 END SUBROUTINE MOVING_DIAM

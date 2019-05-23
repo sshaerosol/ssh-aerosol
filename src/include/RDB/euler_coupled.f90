@@ -267,7 +267,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
               PRINT*, "d(kloc(k)+1)",d(kloc(k)+1),"d(kloc(k))",d(kloc(k)), "diam(k)", diam(k)
               PRINT*, 'dbis',diam
               PRINT*, "kloc", kloc
-              STOP
+!!              STOP
+              N_1_esp(k, jesp) = 0.D0
+              Q_1_esp(k, jesp) = 0.D0
            ENDIF
 
            IF ( Q_1_esp(k,jesp) .LT. 0D0 ) THEN
@@ -275,7 +277,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
               PRINT*, "Q_1_esp(k,jesp)",Q_1_esp(k, jesp), "AQ/BQ", AQ/BQ, BQ, 'Q', Q_esp(k,jesp)
               PRINT*, "d(kloc(k)+1)",d(kloc(k)+1),"d(kloc(k))",d(kloc(k)), "diam(k)", diam(k)
               PRINT*, "kloc", kloc
-              STOP
+!!              STOP
+              N_1_esp(k, jesp) = 0.D0
+              Q_1_esp(k, jesp) = 0.D0
            ENDIF
            IF (kloc(k) .LT. ns .AND. kloc(k) .GT. 1) THEN
               IF ( N_2evap_esp(kloc(k),jesp) .LT. 0D0 ) THEN
@@ -285,7 +289,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
                  PRINT*, "diam(k)",diam(k)
                  PRINT*, "d(kloc(k))",d(kloc(k))
                  PRINT*, "DN",DN, "d(k+1)",d(k+1)
-                 STOP
+!!              STOP
+                 N_2evap_esp(k, jesp) = 0.D0
+                 Q_2evap_esp(k, jesp) = 0.D0
               ENDIF
               
 
@@ -293,7 +299,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
                  PRINT*, k,jesp,"Q_2evap_esp(k,jesp) negatif"
                  PRINT*, "Q_2evap_esp(k,jesp)",Q_2evap_esp(k,jesp)
                  print*, "Q_esp(k,jesp)",Q_esp(k, jesp), "CQ/DQ", CQ/DQ, CQ, DQ
-                 STOP
+!!              STOP
+                 N_2evap_esp(k, jesp) = 0.D0
+                 Q_2evap_esp(k, jesp) = 0.D0
               ENDIF
 
               IF ( N_2cond_esp(kloc(k),jesp) .LT. 0D0 ) THEN
@@ -303,7 +311,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
                  PRINT*, "diam(k)",diam(k)
                  PRINT*, "d(kloc(k))",d(kloc(k))
                  PRINT*, "DN",DN, "d(k+1)",d(k+1)
-                 STOP
+ !!              STOP
+                 N_2cond_esp(k, jesp) = 0.D0
+                 Q_2cond_esp(k, jesp) = 0.D0
               ENDIF
               
 
@@ -311,7 +321,9 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
                  PRINT*, k,jesp,"Q_2cond_esp(k,jesp) negatif"
                  PRINT*, "Q_2cond_esp(k,jesp)",Q_2cond_esp(k,jesp)
                  print*, "Q_esp(k,jesp)",Q_esp(k, jesp), "CQ/DQ", CQ/DQ, CQ, DQ
-                 STOP
+!!              STOP
+                 N_2cond_esp(k, jesp) = 0.D0
+                 Q_2cond_esp(k, jesp) = 0.D0
               ENDIF
 
            ENDIF
@@ -322,13 +334,17 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
            IF ( N_1_esp(k,jesp) .LT. 0D0 ) THEN
               PRINT*,  k,"N_1(k) negatif here"
               PRINT*, "N_1(k)",N_1_esp(k,jesp)
-              STOP
+!!              STOP
+                 N_1_esp(k, jesp) = 0.D0
+                 Q_1_esp(k, jesp) = 0.D0
            ENDIF
 
            IF ( Q_1_esp(k,jesp) .LT. 0D0 ) THEN
               PRINT*, k,"Q_1(k) negatif here"
               PRINT*, "Q_1(k)",Q_1_esp(k,jesp)
-              STOP
+ !!              STOP
+                 N_1_esp(k, jesp) = 0.D0
+                 Q_1_esp(k, jesp) = 0.D0
            ENDIF
         ENDDO
 
@@ -443,7 +459,7 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
   DO k=1, ns
      CALL COMPUTE_DENSITY(ns,nesp,eh2o, TINYM,Q_esp,LMD,k,rho(k))
   ENDDO
-  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Q_esp)
+!  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Q_esp)
 
 
 END SUBROUTINE EULER_COUPLED

@@ -2,7 +2,7 @@
 HC8
 NH3
 HCL
-TERPNRO2
+O1D
 ETOH
 CH4
 ETHA
@@ -21,7 +21,7 @@ SOAmP
 SOAhP
 RppO2
 RpppO2
-O1D
+MEOH
 TO2
 N2O5
 BiMGA
@@ -34,8 +34,8 @@ RelvocO2
 Dimer
 Monomer
 BiA3D
-MEOH
-orgNIT
+HNO4
+BiMT
 PANX
 ROR
 H2O2
@@ -43,64 +43,61 @@ HONO
 BiNIT
 HCO3
 MEPX
-HNO4
-BiMT
+MGLY
+API
 RpO2
-LIM
 RO2
+LIM
 BiA1D
 BiA2D
 AnBlP
 AnBmP
+BiA0D
 ETH
 FACD
 MPAN
 OLE
 IOLE
 BPI
-TERPRO2
 ROOH
 PACD
 CRES
 OPEN
-MGLY
 CRO
-BiA0D
-API
 ISON
 ISOP
-AnClP
 ISPD
 NTR
 PAR
 ALDX
-AACD
-CO
+AnClP
 XYLP
 HNO3
 ISOR
 MACR
+AACD
+CO
 TOLP
-XO2N
 MEO2
 FORM
+O
 OH
 NO3
-O
-ALD2
+XO2N
 CXO3
 O3
-NO
+ALD2
 C2O3
 NO2
 XO2
+NO
 HO2
 
 [molecular_weight]
 HC8     114.
 NH3     17.
 HCL     36.5
-TERPNRO2 231.
+O1D     16.
 ETOH    46.07
 CH4     16.04
 ETHA    30.07
@@ -119,7 +116,7 @@ SOAmP   392.
 SOAhP   392.
 RppO2   231.
 RpppO2  263.
-O1D     16.
+MEOH    32.04
 TO2     141.15
 N2O5    108.01
 BiMGA   120.
@@ -132,8 +129,8 @@ RelvocO2 295.
 Dimer   432.
 Monomer 278.
 BiA3D   204.
-MEOH    32.04
-orgNIT  231.
+HNO4    79.01
+BiMT    136.
 PANX    120.04
 ROR     16.
 H2O2    34.01
@@ -141,57 +138,54 @@ HONO    47.01
 BiNIT   215.
 HCO3    63.03
 MEPX    48.04
-HNO4    79.01
-BiMT    136.
+MGLY    72.06
+API     136.
 RpO2    199.
-LIM     136.
 RO2     199.
+LIM     136.
 BiA1D   170.
 BiA2D   186.
 AnBlP   167.
 AnBmP   152.
+BiA0D   168.
 ETH     28.05
 FACD    46.03
 MPAN    148.
 OLE     27.05
 IOLE    56.11
 BPI     136.
-TERPRO2 231.
 ROOH    47.03
 PACD    76.05
 CRES    108.14
 OPEN    48.04
-MGLY    72.06
 CRO     108.14
-BiA0D   168.
-API     136.
 ISON    147.
 ISOP    68.18
-AnClP   167.
 ISPD    70.09
 NTR     77.04
 PAR     15.03
 ALDX    43.04
-AACD    60.05
-CO      28.01
+AnClP   167.
 XYLP    155.
 HNO3    63.01
 ISOR    117.
 MACR    70.
+AACD    60.05
+CO      28.01
 TOLP    141.
-XO2N    47.03
 MEO2    47.03
 FORM    30.03
+O       16.
 OH      17.01
 NO3     62.01
-O       16.
-ALD2    44.05
+XO2N    47.03
 CXO3    74.04
 O3      48.
-NO      30.
+ALD2    44.05
 C2O3    75.04
 NO2     46.
 XO2     47.03
+NO      30.
 HO2     33.01
 
 

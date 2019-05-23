@@ -120,13 +120,17 @@ contains
     double precision :: q(N_aerosol)	!mass concentration in current grid point
     double precision :: c_gas(N_aerosol)
     double precision:: c_mass(N_size,N_aerosol)
-    double precision:: c_number(N_size)
+    double precision:: c_number(N_size),wet_mass(N_size)
+    double precision:: wet_diam(N_size),wet_vol(N_size),cell_diam(N_size)
 !    double precision:: lwc_Nsize(N_size),ionic_Nsize(N_size)
 !    double precision:: ionic_Nsize(N_size)
 
 !    double precision:: proton_Nsize(N_size),liquid(12)
     double precision:: liquid(12)
 !    double precision:: liquid_Nsize(12,N_size)
+
+     call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
+          wet_mass,wet_diam,wet_vol,cell_diam)
 
     dqdt=0.d0
     dndt=0.d0
@@ -135,13 +139,13 @@ contains
     do j =(ICUT+1), N_size
       dndt(j)=0.d0
       qn=c_number(j)!initial number and mass
-      if(qn.gt.TINYN) then!skip empty cell
+      !if(qn.gt.TINYN) then!skip empty cell
 	do s=1,N_aerosol
 	    jesp=List_species(s)
 	    q(jesp)=c_mass(j,jesp)
 	    ce_kernal_coef_i(jesp)=ce_kernal_coef(j,jesp)
 	enddo
-	call KERCOND(qn,q,c_gas,wet_diameter(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
+	call KERCOND(qn,q,c_gas,wet_diam(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
                      lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid)
 
 	do s=1,12
@@ -164,7 +168,7 @@ contains
 	    dqdt(j,ESO4)=0.d0
 	  endif
 	enddo
-      endif
+     ! endif
     enddo
 
     do j=1, N_size

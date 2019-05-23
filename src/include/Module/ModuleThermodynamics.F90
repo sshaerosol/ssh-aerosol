@@ -232,9 +232,9 @@ contains
 !     clipping to tinym
 
 !     Aqueous phase total liquid water content and pH (proton) concentration
-    lwc = liquid(IH2O) * molecular_weight_inside(IH2O) ! microg.m-3
+    lwc = liquid(IH2O) * imw(IH2O) ! microg.m-3
     ionic = other(5)
-    proton = liquid(IH) * molecular_weight_inside(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+    proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 
     if (gas(1).lt.0.d0) gas(1)=tinym
     if (gas(2).lt.0.d0) gas(2)=tinym
@@ -242,12 +242,12 @@ contains
 
 !     Aqueous phase total liquid water content and pH (proton) concentration
     do jesp=IH,IOH
-      qinti(jesp)= DMAX1(liquid(jesp),0.D0)*molecular_weight_inside(jesp)   ! moles to µg MOLAR WEIGHT
+      qinti(jesp)= DMAX1(liquid(jesp),0.D0)*imw(jesp)   ! moles to µg MOLAR WEIGHT
     end do
 			! solid inorg aerosol
     do jesp=SNaNO3,SLC
       qinti(jesp)= DMAX1(solid(jesp-12),0.D0)&
-	  *molecular_weight_solid(jesp)        ! moles to µg
+	  *smw(jesp)        ! moles to µg !molecular_weight_solid(jesp)
     end do
 			      ! liquid water content
     !lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
@@ -388,7 +388,7 @@ contains
 
     total_water=0.d0
     do j=start_bin,end_bin
-!      rho_wet_cell(j)=0.d0 ! YK
+      ! rho_wet_cell(j)=0.d0 ! YK
       rho_wet_cell(j)=fixed_density
       total_water=total_water+c_mass(j,EH2O)
       qti=0.D0
@@ -482,7 +482,7 @@ contains
 !!     Inorganic
     ! compute solid aerosol volume
     do jesp=SNaNO3,SLC
-      vis=vis+qinti(jesp)/mass_density_solid(jesp)
+      vis=vis+qinti(jesp)/SMD(jesp)
     end do
     ! compute liquid aerosol volume
     ! sodium volume
@@ -642,9 +642,11 @@ contains
     if (gas(2).lt.0.d0) gas(2)=tinym
     if (gas(3).lt.0.d0) gas(3)=tinym
 !     Aqueous phase total liquid water content and pH (proton) concentration
-    lwc = aerliq(IH2O) * molecular_weight_inside(IH2O) ! microg.m-3
+    lwc = aerliq(IH2O) * imw(IH2O) ! microg.m-3 
+
     ionic = other(5)
-    proton = aerliq(IH) * molecular_weight_inside(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+    proton = aerliq(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+
 
 !     Outputs isorropia
 			      ! sulfate surf conc always 0. µg.m-3
@@ -662,7 +664,8 @@ contains
     
 			      ! liquid inorg aerosol
     do jesp=IH,IOH
-      qinti(jesp)= DMAX1(aerliq(jesp),0.D0)*molecular_weight_inside(jesp)  ! moles to µg
+      qinti(jesp)= DMAX1(aerliq(jesp),0.D0)*imw(jesp)  ! moles to µg
+
     end do
 			      ! liquid water content
     qext(EH2O)= qinti(IH2O)&
@@ -670,7 +673,8 @@ contains
 			! solid inorg aerosol
     do jesp=SNaNO3,SLC
       qinti(jesp)= DMAX1(aersld(jesp-12),0.D0)&
-	  *molecular_weight_solid(jesp)        ! moles to µg
+	  *smw(jesp)        ! moles to µg  
+     !molecular_weight_solid(jesp)
     end do
 
    end subroutine EQINORG
@@ -833,7 +837,8 @@ contains
 
 !     H+ limitation
 
-    mih=qih/molecular_weight_inside(IH)           ! mol of H+ in aerosol
+    mih=qih/imw(IH)           ! mol of H+ in aerosol
+
 
 			      ! maximum of mih variation tolerated
     mlim=mih*alfa             ! mol.s-1 alfa=(0.1)
@@ -1383,14 +1388,15 @@ contains
 	liquid, solid, other, organion2, watorg2)
 
 !     Aqueous phase total liquid water content and pH (proton) concentration
-    lwc = liquid(IH2O) * molecular_weight_inside(IH2O) ! microg.m-3
+    lwc = liquid(IH2O) * imw(IH2O) ! microg.m-3 
     ionic = other(5)
 !    gammaH = 10**(-0.511 * (298.0/Temperature)**1.5 * sqrt(ionic)/(1+sqrt(ionic)))
 !! YK gammaH will be calculated later in SOAP
 
-    proton = liquid(IH) * molecular_weight_inside(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+    proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 !    print*,'lwc=',lwc,'proton=',proton,'SO4',w(2),'NH4',w(3) - gas2(1),&
 !	'NO3',w(4) - gas2(2),'Cl',w(5) - gas2(3)
+
     gas(ESO4) = 0.D0
     do i=3,nesp_isorropia
 	idx = isorropia_species(i)
@@ -1494,5 +1500,7 @@ contains
     enddo
 
   end subroutine PANKOW_DRV
-
+! imw  molecular_weight_inside
+! smw  molecular_weight_solid
+! solmd  mass_density_solid
 End module cThermodynamics

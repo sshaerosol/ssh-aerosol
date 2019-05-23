@@ -520,6 +520,9 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
   int n=surrogate.size();
   int i,b,ilayer,iphase;
   double sum_mass;
+
+  for (i=0;i<n;++i)
+    surrogate[i].k1_aq=0.;
   
   for (i=0;i<n;++i)
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
@@ -1049,6 +1052,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
+  for (i=0;i<n;++i)
+    surrogate[i].k1=0.0;
   
   if (config.explicit_representation)
     {
@@ -1427,6 +1432,9 @@ void flux_org(model_config &config, vector<species>& surrogate,
                         for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
                           sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
 		      		      
+                        if (sum > 0.0 and sum_mass > 0.0 and
+                            surrogate[i].tau_air(b) > 0.0 and
+                            AQinit(b) != sum_mass) // YK
                         surrogate[i].k1(b,ilayer,iphase,index)=			
                           (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
                            -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
@@ -2795,9 +2803,6 @@ void equilibrium_org(model_config &config, vector<species>& surrogate, double &t
             MO(b,ilayer,iphase)=MOinit(b,ilayer,iphase);
     }
 
-
-
-
 }
 
 void redistribution(model_config &config, vector<species>& surrogate,
@@ -3026,6 +3031,10 @@ void dynamic_org(model_config &config, vector<species>& surrogate,
                 for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                   surrogate[i].Ap_layer_init0(b,ilayer,iphase)=
                     surrogate[i].Ap_layer_init(b,ilayer,iphase);
+
+	    /*
+	    if (surrogate[i].name=="Monomer")
+	      cout << "In dyn: " << surrogate[i].Ag0+sum(surrogate[i].Ap_layer_init0) << endl;*/
           }
 
       //compute first evaluation of kinetic rates

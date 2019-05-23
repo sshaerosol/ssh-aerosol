@@ -1,6 +1,6 @@
 File for chemical species RACM2 (name and molar mass)
 # gaseous species # aqueous species
-96   0
+93   0
 ---Gas-phase----
 HC8     114.
 NH3    17.
@@ -95,6 +95,3 @@ NO2 46.
 XO2   47.03
 NO  30.
 BiA3D 204.
-TERPRO2  231.
-TERPNRO2  231.
-orgNIT  231.

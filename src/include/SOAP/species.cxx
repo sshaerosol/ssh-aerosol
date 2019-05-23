@@ -34,7 +34,7 @@ void add_species( vector<species>& surrogate, species current_species,
 void creation_species( vector<species>& surrogate, vector<string> species_list_aer)
 {
   int nsp = species_list_aer.size();
-  double alpha = 0.5; //0.01; // accommodation coefficient
+  double alpha = 1.0; //0.01; // accommodation coefficient
 
   species BiA2D;
   BiA2D.name="BiA2D";
@@ -1199,13 +1199,13 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Monomer.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
   Monomer.hydrophilic=false;  // Does the species condense on the aqueous phase?
   Monomer.hydrophobic=true;  // Does the species condense on the organic phase?
-  Monomer.nonvolatile=false; // Is the compound nonvolatile?
+  Monomer.nonvolatile=true; // Is the compound nonvolatile?
   Monomer.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   Monomer.is_organic=true;  // Is the compound organic?
   Monomer.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   Monomer.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
   Monomer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
-  Monomer.rho=1300.0;
+  Monomer.rho=1840.0;
   Monomer.KDiffusion_air=1.0e-5;
   Monomer.accomodation_coefficient=alpha;
   Monomer.viscosity=1.68e12;

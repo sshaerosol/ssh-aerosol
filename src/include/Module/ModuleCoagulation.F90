@@ -174,7 +174,7 @@ contains
       enddo
     enddo
 
-    if(with_number.eq.1) then
+    !if(with_number.eq.1) then
       do  j = 1,N_size
 	distribution(j) = c_number(j)
       enddo
@@ -186,15 +186,15 @@ contains
 	if(IsNaN(rate_number(j)*0.d0)) print*,"infinity/NaN numb",j,rate_number(j)
       enddo
 
-    else
-      do  j = 1,N_size
-	total_mass_tmp=0.d0
-	do i=1,(N_aerosol-1)
-	  total_mass_tmp=total_mass_tmp+rate_mass(j,jesp)
-	enddo
-	rate_number(j) = total_mass_tmp/cell_diam_av(j)
-      enddo
-    endif    
+    !else
+    !  do  j = 1,N_size
+	!total_mass_tmp=0.d0
+	!do i=1,(N_aerosol-1)
+	 ! total_mass_tmp=total_mass_tmp+rate_mass(j,jesp)
+	!enddo
+	!rate_number(j) = total_mass_tmp/cell_diam_av(j)
+      !enddo
+    !endif    
     
   end subroutine Rate
   

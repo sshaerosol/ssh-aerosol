@@ -1,0 +1,47 @@
+###############################
+species_name(N_gas)
+molecular_weight(N_gas)
+concentration_gas_all(N_gas)
+
+################################
+aerosol_species_name(N_aerosol)
+Index_groups(N_aerosol)
+molecular_weight_aer(N_aerosol)
+saturation_pressure_mass(N_aerosol)    
+saturation_pressure_torr(N_aerosol)
+partition_coefficient(N_aerosol)
+deliquescence_relative_humidity(N_aerosol)
+collision_factor_aer(N_aerosol)
+molecular_diameter(N_aerosol))
+surface_tension(N_aerosol)
+accomodation_coefficient(N_aerosol)
+mass_density(N_aerosol)
+saturation_pressure(N_aerosol)
+vaporization_enthalpy(N_aerosol)
+
+     List_species(N_aerosol)
+     isorropia_species(nesp_isorropia)
+     aec_species(nesp_aec)
+     pankow_species(nesp_pankow)
+     poa_species(nesp_pom)
+
+     ! relation between Aerosol and GAS
+     aerosol_species_interact(N_aerosol)  
+
+init_mass(N_aerosol)
+init_bin_mass(N_sizebin,N_aerosol)
+init_bin_number(N_sizebin)
+init_bin_emission(N_sizebin,N_aerosol)
+####################################
+DELETE
+
+
+init_bin_num_emis 
+       init_bin_emission=0.d0
+       init_bin_emission_tmp = 0.d0
+
+####################################
+add 
+gas_emis(n_gas)
+aero_bin_emission(N_sizebin,N_aerosol)
+num_emis

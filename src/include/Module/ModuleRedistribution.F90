@@ -43,7 +43,7 @@ contains
 !
 !------------------------------------------------------------------------
     implicit none
-    integer::k,j,f,jesp,s
+    integer::k,j,f,jesp,s,b
     integer:: scheme !redistribution scheme 3 = euler_mass 4 = euler_number 5 = hemen 6 = euler_coupled
     integer:: section_pass!bin include 100nm
     double precision:: Qesp(N_sizebin, N_aerosol)!Temperature mass concentration on each fraction
@@ -73,9 +73,14 @@ contains
 	  d(k)=size_diam_av(k)
       enddo
 
+!      call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
+!      section_pass, mass_density, DQLIMIT, Qesp, N, totQ,&
+!      with_fixed_density, fixed_density * 1.0d-9)
+
       call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
       section_pass, mass_density, DQLIMIT, Qesp, N, totQ,&
-      with_fixed_density)
+      with_fixed_density, fixed_density)
+
 
       !update distribution of each bin in current fraction section size_diam_av
       do k=1,N_sizebin
@@ -88,6 +93,7 @@ contains
 	enddo
       enddo
     enddo
+
 	  
   end subroutine redistribution_size
 
@@ -245,13 +251,12 @@ contains
        do js=1,N_size !! ICUT2
           inorg_total = inorg_total + concentration_mass(js, jesp)
           inorg_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
-          ! write(*,*) "inorg_total",jesp,js, concentration_mass(js, jesp), inorg_total
+
        enddo
     enddo
 
     do js=1,N_size
 
-!       write(*,*) "liquid_nsize", js,liquid_nsize(1,js)
        
        if (inorg_total .gt. 0.D0) then
           concentration_mass(js, EH2O) = lwc * inorg_bin(js) / inorg_total

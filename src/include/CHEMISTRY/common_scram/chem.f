@@ -27,7 +27,7 @@ C-----------------------------------------------------------------------
      $     ,nzemis,LWCmin,Wmol,ts,DLattenuation
      $     ,DLhumid,DLtemp,DLpress,DLCsourc,DLCphotolysis_rates,delta_t
      $     ,DLattenuationf,DLhumidf,DLtempf, DLpressf,DLCsourcf
-     $     ,DLCphotolysis_ratesf,ncycle,dlon,dlat,DLconc,icld,iheter
+     $     ,DLCphotolysis_ratesf,dlon,dlat,DLconc,icld,iheter
      $     ,ns_aer,nbin_aer,ncomp_aer,DLLWC,bin_bound_aer
      $     ,fixed_density_aer,wet_diameter_aer,hetero_species_index
      $     ,DLconc_aer,option_adaptive_time_step, ATOL, tstep_min
@@ -216,7 +216,7 @@ C     Aerosol discretization converted in microm.
       DO Jb=1,nbin_aer
 	  idx_bs(Jb)=(Jb-1)/ncomp_aer+1!relations between bin idx and size idx
       ENDDO
-      
+
 C     With real number concentration.
       IF (INUM.EQ.1) THEN
 C     Compute aerosol density
@@ -233,6 +233,7 @@ C     Compute aerosol density
             DO Jsp = 1, Ns_aer
                conc_tot = conc_tot + DLconc_aer(Jb,Jsp)
             ENDDO
+
 C     Compute mass and diameter of each section
             IF (DLnumconc_aer(Jb) .GT. 0.d0) THEN
                MSF(Jb) = conc_tot/DLnumconc_aer(Jb)
@@ -302,7 +303,7 @@ C     Projection.
       ENDDO
 
 C     Initialization of granulo for kinetic cte of heterogeneous rxns
-      
+
       DO Jb=1,Nbin_aer
          conc_tot=0.0D0
          tot_before(Jb) = 0.D0
@@ -327,12 +328,12 @@ c     &                 wet_diameter_aer(jb)
 
 C     Integration of chemistry (eventually with subcycling).
 
-      DO Jt=1,Ncycle
-         tschem=ts+(Jt-1)*delta_t/Ncycle
-         tfchem=tschem+delta_t/Ncycle
+      
+         tschem=ts
+         tfchem=tschem+delta_t
 C     Integration of chemistry with adaptive time stepping
                   tfchem_tmp = tfchem
-                  tstep = delta_t/Ncycle
+                  tstep = delta_t
 
          Do while (tschem.LT.tfchem) 
 ! Compute zenithal angles
@@ -443,7 +444,7 @@ c     supEdtstep = supEdtstep/ATOL
 
          Enddo                  !End loop Do while for time stepping
 
-      ENDDO
+ 
 
 C     Storage in the array of chemical concentrations.
 

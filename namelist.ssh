@@ -1,24 +1,116 @@
+&setup_meteo
+latitude = 48.2,                ! Latitude
+longitude = 2.22,               ! Longitude
+Temperature = 300.85,    	! TEMP
+Pressure = 1.01325D05,         	! PRES
+Relative_Humidity = 0.739	! Specific humidity is computed from RH
+/
+
+
+&setup_time
+initial_time = 0.0,             ! 25/06/2001
+final_time = 20000,             ! 20000
+delta_t = 20,			! 10 min
+time_emis = 0,        		! no emission	 
+/
+
+&initial_condition
+with_init_num = 1,              ! 0 estimated from mass and diameter; 1 number conc. for each bin is read 
+tag_init = 0,                   ! initial method for aerosol species (0 internally mixed; 1 mixing_state resolved !! option 1 not yet available)
+tag_dbd = 1,	                ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
+N_sizebin = 15,			! NS2 
+wet_diam_estimation = 0,    	! 0 = isorropia 
+init_gas_conc_file = "init_gas_2006.dat",		! Initial data for gas
+init_aero_conc_mass_file = "ext_init_aero_2006.dat",	! aerosols: initial mass conc.   
+init_aero_conc_num_file = "ext_init_num_2006.dat",	! ext_init_num10e6.dat
+/
+
+
+
+&initial_diam_distribution       
+diam_input = 1.0000000000000000E-02	1.7383504436393121E-02	3.0218622649009919E-02	5.2530556088075352E-02	9.1316515480325530E-02	1.5874010519682000E-01	2.7594593229224301E-01	4.7969073382068411E-01	8.3387059994685331E-01	1.4495593273553919E+00	2.5198420997897468E+00	4.3803686320705202E+00	7.6146157548635163E+00	1.3236870675609890E+01	2.3010320011342639E+01	3.9999999999999993E+01 
+/ ! PM2.5 1-10, PMCoarse 11-15 
+
+
+&emissions
+tag_emis = 0,		! 0 Without emissions
+with_emis_num = 0,
+emis_gas_file = "./inputs/emis_gas.dat",
+emis_aero_mass_file = "./inputs/emis_aero.dat", 
+emis_aero_num_file = "./inputs/emis_aero_num.dat" 
+/
+
+&mixing_state
+tag_external = 0,             !Mixing state(0 for internally mixed, 1 for mixing-state resolved) !!! Initial concentrations are assumed to be internally mixed.
+N_groups = 1,                  !Nb of Specie group (internal within group, external between groups)
+N_frac = 1, 	               ! Mass fraction sections for each species
+kind_composition = 1,          !Fraction discretization methods 1 for auto discretization and 0 for manual discretization
+/
+
+&fraction_distribution
+frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manully
+/
+
+&gas_phase_species
+species_list_file = "./species-list/species-list-cb05en.dat"                    !Species list for CB05 
+/
+
 &aerosol_species
+aerosol_species_list_file = "./species-list/species-list-aer-en.dat"        !Aerosol species list
 mineral_dust = "PMD",
 black_carbon = "PBC",
 isorropia_species_name = "PNA", "PSO4", "PNH4", "PNO3","PHCL",
-organic_species_name = "PBiA2D", "PBiA1D", "PBiA0D", "PAGLY", "PAMGLY","PBiMT", "PBiPER", "PBiDER", "PBiMGA", "PAnBlP", "PAnBmP", "PBiBlP", "PBiBmP", "PBiNGA", "PBiNIT3", "PBiNIT", "PAnClP", "PPOAlP", "PPOAmP", "PPOAhP", "PSOAlP", "PSOAmP", "PSOAhP"
+aec_species_name = "PBiA2D", "PBiA1D", "PBiA0D", "PAGLY", "PAMGLY","PBiMT","PBiPER", "PBiDER", "PBiMGA", "PAnBlP", "PAnBmP", "PBiBlP", "PBiBmP","PBiNGA", "PBiNIT3", "PBiNIT", "PMonomer", "PDimer", "PBiA3D",
+pankow_species_name = "PAnClP",
+poa_species_name = "PSOAlP", "PSOAmP", "PSOAhP", "PPOAlP", "PPOAmP", "PPOAhP",
 /
 
-&gas_species_aerosol_interact
-PSO4 = "SULF",
+
+&physic_gas_chemistry
+tag_chem = 0,				!Tag of gas-phase chemistry
+attenuation = 1.d0,               ! Cloud attenuation field ([fraction])
+with_photolysis = 1			!Tag of photolysis reaction
+with_heterogeneous = 1,                 !Tag of heterogeneous reaction 
+with_adaptive = 1,                      !Tag of adaptive time step for chemistry 1 if adaptive time step.
+adaptive_time_step_tolerance = 0.001,    !Relative tolerance for deciding if the time step is kept
+min_adaptive_time_step = 0.001,          !Minimum time step
 /
 
-&aerosol_size
-N_sizebin = 6
+
+&physic_particle_numerical_issues
+DTAEROMIN = 1E-15,              	!DTMIN
+redistribution_method = 4,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter  0 without redistribution - for test cases
+with_fixed_density = 0,       	!IDENs = 0
+fixed_density = 1.382887162E-06,        	!RHOA
 /
 
-&init_data
-init_bin_number = 6451052544.0,3622992384.0,728901952.0,98222960.0,2169696.0,11957.2246094
+
+&physic_coagulation
+with_coag = 0,                 	!without coagulation
+read_coef = 1,			! 1 read coefficient file; 0 compute automatically, time consuming
+Coefficient_file = "coef_s1_f1_b50.nc",	
+Nmc = 10000			! Monte Carlo number
+/
+
+
+&physic_condensation
+with_cond = 1,             !Tag of condensation/evaporation
+Cut_dim = 0,             ! KCUT	ICUT = 0
+ISOAPDYN = 0,              !
+/
+
+
+&physic_nucleation
+with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
+nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
+/
+
+
+&physic_organic
+with_oligomerization = 1      
 /
 
 &output
-output_directory = "results",
-output_type = 1 ! 1: text, 2: binary
+output_directory = "results", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_type = 1               ! 1: text, 2: binary
 /
-

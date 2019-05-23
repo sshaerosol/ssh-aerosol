@@ -390,11 +390,11 @@ contains
       concentration_gas(jesp)=qgasi
    endif
 
-    call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
-    nesp_isorropia,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
+!    call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
+!    nesp_isorropia,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
 
-!KS    call bulkequi_redistribution(concentration_number,concentration_mass,&
-!      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
+    call bulkequi_redistribution(concentration_number,concentration_mass,&
+      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
 
   end subroutine bulkequi_inorg
 
