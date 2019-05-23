@@ -102,6 +102,7 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 
   for (i=0;i<n;++i)
     for (b=0;b<config.nbins;++b)
+      {
      if (MMaq(b) > 0.0)
       if(surrogate[i].is_organic and surrogate[i].hydrophilic)
         {	  
@@ -190,6 +191,7 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
                   surrogate[i].Kaq(b)/=kelvin_effect;
 	    }
 	}
+      }
 }
 
 void characteristic_time(model_config &config, vector<species>& surrogate,
@@ -529,16 +531,19 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
           for (ilayer=0;ilayer<config.nlayer;ilayer++)
             for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
               sum_mass+=MOinit(b,ilayer,iphase);
-          
-          Kaq=surrogate[i].Kaq(b);          
-	  surrogate[i].k1_aq(b,index)=AQinit(b)/sum_mass*
-	    (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
-	    (Kaq*AQinit(b)*surrogate[i].tau_air(b));
+
+          Kaq=surrogate[i].Kaq(b);
+          if (Kaq > 0.0 and AQinit(b) > 0.0)
+            {
+              surrogate[i].k1_aq(b,index)=AQinit(b)/sum_mass*
+                (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
+                (Kaq*AQinit(b)*surrogate[i].tau_air(b));
 		  
-          surrogate[i].Jdn_aq(b,index)=0.0;
-          if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Aaq_bins_init(b)>tiny)
-            surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/
-	    surrogate[i].Aaq_bins_init(b);
+              surrogate[i].Jdn_aq(b,index)=0.0;
+              if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Aaq_bins_init(b)>tiny)
+                surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/
+                  surrogate[i].Aaq_bins_init(b);
+            }
         }
     else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic) //for inorganic compounds
       for (b=0;b<config.nbins;++b)
@@ -1426,11 +1431,13 @@ void flux_org(model_config &config, vector<species>& surrogate,
                         sum=0.0;
                         for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
                           sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
-		      		      
-                        surrogate[i].k1(b,ilayer,iphase,index)=			
-                          (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
-                           -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
-			   (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+                        if (sum > 0.0 and sum_mass > 0.0 and
+                            surrogate[i].tau_air(b) > 0.0 and
+                            AQinit(b) != sum_mass) 
+                          surrogate[i].k1(b,ilayer,iphase,index)=			
+                            (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+                             -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
+			     (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
                       }
 		}
 
@@ -2134,7 +2141,7 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
 	  	 
           compute_ionic_strenght2(config, surrogate, AQ, conc_inorganic(b), ionic(b), chp(b),
 				  organion(b), ionic_organic(b), factor);
-	 	  
+
           activity_coefficients_aq(config,surrogate,Temperature,0.0,MMaq(b),XH2O);	 
           if (config.compute_long_and_medium_range_interactions)
             activity_coefficients_LR_MR(config, surrogate, Temperature, 0.0, ionic(b));
@@ -4575,18 +4582,15 @@ void compute_diameters(model_config &config, vector<species>& surrogate,
        {
          volume=(Vsol(b)+LWC(b)*1.0e-9/config.AQrho(b))/number(b);
          for (ilayer=0;ilayer<config.nlayer;++ilayer)
-           for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-             for (i=0;i<n;i++)
-               if (surrogate[i].hydrophobic)
-                 volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
-                   /(number(b)*surrogate[i].rho);
+         for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+          for (i=0;i<n;i++)
+            if (surrogate[i].hydrophobic)
+              volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
+                /(number(b)*surrogate[i].rho);
 	  
          for (i=0;i<n;i++)
             if (surrogate[i].hydrophilic and LWCtot>config.LWClimit and surrogate[i].is_inorganic_precursor==false)
-              {
                volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.AQrho(b));
-               cout << "volume\t" << b << "\t" << i << "\t" << volume << "\t" << surrogate[i].Aaq_bins_init(b) << "\t" << surrogate[i].name << endl; //YK
-              }
 	  
          config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
       }

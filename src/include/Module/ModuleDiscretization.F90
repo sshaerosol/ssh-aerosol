@@ -155,8 +155,12 @@ contains
     allocate(ionic_nsize(n_size)) ! SOAP !
     ionic_nsize = 0.d0
     allocate(proton_nsize(n_size))  ! SOAP !
+    proton_nsize = 0.d0
+    allocate(chp_nsize(n_size))  ! SOAP !
+    chp_nsize = 0.d0
     allocate(liquid_nsize(12,n_size))   ! SOAP !
-
+    liquid_nsize = 0.d0
+    
     allocate(concentration_inti(N_size,N_inside_aer)) ! ModuleCondensation !
     concentration_inti=0.d0
 
@@ -553,8 +557,8 @@ subroutine discretization()
        ! give cell_diam_av(n_size) cell_mass_av(n_size) !!
 
    ! wet_diameter is initialized for heterogeneous reactions
- ! call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-!	concentration_inti,wet_mass,wet_diameter,wet_volume)
+  call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+	concentration_inti,wet_mass,wet_diameter,wet_volume)
 
   if (with_coag.eq.1) then !if coagulation
     allocate(kernel_coagulation(N_size,N_size))

@@ -156,9 +156,6 @@ contains
     qgas(ECl) = qgascl
 #endif
 
-    ! write(*,*) "before soap_eq in ModuleBulk",concentration_gas(9),concentration_mass(:,9)
-    ! write(*,*) "qaero(EH2O) before soap_eq in ModuleBulk", qaero(EH2O)
-
     if (ISOAPDYN.eq.0) then
        call soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
             Temperature, qaero, qgas, liquid)
@@ -178,18 +175,13 @@ contains
 	  dq(jesp)=-qextold(jesp)
 	endif
       endif
-      !write(*,*) s,jesp,'after soap_eq',qgas(jesp),qaero(jesp),dq(jesp)
     enddo
-
-    ! write(*,*) "after soap_eq in ModuleBulk",concentration_gas(9),concentration_mass(:,9)
 
 !     ******redistribute on each cell according to Rates
     !call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
    ! nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
     call bulkequi_redistribution(concentration_number,concentration_mass,&
     nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot)
-
-    ! write(*,*) "after redist in ModuleBulk",concentration_gas(9),concentration_mass(:,9)
 
   end subroutine bulkequi_org
 
@@ -221,9 +213,6 @@ contains
     double precision:: total_ms(N_aerosol)
     double precision :: liquid(12), ionic
       
-    ! write(*,*) "nesp_eq:", nesp_eq
-
-
 !!     ******zero init
     do s=1, N_aerosol !nesp_isorropia
       jesp=List_species(s)

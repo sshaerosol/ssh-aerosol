@@ -640,7 +640,7 @@ double species::Kp_eff_aq(model_config &config, double &Temperature, double &ion
         cout << "WARNING: aq_type "+aq_type+" of species " +name+ " not defined." << endl;
       value=Kpart_aq(Temperature, MMaq);
     }
-  
+
   return value;
 }
 
@@ -1618,7 +1618,6 @@ void activity_coefficients_aq(model_config config, vector<species>& surrogate,
 
   for (i=0;i<n;++i)
     if (surrogate[i].hydrophilic and sum > 0.0)
-      //    if (surrogate[i].hydrophilic) YK
       {
         surrogate[i].Xaq/=sum;
         MMaq+=surrogate[i].Xaq*surrogate[i].MM;

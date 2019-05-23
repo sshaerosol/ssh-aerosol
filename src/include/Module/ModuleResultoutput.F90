@@ -13,6 +13,10 @@ Module Resultoutput
 
   implicit none
 
+! out_aero : array of file names; outpout time variation of organic, inorganic, PBC, Dust, PM2.5, PM10 results
+! please move this line to ModuleInitialization.f90 in the futrue
+  character(20) :: out_aero(6) 
+
 contains
 
    subroutine save_report()
@@ -131,9 +135,10 @@ contains
 
   subroutine save_concentration()
 
-    integer :: s, b
+    integer :: s, b, i, j
     real (kind = 4) :: conc_save
     character (len=100) output_filename
+    integer :: out_aero_num(6) = (/2,1,7,33,0,33/)  ! last index of required aero species list; 0 for PM2.5
 
 
     ! save gas concentration results over each time step
@@ -207,6 +212,8 @@ contains
           close(100)
        end do
 
+
+
 	total_number = 0.d0
         do b = 1, N_size
 		total_number = total_number + concentration_number(b)
@@ -229,13 +236,23 @@ contains
 
 
     ! save total mass for each aerosol species over each time step
+
+    ! re-new total_aero_mass(N_aerosol) for saving TM/
+     total_aero_mass = 0.d0
+	do s = 1, N_aerosol
+		do j = 1,N_size
+         		total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+		enddo
+	end do
+
+
     do s = 1, N_aerosol
        if (output_type == 1) then
           output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s)) //'_TM'// ".txt"  
 
           OPEN(UNIT=100,FILE=output_filename, status='old', position = "append")
 
-          conc_save = total_mass(s) 
+          conc_save = total_aero_mass(s) 
           write(100,*) conc_save
 
        else if (output_type == 2) then
@@ -243,13 +260,67 @@ contains
 
           OPEN(UNIT=100,FILE=output_filename, status='old', form='unformatted', access='stream', position = 'append')
 
-          conc_save = total_mass(s) 
+          conc_save = total_aero_mass(s) 
           write(100) conc_save
 
        endif
 
        close(100)
     enddo
+
+ ! save organic, inorganic, PBC, Dust, PM2.5, PM10 results over each time step
+    ! generate files' names
+    do s = 1, 6
+        conc_save = 0.0
+	if (output_type == 1) then
+           output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//".txt"
+
+             OPEN(UNIT=100,FILE=output_filename, status="old", position = "append") ! index (/1,2,7,33,0,33/) 
+		if (s .eq. 5) then	! PM2.5
+			do b = 1, N_sizebin
+				if (diam_bound(b) .ge. 2.5d0 ) exit
+				j = b	! j = last size bin number of PM 2.5 
+			enddo
+			do b = 1, N_aerosol-1	! without water
+				do i = 1, j
+					conc_save = conc_save + concentration_mass(i, b)
+				enddo
+			enddo
+		else if (out_aero_num(s) .le. 2) then ! PBC and Dust, not PM2.5
+			conc_save = total_aero_mass(out_aero_num(s))
+		else if (out_aero_num(s) .gt. 2) then ! inorganic (index 3-7) organic(index 8-33) PM10 (index 1-33)
+			do b = out_aero_num(s-1) + 1, out_aero_num(s)
+				conc_save = conc_save + total_aero_mass(b)
+			enddo
+		end if
+             write(100,*) conc_save
+
+        else if (output_type == 2) then
+             output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//".bin"
+
+                          OPEN(UNIT=100,FILE=output_filename, status="old", position = "append") ! index (/1,2,7,33,0,33/) 
+		if (s .eq. 5) then	! PM2.5
+			do b = 1, N_sizebin
+				if (diam_bound(b) .ge. 2.5d0 ) exit
+				j = b	! j = last size bin number of PM 2.5 
+			enddo
+			do b = 1, N_aerosol-1	! without water
+				do i = 1, j
+					conc_save = conc_save + concentration_mass(i, b)
+				enddo
+			enddo
+		else if (out_aero_num(s) .le. 2) then ! PBC (index 2) and Dust (index 1), not PM2.5
+			conc_save = total_aero_mass(out_aero_num(s))
+		else if (out_aero_num(s) .gt. 2) then ! inorganic (index 3-7) organic(index 8-34) PM10 (index 1-34)
+			do b = out_aero_num(s-1) + 1, out_aero_num(s)
+				conc_save = conc_save + total_aero_mass(b)
+			enddo
+		end if
+             write(100,*) conc_save
+
+        end if
+      close(100)
+    end do
 
 
      ! save cell_diam_av results over each time step
@@ -342,12 +413,19 @@ contains
     logical :: file_exists
     character (len=100) output_filename
     character (len=80) :: cmd
-    character (len=10) :: out_dir(5)
+    character (len=10) :: out_dir(5) 
     out_dir(1) = "/number/"
     out_dir(2) = "/gas/"	
     out_dir(3) = "/aero/"
     out_dir(4) = "/TM/"
     out_dir(5) = "/diameter/"
+    ! update out_aero, outpout names 
+    out_aero(1) = 'Black_Carbon'
+    out_aero(2) = 'Dust'
+    out_aero(3) = 'Inorganic'
+    out_aero(4) = 'Organic'
+    out_aero(5) = 'PM2.5'
+    out_aero(6) = 'PM10'
     ! Create directory if it does not exist.
     do s = 1, 5
        	cmd = trim('mkdir -p '// trim(output_directory) // out_dir(s))
@@ -385,6 +463,36 @@ contains
 
        close(100)
     enddo
+
+
+    ! organic, inorganic, PBC, Dust, PM2.5, PM10
+	do s = 1, 6
+	  if (output_type == 1) then
+             	output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//".txt"
+             ! Remove if output files exist
+             inquire (file = output_filename, exist = file_exists)
+             if (file_exists) then
+                open(unit=100, file = output_filename, status='old', iostat=stat)
+                if (stat == 0) close(100, status='delete')
+             endif
+          
+             OPEN(UNIT=100,FILE=output_filename, status="new")
+
+          else if (output_type == 2) then
+             	output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//".bin"
+             ! Remove if output files exist
+             inquire (file = output_filename, exist = file_exists)
+             if (file_exists) then
+                open(unit=100, file = output_filename, status='old', iostat=stat)
+                if (stat == 0) close(100, status='delete')
+             endif
+          
+             OPEN(UNIT=100,FILE=output_filename, status="new", form='unformatted')
+          end if
+          close(100)
+
+	enddo
+
     !aerosols
     do s = 1, N_aerosol
        do b = 1, N_size
@@ -479,7 +587,7 @@ contains
              OPEN(UNIT=100,FILE=output_filename, status="new", form='unformatted')
           end if
 
-   ! total_mass for aerosols
+   ! total_aero_mass for aerosols
     do s = 1, N_aerosol
 
        if (output_type == 1) then

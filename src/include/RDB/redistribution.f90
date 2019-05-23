@@ -255,7 +255,7 @@ END SUBROUTINE REDISTRIBUTION
       DOUBLE PRECISION x2lo,x2hi,xmin,xmax
       DOUBLE PRECISION xx,tmp1,tmp2,frac
       DOUBLE PRECISION CST,fixed_density
-      DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
+      DOUBLE PRECISION dbound(ns+1),XSD(ns),XBF(ns+1),XBD(ns+1)
       DOUBLE PRECISION HSD(ns),XSF(ns),diam(ns)
 
       CST  =0.523598775598D0
@@ -649,7 +649,7 @@ END SUBROUTINE REDISTRIBUTION
       DOUBLE PRECISION qnew(ns,naer),qtnew(ns)
       DOUBLE PRECISION xx,tmp1,tmp2,frac
       DOUBLE PRECISION fixed_density,rho(ns),diam1,diam2
-      DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
+      DOUBLE PRECISION dbound(ns+1),XSD(ns),XBF(ns+1),XBD(ns+1)
       DOUBLE PRECISION x2hi,HSD(ns),XSF(ns)
       DOUBLE PRECISION DSF(ns),MSF(ns+1),MSD(ns+1),Qtotal
 
@@ -805,7 +805,7 @@ END SUBROUTINE REDISTRIBUTION
       DOUBLE PRECISION qnew(ns,naer),qtnew(ns)
       DOUBLE PRECISION xx,tmp1,tmp2,frac
       DOUBLE PRECISION fixed_density,rho(ns),diam1,diam2
-      DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
+      DOUBLE PRECISION dbound(ns+1),XSD(ns),XBF(ns+1),XBD(ns+1)
       DOUBLE PRECISION x2hi,HSD(ns),XSF(ns)
       DOUBLE PRECISION DSF(ns),MSF(ns+1),MSD(ns+1),Qtotal
 

@@ -67,6 +67,9 @@ contains
 !    double precision:: ionic_Nsize(N_size)
 !    double precision:: proton_Nsize(N_size),liquid_Nsize(12,N_size)
 
+    dqdt = 0.d0
+    dndt = 0.d0
+
     if (tag_nucl.eq.1) then
       call fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
     endif
@@ -132,12 +135,11 @@ contains
      call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
           wet_mass,wet_diam,wet_vol,cell_diam)
 
-    dqdt=0.d0
-    dndt=0.d0
+!    dqdt=0.d0
+!    dndt=0.d0
     call mass_conservation(c_mass,c_number,c_gas,total_mass)
 
     do j =(ICUT+1), N_size
-      dndt(j)=0.d0
       qn=c_number(j)!initial number and mass
       !if(qn.gt.TINYN) then!skip empty cell
 	do s=1,N_aerosol
@@ -215,7 +217,7 @@ contains
        total_number=total_number+c_number(j)
     enddo !! Added by YK
 
-    if(total_mass_t*total_number.ne.0.d0) then
+    if(total_mass_t*total_number > 0.d0) then
       
 !       call compute_average_diameter()
 ! 
@@ -267,6 +269,7 @@ contains
     double precision	:: jnucl,ntot,ntotnh3
     double precision	:: dpnucl,nanucl,qanucl
     double precision	:: xstar,mSO4
+    integer :: iterp
 !     Compute gas mass conservation
 
       call mass_conservation(c_mass,c_number,c_gas, total_mass)
@@ -344,9 +347,8 @@ contains
 	   dndt(1)=0.d0
 	   dqdt(1,ESO4)=0.d0
 	 endif
-	  
-         endif
 
+        endif
       endif     
    end subroutine fgde_nucl
   

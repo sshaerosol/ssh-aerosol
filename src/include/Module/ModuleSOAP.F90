@@ -77,11 +77,7 @@ contains
       DOUBLE PRECISION aero(N_aerosol),gas(N_aerosol)
       DOUBLE PRECISION lwc, lwcorg, rh, temp
       DOUBLE PRECISION ionic, proton, chp
-!      DOUBLE PRECISION ionic_Nsize(N_size)
-!      DOUBLE PRECISION chp_Nsize(N_size),lwc_Nsize(N_size)
-      DOUBLE PRECISION chp_Nsize(N_size)
-!      DOUBLE PRECISION liquid(12),liquid_Nsize(12,N_size)
-      DOUBLE PRECISION liquid(12) !,liquid_Nsize(12,N_size)
+      DOUBLE PRECISION liquid(12)
 
       INTEGER i,j
 
@@ -191,11 +187,6 @@ contains
       DOUBLE PRECISION lwc, lwcorg, rh, temp
       DOUBLE PRECISION ionic, proton, chp
       DOUBLE PRECISION liquid(12)
-
-!      DOUBLE PRECISION lwc_Nsize(N_size),proton_Nsize(N_size)
-      DOUBLE PRECISION proton_Nsize(N_size)
-      DOUBLE PRECISION ionic_Nsize(N_size),chp_Nsize(N_size)
-      DOUBLE PRECISION liquid_Nsize(12,N_size)
 
       INTEGER jj,jesp,js
       double precision qaero(N_aerosol), qgas(N_aerosol)

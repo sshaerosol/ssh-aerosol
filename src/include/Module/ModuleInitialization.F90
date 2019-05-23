@@ -78,7 +78,7 @@ module aInitialization
     double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
     double precision :: min_adaptive_time_step       !Minimum time step
     !double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
-    integer :: dynamic_solver = 1 !KDSLV Tag type of solver
+    integer :: dynamic_solver = 2 !KDSLV Tag type of solver
     integer :: sulfate_computation = 1 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
     integer :: with_coag   !Tag gCoagulation
@@ -269,7 +269,7 @@ module aInitialization
     integer :: nlayer
     integer :: activity_model
     double precision, dimension(:), allocatable :: lwc_nsize, &
-         ionic_nsize, proton_nsize
+         ionic_nsize, proton_nsize, chp_nsize
     double precision, dimension(:,:), allocatable :: liquid_nsize
     
     !! part 8: divers parameters (species, I/O)
@@ -504,7 +504,7 @@ module aInitialization
      ! mixing_state
      read(10, nml = mixing_state, iostat = ierr)
      if (ierr .ne. 0) then
-	write(*,*) "mixing_state data can not be read."
+	write(*,*) "mixing_state data can not be read - not enough data"
         stop
      else 
 	print*,
@@ -680,7 +680,7 @@ module aInitialization
 	   print*, '! ! ! with condensation/ evaporation.'
 		if (Cut_dim .le. diam_input(1)) then
 		    print*, 'inorganic compounds are at dynamic.'
-		else if (Cut_dim .ge. diam_input(-1)) then
+		else if (Cut_dim .ge. diam_input(size(diam_input))) then
 		    print*, 'inorganic compounds are at equilibrium.'
 		else 
 		    print*, 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim

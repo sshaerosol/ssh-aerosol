@@ -194,9 +194,7 @@ contains
       enddo
 
       Wet_vol=Wet_diam**3.d0*cst_pi6
-      !if(Wet_volume*concentration_number(jj).gt.0.d0) rhop =rhop/(Wet_volume*concentration_number(jj))     ! µg.µm-3
       rhop_tmp = rho_wet_cell(jj) * 1.d9 !1400. ! kg/m3
-      !Wet_diam_used =DMAX1(Wet_diam,Diam_min)
       Wet_diam_used =DMAX1(Wet_diam,diam_bound(1)) 
       if (wet_diam_used .lt. 1.d-3) then
          write(*,*) "kercond: too small wet_diameter",wet_diam_used
@@ -213,14 +211,6 @@ contains
 		  Wet_diam_used,&         ! wet aero diameter (µm)
 		  rhop_tmp,&      ! aerosol density (kg.m-3)
 		  Kelvin_effect(jesp) )   ! kelvin effect coef (adim)
-              ! if (jj.eq.115 .and. jesp.eq.5) then
-              !    write(*,*) "Kelvin_effect", jj,jesp,temp,emw_tmp,&
-              !         surface_tension(jesp),wet_diam_used, rhop_tmp,&
-              !         kelvin_effect(jesp),rho_wet_cell(jj),&
-              !         fixed_density
-              !    stop
-              ! endif
-
 	endif
       enddo
 

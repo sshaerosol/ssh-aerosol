@@ -55,10 +55,6 @@ PROGRAM SSHaerosol
 
      write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
-     write(vchar, '(f8.0)') current_time
-
-     write(*,*) "Current time: " // trim(adjustl(vchar))
-     
      ! Emissions
      if (tag_emis .ne. 0) call emission(current_time, delta_t)
 

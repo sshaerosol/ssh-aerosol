@@ -1184,9 +1184,19 @@ void initialisation(model_config &config, vector<species> &surrogate,
       activity_coefficients_dyn_aq(config, surrogate, Temperature,AQinit,MOinit,
 				   conc_inorganic, ionic, ionic_organic,
 				   organion,chp,LWC,MMaq,1.0);
-  
+
+   for (i=0;i<n;i++)
+    {
+      surrogate[i].Ap_layer=surrogate[i].Ap_layer_init;
+      surrogate[i].Ap_layer_init0=surrogate[i].Ap_layer_init;
+      surrogate[i].Aaq_bins=surrogate[i].Aaq_bins_init;
+      surrogate[i].Aaq_bins_init0=surrogate[i].Aaq_bins_init;
+    }
+ 
   //Computation of Ag for water
   water_concentration(config, surrogate, Temperature, RH);
+  //  AQ=AQinit;
+  MO=MOinit;
 }
 
 void dynamic_system(model_config &config, vector<species> &surrogate,
@@ -1249,6 +1259,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 
   initialisation(config, surrogate, MOinit, MO, MOW, AQinit, MMaq, LWCtot, LWC, chp, ionic, ionic_organic,
 		 organion, conc_inorganic, Temperature, RH);
+  AQ=AQinit;
 
   compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);
 
@@ -1352,7 +1363,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 		  AQinit(b)=LWC(b);
 		  for (i=0;i<n;++i)
 		    if(surrogate[i].hydrophilic)
-		      AQinit(b)+=surrogate[i].Aaq_bins(b);
+		      AQinit(b)+=surrogate[i].Aaq_bins_init(b);
 		  AQinit(b)=max(AQinit(b),config.MOmin);		      
 		  chp(b)=chp0(b);
 		}
@@ -1486,6 +1497,15 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
             characteristic_time_aq(config, surrogate, LWC, AQinit, MOinit); 
         }
 
+      for (b=0;b<config.nbins;++b)
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+          for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+            for (i=0;i<n;++i)
+	      {
+		surrogate[i].Ap_layer(b,ilayer,iphase)=
+		  surrogate[i].Ap_layer_init(b,ilayer,iphase);
+	      }
+
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
         solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
@@ -1537,56 +1557,59 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
               for (i=0;i<n;++i)
                 {
                   surrogate[i].Ag=surrogate[i].Ag0;
-                  if (surrogate[i].hydrophobic)
-                    for (ilayer=0;ilayer<config.nlayer;++ilayer)
-                      for (b=0;b<config.nbins;++b)
-                        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                          surrogate[i].Ap_layer_init(b,ilayer,iphase)=
-                            surrogate[i].Ap_layer_init0(b,ilayer,iphase);
+                   for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                    for (b=0;b<config.nbins;++b)
+                      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			{
+			  surrogate[i].Ap_layer_init(b,ilayer,iphase)=
+			    surrogate[i].Ap_layer_init0(b,ilayer,iphase);
+			  surrogate[i].Ap_layer(b,ilayer,iphase)=
+			    surrogate[i].Ap_layer_init0(b,ilayer,iphase);
+			}
 
-		  for (b=0;b<config.nbins;++b)
+                  for (b=0;b<config.nbins;++b)
 		    {
-		      AQinit(b)=LWC(b);
-		      for (i=0;i<n;++i)
-			if(surrogate[i].hydrophilic)
-			  AQinit(b)+=surrogate[i].Aaq_bins(b);
-		      AQinit(b)=max(AQinit(b),config.MOmin);		      
-		      chp(b)=chp0(b);
+		      surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init0(b);	   
+		      surrogate[i].Aaq_bins(b)= surrogate[i].Aaq_bins_init(b);
 		    }
+		  
+		}
+	      for (b=0;b<config.nbins;++b)
+		{
+		  AQinit(b)=LWC(b);
+		  for (i=0;i<n;++i)
+		    if(surrogate[i].hydrophilic)
+		      AQinit(b)+=surrogate[i].Aaq_bins_init(b);
+		  AQinit(b)=max(AQinit(b),config.MOmin);		      
+		  chp(b)=chp0(b);
+		}
 
-                  if (LWCtot>config.LWClimit)
-                    if (surrogate[i].hydrophilic)
-                      for (b=0;b<config.nbins;++b)
-                        surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init0(b);
-		  
-		  for (b=0;b<config.nbins;++b)
-		    for (ilayer=0;ilayer<config.nlayer;++ilayer)
-		      {
-			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			  {			   
-			    MOinit(b,ilayer,iphase)=0.0;
-			    for (i=0;i<n;++i)			
-			      MOinit(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
-			  }
-			
-			double sum=0.0;
-			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			  sum+=MOinit(b,ilayer,iphase);
-			
-			if (sum>0.0)
-			  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			    MOinit(b,ilayer,iphase)=max(MOinit(b,ilayer,iphase),
-							config.MOmin*config.Vlayer(ilayer)*MOinit(b,ilayer,iphase)/sum);
-			else
-			  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			    if(iphase==0)
-			      MOinit(b,ilayer,iphase)=config.MOmin*config.Vlayer(ilayer);
-			    else
-			      MOinit(b,ilayer,iphase)=0.0;
+	      for (b=0;b<config.nbins;++b)
+		for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  {
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {			   
+			MOinit(b,ilayer,iphase)=0.0;
+			for (i=0;i<n;++i)			
+			  if(surrogate[i].hydrophobic)
+			    MOinit(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
 		      }
-		  
-                }
-              
+		    
+		    double sum=0.0;
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      sum+=MOinit(b,ilayer,iphase);
+		    
+		    if (sum>0.0)
+		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			MOinit(b,ilayer,iphase)=max(MOinit(b,ilayer,iphase),
+						    config.MOmin*config.Vlayer(ilayer)*MOinit(b,ilayer,iphase)/sum);
+		    else
+		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			if(iphase==0)
+			  MOinit(b,ilayer,iphase)=config.MOmin*config.Vlayer(ilayer);
+			else
+			  MOinit(b,ilayer,iphase)=0.0;
+		  }		
             }
           else                     //the time step is accepted 
             {
