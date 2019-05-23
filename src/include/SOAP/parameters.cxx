@@ -15,7 +15,7 @@ void system_coupling(model_config &config, vector<species>& surrogate)
   int n=surrogate.size();
   int i;
   config.iH2O=-1;
-  config.coupled_phases=false;
+  //  config.coupled_phases=false;
   config.iNa=-1;
   config.iHSO4m=-1;
   config.iSO4mm=-1;
@@ -1927,11 +1927,12 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 }
 
 
-void parameters(model_config& config, vector<species>& surrogate, vector<string> species_list_aer)
-{    
+void parameters(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
+                double molecular_weight_aer[], double accomodation_coefficient[])
+{
   config.max_iter=1000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
-  config.compute_long_and_medium_range_interactions=true; // FCo: A initialiser dans soap.cpp
+  config.compute_long_and_medium_range_interactions=false; // FCo: A initialiser dans soap.cpp
 
   if (config.activity_model == "unifac")
     {
@@ -1992,10 +1993,9 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
       //phase separation?
       config.use_global_dynamic_parameters=false; //Assume the same composition over all bins
       // and layers
-      config.compute_kelvin_effect=false;       //Should the kelvin effect be computed?
-      config.tequilibrium=0.1;                 //time under which equilibrium is assumed
+      //      config.tequilibrium=0.1;                 //time under which equilibrium is assumed
       config.EPSER=0.01;                       //relative difference of ros2
-      config.deltatmin=1.0e-5; //1.0e-5;                 //minimal time step
+      //  config.deltatmin=1.0e-5; //1.0e-5;                 //minimal time step
                          //minimal concentrations of organics
       
       config.constant_dorg=true;
@@ -2005,8 +2005,8 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
       if (config.explicit_representation)
 	config.nlayer=200;
 	
-      config.surface_tension_aq=72.0;  //surface tension of the organic phase
-      config.surface_tension_org=24.0; //surface tension of the aqueous phase
+      config.surface_tension_aq=72.0;  //surface tension of the aqueous phase
+      config.surface_tension_org=24.0; //surface tension of the organic phase
       config.diameters.resize(config.nbins); //diameters of particles for each bin
       config.kp_low_volatility=0.001;
     }
@@ -2017,7 +2017,8 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
   config.nh_max=10;
 	  
   //create the vector of species and the various parameters of the model 
-  creation_species(surrogate,species_list_aer); 
+  creation_species(surrogate,species_list_aer, molecular_weight_aer,
+                   accomodation_coefficient); 
   system_coupling(config, surrogate);
   if (config.tabulation_unifac)
     {

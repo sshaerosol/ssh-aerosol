@@ -102,7 +102,10 @@ contains
       CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, neq, q, aero, gas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size)
+           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
+           aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
+           nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
+           coupled_phases, activity_model)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -271,12 +274,15 @@ contains
          csol(js) = q(IQ(EMD,js)) + q(IQ(EBC,js))
       enddo
 
-      !write(*,*) 'SOAPDYN', deltat,N_aerosol,N_size
       lwcorg=0.
+
       CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, neq, q, qaero, qgas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size)
+           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
+           aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
+           nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
+           coupled_phases, activity_model)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size

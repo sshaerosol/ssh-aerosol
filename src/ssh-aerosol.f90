@@ -18,6 +18,7 @@ PROGRAM SSHaerosol
   character(len=10)::vchar ! Current time 
   double precision :: current_time, ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
 
+
   ! Initialisation: discretization and distribution  
   call getarg(1, namelist_ssh) 
 
@@ -48,9 +49,9 @@ PROGRAM SSHaerosol
   ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! simulation starts ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
 
   do t = 1, nt
+
      current_time = initial_time + (t - 1) * delta_t
 
-     write(*,*)
 
      write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
@@ -58,8 +59,6 @@ PROGRAM SSHaerosol
 
      write(*,*) "Current time: " // trim(adjustl(vchar))
      
-
-
      ! Emissions
      if (tag_emis .ne. 0) call emission(current_time, delta_t)
 
@@ -70,7 +69,6 @@ PROGRAM SSHaerosol
      ! no volumetric emission
      ! 0 : vertical gas volumetric emission    1 : with number 
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
-
 
      if (tag_chem .ne. 0) then
      call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
@@ -94,7 +92,6 @@ PROGRAM SSHaerosol
           min_adaptive_time_step, with_photolysis, ind_jbiper, ind_kbiper,&
           1, not(with_fixed_density), concentration_number, &
           mass_density)
-	print*, 'called chem()' 
       end if
 
 	! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry  
@@ -112,10 +109,8 @@ PROGRAM SSHaerosol
           total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
     end do
 
-
     ! Aerosol dynamic
     CALL AERODYN(current_time,delta_t)
-	print*,'called aerodyn()'
 
 	! update mass conc. of aerosol precursors
 	! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
@@ -124,7 +119,7 @@ PROGRAM SSHaerosol
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
        end if
     end do
-
+  ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
 
 
     call save_concentration()         ! Text or Binary format outout

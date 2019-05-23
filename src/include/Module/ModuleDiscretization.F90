@@ -17,13 +17,11 @@ contains
 !  ! simulation
 !
 ! =================================================================== 
-
    subroutine init_parameters()
 
     integer i,b,j,f,k,s
     double precision :: totv,tmp
 
-    
     !INIT physical parameters
 	! pointers
     G1=ESO4
@@ -38,9 +36,7 @@ contains
     m_grow_cond=0.d0
     n_emis=0.d0
     m_emis=0.d0
-    ! SOAP parameters
-    dorg = 1.d-12
-    nlayer = 1
+
     !# Liquid water content threshold above which cloud is present (in g/m3).
      lwc_cloud_threshold = 0.05d0
 
@@ -71,7 +67,6 @@ contains
      else if (tag_dbd == 1) then 
             diam_bound = diam_input
      end if
-     write(*,*)"diam_bounds : ", diam_bound
 
    !calculate ICUT the corresponding cell index of the cuting diameter
     if(Cut_dim.gt.diam_bound(1)) then
@@ -82,7 +77,7 @@ contains
           endif
        enddo
     else
-             ICUT=0
+       ICUT=0
     endif
 
     IF(ICUT.GT.0.D0) THEN
@@ -104,11 +99,11 @@ contains
   end do
 
      ! relative_humidity
-    !if (relative_humidity .eq. 0) then
-	!call compute_relative_humidity(humidity, Temperature, &
-         !Pressure, relative_humidity) 
-	!Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-    !end if
+    if (relative_humidity .eq. 0) then
+	call compute_relative_humidity(humidity, Temperature, &
+         Pressure, relative_humidity) 
+	Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+    end if
 
      ! initialise photolysis
      allocate(photolysis(n_photolysis))
@@ -132,8 +127,6 @@ contains
   ind_jbiper = 14    ! aerosol species index
   ind_kbiper = 24    ! photolysis index
 
-
-
   ns_source = 1
   allocate(source_index(ns_source))
   source_index = [1]
@@ -149,8 +142,6 @@ contains
              molecular_weight(k)
      enddo
   enddo
-
-
     ! initialise fraction discretization 
 
     allocate(discretization_mass(N_sizebin+1))
@@ -158,19 +149,6 @@ contains
     do k = 1,N_sizebin+1
 	discretization_mass(k) = fixed_density * pi * diam_bound(k) ** 3 / 6.d0
     end do
-
-    !allocate(number_init(N_sizebin))
-    !number_init = 0.d0
-
-    !allocate(mass_init(N_sizebin))   !?????
-    !mass_init = 0.d0
-
-    !allocate(size_sect(N_sizebin))
-    !size_sect=0.d0
-    !do k =1,N_sizebin
-    !   size_sect(k)=dlog10(diam_bound(k+1)/diam_bound(k))
-    !enddo
-
 
     allocate(lwc_nsize(n_size)) ! SOAP !
     lwc_nsize = 0.d0
@@ -220,15 +198,6 @@ contains
     allocate(cell_diam_av(N_size)) ! average diameter of each grid cell
     cell_diam_av=0.d0
 
-    !llocate(cell_log_av(N_size))
-    !cell_log_av=0.d0
-    !allocate(size_log_av(N_sizebin))
-    !size_log_av=0.d0
-        !do j =1,N_size
-         !  b=concentration_index(j,1)
-          ! cell_log_av(j)=size_log_av(b)
-        !enddo
-
     allocate(total_aero_mass(N_aerosol)) ! ModulePhysicalbalance, Emission, Adapstep
     total_aero_mass=0.d0
 
@@ -245,40 +214,20 @@ contains
     allocate(wet_volume(N_size))
     wet_volume=0.d0
 
-
-    !allocate(mass_bound(N_sizebin+ 1))
-    !mass_bound=0.d0
-
-    !allocate(log_bound(N_sizebin+ 1))
-    !log_bound=0.d0
-
     allocate(bin_mass(N_sizebin))  ! ModulePhysicalbalance
     bin_mass = 0.d0
     allocate(bin_number(N_sizebin)) ! ModulePhysicalbalance
     bin_number = 0.d0
 
-
-    !allocate(total_bin_mass(N_sizebin))
-    !total_bin_mass = 0.d0
-    !do k = 1, N_sizebin
-    !	do s= 1, N_aerosol
-	!   total_bin_mass(k) =  total_bin_mass(k) + init_bin_mass(k,s)
-        !end do
-    !end do
-
 ! ModuleBulkequibrium ModuleAdaptstep ModuleCondensation ModuleCongregation ModuleThermodynamics
     allocate(ce_kernal_coef(N_size,N_aerosol)) 
     ce_kernal_coef = 0.d0
-
-    !allocate(Kelvin_effect_ext(N_size,N_aerosol))
-    !Kelvin_effect_ext = 0.d0
 
     allocate(frac_grid(N_size,N_groups)) ! ModulePhysicalbalance ModuleRedistribution
     frac_grid = 0.d0
 
     allocate(dqdt(N_size,N_aerosol)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
     dqdt = 0.d0
-
 
    write(*,*) "=====================finish initialising parameters==================="
    end subroutine init_parameters
@@ -573,14 +522,8 @@ subroutine discretization()
         	rho_wet_cell = fixed_density
 	else
 	        call compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
-
-     !COMPUTE_DENSITY(N_sizebin, N_aerosol, EH2O, 0.0, concentration_mass, mass_density, k, density_aer_size(k)) !compute the density for a bin k
-     ! COMPUTE_DENSITY(nbin_aer, nesp_aer, EH2O, tinyc, Cesp, rho_esp, k, rho)
 		write(*,*)"Density is auto-generated."
 	end if
-	!write(*,*)'fixed_density',fixed_density
-	!write(*,*)'density_aer_bin',density_aer_bin
-	!write(*,*)'density_aer_size',density_aer_size
 
   if (with_init_num == 1) then
 	! calculate diameter
@@ -603,62 +546,54 @@ subroutine discretization()
 	! need size_diam_av and conc._mass
 	call compute_number()  ! only for initialisation
 	write(*,*)"Initial PM number concentration is auto-generated."
-	write(*,*)'concentration_number : ', concentration_number
   end if
-
 
   call compute_average_diameter()
        ! need conc. mass, mass_density size_diam_av(n_sizebin), size_mass_av(n_sizebin)
        ! give cell_diam_av(n_size) cell_mass_av(n_size) !!
 
-
-
-
    ! wet_diameter is initialized for heterogeneous reactions
-  call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-	concentration_inti,wet_mass,wet_diameter,wet_volume)
+ ! call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+!	concentration_inti,wet_mass,wet_diameter,wet_volume)
 
-	!do k = 1, N_size
-         !    write(*,*) 'Initialisation  cell_diam_av', cell_diam_av(k),wet_diameter(k)
-	!end do
-
-if (with_coag.eq.1) then !if coagulation
+  if (with_coag.eq.1) then !if coagulation
     allocate(kernel_coagulation(N_size,N_size))
     kernel_coagulation = 0.d0
-    tag_file = -1
-	if (read_coef == 1) then
-     	 	do i=1,len(trim(Coefficient_file))!judge the input files
-        	 if(Coefficient_file(i:i)==".")then
-       		     if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
-        	       tag_file=1
-        	    elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
-        	       tag_file=0
-       		     elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
-        	       tag_file=2
-        	    else
-        	       print*,"Unsupported input coefficient file type for coagulation!"
-        	       print*,"Coefficient Repartition is computed."	
-        	    endif
-        	 endif
-     	 	enddo
-	end if
-       	if (tag_file .ne. -1)	then
-		print*,'Coefficient Repartition Database:',Coefficient_file
-	      	call ReadCoefficient(Coefficient_file, tag_file) 	!defined in ModuleCoefficientRepartition
-	else
-		call ComputeCoefficientRepartition()			!kernel_cagulation
-	end if
 
-      ! Check the quality of coagulation repartition coefficients
-      call check_repart_coeff() !! YK
+    if (i_compute_repart == 0) then
+      do i=1,len(trim(Coefficient_file))!judge the input files
+         if(Coefficient_file(i:i)==".")then
+            if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
+               tag_file=1
+            elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
+               tag_file=0
+            elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
+               tag_file=2
+            else
+               print*,"Unsupported input coefficient file type for coagulation!"
+               i_compute_repart = 1
+            endif
+         endif
+      enddo
+      print*,'Coefficient Repartition Database:',Coefficient_file
+
+      call ReadCoefficient(Coefficient_file, tag_file) ! defined in ModuleCoefficientRepartition
+    endif
+    if (i_compute_repart == 1) then
+       write(*,*) "Compute coefficient repartition"
+    !kernel_cagulation :
+      call ComputeCoefficientRepartition()
+    endif
+
+    ! Check the quality of coagulation repartition coefficients
+    call check_repart_coeff() !! YK
  
-
-      call  COMPUTE_AIR_FREE_MEAN_PATH(Temperature,&
+    call  COMPUTE_AIR_FREE_MEAN_PATH(Temperature,&
            Pressure, air_free_mean_path, viscosity)
 
-      call  compute_average_diameter()  !!?
+    call  compute_average_diameter()  !!?
 
-      do j1 = 1, N_size
+    do j1 = 1, N_size
          do j2 = 1, j1
             call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
                  wet_diameter(j1),wet_diameter(j2),&
@@ -666,11 +601,10 @@ if (with_coag.eq.1) then !if coagulation
             ! symmetric kernels
             kernel_coagulation(j2,j1)=kernel_coagulation(j1,j2)
          enddo
-      enddo
+    enddo
   endif
 
-
-    if (with_cond.EQ.1) then  ! for condensation
+  if (with_cond.EQ.1) then  ! for condensation
 
          allocate(quadratic_speed(N_aerosol))    
          quadratic_speed=0.D0
@@ -683,7 +617,7 @@ if (with_coag.eq.1) then !if coagulation
             tmp= molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
 		
             if (aerosol_species_interact(i) .gt. 0) then    
-		! gas diffusivity  
+               ! gas diffusivity
                call compute_gas_diffusivity(temperature, pressure, &
                     molecular_diameter(i), tmp,collision_factor_aer(i), &
                     diffusion_coef(i))  
@@ -692,44 +626,41 @@ if (with_coag.eq.1) then !if coagulation
             endif
          end do
 	! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
-         allocate(soa_sat_conc(N_aerosol))
-         soa_sat_conc=0.D0
+         ! allocate(soa_sat_conc(N_aerosol))
+         ! soa_sat_conc=0.D0
 
-	! exist in ModuleAdapstep :
-	 tmp = 0.d0
-    	 do i=ECl+1,EH2O-1
-	    tmp = molecular_weight_aer(i) * 1.D-6 ! g/mol   !!! change
-            call COMPUTE_SATURATION_CONCENTRATION(temperature,tmp, &
-            	   vaporization_enthalpy(i), saturation_pressure(i), soa_sat_conc(i) )
-         enddo
-	!! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
+	! ! exist in ModuleAdapstep :
+	!  tmp = 0.d0
+    	!  do i=ECl+1,EH2O-1
+	!     tmp = molecular_weight_aer(i) * 1.D-6 ! g/mol   !!! change
+        !     call COMPUTE_SATURATION_CONCENTRATION(temperature,tmp, &
+        !     	   vaporization_enthalpy(i), saturation_pressure(i), soa_sat_conc(i) )
+        !  enddo
 
-         allocate(soa_part_coef(N_aerosol))
-         soa_part_coef=0.D0
+        !  allocate(soa_part_coef(N_aerosol))
+        !  soa_part_coef=0.D0
 
-	!! exist in ModuleAdapstep :
-         tmp = 0.d0
-         tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 298.D0)
-         do i=1,nesp_pankow
-            j=pankow_species(i)  ! temperature dependency of partition coefficient
-            soa_part_coef(j) = Temperature / 298.D0 * partition_coefficient(j)&
-			 * DEXP(vaporization_enthalpy(j) * tmp)
-        enddo
-         tmp = 0.d0
-         tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 300.D0) ! Reference at 300K for prymary organic aerosol
-         do i=1,nesp_pom
-            j=poa_species(i)
-            soa_part_coef(j) = Temperature / 300.D0 * partition_coefficient(j)&
-				* DEXP(vaporization_enthalpy(j) * tmp)
-         enddo
-    end if
+	! !! exist in ModuleAdapstep :
+        !  tmp = 0.d0
+        !  tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 298.D0)
+        !  do i=1,nesp_pankow
+        !     j=pankow_species(i)  ! temperature dependency of partition coefficient
+        !     soa_part_coef(j) = Temperature / 298.D0 * partition_coefficient(j)&
+	! 		 * DEXP(vaporization_enthalpy(j) * tmp)
+        ! enddo
+        !  tmp = 0.d0
+        !  tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 300.D0) ! Reference at 300K for prymary organic aerosol
+        !  do i=1,nesp_pom
+        !     j=poa_species(i)
+        !     soa_part_coef(j) = Temperature / 300.D0 * partition_coefficient(j)&
+	! 			* DEXP(vaporization_enthalpy(j) * tmp)
+         !  enddo
+         !! YK  poa_drv and pankow_drv are not used any more.
+  end if
 
   call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
                                       wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
-	!do k = 1, N_size
-         !    write(*,*) 'Initialisation  cell_diam_av qfter update', cell_diam_av(k),wet_diameter(k)
-	!end do
 
  write(*,*)"=================================finish initial distribution==============================="
 

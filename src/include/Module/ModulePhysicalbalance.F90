@@ -67,7 +67,6 @@ contains
 	  concentration_number(j)=0.d0
 	  cell_diam_av(j)=size_diam_av(k)
 	endif
-	!print*, 'compute_average_diameter() cell_diam_av(j).lt.diam_bound(k)', j, cell_diam_av(j), k, diam_bound(k)
 	if(cell_diam_av(j).eq.0.d0) then
 	  cell_diam_av(j)=size_diam_av(k)
 	else if(cell_diam_av(j).lt.diam_bound(k)) then
@@ -154,10 +153,8 @@ contains
       if(density_aer_size(k).gt.0.d0) then
        volum_cell=volum_cell/density_aer_size(k)
       endif
-
       if(size_diam_av(k).gt.0.d0) then
 	concentration_number(j)= volum_cell /((size_diam_av(k)**3.d0)*cst_PI6)
-        !write(*,*) concentration_number(j),j
       else
 	  print*,"Wrong size_diam_av",k,size_diam_av(k)
       endif
@@ -259,20 +256,10 @@ contains
     do j=1,N_size
       tmp_cell=0.d0
       k=concentration_index(j, 1)
-      !if(IsNaN(c_number(j))) then
-!	print*,"mass_conservation number=NAN j=",j
-!	c_number(j)=0.d0
- !     elseif(c_number(j).lt.TINYN) then
-!	c_number(j)=0.d0
- !     endif
       total_number=total_number+c_number(j)
       bin_number(k)=bin_number(k)+c_number(j)
       do s=1,(N_aerosol-1)
 	jesp=List_species(s)
-	!if(c_mass(j,jesp).lt.TINYM.or.c_number(j).eq.0.d0) then
-	!  c_mass(j,jesp)=0.d0
-	!endif
-	!if(IsNaN(c_mass(j,jesp))) c_mass(j,jesp)=0.d0
 	total_mass_t=total_mass_t+c_mass(j,jesp)
 	tmp_cell=tmp_cell+c_mass(j,jesp)
 	bin_mass(k)=bin_mass(k)+c_mass(j,jesp)
@@ -408,7 +395,6 @@ contains
 	  jesp=List_species(s)
 	  if(concentration_mass(j,jesp).gt.0.d0) print*,jesp,concentration_mass(j,jesp)
 	enddo
-	print*,current_sub_time,j,tmp_cell_mass,concentration_number(j)
 	!call mass_to_number(concentration_mass,concentration_number)
       endif
     enddo
@@ -649,9 +635,7 @@ contains
 	  concentration_mass(j,jesp)=0.d0
 	enddo
       endif
-#ifdef POLYPHEMUS_PARALLEL_WITH_OPENMP
-      nb=omp_get_thread_num()
-#endif
+
       if(concentration_number(j).gt.1.d100) &
 	print*,nb,position,j,concentration_number(j)
     enddo

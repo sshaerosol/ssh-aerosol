@@ -520,9 +520,6 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
   int n=surrogate.size();
   int i,b,ilayer,iphase;
   double sum_mass;
-
-  for (i=0;i<n;++i)
-    surrogate[i].k1_aq=0.;
   
   for (i=0;i<n;++i)
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
@@ -1052,8 +1049,6 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
-  for (i=0;i<n;++i)
-    surrogate[i].k1=0.0;
   
   if (config.explicit_representation)
     {
@@ -1432,9 +1427,6 @@ void flux_org(model_config &config, vector<species>& surrogate,
                         for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
                           sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
 		      		      
-                        if (sum > 0.0 and sum_mass > 0.0 and
-                            surrogate[i].tau_air(b) > 0.0 and
-                            AQinit(b) != sum_mass) // YK
                         surrogate[i].k1(b,ilayer,iphase,index)=			
                           (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
                            -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
@@ -2803,6 +2795,9 @@ void equilibrium_org(model_config &config, vector<species>& surrogate, double &t
             MO(b,ilayer,iphase)=MOinit(b,ilayer,iphase);
     }
 
+
+
+
 }
 
 void redistribution(model_config &config, vector<species>& surrogate,
@@ -3031,10 +3026,6 @@ void dynamic_org(model_config &config, vector<species>& surrogate,
                 for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                   surrogate[i].Ap_layer_init0(b,ilayer,iphase)=
                     surrogate[i].Ap_layer_init(b,ilayer,iphase);
-
-	    /*
-	    if (surrogate[i].name=="Monomer")
-	      cout << "In dyn: " << surrogate[i].Ag0+sum(surrogate[i].Ap_layer_init0) << endl;*/
           }
 
       //compute first evaluation of kinetic rates
@@ -4584,15 +4575,18 @@ void compute_diameters(model_config &config, vector<species>& surrogate,
        {
          volume=(Vsol(b)+LWC(b)*1.0e-9/config.AQrho(b))/number(b);
          for (ilayer=0;ilayer<config.nlayer;++ilayer)
-         for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-          for (i=0;i<n;i++)
-            if (surrogate[i].hydrophobic)
-              volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
-                /(number(b)*surrogate[i].rho);
+           for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+             for (i=0;i<n;i++)
+               if (surrogate[i].hydrophobic)
+                 volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
+                   /(number(b)*surrogate[i].rho);
 	  
          for (i=0;i<n;i++)
             if (surrogate[i].hydrophilic and LWCtot>config.LWClimit and surrogate[i].is_inorganic_precursor==false)
+              {
                volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.AQrho(b));
+               cout << "volume\t" << b << "\t" << i << "\t" << volume << "\t" << surrogate[i].Aaq_bins_init(b) << "\t" << surrogate[i].name << endl; //YK
+              }
 	  
          config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
       }

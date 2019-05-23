@@ -5,7 +5,6 @@ void initialisation_eq(model_config &config, vector<species>& surrogate, double 
   int i;
   double MOW=1.0;
   double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic,0.5)/(1.0+pow(ionic,0.5)));
-
   for (i=0;i<n;i++)
     {
       if (surrogate[i].hydrophilic==false)

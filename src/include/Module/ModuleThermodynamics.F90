@@ -91,11 +91,6 @@ contains
                aero(i)=qext(jesp)
             enddo
 	    call calculatewater(aero,qinti,lwc)
-! 	    do i=1,nesp_isorropia
-! 	      jesp=isorropia_species(i)
-! 	      qext(jesp)=aero(i)
-! 	      !if(qext(jesp).gt.1.d3) print*,"huge_aer",j,jesp,qext(jesp),lwc
-! 	    enddo
 	    qext(EH2O)=lwc
 	    call VOLAERO(N_aerosol,qext,qinti,rhoaer,rhoaer_dry) !! YK
 	    if(rhoaer.gt.0.d0) then
@@ -115,10 +110,6 @@ contains
                ! qn cannot be zero, checked in eqpart routine
                dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
                k=concentration_index(j, 1)
-!	    if(dry_d(j).lt.diam_bound(k)) then
-!	      dry_d(j)=size_diam_av(k)
-!	      c_number(j)=vad/(cst_pi6*dry_d(j)**3.0)
-!	    endif
                wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
                wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
                c_mass(j,EH2O)=qext(EH2O)
@@ -401,18 +392,21 @@ contains
 	  qext(jesp)=c_mass(j,jesp)
 	enddo
 
+        if (with_fixed_density == 0) then
       ! call compute_density(N_sizebin,N_aerosol,EH2O,TINYM,c_mass,&
       !        mass_density_aer,j,rhoaer)
-      call compute_density(N_size,N_aerosol,EH2O,TINYM,c_mass,&
-             mass_density,j,rhoaer)
-
-	  if(rhoaer.gt.0.d0) then
+          call compute_density(N_size,N_aerosol,EH2O,TINYM,c_mass,&
+                mass_density,j,rhoaer)
+        else
+          rhoaer = fixed_density 
+        endif
+        if(rhoaer.gt.0.d0) then
 	    rho_wet_cell(j)=rhoaer
-	  else
+        else
 	    rhoaer=density_aer_bin(j)
 	    rho_wet_cell(j)=rhoaer
- 	  endif
-	if(rhoaer.gt.0.d0) then
+        endif
+        if(rhoaer.gt.0.d0) then
 	  vad=qti/rhoaer!qti total dry mass
 	  wet_v(j)=vad+c_mass(j,EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
 	  ! aerosol diameter
@@ -421,7 +415,7 @@ contains
 	  wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
 	  wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
 	  wet_m(j)=(qti+c_mass(j,EH2O))/c_number(j) ! single wet mass (µg)
-	endif
+        endif
       else
 	! if too few aerosols or too few mass
 	! we set variables of given bins as
@@ -430,6 +424,7 @@ contains
 	k=concentration_index(j, 1)
 	wet_d(j)=size_diam_av(k)
 	wet_m(j)=size_mass_av(k)
+        dry_d(j)=size_diam_av(k) 
       endif
     enddo
     if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
@@ -634,7 +629,6 @@ contains
       wi(1) = 0.D0              !Do not consider sea salt in isoropia
       wi(5) = 0.D0
 #endif
-
     call ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
 	aerliq,aersld,other,organion,watorg)
 !     clipping to tinym
@@ -647,15 +641,12 @@ contains
     ionic = other(5)
     proton = aerliq(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 
-
 !     Outputs isorropia
 			      ! sulfate surf conc always 0. µg.m-3
     surface_equilibrium_conc(ESO4)=0.D0
 
 			      ! convert moles.m-3 to µg.m-3
     surface_equilibrium_conc(ENH4)=gas(1)*molecular_weight_aer(ENH4)
-    ! write(*,*) "NH4 in eqinorg after isorropia",gas(1), &
-    !      molecular_weight_aer(ENH4), qext(ENH4),wi(3)
     surface_equilibrium_conc(ENO3)=gas(2)*molecular_weight_aer(ENO3)
     surface_equilibrium_conc(ECl) =gas(3)*molecular_weight_aer(ECl)
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
@@ -909,8 +900,6 @@ contains
 
   end subroutine HPLFLIM
 
-
-  ! YK 
   subroutine equi_const(TEMP, XK3, XK4, XK6, XK8, XK9, XK10)
     implicit none
     double precision TEMP, T0, T0T, COEF
@@ -1002,7 +991,6 @@ contains
 
     rgas1=ATM/(RGAS*Temp)
 
-    ! YK
     call equi_const(Temp, XK3, XK4, XK6, XK8, XK9, XK10)
 
     rk1= XK10*rgas1*rgas1*molecular_weight_aer(ENH4)&
@@ -1220,105 +1208,105 @@ contains
     endif
   end subroutine DRYIN
 
-  subroutine POA_DRV(nesp_aer,aero, gas, &
-   soa_part_coef, Temp, vaporization_enthalpy)
+!   subroutine POA_DRV(nesp_aer,aero, gas, &
+!    soa_part_coef, Temp, vaporization_enthalpy)
 
-!------------------------------------------------------------------------
-!
-!     -- DES!RIPTION
-!
-!     This subroutine computes the equilibrium between gas and particle
-!     phase using an absorption partioning model (Poa, 1994a, 1994b)
-!     for organic species which are not managed by AEC model (Pun et al 2001).
-!
-!------------------------------------------------------------------------
-!
-!     -- INPUT VARIABLES
-!
-!     Nesp_aer: Number of species
-!     Temperature: temperature ([Kelvin]).
-!     soa_part_coef: partition coefficient ([m^3.\mu g^-1]).
-!     vaporization_enthalpy: vaporization enthalpy
-!
-!     -- INPUT/OUTPUT VARIABLES
-!
-!     AERO: aerosol bulk concentration ([\mu g.m^-3]).
-!     GAS: gas concentration ([\mu g.m^-3]).
-!
-!     -- OUTPUT VARIABLES
-!
-!------------------------------------------------------------------------
+! !------------------------------------------------------------------------
+! !
+! !     -- DES!RIPTION
+! !
+! !     This subroutine computes the equilibrium between gas and particle
+! !     phase using an absorption partioning model (Poa, 1994a, 1994b)
+! !     for organic species which are not managed by AEC model (Pun et al 2001).
+! !
+! !------------------------------------------------------------------------
+! !
+! !     -- INPUT VARIABLES
+! !
+! !     Nesp_aer: Number of species
+! !     Temperature: temperature ([Kelvin]).
+! !     soa_part_coef: partition coefficient ([m^3.\mu g^-1]).
+! !     vaporization_enthalpy: vaporization enthalpy
+! !
+! !     -- INPUT/OUTPUT VARIABLES
+! !
+! !     AERO: aerosol bulk concentration ([\mu g.m^-3]).
+! !     GAS: gas concentration ([\mu g.m^-3]).
+! !
+! !     -- OUTPUT VARIABLES
+! !
+! !------------------------------------------------------------------------
 
-    IMPLICIT NONE
+!     IMPLICIT NONE
 
-    integer nesp_aer
-    double precision aero(nesp_aer), gas(nesp_aer), soa_part_coef(nesp_aer)
-    double precision vaporization_enthalpy(nesp_aer)
-    double precision ctot(nesp_pom), caer(nesp_pom)
-    double precision cgas(nesp_pom), kpart2(nesp_pom)
-    double precision emw2(nesp_pom), Temp
-    integer i,j
-    double precision totom
-    double precision paom,soam
+!     integer nesp_aer
+!     double precision aero(nesp_aer), gas(nesp_aer), soa_part_coef(nesp_aer)
+!     double precision vaporization_enthalpy(nesp_aer)
+!     double precision ctot(nesp_pom), caer(nesp_pom)
+!     double precision cgas(nesp_pom), kpart2(nesp_pom)
+!     double precision emw2(nesp_pom), Temp
+!     integer i,j
+!     double precision totom
+!     double precision paom,soam
 
-!     Fill concentration vectors
-    paom=0.0
-    soam=0.0
-    do i = 1,nesp_pom
-      j = poa_species(i)
-      caer(i) = aero(j)
-      cgas(i) = gas(j)
-      emw2(i) = molecular_weight_aer(j)
-      paom=paom+caer(i)
-      !print*,aero(j),gas(j),molecular_weight_aer(j),paom
-    enddo
+! !     Fill concentration vectors
+!     paom=0.0
+!     soam=0.0
+!     do i = 1,nesp_pom
+!       j = poa_species(i)
+!       caer(i) = aero(j)
+!       cgas(i) = gas(j)
+!       emw2(i) = molecular_weight_aer(j)
+!       paom=paom+caer(i)
+!       !print*,aero(j),gas(j),molecular_weight_aer(j),paom
+!     enddo
 
-    if(paom<0.1) then
-      paom=0.1
-    endif
+!     if(paom<0.1) then
+!       paom=0.1
+!     endif
 
-! Set secondary organic mass quantity in microg/m3
-    do i = N_hydrophilic+1,nesp_aec ! only dry AEC species
-      j = aec_species(i)
-      soam = soam + aero(j)
-    enddo
+! ! Set secondary organic mass quantity in microg/m3
+!     do i = N_hydrophilic+1,nesp_aec ! only dry AEC species
+!       j = aec_species(i)
+!       soam = soam + aero(j)
+!     enddo
 
-    do i = 1,nesp_pankow
-      j = pankow_species(i)
-      soam = soam + aero(j)
-    enddo
+!     do i = 1,nesp_pankow
+!       j = pankow_species(i)
+!       soam = soam + aero(j)
+!     enddo
 
-! aero in microg/m3
-    do i = 1,nesp_pom
-      j = poa_species(i)
-      kpart2(i) = soa_part_coef(j)
-    enddo
+! ! aero in microg/m3
+!     do i = 1,nesp_pom
+!       j = poa_species(i)
+!       kpart2(i) = soa_part_coef(j)
+!     enddo
 
-    do i = 1,nesp_pom
-      ctot(i) = caer(i) + cgas(i)
-    enddo
+!     do i = 1,nesp_pom
+!       ctot(i) = caer(i) + cgas(i)
+!     enddo
 
-    do j=1,NITER_POA
-      totom = paom+soam
-      paom=0
-      do i=1,nesp_pom
-	if(kpart2(i)*totom.ne.-1.d0) then
-	  caer(i) = ctot(i)*kpart2(i)*totom/(1+kpart2(i)*totom)
-	endif
-	paom=paom+caer(i)
-      enddo
-    enddo
-    do j = 1,nesp_pom
-      cgas(j) = ctot(j) - caer(j)
-    enddo
+!     do j=1,NITER_POA
+!       totom = paom+soam
+!       paom=0
+!       do i=1,nesp_pom
+! 	if(kpart2(i)*totom.ne.-1.d0) then
+! 	  caer(i) = ctot(i)*kpart2(i)*totom/(1+kpart2(i)*totom)
+! 	endif
+! 	paom=paom+caer(i)
+!       enddo
+!     enddo
+!     do j = 1,nesp_pom
+!       cgas(j) = ctot(j) - caer(j)
+!     enddo
 
-    do i = 1,nesp_pom
-      j = poa_species(i)
-      aero(j) = caer(i)
-      gas(j) = cgas(i)
-    enddo
+!     do i = 1,nesp_pom
+!       j = poa_species(i)
+!       aero(j) = caer(i)
+!       gas(j) = cgas(i)
+!     enddo
 
-  end subroutine POA_DRV
+!   end subroutine POA_DRV
 
   subroutine ISOROPIA_DRV(nesp_aer,&
           aero, gas, organion, watorg, ionic, proton, lwc, rh, Temp, &
@@ -1380,11 +1368,7 @@ contains
 
     do i=1,nesp_isorropia
 	idx = isorropia_species(i)
-	wi(i) = aero(idx) + gas(idx)
-    enddo
-!     conversion unit for isorropia needed in mol.m-3
-    do i=1,nesp_isorropia
-	idx = isorropia_species(i)
+        wi(i) = aero(idx) + gas(idx)
 	wi(i) = wi(i) / molecular_weight_aer(idx) ! microg.m-3 / microg.mol-1 = mol.m-3
     enddo
     
@@ -1398,112 +1382,113 @@ contains
 !! YK gammaH will be calculated later in SOAP
 
     proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
-!    print*,'lwc=',lwc,'proton=',proton,'SO4',w(2),'NH4',w(3) - gas2(1),&
-!	'NO3',w(4) - gas2(2),'Cl',w(5) - gas2(3)
 
-    gas(ESO4) = 0.D0
+    gas(isorropia_species(2)) = 0.D0
     do i=3,nesp_isorropia
 	idx = isorropia_species(i)
 	gas(idx) = gas2(i-2) * molecular_weight_aer(idx)
     enddo
 
-    aero(ESO4) = w(2) * molecular_weight_aer(ESO4)
-    do i=3,nesp_isorropia
+    do i=1,nesp_isorropia
 	idx = isorropia_species(i)
-	aero(idx) = (w(i) - gas2(i-2)) * molecular_weight_aer(idx)
+        if (i > 2) then
+ 	   aero(idx) = (w(i) - gas2(i-2)) * molecular_weight_aer(idx)
+        else
+ 	   aero(idx) = w(i) * molecular_weight_aer(idx)
+        endif
     enddo
 
   end subroutine ISOROPIA_DRV
 
-  subroutine PANKOW_DRV(nesp_aer,aero, gas, soa_part_coef)
+!   subroutine PANKOW_DRV(nesp_aer,aero, gas, soa_part_coef)
 
-!------------------------------------------------------------------------
-!
-!     -- DESCRIPTION
-!
-!     This subroutine computes the equilibrium between gas and particle
-!     phase using an absorption partioning model (Pankow, 1994a, 1994b)
-!     for organic species which are not managed by AEC model (Pun et al 2001).
-!
-!------------------------------------------------------------------------
-!
-!     -- INPUT VARIABLES
-!
-!     soa_part_coef: partition coefficient ([m^3.\mu g^-1]).
-!
-!     -- INPUT/OUTPUT VARIABLES
-!
-!     AERO: aerosol bulk concentration ([\mu g.m^-3]).
-!     GAS: gas concentration ([\mu g.m^-3]).
-!
-!     -- OUTPUT VARIABLES
-!------------------------------------------------------------------------
-    IMPLICIT NONE
+! !------------------------------------------------------------------------
+! !
+! !     -- DESCRIPTION
+! !
+! !     This subroutine computes the equilibrium between gas and particle
+! !     phase using an absorption partioning model (Pankow, 1994a, 1994b)
+! !     for organic species which are not managed by AEC model (Pun et al 2001).
+! !
+! !------------------------------------------------------------------------
+! !
+! !     -- INPUT VARIABLES
+! !
+! !     soa_part_coef: partition coefficient ([m^3.\mu g^-1]).
+! !
+! !     -- INPUT/OUTPUT VARIABLES
+! !
+! !     AERO: aerosol bulk concentration ([\mu g.m^-3]).
+! !     GAS: gas concentration ([\mu g.m^-3]).
+! !
+! !     -- OUTPUT VARIABLES
+! !------------------------------------------------------------------------
+!     IMPLICIT NONE
 
-    integer nesp_aer
-    double precision aero(nesp_aer), gas(nesp_aer), soa_part_coef(nesp_aer)
-    double precision ctot(nesp_pankow), caer(nesp_pankow)
-    double precision cgas(nesp_pankow), kpart2(nesp_pankow)
-    double precision emw2(nesp_pankow)
-    integer i,j
-    double precision totmol, totmol2
-    double precision a, b, c, deter, q, paom
+!     integer nesp_aer
+!     double precision aero(nesp_aer), gas(nesp_aer), soa_part_coef(nesp_aer)
+!     double precision ctot(nesp_pankow), caer(nesp_pankow)
+!     double precision cgas(nesp_pankow), kpart2(nesp_pankow)
+!     double precision emw2(nesp_pankow)
+!     integer i,j
+!     double precision totmol, totmol2
+!     double precision a, b, c, deter, q, paom
 
-!     Fill concentration vectors
-    do i = 1,nesp_pankow
-	j = pankow_species(i)
-	caer(i) = aero(j)
-	cgas(i) = gas(j)
-	emw2(i) = molecular_weight_aer(j)
-    enddo
+! !     Fill concentration vectors
+!     do i = 1,nesp_pankow
+! 	j = pankow_species(i)
+! 	caer(i) = aero(j)
+! 	cgas(i) = gas(j)
+! 	emw2(i) = molecular_weight_aer(j)
+!     enddo
 
-! Set primary organic molar quantity in mol/m3
-    paom=0.0
-    do i = 1,nesp_pom
-	j = poa_species(i)
-	paom=paom+aero(j)/molecular_weight_aer(j)
-    enddo
-    do i = N_hydrophilic+1,nesp_aec ! only dry AEC species
-	j = aec_species(i)
-	paom = paom + aero(j) / molecular_weight_aer(j)
-    enddo
+! ! Set primary organic molar quantity in mol/m3
+!     paom=0.0
+!     do i = 1,nesp_pom
+! 	j = poa_species(i)
+! 	paom=paom+aero(j)/molecular_weight_aer(j)
+!     enddo
+!     do i = N_hydrophilic+1,nesp_aec ! only dry AEC species
+! 	j = aec_species(i)
+! 	paom = paom + aero(j) / molecular_weight_aer(j)
+!     enddo
 
-! aero in microg/m3, molecular_weight_aer in microg/mol
-    do i = 1,nesp_pankow
-	j = pankow_species(i)
-	kpart2(i) = soa_part_coef(j)
-    enddo
+! ! aero in microg/m3, molecular_weight_aer in microg/mol
+!     do i = 1,nesp_pankow
+! 	j = pankow_species(i)
+! 	kpart2(i) = soa_part_coef(j)
+!     enddo
 
-    do i = 1,nesp_pankow
-	ctot(i) = caer(i) + cgas(i)
-    enddo
+!     do i = 1,nesp_pankow
+! 	ctot(i) = caer(i) + cgas(i)
+!     enddo
 
-    do j=1,NITER_PKW
-	totmol = paom
-	do i=1,nesp_pankow
-	  totmol = totmol + caer(i) / emw2(i)
-	enddo
-	do i=1,nesp_pankow
-	  totmol2 = totmol - caer(i) / emw2(i)
-	  a = 1.D0 / emw2(i)
-	  b = (1.D0 / kpart2(i) - ctot(i)) / emw2(i) + totmol2
-	  c = - ctot(i) * totmol2
-	  deter = b * b - 4.D0 * a * c
-	  if (deter.lt.0.d0) STOP 'pankow_drv.f: deter < 0'
-	  q= - 0.5D0 * ( b + DSIGN(1.D0,b) * DSQRT(deter))
-	  caer(i) = DMAX1(q / a, c / q)
-	enddo
-    enddo
-    do j = 1,nesp_pankow
-	cgas(j) = ctot(j) - caer(j)
-    enddo
-    do i = 1,nesp_pankow
-	j = pankow_species(i)
-	aero(j) = caer(i)
-	gas(j) = cgas(i)
-    enddo
+!     do j=1,NITER_PKW
+! 	totmol = paom
+! 	do i=1,nesp_pankow
+! 	  totmol = totmol + caer(i) / emw2(i)
+! 	enddo
+! 	do i=1,nesp_pankow
+! 	  totmol2 = totmol - caer(i) / emw2(i)
+! 	  a = 1.D0 / emw2(i)
+! 	  b = (1.D0 / kpart2(i) - ctot(i)) / emw2(i) + totmol2
+! 	  c = - ctot(i) * totmol2
+! 	  deter = b * b - 4.D0 * a * c
+! 	  if (deter.lt.0.d0) STOP 'pankow_drv.f: deter < 0'
+! 	  q= - 0.5D0 * ( b + DSIGN(1.D0,b) * DSQRT(deter))
+! 	  caer(i) = DMAX1(q / a, c / q)
+! 	enddo
+!     enddo
+!     do j = 1,nesp_pankow
+! 	cgas(j) = ctot(j) - caer(j)
+!     enddo
+!     do i = 1,nesp_pankow
+! 	j = pankow_species(i)
+! 	aero(j) = caer(i)
+! 	gas(j) = cgas(i)
+!     enddo
 
-  end subroutine PANKOW_DRV
+!   end subroutine PANKOW_DRV
 ! imw  molecular_weight_inside
 ! smw  molecular_weight_solid
 ! solmd  mass_density_solid

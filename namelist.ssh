@@ -1,62 +1,60 @@
 &setup_meteo
-latitude = 48.2,                ! Latitude
-longitude = 2.22,               ! Longitude
-Temperature = 300.85,    	! TEMP
-Pressure = 1.01325D05,         	! PRES
-Relative_Humidity = 0.739	! Specific humidity is computed from RH
+latitude = 48.2,                
+longitude = 2.22,               
+Temperature = 273.0,    	! coag
+Pressure = 1.01325D05,         	! coag
+Humidity = 5.33039774746E-3,  ! NOT USED if RH is different from 0    
+Relative_Humidity = 0.6		! coag
 /
 
-
 &setup_time
-initial_time = 0.0,             ! 25/06/2001
-final_time = 20000,             ! 20000
-delta_t = 20,			! 10 min
-time_emis = 0,        		! no emission	 
+initial_time = 0.0,              ! coag
+final_time = 43200,              ! coag 12h
+delta_t = 43200,                 	 ! 10 min
+time_emis = 0,        	 
 /
 
 &initial_condition
-with_init_num = 1,              ! 0 estimated from mass and diameter; 1 number conc. for each bin is read 
-tag_init = 0,                   ! initial method for aerosol species (0 internally mixed; 1 mixing_state resolved !! option 1 not yet available)
-tag_dbd = 1,	                ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
-N_sizebin = 15,			! NS2 
-wet_diam_estimation = 0,    	! 0 = isorropia 
-init_gas_conc_file = "init_gas_2006.dat",		! Initial data for gas
-init_aero_conc_mass_file = "ext_init_aero_2006.dat",	! aerosols: initial mass conc.   
-init_aero_conc_num_file = "ext_init_num_2006.dat",	! ext_init_num10e6.dat
+with_init_num = 0,              
+tag_init = 0,                   
+tag_dbd = 1,
+N_sizebin = 50,
+wet_diam_estimation = 0			!0 = isorropia MTSBL = 1	!coag
+init_gas_conc_file = "./inputs/init_gas.dat",			!coag
+init_aero_conc_mass_file = "./inputs/ext_init_aero.dat",	!coag
+init_aero_conc_num_file = "./inputs/ext_num.init10e5.dat",	!coag
 /
 
-
-
 &initial_diam_distribution       
-diam_input = 1.0000000000000000E-02	1.7383504436393121E-02	3.0218622649009919E-02	5.2530556088075352E-02	9.1316515480325530E-02	1.5874010519682000E-01	2.7594593229224301E-01	4.7969073382068411E-01	8.3387059994685331E-01	1.4495593273553919E+00	2.5198420997897468E+00	4.3803686320705202E+00	7.6146157548635163E+00	1.3236870675609890E+01	2.3010320011342639E+01	3.9999999999999993E+01 
-/ ! PM2.5 1-10, PMCoarse 11-15 
+diam_input = 0.1000000000000000D-02	0.1202264434617413D-02	0.1445439770745928D-02	0.1737800828749376D-02	0.2089296130854040D-02	0.2511886431509580D-02	0.3019951720402017D-02	0.3630780547701014D-02	0.4365158322401660D-02	0.5248074602497727D-02	0.6309573444801934D-02	0.7585775750291838D-02	0.9120108393559099D-02	0.1096478196143185D-01	0.1318256738556407D-01	0.1584893192461114D-01	0.1905460717963248D-01	0.2290867652767774D-01	0.2754228703338168D-01	0.3311311214825911D-01	0.3981071705534973D-01	0.4786300923226386D-01	0.5754399373371569D-01	0.6918309709189366D-01	0.8317637711026712D-01	0.1000000000000000D+00	0.1202264434617414D+00	0.1445439770745928D+00	0.1737800828749375D+00	0.2089296130854040D+00	0.2511886431509581D+00	0.3019951720402017D+00	0.3630780547701015D+00	0.4365158322401662D+00	0.5248074602497730D+00	0.6309573444801938D+00	0.7585775750291844D+00	0.9120108393559099D+00	0.1096478196143186D+01	0.1318256738556407D+01	0.1584893192461114D+01	0.1905460717963249D+01	0.2290867652767775D+01	0.2754228703338169D+01	0.3311311214825912D+01	0.3981071705534977D+01	0.4786300923226385D+01	0.5754399373371577D+01	0.6918309709189369D+01	0.8317637711026709D+01	0.1000000000000001D+02	 
+/ ! 0-24 bins PM1; 0-42 PM2.5; 0-50 PM10; 43 - 50 PMcoarse coag
 
 
 &emissions
-tag_emis = 0,		! 0 Without emissions
-with_emis_num = 0,
+tag_emis = 0,                
+with_emis_num = 0,    
 emis_gas_file = "./inputs/emis_gas.dat",
 emis_aero_mass_file = "./inputs/emis_aero.dat", 
-emis_aero_num_file = "./inputs/emis_aero_num.dat" 
+emis_aero_num_file = "./inputs/ext_num.init10e5.dat" 
 /
 
 &mixing_state
-tag_external = 0,             !Mixing state(0 for internally mixed, 1 for mixing-state resolved) !!! Initial concentrations are assumed to be internally mixed.
-N_groups = 1,                  !Nb of Specie group (internal within group, external between groups)
-N_frac = 1, 	               ! Mass fraction sections for each species
-kind_composition = 1,          !Fraction discretization methods 1 for auto discretization and 0 for manual discretization
+tag_external = 0,             
+N_groups = 1,                  
+N_frac = 1, 	                  
+kind_composition = 1,          
 /
 
 &fraction_distribution
-frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manully
+frac_input= 0.0 1.0,          
 /
 
 &gas_phase_species
-species_list_file = "./species-list/species-list-cb05en.dat"                    !Species list for CB05 
+species_list_file = "./species-list/species-list-cb05en.dat"               
 /
 
 &aerosol_species
-aerosol_species_list_file = "./species-list/species-list-aer-en.dat"        !Aerosol species list
+aerosol_species_list_file = "./species-list/species-list-aer-en.dat"      
 mineral_dust = "PMD",
 black_carbon = "PBC",
 isorropia_species_name = "PNA", "PSO4", "PNH4", "PNO3","PHCL",
@@ -65,52 +63,52 @@ pankow_species_name = "PAnClP",
 poa_species_name = "PSOAlP", "PSOAmP", "PSOAhP", "PPOAlP", "PPOAmP", "PPOAhP",
 /
 
-
 &physic_gas_chemistry
-tag_chem = 0,				!Tag of gas-phase chemistry
-attenuation = 1.d0,               ! Cloud attenuation field ([fraction])
-with_photolysis = 1			!Tag of photolysis reaction
-with_heterogeneous = 1,                 !Tag of heterogeneous reaction 
-with_adaptive = 1,                      !Tag of adaptive time step for chemistry 1 if adaptive time step.
-adaptive_time_step_tolerance = 0.001,    !Relative tolerance for deciding if the time step is kept
-min_adaptive_time_step = 0.001,          !Minimum time step
+tag_chem = 0,			
+attenuation = 1.d0,               
+with_photolysis = 1			
+with_heterogeneous = 1,                 
+with_adaptive = 1,                      
+adaptive_time_step_tolerance = 0.001,    
+min_adaptive_time_step = 0.6,    	
 /
-
 
 &physic_particle_numerical_issues
-DTAEROMIN = 1E-15,              	!DTMIN
-redistribution_method = 4,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter  0 without redistribution - for test cases
-with_fixed_density = 0,       	!IDENs = 0
-fixed_density = 1.382887162E-06,        	!RHOA
+DTAEROMIN = 1E-15,              	!coag
+redistribution_method = 0,   		!coag 0 10
+with_fixed_density = 1,       		!coag
+fixed_density = 1.84D-06,        	!coag
 /
-
 
 &physic_coagulation
-with_coag = 0,                 	!without coagulation
-read_coef = 1,			! 1 read coefficient file; 0 compute automatically, time consuming
-Coefficient_file = "coef_s1_f1_b50.nc",	
-Nmc = 10000			! Monte Carlo number
+with_coag = 1,                 		!coag
+i_compute_repart = 0,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+Coefficient_file = "coef_s1_f1_b50.nc",	!coag
+Nmc = 10000
 /
-
 
 &physic_condensation
-with_cond = 1,             !Tag of condensation/evaporation
-Cut_dim = 0,             ! KCUT	ICUT = 0
-ISOAPDYN = 0,              !
+with_cond = 1,               		!coag
+Cut_dim = 0.0,             
+ISOAPDYN = 1,
+nlayer = 1,
+with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
+tequilibrium = 0.1,                     ! time under which equilibrium is assumed.
+dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
+coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
+activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 /
-
 
 &physic_nucleation
-with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
+with_nucl = 0,                
+nucl_model = 0,               
 /
-
 
 &physic_organic
 with_oligomerization = 1      
 /
 
 &output
-output_directory = "results", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
-output_type = 1               ! 1: text, 2: binary
+output_directory = "results", 
+output_type = 1               
 /

@@ -90,9 +90,9 @@ contains
 
     call mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
 
-
    if (with_coag.EQ.1) then
-	call COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,air_free_mean_path,viscosity)
+	call COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,&
+	air_free_mean_path,viscosity)
         do j1 = 1, N_size
           do j2 = 1, N_size
              call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
@@ -100,7 +100,7 @@ contains
                   wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
           enddo
        enddo
-   endif
+  endif
 
 !   Update thermo and microphysical parameters.
 
@@ -117,34 +117,7 @@ contains
 		  emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
 	  endIF
 	enddo
-	! nesp_isorropia=5,nesp_aec=19,nesp_pankow=1,nesp_pom=6
-	do i=1,nesp_pankow
-	  jesp=pankow_species(i)
-	  emw_tmp = molecular_diameter(jesp) * 1.D-6 ! g/mol
-	  call COMPUTE_SATURATION_CONCENTRATION(Temperature,&
-	      emw_tmp, vaporization_enthalpy(jesp), saturation_pressure(jesp), soa_sat_conc(jesp))
-	enddo
-
-	do i=1,nesp_pom
-	  jesp=poa_species(i)
-	  emw_tmp = molecular_diameter(jesp) * 1.D-6 ! g/mol
-	  call COMPUTE_SATURATION_CONCENTRATION(Temperature,&
-	      emw_tmp, vaporization_enthalpy(jesp), saturation_pressure(jesp), soa_sat_conc(jesp))
-	enddo
-	tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 298.D0)!RGAS       perfect gas constant
-
-	do i=1,nesp_pankow
-	  jesp=pankow_species(i)
-	  soa_part_coef(jesp) = Temperature / 298.D0& ! temperature dependency of partition coefficient
-	      * partition_coefficient(jesp) * DEXP(vaporization_enthalpy(jesp) * tmp)
-	enddo
-	tmp = 1.D0/RGAS * (1.D0 / Temperature - 1.D0 / 300.D0) !Reference at 300K for prymary organic aerosol
-	do i=1,nesp_pom
-	  jesp=poa_species(i)
-	  soa_part_coef(jesp) = Temperature / 300.D0 &! temperature dependency of partition coefficient
-	      * partition_coefficient(jesp) * DEXP(vaporization_enthalpy(jesp) * tmp)
-	enddo
-    endif
+endif
 
     initial_time_splitting = 0.D0
     end_time = start_time + delta_t
@@ -162,7 +135,6 @@ contains
     do while (initial_time_splitting.lt.delta_t)
       ! Solve coagulation, condensation/evaporation and nucleation
       ! Compute the characteristic time step of each physical processes.
-
        call initstep(concentration_mass,concentration_number,&
             concentration_gas,&
             timestep_coag,timestep_cond, timestep_splitting, delta_t)
@@ -221,9 +193,6 @@ contains
         call  bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
 
-        ! call redistribution_lwc(lwc,ionic,proton,liquid, &
-        !        ionic_Nsize,proton_Nsize,liquid_Nsize)
-
         call redistribution_lwc(lwc,ionic,proton,liquid)
 
 !      else
@@ -249,7 +218,6 @@ contains
 
 
          call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
-
 
          call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
 
@@ -293,7 +261,7 @@ contains
 	call redistribution_fraction()!fraction redistribution
       endif
 
-        if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
+      if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
 
     endif
 
@@ -340,6 +308,7 @@ contains
     do while ( current_sub_time .lt. final_sub_time )
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+
      time_step_sulf = 0.0
 
      itrat=itrat+1
@@ -511,8 +480,6 @@ contains
       end do
     endif
 
- !   write(*,*) "initstep step 2", time_coag
-
  !     Minimal time step. chose the bigger one
     if(time_coag.gt.time_cond) then
       time_splitting=time_coag
@@ -664,7 +631,7 @@ contains
     do j=1,N_size
       n1(j)=n2(j)+sub_timestep_splitting*dn1dt(j)
       if(n1(j).lt.0.d0) n1(j)=0.d0
-      do s=1,(N_aerosol-1)
+      do s=1,(N_aerosol) !!BUG KS
 	jesp=List_species(s)
 	t_mass(jesp)=total_mass(jesp)
 	q1(j,jesp)=q2(j,jesp)+sub_timestep_splitting*dq1dt(j,jesp)
@@ -689,7 +656,7 @@ contains
 	n2(j)=n2(j)+tmp
       endif
       n_grow_coag=n_grow_coag+tmp
-      do s=1,(N_aerosol-1)
+      do s=1,(N_aerosol)   !!BUG KS
 	jesp=List_species(s)
 	tmp=dtetr*(dq1dt(j,jesp)+dq2dt(j,jesp))
 	dqdt(j,jesp)=tmp/sub_timestep_splitting
@@ -752,7 +719,7 @@ contains
 
     do j=1,N_size
       c_number(j)=c_number(j)+dndt(j)*sub_timestep_splitting
-      do s=1,(N_aerosol-1)
+      do s=1,(N_aerosol)   !! BUG KS
 	jesp=List_species(s)
 	tmp=sub_timestep_splitting*dqdt(j,jesp)
 	c_mass(j,jesp)=c_mass(j,jesp)+tmp
@@ -862,7 +829,7 @@ contains
 
 !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
-      do s= 1, nesp_isorropia!(N_aerosol-1)
+      do s= 1, N_aerosol !BUG_KS !nesp_isorropia!(N_aerosol-1)
          jesp=List_species(s)
          Jdn(j,jesp) = 0.d0
          if ( q2(j,jesp).gt.1.d-26 .and. k1(j,jesp).lt.0.d0 ) then
@@ -876,7 +843,7 @@ contains
 !     and small bins (assumed in equilibrium)
 !     sum of condensation rates (temp2) is distributed between
 !     dynamical bins
-    do s= 1, nesp_isorropia!(N_aerosol-1)
+    do s= 1, N_aerosol !! BUG KS nesp_isorropia!(N_aerosol-1)
        jesp=List_species(s)
        if (aerosol_species_interact(jesp).gt.0) then
 	  temp1 = c_gas(jesp)
@@ -905,7 +872,7 @@ contains
 
     do j = 1 , N_size
       dn1dt(j)=dn1dt(j)*sub_timestep_splitting!dndt always 0
-      do s= 1, nesp_isorropia!(N_aerosol-1)
+      do s= 1,N_aerosol !! BUG KS nesp_isorropia!(N_aerosol-1)
 	jesp=List_species(s)
 	k1(j,jesp) = k1(j,jesp) * sub_timestep_splitting / ( 1.d0 - Gamma * Jdn(j,jesp) * sub_timestep_splitting )
       enddo
@@ -915,7 +882,7 @@ contains
 
     do j = 1 , N_size
       n1(j) = DMAX1 ( 0.01d0*n2(j) , (n2(j)+dn1dt(j)) )
-      do s= 1, nesp_isorropia!(N_aerosol-1)
+      do s= 1, N_aerosol!! BUG KS nesp_isorropia!(N_aerosol-1)
 	jesp=List_species(s)
 	q1(j,jesp) = DMAX1 ( 0.01d0*q2(j,jesp) , (q2(j,jesp)+k1(j,jesp)) )
       enddo
@@ -934,7 +901,7 @@ contains
     call fgde(q1,n1,c_gas_t,k2,dn2dt,ce_kernal_coef)
 
     do j = 1 , N_size
-      do s= 1, nesp_isorropia!(N_aerosol-1)
+      do s= 1, N_aerosol !! BUG KS nesp_isorropia!(N_aerosol-1)
 	jesp=List_species(s)
         if (isnan(k2(j,jesp))) then
            write(*,*) j,s,list_species(s),jd1(j,jesp),k2(j,jesp),q1(j,jesp)
@@ -952,7 +919,7 @@ contains
       enddo
     enddo
 
-    do s= 1, nesp_isorropia!(N_aerosol-1)
+    do s= 1, N_aerosol !!nesp_isorropia!(N_aerosol-1)
       jesp=List_species(s)
       if (aerosol_species_interact(jesp).gt.0) then
 	temp1 = c_gas(jesp)
@@ -976,7 +943,7 @@ contains
 
     do j = 1 , N_size
       dn2dt(j)=dn2dt(j)*sub_timestep_splitting
-      do s= 1, nesp_isorropia!(N_aerosol-1)
+      do s= 1, N_aerosol !!BUG KS nesp_isorropia!(N_aerosol-1)
 	jesp=List_species(s)
 	k2(j,jesp) = (k2(j,jesp)*sub_timestep_splitting- Gamma*sub_timestep_splitting&
 	    *(Jdn(j,jesp)+Jd1(j,jesp))*k1(j,jesp))&
@@ -990,8 +957,9 @@ contains
       tmp=n2(j)
       n2(j)=DMAX1 ( 0.01d0*n2(j) , (n2(j)+0.5d0*(dn1dt(j)+dn2dt(j))) )
       n_grow_nucl=n_grow_nucl+(n2(j)-tmp)
-      do s = 1, nesp_isorropia
-	  jesp=isorropia_species(s)
+      do s = 1, N_aerosol !! BUG KS nesp_isorropia
+          jesp=List_species(s)
+	  !!! BUG KS jesp=isorropia_species(s)
 	  tmp=q2(j,jesp)
 	  q2(j,jesp)=DMAX1(0.01d0*q2(j,jesp),(q2(j,jesp)+0.5d0*(k1(j,jesp)+k2(j,jesp))) )
 	  tmp=q2(j,jesp)-tmp

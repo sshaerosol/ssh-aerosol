@@ -160,7 +160,6 @@ contains
 	    ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
 	    dqdt(j,jesp)=c_number(j)*ce_kernel(jesp)
 
-
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
           ENDIF
 #endif

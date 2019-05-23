@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Read the option for Chemistry kinetic mechanism.
+# Accepted values: racm, racm2, cb05, cb05en
+# Default: chemistry=cb05en
 for i in "$@"
 do
 case $i in
@@ -14,8 +17,24 @@ if [ -z $chemistry]; then
 fi
 echo "Chemistry: $chemistry"
 
+# Read the option to choose whether Na and Cl are taken into account.
+# Accepted values: yes or no
+# Default: nacl = no
+for i in "$@"
+do
+case $i in
+    -n=*|--nacl=*)
+    nacl="${i#*=}"
+    shift
+    ;;
+esac
+done
+if [ -z $nacl]; then
+    nacl="no"
+fi
+echo "NaCl: $nacl"
 
-file="ssh-aerosol-$chemistry"
+file="ssh-aerosol"
 if [ -h $file ] 
 then
     rm -f $file
@@ -23,7 +42,7 @@ fi
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry 
-scons -j8 chemistry=$chemistry 
+scons -j8 profile=debug chemistry=$chemistry nacl=$nacl
 
 cd ..
-ln -s src/ssh-aerosol-$chemistry .
+ln -s src/ssh-aerosol-$chemistry ssh-aerosol

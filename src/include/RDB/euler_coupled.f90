@@ -70,9 +70,6 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
   DOUBLE PRECISION, DIMENSION(ns, nesp) :: Q_2cond_esp, N_2cond_esp
   DOUBLE PRECISION, DIMENSION(ns) :: RQ, RN
 
-
-
-
   !! ~~~~~~~~~~~ INITIALISATION
 
   Q_1_esp =0D0
@@ -431,36 +428,6 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
      N_nouveau = N_nouveau + N(k)
      Q_nouveau = Q_nouveau + Q(k)
   ENDDO
-
-
-
-  !test de conservation du nombre et de la masse, se verifie si on ferme les bornes
-
-!!$  IF ( DABS (1D0 - (N_nouveau/N_ancien)) .GE. Eps_machine &
-!!$       .AND. N_ancien .GT. 0.d0) THEN            
-!!$     PRINT*,"non conservation du nombre total !!"
-!!$     PRINT*,"1 - N_nouveau/N_ancien ", 1D0 - N_nouveau/N_ancien   
-!!$     PRINT*, "N_nouveau", N_nouveau 
-!!$     PRINT*, "N_ancien", N_ancien
-!!$     STOP
-!!$  ENDIF
-!!$
-!!$  IF ( DABS (1D0 - (Q_nouveau/Q_ancien)) .GE. Eps_machine &
-!!$       .AND. Q_ancien .GT. 0.d0) THEN            
-!!$     PRINT*,"non conservation de la masse totale !!"
-!!$     PRINT*,"1 - Q_nouveau/Q_ancien ", 1D0 - Q_nouveau/Q_ancien   
-!!$     PRINT*, "Q_nouveau", Q_nouveau 
-!!$     PRINT*, "Q_ancien", Q_ancien
-!!$     STOP
-!!$  ENDIF
-
- !tests de limite minimum pour le nombre et le volume
-  
-  DO k=1, ns
-     CALL COMPUTE_DENSITY(ns,nesp,eh2o, TINYM,Q_esp,LMD,k,rho(k))
-  ENDDO
-!  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Q_esp)
-
 
 END SUBROUTINE EULER_COUPLED
 

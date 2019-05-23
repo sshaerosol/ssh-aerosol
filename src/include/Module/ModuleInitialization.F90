@@ -57,10 +57,7 @@ module aInitialization
     parameter (N_solid=9,N_inside_aer=21)
     parameter (N_hydrophilic=9)
 
-
-
     !!part 2: parameters of system options
-
   
     integer :: with_fixed_density!IDENS
     integer :: tag_init		! 0 internally mixed; 1 mixing_state resolved
@@ -85,6 +82,7 @@ module aInitialization
     integer :: sulfate_computation = 1 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
     integer :: with_coag   !Tag gCoagulation
+    integer :: i_compute_repart ! 0 if repartition coeff are read
     integer :: with_cond   !Tag fCondensation
     integer :: with_nucl   !Tag nucleation
     Integer :: nucl_model  !ITERN !1= Ternary, 0= binary
@@ -94,12 +92,12 @@ module aInitialization
     integer :: with_oligomerization!IOLIGO
     integer :: output_type
 
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Integer :: aqueous_module!ICLD
     Integer :: with_incloud_scav!IINCLD
-    Integer :: with_kelvin_effect!IKELV
+    integer :: with_kelvin_effect!IKELV
     integer :: section_pass
+    double precision :: tequilibrium ! time under which equilibrium is assumed
 
     ! ! part 3: System pointers
     Integer :: E1,E2,G1,G2 !Mark the begin and end of dynamic aerosol (except EH2O)
@@ -109,7 +107,7 @@ module aInitialization
     Integer, dimension(:), allocatable :: pankow_species
     Integer, dimension(:), allocatable :: poa_species
     Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom, nesp_eq_org
-    parameter (nesp_isorropia=5,nesp_aec=17,nesp_pankow=1,nesp_pom=8, nesp_eq_org = 26)
+    parameter (nesp_isorropia=5,nesp_aec=19,nesp_pankow=1,nesp_pom=6, nesp_eq_org=26)
  
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -130,7 +128,7 @@ module aInitialization
     double precision :: fixed_density
     double precision :: lwc_cloud_threshold
 
-    integer :: tag_coag,tag_cond,tag_nucl,read_coef
+    integer :: tag_coag,tag_cond,tag_nucl
     double precision :: timestep_splitting,sub_timestep_splitting
     double precision :: initial_time_splitting,current_sub_time,final_sub_time
     !current time=initial_time_splitting+current_sub_time
@@ -149,9 +147,6 @@ module aInitialization
     Double precision,dimension(:), allocatable :: discretization_mass
     Double precision :: p_fact,k_fact!??
     Double precision :: DQLIMIT
-
-
-
 
     !!part5: dimension data array    
     integer, dimension(:), allocatable :: Index_groups	!index of which group the species belongs to
@@ -201,8 +196,6 @@ module aInitialization
     Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (µm^3). of each grid cell
     double precision , dimension(:,:,:), allocatable :: discretization_composition! multi-array storing discretization of composition
 
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Double precision,dimension(:), allocatable :: mass_bound! MBF
     Double precision,dimension(:), allocatable :: log_bound!XBF
@@ -243,14 +236,14 @@ module aInitialization
     !double precision :: SMD(SNaNO3:SLC) = ()!molar weight of internal solids species
     !double precision :: IMW(N_liquid)!molar weight of inorganic species in aqueous_phase
     !double precision :: SMW(SNaNO3:SLC)!molar weight of solids
-    double precision ,dimension(:), allocatable :: saturation_pressure
-    double precision ,dimension(:), allocatable :: partition_coefficient
-    double precision ,dimension(:), allocatable :: vaporization_enthalpy
+!!    double precision ,dimension(:), allocatable :: saturation_pressure
+!!    double precision ,dimension(:), allocatable :: partition_coefficient
+!!    double precision ,dimension(:), allocatable :: vaporization_enthalpy
     double precision ,dimension(:), allocatable :: accomodation_coefficient
     double precision ,dimension(:), allocatable :: surface_tension
-    double precision ,dimension(:), allocatable :: saturation_pressure_mass
-    double precision ,dimension(:), allocatable :: saturation_pressure_torr
-    double precision ,dimension(:), allocatable :: deliquescence_relative_humidity
+!!    double precision ,dimension(:), allocatable :: saturation_pressure_mass
+!!    double precision ,dimension(:), allocatable :: saturation_pressure_torr
+!!    double precision ,dimension(:), allocatable :: deliquescence_relative_humidity
     double precision ,dimension(:), allocatable :: molecular_weight_aer! (µg/mol)
     double precision ,dimension(:), allocatable :: molecular_diameter
     double precision ,dimension(:), allocatable :: collision_factor_aer
@@ -269,9 +262,12 @@ module aInitialization
     integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
     double precision, dimension(:), allocatable :: coefficient
     integer :: coef_size
+    double precision :: surface_tension_inorg, surface_tension_aq, surface_tension_org
 
     double precision :: dorg
+    integer :: coupled_phases
     integer :: nlayer
+    integer :: activity_model
     double precision, dimension(:), allocatable :: lwc_nsize, &
          ionic_nsize, proton_nsize
     double precision, dimension(:,:), allocatable :: liquid_nsize
@@ -298,7 +294,7 @@ module aInitialization
     character (len=20), dimension(:), allocatable :: aerosol_species_name
     character (len=10), dimension(:), allocatable :: emis_gas_species_name
     character (len=10), dimension(:), allocatable :: emis_aer_species_name
-    character (len=100) :: output_directory
+    character (len=100) :: output_directory, output_dir2
 
 
     !!part 6: used in ssh-aerosol.f90 chem()
@@ -334,7 +330,7 @@ module aInitialization
      ! namelists to read namelist.ssh file 
 
      namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
-                             Relative_Humidity
+                             Humidity, Relative_Humidity
 
      namelist /setup_time/ initial_time, final_time, delta_t,time_emis
 
@@ -365,9 +361,11 @@ module aInitialization
      namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
 		  	     with_fixed_density, fixed_density, wet_diam_estimation
 		 
-     namelist /physic_coagulation/ with_coag, read_coef, Coefficient_file, Nmc
+     namelist /physic_coagulation/ with_coag, i_compute_repart, Coefficient_file, Nmc
 
-     namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN
+     namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
+          with_kelvin_effect, tequilibrium,&
+          dorg, coupled_phases, activity_model
 
      namelist /physic_nucleation/ with_nucl, nucl_model
 
@@ -389,9 +387,9 @@ module aInitialization
 		print*, 'temperature should higher than 273.15 K - stop'
 		stop
 	end if
-	pressure_sat = 611.2e0 * (17.67e0 * temperature - 273.15e0 / (temperature - 29.65e0))
-	humidity =  1/(Pressure/(pressure_sat *0.62197e0* Relative_Humidity)-1)
+	pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
 	Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+	humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
 	print*
 	print*,'<<<< Meteorological setup >>>>'
         print*,'location', latitude, 'N', longitude,'E'
@@ -399,6 +397,7 @@ module aInitialization
         print*,'Pressure', Pressure, 'Pa'
         print*,'Relative Humidity', Relative_Humidity
         print*,'Specific Humidity', Humidity
+        print*,'Cloud attenuation field', attenuation
      end if
 
      ! time setup
@@ -407,7 +406,7 @@ module aInitialization
 	write(*,*) "setup_time data can not be read."
         stop
      else
-         nt = int(final_time / delta_t) 
+         nt = int((final_time-initial_time) / delta_t) 
 	 print*
 	 print*,'<<<< Simulation time setup >>>>'
          print*,'Begining time (from Jan. 1st)', initial_time, 's'
@@ -628,6 +627,10 @@ module aInitialization
 	      print*, 'redistibution method : moving diameter'
 	   CASE (11)
 	      print*, 'redistibution method : siream'
+	   CASE (12)
+	      print*, 'redistibution method : siream - euler coupled'
+	   CASE (13)
+	      print*, 'redistibution method : siream - moving diameter'
 	   CASE DEFAULT ! default redistribution_method = 0
 	      redistribution_method = 0
 	      print*, '! ! without redistibution'
@@ -654,11 +657,13 @@ module aInitialization
      else 
 	if (with_coag == 1) then
 	   print*, '! ! ! with coagulation.'
-		if (read_coef == 1) then
-			print*,'read coefficient file : ', Coefficient_file
-		else	   
-			print*,'compute coefficient repartition, Monte Carlo number :', Nmc 
-		end if
+           if(i_compute_repart == 0) then
+             print*, i_compute_repart,'repartition coefficient are read'
+	     print*, 'coefficient file : ', Coefficient_file
+           else
+             print*, i_compute_repart,'repartition coefficient are computed'
+	     print*, 'Nmc = ',Nmc
+           endif
 	else
 	   with_coag = 0
 	   print*, 'without coagulation.'
@@ -682,7 +687,8 @@ module aInitialization
 		    print*, 'Pb - not available'
 		    stop
 		end if
-		if (ISOAPDYN == 1) then
+
+                if (ISOAPDYN == 1) then
 	   	    print*, 'Dynamic SOA computation are at dynamic.'
 		else
 	   	    ISOAPDYN = 0   ! defalut
@@ -808,24 +814,23 @@ subroutine read_inputs()
      end do
      print*, 'read aerosol species list.'
      N_aerosol = count - 1  ! minus the first comment line
-     write(*,*) "Number of aerosol species:", N_aerosol
 
      allocate(aerosol_species_name(N_aerosol))
      allocate(Index_groups(N_aerosol))
      ! initialize basic physical and chemical parameters
      allocate(molecular_weight_aer(N_aerosol))
      ! precursor
-     allocate(saturation_pressure_mass(N_aerosol))        
-     allocate(saturation_pressure_torr(N_aerosol))
-     allocate(partition_coefficient(N_aerosol))
-     allocate(deliquescence_relative_humidity(N_aerosol))
+!!     allocate(saturation_pressure_mass(N_aerosol))        
+!!     allocate(saturation_pressure_torr(N_aerosol))
+!!     allocate(partition_coefficient(N_aerosol))
+!!     allocate(deliquescence_relative_humidity(N_aerosol))
      allocate(collision_factor_aer(N_aerosol))
      allocate(molecular_diameter(N_aerosol)) 
      allocate(surface_tension(N_aerosol))
      allocate(accomodation_coefficient(N_aerosol))
      allocate(mass_density(N_aerosol))
-     allocate(saturation_pressure(N_aerosol))
-     allocate(vaporization_enthalpy(N_aerosol))
+!!     allocate(saturation_pressure(N_aerosol))
+!!     allocate(vaporization_enthalpy(N_aerosol))
      ! aerosol species
      allocate(List_species(N_aerosol))
      allocate(isorropia_species(nesp_isorropia))
@@ -840,15 +845,25 @@ subroutine read_inputs()
      count = 0
      read(12, *) ! red # comment line
      do s = 1, N_aerosol
+        ! read(12, *) aerosol_species_name(s), Index_groups(s), molecular_weight_aer(s), &
+        !      precursor, saturation_pressure_mass(s), &
+        !      saturation_pressure_torr(s),  partition_coefficient(s), &
+        !      deliquescence_relative_humidity(s), &
+        !      collision_factor_aer(s), molecular_diameter(s), &
+        !      surface_tension(s), accomodation_coefficient(s), &
+        !      mass_density(s), saturation_pressure(s), &
+        !      vaporization_enthalpy(s)
+
+        !=== Warning (YK/KS) ===
+        ! Surface_tension for organic and aqueous phases of organic aerosols
+        ! is hardly coded in SOAP/parameters.cxx
+        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
         read(12, *) aerosol_species_name(s), Index_groups(s), molecular_weight_aer(s), &
-             precursor, saturation_pressure_mass(s), &
-             saturation_pressure_torr(s),  partition_coefficient(s), &
-             deliquescence_relative_humidity(s), &
+             precursor, &
              collision_factor_aer(s), molecular_diameter(s), &
              surface_tension(s), accomodation_coefficient(s), &
-             mass_density(s), saturation_pressure(s), &
-             vaporization_enthalpy(s)
-
+             mass_density(s)
+        
         molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to µg/mol  !!! change later
         list_species(s) = s
         if (aerosol_species_name(s) .eq. "PMD") EMD = s
@@ -969,8 +984,8 @@ subroutine read_inputs()
      enddo
 
      close(22)
-     write(*,*) 'initial mass concentrations have been read'
 
+     write(*,*) 'initial mass concentrations have been read'
   else if (tag_init == 1) then ! mixing_state resolved
 	     ! need to fill in the future
  	write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
@@ -1131,17 +1146,17 @@ subroutine read_inputs()
 	if (allocated(aerosol_species_name))  deallocate(aerosol_species_name, stat=ierr)
 	if (allocated(Index_groups))  deallocate(Index_groups, stat=ierr)
 	if (allocated(molecular_weight_aer))  deallocate(molecular_weight_aer, stat=ierr)
-	if (allocated(saturation_pressure_mass))  deallocate(saturation_pressure_mass, stat=ierr)
-	if (allocated(saturation_pressure_torr))  deallocate(saturation_pressure_torr, stat=ierr)
-	if (allocated(partition_coefficient))  deallocate(partition_coefficient, stat=ierr)
-	if (allocated(deliquescence_relative_humidity))  deallocate(deliquescence_relative_humidity, stat=ierr)
+!!	if (allocated(saturation_pressure_mass))  deallocate(saturation_pressure_mass, stat=ierr)
+!!	if (allocated(saturation_pressure_torr))  deallocate(saturation_pressure_torr, stat=ierr)
+!!	if (allocated(partition_coefficient))  deallocate(partition_coefficient, stat=ierr)
+!!	if (allocated(deliquescence_relative_humidity))  deallocate(deliquescence_relative_humidity, stat=ierr)
 	if (allocated(collision_factor_aer))  deallocate(collision_factor_aer, stat=ierr)
 	if (allocated(molecular_diameter))  deallocate(molecular_diameter, stat=ierr)
 	if (allocated(surface_tension))  deallocate(surface_tension, stat=ierr)
 	if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
 	if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
-	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
-	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
+!!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
+!!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
 	if (allocated(List_species))  deallocate(List_species, stat=ierr)
 	if (allocated(isorropia_species))  deallocate(isorropia_species, stat=ierr)
 	if (allocated(aec_species))  deallocate(aec_species, stat=ierr)
@@ -1216,8 +1231,8 @@ subroutine read_inputs()
 	! for condensation
 	if (allocated(quadratic_speed)) deallocate(quadratic_speed, stat=ierr)
 	if (allocated(diffusion_coef))  deallocate(diffusion_coef, stat=ierr)
-	if (allocated(soa_sat_conc)) deallocate(soa_sat_conc, stat=ierr)
-	if (allocated(soa_part_coef)) deallocate(soa_part_coef, stat=ierr)
+	! if (allocated(soa_sat_conc)) deallocate(soa_sat_conc, stat=ierr)
+	! if (allocated(soa_part_coef)) deallocate(soa_part_coef, stat=ierr)
 	if (allocated(discretization_mass)) deallocate(discretization_mass)
        if (ierr .ne. 0) then
           stop "Deallocation error"
@@ -1226,5 +1241,4 @@ subroutine read_inputs()
 
   END subroutine free_allocated_memory
 
- 
 end module aInitialization

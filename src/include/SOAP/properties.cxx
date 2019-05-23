@@ -663,6 +663,7 @@ double species::Kp_eff_aqreal(model_config &config,
   double XH2O_crit=0.2;
   fion1=0.0;
   fion2=0.0;
+
   if (aq_type=="diacid")
     {
       //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
@@ -1616,7 +1617,8 @@ void activity_coefficients_aq(model_config config, vector<species>& surrogate,
     gamma_molal=1.0/(0.018/xsms+0.018*summolal);   
 
   for (i=0;i<n;++i)
-    if (surrogate[i].hydrophilic)
+    if (surrogate[i].hydrophilic and sum > 0.0)
+      //    if (surrogate[i].hydrophilic) YK
       {
         surrogate[i].Xaq/=sum;
         MMaq+=surrogate[i].Xaq*surrogate[i].MM;

@@ -9,7 +9,9 @@ using namespace std;
 
 
 void add_species( vector<species>& surrogate, species current_species, 
-                  vector<string> species_list_aer)
+                  vector<string> species_list_aer,
+                  double molecular_weight_aer[],
+                  double accomodation_coefficient[])
 {
 
   int nsp = species_list_aer.size();
@@ -18,7 +20,11 @@ void add_species( vector<species>& surrogate, species current_species,
   current_species.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == current_species.name)
-      current_species.soap_ind = i;
+      {
+        current_species.soap_ind = i;
+        current_species.MM =  molecular_weight_aer[i] / 1.e6;
+        current_species.accomodation_coefficient = accomodation_coefficient[i];
+      }
 
   // if (current_species.soap_ind == -1)
   //   cout << "Warning: " << current_species.name << " is not found in " <<
@@ -27,14 +33,14 @@ void add_species( vector<species>& surrogate, species current_species,
   //   surrogate.push_back(current_species);
 
   if (current_species.soap_ind != -1)
-    surrogate.push_back(current_species);
-
+      surrogate.push_back(current_species);
 }
   
-void creation_species( vector<species>& surrogate, vector<string> species_list_aer)
+void creation_species( vector<species>& surrogate, vector<string> species_list_aer,
+                       double molecular_weight_aer[], double accomodation_coefficient[])
 {
   int nsp = species_list_aer.size();
-  double alpha = 1.0; //0.01; // accommodation coefficient
+  // double alpha = 1.0; //0.01; // accommodation coefficient
 
   species BiA2D;
   BiA2D.name="BiA2D";
@@ -42,7 +48,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA2D.Psat_ref=1.43e-7; // Saturation vapor pressure at Tref (torr)
   BiA2D.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   BiA2D.Tref=298;         // Temperature of reference (K)
-  BiA2D.MM=186;           // Molar mass (g/mol)
   BiA2D.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
   BiA2D.Henry=2.67e8;     // Henry's law constant at Tref (M/atm)
   BiA2D.aq_type="diacid"; // "none","diacid","monoacid" or "aldehyde"
@@ -57,7 +62,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA2D.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiA2D.rho=1300.0;
   BiA2D.KDiffusion_air=1.0e-5;
-  BiA2D.accomodation_coefficient=alpha;
+  // BiA2D.accomodation_coefficient=alpha;
   BiA2D.viscosity=1.68e12;
 
   //Group: if no functionnal group in the species use the default species
@@ -91,7 +96,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA2D, species_list_aer);
+  add_species(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
 
   /* ==== BiA1D ==== */ 
@@ -101,7 +107,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA1D.is_inorganic_precursor=false;
   BiA1D.Psat_ref=2.17e-7; // Saturation vapor pressure at Tref (torr)
   BiA1D.Tref=298;         // Temperature of reference (K)
-  BiA1D.MM=170.0;           // Molar mass (g/mol)
   BiA1D.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   BiA1D.Henry=1.12e8;     // Henry's law constant at Tref (M/atm)
   BiA1D.aq_type="monoacid"; // "none","diacid","monoacid" or "aldehyde"
@@ -116,7 +121,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA1D.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   BiA1D.rho=1300.0;  
   BiA1D.KDiffusion_air=1.0e-5;
-  BiA1D.accomodation_coefficient=alpha;
+  //  BiA1D.accomodation_coefficient=alpha;
   BiA1D.viscosity=1.68e12;
 
   //Group: if no functionnal group in the species use the default species
@@ -150,14 +155,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA1D, species_list_aer);
+  add_species(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiA0D;
   BiA0D.name="BiA0D";
   BiA0D.is_inorganic_precursor=false;
   BiA0D.Psat_ref=2.7e-4; // Saturation vapor pressure at Tref (torr)
   BiA0D.Tref=298;         // Temperature of reference (K)
-  BiA0D.MM=168.0;           // Molar mass (g/mol)
   BiA0D.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   BiA0D.Henry=1.98e6;     // Henry's law constant at Tref (M/atm)
   BiA0D.aq_type="aldehyde"; // "none","diacid","monoacid" or "aldehyde"
@@ -175,7 +180,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA0D.beta=1.91;
   BiA0D.rho=1300.0;
   BiA0D.KDiffusion_air=1.0e-5;
-  BiA0D.accomodation_coefficient=alpha;
+  //  BiA0D.accomodation_coefficient=alpha;
   BiA0D.viscosity=1.68e12;
   
   //Group: if no functionnal group in the species use the default species
@@ -209,15 +214,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA0D, species_list_aer);
-  
+  add_species(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);  
   
   species BiMT;
   BiMT.name="BiMT";
   BiMT.is_inorganic_precursor=false;
   BiMT.Psat_ref=1.45e-6; // Saturation vapor pressure at Tref (torr)
   BiMT.Tref=298;         // Temperature of reference (K)
-  BiMT.MM=136;           // Molar mass (g/mol)
   BiMT.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
   BiMT.Henry=33.e9;     // Henry's law constant at Tref (M/atm)
   BiMT.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
@@ -231,7 +235,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiMT.Koligo_org=0.0;        //oligomeriation constant in the organic phase
   BiMT.rho=1300.0;
   BiMT.KDiffusion_air=1.0e-5;
-  BiMT.accomodation_coefficient=alpha;
+  //  BiMT.accomodation_coefficient=alpha;
   BiMT.viscosity=1.68e12;
  
   //Group: if no functionnal group in the species use the default species
@@ -265,7 +269,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiMT, species_list_aer);
+  add_species(surrogate, BiMT, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
 
   species BiPER;
@@ -273,7 +278,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiPER.is_inorganic_precursor=false;
   BiPER.Psat_ref=2.61e-6; // Saturation vapor pressure at Tref (torr)
   BiPER.Tref=298;         // Temperature of reference (K)
-  BiPER.MM=168;           // Molar mass (g/mol)
   BiPER.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
   BiPER.Henry=8.1e9;     // Henry's law constant at Tref (M/atm)
   BiPER.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
@@ -287,7 +291,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiPER.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiPER.rho=1300.0;
   BiPER.KDiffusion_air=1.0e-5;
-  BiPER.accomodation_coefficient=alpha;
+  //  BiPER.accomodation_coefficient=alpha;
   BiPER.viscosity=1.68e12;
   
   //Group: if no functionnal group in the species use the default species
@@ -321,15 +325,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiPER, species_list_aer);
-
+  add_species(surrogate, BiPER, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiDER;
   BiDER.name="BiDER";
   BiDER.is_inorganic_precursor=false;
   BiDER.Psat_ref=4.10e-7; // Saturation vapor pressure at Tref (torr)
   BiDER.Tref=298;         // Temperature of reference (K)
-  BiDER.MM=136;           // Molar mass (g/mol)
   BiDER.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
   BiDER.Henry=89.1e9;     // Henry's law constant at Tref (M/atm)
   BiDER.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
@@ -343,7 +346,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiDER.Koligo_org=0.0;       //oligomeriation constant in the organic phase
   BiDER.rho=1300.0;
   BiDER.KDiffusion_air=1.0e-5;
-  BiDER.accomodation_coefficient=alpha;
+  //  BiDER.accomodation_coefficient=alpha;
   BiDER.viscosity=1.68e12;
   
   //Group: if no functionnal group in the species use the default species
@@ -377,7 +380,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiDER, species_list_aer);
+  add_species(surrogate, BiDER, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
   
 
   species BiMGA;
@@ -385,7 +389,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiMGA.is_inorganic_precursor=false;
   BiMGA.Psat_ref=1.40e-5; // Saturation vapor pressure at Tref (torr)
   BiMGA.Tref=298;         // Temperature of reference (K)
-  BiMGA.MM=120;           // Molar mass (g/mol)
   BiMGA.deltaH=43.2;     // Enthalpy of vaporization (kJ/mol)
   BiMGA.Henry=5.25e8;     // Henry's law constant at Tref (M/atm)
   BiMGA.aq_type="monoacid"; // "none","diacid","monoacid" or "aldehyde"
@@ -400,7 +403,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiMGA.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiMGA.rho=1300.0;
   BiMGA.KDiffusion_air=1.0e-5;
-  BiMGA.accomodation_coefficient=alpha;
+  //  BiMGA.accomodation_coefficient=alpha;
   BiMGA.viscosity=1.68e12;
   
   //Group: if no functionnal group in the species use the default species
@@ -434,15 +437,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiMGA, species_list_aer);
-
+  add_species(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species AnBlP;
   AnBlP.name="AnBlP";
   AnBlP.is_inorganic_precursor=false;
   AnBlP.Psat_ref=6.8e-8; // Saturation vapor pressure at Tref (torr)
   AnBlP.Tref=298;         // Temperature of reference (K)
-  AnBlP.MM=167;           // Molar mass (g/mol)
   AnBlP.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   AnBlP.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
   AnBlP.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -456,7 +458,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnBlP.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   AnBlP.rho=1300.0;
   AnBlP.KDiffusion_air=1.0e-5;
-  AnBlP.accomodation_coefficient=alpha;
+  //  AnBlP.accomodation_coefficient=alpha;
   AnBlP.viscosity=1.68e12;
   
   
@@ -491,15 +493,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnBlP, species_list_aer);
-
+  add_species(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species AnBmP;
   AnBmP.name="AnBmP";
   AnBmP.is_inorganic_precursor=false;
   AnBmP.Psat_ref=8.4e-6; // Saturation vapor pressure at Tref (torr)
   AnBmP.Tref=298;         // Temperature of reference (K)
-  AnBmP.MM=152;           // Molar mass (g/mol)
   AnBmP.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   AnBmP.aq_type="none";   // "none","diacid","monoacid" or "aldehyde"
   AnBmP.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -513,7 +514,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnBmP.Koligo_org=0.0;       //oligomeriation constant in the organic phase
   AnBmP.rho=1300.0;
   AnBmP.KDiffusion_air=1.0e-5;
-  AnBmP.accomodation_coefficient=alpha;
+  //  AnBmP.accomodation_coefficient=alpha;
   AnBmP.viscosity=1.68e12;
   
   //Group: if no functionnal group in the species use the default species
@@ -547,15 +548,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnBmP, species_list_aer);
-
+  add_species(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiBlP;
   BiBlP.name="BiBlP";
   BiBlP.is_inorganic_precursor=false;
   BiBlP.Psat_ref=0.60e-9; // Saturation vapor pressure at Tref (torr)
   BiBlP.Tref=298;         // Temperature of reference (K)
-  BiBlP.MM=298.0;           // Molar mass (g/mol)
   BiBlP.deltaH=175.0;     // Enthalpy of vaporization (kJ/mol)
   BiBlP.aq_type="none";   // "none","diacid","monoacid" or "aldehyde"
   BiBlP.Henry=0.0;        //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -569,7 +569,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiBlP.Koligo_org=0.0;    //oligomeriation constant in the organic phase
   BiBlP.rho=1300.0;
   BiBlP.KDiffusion_air=1.0e-5;
-  BiBlP.accomodation_coefficient=alpha;
+  //  BiBlP.accomodation_coefficient=alpha;
   BiBlP.viscosity=1.68e12;  
   
   //Group: if no functionnal group in the species use the default species
@@ -603,14 +603,15 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiBlP, species_list_aer);
+  add_species(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
+  
   species BiBmP;
   BiBmP.name="BiBmP";
   BiBmP.is_inorganic_precursor=false;
   BiBmP.Psat_ref=3.0e-7; // Saturation vapor pressure at Tref (torr)
   BiBmP.Tref=298;         // Temperature of reference (K)
-  BiBmP.MM=236.0;           // Molar mass (g/mol)
   BiBmP.deltaH=175.0;     // Enthalpy of vaporization (kJ/mol)
   BiBmP.aq_type="none";   // "none","diacid","monoacid" or "aldehyde"
   BiBmP.Henry=0.0;      //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -624,7 +625,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiBmP.Koligo_org=0.0;     //oligomeriation constant in the organic phase
   BiBmP.rho=1300.0;
   BiBmP.KDiffusion_air=1.0e-5;
-  BiBmP.accomodation_coefficient=alpha;
+  //  BiBmP.accomodation_coefficient=alpha;
   BiBmP.viscosity=1.68e12;  
   
   //Group: if no functionnal group in the species use the default species
@@ -658,12 +659,13 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiBmP, species_list_aer);
+  add_species(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+
   
   species AnClP;
   AnClP.name="AnClP";
   AnClP.is_inorganic_precursor=false;
-  AnClP.MM=167;           // Molar mass (g/mol)
   AnClP.nonvolatile=true;  // Is the compound nonvolatile?
   AnClP.hydrophilic=false; // Does the species condense on the aqueous phase?
   AnClP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -675,7 +677,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnClP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   AnClP.rho=1300.0;
   AnClP.KDiffusion_air=1.0e-5;
-  AnClP.accomodation_coefficient=alpha;
+  //  AnClP.accomodation_coefficient=alpha;
   AnClP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -708,15 +710,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnClP, species_list_aer);
-
+  add_species(surrogate, AnClP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiNGA;
   BiNGA.name="BiNGA";
   BiNGA.is_inorganic_precursor=false;
   BiNGA.Psat_ref=1.40e-5; // Saturation vapor pressure at Tref (torr)
   BiNGA.Tref=298;         // Temperature of reference (K)
-  BiNGA.MM=165;           // Molar mass (g/mol)
   BiNGA.deltaH=43.2;     // Enthalpy of vaporization (kJ/mol)
   BiNGA.Henry=3.73e7;     // Henry's law constant at Tref (M/atm)
   BiNGA.aq_type="monoacid"; // "none","diacid","monoacid" or "aldehyde"
@@ -731,7 +732,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNGA.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiNGA.rho=1300.0;
   BiNGA.KDiffusion_air=1.0e-5;
-  BiNGA.accomodation_coefficient=alpha;
+  //  BiNGA.accomodation_coefficient=alpha;
   BiNGA.viscosity=1.68e12;
   
   
@@ -766,15 +767,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNGA, species_list_aer);
-
+  add_species(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiNIT3;
   BiNIT3.name="BiNIT3"; 
   BiNIT3.is_inorganic_precursor=false;  
   BiNIT3.Psat_ref=1.45e-6; // Saturation vapor pressure at Tref (torr)
   BiNIT3.Tref=298;         // Temperature of reference (K)
-  BiNIT3.MM=272.0;           // Molar mass (g/mol)
   BiNIT3.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
   BiNIT3.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
   BiNIT3.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -788,7 +788,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNIT3.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   BiNIT3.rho=1300.0;
   BiNIT3.KDiffusion_air=1.0e-5;
-  BiNIT3.accomodation_coefficient=alpha;
+  //  BiNIT3.accomodation_coefficient=alpha;
   BiNIT3.viscosity=1.68e12;  
   
   //Group: if no functionnal group in the species use the default species
@@ -822,14 +822,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNIT3, species_list_aer);
-
+  add_species(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species BiNIT;
   BiNIT.name="BiNIT";
   BiNIT.is_inorganic_precursor=false;
   BiNIT.Psat_ref=2.5e-6; // Saturation vapor pressure at Tref (torr)
   BiNIT.Tref=298;         // Temperature of reference (K)
-  BiNIT.MM=215.0;           // Molar mass (g/mol)
   BiNIT.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   BiNIT.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
   BiNIT.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -843,7 +843,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNIT.Koligo_org=0.0;
   BiNIT.rho=1300.0;
   BiNIT.KDiffusion_air=1.0e-5;
-  BiNIT.accomodation_coefficient=alpha;
+  //  BiNIT.accomodation_coefficient=alpha;
   BiNIT.viscosity=1.68e12;  
   
   //Group: if no functionnal group in the species use the default species
@@ -877,12 +877,13 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNIT, species_list_aer);
+  add_species(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+
   
   species POAlP;
   POAlP.name="POAlP";
   POAlP.is_inorganic_precursor=false;
-  POAlP.MM=280;           // Molar mass (g/mol)
   POAlP.nonvolatile=false;  // Is the compound nonvolatile?
   POAlP.hydrophilic=false; // Does the species condense on the aqueous phase?
   POAlP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -897,7 +898,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAlP.rho=1300.0;
   POAlP.KDiffusion_air=1.0e-5;
-  POAlP.accomodation_coefficient=alpha;
+  //  POAlP.accomodation_coefficient=alpha;
   POAlP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -930,12 +931,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAlP, species_list_aer);
-
+  add_species(surrogate, POAlP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species POAmP;
   POAmP.name="POAmP";
   POAmP.is_inorganic_precursor=false;
-  POAmP.MM=280;           // Molar mass (g/mol)
   POAmP.nonvolatile=false;  // Is the compound nonvolatile?
   POAmP.hydrophilic=false; // Does the species condense on the aqueous phase?
   POAmP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -948,7 +949,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAmP.rho=1300.0;
   POAmP.KDiffusion_air=1.0e-5;
-  POAmP.accomodation_coefficient=alpha;
+  //  POAmP.accomodation_coefficient=alpha;
   POAmP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -981,12 +982,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAmP, species_list_aer);
-
+  add_species(surrogate, POAmP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species POAhP;
   POAhP.name="POAhP";
   POAhP.is_inorganic_precursor=false;
-  POAhP.MM=280;           // Molar mass (g/mol)
   POAhP.nonvolatile=false;  // Is the compound nonvolatile?
   POAhP.hydrophilic=false; // Does the species condense on the aqueous phase?
   POAhP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -999,7 +1000,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAhP.rho=1300.0;
   POAhP.KDiffusion_air=1.0e-5;
-  POAhP.accomodation_coefficient=alpha;
+  //  POAhP.accomodation_coefficient=alpha;
   POAhP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -1032,12 +1033,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAhP, species_list_aer);
-
+  add_species(surrogate, POAhP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species SOAlP;
   SOAlP.name="SOAlP";
   SOAlP.is_inorganic_precursor=false;
-  SOAlP.MM=392;           // Molar mass (g/mol)
   SOAlP.nonvolatile=false;  // Is the compound nonvolatile?
   SOAlP.hydrophilic=false; // Does the species condense on the aqueous phase?
   SOAlP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -1050,7 +1051,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAlP.rho=1300.0;
   SOAlP.KDiffusion_air=1.0e-5;
-  SOAlP.accomodation_coefficient=alpha;
+  //  SOAlP.accomodation_coefficient=alpha;
   SOAlP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -1083,12 +1084,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAlP, species_list_aer);
-
+  add_species(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species SOAmP;
   SOAmP.name="SOAmP";
   SOAmP.is_inorganic_precursor=false;
-  SOAmP.MM=392;           // Molar mass (g/mol)
   SOAmP.nonvolatile=false;  // Is the compound nonvolatile?
   SOAmP.hydrophilic=false; // Does the species condense on the aqueous phase?
   SOAmP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -1101,7 +1102,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAmP.rho=1300.0;
   SOAmP.KDiffusion_air=1.0e-5;
-  SOAmP.accomodation_coefficient=alpha;
+  //  SOAmP.accomodation_coefficient=alpha;
   SOAmP.viscosity=1.68e12;
   
 
@@ -1135,12 +1136,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAmP, species_list_aer);
-
+  add_species(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species SOAhP;
   SOAhP.name="SOAhP";
   SOAhP.is_inorganic_precursor=false;
-  SOAhP.MM=392;           // Molar mass (g/mol)
   SOAhP.nonvolatile=false;  // Is the compound nonvolatile?
   SOAhP.hydrophilic=false; // Does the species condense on the aqueous phase?
   SOAhP.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -1153,7 +1154,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAhP.rho=1300.0;
   SOAhP.KDiffusion_air=1.0e-5;
-  SOAhP.accomodation_coefficient=alpha;
+  //  SOAhP.accomodation_coefficient=alpha;
   SOAhP.viscosity=1.68e12;  
 
   //Group: if no functionnal group in the species use the default species
@@ -1186,14 +1187,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAhP, species_list_aer);
-
+  add_species(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species Monomer;
   Monomer.name="Monomer";
   Monomer.is_inorganic_precursor=false;
   Monomer.Psat_ref=1.0e-14; // Saturation vapor pressure at Tref (torr)
   Monomer.Tref=298;         // Temperature of reference (K)
-  Monomer.MM=278.0;           // Molar mass (g/mol)
   Monomer.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   Monomer.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
   Monomer.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -1207,7 +1208,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Monomer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Monomer.rho=1840.0;
   Monomer.KDiffusion_air=1.0e-5;
-  Monomer.accomodation_coefficient=alpha;
+  //  Monomer.accomodation_coefficient=alpha;
   Monomer.viscosity=1.68e12;
   
   
@@ -1242,14 +1243,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, Monomer, species_list_aer);
-
+  add_species(surrogate, Monomer, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
+  
   species Dimer;
   Dimer.name="Dimer";
   Dimer.is_inorganic_precursor=false;
   Dimer.Psat_ref=1.0e-14; // Saturation vapor pressure at Tref (torr)
   Dimer.Tref=298;         // Temperature of reference (K)
-  Dimer.MM=432.0;           // Molar mass (g/mol)
   Dimer.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   Dimer.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
   Dimer.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
@@ -1263,7 +1264,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Dimer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Dimer.rho=1300.0;
   Dimer.KDiffusion_air=1.0e-5;
-  Dimer.accomodation_coefficient=alpha;
+  //  Dimer.accomodation_coefficient=alpha;
   Dimer.viscosity=1.68e12;
   
   
@@ -1298,8 +1299,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, Dimer, species_list_aer);
-
+  add_species(surrogate, Dimer, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species BiA3D;
   BiA3D.name="BiA3D";
@@ -1307,7 +1308,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA3D.Psat_ref=3.25e-7; // Saturation vapor pressure at Tref (torr)
   BiA3D.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   BiA3D.Tref=298;         // Temperature of reference (K)
-  BiA3D.MM=204;           // Molar mass (g/mol)
   BiA3D.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
   BiA3D.Henry=2.67e8;     // Henry's law constant at Tref (M/atm)
   BiA3D.aq_type="diacid"; // "none","diacid","monoacid" or "aldehyde"
@@ -1321,7 +1321,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA3D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiA3D.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiA3D.rho=1300.0;
-  BiA3D.accomodation_coefficient=0.5;
+  //  BiA3D.accomodation_coefficient=0.5;
   BiA3D.KDiffusion_air=1.0e-5;
   BiA3D.viscosity=1.68e12;
 
@@ -1358,69 +1358,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA3D, species_list_aer);
-
-  species orgNIT ;
-  orgNIT.name="orgNIT";
-  orgNIT.is_inorganic_precursor=false;
-  orgNIT.Psat_ref=5.0e-6; // Saturation vapor pressure at Tref (torr)
-  orgNIT.Tref=298;         // Temperature of reference (K)
-  orgNIT.MM=278.0;           // Molar mass (g/mol)
-  orgNIT.deltaH=40.0;     // Enthalpy of vaporization (kJ/mol)
-  orgNIT.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
-  orgNIT.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
-  orgNIT.hydrophilic=false;  // Does the species condense on the aqueous phase?
-  orgNIT.hydrophobic=true;  // Does the species condense on the organic phase?
-  orgNIT.nonvolatile=false; // Is the compound nonvolatile?
-  orgNIT.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
-  orgNIT.is_organic=true;  // Is the compound organic?
-  orgNIT.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  orgNIT.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
-  orgNIT.Koligo_org=0.0;      //oligomeriation constant in the organic phase
-  orgNIT.rho=1300.0;
-  orgNIT.KDiffusion_air=1.0e-5;
-  orgNIT.accomodation_coefficient=alpha;
-  orgNIT.viscosity=1.68e12;
-  
-  
-  //Group: if no functionnal group in the species use the default species
-  //for the computation of activity coefficients
-  //
-  double group_tmp_orgNIT [] = {0.0,0.0,0.0,0.0, // group C
-  							   0.0,0.0,0.0,0.0, //group C[OH]
-  							   0.0,0.0,0.0,0.0, //group Calcohol
-  							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-  							   0.0,0.0,0.0,0.0,0.0, //group C=C
-  							   3.0,1.0, //group aromatic carbon (AC)
-  							   1.0,0.0,0.0, // group //AC-C
-  							   0.0,  //group OH
-  							   0.0, //group H2O
-  							   0.0, //group ACOH
-  							   0.0,0.0, //group ketone
-  							   0.0,   //group aldehyde  
-  							   0.0,0.0, //group ester
-  							   0.0,0.0,0.0, //group ether 
-  							   1.0,  //group acid
-  							   1.0,   //group ACNO2
-  							   0.0,0.0,0.0, //group NO3
-  							   0.0,0.0,0.0}; //group CO-OH
-
-  size = sizeof(group_tmp_orgNIT)/sizeof(double);
-  assert(size == 45);
-	
-  for(int i = 0; i < size; ++i)
-  	orgNIT.groups[i] = group_tmp_orgNIT[i];
-
-  // Search the species name in the aerosol species list 
-  // and add the species if its name matches with
-  // the given list.
-  add_species(surrogate, orgNIT, species_list_aer);
-
+  add_species(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
   species H2O;
   H2O.name="H2O";
   H2O.is_inorganic_precursor=false;
-  H2O.MM=18.0;           // Molar mass (g/mol)
   H2O.is_organic=false;  // Is the compound organic?
   H2O.hydrophilic=true; // Does the species condense on the aqueous phase?
   H2O.hydrophobic=true;  // Does the species condense on the organic phase?
@@ -1431,7 +1374,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2O.Koligo_org=0.0;
   H2O.rho=1000.0;
   H2O.KDiffusion_air=1.0e-5;
-  H2O.accomodation_coefficient=alpha;
+  //  H2O.accomodation_coefficient=alpha;
   H2O.viscosity=1.0;  
 
   //Group: if no functionnal group in the species use the default species
@@ -1464,8 +1407,10 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, H2O, species_list_aer);
+  add_species(surrogate, H2O, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient);
 
+  
   species SO4;
   SO4.name="SO4";
   SO4.is_inorganic_precursor=false;
@@ -1559,7 +1504,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   species Na;
   Na.name="Na";
   Na.is_inorganic_precursor=false;
-  Na.MM=23.0;           // Molar mass (g/mol)
   Na.is_organic=false;  // Is the compound organic?
   Na.hydrophilic=true; // Does the species condense on the aqueous phase?
   Na.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -1569,14 +1513,17 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Na.index_ion_aiomfac=2;
   Na.rho=1300.0; //1400.0;
   Na.KDiffusion_air=1.0e-5;
-  Na.accomodation_coefficient=0.5;
   Na.viscosity=1.0;
 
   // Find the number in the aerosol species list
   Na.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
-    if (species_list_aer[i].substr(1,-1) == Na.name)
-      Na.soap_ind = i;
+    if (species_list_aer[i].substr(1,-1) == "NA" or species_list_aer[i].substr(1,-1) == "Na")
+      {
+        Na.soap_ind = i;
+        Na.MM =  molecular_weight_aer[i] / 1.e6;
+        Na.accomodation_coefficient = accomodation_coefficient[i];
+      }
   surrogate.push_back(Na);
 
   species Cl;
@@ -1598,7 +1545,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   species H2SO4;
   H2SO4.name="H2SO4";
-  H2SO4.MM=98.0;
   H2SO4.nonvolatile=true;
   H2SO4.is_organic=false;
   H2SO4.is_inorganic_precursor=true;
@@ -1608,7 +1554,6 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
   H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  H2SO4.accomodation_coefficient=0.5;  
   H2SO4.KDiffusion_air=1.07e-5;
   H2SO4.viscosity=1.0;
 
@@ -1616,12 +1561,16 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2SO4.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "SO4")
-      H2SO4.soap_ind = i;
+      {
+        H2SO4.soap_ind = i;
+        H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
+        H2SO4.accomodation_coefficient = accomodation_coefficient[i];
+      }
   surrogate.push_back(H2SO4);
 
   species NH3;
   NH3.name="NH3";
-  NH3.MM=17.0;
+  //  NH3.MM=17.0;
   NH3.is_organic=false;
   NH3.nonvolatile=false;
   NH3.is_inorganic_precursor=true;
@@ -1631,7 +1580,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH3.hydrophobic=false;  // Does the species condense on the organic phase?
   NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  NH3.accomodation_coefficient=0.5;
+  //  NH3.accomodation_coefficient=0.5;
   NH3.KDiffusion_air=2.17e-5;
   NH3.viscosity=1.0;
 
@@ -1639,12 +1588,16 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH3.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "NH4")
-      NH3.soap_ind = i;
+      {
+        NH3.soap_ind = i;
+        NH3.MM =  molecular_weight_aer[i] / 1.e6;
+        NH3.accomodation_coefficient = accomodation_coefficient[i];
+      }
   surrogate.push_back(NH3);
 
   species HNO3;
   HNO3.name="HNO3";
-  HNO3.MM=63.0;
+  //  HNO3.MM=63.0;
   HNO3.nonvolatile=false;
   HNO3.is_organic=false;
   HNO3.is_inorganic_precursor=true;
@@ -1654,7 +1607,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
   HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  HNO3.accomodation_coefficient=0.5;
+  //  HNO3.accomodation_coefficient=0.5;
   HNO3.KDiffusion_air=1.47e-5;
   HNO3.viscosity=1.0;
 
@@ -1662,12 +1615,16 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HNO3.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "NO3")
-      HNO3.soap_ind = i;
+      {
+        HNO3.soap_ind = i;
+        HNO3.MM =  molecular_weight_aer[i] / 1.e6;
+        HNO3.accomodation_coefficient = accomodation_coefficient[i];
+      }
   surrogate.push_back(HNO3);
 
   species HCl;
   HCl.name="HCl";
-  HCl.MM=36.5;
+  //  HCl.MM=36.5;
   HCl.nonvolatile=false;
   HCl.is_organic=false;
   HCl.is_inorganic_precursor=true;
@@ -1677,7 +1634,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HCl.hydrophobic=false;  // Does the species condense on the organic phase?
   HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  HCl.accomodation_coefficient=0.5;
+  //  HCl.accomodation_coefficient=0.5;
   HCl.KDiffusion_air=1.72e-5;
   HCl.viscosity=1.0;
 
@@ -1685,8 +1642,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HCl.soap_ind = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "HCL")
-      HCl.soap_ind = i;
-
+      {
+        HCl.soap_ind = i;
+        HCl.MM =  molecular_weight_aer[i] / 1.e6;
+        HCl.accomodation_coefficient = accomodation_coefficient[i];
+      }
+  
   surrogate.push_back(HCl);
 }
 

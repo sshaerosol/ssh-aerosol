@@ -61,7 +61,6 @@ contains
         endif
       enddo
     endif
-    write(*,*) 'enter redistribution size',scheme
     !see the distribution in one fixed fraction as the same case of internal mixing
     do f=1,N_fracmax
       !extrac the mass and number distribution of each fraction out

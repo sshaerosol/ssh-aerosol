@@ -80,9 +80,29 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   !! Calcul of d(k) = dsqrt(dbound(k)*dbound(k+1))
   !! Reestimate d(k) from number and mass concentration BEFORE condensation/evaporation
   if(scheme.EQ.11) then
-    call REDIST(ns,naer,N,Qesp,fixed_density,rho,dbound,d_after_cond)
+    call REDIST(ns,naer,N,Qesp,fixed_density,dbound,d_after_cond)
+  else 
+  if(scheme.EQ.12) then
+    DO k = 1, ns
+       if (with_fixed_density .eq. 0) then
+          CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
+       else
+          rho(k) = fixed_density  !! YK
+       endif
+    ENDDO
+    call REDIST_EULERCOUPLE(ns,naer,N,Qesp,fixed_density,rho,dbound,d_after_cond)
+    !call REDIST_MOVINGDIAM(ns,naer,N,Qesp,fixed_density,rho,dbound,d_after_cond)
   else
-
+  if(scheme.EQ.13) then
+    DO k = 1, ns
+       if (with_fixed_density .eq. 0) then
+          CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
+       else
+          rho(k) = fixed_density  !! YK
+       endif
+    ENDDO
+    call REDIST_MOVINGDIAM(ns,naer,N,Qesp,fixed_density,rho,dbound,d_after_cond)
+  else
   !***** Calcul dry total mass per bin
   Q=0.D0
   DO js = 1, ns
@@ -98,7 +118,7 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   DO js = 1, ns
      kloc(js) = js
      DO jaer = 1, naer
-        IF (Q(js) .NE. 0.D0) THEN
+        IF (Q(js) .GT. TINYM) THEN
            alpha(js,jaer) = Qesp(js, jaer)/Q(js)
         ELSE
            alpha(js, jaer) = 0.D0
@@ -119,22 +139,22 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
      endif
      IF ( N(k) .GT. TINYN .and. Q(k) .GT. TINYM) THEN
         dbis = ((Q(k) * 6D0)/(PI * rho(k) * N(k))) **(1D0/3D0)        
-        call locate(ns,dbound,dbis,kloc(k))
-        !IF (dbis .LT. dbound(1)) THEN
-        !   !Q(k) = 0.D0
-        !   !N(k) = 0.D0
-        !   dbis = dbound(1) !fixed_diameter(1)
-        !   kloc(k) = 1 
-        !ELSEIF (dbis .GT. dbound(ns+1)) THEN
-        !   dbis = dbound(ns+1)
-        !   kloc(k)= ns 
-        !ELSE
-        !   loc = 1
-        !   DO WHILE(dbis .GT. dbound(loc+1))
-        !      loc=loc+1
-        !   ENDDO
-        !   kloc(k) = loc
-        !ENDIF
+        !call locate(ns,dbound,dbis,kloc(k))
+        IF (dbis .LT. dbound(1)) THEN
+           Q(k) = 0.D0
+           N(k) = 0.D0
+           dbis = dbound(1) !fixed_diameter(1)
+           kloc(k) = 1 
+        ELSEIF (dbis .GT. dbound(ns+1)) THEN
+           dbis = dbound(ns+1)
+           kloc(k)= ns 
+        ELSE
+           loc = 1
+           DO WHILE(dbis .GT. dbound(loc+1))
+              loc=loc+1
+           ENDDO
+           kloc(k) = loc
+        ENDIF
      ELSE
         dbis = fixed_diameter(k)
         kloc(k)=k
@@ -148,10 +168,8 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
      logfixed_diameter(k) = DLOG10(fixed_diameter(kloc(k)))
      IF(dbis_tmp(kloc(k)) .GT. fixed_diameter(kloc(k))) THEN
         grand(k) = 1
-
      ELSE
         grand(k) = 0 
-
      ENDIF
 
 
@@ -199,6 +217,8 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   END SELECT
 
  endif
+ endif
+ endif
 ! Total dry mass
 !  Q=0.D0
 !  DO js = 1, ns
@@ -217,7 +237,7 @@ END SUBROUTINE REDISTRIBUTION
 !*     MASS CONCENTRATIONS ON THE FIXED GRID SIZE *
 !*     *
 !**************************************************
-      SUBROUTINE REDIST(ns,naer,n,q,fixed_density,rho,dbound,diam)
+      SUBROUTINE REDIST(ns,naer,n,q,fixed_density,dbound,diam)
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
@@ -234,7 +254,7 @@ END SUBROUTINE REDISTRIBUTION
       DOUBLE PRECISION qnew(ns,naer),qtnew(ns)
       DOUBLE PRECISION x2lo,x2hi,xmin,xmax
       DOUBLE PRECISION xx,tmp1,tmp2,frac
-      DOUBLE PRECISION CST,fixed_density,rho(ns)
+      DOUBLE PRECISION CST,fixed_density
       DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
       DOUBLE PRECISION HSD(ns),XSF(ns),diam(ns)
 
@@ -296,51 +316,51 @@ END SUBROUTINE REDISTRIBUTION
          j1lo=j1hi
       END DO
      
-!******check if quantities are not too small
-      icpt=1                    ! to enter in the loop
-
-      DO WHILE (icpt.GT.0)
-         icpt = 0
-         
-         DO js1=1,NS
-            DO jesp=1,naer-1
-               qtnew(js1)=qtnew(js1)+qnew(js1,jesp)
-            END DO
-            
-            tmp1= Nnew(js1)*( Nnew(js1)-TINYN)
-            tmp2=qtnew(js1)*(qtnew(js1)-TINYM)
-            
-            IF ( tmp1.LT.0.D0.OR.tmp2.LT.0.D0 ) THEN
-               if (Nnew(js1).eq.0.) then
-                  write(*,*)'pb1 in redist',Nnew(js1)
-               endif
-               if ((qtnew(js1)/Nnew(js1)).le.0.) then
-                  write(*,*)'pb2 in redist',qtnew(js1)/Nnew(js1)
-               endif
-               xx=DLOG(qtnew(js1)/Nnew(js1))
-               frac=(xx-XBD(js1))/HSD(js1)
-
-               js2=js1+1
-               IF (frac.LT.5.D-01) js2=js1-1
-               
-               IF (js1.EQ.1)  js2=js1+1
-               IF (js1.EQ.NS) js2=js1-1
-               
-               Nnew(js2)=Nnew(js2)+Nnew(js1)
-               qtnew(js2)=qtnew(js2)+qtnew(js1)
-               Nnew(js1)=0.d0
-               qtnew(js1)=0.d0
-
-               DO jesp=1,naer
-                  qnew(js2,jesp)=qnew(js2,jesp)+qnew(js1,jesp)
-                  qnew(js1,jesp)=0.d0
-               END DO
-
-               icpt=icpt+1
-
-            ENDIF
-         END DO
-      END DO
+!!$!******check if quantities are not too small
+!!$      icpt=1                    ! to enter in the loop
+!!$
+!!$      DO WHILE (icpt.GT.0)
+!!$         icpt = 0
+!!$         
+!!$         DO js1=1,NS
+!!$            DO jesp=1,naer-1
+!!$               qtnew(js1)=qtnew(js1)+qnew(js1,jesp)
+!!$            END DO
+!!$            
+!!$            tmp1= Nnew(js1)*( Nnew(js1)-TINYN)
+!!$            tmp2=qtnew(js1)*(qtnew(js1)-TINYM)
+!!$            
+!!$            IF ( tmp1.LT.0.D0.OR.tmp2.LT.0.D0 ) THEN
+!!$               if (Nnew(js1).eq.0.) then
+!!$                  write(*,*)'pb1 in redist',Nnew(js1)
+!!$               endif
+!!$               if ((qtnew(js1)/Nnew(js1)).le.0.) then
+!!$                  write(*,*)'pb2 in redist',qtnew(js1)/Nnew(js1)
+!!$               endif
+!!$               xx=DLOG(qtnew(js1)/Nnew(js1))
+!!$               frac=(xx-XBD(js1))/HSD(js1)
+!!$
+!!$               js2=js1+1
+!!$               IF (frac.LT.5.D-01) js2=js1-1
+!!$               
+!!$               IF (js1.EQ.1)  js2=js1+1
+!!$               IF (js1.EQ.NS) js2=js1-1
+!!$               
+!!$               Nnew(js2)=Nnew(js2)+Nnew(js1)
+!!$               qtnew(js2)=qtnew(js2)+qtnew(js1)
+!!$               Nnew(js1)=0.d0
+!!$               qtnew(js1)=0.d0
+!!$
+!!$               DO jesp=1,naer
+!!$                  qnew(js2,jesp)=qnew(js2,jesp)+qnew(js1,jesp)
+!!$                  qnew(js1,jesp)=0.d0
+!!$               END DO
+!!$
+!!$               icpt=icpt+1
+!!$
+!!$            ENDIF
+!!$         END DO
+!!$      END DO
       
 !******turn back to conc vector
       
@@ -435,15 +455,15 @@ END SUBROUTINE REDISTRIBUTION
 
          IF (HSD(js).LE.0.D0) THEN
             dvar(1)=DBLE(js)
-            write(*,*) 'w:sizebnd:bin n',dvar,HSD(js)
-            HSD(js) = abs(HSD(js))
+            !write(*,*) 'w:sizebnd:bin n',dvar,HSD(js)
+            !HSD(js) = abs(HSD(js))
             itest=itest+1
          ENDIF
       END DO
 
       IF (itest.GT.0) THEN
          dvar(1)=DBLE(itest)
-          write(*,*)'ws:sizebnd:sctn width <=0',dvar
+         ! write(*,*)'ws:sizebnd:sctn width <=0',dvar
       ENDIF
 
 !****** compute mass and diameter
@@ -610,4 +630,310 @@ END SUBROUTINE REDISTRIBUTION
       END DO
 !**************************************************
       END SUBROUTINE ASCORDER
+!**************************************************
+!**************************************************
+      SUBROUTINE REDIST_EULERCOUPLE(ns,naer,n,q,fixed_density,rho,dbound,diam)
+!**************************************************
+!*     *
+!*     ns   (IN)    running number of eqs.       *
+!*     q(*)  (INOUT) gas/aero conc (µg.m-3)       *
+!*     *
+!**************************************************
+      IMPLICIT NONE
+
+      include '../Module/CONST_B.inc'
+      INTEGER ns,naer,NB
+      DOUBLE PRECISION q(ns,naer),n(ns),qt(ns),diam(ns)
+      DOUBLE PRECISION CST,Nnew(ns)
+      INTEGER ji,jj,jesp,js1,js2,icpt,j1hi
+      DOUBLE PRECISION qnew(ns,naer),qtnew(ns)
+      DOUBLE PRECISION xx,tmp1,tmp2,frac
+      DOUBLE PRECISION fixed_density,rho(ns),diam1,diam2
+      DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
+      DOUBLE PRECISION x2hi,HSD(ns),XSF(ns)
+      DOUBLE PRECISION DSF(ns),MSF(ns+1),MSD(ns+1),Qtotal
+
+      NB = NS+1
+      CST  =0.523598775598D0
+
+!******zero init
+      DO js1=1,NS
+         qt(js1) = 0.d0
+         Do jj=1,naer-1
+             qt(js1) = qt(js1) + q(js1,jj)
+             qnew(js1,jj)=0.D0
+         Enddo
+         qnew(js1,naer)=0.D0
+         qtnew(js1)=0.D0
+         Nnew(js1) = 0.D0
+      END DO
+    
+      DO js1=1,NS+1
+         XBF(js1)=DLOG(fixed_density*CST*dbound(js1)**3)
+      ENDDO
+      DO js1=1,NS
+         XSF(js1) = (XBF(js1)+XBF(js1+1))*5.D-01
+         if(N(js1).GT.TINYN) then
+            XSD(js1) = DLOG(qt(js1)/N(js1))
+            MSD(js1) = DEXP(XSD(js1))
+         else
+            XSD(js1) = XSF(js1)
+         endif
+         MSF(js1) = DEXP(XSF(js1))
+         DSF(js1) = (dbound(js1)*dbound(js1+1))**0.5d0
+      ENDDO
+
+      call SIZEBND(ns,XSD,XSF,XBF,HSD,XBD)
+
+      DO js2=1,NS
+
+         x2hi=(MSD(js2)/(rho(js2)*CST))**(1.d0/3.D0) ! lagrangian diameter
+         CALL LOCATE(NS,DSF,x2hi,j1hi)
+
+         IF (N(js2).GT.TINYN) THEN
+                                ! redistribute over fixed sections
+            IF (j1hi.EQ.0) THEN ! number change
+               Qtotal = 0.D0
+               DO jesp=1,naer-1
+                  !!qnew(1,jesp)=q(js2,jesp) !+ qnew(1,jesp)+q(js2,jesp)
+                  Qtotal = Qtotal+qnew(1,jesp)
+               END DO
+               jesp = naer
+               !qnew(1,jesp)=q(js2,jesp) !qnew(1,jesp)+q(js2,jesp)
+               Nnew(1) = Qtotal/MSF(1)
+            ELSEIF (j1hi.EQ.NS) THEN ! number change
+               Qtotal = 0.D0
+               DO jesp=1,naer-1
+                  qnew(NS,jesp)=qnew(NS,jesp)+q(js2,jesp)
+                  Qtotal = Qtotal+qnew(NS,jesp)
+               END DO
+               jesp = naer
+               qnew(NS,jesp)=qnew(NS,jesp)+q(js2,jesp)
+               Nnew(NS) = Qtotal/MSF(NS)
+            ELSE
+               diam1=DSF(j1hi)
+               diam2=DSF(j1hi+1)
+               DO jesp=1,naer
+                  qnew(j1hi,jesp)=qnew(j1hi,jesp)+ q(js2,jesp)*(1-(diam2/x2hi)**3.D0)/ &
+                      (1-(diam2/diam1)**3.D0)
+                  qnew(j1hi+1,jesp)=qnew(j1hi+1,jesp)+ q(js2,jesp)*(1-(diam1/x2hi)**3.D0)/ &
+                      (1-(diam1/diam2)**3.D0)
+               END DO
+               Nnew(j1hi)=Nnew(j1hi)+N(js2)*(x2hi**3-diam2**3.D0)/ &
+                   (diam1**3-diam2**3)
+               Nnew(j1hi+1)=Nnew(j1hi+1)+N(js2)*(x2hi**3-diam1**3.D0)/ &
+                   (diam2**3-diam1**3)
+
+            ENDIF
+         ENDIF
+      END DO
+
+!     ******check if quantities are not too small
+      icpt=1                    ! to enter in the loop
+      icpt = 0
+      DO WHILE (icpt.GT.0)
+         icpt = 0
+
+         DO js1=1,NS
+            DO jesp=1,naer-1
+               qtnew(js1)=qtnew(js1)+qnew(js1,jesp)
+            END DO
+
+            tmp1= Nnew(js1)*( Nnew(js1)-TINYN)
+            tmp2=qtnew(js1)*(qtnew(js1)-TINYM)
+
+            IF ( tmp1.LT.0.D0.OR.tmp2.LT.0.D0 ) THEN
+
+               IF (Nnew(js1).EQ.0.d0) THEN
+                  WRITE(6,*)'SIREAM (redist.f): (1)Q<0 ',Nnew(js1)
+                  STOP
+               ENDIF
+               IF ((qtnew(js1)/Nnew(js1)).LE.0.d0) THEN
+                  WRITE(6,*)'SIREAM (redist.f): (2)Q<0 ', qtnew(js1)/Nnew(js1)
+                  STOP
+               ENDIF
+
+               xx=DLOG(qtnew(js1)/Nnew(js1))
+               frac=(xx-XBD(js1))/HSD(js1)
+
+               js2=js1+1
+               IF (frac.LT.5.D-01) js2=js1-1
+
+               IF (js1.EQ.1)   js2=js1+1
+               IF (js1.EQ.NS) js2=js1-1
+
+               Nnew(js2)=Nnew(js2)+Nnew(js1)
+               qtnew(js2)=qtnew(js2)+qtnew(js1)
+               Nnew(js1)=0.d0
+               qtnew(js1)=0.d0
+
+               DO jesp=1,naer
+                  qnew(js2,jesp)=qnew(js2,jesp)+qnew(js1,jesp)
+                  qnew(js1,jesp)=0.d0
+               END DO
+               icpt=icpt+1
+            ENDIF
+         END DO
+
+      END DO
+
+!******turn back to conc vector
+      
+      DO js1=1,NS
+         Do jj=1,naer
+             q(js1,jj)=qnew(js1,jj)
+         Enddo
+         N(js1) = Nnew(js1)
+      END DO
+
+  END SUBROUTINE REDIST_EULERCOUPLE
+!**************************************************
+  SUBROUTINE REDIST_MOVINGDIAM(ns,naer,n,q,fixed_density,rho,dbound,diam)
+!**************************************************
+!*     *
+!*     ns   (IN)    running number of eqs.       *
+!*     q(*)  (INOUT) gas/aero conc (µg.m-3)       *
+!*     *
+!**************************************************
+      IMPLICIT NONE
+
+      include '../Module/CONST_B.inc'
+      INTEGER ns,naer,NB
+      DOUBLE PRECISION q(ns,naer),n(ns),qt(ns),diam(ns)
+      DOUBLE PRECISION CST,Nnew(ns)
+      INTEGER ji,jj,jesp,js1,js2,icpt,j1hi
+      DOUBLE PRECISION qnew(ns,naer),qtnew(ns)
+      DOUBLE PRECISION xx,tmp1,tmp2,frac
+      DOUBLE PRECISION fixed_density,rho(ns),diam1,diam2
+      DOUBLE PRECISION dbound(ns),XSD(ns),XBF(ns+1),XBD(ns+1)
+      DOUBLE PRECISION x2hi,HSD(ns),XSF(ns)
+      DOUBLE PRECISION DSF(ns),MSF(ns+1),MSD(ns+1),Qtotal
+
+      NB = NS+1
+      CST  =0.523598775598D0
+
+!******zero init
+      DO js1=1,NS
+         qt(js1) = 0.d0
+         Do jj=1,naer-1
+             qt(js1) = qt(js1) + q(js1,jj)
+             qnew(js1,jj)=0.D0
+         Enddo
+         qnew(js1,naer)=0.D0
+         qtnew(js1)=0.D0
+         Nnew(js1) = 0.D0
+      END DO
+    
+      DO js1=1,NS+1
+         XBF(js1)=DLOG(fixed_density*CST*dbound(js1)**3)
+      ENDDO
+      DO js1=1,NS
+         XSF(js1) = (XBF(js1)+XBF(js1+1))*5.D-01
+         if(N(js1).GT.TINYN) then
+            XSD(js1) = DLOG(qt(js1)/N(js1))
+            MSD(js1) = DEXP(XSD(js1))
+         else
+            XSD(js1) = XSF(js1)
+         endif
+         MSF(js1) = DEXP(XSF(js1))
+         DSF(js1) = (dbound(js1)*dbound(js1+1))**0.5d0
+      ENDDO
+
+      call SIZEBND(ns,XSD,XSF,XBF,HSD,XBD)
+
+      DO js2=1,NS
+
+         !x2hi=(MSD(js2)/(rho(js2)*CST))**(1.d0/3.D0) ! lagrangian diameter
+         x2hi=XSD(js2) ! lagrangian diameter
+         CALL LOCATE(NS,XBF,x2hi,j1hi)
+
+         IF (N(js2).GT.TINYN) THEN
+                                ! redistribute over fixed sections
+            IF (j1hi.EQ.0) THEN ! number change
+               Qtotal = 0.D0
+               DO jesp=1,naer-1
+                  !!qnew(1,jesp)=qnew(1,jesp)+q(js2,jesp)
+                  Qtotal = Qtotal+qnew(1,jesp)
+               END DO
+               jesp = naer
+               !!qnew(1,jesp)=qnew(1,jesp)+q(js2,jesp)
+               Nnew(1) = Qtotal/MSF(1)
+            ELSEIF (j1hi.EQ.NS) THEN ! number change
+               Qtotal = 0.D0
+               DO jesp=1,naer-1
+                  qnew(NS,jesp)=qnew(NS,jesp)+q(js2,jesp)
+                  Qtotal = Qtotal+qnew(NS,jesp)
+               END DO
+               jesp = naer
+               qnew(NS,jesp)=qnew(NS,jesp)+q(js2,jesp)
+               Nnew(NS) = Qtotal/MSF(NS)
+            ELSE
+               DO jesp=1,naer
+                  qnew(j1hi,jesp)=qnew(j1hi,jesp)+ q(js2,jesp)
+               END DO
+               Nnew(j1hi)=Nnew(j1hi)+N(js2)
+
+            ENDIF
+         ENDIF
+      END DO
+
+!     ******check if quantities are not too small
+!      icpt=1                    ! to enter in the loop
+!      icpt = 0
+!      DO WHILE (icpt.GT.0)
+!         icpt = 0
+!
+!         DO js1=1,NS
+!            DO jesp=1,naer-1
+!               qtnew(js1)=qtnew(js1)+qnew(js1,jesp)
+!            END DO
+!
+!            tmp1= Nnew(js1)*( Nnew(js1)-TINYN)
+!            tmp2=qtnew(js1)*(qtnew(js1)-TINYM)
+!
+!            IF ( tmp1.LT.0.D0.OR.tmp2.LT.0.D0 ) THEN
+!
+!               IF (Nnew(js1).EQ.0.d0) THEN
+!                  WRITE(6,*)'SIREAM (redist.f): (1)Q<0 ',Nnew(js1)
+!                  STOP
+!               ENDIF
+!               IF ((qtnew(js1)/Nnew(js1)).LE.0.d0) THEN
+!                  WRITE(6,*)'SIREAM (redist.f): (2)Q<0 ', qtnew(js1)/Nnew(js1)
+!                  STOP
+!               ENDIF
+!
+!               xx=DLOG(qtnew(js1)/Nnew(js1))
+!               frac=(xx-XBD(js1))/HSD(js1)
+!
+!               js2=js1+1
+!               IF (frac.LT.5.D-01) js2=js1-1
+!
+!               IF (js1.EQ.1)   js2=js1+1
+!               IF (js1.EQ.NS) js2=js1-1
+!
+!               Nnew(js2)=Nnew(js2)+Nnew(js1)
+!               qtnew(js2)=qtnew(js2)+qtnew(js1)
+!               Nnew(js1)=0.d0
+!               qtnew(js1)=0.d0
+!
+!               DO jesp=1,naer
+!                  qnew(js2,jesp)=qnew(js2,jesp)+qnew(js1,jesp)
+!                  qnew(js1,jesp)=0.d0
+!               END DO
+!               icpt=icpt+1
+!            ENDIF
+!         END DO
+!
+!      END DO
+
+!******turn back to conc vector
+      
+      DO js1=1,NS
+         Do jj=1,naer
+             q(js1,jj)=qnew(js1,jj)
+         Enddo
+         N(js1) = Nnew(js1)
+      END DO
+
+  END SUBROUTINE REDIST_MOVINGDIAM
 !**************************************************

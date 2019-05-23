@@ -111,8 +111,8 @@ contains
 		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
 	  if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
 	    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-	                +ce_kernal_coef(j,jesp)*concentration_number(j)&
-	                *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
+	                +ce_kernal_coef(j,jesp)*concentration_number(j)!&
+	  !              *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
 	  !KS: ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
 	  ! 	      +ce_kernal_coef(j,jesp)*concentration_number(j) 
 	enddo
@@ -178,6 +178,7 @@ contains
 	  dq(jesp)=-qextold(jesp)
 	endif
       endif
+      !write(*,*) s,jesp,'after soap_eq',qgas(jesp),qaero(jesp),dq(jesp)
     enddo
 
     ! write(*,*) "after soap_eq in ModuleBulk",concentration_gas(9),concentration_mass(:,9)
@@ -280,8 +281,8 @@ contains
 		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
 	    if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
 	    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-			+ce_kernal_coef(j,jesp)*concentration_number(j) &
-			*(1.d0/(Kelvin_effect(j,jesp)-1.d0)) ! KS
+			+ce_kernal_coef(j,jesp)*concentration_number(j) !&
+!!			*(1.d0/(Kelvin_effect(j,jesp)-1.d0)) ! KS
 	enddo
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
         ENDIF
@@ -467,7 +468,6 @@ contains
 	  enddo
 	  if(totaer.gt.0.d0) then
 	    do j=1,end_bin
-             if(totaer.GT.0.0) then
 	      frac(j,jesp)=c_mass(j,jesp)/totaer
 	      c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
 	      if(dq(jesp)*frac(j,jesp).ne.0.d0) then
@@ -475,7 +475,6 @@ contains
 	        frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
 	        dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
 	        iclip_bin(k,jesp)=iclip
-	      endif
              endif
 	    enddo
 	  endif
@@ -493,12 +492,11 @@ contains
            endif
 	  enddo
         endif
-        endif
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
        ENDIF
 #endif
-      !print*,"tot_mass=",temp_mass
      endif
+    endif
    enddo
 
   end subroutine bulkequi_redistribution

@@ -251,6 +251,28 @@ contains
        close(100)
     enddo
 
+
+     ! save cell_diam_av results over each time step
+     do b = 1, N_size
+
+        if (output_type == 1) then
+
+             output_filename = trim(output_directory) // "/diameter/DIAMETER_" // trim(str(b)) // ".txt"     !modify here
+             OPEN(UNIT=100,FILE=output_filename, status="old", position = "append")
+             write(100,*) cell_diam_av(b)! conc_save
+
+          else if (output_type == 2) then
+        
+             output_filename = trim(output_directory) // "/diameter/DIAMETER_"// trim(str(b)) // ".bin"
+             OPEN(UNIT=100,FILE=output_filename, status="old", form='unformatted', &
+                  access='stream', position = 'append')
+             write(100) cell_diam_av(b)
+
+          end if
+
+          close(100)
+       end do
+
   end subroutine save_concentration
 
 
@@ -260,8 +282,6 @@ contains
     integer :: s, b
     real (kind = 4) :: conc_save
     character (len=100) output_filename
-
-
 
 ! save cell_diam_av
        if (output_type == 1) then
@@ -321,7 +341,20 @@ contains
     integer :: stat, s, b
     logical :: file_exists
     character (len=100) output_filename
-     ! gas
+    character (len=80) :: cmd
+    character (len=10) :: out_dir(5)
+    out_dir(1) = "/number/"
+    out_dir(2) = "/gas/"	
+    out_dir(3) = "/aero/"
+    out_dir(4) = "/TM/"
+    out_dir(5) = "/diameter/"
+    ! Create directory if it does not exist.
+    do s = 1, 5
+       	cmd = trim('mkdir -p '// trim(output_directory) // out_dir(s))
+       	call system(cmd)
+    end do
+
+    ! gas
     do s = 1, n_gas
 
        if (output_type == 1) then
@@ -477,6 +510,40 @@ contains
        close(100)
     enddo
 
+    
+   ! cell_diam_av for aerosols
+       ! number
+        do b = 1, N_size
+
+          
+           if (output_type == 1) then
+
+               
+             output_filename = trim(output_directory) // "/diameter/DIAMETER_"// trim(str(b)) // ".txt"     !modify here
+             ! Remove if output files exist
+             inquire (file = output_filename, exist = file_exists)
+             if (file_exists) then
+                open(unit=100, file = output_filename, status='old', iostat=stat)
+                if (stat == 0) close(100, status='delete')
+             endif
+          
+             OPEN(UNIT=100,FILE=output_filename, status="new")
+
+          else if (output_type == 2) then
+          
+             output_filename = trim(output_directory) // "/diameter/DIAMETER_"// trim(str(b)) // ".bin"
+             ! Remove if output files exist
+             inquire (file = output_filename, exist = file_exists)
+             if (file_exists) then
+                open(unit=100, file = output_filename, status='old', iostat=stat)
+                if (stat == 0) close(100, status='delete')
+             endif
+          
+             OPEN(UNIT=100,FILE=output_filename, status="new", form='unformatted')
+          end if
+
+          close(100)
+       end do
 
 	!report
 	!output_filename = trim(output_directory) // "/" // "report.txt"

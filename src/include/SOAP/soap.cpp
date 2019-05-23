@@ -7,6 +7,7 @@
 #include <cmath>
 #include <blitz/array.h>
 #include "omp.h"
+#include <cstring>
 
 using namespace blitz;
 
@@ -19,14 +20,24 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                            int* ns_aer, int* neq, double* q, double* qaero, 
                            double* qgas, double* lwc_Nsize,
                            double* ionic_Nsize, double* chp_Nsize,
-                           double* liquid_Nsize, int* nbin){
+                           double* liquid_Nsize, int* nbin,int* isoapdyn,
+                           char* species_name, double* molecular_weight_aer,
+                           double* accomodation_coefficient, int* nlayer,
+                           int* with_kelvin_effect, double* tequilibrium,
+                           double* dtaeromin, double* dorg, int* coupled_phases,
+                           int* activity_model){
 
   return soap_main(*LWC, *RH, *Temperature, 
                    *ionic, *chp, LWCorg, 
                    deltat,DSD,csol, liquid,
                    *ns_aer, *neq, q, qaero, qgas,
                    lwc_Nsize,ionic_Nsize,chp_Nsize,
-                   liquid_Nsize, *nbin);
+                   liquid_Nsize, *nbin, *isoapdyn,
+                   species_name, molecular_weight_aer,
+                   accomodation_coefficient, *nlayer,
+                   *with_kelvin_effect, *tequilibrium,
+                   *dtaeromin, *dorg, *coupled_phases,
+                   *activity_model);
 
 }
 
@@ -43,7 +54,12 @@ void soap_main(double LWC, double RH, double Temperature,
                double& deltat, double DSD[], double csol[], double liquid[],
                int ns_aer, int neq, double q[], double qaero[], double qgas[],
                double lwc_Nsize[], double ionic_Nsize[], double chp_Nsize[],
-               double liquid_Nsize[], int nbin)
+               double liquid_Nsize[], int nbin,int isoapdyn,
+               char species_name[], double molecular_weight_aer[],
+               double accomodation_coefficient[], int nlayer,
+               int with_kelvin_effect, double tequilibrium, double dtaeromin,
+               double dorg, int coupled_phases,
+               int activity_model)
 {
 
   /*** General parameters and options ***/
@@ -59,23 +75,75 @@ void soap_main(double LWC, double RH, double Temperature,
   // Make a reference with 'surrogate' type to the pointer of SOAP species.
   vector<species> surrogate;
 
-
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
-  string tmp[34] = {"PMD","PBC","PNA","PSO4",
-		    "PNH4","PNO3","PHCL","PBiA2D","PBiA1D","PBiA0D","PAGLY","PAMGLY",
-		    "PBiMT","PBiPER","PBiDER","PBiMGA","AnBlP","PAnBmP","PBiBlP","PBiBmP",
-		    "PBiNGA","PBiNIT3","PBiNIT","PAnClP","PSOAlP","PSOAmP","PSOAhP",
-                    "PPOAlP","PPOAmP","PPOAhP","PMonomer", "PDimer", "PBiA3D", "PH2O"}; 
-  for (i = 0; i < 34; i++)
-    species_list_aer.push_back(tmp[i]);  // YK
-  cout << "Call soap:" << species_list_aer[0] << endl;
+  
+  if(ns_aer != 34)
+    {cout << "ERROR SOAP.CPP - NUMBER OF SPECIES IS NOT 34",ns_aer;
+    exit;}
+
+  // Get aerosol species names.
+  int slength = int(strlen(species_name) / ns_aer);
+  for (i = 0; i < ns_aer; i++)
+    {
+      string tmp2(species_name);
+      string tmp3(tmp2.substr(i*slength,slength));
+      for (int j = slength-1; j >= 0; --j)
+        {
+          if(tmp3[j] == ' ')
+            tmp3.erase(j, 1);
+        }
+      species_list_aer.push_back(tmp3);  // YK
+    }
+  
   config.nbins = nbin;
-  config.equilibrium = true;
-  config.nlayer=1; /// A MODIFIER
+  config.tequilibrium = tequilibrium;
+  config.dorg = dorg;
+  config.deltatmin = dtaeromin;
+  if (coupled_phases == 1)
+    config.coupled_phases = true;
+  else
+    config.coupled_phases = false;
+  config.nlayer=nlayer;
+  if (with_kelvin_effect == 1)
+    config.compute_kelvin_effect = true;
+  else
+    config.compute_kelvin_effect = false;
+  
+  if (isoapdyn==0)
+    {
+      config.equilibrium = true;
+      // kelvin effect is not taken into account
+      // for the equilibrium approach.
+      config.compute_kelvin_effect = false;
+    }
+  else
+     config.equilibrium = false;
 
-  parameters(config, surrogate, species_list_aer);
+  // 
+  if (activity_model == 1)
+    {
+      config.activity_model = "ideal";
+      config.compute_long_and_medium_range_interactions = false;
+    }
+  else if (activity_model == 2)
+    {
+      config.activity_model = "unifac";
+      config.compute_long_and_medium_range_interactions = false;
+    }
+  else if (activity_model == 3)
+    {
+      config.activity_model = "unifac";
+      config.compute_long_and_medium_range_interactions = true;
+    }
+  else
+    throw string("Bad option given to the organic thermodynamic model.\n");
 
+    
+  parameters(config, surrogate, species_list_aer, molecular_weight_aer,
+             accomodation_coefficient);
+  check_config(config, surrogate);
+  
   // If Na and Cl are included.
   bool NaCl = false; 
 
@@ -93,7 +161,6 @@ void soap_main(double LWC, double RH, double Temperature,
   // and the Henry's law constant 
   compute_gamma_infini(config, surrogate);
 
-  // Initialization for the equilibrium approach
   for (i = 0; i < n; ++i)
     {
       surrogate[i].Ap = 0.0;
@@ -102,6 +169,7 @@ void soap_main(double LWC, double RH, double Temperature,
     }
 
   /*** Use the global equilibrium approach ***/
+  // Initialization for the equilibrium approach
   
   if (config.equilibrium)
     {     
@@ -135,7 +203,7 @@ void soap_main(double LWC, double RH, double Temperature,
 	    }
 	  surrogate[i].Atot = surrogate[i].Ap + surrogate[i].Ag + surrogate[i].Aaq;
 	}
-
+    
       // Dissociated inorganic aerosols.
       // Assume that NH3 and HNO3 are totally dissociated.
       surrogate[config.iSO4mm].Aaq = liquid[4]*1.0e6*96.0; // SO4_2-
@@ -148,7 +216,6 @@ void soap_main(double LWC, double RH, double Temperature,
 	for (i = 0; i < n; ++i) // Na+ and Cl-
 	  if ((surrogate[i].name == "Na") or (surrogate[i].name == "Cl"))
 	    surrogate[i].Aaq = qaero[surrogate[i].soap_ind];
-
 
       // Set the total values in each phase. 
       if(LWC<config.LWClimit)
@@ -163,9 +230,10 @@ void soap_main(double LWC, double RH, double Temperature,
 	  for (i = 0; i < n; ++i)      
 	    {
 	      AQinit += surrogate[i].Aaq;
-	      MOinit += surrogate[i].Ap;
 	    }
 	}
+      for (i = 0; i < n; ++i)      
+	 MOinit += surrogate[i].Ap;
 
       global_equilibrium(config,surrogate,
                          MOinit,MOW,
@@ -197,6 +265,12 @@ void soap_main(double LWC, double RH, double Temperature,
 
   else
     {
+    for (i = 0; i < n; ++i)
+      {
+      surrogate[i].Ap_layer_init = 0.0;
+      surrogate[i].Aaq_bins_init = 0.0;
+      surrogate[i].Ag = 0.0;
+      }
       // Initialization for the dynamic approach	  
       int b,ilayer,iphase;
       Array<double,1> number, vsol;

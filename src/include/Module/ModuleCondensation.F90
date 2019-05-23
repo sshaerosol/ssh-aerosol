@@ -315,7 +315,7 @@ contains
     do jesp=1,N_inside_aer!N_inside_aer=21
       qinti(jesp)=0.d0
     enddo
-    qext(EH2O)=0.d0
+    !qext(EH2O)=0.d0
 			      ! sum of inorganic mass
     qtinorg=0.D0
     do s=1,nesp_isorropia
