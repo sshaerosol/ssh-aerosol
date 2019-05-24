@@ -13,42 +13,127 @@ void system_coupling(model_config &config, vector<species>& surrogate)
   //Check if the system is coupled (at least a species condense on both phases) and give the
   // indexes of water and H+
   int n=surrogate.size();
-  int i;
+  int i,j,jion;
   config.iH2O=-1;
-  //  config.coupled_phases=false;
+  //config.coupled_phases=false;
   config.iNa=-1;
+  config.iCa=-1;
+  config.iMg=-1;
+  config.iK=-1;
   config.iHSO4m=-1;
   config.iSO4mm=-1;
   config.iNO3m=-1;
   config.iClm=-1;
   config.iHp=-1;
-  config.iNH4p=-1;
-
+  config.iNH4p=-1;  
+  config.iHCl=-1;
+  config.iHNO3=-1;
+  config.iNH3=-1;
+  config.iH2SO4=-1;
   for (i=0;i<n;++i)
-    {
+    {  
+      if (surrogate[i].is_inorganic_precursor==false)
+         surrogate[i].is_solid=false;
+      else
+         if (surrogate[i].is_solid)
+            {
+                surrogate[i].hydrophilic=false;
+                surrogate[i].iion1=-1;
+                surrogate[i].iion2=-1;
+                surrogate[i].iion3=-1;
+                if (surrogate[i].nion<=2)
+                     surrogate[i].ion3=" ";
+                for (j=0;j<n;++j)
+                    if (surrogate[j].name==surrogate[i].ion1)
+                        surrogate[i].iion1=j;
+                    else if (surrogate[j].name==surrogate[i].ion2)
+                        surrogate[i].iion2=j;
+                    else if (surrogate[j].name==surrogate[i].ion3)
+                        surrogate[i].iion3=j;
+            }
+    
+      if (surrogate[i].is_organic and surrogate[i].hydrophilic)
+        if (surrogate[i].aq_type=="diacid")  
+          surrogate[i].aqt=2;
+        else if (surrogate[i].aq_type=="monoacid")          
+          surrogate[i].aqt=1;
+        else if (surrogate[i].aq_type=="aldehyde")
+          surrogate[i].aqt=3;
+        else if (surrogate[i].aq_type=="none") 
+          surrogate[i].aqt=0;
+        else
+          {
+            surrogate[i].aqt=0;
+            cout << "WARNING: aq_type "+surrogate[i].aq_type+" of species " +surrogate[i].name+ " not defined." << endl;
+          }
+
       if (surrogate[i].hydrophilic and surrogate[i].hydrophobic
           and surrogate[i].is_organic)
         config.coupled_phases=true;
-      if (surrogate[i].name=="H2O")
+      else if (surrogate[i].name=="H2O")
         config.iH2O=i;
-      if (surrogate[i].name=="H")
+      else if (surrogate[i].name=="H")
         config.iHp=i;
-      if (surrogate[i].name=="HSO4")
+      else if (surrogate[i].name=="H2SO4")
+        config.iH2SO4=i;
+      else if (surrogate[i].name=="HSO4")
         config.iHSO4m=i;
-      if (surrogate[i].name=="SO4")
+      else if (surrogate[i].name=="SO4")
         config.iSO4mm=i;
-      if (surrogate[i].name=="Cl")
+      else if (surrogate[i].name=="Cl")
         config.iClm=i;
-      if (surrogate[i].name=="NH4")
+      else if (surrogate[i].name=="NH4")
         config.iNH4p=i;
-      if (surrogate[i].name=="NO3")
+      else if (surrogate[i].name=="NO3")
         config.iNO3m=i;
-      if (surrogate[i].name=="Na")
+      else if (surrogate[i].name=="Na")
         config.iNa=i;
+      else if (surrogate[i].name=="Ca")
+        config.iCa=i;
+      else if (surrogate[i].name=="Mg")
+        config.iMg=i;
+      else if (surrogate[i].name=="K")
+        config.iK=i;
+      else if (surrogate[i].name=="HCl")
+        config.iHCl=i;
+      else if (surrogate[i].name=="NH3")
+        config.iNH3=i;
+      else if (surrogate[i].name=="HNO3")
+        config.iHNO3=i;
+
+      surrogate[i].ioligo=-1;
+
+      if (surrogate[i].is_organic and surrogate[i].rion)
+        {
+          surrogate[i].iion.resize(surrogate[i].nion);
+          surrogate[i].iproduct.resize(surrogate[i].nion);
+          surrogate[i].iion=-1;
+          surrogate[i].iproduct=-1;
+        }
+     
+      if (surrogate[i].is_organic)                 
+        for (j=0;j<n;++j)
+          {          
+            if (surrogate[i].is_monomer)
+              if (surrogate[j].name==surrogate[i].name_oligomer)
+                surrogate[i].ioligo=j;
+            if (surrogate[i].rion)
+              for (jion=0;jion<surrogate[i].nion;jion++)
+                {                
+                  if (surrogate[j].name==surrogate[i].ion(jion))
+                    surrogate[i].iion(jion)=j;
+                  if (surrogate[j].name==surrogate[i].rion_product(jion))                
+                    surrogate[i].iproduct(jion)=j;                    
+                }
+          }      
+
+       
 
     }
-}
 
+  if (config.chemistry)
+    config.coupled_phases=true;
+}
 
 void system_aiomfac(model_config &config, vector<species>& surrogate)
 {
@@ -258,7 +343,7 @@ void system_aiomfac(model_config &config, vector<species>& surrogate)
 
   //modification of the matrixes to keep only necessary informations:
   //      - remove unused solvent groups or ions groups
-  double sum_group_solute[Ngroup_solute];
+  double sum_group_solute[15];
   double sum_group_species;
   int NFUNC=45;
   bool composition_already_defined;
@@ -360,11 +445,12 @@ void system_aiomfac(model_config &config, vector<species>& surrogate)
     if (surrogate[i].is_organic==false and config.iH2O!=i and surrogate[i].is_inorganic_precursor==false)
       {	
         surrogate[i].index_ion=config.nion_aiomfac;
-        i_ion_aiomfac(surrogate[i].index_ion_aiomfac)=surrogate[i].index_ion;
+        i_ion_aiomfac(surrogate[i].index_ion_aiomfac)=surrogate[i].index_ion; 
         config.nion_aiomfac++;
       }
     else
       surrogate[i].index_ion=-1;
+
 
   if (config.nmol_aiomfac>0 and config.nion_aiomfac>0)
     {
@@ -427,11 +513,21 @@ void system_aiomfac(model_config &config, vector<species>& surrogate)
 				
               }
 	  
+      config.Rcc_aq=0.0;
+      config.b1ca_aq=0.0;
+      config.b2ca_aq=0.0;
+      config.b3ca_aq=0.0;
+      config.c1ca_aq=0.0;
+      config.c2ca_aq=0.0;
+      config.Qcca_aq=0.0;
+
+
       for (j=0;j<Nions;++j)
         if (i_ion_aiomfac(j)>=0)
           for (k=0;k<Nions;++k)
             if (i_ion_aiomfac(k)>=0)
               {
+           
                 config.b1ca_aq(i_ion_aiomfac(j),i_ion_aiomfac(k))=b1ca[j][k];
                 config.b2ca_aq(i_ion_aiomfac(j),i_ion_aiomfac(k))=b2ca[j][k];
                 config.b3ca_aq(i_ion_aiomfac(j),i_ion_aiomfac(k))=b3ca[j][k];
@@ -488,6 +584,25 @@ void system_aiomfac(model_config &config, vector<species>& surrogate)
 					index_group_aiomfac(Group_unifac_to_aiomfac[j]));
 	      }
 	}
+
+  config.molality.resize(config.nion_aiomfac);
+  config.gamma_LR_ions.resize(config.nion_aiomfac);
+  config.gamma_MR_ions.resize(config.nion_aiomfac);
+  config.gamma_LR_solvents.resize(config.nmol_aiomfac);
+  config.gamma_MR_solvents.resize(config.nmol_aiomfac);
+  config.X_aiomfac.resize(config.nmol_aiomfac);
+  config.charges_ions.resize(config.nion_aiomfac);
+  config.molar_mass_solvents.resize(config.nmol_aiomfac);
+  config.molar_mass_groups.resize(config.ngroup_aiomfac);
+ 
+  for (i=0;i<n;++i) //molality (mol/kg) and charge of inorganic ions
+    if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+      { 
+        config.charges_ions(surrogate[i].index_ion)=surrogate[i].charge;      
+        //molality(0)=0.0;
+        //cout << surrogate[i].name << " " << surrogate[i].index_ion << endl;
+      }
+
 
 		
 }
@@ -775,7 +890,7 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.Inter_org.resize(config.nfunc_org,config.nfunc_org);
       config.InterB_org.resize(config.nfunc_org,config.nfunc_org);
       config.InterC_org.resize(config.nfunc_org,config.nfunc_org);
-      config.groups_org.resize(config.nfunc_org,config.nmol_org);
+      config.groups_org.resize(config.nfunc_org,config.nmol_org);//config.nmol_org,config.nfunc_org);
       config.RG_org.resize(config.nfunc_org);
       config.QG_org.resize(config.nfunc_org);
 	  
@@ -830,12 +945,13 @@ void param_unifac(model_config &config, vector<species> &surrogate)
         {
           config.Rparam_org(i)=0.0;
           config.Qparam_org(i)=0.0;
+          //config.Lparam_org(i)=0.0;
           for (j=0;j<config.nfunc_org;++j)
             {
               config.Rparam_org(i)+=config.groups_org(j,i)*config.RG_org(j);
               config.Qparam_org(i)+=config.groups_org(j,i)*config.QG_org(j);
             }
-          config.Lparam_org(i)=config.Z/2*(config.Rparam_org(i)-config.Qparam_org(i))-(config.Rparam_org(i)-1.0);
+          config.Lparam_org(i)=config.Z/2*(config.Rparam_org(i)-config.Qparam_org(i))-(config.Rparam_org(i)-1.0);          
         }
 	  
 	  
@@ -916,7 +1032,7 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.Inter_aq.resize(config.nfunc_aq,config.nfunc_aq);
       config.InterB_aq.resize(config.nfunc_aq,config.nfunc_aq);
       config.InterC_aq.resize(config.nfunc_aq,config.nfunc_aq);
-      config.groups_aq.resize(config.nfunc_aq,config.nmol_aq);
+      config.groups_aq.resize(config.nfunc_aq,config.nmol_aq);//config.nmol_aq,config.nfunc_aq);
       config.RG_aq.resize(config.nfunc_aq);
       config.QG_aq.resize(config.nfunc_aq);
 	  
@@ -965,17 +1081,25 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       //Pre-calculation of some unifac parameters
       config.Rparam_aq.resize(config.nmol_aq);
       config.Qparam_aq.resize(config.nmol_aq);
-      config.Lparam_aq.resize(config.nmol_aq);      
+      config.Lparam_aq.resize(config.nmol_aq);
+      config.Lparam_aq=0.;
+      //cout << config.groups_aq << endl;
+      //cout << config.RG_aq << endl;     
       for (i=0;i<config.nmol_aq;i++)
         {
           config.Rparam_aq(i)=0.0;
           config.Qparam_aq(i)=0.0;
-          for (j=0;j<config.nfunc_aq;++j)
+          config.Lparam_aq(i)=0.0;   
+          for (j=0;j<config.nfunc_aq;j++)
             {
+              //cout << j << endl;
               config.Rparam_aq(i)+=config.groups_aq(j,i)*config.RG_aq(j);
               config.Qparam_aq(i)+=config.groups_aq(j,i)*config.QG_aq(j);
             }
+          //cout << config.Lparam_aq << endl;
           config.Lparam_aq(i)=config.Z/2*(config.Rparam_aq(i)-config.Qparam_aq(i))-(config.Rparam_aq(i)-1.0);
+          //cout << "L: " << config.Lparam_aq(i) << " " << config.Rparam_aq(i) << " " << config.Qparam_aq(i) << " " << config.Z << endl;
+          //cout << config.Z/2*(config.Rparam_aq(i)-config.Qparam_aq(i))-(config.Rparam_aq(i)-1.0) << endl;
         }
 	  
  
@@ -1105,492 +1229,37 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       //Pre-calculation of some unifac parameters
       config.Rparam_tot.resize(config.nmol_tot);
       config.Qparam_tot.resize(config.nmol_tot);
-      config.Lparam_tot.resize(config.nmol_tot);
-      
+      config.Lparam_tot.resize(config.nmol_tot);     
       for (i=0;i<config.nmol_tot;i++)
         {
           config.Rparam_tot(i)=0.0;
           config.Qparam_tot(i)=0.0;
-          for (j=0;j<config.nfunc_tot;++j)
+          //config.Lparam_tot(i)=0.0;
+          for (j=0;j<config.nfunc_tot;j++)
             {
               config.Rparam_tot(i)+=config.groups_tot(j,i)*config.RG_tot(j);
               config.Qparam_tot(i)+=config.groups_tot(j,i)*config.QG_tot(j);
             }
-          config.Lparam_tot(i)=config.Z/2*(config.Rparam_tot(i)-config.Qparam_tot(i))-(config.Rparam_tot(i)-1.0);
+
+          //cout << config.Rparam_tot(i) << " " << config.Qparam_tot(i) << endl;
+          config.Lparam_tot(i)=config.Z/2*(config.Rparam_tot(i)-config.Qparam_tot(i))-(config.Rparam_tot(i)-1.0);          
+
+          if (config.Lparam_tot(i)!=config.Z/2*(config.Rparam_tot(i)-config.Qparam_tot(i))-(config.Rparam_tot(i)-1.0))
+            {
+              cout << "Problem Lparam" << endl;
+              cout << "L: "<< config.Lparam_tot(i) << endl;
+              cout << config.Z/2*(config.Rparam_tot(i)-config.Qparam_tot(i))-(config.Rparam_tot(i)-1.0) << endl;
+              cout << "Exiting " << endl;
+              exit(0);
+            }
         }
 	  
     }
-
-  if (config.tabulation_unifac)
-    {
-      FILE *f;
-      string file_out="unifac.csv";
-      f=fopen(file_out.c_str(),"wb");  
-      fprintf (f, "%i %s", config.iH2O, "\n");
-      for (i=0;i<=config.iH2O;i++)
-        {
-          int a=0;
-          int b=0;
-          if (surrogate[i].hydrophilic)
-            a=1;
-          if (surrogate[i].hydrophobic)
-            b=1;
-          fprintf (f, "%i %s %i %s %i", i, ";", a, ";", b); 
-          for (j=0;j<NFUNC;j++)
-            fprintf (f, "%s %e", ";", surrogate[i].groups[j]); 
-          fprintf (f, "%s", "\n");
-        }
-
-      for (i=0;i<=config.iH2O;i++)
-        fprintf (f, "%i %s %i %s %i %s", surrogate[i].index_gamma_tot, ";", surrogate[i].index_gamma_org, ";", surrogate[i].index_gamma_aq, "\n");         
-
-      fprintf (f, "%i %s %i %s", config.nmol_tot, ";", config.nfunc_tot, "\n");
-      for (j=0;j<config.nfunc_tot;j++)
-        for (k=0;k<config.nfunc_tot;k++)      
-          fprintf (f, "%i %s %i %s %e %s %e %s %e %s", j, ";", k, ";", config.Inter_tot(j,k), ";", config.InterB_tot(j,k), ";", config.InterC_tot(j,k),"\n");        
-     
-      for (i=0;i<config.nmol_tot;i++)    
-        for (k=0;k<config.nfunc_tot;k++)      
-          fprintf (f, "%i %s %i %s %e %s", k, ";", i, ";", config.groups_tot(k,i), "\n");    
-
-      for (j=0;j<config.nfunc_tot;j++)
-        fprintf(f, "%i %s %e %s %e %s", j, ";", config.RG_tot(j), ";", config.QG_tot(j), "\n");
-
-      for (i=0;i<config.nmol_tot;i++)  
-        fprintf(f, "%i %s %e %s %e %s %e %s", i, ";", config.Rparam_tot(i), ";", config.Qparam_tot(i), ";", config.Lparam_tot(i), "\n");
-
-
-      fprintf (f, "%i %s %i %s", config.nmol_org, ";", config.nfunc_org, "\n");
-      for (j=0;j<config.nfunc_org;j++)
-        for (k=0;k<config.nfunc_org;k++)      
-          fprintf (f, "%i %s %i %s %e %s %e %s %e %s", j, ";", k, ";", config.Inter_org(j,k),  ";", config.InterB_org(j,k),  ";", config.InterC_org(j,k),"\n");        
-     
-      for (i=0;i<config.nmol_org;i++)    
-        for (k=0;k<config.nfunc_org;k++)      
-          fprintf (f, "%i %s %i %s %e %s", k, ";", i, ";", config.groups_org(k,i), "\n");    
-
-      for (j=0;j<config.nfunc_org;j++)
-        fprintf(f, "%i %s %e %s %e %s", j, ";", config.RG_org(j), ";", config.QG_org(j), "\n");
-
-      for (i=0;i<config.nmol_org;i++)  
-        fprintf(f, "%i %s %e %s %e %s %e %s", i, ";", config.Rparam_org(i), ";", config.Qparam_org(i), ";", config.Lparam_org(i), "\n");
-
-
-      fprintf (f, "%i %s %i %s", config.nmol_aq, ";", config.nfunc_aq, "\n");
-      for (j=0;j<config.nfunc_aq;j++)
-        for (k=0;k<config.nfunc_aq;k++)      
-          fprintf (f, "%i %s %i %s %e %s %e %s %e %s", j, ";", k, ";", config.Inter_aq(j,k), ";", config.InterB_aq(j,k),";", config.InterC_aq(j,k),  "\n");        
-     
-      for (i=0;i<config.nmol_aq;i++)    
-        for (k=0;k<config.nfunc_aq;k++)      
-          fprintf (f, "%i %s %i %s %e %s", k, ";", i, ";", config.groups_aq(k,i), "\n");    
-
-      for (j=0;j<config.nfunc_aq;j++)
-        fprintf(f, "%i %s %e %s %e %s", j, ";", config.RG_aq(j), ";", config.QG_aq(j), "\n");
-
-      for (i=0;i<config.nmol_aq;i++)  
-        fprintf(f, "%i %s %e %s %e %s %e %s", i, ";", config.Rparam_aq(i), ";", config.Qparam_aq(i), ";", config.Lparam_aq(i), "\n");
-
-
-      config.ntemp=60;
-      for (i=0;i<n;i++)
-        surrogate[i].species_activity.resize(config.ntemp);
-
-      int itemp;
-      double sum_group2;
-      for (i=0;i<n;i++)
-        if (surrogate[i].is_organic or i==config.iH2O)
-          {
-            sum_group2=0.0;
-            for (j=0;j<NFUNC;j++)
-              if (surrogate[i].groups[j]>0.0)
-                sum_group2=1;
-
-            if (sum_group2==0.0)
-              for (j=0;j<NFUNC;j++)
-                surrogate[i].groups[j]=default_structure[j];
-          }
-
-      for (itemp=0;itemp<config.ntemp;itemp++)
-        {     
-          double Temperature=263.15+1.0*itemp;
-          Array<double,2> Inter2;
-          Inter2.resize(NFUNC,NFUNC);
-          Array <double, 2> group_activity_mol,sum2mol;
-          group_activity_mol.resize(NFUNC,n);
-          sum2mol.resize(NFUNC,n);
-          Array <double, 2> surface_fraction_mol;      
-          surface_fraction_mol.resize(NFUNC,n);      
-          surface_fraction_mol=0.0;
-          double sum_surf=0.0;
-          for (i=0;i<n;i++)
-            if (surrogate[i].is_organic or surrogate[i].name=="H2O")
-              {
-                double sum_surf_mol=0.0;
-                for (j=0;j<NFUNC;j++)
-                  if (surrogate[i].groups[j]>0.0)
-                    {               
-                      surface_fraction_mol(j,i)+=QG[j]*surrogate[i].groups[j];               
-                      sum_surf_mol+=QG[j]*surrogate[i].groups[j];  
-                    }
-
-                for (j=0;j<NFUNC;j++)      
-                  surface_fraction_mol(j,i)/=sum_surf_mol;
-              }
-
-          for (j=0;j<NFUNC;j++)
-            for (k=0;k<NFUNC;k++)          
-              Inter2(j,k)=exp(-A[j][k]/Temperature+B[j][k]*(1.0/298.15-1.0/298)+C[j][k]*(298.15/Temperature-1+log(Temperature/298.15)));                  
-
-          for (i=0;i<n;i++)
-            if (surrogate[i].is_organic or surrogate[i].name=="H2O")
-              for (j=0;j<NFUNC;j++)
-                if (surrogate[i].groups[j]>0.0)
-                  {
-                    sum2mol(j,i)=0.0;
-                    for (k=0;k<NFUNC;k++)
-                      if (surrogate[i].groups[k]>0.0)
-                        sum2mol(j,i)+=surface_fraction_mol(k,i)*Inter2(k,j);              
-                  }
-
   
-          for (i=0;i<n;i++)
-            if (surrogate[i].is_organic or surrogate[i].name=="H2O")
-              {
-                surrogate[i].species_activity(itemp)=0.0;
-                for (j=0;j<NFUNC;j++)
-                  if (surrogate[i].groups[j]>0.0)
-                    {
-                      group_activity_mol(j,i)=1.0-log(sum2mol(j,i));                     
-                      for (k=0;k<NFUNC;k++)      
-                        if (surrogate[i].groups[k]>0.0)
-                          group_activity_mol(j,i)-=surface_fraction_mol(k,i)*Inter2(j,k)/sum2mol(k,i);  
-
-                      surrogate[i].species_activity(itemp)+=surrogate[i].groups[j]*QG[j]*group_activity_mol(j,i);
-
-                    }     
-                 fprintf (f, "%i %s %i %s %e %s", itemp, ";", i, ";", surrogate[i].species_activity(itemp), "\n");
-              }           
-        }
- 
-      fclose(f);
-    }  
+  config.Inter2_aq.resize(config.nfunc_aq,config.nfunc_aq);
+  config.Inter2_org.resize(config.nfunc_org,config.nfunc_org);
+  config.Inter2_tot.resize(config.nfunc_tot,config.nfunc_tot);
 }
-
-
-void read_tab_unifac(model_config &config, vector<species>& surrogate)
-{
-  FILE *f;
-  string file_out="unifac.csv";  
-  ifstream fichier(file_out.c_str(), ios::in);
-  string ligne;
-  int NFUNC=45;
-  int okfile=1;
-  int n=surrogate.size();
-  getline(fichier, ligne, '\n');
-  int ih2oin=atoi(ligne.c_str()); 
-  if (ih2oin!=config.iH2O)
-    {
-      okfile=0;
-      cout << "ih2o: " << ih2oin << " " << config.iH2O << endl;
-    }
-  int i,j,k,itemp;
-  config.Z=10.0;
-  
-  for (i=0;i<=config.iH2O;i++)
-    {
-      getline(fichier, ligne, ';');
-      int ispecies=atoi(ligne.c_str()); 
-      getline(fichier, ligne, ';');
-      int a=atoi(ligne.c_str()); 
-      getline(fichier, ligne, ';');
-      int b=atoi(ligne.c_str());            
-      if ((surrogate[i].hydrophilic and a!=1) or (surrogate[i].hydrophilic==false and a==1))
-        {
-          okfile=0;
-          cout << surrogate[i].name << " hydrophilic problem: " << surrogate[i].hydrophilic << " " << a << endl;
-        }
-      if ((surrogate[i].hydrophobic and b!=1) or (surrogate[i].hydrophobic==false and b==1))
-        {
-          okfile=0;
-          cout << surrogate[i].name << " hydrophobic problem: " << surrogate[i].hydrophobic << " " << b << endl;
-        }
-      
-      for (j=0;j<NFUNC-1;j++)
-        {
-          getline(fichier, ligne, ';');
-          double g=atof(ligne.c_str());
-          if (g!=surrogate[i].groups[j])
-            okfile=0;
-        }
-      j=NFUNC-1;
-      getline(fichier, ligne, '\n');
-      double g=atof(ligne.c_str());
-      if (g!=surrogate[i].groups[j])
-        okfile=0;
-    }  
- 
-  if (okfile==0)
-    {
-      fichier.close();
-      param_unifac(config, surrogate);
-    }
-  else
-    {
-      for (i=0;i<=config.iH2O;i++)
-        {
-          getline(fichier, ligne, ';');
-          surrogate[i].index_gamma_tot=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          surrogate[i].index_gamma_org=atoi(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          surrogate[i].index_gamma_aq=atoi(ligne.c_str()); 
-        }
-
-      for (i=config.iH2O+1;i<n;i++)
-        {
-          surrogate[i].index_gamma_tot=-1;           
-          surrogate[i].index_gamma_org=-1;           
-          surrogate[i].index_gamma_aq=-1; 
-        }
-
-      getline(fichier, ligne, ';');
-      config.nmol_tot=atoi(ligne.c_str()); 
-      getline(fichier, ligne, '\n');
-      config.nfunc_tot=atoi(ligne.c_str()); 
-      config.Inter_tot.resize(config.nfunc_tot,config.nfunc_tot);            
-      config.InterB_tot.resize(config.nfunc_tot,config.nfunc_tot); 
-      config.InterC_tot.resize(config.nfunc_tot,config.nfunc_tot); 
-      config.groups_tot.resize(config.nfunc_tot,config.nmol_tot);
-      config.RG_tot.resize(config.nfunc_tot);
-      config.QG_tot.resize(config.nfunc_tot);
-      config.Rparam_tot.resize(config.nmol_tot);
-      config.Qparam_tot.resize(config.nmol_tot);
-      config.Lparam_tot.resize(config.nmol_tot);
-
-      for (j=0;j<config.nfunc_tot;j++)
-        for (k=0;k<config.nfunc_tot;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            config.Inter_tot(j,k)=atof(ligne.c_str());             
-	    getline(fichier, ligne, ';');
-            config.InterB_tot(j,k)=atof(ligne.c_str());
-	    getline(fichier, ligne, '\n');
-            config.InterC_tot(j,k)=atof(ligne.c_str());
-          }        
-  
-      for (i=0;i<config.nmol_tot;i++)    
-        for (k=0;k<config.nfunc_tot;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, '\n');
-            config.groups_tot(k,i)=atof(ligne.c_str());  
-          }         
-
-  
-      for (j=0;j<config.nfunc_tot;j++)
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.RG_tot(j)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.QG_tot(j)=atof(ligne.c_str()); 
-        }
- 
-      for (i=0;i<config.nmol_tot;i++)  
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Rparam_tot(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Qparam_tot(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.Lparam_tot(i)=atof(ligne.c_str()); 
-        }
- 
-      getline(fichier, ligne, ';');
-      config.nmol_org=atoi(ligne.c_str()); 
-      getline(fichier, ligne, '\n');
-      config.nfunc_org=atoi(ligne.c_str()); 
-      config.Inter_org.resize(config.nfunc_org,config.nfunc_org); 
-      config.InterB_org.resize(config.nfunc_org,config.nfunc_org); 
-      config.InterC_org.resize(config.nfunc_org,config.nfunc_org); 
-      config.groups_org.resize(config.nfunc_org,config.nmol_org);
-      config.RG_org.resize(config.nfunc_org);
-      config.QG_org.resize(config.nfunc_org);
-      config.Rparam_org.resize(config.nmol_org);
-      config.Qparam_org.resize(config.nmol_org);
-      config.Lparam_org.resize(config.nmol_org);
-
-      for (j=0;j<config.nfunc_org;j++)
-        for (k=0;k<config.nfunc_org;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            config.Inter_org(j,k)=atof(ligne.c_str());             
-	    getline(fichier, ligne, ';');
-	    config.InterB_org(j,k)=atof(ligne.c_str());  
-	    getline(fichier, ligne, '\n');
-            config.InterC_org(j,k)=atof(ligne.c_str());  
-          }        
-  
-      for (i=0;i<config.nmol_org;i++)    
-        for (k=0;k<config.nfunc_org;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, '\n');
-            config.groups_org(k,i)=atof(ligne.c_str());  
-          }         
-
-  
-      for (j=0;j<config.nfunc_org;j++)
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.RG_org(j)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.QG_org(j)=atof(ligne.c_str()); 
-        }
- 
-      for (i=0;i<config.nmol_org;i++)  
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Rparam_org(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Qparam_org(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.Lparam_org(i)=atof(ligne.c_str()); 
-        }
-
-      getline(fichier, ligne, ';');
-      config.nmol_aq=atoi(ligne.c_str()); 
-      getline(fichier, ligne, '\n');
-      config.nfunc_aq=atoi(ligne.c_str()); 
-      config.Inter_aq.resize(config.nfunc_aq,config.nfunc_aq);            
-      config.InterB_aq.resize(config.nfunc_aq,config.nfunc_aq);  
-      config.InterC_aq.resize(config.nfunc_aq,config.nfunc_aq);  
-      config.groups_aq.resize(config.nfunc_aq,config.nmol_aq);
-      config.RG_aq.resize(config.nfunc_aq);
-      config.QG_aq.resize(config.nfunc_aq);
-      config.Rparam_aq.resize(config.nmol_aq);
-      config.Qparam_aq.resize(config.nmol_aq);
-      config.Lparam_aq.resize(config.nmol_aq);
-
-      for (j=0;j<config.nfunc_aq;j++)
-        for (k=0;k<config.nfunc_aq;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            config.Inter_aq(j,k)=atof(ligne.c_str());             
-            getline(fichier, ligne, ';');
-            config.InterB_aq(j,k)=atof(ligne.c_str());  
-            getline(fichier, ligne, '\n');
-            config.InterC_aq(j,k)=atof(ligne.c_str());  
-          }        
-  
-      for (i=0;i<config.nmol_aq;i++)    
-        for (k=0;k<config.nfunc_aq;k++)      
-          {
-            getline(fichier, ligne, ';');
-            int a=atoi(ligne.c_str()); 
-            getline(fichier, ligne, ';');
-            int b=atoi(ligne.c_str()); 
-            getline(fichier, ligne, '\n');
-            config.groups_aq(k,i)=atof(ligne.c_str());  
-          }         
-
-  
-      for (j=0;j<config.nfunc_aq;j++)
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.RG_aq(j)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.QG_aq(j)=atof(ligne.c_str()); 
-        }
- 
-      for (i=0;i<config.nmol_aq;i++)  
-        {
-          getline(fichier, ligne, ';');
-          int a=atoi(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Rparam_aq(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, ';');
-          config.Qparam_aq(i)=atof(ligne.c_str()); 
-          getline(fichier, ligne, '\n');
-          config.Lparam_aq(i)=atof(ligne.c_str()); 
-        }
-
-      config.ntemp=60;
-      for (i=0;i<n;i++)
-        surrogate[i].species_activity.resize(config.ntemp);
-
-      for (itemp=0;itemp<config.ntemp;itemp++)
-        {       
-          for (i=0;i<=config.iH2O;i++)           
-            {
-              getline(fichier, ligne, ';');
-              int a=atoi(ligne.c_str()); 
-              getline(fichier, ligne, ';');
-              int b=atoi(ligne.c_str()); 
-              getline(fichier, ligne, '\n');
-              surrogate[i].species_activity(itemp)=atof(ligne.c_str());   
-            }           
-        }
-
-      fichier.close();
-    }
-
-  //                    H+    Li+   Na+   K+   NH4+  Mg2+  Ca2+  Cl-   Br-   NO3-  HSO4-  SO4--
-  double RGions[12] = {1.78, 0.61, 0.38, 0.44, 0.69, 5.44, 2.24, 0.99, 1.25, 0.95, 1.65,  3.34};
-  double QGions[12] = {2.70, 0.99, 0.62, 0.58, 0.78, 8.35, 3.40, 0.99, 1.16, 0.97, 1.40,  3.96};   
-
-  config.nion_unifac=0;
-  if (config.SR_ions)
-    for (i=0;i<n;i++)
-      if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iH2O)
-        config.nion_unifac++;
-  
-  config.RGions.resize(config.nion_unifac);
-  config.QGions.resize(config.nion_unifac);
-  config.Lions.resize(config.nion_unifac);
-  int iion=0;
-  if (config.SR_ions)
-    for (i=0;i<n;i++)
-      if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iH2O)
-        {
-          config.RGions(iion)=RGions[surrogate[i].index_ion_aiomfac];
-          config.QGions(iion)=QGions[surrogate[i].index_ion_aiomfac];
-          config.Lions(iion)=config.Z/2*(config.RGions(iion)-config.QGions(iion))-(config.RGions(iion)-1.0);
-          iion++;
-        }
-
-
-
-}
-
 
 void check_config(model_config &config, vector<species>& surrogate)
 {
@@ -1759,7 +1428,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
       if(config.nlayer==1)
 	{
 	  config.Vlayer(0)=1.0;
-	  config.alpha_layer(0)=1.0e20;
+	  config.alpha_layer(0)=1.0e10;
 	  config.Alayer(0,0)=0.744123644366;
 	  config.Alayer(0,1)=-2.42956182268;
 	  config.Alayer(0,2)=3.67009239335;
@@ -1770,7 +1439,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.Vlayer(0)=0.99;
           config.Vlayer(1)=0.01;
 	  config.alpha_layer(0)=1.0;
-          config.alpha_layer(1)=1.0e20;
+          config.alpha_layer(1)=1.0e10;
 	  config.Alayer(0,0)=0.744123644366;
 	  config.Alayer(0,1)=-2.42956182268;
 	  config.Alayer(0,2)=3.67009239335;
@@ -1787,7 +1456,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.Vlayer(2)=0.01;
 	  config.alpha_layer(0)=0.98776;
 	  config.alpha_layer(1)=6.25580;
-	  config.alpha_layer(2)=1.0e20;
+	  config.alpha_layer(2)=1.0e10;
 	  config.Alayer(0,0)=0.744123644366;
 	  config.Alayer(0,1)=-2.42956182268;
 	  config.Alayer(0,2)=3.67009239335;
@@ -1810,7 +1479,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.alpha_layer(0)=0.98776;
 	  config.alpha_layer(1)=6.25580;
 	  config.alpha_layer(2)=68.8666;
-	  config.alpha_layer(3)=1.0e20;
+	  config.alpha_layer(3)=1.0e10;
 	  config.Alayer(0,0)=0.744123644366;
 	  config.Alayer(0,1)=-2.42956182268;
 	  config.Alayer(0,2)=3.67009239335;
@@ -1827,7 +1496,6 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.Alayer(3,1)=-2.25743854559;
 	  config.Alayer(3,2)=3.06448590934;
 	  config.Alayer(3,3)=-2.64037530024;
-
 	}
       else if (config.nlayer==5)
 	{
@@ -1840,7 +1508,29 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.alpha_layer(1)=6.2/1.18/1.07132849494;
 	  config.alpha_layer(2)=68.0/0.91/2.3390977/1.0329289261;
 	  config.alpha_layer(3)=6800.0/0.2184165/11.66905/4.02193787237;
-	  config.alpha_layer(4)=1.0e20;
+	  config.alpha_layer(4)=1.0e10;
+
+	  /*
+	  config.Alayer(0,0)=0.75333976;
+	  config.Alayer(0,1)=-2.07731233;
+	  config.Alayer(0,2)=2.50737585;
+	  config.Alayer(0,3)=-2.17868134;
+	  config.Alayer(1,0)=-0.56614726;
+	  config.Alayer(1,1)=1.4035896;
+	  config.Alayer(1,2)=-1.65286055;
+	  config.Alayer(1,3)=-0.18656703;
+	  config.Alayer(2,0)=0.26280355;
+	  config.Alayer(2,1)=-0.68530296;
+	  config.Alayer(2,2)=0.71727107;
+	  config.Alayer(2,3)=-1.29418599;
+	  config.Alayer(3,0)=-0.03985921;
+	  config.Alayer(3,1)=0.1111873;
+	  config.Alayer(3,2)=0.23132191;
+	  config.Alayer(3,3)=-1.302617;
+	  config.Alayer(4,0)=-0.03985921;
+	  config.Alayer(4,1)=0.1111873;
+	  config.Alayer(4,2)=0.23132191;
+	  config.Alayer(4,3)=-1.302617;*/
 
 	  config.Alayer(0,0)=0.76764824;
 	  config.Alayer(0,1)=-2.13955138;
@@ -1897,35 +1587,78 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
   for (i=0;i<n;++i)
     {      
       surrogate[i].Ap_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].Ap_layer(b,ilayer,iphase)=0.0;*/
       surrogate[i].Aaq_bins.resize(config.nbins);
+      /*for (b=0;b<config.nbins;++b)
+        surrogate[i].Aaq_bins=0.0;*/
       surrogate[i].Ap_layer_init.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].Ap_layer_init0.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       for (b=0;b<config.nbins;++b)		  
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
           for (iphase=0;iphase<config.max_number_of_phases;++iphase)
             surrogate[i].Ap_layer_init(b,ilayer,iphase)=0.0;
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].Ap_layer_init0(b,ilayer,iphase)=0.0;*/
       surrogate[i].Aaq_bins_init.resize(config.nbins);
       surrogate[i].Aaq_bins_init0.resize(config.nbins);
       surrogate[i].gamma_org_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].gamma_org_layer0.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].gamma_org_layer0(b,ilayer,iphase)=0.0;
+        for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].gamma_org_layer(b,ilayer,iphase)=0.0;*/
       surrogate[i].Xinit.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].Xinit(b,ilayer,iphase)=0.0;*/
       surrogate[i].gamma_aq_bins.resize(config.nbins);
       surrogate[i].LR.resize(config.nbins);
       surrogate[i].SRMR.resize(config.nbins);
       surrogate[i].tau_diffusion.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].tau_diffusion(b,ilayer,iphase)=0.0;*/
       surrogate[i].tau_air.resize(config.nbins);
       surrogate[i].k1.resize(config.nbins,config.nlayer,config.max_number_of_phases,2);
       surrogate[i].Jdn.resize(config.nbins,config.nlayer,config.max_number_of_phases,2);
       surrogate[i].time.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].time(b,ilayer,iphase)=0.0;*/
       surrogate[i].k1_aq.resize(config.nbins,2);
       surrogate[i].Jdn_aq.resize(config.nbins,2);
       surrogate[i].time_aq.resize(config.nbins);
+      //surrogate[i].gamma_old.resize(config.max_number_of_phases);
       surrogate[i].Kp.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      /*for (b=0;b<config.nbins;++b)		  
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+        surrogate[i].Kp(b,ilayer,iphase)=0.0;*/
       surrogate[i].Kaq.resize(config.nbins);
+      surrogate[i].dKaq.resize(config.nbins);
+      surrogate[i].flux_chem.resize(config.nbins,config.nlayer,config.max_number_of_phases,2);
+      surrogate[i].flux_chem_aq.resize(config.nbins,2); 
+      surrogate[i].flux_chem_gas.resize(2); 
+      surrogate[i].flux_chem=0.0;
+      surrogate[i].flux_chem_aq=0.0; 
+      surrogate[i].flux_chem_gas=0.0;      
+      surrogate[i].Jdn_gas.resize(2); 
+      surrogate[i].Jdn_gas=0.0;
     }
   config.AQrho.resize(config.nbins);
 }
-
 
 void parameters(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
                 double molecular_weight_aer[], double accomodation_coefficient[])
@@ -1936,18 +1669,14 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
 
   if (config.activity_model == "unifac")
     {
-      config.tabulation_unifac = false;
       config.SR_ions = true;
       config.temperature_dependancy = true;
     }
   else
     {
-      config.tabulation_unifac = true;
       config.SR_ions = false;
       config.temperature_dependancy = false;
-    }
-
-  config.tabulation_unifac = true;
+    }  
 
   config.first_evaluation_activity_coefficients=false; //Use initial concentrations to compute activity coefficients
   config.LWClimit=0.01;      //LWC under which there is no aqueous phase
@@ -1959,11 +1688,16 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
   config.compute_saturation=false;   //compute saturation
   config.compute_inorganic=false;
   if (config.compute_inorganic)
-    config.compute_long_and_medium_range_interactions=true; //force to be used when inorganic are computed
+    {
+      config.compute_long_and_medium_range_interactions=true; //force to be used when inorganic are computed
+      config.LWClimit=-1.;
+    }
+
+  config.solids=false;
   if (config.compute_long_and_medium_range_interactions==false) 
     config.SR_ions=false; // false if AIOMFAC is not used
   config.compute_organic=true;
-  config.coupling_organic_inorganic=false;
+  config.coupling_organic_inorganic=true;
   if (config.coupling_organic_inorganic==false)
     config.number_of_org_inorg_cycles=1;
 
@@ -1980,6 +1714,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
     }
   
   config.precision=0.0001;
+  config.chemistry=false;
   if (config.equilibrium==true)
     {
       config.precision=1e-4; //absolute precision under which the system has been solved
@@ -2020,25 +1755,25 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
   creation_species(surrogate,species_list_aer, molecular_weight_aer,
                    accomodation_coefficient); 
   system_coupling(config, surrogate);
-  if (config.tabulation_unifac)
-    {
-      FILE* fp = NULL;
-      fp = fopen( "unifac.csv", "rb" );
-      if( fp != NULL )
-        {
-          fclose(fp);
-          read_tab_unifac(config, surrogate); 
-        }
-      else
-        {
-          param_unifac(config, surrogate); 
-        }
-    }
-  else
-    param_unifac(config, surrogate); 
+  param_unifac(config, surrogate); 
   system_aiomfac(config, surrogate);
   if (config.equilibrium==false)
     init_transfert_parameters(config, surrogate);
+
+  if (config.chemistry and config.equilibrium)
+    {
+      config.nt=1;  //number of coupling times between the equilibrium partitioning and the chemistry
+      config.dtchem_min=1.0; //minimal time step for chemistry integration in the equilibrium approach   
+
+      int n=surrogate.size();
+      int i;
+      for (i=0;i<n;i++)
+        {           
+          surrogate[i].Jdn_gas.resize(2);
+          surrogate[i].flux_chem_tot.resize(2);
+        }
+    }
+
 }
 
 

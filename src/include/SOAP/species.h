@@ -34,9 +34,12 @@ namespace soap
 	int iHSO4m,iSO4mm;
 	int iNH4p;
 	int iNO3m;
-	int iClm;
-        int iNa;
+	int iClm;        
+        int iNa,iCa,iMg,iK;
+        int iHCl,iHNO3,iNH3,iH2SO4;
+
 	double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
+	double Ke;
 
 	//equilibrium parameters:
 	double precision; //absolute precision under which the system has been solved 
@@ -69,8 +72,9 @@ namespace soap
 	//Parameters of unifac and aiomfac:
 	double Z;
 	int nion_aiomfac, nion_unifac, ngroup_aiomfac, nmol_aiomfac;
-	int nfunc_org, nfunc_aq, nmol_org, nmol_aq,nfunc_tot,nmol_tot;
-	Array<double, 2> Inter_org, Inter_aq, Inter_tot, groups_org, groups_aq, groups_tot;
+	int nfunc_org, nfunc_aq, nmol_org, nmol_aq,nfunc_tot,nmol_tot;	
+	Array<double, 2> Inter_org, Inter_aq, Inter2_aq, Inter2_org, Inter2_tot, Inter_tot, groups_org, groups_aq, groups_tot;
+
 	Array<double, 2> InterB_org, InterB_aq, InterB_tot;
 	Array<double, 2> InterC_org, InterC_aq, InterC_tot;
 	Array<double, 1> RG_org, QG_org, RG_aq, QG_aq, RG_tot, QG_tot, RGions, QGions,Lions;
@@ -84,9 +88,22 @@ namespace soap
 	int explicit_method;
 	bool constant_dorg;	
         int ntemp; 
-        bool tabulation_unifac;
         bool SR_ions;
 	bool temperature_dependancy;
+        double koligo; //s-1
+        double Keq_oligo;
+        int nt;
+        double dtchem_min;
+	bool chemistry,solids;
+
+        //For AIOMFAC:
+        Array<double,1> molality,gamma_LR_ions,gamma_MR_ions, charges_ions,molar_mass_groups;
+        Array<double,1> gamma_LR_solvents,gamma_MR_solvents,X_aiomfac,molar_mass_solvents;
+
+        int iiter;
+
+    double chpinit,ionicinit,initAQ;
+
   };
 
   class species
@@ -101,8 +118,9 @@ namespace soap
 	bool hydrophilic, hydrophobic,nonvolatile,kp_from_experiment,is_organic;
 	bool compute_gamma_org,compute_gamma_aq,is_inorganic_precursor;
 	int index_gamma_org, index_gamma_aq, index_gamma_tot,index_gamma_aiomfac;
-	double groups[45];
+	double groups[45],conc_mol;
 	int index_ion_aiomfac,index_ion;
+	int aqt;
 	
 	//local equilibrium values
 	double Kaq_inorg;
@@ -123,30 +141,53 @@ namespace soap
         //Waq: mass fraction in the aqueous phase
 	//Xorg: molar fraction in the organic phase
 	double kpi,keq,kaqi,fioni1,fioni2;
-	double Ap,Ag,Aaq,Atot,Xaq,Xorg,Waq;
+	double Ap,Ag,Aaq,Atot,Atot0,Atot1,Xaq,Xorg,Waq;
 	double Aaq_save;
 	double gamma_aq_old,Aaq_old,Xaq_old,Ag_old,Ap_old;
 	double partial_pressure, partial_pressure_old;
-	double gamma_org,gamma_aq,gamma_LR,gamma_SRMR;
+	double gamma_org,gamma_org_old,gamma_aq,gamma_LR,gamma_SRMR,gamma_aq_tmp;
 	double molality,charge;
 	Array<double, 1> gamma_org_sat,Ap_sat,Ap_sat_save;  //for saturation 
 	Array<double, 1> gamma_org_sat_old,Ap_sat_old,Xorg_sat,Xorg_sat_old; //for saturation
 	int jmain_phase,jmain_phase_old; //for saturation
 
+        //For solid species
+        double Ksol,dCp;
+        int iion1,iion2,iion3,pion1,pion2,pion3;
+        string ion1,ion2,ion3;
+        bool is_solid;
+        double Ap2,Aaq2,Ag2,molality2;
+
 	//local dynamic value:
 	Array<double, 3> Ap_layer,Ap_layer_init,Ap_layer_init0,gamma_org_layer,gamma_org_layer0,Xinit;
 	Array<double, 3> Kp;
-	Array<double, 1> Aaq_bins,Aaq_bins_init,Aaq_bins_init0,time_aq,LR,SRMR,Kaq;
+	Array<double, 1> Aaq_bins,Aaq_bins_init,Aaq_bins_init0,time_aq,LR,SRMR,Kaq,dKaq;
 	Array<double, 1> gamma_aq_bins,gamma_old;
-	double KDiffusion_p,KDiffusion_air,accomodation_coefficient,Ag0;
+	double KDiffusion_p,KDiffusion_air,accomodation_coefficient,Ag0,Aaq0;
 	Array<double, 3> tau_diffusion,time;
 	Array<double, 1> tau_air;
 	Array <double, 4> k1,Jdn;
 	Array<double, 2> k1_aq,Jdn_aq;
 	Array<double, 2> dif_org;
         Array<double, 1> species_activity;
-	double Ag1,Agt,fion1,fion2;
+        Array<double, 1> Jdn_gas,flux_chem_tot;
+        Array<double, 4> flux_chem;
+	Array<double, 2> flux_chem_aq;
+        Array<double, 1> flux_chem_gas;	
+	double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
+	double moligo;
+        bool is_monomer;
+        string name_oligomer;
+        int ioligo;
+        bool rion;           
+        int nion;
+        Array<string, 1> ion,rion_product;
+        Array<bool, 1> rion_catalyzed;
+        Array<double, 1> kion;
+        Array<int, 1> iion,iproduct;
 
+	double Aginit,Aaqinit;
+       
         int soap_ind; // Number in the aerosol species list
   };
   

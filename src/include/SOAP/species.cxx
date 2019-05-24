@@ -61,9 +61,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA2D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiA2D.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiA2D.rho=1300.0;
+  BiA2D.is_monomer=false;
+  BiA2D.rion=false;
   BiA2D.KDiffusion_air=1.0e-5;
   // BiA2D.accomodation_coefficient=alpha;
   BiA2D.viscosity=1.68e12;
+  BiA2D.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -120,9 +123,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA1D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiA1D.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   BiA1D.rho=1300.0;  
+  BiA1D.is_monomer=false;
+  BiA1D.rion=false;
   BiA1D.KDiffusion_air=1.0e-5;
   //  BiA1D.accomodation_coefficient=alpha;
   BiA1D.viscosity=1.68e12;
+  BiA1D.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -179,9 +185,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA0D.pHref=6.0;
   BiA0D.beta=1.91;
   BiA0D.rho=1300.0;
+  BiA0D.is_monomer=false;
+  BiA0D.rion=false;
   BiA0D.KDiffusion_air=1.0e-5;
   //  BiA0D.accomodation_coefficient=alpha;
   BiA0D.viscosity=1.68e12;
+  BiA0D.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -234,9 +243,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiMT.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiMT.Koligo_org=0.0;        //oligomeriation constant in the organic phase
   BiMT.rho=1300.0;
+  BiMT.is_monomer=false;
+  BiMT.rion=false;
   BiMT.KDiffusion_air=1.0e-5;
   //  BiMT.accomodation_coefficient=alpha;
   BiMT.viscosity=1.68e12;
+  BiMT.is_solid=false;
  
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -290,9 +302,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiPER.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiPER.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiPER.rho=1300.0;
+  BiPER.is_monomer=false;
+  BiPER.rion=false;
   BiPER.KDiffusion_air=1.0e-5;
   //  BiPER.accomodation_coefficient=alpha;
   BiPER.viscosity=1.68e12;
+  BiPER.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -345,9 +360,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiDER.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiDER.Koligo_org=0.0;       //oligomeriation constant in the organic phase
   BiDER.rho=1300.0;
+  BiDER.is_monomer=false;
+  BiDER.rion=false;
   BiDER.KDiffusion_air=1.0e-5;
   //  BiDER.accomodation_coefficient=alpha;
   BiDER.viscosity=1.68e12;
+  BiDER.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -402,9 +420,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiMGA.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiMGA.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiMGA.rho=1300.0;
+  BiMGA.is_monomer=false;
+  BiMGA.rion=false;
   BiMGA.KDiffusion_air=1.0e-5;
   //  BiMGA.accomodation_coefficient=alpha;
   BiMGA.viscosity=1.68e12;
+  BiMGA.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -457,10 +478,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnBlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   AnBlP.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   AnBlP.rho=1300.0;
+  AnBlP.is_monomer=false;
+  AnBlP.rion=false;
   AnBlP.KDiffusion_air=1.0e-5;
   //  AnBlP.accomodation_coefficient=alpha;
   AnBlP.viscosity=1.68e12;
-  
+  AnBlP.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -513,9 +536,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnBmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   AnBmP.Koligo_org=0.0;       //oligomeriation constant in the organic phase
   AnBmP.rho=1300.0;
+  AnBmP.is_monomer=false;
+  AnBmP.rion=false;
   AnBmP.KDiffusion_air=1.0e-5;
   //  AnBmP.accomodation_coefficient=alpha;
   AnBmP.viscosity=1.68e12;
+  AnBmP.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -568,9 +594,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiBlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiBlP.Koligo_org=0.0;    //oligomeriation constant in the organic phase
   BiBlP.rho=1300.0;
+  BiBlP.is_monomer=false;
+  BiBlP.rion=false;
   BiBlP.KDiffusion_air=1.0e-5;
   //  BiBlP.accomodation_coefficient=alpha;
   BiBlP.viscosity=1.68e12;  
+  BiBlP.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -624,9 +653,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiBmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiBmP.Koligo_org=0.0;     //oligomeriation constant in the organic phase
   BiBmP.rho=1300.0;
+  BiBmP.is_monomer=false;
+  BiBmP.rion=false;
   BiBmP.KDiffusion_air=1.0e-5;
   //  BiBmP.accomodation_coefficient=alpha;
   BiBmP.viscosity=1.68e12;  
+  BiBmP.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -676,9 +708,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   AnClP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   AnClP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   AnClP.rho=1300.0;
+  AnClP.is_monomer=false;
+  AnClP.rion=false;
   AnClP.KDiffusion_air=1.0e-5;
   //  AnClP.accomodation_coefficient=alpha;
   AnClP.viscosity=1.68e12;  
+  AnClP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -731,10 +766,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNGA.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiNGA.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiNGA.rho=1300.0;
+  BiNGA.is_monomer=false;
+  BiNGA.rion=false;
   BiNGA.KDiffusion_air=1.0e-5;
   //  BiNGA.accomodation_coefficient=alpha;
   BiNGA.viscosity=1.68e12;
-  
+  BiNGA.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -787,9 +824,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNIT3.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiNIT3.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   BiNIT3.rho=1300.0;
+  BiNIT3.is_monomer=false;
+  BiNIT3.rion=false;
   BiNIT3.KDiffusion_air=1.0e-5;
   //  BiNIT3.accomodation_coefficient=alpha;
   BiNIT3.viscosity=1.68e12;  
+  BiNIT3.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -842,9 +882,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiNIT.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiNIT.Koligo_org=0.0;
   BiNIT.rho=1300.0;
+  BiNIT.is_monomer=false;
+  BiNIT.rion=false;
   BiNIT.KDiffusion_air=1.0e-5;
   //  BiNIT.accomodation_coefficient=alpha;
   BiNIT.viscosity=1.68e12;  
+  BiNIT.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -897,9 +940,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAlP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAlP.rho=1300.0;
+  POAlP.is_monomer=false;
+  POAlP.rion=false;
   POAlP.KDiffusion_air=1.0e-5;
   //  POAlP.accomodation_coefficient=alpha;
   POAlP.viscosity=1.68e12;  
+  POAlP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -948,9 +994,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAmP.rho=1300.0;
+  POAmP.is_monomer=false;
+  POAmP.rion=false;
   POAmP.KDiffusion_air=1.0e-5;
   //  POAmP.accomodation_coefficient=alpha;
   POAmP.viscosity=1.68e12;  
+  POAmP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -999,9 +1048,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   POAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAhP.rho=1300.0;
+  POAhP.is_monomer=false;
+  POAhP.rion=false;
   POAhP.KDiffusion_air=1.0e-5;
   //  POAhP.accomodation_coefficient=alpha;
   POAhP.viscosity=1.68e12;  
+  POAhP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1050,9 +1102,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAlP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAlP.rho=1300.0;
+  SOAlP.is_monomer=false;
+  SOAlP.rion=false;
   SOAlP.KDiffusion_air=1.0e-5;
   //  SOAlP.accomodation_coefficient=alpha;
   SOAlP.viscosity=1.68e12;  
+  SOAlP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1101,10 +1156,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAmP.rho=1300.0;
+  SOAmP.is_monomer=false;
+  SOAmP.rion=false;
   SOAmP.KDiffusion_air=1.0e-5;
   //  SOAmP.accomodation_coefficient=alpha;
   SOAmP.viscosity=1.68e12;
-  
+  SOAmP.is_solid=false;  
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1153,9 +1210,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SOAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAhP.rho=1300.0;
+  SOAhP.is_monomer=false;
+  SOAhP.rion=false;
   SOAhP.KDiffusion_air=1.0e-5;
   //  SOAhP.accomodation_coefficient=alpha;
   SOAhP.viscosity=1.68e12;  
+  SOAhP.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1207,10 +1267,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Monomer.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
   Monomer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Monomer.rho=1840.0;
+  Monomer.is_monomer=false;
+  Monomer.rion=false;
   Monomer.KDiffusion_air=1.0e-5;
   //  Monomer.accomodation_coefficient=alpha;
   Monomer.viscosity=1.68e12;
-  
+  Monomer.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1263,10 +1325,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Dimer.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
   Dimer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Dimer.rho=1300.0;
+  Dimer.is_monomer=false;
+  Dimer.rion=false;
   Dimer.KDiffusion_air=1.0e-5;
   //  Dimer.accomodation_coefficient=alpha;
   Dimer.viscosity=1.68e12;
-  
+  Dimer.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1321,9 +1385,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   BiA3D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   BiA3D.Koligo_org=0.0;         //oligomeriation constant in the organic phase
   BiA3D.rho=1300.0;
+  BiA3D.is_monomer=false;
+  BiA3D.rion=false;
   //  BiA3D.accomodation_coefficient=0.5;
   BiA3D.KDiffusion_air=1.0e-5;
   BiA3D.viscosity=1.68e12;
+  BiA3D.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1376,6 +1443,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2O.KDiffusion_air=1.0e-5;
   //  H2O.accomodation_coefficient=alpha;
   H2O.viscosity=1.0;  
+  H2O.is_solid=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1427,6 +1495,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SO4.accomodation_coefficient=0.5;
   SO4.viscosity=1.0;
   SO4.soap_ind = -1;
+  SO4.is_solid=false;
   surrogate.push_back(SO4);
 
   species HSO4;
@@ -1445,6 +1514,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HSO4.accomodation_coefficient=0.5;
   HSO4.viscosity=1.0;
   HSO4.soap_ind = -1;
+  HSO4.is_solid=false;
   surrogate.push_back(HSO4);
 
   species NO3;
@@ -1463,6 +1533,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NO3.accomodation_coefficient=0.5;
   NO3.viscosity=1.0;
   NO3.soap_ind = -1;
+  NO3.is_solid=false;
   surrogate.push_back(NO3);
 
   species NH4;
@@ -1481,6 +1552,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH4.accomodation_coefficient=0.5;
   NH4.viscosity=1.0;
   NH4.soap_ind = -1;
+  NH4.is_solid=false;
   surrogate.push_back(NH4);
 
   species H;
@@ -1499,6 +1571,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H.accomodation_coefficient=0.5;
   H.viscosity=1.0;
   H.soap_ind = -1;
+  H.is_solid=false;
   surrogate.push_back(H);
 
   species Na;
@@ -1514,6 +1587,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Na.rho=1300.0; //1400.0;
   Na.KDiffusion_air=1.0e-5;
   Na.viscosity=1.0;
+  Na.is_solid=false;
 
   // Find the number in the aerosol species list
   Na.soap_ind = -1;
@@ -1542,6 +1616,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Cl.accomodation_coefficient=0.5;
   Cl.viscosity=1.0;
   Cl.soap_ind = -1;
+  Cl.is_solid=false;
 
   species H2SO4;
   H2SO4.name="H2SO4";

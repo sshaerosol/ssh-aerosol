@@ -1,3 +1,4 @@
+#include <math.h>
 
 void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
              Array<double, 1> &gamma_MR_solvents, Array<double,1> &molar_mass_solvents,
@@ -8,28 +9,58 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
              Array<double, 2> &groups_solvents,
              Array<double, 2> &b1ki, Array<double, 2> &b2ki, Array<double, 2> &b1ca,
              Array<double, 2> &b2ca, Array<double, 2> &b3ca, Array<double, 2> &c1ca,
-             Array<double, 2> &c2ca, Array<double, 2> &Rcc, Array<double, 3> &Qcca)
+             Array<double, 2> &c2ca, Array<double, 2> &Rcc, Array<double, 3> &Qcca,
+             int &jH2O, bool compute_organic)
 {
   int nsolvents=X_solvents.size();
   int nions=molality_ions.size();
  
-  double rho=997.0;  //volumic mass in kg.m-3 
+  //double rho=config.rho_aqueous;
+  double rho=997.0; //1000.0;  //volumic mass in kg.m-3 
   double permittivity=78.54;  //relative static permittivity of water"
 
-  int i,j,k,l,isol;    
-  double logmax=20.;
-
+  int i,j,k,l;    
+  double logmax=12.;
+   
+  /*cout << "A" << groups_solvents << endl;
+    cout << "B" << b1ki << endl;
+    cout << "C" << b2ki << endl;
+    cout << "D" << b1ca << endl;*/
+  //b1ca=0.0;
+  //cout << "E" << b2ca << endl;
+  //b2ca=0.0;
+  //cout << "F" << b3ca << endl;
+  //b3ca=0.0;
+  //cout << "G" << c1ca << endl;
+  //c1ca=0.0;
+  //cout << "H" << c2ca << endl;
+  //c2ca=0.0;
+  //Rcc=0.0;
+  //cout << "I" << Rcc << endl;
+  //Qcca=0.0;
+  //cout << "J" << Qcca << endl;
   if (ionic>0.0)
     {      
+      //cout << "ionic:" << ionic << endl;
       ////////////////////////////////////////
       // LONG - RANGE computation           //
       ////////////////////////////////////////
+
+      double sum_molality=0.0;
+      for (i=0;i<nions;++i)
+        sum_molality+=abs(molality_ions(i));
+
+      //To prevent too high molalities
+      /*
+      if (sum_molality>1.0e4)
+        for (i=0;i<nions;++i)
+        molality_ions(i)=molality_ions(i)/sum_molality*1.0e4;*/
 
       double sqrt_ionic=pow(ionic,0.5); 
       double A=1.327757e5*pow(rho,0.5)/(pow(permittivity*Temperature,3.0/2));
       double b=6.369696*pow(rho,0.5)/(pow(permittivity*Temperature,0.5));      
       double A2=A*(1+b*sqrt_ionic-1.0/(1+b*sqrt_ionic)
-                  -2.0*log(1.0+b*sqrt_ionic));
+                   -2.0*log(1.0+b*sqrt_ionic));
       double A3=A*sqrt_ionic/(1+b*sqrt_ionic);
 
       for (k=0;k<nsolvents;++k)
@@ -45,6 +76,9 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       Array<double, 2> Bki,IBki_deriv;
       Array<double, 2> Bca,IBca_deriv;
       Array<double, 2> Cca,ICca_deriv;
+      Array<double, 1> Afaci,sumIBkXk;
+      Afaci.resize(nions);
+      sumIBkXk.resize(nions);
       Bki.resize(ngroups,nions);
       IBki_deriv.resize(ngroups,nions);
       Bca.resize(nions,nions);
@@ -61,6 +95,8 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
           {
             Bki(k,i)=b1ki(k,i)+b2ki(k,i)*I1;
             IBki_deriv(k,i)=-0.6*b2ki(k,i)*I2;
+	    //if (k==0 and i==1)
+	    //  cout << "Bbbbb " << b1ki(k,i) << " " << b2ki(k,i) << " " << b1ki(k,i)+b2ki(k,i)*exp(-1.2*sqrt_ionic) << endl;
           }
 
       
@@ -104,6 +140,7 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       else
         cout << "sumXk is zero" << endl;
 
+      //cout << Xk << endl;
       double molar_mass_average=0.0;
       for (k=0;k<ngroups;++k)
         molar_mass_average+=Xk(k)*molar_mass_groups(k); //CHANGED Based on a corrigeum published in ACP by Zuend. BEFORE: molar_mass_average+=X_solvents(k)*molar_mass_solvents(k); 
@@ -111,37 +148,72 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       double mi_zi=0.0;
       for (i=0;i<nions;++i)
         mi_zi+=molality_ions(i)*abs(charges_ions(i));
-	  
-      for (k=0;k<ngroups;++k)
+      
+      int kbeg,kend;
+      
+      if (compute_organic==false)
         {
-          log_gammak(k)=0.0;	 
-          for (i=0;i<nions;++i)
-            {
-              log_gammak(k)+=Bki(k,i)*molality_ions(i);	   
-	   
-              double a=0.;   
-              for (l=0;l<ngroups;++l)            
-                a+=(Bki(l,i)+IBki_deriv(l,i)*ionic)*Xk(l)/molar_mass_average;
-              	  
-              if(charges_ions(i)>0.0)
+          kbeg=jH2O;
+          kend=jH2O+1;
+        }
+      else
+        {
+          //cout << "compute organic is true" << endl;
+          kbeg=0;
+          kend=ngroups;
+        }
+      //cout << molar_mass_groups(jH2O) << endl;
+      //cout << kbeg << " " << kend << endl;
+      log_gammak=0.0;
+      
+      Afaci=0.;
+      for (i=0;i<nions;++i)
+        {
+          if(charges_ions(i)>0.0)
                 {
                                  
                   for (j=0;j<nions;++j)
                     if(charges_ions(j)<0.0)
-                      a+=(Bca(i,j)+IBca_deriv(i,j)*ionic+mi_zi*(2*Cca(i,j)+ICca_deriv(i,j)*ionic))*molality_ions(j);
-
-                 for (j=i;j<nions;++j)
+                      Afaci(i)+=(Bca(i,j)+IBca_deriv(i,j)*ionic+mi_zi*(2*Cca(i,j)+ICca_deriv(i,j)*ionic))*molality_ions(j);                      
+                  
+                  for (j=i;j<nions;++j)
                     if(charges_ions(j)>0.0)
                       {
-                        a+=Rcc(i,j)*molality_ions(j);
+                        Afaci(i)+=Rcc(i,j)*molality_ions(j);
                         for (l=0;l<nions;++l)
                           if(charges_ions(l)<0.0)
-                            a+=2.0*Qcca(i,j,l)*molality_ions(j)*molality_ions(l);
-                      }
-                }	
+                            Afaci(i)+=2.0*Qcca(i,j,l)*molality_ions(j)*molality_ions(l);
+                      }           
+                }
+        }
+
+
+      for (k=kbeg;k<kend;++k)
+        {
+          //log_gammak(k)=0.0;	 
+          for (i=0;i<nions;++i)
+            {
+              
+              log_gammak(k)+=Bki(k,i)*molality_ions(i);	                 
+              
+              double a=0.;                 
+              for (l=0;l<ngroups;++l)            
+                a+=(Bki(l,i)+IBki_deriv(l,i)*ionic)*Xk(l)/molar_mass_average;
+              
+              if(charges_ions(i)>0.0)
+                a+=Afaci(i);                              
+             
               log_gammak(k)-=a*molality_ions(i)*molar_mass_groups(k);
             }
+          //cout << log_gammak(k) << endl;
         }
+      //cout << molality_ions << endl;
+      //cout << ionic << endl;
+
+      /*
+        cout << "Gr " << groups_solvents << endl;
+        cout << "lng " << log_gammak << endl;*/
+      //cout << Bki << endl;
 
       for (l=0;l<nsolvents;++l)
         {
@@ -149,9 +221,18 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
           for (k=0;k<ngroups;++k)
             gamma_MR_solvents(l)+=groups_solvents(l,k)*log_gammak(k);
 
-	  gamma_MR_solvents(l)=min(gamma_MR_solvents(l),logmax);
-	  gamma_MR_solvents(l)=max(gamma_MR_solvents(l),-logmax);	  
+          gamma_MR_solvents(l)=min(gamma_MR_solvents(l),logmax);
+          gamma_MR_solvents(l)=max(gamma_MR_solvents(l),-logmax);	  
           gamma_MR_solvents(l)=exp(gamma_MR_solvents(l));
+          //cout << "MR " << l << " " << gamma_MR_solvents(l) << endl;
+        }
+
+      sumIBkXk=0.;
+      for (j=0;j<nions;++j)
+        {
+          //double a=0.;
+          for (k=0;k<ngroups;++k)              
+            sumIBkXk(j)+=IBki_deriv(k,j)*Xk(k);
         }
 
       double loggamma;
@@ -164,9 +245,7 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
 			
             for (j=0;j<nions;++j)
               {
-                double a=0.0;
-                for (k=0;k<ngroups;++k)                
-                  a+=IBki_deriv(k,j)*Xk(k);
+                double a=sumIBkXk(j);
 
                 a*=pow(charges_ions(i),2)/(2*molar_mass_average);
 			          
@@ -188,26 +267,33 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
                 loggamma+=a*molality_ions(j);
               }
 
-	    loggamma=min(loggamma,logmax);
-	    loggamma=max(loggamma,-logmax);
+            loggamma=min(loggamma,logmax);
+            loggamma=max(loggamma,-logmax);
             gamma_MR_ions(i)=exp(loggamma);
           }
         else
           {
+            //cout << i << " " << charges_ions(i) << endl;
             loggamma=0;
             for (k=0;k<ngroups;++k)
               loggamma+=1.0/molar_mass_average*Bki(k,i)*Xk(k);
             
+            //if (i==1)
+            //  cout << "A: " << loggamma << " " << molar_mass_average << endl;            
             for (j=0;j<nions;++j)
               {
-                double a=0.;
-                for (k=0;k<ngroups;++k)              
-                  a+=IBki_deriv(k,j)*Xk(k);
+                double a=sumIBkXk(j);
                 a*=pow(charges_ions(i),2)/(2*molar_mass_average);
+                /*
+                if (i==6)
+                cout << "A1: " << a*molality_ions(j) << endl;*/
 			   
                 if(charges_ions(j)>0.0)
                   {
                     a+=Bca(j,i)+Cca(j,i)*mi_zi;
+                    /*
+                    if (i==6 and molality_ions(j)>0.)
+                    cout << "A2: " << j << " " << a*molality_ions(j) << endl;*/
 
                     for (l=0;l<nions;++l)
                       {
@@ -216,18 +302,37 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
                             a+=molality_ions(l)*
                               (0.5*pow(charges_ions(i),2)*IBca_deriv(j,l)+
                                (Cca(j,l)*abs(charges_ions(i))+ICca_deriv(j,l)*0.5*pow(charges_ions(i),2)*mi_zi));
+                            /*
+                            if (i==6)                              
+                              if (molality_ions(l)>0. and molality_ions(j)>0.)
+                                cout << "A3 :" << j << " " << l << " " << molality_ions(l)*
+                                  (0.5*pow(charges_ions(i),2)*IBca_deriv(j,l)+
+                                  (Cca(j,l)*abs(charges_ions(i))+ICca_deriv(j,l)*0.5*pow(charges_ions(i),2)*mi_zi))*molality_ions(j) << endl;*/
                           }
                         else if(charges_ions(l)>0.0)
-                          a+=Qcca(j,l,i)*molality_ions(l);
+                          {
+                            a+=Qcca(j,l,i)*molality_ions(l);
+                            /*
+                            if (i==6)
+                              if (molality_ions(l)>0. and molality_ions(j)>0.)
+                              cout << "A4: " << j << " " << l << " " << Qcca(j,l,i)*molality_ions(l)*molality_ions(j) << endl;*/
+                          }
                       }
                   }
-                loggamma+=a*molality_ions(j);
+                loggamma+=a*molality_ions(j);                
+                /*if (i==1)
+                  if(charges_ions(j)>0.0 and molality_ions(j)>0.)                  
+                  cout << j << " " << a*molality_ions(j) << " " << molality_ions(j) << endl;*/
               }
-			
-	    loggamma=min(loggamma,logmax);
-	    loggamma=max(loggamma,-logmax);
+
+            /*
+            if (i==6)
+            cout << charges_ions(i) << " " << i << " " << loggamma << endl;*/
+            loggamma=min(loggamma,logmax);
+            loggamma=max(loggamma,-logmax);            
             gamma_MR_ions(i)=exp(loggamma);
           }
+      //cout << molality_ions << endl;
     }
   else
     {
