@@ -421,14 +421,14 @@ void water_concentration(model_config &config, vector<species>& surrogate,
   
 }
 
-double species::knudsen_function(double &Temperature, double diameter)
+double species::knudsen_function(double &Temperature, double diameter, double diam2)
 {
   //compute the value of the knudsen function
-  double velocity=pow(2.11714271498563e4*Temperature/MM,0.5);
   double knudsen=3.0*KDiffusion_air/(velocity*diameter);
+  double sqrt_knudsen=knui/diam2;
   //cout << KDiffusion_air << " " << velocity << " " << diameter << " " << value << endl;
   double value=0.75*accomodation_coefficient*(1.0+knudsen)/
-    (pow(knudsen,2)+knudsen+0.283*knudsen*accomodation_coefficient+0.75*accomodation_coefficient);
+    (sqrt_knudsen+knudsen+0.283*knudsen*accomodation_coefficient+0.75*accomodation_coefficient);
   //double value=(1.0+knudsen)/(1.+2.*(1.+knudsen)*knudsen/accomodation_coefficient);
   //cout << KDiffusion_air << " " << velocity << " " << diameter << " " << value << " " << MM << endl;
 
@@ -448,14 +448,17 @@ void tau_kmt(model_config &config,vector<species>& surrogate, double &temperatur
   //cout << config.diameters << endl;
 
   for (b=0;b<config.nbins;++b)	  
-    for (i=0;i<n;++i)
-      if (number(b)>0.0)        
-	surrogate[i].tau_air(b)=1.0/
-	  (2.0*pi*surrogate[i].KDiffusion_air*
-	   config.diameters(b)*1.0e-6*number(b)*
-	   surrogate[i].knudsen_function(temperature, config.diameters(b)*1.0e-6));	         
-      else
-        surrogate[i].tau_air(b)=1.0e19; 
+    {
+      double diam2=pow(config.diameters(b)*1.0e-6,2.);	         
+      for (i=0;i<n;++i)
+	if (number(b)>0.0)        
+	  surrogate[i].tau_air(b)=1.0/
+	    (2.0*pi*surrogate[i].KDiffusion_air*
+	config.diameters(b)*1.0e-6*number(b)*
+	surrogate[i].knudsen_function(temperature, config.diameters(b)*1.0e-6,diam2));	         
+	else
+	  surrogate[i].tau_air(b)=1.0e19; 
+    }
 }
 
 void tau_dif(model_config &config, vector<species>& surrogate,

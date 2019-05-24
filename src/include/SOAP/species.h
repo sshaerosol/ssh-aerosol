@@ -129,7 +129,7 @@ namespace soap
 	double Kpart_aq(double&, double&);
 	double Kp_eff_org(double&, double&);
 	double Kp_exp_org(double&);
-	double knudsen_function(double&, double);
+	double knudsen_function(double&, double, double);
 	double Kp_eff_aq(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
         double Kp_eff_aqreal(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
 	double Kequilibrium(double &);
@@ -185,6 +185,7 @@ namespace soap
         Array<bool, 1> rion_catalyzed;
         Array<double, 1> kion;
         Array<int, 1> iion,iproduct;
+	double velocity,knui;
 
 	double Aginit,Aaqinit;
        

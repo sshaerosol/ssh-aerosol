@@ -1591,6 +1591,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	surrogate[i].Aaq_bins_init=0;
       if (surrogate[i].hydrophobic==false)
 	surrogate[i].Ap_layer_init=0;
+      surrogate[i].velocity=pow(2.11714271498563e4*Temperature/surrogate[i].MM,0.5);
+      surrogate[i].knui=pow(3.0*surrogate[i].KDiffusion_air/surrogate[i].velocity,2);
     }
 
   if (config.activity_model=="unifac")
