@@ -132,6 +132,7 @@ namespace soap
 	double knudsen_function(double&, double, double);
 	double Kp_eff_aq(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
         double Kp_eff_aqreal(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
+        double Kp_eff_aqrealdyn(model_config&, double&, double&, double&, double&, double&, double&, double&, double&, int&);
 	double Kequilibrium(double &);
 	//Ap: concentrations in the organic phase
 	//Ag: concentrations in the gas phase
@@ -173,7 +174,8 @@ namespace soap
         Array<double, 1> Jdn_gas,flux_chem_tot;
         Array<double, 4> flux_chem;
 	Array<double, 2> flux_chem_aq;
-        Array<double, 1> flux_chem_gas;	
+        Array<double, 1> flux_chem_gas;
+	Array<double, 1> veckaqi,vecfioni1,vecfioni2;	
 	double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
 	double moligo;
         bool is_monomer;

@@ -1656,6 +1656,9 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
       surrogate[i].flux_chem_gas=0.0;      
       surrogate[i].Jdn_gas.resize(2); 
       surrogate[i].Jdn_gas=0.0;
+      surrogate[i].veckaqi.resize(config.nbins);
+      surrogate[i].vecfioni1.resize(config.nbins);
+      surrogate[i].vecfioni2.resize(config.nbins);
     }
   config.AQrho.resize(config.nbins);
 }

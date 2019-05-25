@@ -6,82 +6,71 @@ void compute_kp_org(model_config &config, vector<species>& surrogate,
   //compute partitioning constant of the organic phase by taking into account activity
   //coefficients and the kelvin effect
   double temp1,temp2,maxi,MOWsurf;
-  double kelvin_effect;
+  double kelvin_effect=1.;
   int ilayer,i,b,iphase,jphase;
   int n=surrogate.size();
-  for (i=0;i<n;++i)
-    for (b=0;b<config.nbins;++b)
-      if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
-        {
-          //compute the mean molar mass of organic phases
-          //it is used to have the same mean molar mass for all organic phases and to prevent
-          //two organic phase from having different kelvin effect
-          //(with different kelvin effect numerical problems could arised) 
-          temp1=0.0;
-          temp2=0.0;
-          for (iphase=0;iphase<config.nphase(b,config.nlayer-1);++iphase)
-            {
-              temp1+=MOinit(b,config.nlayer-1,iphase);
-              temp2+=MOinit(b,config.nlayer-1,iphase)/MOW(b,config.nlayer-1,iphase);
-            }
-          if (temp1>0.0)
-            MOWsurf=temp1/temp2;
-          else
-            MOWsurf=200.0;
-		  
-          //compute the characteristic time
-          for (ilayer=0;ilayer<config.nlayer;++ilayer)
-            {
-              maxi=0.0;
-              jphase=0;
-              if (surrogate[i].kp_from_experiment)
-                for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                  if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)
-                    jphase=iphase;
-
-              if (i!=config.iH2O)
-                for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                  {
-                    if (surrogate[i].nonvolatile)
-                      surrogate[i].Kp(b,ilayer,iphase)=pow(10.0,5)*200.0/
-                        (surrogate[i].gamma_org_layer(b,ilayer,iphase)*MOW(b,ilayer,iphase));
-                    else if (surrogate[i].kp_from_experiment)
-                      if(iphase==jphase)
-                        surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].Kp_exp_org(Temperature);
-                      else
-                        surrogate[i].Kp(b,ilayer,iphase)=0.0;
-                    else
-                      surrogate[i].Kp(b,ilayer,iphase)=
-                        surrogate[i].Kp_eff_org(Temperature,MOW(b,ilayer,iphase))/
-                        surrogate[i].gamma_org_layer(b,ilayer,iphase);
+  for (b=0;b<config.nbins;++b)
+    {      
+      if (config.compute_kelvin_effect and config.diameters(b) > 0.0) //compute the kelvin_effect
+	{
+	  //compute the mean molar mass of organic phases
+	  //it is used to have the same mean molar mass for all organic phases and to prevent
+	  //two organic phase from having different kelvin effect
+	  //(with different kelvin effect numerical problems could arised) 
+	  temp1=0.0;
+	  temp2=0.0;
+	  for (iphase=0;iphase<config.nphase(b,config.nlayer-1);++iphase)
+	    {
+	      temp1+=MOinit(b,config.nlayer-1,iphase);
+	      temp2+=MOinit(b,config.nlayer-1,iphase)/MOW(b,config.nlayer-1,iphase);
+	    }
+	  if (temp1>0.0)
+	    MOWsurf=temp1/temp2;
+	  else
+	    MOWsurf=200.0;
+	  kelvin_effect=exp(2.0*config.surface_tension_org*1.0e-6*
+			    MOWsurf/(8.314*Temperature*config.rho_organic*
+				     0.5*config.diameters(b)*1.0e-6));
+	}
+      for (i=0;i<n;++i)
+	if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+	  {		  
+	    //compute the characteristic time
+	    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	      {
+		maxi=0.0;
+		jphase=0;
+		if (surrogate[i].kp_from_experiment)
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)
+		      jphase=iphase;
+		
+		if (i!=config.iH2O)
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    {
+		      if (surrogate[i].nonvolatile)
+			surrogate[i].Kp(b,ilayer,iphase)=pow(10.0,5)*200.0/
+			  (surrogate[i].gamma_org_layer(b,ilayer,iphase)*MOW(b,ilayer,iphase));
+		      else if (surrogate[i].kp_from_experiment)
+			if(iphase==jphase)
+			  surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].kpi; //Kp_exp_org(Temperature);
+			else
+			  surrogate[i].Kp(b,ilayer,iphase)=0.0;
+		      else
+			surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].kpi/MOW(b,ilayer,iphase)/
+			  surrogate[i].gamma_org_layer(b,ilayer,iphase);
 					
-                    if (config.compute_kelvin_effect and config.diameters(b) > 0.0) //compute the kelvin_effect
-                      {
-                        kelvin_effect=exp(2.0*config.surface_tension_org*1.0e-6*
-                                          MOWsurf/(8.314*Temperature*config.rho_organic*
-                                                   0.5*config.diameters(b)*1.0e-6));
-                        surrogate[i].Kp(b,ilayer,iphase)/=kelvin_effect;                        
-                      }
-					
-                  }
-              else
-                for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                  {
-                    surrogate[i].Kp(b,ilayer,iphase)=
-                      surrogate[i].Kp_eff_org(Temperature,MOW(b,ilayer,iphase))/
-                      surrogate[i].gamma_org_layer(b,ilayer,iphase);
-					
-                    if (config.compute_kelvin_effect and config.diameters(b) > 0.0) //compute the kelvin_effect
-                      {
-                        kelvin_effect=exp(2.0*config.surface_tension_org*1.0e-6*
-                                          MOWsurf/(8.314*Temperature*config.rho_organic*
-                                                   0.5*config.diameters(b)*1.0e-6));
-                        surrogate[i].Kp(b,ilayer,iphase)/=kelvin_effect;
-                      }
-					
-                  }
-            }
-        }
+		      surrogate[i].Kp(b,ilayer,iphase)/=kelvin_effect;                        
+		    }
+		else
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    surrogate[i].Kp(b,ilayer,iphase)=
+		      surrogate[i].kpi/MOW(b,ilayer,iphase)/
+		      surrogate[i].gamma_org_layer(b,ilayer,iphase)/kelvin_effect;
+	    
+	      }
+	  }
+    }
 }
 
 void compute_kp_aq(model_config &config, vector<species>& surrogate,
@@ -90,7 +79,7 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 {
   //compute partitioning constant of the aqueous phase by taking into account activity
   //coefficients and the kelvin effect
-  double kelvin_effect;
+  double kelvin_effect=1.;
   int b,i;
   int n=surrogate.size();
   double fion1,fion2;
@@ -98,112 +87,100 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
   double deltaH_over_RT0,deltaCp0_over_R;
   double T0=298.15;
 
-  for (i=0;i<n;++i)
-    for (b=0;b<config.nbins;++b)      
-      if (MMaq(b) > 0.0)
-        if(surrogate[i].is_organic and surrogate[i].hydrophilic)
-          {	  
-            surrogate[i].gamma_LR=surrogate[i].LR(b);
-            if (surrogate[i].nonvolatile)
-              surrogate[i].Kaq(b)=pow(10.0,3)/surrogate[i].gamma_aq_bins(b)*18.0/MMaq(b);
-            else
-              {
-                surrogate[i].Kaq(b)=
-                  surrogate[i].Kp_eff_aq(config, Temperature, ionic(b), chp(b),surrogate[config.iHp].LR(b),
-                                         surrogate[config.iHp].SRMR(b),MMaq(b),fion1,fion2)
-                  /surrogate[i].gamma_aq_bins(b);
-
-                surrogate[i].fion1=fion1;
-                surrogate[i].fion2=fion2;
-              }
+  for (b=0;b<config.nbins;++b)      
+    if (MMaq(b) > 0.0 and config.diameters(b)>0)
+      {
+	if (config.compute_kelvin_effect) //compute the kelvin effect
+	  kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
+			    (8.314*Temperature*config.AQrho(b)*
+			     0.5*config.diameters(b)*1.0e-6));
+	for (i=0;i<n;++i)
+	  if(surrogate[i].is_organic and surrogate[i].hydrophilic)
+	    {	  
+	      surrogate[i].gamma_LR=surrogate[i].LR(b);
+	      if (surrogate[i].nonvolatile)
+		surrogate[i].Kaq(b)=1000.0/surrogate[i].gamma_aq_bins(b)*18.0/MMaq(b);
+	      else
+		{
+		  surrogate[i].Kaq(b)=
+		    surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp(b),surrogate[config.iHp].LR(b),
+						  surrogate[config.iHp].SRMR(b),MMaq(b),fion1,fion2,b)
+		    /surrogate[i].gamma_aq_bins(b);
+		
+		  surrogate[i].fion1=fion1;
+		  surrogate[i].fion2=fion2;
+		}
+	     
+	      surrogate[i].Kaq(b)/=kelvin_effect;
+	    }
+	  else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic and surrogate[i].is_solid==false)
+	    {
+	      if (surrogate[i].name=="H2SO4")
+		surrogate[i].Kaq(b)=1.0e10;          
+	      else if (surrogate[i].name=="NH3")
+		{
+		  deltaH_over_RT0=13.79;
+		  deltaCp0_over_R=-5.39;
+		  surrogate[i].Kaq(b)=
+		    surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(1.0+surrogate[i].Kequilibrium(Temperature)*chp(b)*surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iNH4p].gamma_aq_bins(b));
+		  surrogate[i].dKaq(b)=
+		    surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iNH4p].gamma_aq_bins(b));
+		  if (config.compute_kelvin_effect) //compute the kelvin effect
+		    {
+		      surrogate[i].Kaq(b)/=kelvin_effect;
+		      surrogate[i].dKaq(b)/=kelvin_effect;
+		      //cout << kelvin_effect << endl;
+		    }
+		}
+	      else if (surrogate[i].name=="HNO3")
+		{
+		  deltaH_over_RT0=29.17;
+		  deltaCp0_over_R=16.83;
+		  surrogate[i].Kaq(b)=
+		    surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(1.0+surrogate[i].Kequilibrium(Temperature)/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iNO3m].gamma_aq_bins(b)));
+		  surrogate[i].dKaq(b)=-surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(surrogate[i].Kequilibrium(Temperature)/(pow(chp(b),2)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
+		  if (config.compute_kelvin_effect) //compute the kelvin effect
+		    {
+		      surrogate[i].Kaq(b)/=kelvin_effect;
+		      surrogate[i].dKaq(b)/=kelvin_effect;
+		    }
+		}
+	      else if (surrogate[i].name=="HCl")
+		{
 		  
-            if (config.compute_kelvin_effect and config.diameters(b) > 0.0) //compute the kelvin effect
-              {
-                kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                                  (8.314*Temperature*config.AQrho(b)*
-                                   0.5*config.diameters(b)*1.0e-6));
-                surrogate[i].Kaq(b)/=kelvin_effect;
-              }
-          }
-        else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic and surrogate[i].is_solid==false)
-          {
-            if (surrogate[i].name=="H2SO4")
-              surrogate[i].Kaq(b)=1.0e10;          
-            else if (surrogate[i].name=="NH3")
-              {
-                deltaH_over_RT0=13.79;
-                deltaCp0_over_R=-5.39;
-                surrogate[i].Kaq(b)=
-                  surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(1.0+surrogate[i].Kequilibrium(Temperature)*chp(b)*surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iNH4p].gamma_aq_bins(b));
-                surrogate[i].dKaq(b)=
-                  surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iNH4p].gamma_aq_bins(b));
-                if (config.compute_kelvin_effect) //compute the kelvin effect
-                  {
-                    kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                                      (8.314*Temperature*config.AQrho(b)*
-                                       0.5*config.diameters(b)*1.0e-6));
-                    surrogate[i].Kaq(b)/=kelvin_effect;
-                    surrogate[i].dKaq(b)/=kelvin_effect;
-                    //cout << kelvin_effect << endl;
-                  }
-              }
-            else if (surrogate[i].name=="HNO3")
-              {
-                deltaH_over_RT0=29.17;
-                deltaCp0_over_R=16.83;
-                surrogate[i].Kaq(b)=
-                  surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(1.0+surrogate[i].Kequilibrium(Temperature)/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iNO3m].gamma_aq_bins(b)));
-                surrogate[i].dKaq(b)=-surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(surrogate[i].Kequilibrium(Temperature)/(pow(chp(b),2)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
-                if (config.compute_kelvin_effect) //compute the kelvin effect
-                  {
-                    kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                                      (8.314*Temperature*config.AQrho(b)*
-                                       0.5*config.diameters(b)*1.0e-6));
-                    surrogate[i].Kaq(b)/=kelvin_effect;
-                    surrogate[i].dKaq(b)/=kelvin_effect;
-                  }
-              }
-            else if (surrogate[i].name=="HCl")
-              {
-                
-                deltaH_over_RT0=30.20;
-                deltaCp0_over_R=19.91;
-                surrogate[i].Kaq(b)=surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(1.0+surrogate[i].Kequilibrium(Temperature)/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
-                surrogate[i].dKaq(b)=-surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
-                  *R*Temperature/(1000.*1.0e6*1.013e5)
-                  *(surrogate[i].Kequilibrium(Temperature)/(pow(chp(b),2)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
-                if (config.compute_kelvin_effect) //compute the kelvin effect
-                  {
-                    kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                                      (8.314*Temperature*config.AQrho(b)*
-                                       0.5*config.diameters(b)*1.0e-6));
-                    surrogate[i].Kaq(b)/=kelvin_effect;
-                    surrogate[i].dKaq(b)/=kelvin_effect;
-                    //cout << kelvin_effect << endl;
-                  }
-              }
-          }
-        else if (i==config.iH2O)
-          {	  
-            surrogate[i].Kaq(b)=(760.0*8.202e-5*Temperature)/(MMaq(b)*1.0e6*surrogate[i].gamma_aq_bins(b)*surrogate[i].Psat(Temperature));
-            if (config.compute_kelvin_effect) //compute the kelvin effect
-              {
-                kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                                  (8.314*Temperature*config.AQrho(b)*
-                                   0.5*config.diameters(b)*1.0e-6));
-                surrogate[i].Kaq(b)/=kelvin_effect;
-              }
-          }
+		  deltaH_over_RT0=30.20;
+		  deltaCp0_over_R=19.91;
+		  surrogate[i].Kaq(b)=surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(1.0+surrogate[i].Kequilibrium(Temperature)/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
+		  surrogate[i].dKaq(b)=-surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
+		    *R*Temperature/(1000.*1.0e6*1.013e5)
+		    *(surrogate[i].Kequilibrium(Temperature)/(pow(chp(b),2)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iClm].gamma_aq_bins(b)));
+		  if (config.compute_kelvin_effect) //compute the kelvin effect
+		    {
+		      surrogate[i].Kaq(b)/=kelvin_effect;
+		      surrogate[i].dKaq(b)/=kelvin_effect;
+		      //cout << kelvin_effect << endl;
+		    }
+		}
+	    }
+	  else if (i==config.iH2O)
+	    {	  
+	      surrogate[i].Kaq(b)=(760.0*8.202e-5*Temperature)/(MMaq(b)*1.0e6*surrogate[i].gamma_aq_bins(b)*surrogate[i].Psat(Temperature));
+	      if (config.compute_kelvin_effect) //compute the kelvin effect
+		{
+		  surrogate[i].Kaq(b)/=kelvin_effect;
+		}
+	    }
+      }
 }
 
 void characteristic_time(model_config &config, vector<species>& surrogate,
@@ -1235,7 +1212,7 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
             if (surrogate[i].k1_aq(b,index)<0.0 and
                 surrogate[i].Aaq_bins_init(b)>tiny)
               surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/
-                surrogate[i].Aaq_bins_init(b);
+						 surrogate[i].Aaq_bins_init(b);
           }
       }
   /*
@@ -1405,8 +1382,8 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                       double fion1=0.0;
                       double fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
-                                                        surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(b);		      
+                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);		      
                       organion=fion1*(surrogate[i].Agt-(surrogate[i].Aaq_bins_init(b)+surrogate[i].Ag-surrogate[i].Agt)/(Kaq*AQinit(b)))
                         /surrogate[i].MM/conc_org*1000./surrogate[i].tau_air(b)*faq;			
                       organion2+=fion1*(1.0-fion1)*(surrogate[i].Aaq_bins_init(b)+surrogate[i].Ag-surrogate[i].Agt)/surrogate[i].MM/conc_org*1000./chp2;
@@ -1417,8 +1394,8 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                       double fion1=0.0;
                       double fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
-                                                        surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
+                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
                       organion=(fion1+2.0*fion2)*(surrogate[i].Agt-(surrogate[i].Aaq_bins_init(b)+surrogate[i].Ag-surrogate[i].Agt)/(Kaq*AQinit(b)))
                         /surrogate[i].MM/conc_org*1000./surrogate[i].tau_air(b)*faq;
@@ -1587,8 +1564,8 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                       double fion1=0.0;
                       double fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
-                                                        surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
+                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
                       double ratio_gamma=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
                       double Kac=surrogate[i].Kacidity1/ratio_gamma;
@@ -1609,8 +1586,8 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                       double fion1=0.0;
                       double fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
-                                                        surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
+                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
                       double ratio_gamma1=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
                       double ratio_gamma2=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b);
@@ -1993,8 +1970,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
 				-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;			  
 			    else if (surrogate[i].k1(b,ilayer,iphase,index)<0.0 and ktot<0.0 and kcond<0.0)			  
 			      surrogate[i].k1(b,ilayer,iphase,index)=1.0/
-				(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/sumknegative*kcond)
-				 +1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumkpositive*surrogate[i].k1(b,ilayer,iphase,index)/sumknegative;	      
+											 (1.0/(surrogate[i].k1(b,ilayer,iphase,index)/sumknegative*kcond)
+											  +1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumkpositive*surrogate[i].k1(b,ilayer,iphase,index)/sumknegative;	      
 		    }
 		  else
 		    {
@@ -2132,7 +2109,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		if (surrogate[i].k1(b,ilayer,iphase,index)<0.0 and
 		    surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
 		  surrogate[i].Jdn(b,ilayer,iphase,index)=surrogate[i].k1(b,ilayer,iphase,index)/
-		    surrogate[i].Ap_layer_init(b,ilayer,iphase);
+								surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	      }
       }
 }
@@ -2266,8 +2243,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 		double fion1=0.0;
 		double fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 
 		double ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
 		double Kac=surrogate[i].Kacidity1/ratio_gamma;
@@ -2285,8 +2262,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 		double fion1=0.0;
 		double fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 		organion+=1000.*fion1*total/conc_org(index_b);
 		derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org(index_b);
 	      }
@@ -2308,8 +2285,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 		double fion1=0.0;
 		double fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 
 		double ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
 		double ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
@@ -2329,8 +2306,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 		double fion1=0.0;
 		double fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 		organion+=1000.*(fion1+2.0*fion2)*total/conc_org(index_b);
 		derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org(index_b);
 	      }
@@ -2412,8 +2389,8 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
 	    double fion1=0.0;
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	    Kaq=surrogate[i].Kp_eff_aq(config,Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config,Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*fion1*total/conc_org;
 	    derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org;	   
 	  }
@@ -2423,18 +2400,18 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
 	    double fion1=0.0;
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);	    
-	    Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*(fion1+2.0*fion2)*total/conc_org;
 	    derivative+=(fion1*(fion1-1.)+4.0*fion1*fion2+4.0*fion2*(fion2-1.))/chp(index_b)*1000.*total/conc_org;	   
 	  }
 
       }
   /* else 
-      if (surrogate[i].name=="Na")
-	{
-	  inorganion-=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM/conc_org*1000.*surrogate[i].charge;
-          }*/
+     if (surrogate[i].name=="Na")
+     {
+     inorganion-=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM/conc_org*1000.*surrogate[i].charge;
+     }*/
 
   if (config.iNa>=0) inorganion-=surrogate[config.iNa].Aaq_bins_init(index_b)/surrogate[config.iNa].MM/conc_org*1000.*surrogate[config.iNa].charge;
   if (config.iMg>=0) inorganion-=surrogate[config.iMg].Aaq_bins_init(index_b)/surrogate[config.iMg].MM/conc_org*1000.*surrogate[config.iMg].charge;
@@ -2585,8 +2562,8 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
 	    double fion1=0.0;
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	    Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*fion1*total/conc_org;
 	    derivative-=fion1*(1-fion1)/chp(index_b)*1000.0*total/conc_org;	   
 	  }
@@ -2596,8 +2573,8 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
 	    double fion1=0.0;
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	    Kaq=surrogate[i].Kp_eff_aq(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.0*(fion1+2.0*fion2)*total/conc_org;
 	    derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org;	   
 	  }
@@ -2605,8 +2582,8 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
       }
   /*
     else 
-      if (surrogate[i].name=="Na")
-      inorganion-=surrogate[i].Aaq_bins(index_b)/surrogate[i].MM/conc_org*1000.*surrogate[i].charge;*/
+    if (surrogate[i].name=="Na")
+    inorganion-=surrogate[i].Aaq_bins(index_b)/surrogate[i].MM/conc_org*1000.*surrogate[i].charge;*/
 
   if (config.iNa>=0) inorganion-=surrogate[config.iNa].Aaq_bins(index_b)/surrogate[config.iNa].MM/conc_org*1000.*surrogate[config.iNa].charge;
   if (config.iMg>=0) inorganion-=surrogate[config.iMg].Aaq_bins(index_b)/surrogate[config.iMg].MM/conc_org*1000.*surrogate[config.iMg].charge;
@@ -4256,7 +4233,7 @@ void dynamic_inorg(model_config &config, vector<species>& surrogate,
               }
             surrogate[i].Ag=surrogate[i].Atot;
             /*
-            else
+	      else
               for (b=0;b<config.nbins;++b)
               surrogate[i].k1_aq(b,1)=0.;                        */
 
@@ -5076,7 +5053,7 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   //first evaluation of kinetic rates
   flux_aq(config, surrogate, AQinit, LWC, MOinit, tiny, 0);
   //if (config.compute_inorganic)
-    //  correct_flux_ph(config, surrogate, Temperature, AQinit, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 0);
+  //  correct_flux_ph(config, surrogate, Temperature, AQinit, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 0);
   compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,0);
 
   //first evaluation of concentrations
@@ -5210,7 +5187,7 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   //second estimation of kinetic rates
   flux_aq(config, surrogate, AQinit2, LWC, MOinit, tiny, 1);
   //if (config.compute_inorganic)
-    //  correct_flux_ph(config, surrogate, Temperature, AQinit2, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 1);
+  //  correct_flux_ph(config, surrogate, Temperature, AQinit2, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 1);
   compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,1);
 
   //second estimation of concentrations
@@ -5461,25 +5438,25 @@ void adapstep(model_config &config, vector<species>& surrogate, double &Temperat
 	}
 
       /*
-      double chp1a;
-      double chp2; 
-      double chp0a;*/
+	double chp1a;
+	double chp2; 
+	double chp0a;*/
       for (b=0;b<config.nbins;++b)
 	{
           /*
-	  double inorg0=0.0;
-	  double inorg1=0.0;
-	  double inorg2=0.0;
-	  for (i=0;i<n;++i)
+	    double inorg0=0.0;
+	    double inorg1=0.0;
+	    double inorg2=0.0;
+	    for (i=0;i<n;++i)
 	    if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and config.iH2O!=i and config.iHp!=i)
-	      {
-		inorg0-=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
-		inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
-		inorg2-=surrogate[i].Aaq_bins(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQ(b);	      
-	      }
-	  chp0a=0.5*(inorg0+pow(pow(inorg0,2)+4*config.Ke,0.5));
-	  chp1a=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
-	  chp2=0.5*(inorg2+pow(pow(inorg2,2)+4*config.Ke,0.5));*/
+	    {
+	    inorg0-=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
+	    inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
+	    inorg2-=surrogate[i].Aaq_bins(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQ(b);	      
+	    }
+	    chp0a=0.5*(inorg0+pow(pow(inorg0,2)+4*config.Ke,0.5));
+	    chp1a=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
+	    chp2=0.5*(inorg2+pow(pow(inorg2,2)+4*config.Ke,0.5));*/
 	  n2err2=max(n2err2,abs(chp(b)-chp1(b))/chp1(b));
 	}
     }

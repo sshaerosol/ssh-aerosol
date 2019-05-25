@@ -1584,6 +1584,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
   int n=surrogate.size();
   Array <double, 1> conc_org;
   conc_org.resize(config.nbins);
+  double MOWloc=1.;
 
   for (i=0;i<n;i++)
     {
@@ -1593,7 +1594,48 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	surrogate[i].Ap_layer_init=0;
       surrogate[i].velocity=pow(2.11714271498563e4*Temperature/surrogate[i].MM,0.5);
       surrogate[i].knui=pow(3.0*surrogate[i].KDiffusion_air/surrogate[i].velocity,2);
+
+      if(surrogate[i].hydrophobic or i==config.iH2O)
+	{        
+	  if (surrogate[i].kp_from_experiment)
+	    surrogate[i].kpi=surrogate[i].Kp_exp_org(Temperature);
+	  else if (surrogate[i].kp_from_experiment==false)
+	    surrogate[i].kpi=surrogate[i].Kp_eff_org(Temperature, MOWloc);
+	} 
+      if (surrogate[i].hydrophilic)
+	for (b=0;b<config.nbins;b++)
+          {
+	    double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic(b),0.5)/(1.0+pow(ionic(b),0.5)));
+	  if (config.compute_aqueous_phase_properties or chp(b)==0.)
+	    surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);              
+	  else
+	    {
+	      if (surrogate[i].aqt==2) //diacid
+		{
+		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*
+		    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
+		     (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+		  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
+		    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+		  surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp(b)))/
+		    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+		}
+	      else if (surrogate[i].aqt==1) //monoacid
+		{
+		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+		  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+		}
+	      else if (surrogate[i].aqt==3) //aldehyde
+		surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+	      else
+		surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);
+	    }
+	  }
     }
+
+  double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
+  surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
+    (8.314*Temperature);
 
   if (config.activity_model=="unifac")
     {

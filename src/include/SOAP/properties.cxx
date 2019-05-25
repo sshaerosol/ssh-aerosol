@@ -411,8 +411,8 @@ void water_concentration(model_config &config, vector<species>& surrogate,
                          double &Temperature, double &RH)
 {
   //compute the gas phase concentration of water
-  double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
-  surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
+  //double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
+  //surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
     (8.314*Temperature);
   surrogate[config.iH2O].Ag=max(surrogate[config.iH2O].Atot
 				-sum(surrogate[config.iH2O].Aaq_bins_init)
@@ -664,6 +664,90 @@ double species::Kp_eff_aq(model_config &config, double &Temperature, double &ion
       if (name!="H2O")
         cout << "WARNING: aq_type "+aq_type+" of species " +name+ " not defined." << endl;
       value=Kpart_aq(Temperature, MMaq);
+    }
+  
+  return value;
+}
+
+double species::Kp_eff_aqrealdyn(model_config &config,
+                              double &Temperature, double &ionic, double &chp,
+                              double &gammaH_LR, double &gammaH_SRMR,
+				 double &MMaq, double &fion1, double &fion2, int &b)
+{
+  //Compute the effective ideal partitioning constant between the gas phase
+  //and the organic phase
+  // chp: concentrations of H+ ions in mol/L
+  // ionic: ionic strenght
+  // gammaH_LR: activity coefficients of H+ due to long range interactions
+  // gammaH_SRMR: activity coefficients of H+ due to medium range and short interactions
+  // fion1: fraction of an acid H2A or HA which has been dissociated into HA- or A-
+  // fion2: fraction of a diacid H2A which has been dissociated into A2-
+  // MMaq: mean molar mass of the aqueous phase (g/mol)
+  double value;    
+  fion1=0.0;
+  fion2=0.0;
+  if (aqt==2) //diacid
+    {
+      //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+        {
+          //For a species H2A:
+          //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
+          //gamma(HA-)=gamma_LR(HA-)*gamma_MR(HA-)*gamma_SR(HA-)
+          //gamma(A2-)=gamma_LR(A2-)*gamma_MR(A2-)*gamma_SR(A2-)
+          //gamma(H+)=gamma_LR(H+)*gamma_MR(H+)*gamma_SR(H+)
+          //Hypothesis:
+          //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
+          //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
+          //gamma_LR(HA-)=gamma_LR(H+)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)
+          double ratio_gamma1=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          double ratio_gamma2=pow(gammaH_LR,2.0)*gammaH_SRMR;
+          value=veckaqi(b)/MMaq*
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion1=(Kacidity1/(ratio_gamma1*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+        }
+      else
+        {          
+          value=veckaqi(b)/MMaq;
+          fion1=vecfioni1(b);
+          fion2=vecfioni2(b);
+        }
+    }
+  else if (aqt==1) //monoacid
+    {
+      //Kp_effective=Kp_theoric*(1+A-/HA)
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+        {
+          double ratio_gamma=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          value=veckaqi(b)/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
+          fion1=(Kacidity1/(ratio_gamma*chp))
+            /(1.0+Kacidity1/(ratio_gamma*chp));
+        }
+      else
+        {          
+          value=veckaqi(b)/MMaq;
+          fion1=vecfioni1(b);
+        }
+    }
+  else if (aqt==3) //aldehyde
+    {
+      //effective partitioning based on Pun and Seigneur (2007)
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)        
+        value=veckaqi(b)/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));        
+      else        
+        value=veckaqi(b)/MMaq;        
+    }
+  else if (aqt==0) //Kp_effective=Kp_theoric
+    value=veckaqi(b)/MMaq;
+  else
+    {
+      if (name!="H2O")
+        cout << "WARNING: aq_type "+aq_type+" of species " +name+ " not defined." << endl;
+      value=kaqi/MMaq;
     }
   
   return value;
