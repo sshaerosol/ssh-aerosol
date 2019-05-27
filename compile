@@ -42,7 +42,7 @@ fi
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry 
-scons -j8 chemistry=$chemistry nacl=$nacl
+scons -j12 chemistry=$chemistry nacl=$nacl openmp=yes
 
 cd ..
 ln -s src/ssh-aerosol-$chemistry ssh-aerosol
