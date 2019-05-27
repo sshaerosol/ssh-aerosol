@@ -6,7 +6,7 @@ void compute_kp_org(model_config &config, vector<species>& surrogate,
   //compute partitioning constant of the organic phase by taking into account activity
   //coefficients and the kelvin effect
   double temp1,temp2,maxi,MOWsurf;
-  double kelvin_effect=1.;
+  double kelvin_effect=1.e0;
   int ilayer,i,b,iphase,jphase;
   int n=surrogate.size();
   for (b=0;b<config.nbins;++b)
@@ -191,7 +191,7 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
   //the organic phase for each bin and each layer
   int i,b,ilayer,iphase;
   int n=surrogate.size();
-  double sum,sum2,sum3;
+  double sum1,sum2,sum3;
   //double taumin;
   double time_dif;
   
@@ -210,9 +210,9 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		{
 		  Vlayer_dif+=config.Vlayer(ilayer);
 	  
-		  sum=0.0;
+		  sum1=0.0;
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		    sum+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+		    sum1+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
 
 		  sum2=0.0;
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -231,13 +231,13 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		    surrogate[i].tau_diffusion(b,ilayer,iphase)=time_dif; 
 
 		  if (sum2>0.0)
-		    if(sum/sum3<config.kp_low_volatility)	     
+		    if(sum1/sum3<config.kp_low_volatility)	     
 		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)			
 			{			    
 			  surrogate[i].time(b,ilayer,iphase)=
-			    (surrogate[i].tau_diffusion(b,ilayer,iphase)+sum/config.Vlayer(ilayer)*Vlayer_dif*surrogate[i].tau_air(b)*
+			    (surrogate[i].tau_diffusion(b,ilayer,iphase)+sum1/config.Vlayer(ilayer)*Vlayer_dif*surrogate[i].tau_air(b)*
 			     (sum3/config.Vlayer(ilayer)+AQinit(b))/sum3*config.Vlayer(ilayer))
-			    /(1.0+sum/sum2*surrogate[i].Ap);
+			    /(1.0+sum1/sum2*surrogate[i].Ap);
 			}
 		    else 
 		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -260,7 +260,10 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
       for (i=0;i<n;++i)
 	if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
 	  {
-	    surrogate[i].Ap=0.0;
+	    surrogate[i].Ap=sum(surrogate[i].Ap_layer_init);
+	    if (surrogate[i].hydrophilic and LWCtot>config.LWClimit)
+	      surrogate[i].Ap+=sum(surrogate[i].Aaq_bins_init);
+	    /*surrogate[i].Ap=0.0;
 	    for (b=0;b<config.nbins;++b)
 	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -280,7 +283,7 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 	      {
 		cout << "nan" << "AQ " << surrogate[i].name << endl;
 		throw string("NAN: aq \"") + surrogate[i].name + "\".";
-	      }
+		}*/
 	  }
 
       //compute the characteristic time
@@ -289,9 +292,9 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 	  for (b=0;b<config.nbins;++b)	  
 	    for (ilayer=0;ilayer<config.nlayer;++ilayer)
 	      {
-		sum=0.0;
+		sum1=0.0;
 		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		  sum+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+		  sum1+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
 
 		sum2=0.0;
 		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -302,29 +305,30 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		  sum3+=MOinit(b,ilayer,iphase);
 
 		if (sum2>0.0)
-		  if(sum/sum3<config.kp_low_volatility)
+		  if(sum1/sum3<config.kp_low_volatility)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      {
 			surrogate[i].time(b,ilayer,iphase)=
 			  (surrogate[i].tau_diffusion(b,ilayer,iphase)+
-			   sum/config.Vlayer(ilayer)*surrogate[i].tau_air(b)*
+			   sum1/config.Vlayer(ilayer)*surrogate[i].tau_air(b)*
 			   (sum3/config.Vlayer(ilayer)+AQinit(b))/sum3*config.Vlayer(ilayer))
-			  /(1.0+sum/sum2*surrogate[i].Ap);
+			  /(1.0+sum1/sum2*surrogate[i].Ap);
 
+			/*
 			if (i==config.iH2O)
 			  {			    
-			    double a1=sum/sum3;
-			    double b1=1.0-sum-a1*surrogate[i].Atot;
+			    double a1=sum1/sum3;
+			    double b1=1.0-sum1-a1*surrogate[i].Atot;
 			    double c1=-(sum3-sum2);
 			    double delta=pow(b1,2.0)-4.0*a1*c1;			    
 			    double MO2=max(sum3,(-b1+pow(delta,0.5))/(2.0*a1));			 
 			    double f1=pow((AQinit(b)+MO2/config.Vlayer(ilayer))/(AQinit(b)+MOinit(b,ilayer,iphase)/config.Vlayer(ilayer)),1.0/3.0);			    
 			    surrogate[i].time(b,ilayer,iphase)=
 			      (surrogate[i].tau_diffusion(b,ilayer,iphase)+
-			       MO2/sum3*sum/config.Vlayer(ilayer)*surrogate[i].tau_air(b)/f1*
+			       MO2/sum3*sum1/config.Vlayer(ilayer)*surrogate[i].tau_air(b)/f1*
 			       (MO2/config.Vlayer(ilayer)+AQinit(b))/MO2*config.Vlayer(ilayer))
-			      /(1.0+MO2/sum3*sum/sum2*surrogate[i].Ap);
-			  }
+			      /(1.0+MO2/sum3*sum1/sum2*surrogate[i].Ap);
+			  }*/
 
 		      }
 
@@ -334,11 +338,13 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		else
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		    surrogate[i].time(b,ilayer,iphase)=0.0;
-
+		
 		
 	      }
     }  
   
+  for (i=0;i<n;i++)
+    surrogate[i].time=2.;
   for (b=0;b<config.nbins;++b)	  
     for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
       for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -1675,6 +1681,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
 
+  /*
   for (i=0;i<n;++i)      		
     for (b=0;b<config.nbins;b++)
       for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -1682,7 +1689,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 	  {
 	    surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	    surrogate[i].Jdn(b,ilayer,iphase,index)=0.0;
-	  }
+	    }*/
   
   if (config.explicit_representation)
     {
@@ -2038,39 +2045,33 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		}
 	}
       else // There is a single layer.
-	{
-	  for (i=0;i<n;++i)
-	    if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
-	      for (b=0;b<config.nbins;++b)
-		{	     
-		  sum_mass=AQinit(b);
-		  for (ilayer=0;ilayer<config.nlayer;ilayer++)
-		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		      {
-			sum_mass+=MOinit(b,ilayer,iphase);
-			surrogate[i].k1(b,ilayer,iphase,index)=0.0;
-		      }
-		  sum_mass=max(sum_mass,config.MOmin);
+	{      
+	  for (b=0;b<config.nbins;++b)
+	    {	     
+	      sum_mass=AQinit(b);
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  sum_mass+=MOinit(b,ilayer,iphase);
+	      sum_mass=max(sum_mass,config.MOmin);
 	   
-		  //compute kinetic rate of absorption	    
-                  ilayer = 0;
-                  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                    if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
-                      {		      
-                        sum=0.0;
-                        for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
-                          sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
-			if (sum > 0.0 and sum_mass > 0.0 and
-                            surrogate[i].tau_air(b) > 0.0)
-			  if (AQinit(b) != sum_mass) 
-     
+	      //compute kinetic rate of absorption	    
+	      ilayer = 0;
+	      if (AQinit(b) != sum_mass) 
+		for (i=0;i<n;++i)
+		  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+			{		      
+			  sum=0.0;
+			  for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
+			    sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
+			  if (sum > 0.0 and surrogate[i].tau_air(b) > 0.0)
 			    surrogate[i].k1(b,ilayer,iphase,index)=			
 			      (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
 			       -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
 			      (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
-                      }
-		}
-
+			}
+	    }
 	}
     }
 
@@ -4379,9 +4380,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
   //     gamma < .25     ->  monotonic behaviour (x(n+1)-x*)(x(n)-x*) > 0
   //     gamma =  1+-sqrt(1/2) ->  L-stability
 
-  for (b=0;b<config.nbins;++b)
-    LWCtot+=LWC(b);
-    
+  LWCtot=sum(LWC);  
   chp0=chp;
   double error_chp=1;
   int iter=0;
@@ -4434,14 +4433,8 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
       surrogate[i].Ag0=surrogate[i].Ag;
       surrogate[i].Ag1=surrogate[i].Ag;
       surrogate[i].Atot0=surrogate[i].Atot;
-      for (b=0;b<config.nbins;++b)		  
-        for (ilayer=0;ilayer<config.nlayer;++ilayer)
-          for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-            surrogate[i].Ap_layer_init0(b,ilayer,iphase)=
-              surrogate[i].Ap_layer_init(b,ilayer,iphase);
-		
-      for (b=0;b<config.nbins;++b)
-        surrogate[i].Aaq_bins_init0(b)=surrogate[i].Aaq_bins_init(b);
+      surrogate[i].Ap_layer_init0=surrogate[i].Ap_layer_init;
+      surrogate[i].Aaq_bins_init0=surrogate[i].Aaq_bins_init;
     }
 
   //compute kinetic rates
@@ -4452,7 +4445,9 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
       //if (config.compute_inorganic)
       //  correct_flux_ph(config, surrogate, Temperature, AQinit, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 0);
     }
-  compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,0);
+
+  if (config.chemistry)
+    compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,0);
 
   //compute the first evaluation of concentrations
   for (i=0;i<n;++i)
@@ -4587,11 +4582,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
     surrogate[i].Ag1=surrogate[i].Ag;
 
   //compute first evaluation of organic and aqueous masses 
-  for (b=0;b<config.nbins;++b)		  
-    for (ilayer=0;ilayer<config.nlayer;++ilayer)
-      for (iphase=0;iphase<config.max_number_of_phases;++iphase)
-        MOinit2(b,ilayer,iphase)=0.0;
-  
+  MOinit2=0.0;
   for (b=0;b<config.nbins;++b)		  
     for (ilayer=0;ilayer<config.nlayer;++ilayer)
       for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -4660,8 +4651,9 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
       //if (config.compute_inorganic)
       //	correct_flux_ph(config, surrogate, Temperature, AQinit2, MOinit2, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 1);
     }
-  
-  compute_flux_chem(config,surrogate,MOinit2,MOW,AQinit2,MMaq,chp,DT2,tiny,1);
+
+  if (config.chemistry)
+    compute_flux_chem(config,surrogate,MOinit2,MOW,AQinit2,MMaq,chp,DT2,tiny,1);
 
   //compute the second evaluation of concentrations
   for (i=0;i<n;++i)
@@ -5054,7 +5046,8 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   flux_aq(config, surrogate, AQinit, LWC, MOinit, tiny, 0);
   //if (config.compute_inorganic)
   //  correct_flux_ph(config, surrogate, Temperature, AQinit, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 0);
-  compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,0);
+  if (config.chemistry)
+    compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,0);
 
   //first evaluation of concentrations
   for (i=0;i<n;++i)
@@ -5188,7 +5181,8 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   flux_aq(config, surrogate, AQinit2, LWC, MOinit, tiny, 1);
   //if (config.compute_inorganic)
   //  correct_flux_ph(config, surrogate, Temperature, AQinit2, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2, 1);
-  compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,1);
+  if (config.chemistry)
+    compute_flux_chem(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,1);
 
   //second estimation of concentrations
   for (i=0;i<n;++i)

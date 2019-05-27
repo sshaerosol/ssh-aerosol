@@ -873,8 +873,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
   //computation of X_unifac (molar fraction of compounds used in the computation of activity
   // coefficients)
   for (i=0;i<n;++i)
-    if (surrogate[i].hydrophobic or
-        (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
+    if (surrogate[i].hydrophobic or (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
       {
         surrogate[i].Xorg=surrogate[i].Ap/surrogate[i].MM;
         sum+=surrogate[i].Xorg;
@@ -898,8 +897,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
     {
       MOW=0.0;
       for (i=0;i<n;++i)
-        if (surrogate[i].hydrophobic or
-            (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
+        if (surrogate[i].hydrophobic or (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
           {
             surrogate[i].Xorg=surrogate[i].Xorg/sum;
             MOW=MOW+surrogate[i].Xorg*surrogate[i].MM;
