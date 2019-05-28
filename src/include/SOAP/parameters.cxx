@@ -811,6 +811,7 @@ void param_unifac(model_config &config, vector<species> &surrogate)
           iion++;
         }
 
+
   //modification of the matrixes to keep only necessary informations:
   //      - remove unused groups in each phase    
   double sum_group[45];
@@ -954,6 +955,22 @@ void param_unifac(model_config &config, vector<species> &surrogate)
           config.Lparam_org(i)=config.Z/2*(config.Rparam_org(i)-config.Qparam_org(i))-(config.Rparam_org(i)-1.0);          
         }
 	  
+      config.surface_fraction_molorg.resize(config.nfunc_org,config.nmol_org); 
+      config.sum2mol_org.resize(config.nfunc_org,config.nmol_org);
+      config.group_activity_molorg.resize(config.nfunc_org,config.nmol_org);
+      for (i=0;i<config.nmol_org;i++)
+        {
+          double sum_surf_mol=0.0;
+          for (j=0;j<config.nfunc_org;j++)
+            if (config.groups_org(j,i)>0.0)
+              {                         
+                config.surface_fraction_molorg(j,i)+=config.QG_org(j)*config.groups_org(j,i);                
+                sum_surf_mol+=config.QG_org(j)*config.groups_org(j,i);  
+              }
+
+          for (j=0;j<config.nfunc_org;j++)      
+            config.surface_fraction_molorg(j,i)/=sum_surf_mol;
+        }
 	  
     }
 
@@ -1101,8 +1118,33 @@ void param_unifac(model_config &config, vector<species> &surrogate)
           //cout << "L: " << config.Lparam_aq(i) << " " << config.Rparam_aq(i) << " " << config.Qparam_aq(i) << " " << config.Z << endl;
           //cout << config.Z/2*(config.Rparam_aq(i)-config.Qparam_aq(i))-(config.Rparam_aq(i)-1.0) << endl;
         }
-	  
- 
+
+      config.surface_fraction_molaq.resize(config.nfunc_aq,config.nmol_aq); 
+      config.sum2mol_aq.resize(config.nfunc_aq,config.nmol_aq);
+      config.group_activity_molaq.resize(config.nfunc_aq,config.nmol_aq);
+      for (i=0;i<config.nmol_aq;i++)
+        {
+          double sum_surf_mol=0.0;
+          for (j=0;j<config.nfunc_aq;j++)
+            if (config.groups_aq(j,i)>0.0)
+              {                         
+                config.surface_fraction_molaq(j,i)+=config.QG_aq(j)*config.groups_aq(j,i);                
+                sum_surf_mol+=config.QG_aq(j)*config.groups_aq(j,i);  
+              }
+
+          for (j=0;j<config.nfunc_aq;j++)      
+            config.surface_fraction_molaq(j,i)/=sum_surf_mol;
+        }
+
+      config.gamma_ions_inf.resize(config.nion_unifac);
+      if (config.SR_ions)
+	for (i=0;i<config.nion_unifac;i++)	  
+	  config.gamma_ions_inf(i)=
+	    exp(log(config.RGions(i)/config.Rparam_aq(config.nmol_aq-1))
+		+1.0-config.RGions(i)/config.Rparam_aq(config.nmol_aq-1)
+		+config.Z/2*config.QGions(i)*
+		(log(config.Rparam_aq(config.nmol_aq-1)*config.QGions(i)/config.RGions(i)/config.Qparam_aq(config.nmol_aq-1))
+		 -1.0+config.RGions(i)*config.Qparam_aq(config.nmol_aq-1)/config.Rparam_aq(config.nmol_aq-1)/config.QGions(i)));	 	   
     }
 
   
@@ -1253,6 +1295,24 @@ void param_unifac(model_config &config, vector<species> &surrogate)
               exit(0);
             }
         }
+
+      config.surface_fraction_moltot.resize(config.nfunc_tot,config.nmol_tot); 
+      config.sum2mol_tot.resize(config.nfunc_tot,config.nmol_tot);
+      config.group_activity_moltot.resize(config.nfunc_tot,config.nmol_tot);
+      for (i=0;i<config.nmol_tot;i++)
+        {
+          double sum_surf_mol=0.0;
+          for (j=0;j<config.nfunc_tot;j++)
+            if (config.groups_tot(j,i)>0.0)
+              {                         
+                config.surface_fraction_moltot(j,i)+=config.QG_tot(j)*config.groups_tot(j,i);                
+                sum_surf_mol+=config.QG_tot(j)*config.groups_tot(j,i);  
+              }
+
+          for (j=0;j<config.nfunc_tot;j++)      
+            config.surface_fraction_moltot(j,i)/=sum_surf_mol;
+        }
+
 	  
     }
   

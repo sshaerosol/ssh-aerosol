@@ -83,6 +83,9 @@ namespace soap
 	Array<double, 3> Qcca_aq;
 	Array<double,2> dbound,Radius;
         Array<double,1> Rparam_org,Qparam_org,Lparam_org,Rparam_aq,Qparam_aq,Lparam_aq,Rparam_tot,Qparam_tot,Lparam_tot;
+	Array<double,2> surface_fraction_moltot,surface_fraction_molorg,surface_fraction_molaq;
+	Array<double,2> sum2mol_tot,sum2mol_org,sum2mol_aq;
+	Array<double,2> group_activity_moltot,group_activity_molorg,group_activity_molaq;
 	double dorg;
 	int nh_max,nh_init,nh_aq_init,nh_org_init,nh_inorg_init;	
 	int explicit_method;
@@ -99,6 +102,7 @@ namespace soap
         //For AIOMFAC:
         Array<double,1> molality,gamma_LR_ions,gamma_MR_ions, charges_ions,molar_mass_groups;
         Array<double,1> gamma_LR_solvents,gamma_MR_solvents,X_aiomfac,molar_mass_solvents;
+	Array<double,1> gamma_ions_inf;
 
         int iiter;
 
