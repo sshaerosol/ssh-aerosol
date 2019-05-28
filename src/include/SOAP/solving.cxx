@@ -2088,7 +2088,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
           if (LWCtot>config.LWClimit)
             characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
         }
-
+   
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
         solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
@@ -2112,7 +2112,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
    
       //Dynamic evolution      
       while (t<deltatmax)
-        {	            
+        {	  
           deltat1=min(deltatmax-t,deltat1);	 
 		  
           //save the old time step in deltat2          
@@ -2138,8 +2138,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
                    MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
           if (deltat1<0.999*deltat2) //if the new time step is inferior to the old one
-            {   
-	      //cout << "rejected " << endl;
+            {   	      
 	      //the old time step is rejected
               for (i=0;i<n;++i)
                 {
@@ -2204,7 +2203,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
             }
           else                      //the time step is accepted 
             {	
-	      t+=deltat2;	      
+	      t+=deltat2;	      	     
               for (b=0;b<config.nbins;++b)
                 {
                   for (ilayer=0;ilayer<config.nlayer;++ilayer)

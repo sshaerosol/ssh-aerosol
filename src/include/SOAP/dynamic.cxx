@@ -172,8 +172,8 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 		    }
 		}
 	    }
-	  else if (i==config.iH2O)	    
-	    surrogate[i].Kaq(b)=surrogate[i].kaqi/(MMaq(b)*surrogate[i].gamma_aq_bins(b))/kelvin_effect;			    
+	  else if (i==config.iH2O)	    	    
+	    surrogate[i].Kaq(b)=surrogate[i].kaqi/(MMaq(b)*surrogate[i].gamma_aq_bins(b))/kelvin_effect;			    	    
       }
 }
 
@@ -3269,7 +3269,7 @@ void equilibrium_tot(model_config &config, vector<species>& surrogate, double &t
                       Temperature, RH, MMaq, factor);
 
   sum=1.0;
-  double conceq=surrogate[config.iH2O].Ag;
+  double conceq=surrogate[config.iH2O].Ag;  
   for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
     {	  	 	
       if (surrogate[config.iH2O].hydrophilic)
@@ -3294,7 +3294,7 @@ void equilibrium_tot(model_config &config, vector<species>& surrogate, double &t
     if (LWCtot>config.LWClimit)
       for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
 	if (surrogate[config.iH2O].time_aq(b)<tequilibrium)
-	  {	    	    	   
+	  {	    	    	    
 	    if (config.activity_model=="unifac" or config.compute_inorganic)
 	      surrogate[config.iH2O].Aaq_bins_init(b)=factor*
 		max(conceq*surrogate[config.iH2O].Kaq(b)*AQinit(b)/sum - LWC(b), 0.0) +

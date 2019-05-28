@@ -297,7 +297,7 @@ void unifac_aq(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups, Arr
 
           gamma(i)*=exp(sum1);
         }
-    }
+    } 
 }
 
 #endif

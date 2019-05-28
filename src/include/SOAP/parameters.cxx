@@ -1728,7 +1728,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
 {
   config.max_iter=1000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
-  config.compute_long_and_medium_range_interactions=false; // FCo: A initialiser dans soap.cpp
+  config.compute_long_and_medium_range_interactions=true; // FCo: A initialiser dans soap.cpp
 
   if (config.activity_model == "unifac")
     {

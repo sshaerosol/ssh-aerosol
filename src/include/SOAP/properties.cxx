@@ -1690,10 +1690,7 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
             sumX_unifac+=surrogate[i].Xaq;	   
 	    X_unifac(surrogate[i].index_gamma_aq)+=surrogate[i].Xaq;
           }
-      }
-
-  //cout << "MMaq:" << MMaq << endl;
-  //cout << "ici :" << X_unifac << endl;
+      } 
 
   if (config.iH2O>=0)
     XH2O=surrogate[config.iH2O].Xaq;
@@ -1725,7 +1722,7 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
       //cout << Xions << endl;
 
       if (config.SR_ions)
-        {          
+        {          	  
 	  unifac_aq(config.nmol_aq,config.nion_unifac,config.nfunc_aq,config.groups_aq,
 		    X_unifac,Xions,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
 		    config.RG_aq,
@@ -1764,6 +1761,24 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
                 surrogate[i].gamma_aq=1.0;
             }
         }
+      else
+	{
+	  unifac(config.nmol_aq,config.nfunc_aq,config.groups_aq,
+                 X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
+		 config.RG_aq,
+                 config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
+		 config.group_activity_molaq,
+                 config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);
+
+	  for (i=0;i<n;++i)
+	    {
+	      if (surrogate[i].index_gamma_aq >=0)
+		surrogate[i].gamma_aq=gamma_unifac(surrogate[i].index_gamma_aq);
+	      else
+		surrogate[i].gamma_aq=1.0;
+	    }
+
+	}
     }
   else
     for (i=0;i<n;++i)

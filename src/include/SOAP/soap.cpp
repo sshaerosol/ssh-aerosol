@@ -125,16 +125,19 @@ void soap_main(double LWC, double RH, double Temperature,
     {
       config.activity_model = "ideal";
       config.compute_long_and_medium_range_interactions = false;
+      config.SR_ions = false;
     }
   else if (activity_model == 2)
     {
       config.activity_model = "unifac";
       config.compute_long_and_medium_range_interactions = false;
+      config.SR_ions = false;
     }
   else if (activity_model == 3)
     {
       config.activity_model = "unifac";
       config.compute_long_and_medium_range_interactions = true;
+      config.SR_ions = true;
     }
   else
     throw string("Bad option given to the organic thermodynamic model.\n");
