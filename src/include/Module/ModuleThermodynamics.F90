@@ -387,14 +387,12 @@ contains
 	jesp=List_species(s)
 	qti=qti+c_mass(j,jesp)     ! µg.m-3
       end do
-      if (c_number(j).gt.TINYN.and.qti.gt.TINYM ) then
+      if (c_number(j).gt.TINYN.OR.qti.gt.TINYM) then
 	do jesp=1,N_aerosol
 	  qext(jesp)=c_mass(j,jesp)
 	enddo
 
         if (with_fixed_density == 0) then
-      ! call compute_density(N_sizebin,N_aerosol,EH2O,TINYM,c_mass,&
-      !        mass_density_aer,j,rhoaer)
           call compute_density(N_size,N_aerosol,EH2O,TINYM,c_mass,&
                 mass_density,j,rhoaer)
         else
@@ -866,7 +864,7 @@ contains
       if (cfa.gt.0.D0) then
 	if (cfb*cfb-4.D0*cfa*cfc.lt.0.D0) then
 	    WRITE(6,*)'(hplflim.f): sqrt(<0)'
-	    WRITE(6,*)cfb,cfa,cfc,mlim,'Time',current_sub_time
+	    WRITE(6,*)cfb,cfa,cfc,mlim,'Time'
 	    WRITE(6,*)'ASO4',ce_kernal_coef_i(ESO4),'ANH4',ce_kernal_coef_i(ENH4),'ANO3',&
 	    ce_kernal_coef_i(ENO3),'ACl',ce_kernal_coef_i(ECl)
 	    WRITE(6,*)'SO4',mkercd(ESO4),'NH4',mkercd(ENH4),&
