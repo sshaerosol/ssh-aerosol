@@ -28,3 +28,4 @@ core
 ssh-aerosol-*
 *old
 .gitignore
+*png

@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 from pylab import *
 import numpy, pylab
-from atmopy import *
+#from atmopy import *
 
 # Turn interactive plotting off
 plt.ioff()

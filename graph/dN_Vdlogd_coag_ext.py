@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 ################### input parameters #################################"
-pcase = '../results/coag-ext/'
+pcase = '../results/coag-ext'
 sizebin_ssh = 50
 density = 1.84 * 1e-6 #in ug um-3
 N_fraction = 3

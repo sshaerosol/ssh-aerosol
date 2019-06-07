@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 ################### input parameters #################################"
-pcase = '../results/cond-monomer/'
+pcase = '../results/cond-monomer'
 tag_fig = 'monomer'
 sizebin_ssh = 50
 density = 1.84 * 1e-6 #in ug um-3
@@ -104,10 +104,6 @@ for i in cases :
 			values = finit.read().splitlines()
 		num_init_sml[cases.index(i)][j] = float(values[0])
 		num_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase+'/aero/PSO4_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] = float(values[0])
-		mass_out_sml[cases.index(i)][j] = float(values[-1])
 		with open (pcase+'/aero/PMonomer_' + str(j+1) + '.txt') as finit :
 			values = finit.read().splitlines()
 		mass_init_sml[cases.index(i)][j] += float(values[0])
