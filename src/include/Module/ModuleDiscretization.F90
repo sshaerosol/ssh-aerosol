@@ -30,10 +30,6 @@ contains
     E2=EH2O-1
     EH2O = N_aerosol
     pH = 4.d5
-    !statistic
-    n_grow_nucl=0.d0
-    n_grow_coag=0.d0
-    m_grow_cond=0.d0
     n_emis=0.d0
     m_emis=0.d0
 
@@ -166,9 +162,6 @@ contains
 
     allocate(total_mass(N_aerosol))
     total_mass=0.d0
-
-    allocate(total_mass_old(N_aerosol))
-    total_mass_old=0.d0
 
     allocate(concentration_gas(N_aerosol))
     concentration_gas=0.d0
@@ -490,20 +483,11 @@ subroutine discretization()
        if (aerosol_species_interact(s) .gt. 0) then
           concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s)) !µg/m3
        end if
-	! total_aero_mass(N_aerosol)
       do i=1,N_size
          total_aero_mass(s)=total_aero_mass(s)+concentration_mass(i,s)
       enddo
-	! total_mass(N_aerosol)
       total_mass(s)=total_mass(s) + total_aero_mass(s) + concentration_gas(s)
   end do
-  total_mass_old = total_mass
-
- ! if (with_init_num == 1) then
- !	do j = 1, N_size
- !		total_number = total_number + concentration_number(j)
- !	end do
- ! end if
 
 ! done with initialising concentrations 
 ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
