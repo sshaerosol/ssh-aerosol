@@ -62,7 +62,7 @@ module aInitialization
     integer :: with_fixed_density!IDENS
     integer :: tag_init		! 0 internally mixed; 1 mixing_state resolved
     integer :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
-    integer :: wet_diam_estimation	! 0 = isorropia, 1 = fastdiam Gerber?
+    integer :: wet_diam_estimation	! 0 = isorropia ?
     integer :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
     integer :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
     integer :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
@@ -637,7 +637,7 @@ module aInitialization
 
 
 	if (wet_diam_estimation == 1) then
-	   print*, 'initial wet diameter is computed by Gerber.'
+	   print*, 'initial wet diameter is computed from initial water conc. if available'
 	else !default wet_diam_estimation == 0
 	   wet_diam_estimation = 0
 	   print*, 'initial wet diameter is computed by isorropia.'
