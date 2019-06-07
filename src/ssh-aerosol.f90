@@ -55,9 +55,8 @@ PROGRAM SSHaerosol
 
      write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
-     ! Emissions
-     if (tag_emis .ne. 0) call emission(current_time, delta_t)
-
+  !   ! Emissions
+     if (tag_emis .ne. 0) call emission(delta_t)
 
      ! Gas-phase chemistry
 
@@ -67,7 +66,7 @@ PROGRAM SSHaerosol
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
 
      if (tag_chem .ne. 0) then
-     call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+       call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
           0, lwc_cloud_threshold, molecular_weight, &
           current_time, attenuation, &
@@ -115,8 +114,6 @@ PROGRAM SSHaerosol
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
        end if
     end do
-  ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
-
 
     call save_concentration()         ! Text or Binary format outout
     call save_values()
@@ -144,7 +141,6 @@ PROGRAM SSHaerosol
 	write(unit=10,FMT=*)
 	write(unit=10,FMT=*), aerosol_species_name(34)
 	write(unit=10,FMT=*), (concentration_mass(j,34), j = 1, N_size)
-
 
   CLOSE(10)
   call free_allocated_memory()
