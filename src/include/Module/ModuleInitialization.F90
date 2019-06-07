@@ -78,7 +78,7 @@ module aInitialization
     double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
     double precision :: min_adaptive_time_step       !Minimum time step
     !double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
-    integer :: dynamic_solver = 2 !KDSLV Tag type of solver
+    integer :: dynamic_solver = 1 !KDSLV Tag type of solver
     integer :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
     integer :: with_coag   !Tag gCoagulation
