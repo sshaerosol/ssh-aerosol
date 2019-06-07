@@ -188,9 +188,9 @@ module aInitialization
     double precision , dimension(:,:), allocatable :: emission_rate
     double precision , dimension(:), allocatable   :: emission_num_rate
 
-    Double precision,dimension(:), allocatable :: wet_diameter	!Aerosol wet diameter (µm). of each grid cell
-    Double precision,dimension(:), allocatable :: wet_mass	!Aerosol wet mass (µg). of each grid cell
-    Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (µm^3). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_diameter	!Aerosol wet diameter (\B5m). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_mass	!Aerosol wet mass (\B5g). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (\B5m^3). of each grid cell
     double precision , dimension(:,:,:), allocatable :: discretization_composition! multi-array storing discretization of composition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -235,15 +235,15 @@ module aInitialization
     !double precision :: SMW(SNaNO3:SLC)!molar weight of solids
     double precision ,dimension(:), allocatable :: accomodation_coefficient
     double precision ,dimension(:), allocatable :: surface_tension
-    double precision ,dimension(:), allocatable :: molecular_weight_aer! (µg/mol)
+    double precision ,dimension(:), allocatable :: molecular_weight_aer! (\B5g/mol)
     double precision ,dimension(:), allocatable :: molecular_diameter
     double precision ,dimension(:), allocatable :: collision_factor_aer
-    double precision ,dimension(:), allocatable :: mass_density!(µg/m3) liquid mass density
+    double precision ,dimension(:), allocatable :: mass_density!(\B5g/m3) liquid mass density
     double precision ,dimension(:), allocatable :: quadratic_speed! (m.s-1)
     double precision ,dimension(:), allocatable :: diffusion_coef! (m2.s-1)
-    double precision ,dimension(:), allocatable :: soa_sat_conc! (µg.m-3)
+    double precision ,dimension(:), allocatable :: soa_sat_conc! (\B5g.m-3)
     double precision ,dimension(:), allocatable :: soa_part_coef!(m3/microg)
-    double precision ,dimension(:), allocatable :: molecular_weight! (µg/mol) gas=phase
+    double precision ,dimension(:), allocatable :: molecular_weight! (\B5g/mol) gas=phase
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
@@ -737,7 +737,7 @@ module aInitialization
      else
 	print*,
 	print*,'<<<< Results output >>>>'
-	if (output_type == 0) then
+	if (output_type == 2) then
 	   print*, 'results are saved in binary files.'
 	else
 	   output_type = 1   ! defalut
@@ -859,7 +859,7 @@ subroutine read_inputs()
              surface_tension(s), accomodation_coefficient(s), &
              mass_density(s)
         
-        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to µg/mol  !!! change later
+        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
         list_species(s) = s
         if (aerosol_species_name(s) .eq. "PMD") EMD = s
         if (aerosol_species_name(s) .eq. "PBC") EBC = s
