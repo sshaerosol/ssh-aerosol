@@ -141,6 +141,8 @@ contains
     integer :: out_aero_num(6) = (/2,1,7,33,0,33/)  ! last index of required aero species list; 0 for PM2.5
 
 
+    double precision :: total_number
+
     ! save gas concentration results over each time step
     do s = 1, n_gas
        if (output_type == 1) then
