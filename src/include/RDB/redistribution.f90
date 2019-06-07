@@ -411,7 +411,7 @@ END SUBROUTINE REDISTRIBUTION
       END DO
 
 !!****** nucleation bound
-!      IF (INUCL.EQ.1) XBD(1)=XBF(1)
+      XBD(1)=XBF(1)
       ! the first size is kept equal to that of
       ! nucleation : an improvement would be 
       ! to use the computed size given by
