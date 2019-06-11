@@ -1584,6 +1584,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
   int n=surrogate.size();
   Array <double, 1> conc_org;
   conc_org.resize(config.nbins);
+  double MOWloc=1.;
 
   for (i=0;i<n;i++)
     {
@@ -1591,7 +1592,60 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	surrogate[i].Aaq_bins_init=0;
       if (surrogate[i].hydrophobic==false)
 	surrogate[i].Ap_layer_init=0;
+      surrogate[i].velocity=pow(2.11714271498563e4*Temperature/surrogate[i].MM,0.5);
+      surrogate[i].knui=pow(3.0*surrogate[i].KDiffusion_air/surrogate[i].velocity,2);
     }
+
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic or i==config.iH2O)
+      {
+	if (surrogate[i].nonvolatile==false)
+	  if(surrogate[i].hydrophobic or i==config.iH2O)
+	    {        
+	      if (surrogate[i].kp_from_experiment)
+		surrogate[i].kpi=surrogate[i].Kp_exp_org(Temperature);
+	      else if (surrogate[i].kp_from_experiment==false)
+		surrogate[i].kpi=surrogate[i].Kp_eff_org(Temperature, MOWloc);
+	    }
+
+
+	if (i==config.iH2O)
+	  surrogate[i].kaqi=760.0*8.202e-5*Temperature/(MOWloc*1.0e6*surrogate[i].Psat(Temperature));
+	else
+	  if (surrogate[i].hydrophilic)
+	    for (b=0;b<config.nbins;b++)
+	      {
+		double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic(b),0.5)/(1.0+pow(ionic(b),0.5)));
+		if (config.compute_aqueous_phase_properties or chp(b)==0.)
+		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);              
+		else
+		  {
+		    if (surrogate[i].aqt==2) //diacid
+		      {
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*
+			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
+			   (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
+			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp(b)))/
+			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+		      }
+		    else if (surrogate[i].aqt==1) //monoacid
+		      {
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+		      }
+		    else if (surrogate[i].aqt==3) //aldehyde
+		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+		    else
+		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);
+		  }
+	      }
+      }
+
+  double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
+  surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
+    (8.314*Temperature);
 
   if (config.activity_model=="unifac")
     {
@@ -1611,14 +1665,54 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	  for (k=0;k<config.nfunc_aq;k++)          
 	    config.Inter2_aq(j,k)=exp(-config.Inter_aq(j,k)/Temperature);  
 
+      for (i=0;i<config.nmol_aq;i++)
+        for (j=0;j<config.nfunc_aq;j++)
+          if (config.groups_aq(j,i)>0.0)
+            {
+              config.sum2mol_aq(j,i)=0.0;
+              for (k=0;k<config.nfunc_aq;k++)
+                if (config.groups_aq(k,i)>0.0)
+                  config.sum2mol_aq(j,i)+=config.surface_fraction_molaq(k,i)*config.Inter2_aq(k,j);              
+            }
+
+      for (i=0;i<config.nmol_aq;i++)
+        for (j=0;j<config.nfunc_aq;j++)
+          if (config.groups_aq(j,i)>0.0)
+            {
+              config.group_activity_molaq(j,i)=1.0-log(config.sum2mol_aq(j,i));                     
+              for (k=0;k<config.nfunc_aq;k++)      
+                if (config.groups_aq(k,i)>0.0)
+                  config.group_activity_molaq(j,i)-=config.surface_fraction_molaq(k,i)*config.Inter2_aq(j,k)/config.sum2mol_aq(k,i);           
+            }
+
       if (config.temperature_dependancy)
 	for (j=0;j<config.nfunc_tot;j++)
 	  for (k=0;k<config.nfunc_tot;k++)          
 	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature+config.InterB_tot(j,k)*tval1+config.InterC_tot(j,k)*tval2);         
       else
-	for (j=0;j<config.nfunc_aq;j++)
-	  for (k=0;k<config.nfunc_aq;k++)          
+	for (j=0;j<config.nfunc_tot;j++)
+	  for (k=0;k<config.nfunc_tot;k++)          
 	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature); 
+
+      for (i=0;i<config.nmol_tot;i++)
+        for (j=0;j<config.nfunc_tot;j++)
+          if (config.groups_tot(j,i)>0.0)
+            {
+              config.sum2mol_tot(j,i)=0.0;
+              for (k=0;k<config.nfunc_tot;k++)
+                if (config.groups_tot(k,i)>0.0)
+                  config.sum2mol_tot(j,i)+=config.surface_fraction_moltot(k,i)*config.Inter2_tot(k,j);              
+            }
+
+      for (i=0;i<config.nmol_tot;i++)
+        for (j=0;j<config.nfunc_tot;j++)
+          if (config.groups_tot(j,i)>0.0)
+            {
+              config.group_activity_moltot(j,i)=1.0-log(config.sum2mol_tot(j,i));                     
+              for (k=0;k<config.nfunc_tot;k++)      
+                if (config.groups_tot(k,i)>0.0)
+                  config.group_activity_moltot(j,i)-=config.surface_fraction_moltot(k,i)*config.Inter2_tot(j,k)/config.sum2mol_tot(k,i);           
+            }
 
       if (config.temperature_dependancy)
 	for (j=0;j<config.nfunc_org;j++)
@@ -1628,6 +1722,27 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	for (j=0;j<config.nfunc_aq;j++)
 	  for (k=0;k<config.nfunc_aq;k++)          
 	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature); 
+
+      for (i=0;i<config.nmol_org;i++)
+        for (j=0;j<config.nfunc_org;j++)
+          if (config.groups_org(j,i)>0.0)
+            {
+              config.sum2mol_org(j,i)=0.0;
+              for (k=0;k<config.nfunc_org;k++)
+                if (config.groups_org(k,i)>0.0)
+                  config.sum2mol_org(j,i)+=config.surface_fraction_molorg(k,i)*config.Inter2_org(k,j);              
+            }
+
+      for (i=0;i<config.nmol_org;i++)
+        for (j=0;j<config.nfunc_org;j++)
+          if (config.groups_org(j,i)>0.0)
+            {
+              config.group_activity_molorg(j,i)=1.0-log(config.sum2mol_org(j,i));                     
+              for (k=0;k<config.nfunc_org;k++)      
+                if (config.groups_org(k,i)>0.0)
+                  config.group_activity_molorg(j,i)-=config.surface_fraction_molorg(k,i)*config.Inter2_org(j,k)/config.sum2mol_org(k,i);           
+            }
+      
 
     } 
   
@@ -1973,7 +2088,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
           if (LWCtot>config.LWClimit)
             characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
         }
-
+   
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
         solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
@@ -1997,7 +2112,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
    
       //Dynamic evolution      
       while (t<deltatmax)
-        {	            
+        {	  
           deltat1=min(deltatmax-t,deltat1);	 
 		  
           //save the old time step in deltat2          
@@ -2023,8 +2138,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
                    MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
           if (deltat1<0.999*deltat2) //if the new time step is inferior to the old one
-            {   
-	      //cout << "rejected " << endl;
+            {   	      
 	      //the old time step is rejected
               for (i=0;i<n;++i)
                 {
@@ -2089,7 +2203,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
             }
           else                      //the time step is accepted 
             {	
-	      t+=deltat2;	      
+	      t+=deltat2;	      	     
               for (b=0;b<config.nbins;++b)
                 {
                   for (ilayer=0;ilayer<config.nlayer;++ilayer)

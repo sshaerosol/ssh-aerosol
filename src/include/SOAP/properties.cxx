@@ -12,7 +12,7 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
   //   H = 1000*760/(18.0*GAMMAinf*Psat)
   
   int n=surrogate.size();
-  int i;
+  int i,j,k,i2;
   Array<double, 1> X_unifac;
   Array<double, 1> gamma_unifac;
   double tval1,tval2;
@@ -29,17 +29,42 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
 	  int j,k;
 	  for (j=0;j<config.nfunc_aq;j++)
 	    for (k=0;k<config.nfunc_aq;k++)              
-              config.Inter2_aq(j,k)=exp(-config.Inter_aq(j,k)/surrogate[i].Tref+config.InterB_aq(j,k)*tval1+config.InterC_aq(j,k)*tval2); //exp(-1./298); //surrogate[i].Tref); //exp(-config.Inter_aq(j,k)/surrogate[i].Tref);           
+              config.Inter2_aq(j,k)=exp(-config.Inter_aq(j,k)/surrogate[i].Tref+config.InterB_aq(j,k)*tval1+config.InterC_aq(j,k)*tval2); //exp(-1./298); //surrogate[i].Tref); //exp(-config.Inter_aq(j,k)/surrogate[i].Tref);         
+  
+	  for (i2=0;i2<config.nmol_aq;i2++)
+	    for (j=0;j<config.nfunc_aq;j++)
+	      if (config.groups_aq(j,i2)>0.0)
+		{
+		  config.sum2mol_aq(j,i2)=0.0;
+		  for (k=0;k<config.nfunc_aq;k++)
+		    if (config.groups_aq(k,i2)>0.0)
+		      config.sum2mol_aq(j,i2)+=config.surface_fraction_molaq(k,i2)*config.Inter2_aq(k,j);              
+		}
+
+	  for (i2=0;i2<config.nmol_aq;i2++)
+	    for (j=0;j<config.nfunc_aq;j++)
+	      if (config.groups_aq(j,i2)>0.0)
+		{
+		  config.group_activity_molaq(j,i2)=1.0e0-log(config.sum2mol_aq(j,i2));                     
+		  for (k=0;k<config.nfunc_aq;k++)      
+		    if (config.groups_aq(k,i2)>0.0)		      		      
+		      {
+			//cout << config.sum2mol_aq(k,i2) << " " << config.surface_fraction_molaq(k,i2) << " " << config.Inter2_aq(k,j) << " " << config.groups_aq(k,i2) << endl;
+			config.group_activity_molaq(j,i2)-=config.surface_fraction_molaq(k,i2)*config.Inter2_aq(j,k)/config.sum2mol_aq(k,i2);           		
+		      }
+		}
+	  //cout << surrogate[i].name << " " << surrogate[i].index_gamma_aq << endl;
 
           for (j=0;j<config.nmol_aq;++j)
             X_unifac(j)=0.0;
           X_unifac(surrogate[i].index_gamma_aq)=1.0e-10;
           X_unifac(surrogate[config.iH2O].index_gamma_aq)=
-            1.0-X_unifac(surrogate[i].index_gamma_aq);
+	    1.0-X_unifac(surrogate[i].index_gamma_aq);
           unifac(config.nmol_aq,config.nfunc_aq,config.groups_aq,
                  X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
 		 config.RG_aq,
                  config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
+		 config.group_activity_molaq,
                  config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);
           surrogate[i].GAMMAinf=gamma_unifac(surrogate[i].index_gamma_aq);
           
@@ -411,8 +436,8 @@ void water_concentration(model_config &config, vector<species>& surrogate,
                          double &Temperature, double &RH)
 {
   //compute the gas phase concentration of water
-  double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
-  surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
+  //double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
+  //surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
     (8.314*Temperature);
   surrogate[config.iH2O].Ag=max(surrogate[config.iH2O].Atot
 				-sum(surrogate[config.iH2O].Aaq_bins_init)
@@ -421,14 +446,14 @@ void water_concentration(model_config &config, vector<species>& surrogate,
   
 }
 
-double species::knudsen_function(double &Temperature, double diameter)
+double species::knudsen_function(double &Temperature, double diameter, double diam2)
 {
   //compute the value of the knudsen function
-  double velocity=pow(2.11714271498563e4*Temperature/MM,0.5);
   double knudsen=3.0*KDiffusion_air/(velocity*diameter);
+  double knudsen2=knui/diam2;  
   //cout << KDiffusion_air << " " << velocity << " " << diameter << " " << value << endl;
   double value=0.75*accomodation_coefficient*(1.0+knudsen)/
-    (pow(knudsen,2)+knudsen+0.283*knudsen*accomodation_coefficient+0.75*accomodation_coefficient);
+    (knudsen2+knudsen+0.283*knudsen*accomodation_coefficient+0.75*accomodation_coefficient);
   //double value=(1.0+knudsen)/(1.+2.*(1.+knudsen)*knudsen/accomodation_coefficient);
   //cout << KDiffusion_air << " " << velocity << " " << diameter << " " << value << " " << MM << endl;
 
@@ -448,14 +473,17 @@ void tau_kmt(model_config &config,vector<species>& surrogate, double &temperatur
   //cout << config.diameters << endl;
 
   for (b=0;b<config.nbins;++b)	  
-    for (i=0;i<n;++i)
-      if (number(b)>0.0)        
-	surrogate[i].tau_air(b)=1.0/
-	  (2.0*pi*surrogate[i].KDiffusion_air*
-	   config.diameters(b)*1.0e-6*number(b)*
-	   surrogate[i].knudsen_function(temperature, config.diameters(b)*1.0e-6));	         
-      else
-        surrogate[i].tau_air(b)=1.0e19; 
+    {
+      double diam2=pow(config.diameters(b)*1.0e-6,2.);	         
+      for (i=0;i<n;++i)
+	if (number(b)>0.0)        
+	  surrogate[i].tau_air(b)=1.0/
+	    (2.0*pi*surrogate[i].KDiffusion_air*
+	config.diameters(b)*1.0e-6*number(b)*
+	surrogate[i].knudsen_function(temperature, config.diameters(b)*1.0e-6,diam2));	         
+	else
+	  surrogate[i].tau_air(b)=1.0e19; 
+    }
 }
 
 void tau_dif(model_config &config, vector<species>& surrogate,
@@ -526,8 +554,9 @@ double species::Psat(double &Temperature)
   double value;
   if (name=="H2O")
     value=exp(13.7-5120.0/Temperature)*760.0;
-  else
+  else    
     value=Psat_ref*exp(-1000.0*deltaH/R*(1.0/Temperature-1.0/Tref));
+    
   return value;
 }
 
@@ -562,7 +591,7 @@ double species::Kpart_aq(double &Temperature, double &MMaq)
   //Compute the ideal partitioning constant between the gas phase and the aqueous phase
   double R=8.314; //ideal gas constant (J/K/mol)
   double rho_h2o=1000.0; //volumic mass of H2O
-  double MH2O=18.0;
+  double MH2O=18.0;  
   double value=Henry*R*Temperature/(rho_h2o*1.0e6*1.013e5)*
     exp(1000.0*deltaH/R*(1.0/Temperature-1.0/Tref))*MH2O/MMaq;
   return value;
@@ -661,6 +690,90 @@ double species::Kp_eff_aq(model_config &config, double &Temperature, double &ion
       if (name!="H2O")
         cout << "WARNING: aq_type "+aq_type+" of species " +name+ " not defined." << endl;
       value=Kpart_aq(Temperature, MMaq);
+    }
+  
+  return value;
+}
+
+double species::Kp_eff_aqrealdyn(model_config &config,
+                              double &Temperature, double &ionic, double &chp,
+                              double &gammaH_LR, double &gammaH_SRMR,
+				 double &MMaq, double &fion1, double &fion2, int &b)
+{
+  //Compute the effective ideal partitioning constant between the gas phase
+  //and the organic phase
+  // chp: concentrations of H+ ions in mol/L
+  // ionic: ionic strenght
+  // gammaH_LR: activity coefficients of H+ due to long range interactions
+  // gammaH_SRMR: activity coefficients of H+ due to medium range and short interactions
+  // fion1: fraction of an acid H2A or HA which has been dissociated into HA- or A-
+  // fion2: fraction of a diacid H2A which has been dissociated into A2-
+  // MMaq: mean molar mass of the aqueous phase (g/mol)
+  double value;    
+  fion1=0.0;
+  fion2=0.0;
+  if (aqt==2) //diacid
+    {
+      //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+        {
+          //For a species H2A:
+          //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
+          //gamma(HA-)=gamma_LR(HA-)*gamma_MR(HA-)*gamma_SR(HA-)
+          //gamma(A2-)=gamma_LR(A2-)*gamma_MR(A2-)*gamma_SR(A2-)
+          //gamma(H+)=gamma_LR(H+)*gamma_MR(H+)*gamma_SR(H+)
+          //Hypothesis:
+          //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
+          //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
+          //gamma_LR(HA-)=gamma_LR(H+)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)
+          double ratio_gamma1=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          double ratio_gamma2=pow(gammaH_LR,2.0)*gammaH_SRMR;
+          value=veckaqi(b)/MMaq*
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion1=(Kacidity1/(ratio_gamma1*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+        }
+      else
+        {          
+          value=veckaqi(b)/MMaq;
+          fion1=vecfioni1(b);
+          fion2=vecfioni2(b);
+        }
+    }
+  else if (aqt==1) //monoacid
+    {
+      //Kp_effective=Kp_theoric*(1+A-/HA)
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+        {
+          double ratio_gamma=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          value=veckaqi(b)/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
+          fion1=(Kacidity1/(ratio_gamma*chp))
+            /(1.0+Kacidity1/(ratio_gamma*chp));
+        }
+      else
+        {          
+          value=veckaqi(b)/MMaq;
+          fion1=vecfioni1(b);
+        }
+    }
+  else if (aqt==3) //aldehyde
+    {
+      //effective partitioning based on Pun and Seigneur (2007)
+      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)        
+        value=veckaqi(b)/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));        
+      else        
+        value=veckaqi(b)/MMaq;        
+    }
+  else if (aqt==0) //Kp_effective=Kp_theoric
+    value=veckaqi(b)/MMaq;
+  else
+    {
+      if (name!="H2O")
+        cout << "WARNING: aq_type "+aq_type+" of species " +name+ " not defined." << endl;
+      value=kaqi/MMaq;
     }
   
   return value;
@@ -786,8 +899,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
   //computation of X_unifac (molar fraction of compounds used in the computation of activity
   // coefficients)
   for (i=0;i<n;++i)
-    if (surrogate[i].hydrophobic or
-        (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
+    if (surrogate[i].hydrophobic or (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
       {
         surrogate[i].Xorg=surrogate[i].Ap/surrogate[i].MM;
         sum+=surrogate[i].Xorg;
@@ -811,8 +923,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
     {
       MOW=0.0;
       for (i=0;i<n;++i)
-        if (surrogate[i].hydrophobic or
-            (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
+        if (surrogate[i].hydrophobic or (all_hydrophobic and (surrogate[i].is_organic or i==config.iH2O)))
           {
             surrogate[i].Xorg=surrogate[i].Xorg/sum;
             MOW=MOW+surrogate[i].Xorg*surrogate[i].MM;
@@ -836,6 +947,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
 		 X_unifac,config.Inter2_org, //config.InterB_org,config.InterC_org,
 		 config.RG_org,
 		 config.QG_org,config.Rparam_org,config.Qparam_org,config.Lparam_org,                 
+		 config.group_activity_molorg,
 		 config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
 
 	  for (i=0;i<n;++i)
@@ -852,6 +964,7 @@ void activity_coefficients_org(model_config &config, vector<species>& surrogate,
 		 X_unifac,config.Inter2_tot, //config.InterB_tot,config.InterC_tot,
 		 config.RG_tot,
 		 config.QG_tot,config.Rparam_tot,config.Qparam_tot,config.Lparam_tot,         
+		 config.group_activity_moltot,
 		 config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
 
 	  for (i=0;i<n;++i)
@@ -1164,6 +1277,7 @@ void activity_coefficients_saturation(model_config &config, vector<species>& sur
 		     X_unifac,config.Inter2_org, //config.InterB_org,config.InterC_org,
 		     config.RG_org,
 		     config.QG_org,config.Rparam_org,config.Qparam_org,config.Lparam_org,
+		     config.group_activity_molorg,
 		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
 
 	      for (i=0;i<n;++i)
@@ -1180,6 +1294,7 @@ void activity_coefficients_saturation(model_config &config, vector<species>& sur
 		     X_unifac,config.Inter2_tot, //config.InterB_tot,config.InterC_tot,
 		     config.RG_tot,
 		     config.QG_tot,config.Rparam_tot,config.Qparam_tot,config.Lparam_tot,
+		     config.group_activity_moltot,
 		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
               
 	      for (i=0;i<n;++i)
@@ -1575,10 +1690,7 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
             sumX_unifac+=surrogate[i].Xaq;	   
 	    X_unifac(surrogate[i].index_gamma_aq)+=surrogate[i].Xaq;
           }
-      }
-
-  //cout << "MMaq:" << MMaq << endl;
-  //cout << "ici :" << X_unifac << endl;
+      } 
 
   if (config.iH2O>=0)
     XH2O=surrogate[config.iH2O].Xaq;
@@ -1610,12 +1722,35 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
       //cout << Xions << endl;
 
       if (config.SR_ions)
-        {          
-	  unifac(config.nmol_aq,config.nfunc_aq,config.groups_aq,
-		 X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
-		 config.RG_aq,
-		 config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,                  
-		 config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
+        {          	  
+	  unifac_aq(config.nmol_aq,config.nion_unifac,config.nfunc_aq,config.groups_aq,
+		    X_unifac,Xions,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
+		    config.RG_aq,
+		    config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
+		    config.group_activity_molaq,
+		    config.RGions,config.QGions, config.Lions,config.gamma_ions_inf,
+		    config.Z,Temperature,gamma_unifac,gamma_ions,config.temperature_dependancy);
+        
+	  iion=0;
+          for (i=0;i<n;++i)
+            {
+              if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+                {
+                  surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
+		    
+		  if (i==config.iHp)
+		    surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
+                  iion++;
+                }
+              else
+                {
+                  if (surrogate[i].index_gamma_aq >=0)
+                    surrogate[i].gamma_aq=gamma_unifac(surrogate[i].index_gamma_aq)
+                      /surrogate[i].GAMMAinf;
+                  else
+                    surrogate[i].gamma_aq=1.0;
+                }
+            }
         
           for (i=0;i<n;++i)
             {
@@ -1626,7 +1761,24 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
                 surrogate[i].gamma_aq=1.0;
             }
         }
+      else
+	{
+	  unifac(config.nmol_aq,config.nfunc_aq,config.groups_aq,
+                 X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
+		 config.RG_aq,
+                 config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
+		 config.group_activity_molaq,
+                 config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);
 
+	  for (i=0;i<n;++i)
+	    {
+	      if (surrogate[i].index_gamma_aq >=0)
+		surrogate[i].gamma_aq=gamma_unifac(surrogate[i].index_gamma_aq);
+	      else
+		surrogate[i].gamma_aq=1.0;
+	    }
+
+	}
     }
   else
     for (i=0;i<n;++i)

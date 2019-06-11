@@ -250,14 +250,54 @@ void initialisation_eq(model_config &config, vector<species>& surrogate, double 
 	  for (k=0;k<config.nfunc_aq;k++)          
 	    config.Inter2_aq(j,k)=exp(-config.Inter_aq(j,k)/Temperature);  
 
+      for (i=0;i<config.nmol_aq;i++)
+        for (j=0;j<config.nfunc_aq;j++)
+          if (config.groups_aq(j,i)>0.0)
+            {
+              config.sum2mol_aq(j,i)=0.0;
+              for (k=0;k<config.nfunc_aq;k++)
+                if (config.groups_aq(k,i)>0.0)
+                  config.sum2mol_aq(j,i)+=config.surface_fraction_molaq(k,i)*config.Inter2_aq(k,j);              
+            }
+
+      for (i=0;i<config.nmol_aq;i++)
+        for (j=0;j<config.nfunc_aq;j++)
+          if (config.groups_aq(j,i)>0.0)
+            {
+              config.group_activity_molaq(j,i)=1.0-log(config.sum2mol_aq(j,i));                     
+              for (k=0;k<config.nfunc_aq;k++)      
+                if (config.groups_aq(k,i)>0.0)
+                  config.group_activity_molaq(j,i)-=config.surface_fraction_molaq(k,i)*config.Inter2_aq(j,k)/config.sum2mol_aq(k,i);           
+            }
+
       if (config.temperature_dependancy)
 	for (j=0;j<config.nfunc_tot;j++)
 	  for (k=0;k<config.nfunc_tot;k++)          
 	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature+config.InterB_tot(j,k)*tval1+config.InterC_tot(j,k)*tval2);         
       else
-	for (j=0;j<config.nfunc_aq;j++)
-	  for (k=0;k<config.nfunc_aq;k++)          
+	for (j=0;j<config.nfunc_tot;j++)
+	  for (k=0;k<config.nfunc_tot;k++)          
 	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature); 
+
+      for (i=0;i<config.nmol_tot;i++)
+        for (j=0;j<config.nfunc_tot;j++)
+          if (config.groups_tot(j,i)>0.0)
+            {
+              config.sum2mol_tot(j,i)=0.0;
+              for (k=0;k<config.nfunc_tot;k++)
+                if (config.groups_tot(k,i)>0.0)
+                  config.sum2mol_tot(j,i)+=config.surface_fraction_moltot(k,i)*config.Inter2_tot(k,j);              
+            }
+
+      for (i=0;i<config.nmol_tot;i++)
+        for (j=0;j<config.nfunc_tot;j++)
+          if (config.groups_tot(j,i)>0.0)
+            {
+              config.group_activity_moltot(j,i)=1.0-log(config.sum2mol_tot(j,i));                     
+              for (k=0;k<config.nfunc_tot;k++)      
+                if (config.groups_tot(k,i)>0.0)
+                  config.group_activity_moltot(j,i)-=config.surface_fraction_moltot(k,i)*config.Inter2_tot(j,k)/config.sum2mol_tot(k,i);           
+            }
 
       if (config.temperature_dependancy)
 	for (j=0;j<config.nfunc_org;j++)
@@ -267,6 +307,26 @@ void initialisation_eq(model_config &config, vector<species>& surrogate, double 
 	for (j=0;j<config.nfunc_aq;j++)
 	  for (k=0;k<config.nfunc_aq;k++)          
 	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature); 
+
+      for (i=0;i<config.nmol_org;i++)
+        for (j=0;j<config.nfunc_org;j++)
+          if (config.groups_org(j,i)>0.0)
+            {
+              config.sum2mol_org(j,i)=0.0;
+              for (k=0;k<config.nfunc_org;k++)
+                if (config.groups_org(k,i)>0.0)
+                  config.sum2mol_org(j,i)+=config.surface_fraction_molorg(k,i)*config.Inter2_org(k,j);              
+            }
+
+      for (i=0;i<config.nmol_org;i++)
+        for (j=0;j<config.nfunc_org;j++)
+          if (config.groups_org(j,i)>0.0)
+            {
+              config.group_activity_molorg(j,i)=1.0-log(config.sum2mol_org(j,i));                     
+              for (k=0;k<config.nfunc_org;k++)      
+                if (config.groups_org(k,i)>0.0)
+                  config.group_activity_molorg(j,i)-=config.surface_fraction_molorg(k,i)*config.Inter2_org(j,k)/config.sum2mol_org(k,i);           
+            }
 
     }   
 }
