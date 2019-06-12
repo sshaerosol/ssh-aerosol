@@ -50,8 +50,8 @@ fi
 # Chemical files generation
 #
 
-tmp_files="inSPACK perm.dat ${SPECIES}_preprocessed non_zero.dat"
-output_file="dratedc.f fexchem.f fexloss.f fexprod.f jacdchemdc.f kinetic.f rates.f dimensions.f LU_decompose.f LU_solve.f non_zero.dat species.spack.dat"
+tmp_files="inSPACK perm.dat ${SPECIES}_preprocessed non_zero.dat non_zero_90.dat"
+output_file="dratedc.f fexchem.f fexloss.f fexprod.f jacdchemdc.f kinetic.f rates.f dimensions.f LU_decompose.f LU_solve.f non_zero.dat species.spack.dat dratedc_90.f90 fexchem_90.f90 fexloss_90.f90 fexprod_90.f90 jacdchemdc_90.f90 kinetic_90.f90 rates_90.f90 dimensions_90.f90 non_zero_90.dat"
 
 # Automatically delete temporary files on exit.
 function on_exit {
