@@ -1674,8 +1674,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
-
-  /*
+  
   for (i=0;i<n;++i)      		
     for (b=0;b<config.nbins;b++)
       for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -1683,7 +1682,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 	  {
 	    surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	    surrogate[i].Jdn(b,ilayer,iphase,index)=0.0;
-	    }*/
+	    }
   
   if (config.explicit_representation)
     {
@@ -1862,12 +1861,12 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)		
 			ktot1+=surrogate[i].k1(b,ilayer,iphase,index);
-		     		    
+		     		  
 		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)			
 			if (ilayer<ilayer_interface or
-			    (Jinterface*ktot1<=0.0 and sumkpmo_interface*surrogate[i].tau_air(b)<surrogate[i].tau_diffusion(b,ilayer_interface-1,iphase)))
+			    (Jinterface*ktot1<=0.0 and sumkpmo_interface*surrogate[i].tau_air(b)<surrogate[i].tau_diffusion(b,max(ilayer_interface-1,0),iphase)))
 			  {
 			    if (surrogate[i].k1(b,ilayer,iphase,index)>0.0)  
 			      sumkpositive+=surrogate[i].k1(b,ilayer,iphase,index);
