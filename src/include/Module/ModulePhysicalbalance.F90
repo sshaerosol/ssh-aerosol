@@ -244,6 +244,8 @@ contains
     double precision:: t_mass(N_aerosol)
     double precision:: tmp_cell,total_ms
 
+    double precision:: total_number,total_mass_t
+
     do jesp=1,N_aerosol
       total_aero_mass(jesp)=0.d0
     enddo

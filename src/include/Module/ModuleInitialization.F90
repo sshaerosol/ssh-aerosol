@@ -62,7 +62,7 @@ module aInitialization
     integer :: with_fixed_density!IDENS
     integer :: tag_init		! 0 internally mixed; 1 mixing_state resolved
     integer :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
-    integer :: wet_diam_estimation	! 0 = isorropia, 1 = fastdiam Gerber?
+    integer :: wet_diam_estimation	! 0 = isorropia ?
     integer :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
     integer :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
     integer :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
@@ -78,8 +78,8 @@ module aInitialization
     double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
     double precision :: min_adaptive_time_step       !Minimum time step
     !double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
-    integer :: dynamic_solver = 2 !KDSLV Tag type of solver
-    integer :: sulfate_computation = 1 !ISULFCOND tag of sulfate condensation method
+    integer :: dynamic_solver = 1 !KDSLV Tag type of solver
+    integer :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
     integer :: with_coag   !Tag gCoagulation
     integer :: i_compute_repart ! 0 if repartition coeff are read
@@ -91,6 +91,7 @@ module aInitialization
     integer :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
     integer :: with_oligomerization!IOLIGO
     integer :: output_type
+    integer :: splitting
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Integer :: aqueous_module!ICLD
@@ -129,10 +130,6 @@ module aInitialization
     double precision :: lwc_cloud_threshold
 
     integer :: tag_coag,tag_cond,tag_nucl
-    double precision :: timestep_splitting,sub_timestep_splitting
-    double precision :: initial_time_splitting,current_sub_time,final_sub_time
-    !current time=initial_time_splitting+current_sub_time
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     double precision :: viscosity!Dynamic viscosity ([kg/m/s]).
@@ -140,12 +137,12 @@ module aInitialization
     double precision :: total_water!total mass of water
     double precision :: total_IH!total mass of H+
     double precision :: total_PH!overall PH value
-    double precision :: n_grow_nucl,n_grow_coag,n_emis
-    double precision :: m_grow_cond,m_emis
-    double precision :: total_number,aero_total_mass,total_mass_t 
-    Double precision,dimension(:), allocatable :: total_mass, total_mass_old!total mass of each species
+    double precision :: n_emis
+    double precision :: m_emis
+    double precision :: aero_total_mass 
+    Double precision,dimension(:), allocatable :: total_mass!, total_mass_old!total mass of each species
     Double precision,dimension(:), allocatable :: discretization_mass
-    Double precision :: p_fact,k_fact!??
+    Double precision :: p_fact,k_fact
     Double precision :: DQLIMIT
 
     !!part5: dimension data array    
@@ -191,9 +188,9 @@ module aInitialization
     double precision , dimension(:,:), allocatable :: emission_rate
     double precision , dimension(:), allocatable   :: emission_num_rate
 
-    Double precision,dimension(:), allocatable :: wet_diameter	!Aerosol wet diameter (µm). of each grid cell
-    Double precision,dimension(:), allocatable :: wet_mass	!Aerosol wet mass (µg). of each grid cell
-    Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (µm^3). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_diameter	!Aerosol wet diameter (\B5m). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_mass	!Aerosol wet mass (\B5g). of each grid cell
+    Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (\B5m^3). of each grid cell
     double precision , dimension(:,:,:), allocatable :: discretization_composition! multi-array storing discretization of composition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -236,27 +233,17 @@ module aInitialization
     !double precision :: SMD(SNaNO3:SLC) = ()!molar weight of internal solids species
     !double precision :: IMW(N_liquid)!molar weight of inorganic species in aqueous_phase
     !double precision :: SMW(SNaNO3:SLC)!molar weight of solids
-!!    double precision ,dimension(:), allocatable :: saturation_pressure
-!!    double precision ,dimension(:), allocatable :: partition_coefficient
-!!    double precision ,dimension(:), allocatable :: vaporization_enthalpy
     double precision ,dimension(:), allocatable :: accomodation_coefficient
     double precision ,dimension(:), allocatable :: surface_tension
-!!    double precision ,dimension(:), allocatable :: saturation_pressure_mass
-!!    double precision ,dimension(:), allocatable :: saturation_pressure_torr
-!!    double precision ,dimension(:), allocatable :: deliquescence_relative_humidity
-    double precision ,dimension(:), allocatable :: molecular_weight_aer! (µg/mol)
+    double precision ,dimension(:), allocatable :: molecular_weight_aer! (\B5g/mol)
     double precision ,dimension(:), allocatable :: molecular_diameter
     double precision ,dimension(:), allocatable :: collision_factor_aer
-    double precision ,dimension(:), allocatable :: mass_density!(µg/m3) liquid mass density
+    double precision ,dimension(:), allocatable :: mass_density!(\B5g/m3) liquid mass density
     double precision ,dimension(:), allocatable :: quadratic_speed! (m.s-1)
     double precision ,dimension(:), allocatable :: diffusion_coef! (m2.s-1)
-    double precision ,dimension(:), allocatable :: soa_sat_conc! (µg.m-3)
+    double precision ,dimension(:), allocatable :: soa_sat_conc! (\B5g.m-3)
     double precision ,dimension(:), allocatable :: soa_part_coef!(m3/microg)
-    double precision ,dimension(:), allocatable :: molecular_weight! (µg/mol) gas=phase
-!    DOUBLE PRECISION, dimension(:,:), allocatable :: DLconc_aer
-!    DOUBLE PRECISION, dimension(:), allocatable :: DLnum_conc_aer
-
-
+    double precision ,dimension(:), allocatable :: molecular_weight! (\B5g/mol) gas=phase
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
@@ -359,7 +346,7 @@ module aInitialization
 					adaptive_time_step_tolerance, min_adaptive_time_step
 
      namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
-		  	     with_fixed_density, fixed_density, wet_diam_estimation
+		  	     with_fixed_density, fixed_density, splitting
 		 
      namelist /physic_coagulation/ with_coag, i_compute_repart, Coefficient_file, Nmc
 
@@ -641,8 +628,16 @@ module aInitialization
 	else
 	   print*, 'real density is computed.'
         end if
+
+	if (splitting == 1) then
+	   print*, 'coagulation - cond/evap+nucl are coupled'
+	else
+	   print*, 'coagulation - cond/evap+nucl are splitted'
+        end if
+
+
 	if (wet_diam_estimation == 1) then
-	   print*, 'initial wet diameter is computed by Gerber.'
+	   print*, 'initial wet diameter is computed from initial water conc. if available'
 	else !default wet_diam_estimation == 0
 	   wet_diam_estimation = 0
 	   print*, 'initial wet diameter is computed by isorropia.'
@@ -742,7 +737,7 @@ module aInitialization
      else
 	print*,
 	print*,'<<<< Results output >>>>'
-	if (output_type == 0) then
+	if (output_type == 2) then
 	   print*, 'results are saved in binary files.'
 	else
 	   output_type = 1   ! defalut
@@ -864,7 +859,7 @@ subroutine read_inputs()
              surface_tension(s), accomodation_coefficient(s), &
              mass_density(s)
         
-        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to µg/mol  !!! change later
+        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
         list_species(s) = s
         if (aerosol_species_name(s) .eq. "PMD") EMD = s
         if (aerosol_species_name(s) .eq. "PBC") EBC = s
@@ -1195,7 +1190,7 @@ subroutine read_inputs()
 	if (allocated(concentration_inti))  deallocate(concentration_inti, stat=ierr)
 
 	if (allocated(total_mass))  deallocate(total_mass, stat=ierr)
-	if (allocated(total_mass_old))  deallocate(total_mass_old, stat=ierr)
+!!	if (allocated(total_mass_old))  deallocate(total_mass_old, stat=ierr)
 	if (allocated(concentration_gas))  deallocate(concentration_gas, stat=ierr)
 	if (allocated(concentration_number))  deallocate(concentration_number, stat=ierr)
 	if (allocated(concentration_number_tmp))  deallocate(concentration_number_tmp, stat=ierr)

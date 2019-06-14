@@ -13,9 +13,8 @@ PROGRAM SSHaerosol
 
   implicit none
 
-  integer :: t, j, k, s, tag_test = 0
+  integer :: t, j, s
   character (len=40) :: namelist_ssh  ! Configuration file
-  character(len=10)::vchar ! Current time 
   double precision :: current_time, ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
 
 
@@ -34,19 +33,13 @@ PROGRAM SSHaerosol
   call init_distributions()  
 
   call init_output_conc() 
-  ! mass/number/total number/total mass conc. for all species over each time step
-
-  call init_output_vl()
-  ! to test values evolution : cell_diam_av, wet_diameter
 
   call save_report()
-
-  call save_values() 
 
   call save_concentration() 
 
 
-  ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! simulation starts ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
+  ! **** simulation starts 
 
   do t = 1, nt
 
@@ -56,8 +49,7 @@ PROGRAM SSHaerosol
      write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
      ! Emissions
-     if (tag_emis .ne. 0) call emission(current_time, delta_t)
-
+     if (tag_emis .ne. 0) call emission(delta_t)
 
      ! Gas-phase chemistry
 
@@ -67,7 +59,7 @@ PROGRAM SSHaerosol
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
 
      if (tag_chem .ne. 0) then
-     call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+       call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
           0, lwc_cloud_threshold, molecular_weight, &
           current_time, attenuation, &
@@ -115,40 +107,15 @@ PROGRAM SSHaerosol
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
        end if
     end do
-  ! ! ! ! ! ! ! ! ! ! ! ! ! ! 
-
 
     call save_concentration()         ! Text or Binary format outout
-    call save_values()
+
   end do			! finsh simulation
 
 
-  OPEN(UNIT=10,FILE=trim(output_directory) // "/" // "report.txt",status='old', position = "append")
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), 'AFTER SIMULATION', nt, 'steps :'
-	write(unit=10,FMT=*), '====== after concentration_number : ======'
-	write(unit=10,FMT=*), concentration_number
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), '===== after diam_bounds : ====='
-	write(unit=10,FMT=*), diam_bound
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), '===== after cell_diam_av : ====='
-	write(unit=10,FMT=*), cell_diam_av 
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), '===== after wet_volume : ====='
-	write(unit=10,FMT=*), wet_volume
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), '===== after concentration_mass : ====='
-	write(unit=10,FMT=*), aerosol_species_name(4)
-	write(unit=10,FMT=*), (concentration_mass(j,4), j = 1, N_size)
-	write(unit=10,FMT=*)
-	write(unit=10,FMT=*), aerosol_species_name(34)
-	write(unit=10,FMT=*), (concentration_mass(j,34), j = 1, N_size)
+  call delete_empty_file() ! delete empty output files
 
-
-  CLOSE(10)
   call free_allocated_memory()
-
   IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
   
 
