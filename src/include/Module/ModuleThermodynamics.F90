@@ -62,6 +62,7 @@ contains
     double precision :: rhoaer!aerosol density based on the internal composition
     double precision :: rhoaer_dry
 
+    rhoaer = fixed_density
     do j=start_bin,end_bin
        !initialization
        do jesp=1,N_aerosol
