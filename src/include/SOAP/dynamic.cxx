@@ -28,9 +28,12 @@ void compute_kp_org(model_config &config, vector<species>& surrogate,
 	    MOWsurf=temp1/temp2;
 	  else
 	    MOWsurf=200.0;
-	  kelvin_effect=exp(2.0*config.surface_tension_org*1.0e-6*
-			    MOWsurf/(8.314*Temperature*config.rho_organic*
-				     0.5*config.diameters(b)*1.0e-6));
+          kelvin_effect = 2.0*config.surface_tension_org*
+	    MOWsurf/(8.314*Temperature*config.rho_organic*
+		     0.5*config.diameters(b));
+          if(kelvin_effect > 50.0)
+	    kelvin_effect = 50.0;
+	  kelvin_effect=exp(kelvin_effect);
 	}
       for (i=0;i<n;++i)
 	if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
@@ -91,9 +94,14 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
     if (MMaq(b) > 0.0 and config.diameters(b)>0)
       {
 	if (config.compute_kelvin_effect) //compute the kelvin effect
-	  kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-			    (8.314*Temperature*config.AQrho(b)*
-			     0.5*config.diameters(b)*1.0e-6));
+	  {
+	    kelvin_effect=2.0*config.surface_tension_aq*MMaq(b)/
+	      (8.314*Temperature*config.AQrho(b)*
+	       0.5*config.diameters(b));
+	    if(kelvin_effect > 50.0)
+	      kelvin_effect = 50.0;
+	    kelvin_effect=exp(kelvin_effect);
+	  }
 	for (i=0;i<n;++i)
 	  if(surrogate[i].is_organic and surrogate[i].hydrophilic)
 	    {	  
@@ -133,7 +141,6 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 		    {
 		      surrogate[i].Kaq(b)/=kelvin_effect;
 		      surrogate[i].dKaq(b)/=kelvin_effect;
-		      //cout << kelvin_effect << endl;
 		    }
 		}
 	      else if (surrogate[i].name=="HNO3")
@@ -168,7 +175,6 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 		    {
 		      surrogate[i].Kaq(b)/=kelvin_effect;
 		      surrogate[i].dKaq(b)/=kelvin_effect;
-		      //cout << kelvin_effect << endl;
 		    }
 		}
 	    }
@@ -1303,10 +1309,13 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
       kelvin_effect=1.0;
       if (config.compute_kelvin_effect) //compute the kelvin effect
         {
-          kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                            (8.314*Temperature*config.AQrho(b)*
-                             0.5*config.diameters(b)*1.0e-6));
-        }
+          kelvin_effect=2.0*config.surface_tension_aq*MMaq(b)/
+	    (8.314*Temperature*config.AQrho(b)*
+	     0.5*config.diameters(b));
+	  if(kelvin_effect > 50.0)
+	    kelvin_effect = 50.0;
+	  kelvin_effect=exp(kelvin_effect);
+	}
 
       for (i=0;i<n;++i)
         if (surrogate[i].is_inorganic_precursor)
@@ -2124,10 +2133,14 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
   double kelvin_effect=1.0;
   double Kaq;
   if (config.compute_kelvin_effect) //compute the kelvin effect    
-    kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-		      (8.314*Temperature*config.AQrho(index_b)*
-		       0.5*config.diameters(index_b)*1.0e-6));
-
+    {
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+			(8.314*Temperature*config.AQrho(index_b)*
+			 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
+    }
   Array <double,1> conc_org;
   conc_org.resize(config.nbins);
   for (b=0;b<config.nbins;b++)
@@ -2337,9 +2350,12 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
   double Kaq;
   if (config.compute_kelvin_effect) //compute the kelvin effect
     {
-      kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-			(8.314*Temperature*config.AQrho(index_b)*
-			 0.5*config.diameters(index_b)*1.0e-6));
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+	(8.314*Temperature*config.AQrho(index_b)*
+	 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
     }
 
   double conc_org=LWC(index_b);
@@ -2515,9 +2531,12 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
 
   if (config.compute_kelvin_effect) //compute the kelvin effect
     {
-      kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-			(8.314*Temperature*config.AQrho(index_b)*
-			 0.5*config.diameters(index_b)*1.0e-6));
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+	(8.314*Temperature*config.AQrho(index_b)*
+	 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
     }
 
   double conc_org=LWC(index_b);
