@@ -26,7 +26,7 @@ C------------------------------------------------------------------------
 
       write(nficK90,10)nr,k
 
- 10   format('rk(',i3,') = ',D23.16)
+ 10   format('  rk(',i3,') = ',D23.16)
 
       return
       end
@@ -58,8 +58,8 @@ C------------------------------------------------------------------------
          write(nficK90,10)nr,logk,Tact
       endif
 
- 10   format('rk(',i3,') =  DEXP( ',D23.16,' &',/
-     &     ' - ( ',D23.16,' )/temp)')
+ 10   format('  rk(',i3,') =  DEXP( ',D23.16,' &',/
+     &     '   - ( ',D23.16,' )/temp)')
 
       return
       end
@@ -97,14 +97,14 @@ C------------------------------------------------------------------------
          endif
       endif
 
- 10   format('rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     ' + (',D23.16,' * DLOG(temp)) &',/
-     &     ' - ',D23.16,'/temp)')
- 11   format('rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     ' + (',D23.16,' * DLOG(temp)) &',/
-     &     ' + ',D23.16,'/temp)')
- 12   format('rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     ' + (',D23.16,' * DLOG(temp)) ) ')
+ 10   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
+     &     '   + (',D23.16,' * DLOG(temp)) &',/
+     &     '   - ',D23.16,'/temp)')
+ 11   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
+     &     '   + (',D23.16,' * DLOG(temp)) &',/
+     &     '   + ',D23.16,'/temp)')
+ 12   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
+     &     '   + (',D23.16,' * DLOG(temp)) ) ')
 
       return
       end
@@ -137,14 +137,14 @@ C------------------------------------------------------------------------
 c     Modification BS/KS 06/2002
 c     Replace dlog10 by dlog and Effko*Rapk by Effko/Rapk
 
- 10   format('Effko = ',D23.16,'* (temp / 3.d2) &',/
-     &     '           **(- (',D23.16,'))')
- 11   format('Rapk = ',D23.16,'* (temp / 3.d2) &',/
-     &     '            **(- (',D23.16,'))')
- 12   format('rk(',i3,') = (Effko * SumM / &',/
-     &     '            ( 1.0d0 + Effko * SumM / Rapk)) * &',/
-     &     '            ',D10.4,'** (1.0d0 / (1.0d0 + &',/
-     &     '             (dlog10(Effko * SumM / Rapk))**2))')
+ 10   format('  Effko = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))')
+ 11   format('  Rapk = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))')
+ 12   format('  rk(',i3,') = (Effko * SumM / &',/
+     &     '    ( 1.0d0 + Effko * SumM / Rapk)) * &',/
+     &     '    ',D10.4,'** (1.0d0 / (1.0d0 + &',/
+     &     '    (dlog10(Effko * SumM / Rapk))**2))')
 c
       return
       end
@@ -175,15 +175,15 @@ C
       write(nficK90,11)b4,b6,b5
       write(nficK90,12)nr,b7
 
- 10   format('Effko = ',D23.16,'* (temp / 3.d2) &',/
-     &     '           **(- (',D23.16,'))* &',/
-     &     '           dexp(-',D23.16,'/temp)')
- 11   format('Rapk = ',D23.16,'* (temp / 3.d2) &',/
-     &     '            **(- (',D23.16,'))* &',/
-     &     '           dexp(-',D23.16,'/temp)')
- 12   format('rk(',i3,') = (Effko*SumM / ( 1.0d0 + Effko * SumM / &',/
-     &     '         Rapk)) * ',D10.4,'** (1.0d0 / (1.0d0 + &',/
-     &     '          (dlog10(Effko * SumM / Rapk))**2))')
+ 10   format('  Effko = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))* &',/
+     &     '    dexp(-',D23.16,'/temp)')
+ 11   format('  Rapk = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))* &',/
+     &     '    dexp(-',D23.16,'/temp)')
+ 12   format('  rk(',i3,') = (Effko*SumM / ( 1.0d0 + Effko * SumM / &',/
+     &     '    Rapk)) * ',D10.4,'** (1.0d0 / (1.0d0 + &',/
+     &     '    (dlog10(Effko * SumM / Rapk))**2))')
 C     13    format(6x,'rk(',i3,') = facteur * (',D23.16,') * '/
 C     &       5x,'&      dexp((',D23.16,')/temp)')
 c
@@ -243,41 +243,41 @@ c     End modification.
          write(nficK90,17)nr
       endif
 
- 10   format('Effko = ',D23.16,'* SumM * &',/
-     &     ' DEXP(-(',D23.16,')/temp + &',/
-     &     '(', D23.16,') * DLOG(temp/3.d2))')
+ 10   format('  Effko = ',D23.16,'* SumM * &',/
+     &     '    DEXP(-(',D23.16,')/temp + &',/
+     &     '    (', D23.16,') * DLOG(temp/3.d2))')
 
- 20   format('Effko = ',D23.16,'*DEXP(',D23.16,'/temp + &',/
-     &     '(', D23.16,') * DLOG(temp/3.d2)) * SumM')
+ 20   format('  Effko = ',D23.16,'*DEXP(',D23.16,'/temp + &',/
+     &     '    (', D23.16,') * DLOG(temp/3.d2)) * SumM')
 
- 30   format('Effko = ',D23.16,'*DEXP( &',/
-     &     D23.16,' * DLOG(temp/3.d2)) * SumM')
+ 30   format('  Effko = ',D23.16,'*DEXP( &',/
+     &     '    ',D23.16,' * DLOG(temp/3.d2)) * SumM')
 
- 11   format('Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '     (',D23.16,')* DLOG(temp/3.d2) - &',/
-     &     '     (',D23.16,')/temp)')
+ 11   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
+     &     '    (',D23.16,')* DLOG(temp/3.d2) - &',/
+     &     '    (',D23.16,')/temp)')
 
- 21   format('Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '     (',D23.16,')* DLOG(temp/3.d2) + &',/
-     &     '     (',D23.16,')/temp)')
+ 21   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
+     &     '    (',D23.16,')* DLOG(temp/3.d2) + &',/
+     &     '    (',D23.16,')/temp)')
 
- 31   format('Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '     (',D23.16,')* DLOG(temp/3.d2) ) ')
+ 31   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
+     &     '    (',D23.16,')* DLOG(temp/3.d2) ) ')
 
- 12   format('facteur = 1.d0/(1.d0+DLOG10(Rapk)**2)')
+ 12   format('  facteur = 1.d0/(1.d0+DLOG10(Rapk)**2)')
 C     12    format(6x,'facteur = 0.d0',/
 C     &   6x,'if(Rapk.gt.0.d0) facteur = 1.d0/(1.d0+DLOG10(Rapk)**2)')
- 14   format('rk(',i3,') = DEXP( DLOG(Effko/(1.d0+Rapk)) + &',/
-     &     '             DLOG(',D23.16,') * facteur)')
+ 14   format('  rk(',i3,') = DEXP( DLOG(Effko/(1.d0+Rapk)) + &',/
+     &     '    DLOG(',D23.16,') * facteur)')
 
- 15   format('Fcent = ',D23.16,' * DEXP(-temp/ &',/
-     &     '(', D23.16,')) &',/
-     &     '      + (',D23.16,') * DEXP(-temp/ &', /
-     &     '(',D23.16,')) &',/
-     &     '      +  DEXP (-(',D23.16,')/temp)')
- 16   format('Fcent = Fcent -1.d0')
- 17   format('rk(',i3,') = DEXP ( DLOG(Effko/(1.d0+Rapk)) &',/
-     &     '           + facteur*DLOG(Fcent))')
+ 15   format('  Fcent = ',D23.16,' * DEXP(-temp/ &',/
+     &     '    (', D23.16,')) &',/
+     &     '    + (',D23.16,') * DEXP(-temp/ &', /
+     &     '    (',D23.16,')) &',/
+     &     '    +  DEXP (-(',D23.16,')/temp)')
+ 16   format('  Fcent = Fcent -1.d0')
+ 17   format('  rk(',i3,') = DEXP ( DLOG(Effko/(1.d0+Rapk)) &',/
+     &     '    + facteur*DLOG(Fcent))')
 
       return
       end
@@ -318,23 +318,23 @@ C------------------------------------------------------------------------
          stop 1
       endif
 
- 11   format('rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.3d0)')
+ 11   format('  rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.3d0)')
 C     BS 05/02/2003 values given by RACM
- 12   format('rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
-     &     '            + 1.73d-33* SumM * dexp(1000.0d0 / temp)')
- 13   format('rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) + &',/
-     &     '            2.38d-54 * SumM * dexp(3200.0d0 / temp)')
+ 12   format('  rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
+     &     '    + 1.73d-33* SumM * dexp(1000.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) &',/
+     &     '    + 2.38d-54 * SumM * dexp(3200.0d0 / temp)')
 C     MODIF BS 06/06/2003 on the basis of CMAQ
- 14   format('Effko = 7.2d-15 * dexp(785.0d0 / temp)',/
-     &     'Rapk = 4.1d-16 * dexp(1440.0d0 / temp)',/
-     &     'facteur =1.9d-33 * dexp(725.0d0 / temp) * SumM',/
-     &     'rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
- 15   format('rk(',i3,') = 1.5d-13 * (1.0d0 + 2.439d-20 * SumM)')
- 16   format('Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
-     &     'Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
-     &     'rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '(1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
- 17   format('rk(',i3,') = 2.0d-39 * YlH2O * YlH2O')
+ 14   format('  Effko = 7.2d-15 * dexp(785.0d0 / temp)',/
+     &     '  Rapk = 4.1d-16 * dexp(1440.0d0 / temp)',/
+     &     '  facteur =1.9d-33 * dexp(725.0d0 / temp) * SumM',/
+     &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
+ 15   format('  rk(',i3,') = 1.5d-13 * (1.0d0 + 2.439d-20 * SumM)')
+ 16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
+     &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
+     &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
+     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+ 17   format('  rk(',i3,') = 2.0d-39 * YlH2O * YlH2O')
       return
       end
 
@@ -375,25 +375,25 @@ C------------------------------------------------------------------------
          stop 1
       endif
 
- 11   format('rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.4d0)')
+ 11   format('  rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.4d0)')
 C     YS 17/11/2008 values given by NASA/JPL 2003
- 12   format('rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
-     &     '            + 1.7d-33* SumM * dexp(1000.0d0 / temp)')
- 13   format('rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) + &',/
-     &     '            2.38d-54 * SumM * dexp(3200.0d0 / temp)')
- 14   format('Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
-     &     'Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
-     &     'facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
-     &     'rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
+ 12   format('  rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
+     &     '    + 1.7d-33* SumM * dexp(1000.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) &',/
+     &     '    + 2.38d-54 * SumM * dexp(3200.0d0 / temp)')
+ 14   format('  Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
+     &     '  Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
+     &     '  facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
+     &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
 C     YS 17/11/2008 values given by NASA/JPL 2003
- 15   format('rk(',i3,') = 1.44d-13 * (1.0d0 + 2.381d-20 * &', /
-     &     ' 8.0d-1 * SumM)')
+ 15   format('  rk(',i3,') = 1.44d-13 * (1.0d0 + 2.381d-20 * &', /
+     &     '    8.0d-1 * SumM)')
 C     YS 19/11/2008 value given by IUPAC 2005
- 16   format('Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
-     &     'Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
-     &     'rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '(1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
- 17   format('rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
+ 16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
+     &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
+     &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
+     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+ 17   format('  rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
 C     YS 26/11/2008 value given by IUPAC 2005
       return
       end
@@ -437,28 +437,28 @@ C------------------------------------------------------------------------
          stop 1
       endif
 
- 11   format('rk(',i3,') = SumM * 5.74d-34 * (temp/3.d2) &',/
-     &     '         ** (-2.6d0)')
+ 11   format('  rk(',i3,') = SumM * 5.74d-34 * (temp/3.d2) &',/
+     &     '     ** (-2.6d0)')
 C     YS(16/02/2009): values given by IUPAC 2006
- 12   format('rk(',i3,') = 2.2d-13 * dexp(600.0d0 / temp) &',/
-     &     '            + 1.9d-33* SumM * dexp(980.0d0 / temp)')
- 13   format('rk(',i3,') = 3.08d-34 * dexp(2800.0d0 / temp) + &',/
-     &     '            2.59d-54 * SumM * dexp(3180.0d0 / temp)')
- 14   format('Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
-     &     'Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
-     &     'facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
-     &     'rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
+ 12   format('  rk(',i3,') = 2.2d-13 * dexp(600.0d0 / temp) &',/
+     &     '    + 1.9d-33* SumM * dexp(980.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.08d-34 * dexp(2800.0d0 / temp) &',/
+     &     '    + 2.59d-54 * SumM * dexp(3180.0d0 / temp)')
+ 14   format('  Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
+     &     '  Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
+     &     '  facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
+     &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
 C     Modif (YK:201108/09)): 2.4d-17 to 2.7d-17 based on RACM2_5L version
- 15   format('rk(',i3,') = 1.44d-13 * (1.0d0 + 8.0d-1 * SumM / &', /
-     &     ' 4.0d19)')
+ 15   format('  rk(',i3,') = 1.44d-13 * (1.0d0 + 8.0d-1 * SumM &', /
+     &     '    / 4.0d19)')
 C     YS 16/02/2009 value given by IUPAC 2006
- 16   format('Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
-     &     'Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
-     &     'rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '(1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
- 17   format('rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
- 18   format('rk(',i3,') = 4.56d-14*(temp/300)**(3.65) &',/
-     &     '         *dexp(-427.0d0/temp)')
+ 16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
+     &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
+     &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
+     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+ 17   format('  rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
+ 18   format('  rk(',i3,') = 4.56d-14*(temp/300)**(3.65) &',/
+     &     '    * dexp(-427.0d0/temp)')
 C     YK 30/08/2010
       return
       end
@@ -492,12 +492,12 @@ C------------------------------------------------------------------------
          write(nficK90,15)nr,nr
       endif
 
- 11   format('rk(',i3,') = rk(',i3,') * SumM')
+ 11   format('  rk(',i3,') = rk(',i3,') * SumM')
 C     Seinfeld pp 22: N2 0.78; O2 0.21
- 12   format('rk(',i3,') = rk(',i3,') * SumM * 0.2d0')
- 13   format('rk(',i3,') = rk(',i3,') * SumM * 0.8d0')
- 14   format('rk(',i3,') = rk(',i3,') * YlH2O')
- 15   format('rk(',i3,') = rk(',i3,') * SumM * 5.8d-7')
+ 12   format('  rk(',i3,') = rk(',i3,') * SumM * 0.2d0')
+ 13   format('  rk(',i3,') = rk(',i3,') * SumM * 0.8d0')
+ 14   format('  rk(',i3,') = rk(',i3,') * YlH2O')
+ 15   format('  rk(',i3,') = rk(',i3,') * SumM * 5.8d-7')
 
       return
       end
@@ -562,7 +562,7 @@ c     write(nficK90,10)nr,b4,b5,b6,b7
       endif
       write(nficK90,17)
 
- 10   format('!',6x,i3,4(2x,D23.16))
+ 10   format('  !',6x,i3,4(2x,D23.16))
  12   format('  if (temp.le.260.d0) then ')
  13   format('    rk(',i3,') = rk(',i3,') *  ',D23.16)
  14   format('  elseif(temp.gt.',D10.3,'.and.temp.le.',
@@ -611,14 +611,14 @@ C
       write(nficK90,12)
       write(nficK90,13)nr,nr
 
- 10   format('Effko = ',D23.16,'* (temp / 3.d2) &',/
-     &     '           **(- (',D23.16,'))')
- 11   format('Rapk = ',D23.16,'* (temp / 3.d2) &',/
-     &     '            **(- (',D23.16,'))')
- 12   format('facteur = (Effko * SumM / ( 1.0d0 + Effko * SumM / &',/
-     &     '         Rapk)) * 0.6d0 ** (1.0d0 / (1.0d0 + &',/
-     &     '          (dlog10(Effko * SumM / Rapk))**2))')
- 13   format('rk(',i3,') = facteur * rk(',i3,')')
+ 10   format('  Effko = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))')
+ 11   format('  Rapk = ',D23.16,'* (temp / 3.d2) &',/
+     &     '    **(- (',D23.16,'))')
+ 12   format('  facteur = (Effko * SumM / ( 1.0d0 + Effko * SumM / &',/
+     &     '    Rapk)) * 0.6d0 ** (1.0d0 / (1.0d0 + &',/
+     &     '    (dlog10(Effko * SumM / Rapk))**2))')
+ 13   format('  rk(',i3,') = facteur * rk(',i3,')')
 C     13    format(6x,'rk(',i3,') = facteur * (',D23.16,') * '/
 C     &       5x,'&      dexp((',D23.16,')/temp)')
 
@@ -704,13 +704,13 @@ C
  12   format('  if(azi.lt.0.D0)then',/,'    STOP')
  16   format('  elseif(azi.ge.90.D0)then',/,'    rk(',i3,')=',D23.16)
  13   format('  endif')
- 131  format('!')
+ 131  format('  !')
  100  format(6(2x,D23.16))
 C
- 103  format('VO2  = 3.2D-11 * exp(70.D0 /temp) * (0.21D0*SumM)',/
-     &     'VN2  = 1.8D-11 * exp(110.D0/temp) * (0.79D0*SumM)',/
-     &     'VH2O = 2.2D-10 * YlH2O'/
-     &     'rk(',i3,') = rk(',i3,') * VH2O / (VH2O + VN2 + VO2) ')
+ 103  format('  VO2  = 3.2D-11 * exp(70.D0 /temp) * (0.21D0*SumM)',/
+     &     '  VN2  = 1.8D-11 * exp(110.D0/temp) * (0.79D0*SumM)',/
+     &     '  VH2O = 2.2D-10 * YlH2O'/
+     &     '  rk(',i3,') = rk(',i3,') * VH2O / (VH2O + VN2 + VO2) ')
 
       return
       end
@@ -744,10 +744,10 @@ C     write(nficFF,110)nr,ie1,ie2
 C     write(nficFF,120)nr,ie1,ie2,ie3
       endif
 
- 10   format('w(',i3,') =  rk(',i3,') * Y(',i3,')')
- 11   format('w(',i3,') =  rk(',i3,') * Y(',i3,')',
+ 10   format('  w(',i3,') =  rk(',i3,') * Y(',i3,')')
+ 11   format('  w(',i3,') =  rk(',i3,') * Y(',i3,')',
      $     ' * Y(',i3,')' )
- 12   format('w(',i3,') =  rk(',i3,') * Y(',i3,')',
+ 12   format('  w(',i3,') =  rk(',i3,') * Y(',i3,')',
      $     ' * Y(',i3,')',
      $     ' * Y(',i3,')' )
 
@@ -789,9 +789,9 @@ C     write(nficJJ,121)nr,ie1,ie3
 C     write(nficJJ,122)nr,ie1,ie2
       endif
 
- 10   format('dw(',i3,',',i3,') =  rk(',i3,')')
- 11   format('dw(',i3,',',i3,') =  rk(',i3,') * Y(',i3,')' )
- 12   format('dw(',i3,',',i3,') =  rk(',i3,') * Y(',i3,')',
+ 10   format('  dw(',i3,',',i3,') =  rk(',i3,')')
+ 11   format('  dw(',i3,',',i3,') =  rk(',i3,') * Y(',i3,')' )
+ 12   format('  dw(',i3,',',i3,') =  rk(',i3,') * Y(',i3,')',
      $     ' * Y(',i3,')' )
 
       return
@@ -861,19 +861,19 @@ C     Reactants with stochiometry = 1
          endif
       enddo
 
- 10   format('chem(',i3,') = chem(',i3,') + ',D23.16,' * w(',i3,')')
- 11   format('JacC(',i3,',',i3,') = JacC(',i3,',',i3,')+',
+ 10   format('  chem(',i3,') = chem(',i3,') + ',D23.16,' * w(',i3,')')
+ 11   format('  JacC(',i3,',',i3,') = JacC(',i3,',',i3,')+',
      &     D23.16,'*dw(',i3,',',i3,')')
 
- 20   format('chem(',i3,') = chem(',i3,') - ',D23.16,' * w(',i3,')')
- 21   format('JacC(',i3,',',i3,') = JacC(',i3,',',i3,')-',
+ 20   format('  chem(',i3,') = chem(',i3,') - ',D23.16,' * w(',i3,')')
+ 21   format('  JacC(',i3,',',i3,') = JacC(',i3,',',i3,')-',
      &     D23.16,'*dw(',i3,',',i3,')')
 
- 30   format('chem(',i3,') = chem(',i3,') + w(',i3,')')
- 40   format('chem(',i3,') = chem(',i3,') - w(',i3,')')
- 31   format('JacC(',i3,',',i3,') = JacC(',i3,',',i3,
+ 30   format('  chem(',i3,') = chem(',i3,') + w(',i3,')')
+ 40   format('  chem(',i3,') = chem(',i3,') - w(',i3,')')
+ 31   format('  JacC(',i3,',',i3,') = JacC(',i3,',',i3,
      &     ') + dw(',i3,',',i3,')')
- 41   format('JacC(',i3,',',i3,') = JacC(',i3,',',i3,
+ 41   format('  JacC(',i3,',',i3,') = JacC(',i3,',',i3,
      &     ') - dw(',i3,',',i3,')')
 
 
@@ -930,14 +930,14 @@ C     if (nm.gt.1) write(nficloss90,50)ie,ie,nm*1.
          endif
       enddo
 
- 10   format('prod(',i3,') = prod(',i3,') + ',D23.16,' * w(',i3,')')
- 30   format('prod(',i3,') = prod(',i3,') + w(',i3,')')
+ 10   format('  prod(',i3,') = prod(',i3,') + ',D23.16,' * w(',i3,')')
+ 30   format('  prod(',i3,') = prod(',i3,') + w(',i3,')')
 
- 20   format('loss(',i3,') = loss(',i3,') + ',D23.16,' * dw(',i3,',',
+ 20   format('  loss(',i3,') = loss(',i3,') + ',D23.16,' * dw(',i3,',',
      &     i3,')')
- 40   format('loss(',i3,') = loss(',i3,') + dw(',i3,',',i3,')')
+ 40   format('  loss(',i3,') = loss(',i3,') + dw(',i3,',',i3,')')
 
- 50   format('loss(',i3,') = loss(',i3,')/',D23.16)
+ 50   format('  loss(',i3,') = loss(',i3,')/',D23.16)
 
       RETURN
       END

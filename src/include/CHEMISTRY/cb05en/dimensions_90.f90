@@ -19,18 +19,18 @@
 !     For more information, visit the Polyphemus web site:
 !     http://cerea.enpc.fr/polyphemus/
 !------------------------------------------------------------------------
- 
+
 subroutine dimensions90                        ( &
     Ns, Nr, Nr_photolysis)
- 
+
 !------------------------------------------------------------------------
 !
   integer Ns, Nr, Nr_photolysis
- 
+
   Ns =    93
   Nr =   206
   Nr_photolysis =    24
- 
-  RETURN
-END
- 
+
+return
+end
+
