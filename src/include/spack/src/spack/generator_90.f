@@ -54,11 +54,11 @@ C------------------------------------------------------------------------
       if(abs(Tact).lt.petit)then
          call WK190(nr,k)
       else
-         logk = dlog(k)
+         logk = log(k)
          write(nficK90,10)nr,logk,Tact
       endif
 
- 10   format('  rk(',i3,') =  DEXP( ',D23.16,' &',/
+ 10   format('  rk(',i3,') =  exp( ',D23.16,' &',/
      &     '   - ( ',D23.16,' )/temp)')
 
       return
@@ -87,7 +87,7 @@ C------------------------------------------------------------------------
       if(abs(expT).lt.petit) then
          call WK290(nr,k,Tact)
       else
-         logk = dlog(k)
+         logk = log(k)
          if(Tact.gt.petit)then
             write(nficK90,10)nr,logk,expT,Tact
          elseif(Tact .lt. -petit) then
@@ -97,14 +97,14 @@ C------------------------------------------------------------------------
          endif
       endif
 
- 10   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     '   + (',D23.16,' * DLOG(temp)) &',/
+ 10   format('  rk(',i3,') =  exp(',D23.16,' &',/
+     &     '   + (',D23.16,' * log(temp)) &',/
      &     '   - ',D23.16,'/temp)')
- 11   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     '   + (',D23.16,' * DLOG(temp)) &',/
+ 11   format('  rk(',i3,') =  exp(',D23.16,' &',/
+     &     '   + (',D23.16,' * log(temp)) &',/
      &     '   + ',D23.16,'/temp)')
- 12   format('  rk(',i3,') =  DEXP(',D23.16,' &',/
-     &     '   + (',D23.16,' * DLOG(temp)) ) ')
+ 12   format('  rk(',i3,') =  exp(',D23.16,' &',/
+     &     '   + (',D23.16,' * log(temp)) ) ')
 
       return
       end
@@ -135,7 +135,7 @@ C------------------------------------------------------------------------
       write(nficK90,12)nr,b5
 
 c     Modification BS/KS 06/2002
-c     Replace dlog10 by dlog and Effko*Rapk by Effko/Rapk
+c     Replace log10 by log and Effko*Rapk by Effko/Rapk
 
  10   format('  Effko = ',D23.16,'* (temp / 3.d2) &',/
      &     '    **(- (',D23.16,'))')
@@ -144,7 +144,7 @@ c     Replace dlog10 by dlog and Effko*Rapk by Effko/Rapk
  12   format('  rk(',i3,') = (Effko * SumM / &',/
      &     '    ( 1.0d0 + Effko * SumM / Rapk)) * &',/
      &     '    ',D10.4,'** (1.0d0 / (1.0d0 + &',/
-     &     '    (dlog10(Effko * SumM / Rapk))**2))')
+     &     '    (log10(Effko * SumM / Rapk))**2))')
 c
       return
       end
@@ -177,15 +177,15 @@ C
 
  10   format('  Effko = ',D23.16,'* (temp / 3.d2) &',/
      &     '    **(- (',D23.16,'))* &',/
-     &     '    dexp(-',D23.16,'/temp)')
+     &     '    exp(-',D23.16,'/temp)')
  11   format('  Rapk = ',D23.16,'* (temp / 3.d2) &',/
      &     '    **(- (',D23.16,'))* &',/
-     &     '    dexp(-',D23.16,'/temp)')
+     &     '    exp(-',D23.16,'/temp)')
  12   format('  rk(',i3,') = (Effko*SumM / ( 1.0d0 + Effko * SumM / &',/
      &     '    Rapk)) * ',D10.4,'** (1.0d0 / (1.0d0 + &',/
-     &     '    (dlog10(Effko * SumM / Rapk))**2))')
+     &     '    (log10(Effko * SumM / Rapk))**2))')
 C     13    format(6x,'rk(',i3,') = facteur * (',D23.16,') * '/
-C     &       5x,'&      dexp((',D23.16,')/temp)')
+C     &       5x,'&      exp((',D23.16,')/temp)')
 c
       return
       end
@@ -226,11 +226,11 @@ c     Modification BS/KS: 20/03/2002
 c     Error b1 --> log(b1)
 c
       if(b3.gt.petit)then
-         write(nficK90,11)dlog(b1),b2,b3
+         write(nficK90,11)log(b1),b2,b3
       elseif(b3.lt.-petit)then
-         write(nficK90,21)dlog(b1),b2,(-b3)
+         write(nficK90,21)log(b1),b2,(-b3)
       else
-         write(nficK90,31)dlog(b1),b2
+         write(nficK90,31)log(b1),b2
       endif
 c
 c     End modification.
@@ -244,40 +244,40 @@ c     End modification.
       endif
 
  10   format('  Effko = ',D23.16,'* SumM * &',/
-     &     '    DEXP(-(',D23.16,')/temp + &',/
-     &     '    (', D23.16,') * DLOG(temp/3.d2))')
+     &     '    exp(-(',D23.16,')/temp + &',/
+     &     '    (', D23.16,') * log(temp/3.d2))')
 
- 20   format('  Effko = ',D23.16,'*DEXP(',D23.16,'/temp + &',/
-     &     '    (', D23.16,') * DLOG(temp/3.d2)) * SumM')
+ 20   format('  Effko = ',D23.16,'*exp(',D23.16,'/temp + &',/
+     &     '    (', D23.16,') * log(temp/3.d2)) * SumM')
 
- 30   format('  Effko = ',D23.16,'*DEXP( &',/
-     &     '    ',D23.16,' * DLOG(temp/3.d2)) * SumM')
+ 30   format('  Effko = ',D23.16,'*exp( &',/
+     &     '    ',D23.16,' * log(temp/3.d2)) * SumM')
 
- 11   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '    (',D23.16,')* DLOG(temp/3.d2) - &',/
+ 11   format('  Rapk = Effko / exp(',D23.16,' + &',/
+     &     '    (',D23.16,')* log(temp/3.d2) - &',/
      &     '    (',D23.16,')/temp)')
 
- 21   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '    (',D23.16,')* DLOG(temp/3.d2) + &',/
+ 21   format('  Rapk = Effko / exp(',D23.16,' + &',/
+     &     '    (',D23.16,')* log(temp/3.d2) + &',/
      &     '    (',D23.16,')/temp)')
 
- 31   format('  Rapk = Effko / DEXP(',D23.16,' + &',/
-     &     '    (',D23.16,')* DLOG(temp/3.d2) ) ')
+ 31   format('  Rapk = Effko / exp(',D23.16,' + &',/
+     &     '    (',D23.16,')* log(temp/3.d2) ) ')
 
- 12   format('  facteur = 1.d0/(1.d0+DLOG10(Rapk)**2)')
+ 12   format('  facteur = 1.d0/(1.d0+log10(Rapk)**2)')
 C     12    format(6x,'facteur = 0.d0',/
-C     &   6x,'if(Rapk.gt.0.d0) facteur = 1.d0/(1.d0+DLOG10(Rapk)**2)')
- 14   format('  rk(',i3,') = DEXP( DLOG(Effko/(1.d0+Rapk)) + &',/
-     &     '    DLOG(',D23.16,') * facteur)')
+C     &   6x,'if(Rapk.gt.0.d0) facteur = 1.d0/(1.d0+log10(Rapk)**2)')
+ 14   format('  rk(',i3,') = exp(log(Effko/(1.d0+Rapk)) + &',/
+     &     '    log(',D23.16,') * facteur)')
 
- 15   format('  Fcent = ',D23.16,' * DEXP(-temp/ &',/
+ 15   format('  Fcent = ',D23.16,' * exp(-temp/ &',/
      &     '    (', D23.16,')) &',/
-     &     '    + (',D23.16,') * DEXP(-temp/ &', /
+     &     '    + (',D23.16,') * exp(-temp/ &', /
      &     '    (',D23.16,')) &',/
-     &     '    +  DEXP (-(',D23.16,')/temp)')
+     &     '    +  exp (-(',D23.16,')/temp)')
  16   format('  Fcent = Fcent -1.d0')
- 17   format('  rk(',i3,') = DEXP ( DLOG(Effko/(1.d0+Rapk)) &',/
-     &     '    + facteur*DLOG(Fcent))')
+ 17   format('  rk(',i3,') = exp(log(Effko/(1.d0+Rapk)) &',/
+     &     '    + facteur*log(Fcent))')
 
       return
       end
@@ -320,20 +320,20 @@ C------------------------------------------------------------------------
 
  11   format('  rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.3d0)')
 C     BS 05/02/2003 values given by RACM
- 12   format('  rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
-     &     '    + 1.73d-33* SumM * dexp(1000.0d0 / temp)')
- 13   format('  rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) &',/
-     &     '    + 2.38d-54 * SumM * dexp(3200.0d0 / temp)')
+ 12   format('  rk(',i3,') = 2.3d-13 * exp(600.0d0 / temp) &',/
+     &     '    + 1.73d-33* SumM * exp(1000.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.22d-34 * exp(2800.0d0 / temp) &',/
+     &     '    + 2.38d-54 * SumM * exp(3200.0d0 / temp)')
 C     MODIF BS 06/06/2003 on the basis of CMAQ
- 14   format('  Effko = 7.2d-15 * dexp(785.0d0 / temp)',/
-     &     '  Rapk = 4.1d-16 * dexp(1440.0d0 / temp)',/
-     &     '  facteur =1.9d-33 * dexp(725.0d0 / temp) * SumM',/
+ 14   format('  Effko = 7.2d-15 * exp(785.0d0 / temp)',/
+     &     '  Rapk = 4.1d-16 * exp(1440.0d0 / temp)',/
+     &     '  facteur =1.9d-33 * exp(725.0d0 / temp) * SumM',/
      &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
  15   format('  rk(',i3,') = 1.5d-13 * (1.0d0 + 2.439d-20 * SumM)')
  16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
      &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
      &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+     &     '    (1.0d0/(1.0d0+ ((log10(Effko)-0.12)/1.2)**2))')
  17   format('  rk(',i3,') = 2.0d-39 * YlH2O * YlH2O')
       return
       end
@@ -377,13 +377,13 @@ C------------------------------------------------------------------------
 
  11   format('  rk(',i3,') = SumM * 6.0d-34 * (temp/3.d2) ** (-2.4d0)')
 C     YS 17/11/2008 values given by NASA/JPL 2003
- 12   format('  rk(',i3,') = 2.3d-13 * dexp(600.0d0 / temp) &',/
-     &     '    + 1.7d-33* SumM * dexp(1000.0d0 / temp)')
- 13   format('  rk(',i3,') = 3.22d-34 * dexp(2800.0d0 / temp) &',/
-     &     '    + 2.38d-54 * SumM * dexp(3200.0d0 / temp)')
- 14   format('  Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
-     &     '  Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
-     &     '  facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
+ 12   format('  rk(',i3,') = 2.3d-13 * exp(600.0d0 / temp) &',/
+     &     '    + 1.7d-33* SumM * exp(1000.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.22d-34 * exp(2800.0d0 / temp) &',/
+     &     '    + 2.38d-54 * SumM * exp(3200.0d0 / temp)')
+ 14   format('  Effko = 2.4d-14 * exp(460.0d0 / temp)',/
+     &     '  Rapk = 2.7d-17 * exp(2199.0d0 / temp)',/
+     &     '  facteur =6.5d-34 * exp(1335.0d0 / temp) * SumM',/
      &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
 C     YS 17/11/2008 values given by NASA/JPL 2003
  15   format('  rk(',i3,') = 1.44d-13 * (1.0d0 + 2.381d-20 * &', /
@@ -392,7 +392,7 @@ C     YS 19/11/2008 value given by IUPAC 2005
  16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
      &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
      &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+     &     '    (1.0d0/(1.0d0+ ((log10(Effko)-0.12)/1.2)**2))')
  17   format('  rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
 C     YS 26/11/2008 value given by IUPAC 2005
       return
@@ -440,13 +440,13 @@ C------------------------------------------------------------------------
  11   format('  rk(',i3,') = SumM * 5.74d-34 * (temp/3.d2) &',/
      &     '     ** (-2.6d0)')
 C     YS(16/02/2009): values given by IUPAC 2006
- 12   format('  rk(',i3,') = 2.2d-13 * dexp(600.0d0 / temp) &',/
-     &     '    + 1.9d-33* SumM * dexp(980.0d0 / temp)')
- 13   format('  rk(',i3,') = 3.08d-34 * dexp(2800.0d0 / temp) &',/
-     &     '    + 2.59d-54 * SumM * dexp(3180.0d0 / temp)')
- 14   format('  Effko = 2.4d-14 * dexp(460.0d0 / temp)',/
-     &     '  Rapk = 2.7d-17 * dexp(2199.0d0 / temp)',/
-     &     '  facteur =6.5d-34 * dexp(1335.0d0 / temp) * SumM',/
+ 12   format('  rk(',i3,') = 2.2d-13 * exp(600.0d0 / temp) &',/
+     &     '    + 1.9d-33* SumM * exp(980.0d0 / temp)')
+ 13   format('  rk(',i3,') = 3.08d-34 * exp(2800.0d0 / temp) &',/
+     &     '    + 2.59d-54 * SumM * exp(3180.0d0 / temp)')
+ 14   format('  Effko = 2.4d-14 * exp(460.0d0 / temp)',/
+     &     '  Rapk = 2.7d-17 * exp(2199.0d0 / temp)',/
+     &     '  facteur =6.5d-34 * exp(1335.0d0 / temp) * SumM',/
      &     '  rk(',i3,') = Effko + facteur/(1.0d0 + facteur / Rapk)')
 C     Modif (YK:201108/09)): 2.4d-17 to 2.7d-17 based on RACM2_5L version
  15   format('  rk(',i3,') = 1.44d-13 * (1.0d0 + 8.0d-1 * SumM &', /
@@ -455,10 +455,10 @@ C     YS 16/02/2009 value given by IUPAC 2006
  16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
      &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
      &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '    (1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+     &     '    (1.0d0/(1.0d0+ ((log10(Effko)-0.12)/1.2)**2))')
  17   format('  rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
  18   format('  rk(',i3,') = 4.56d-14*(temp/300)**(3.65) &',/
-     &     '    * dexp(-427.0d0/temp)')
+     &     '    * exp(-427.0d0/temp)')
 C     YK 30/08/2010
       return
       end
@@ -617,10 +617,10 @@ C
      &     '    **(- (',D23.16,'))')
  12   format('  facteur = (Effko * SumM / ( 1.0d0 + Effko * SumM / &',/
      &     '    Rapk)) * 0.6d0 ** (1.0d0 / (1.0d0 + &',/
-     &     '    (dlog10(Effko * SumM / Rapk))**2))')
+     &     '    (log10(Effko * SumM / Rapk))**2))')
  13   format('  rk(',i3,') = facteur * rk(',i3,')')
 C     13    format(6x,'rk(',i3,') = facteur * (',D23.16,') * '/
-C     &       5x,'&      dexp((',D23.16,')/temp)')
+C     &       5x,'&      exp((',D23.16,')/temp)')
 
 
       return
