@@ -401,7 +401,7 @@ C
 C *** DEFAULT VALUES *************************************************
 C
       DATA TEMP/298.0/, R/82.0567D-6/, RH/0.9D0/, EPS/1D-6/, MAXIT/100/,
-     &     TINY/1D-20/, GREAT/1D10/, ZERO/0.0D0/, ONE/1.0D0/,NSWEEP/4/, 
+     &     TINY/1D-11/, GREAT/1D10/, ZERO/0.0D0/, ONE/1.0D0/,NSWEEP/4/, 
      &     TINY2/1D-11/,NDIV/5/
 C
       DATA MOLAL/NIONS*0.0D0/, MOLALR/NPAIR*0.0D0/, GAMA/NPAIR*0.1D0/,
