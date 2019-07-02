@@ -40,8 +40,8 @@ c     jnucl - Nucleation rate (#part/cm^3/s).
 c     ntoth2so4 - Number of molecules of H2SO4 in the critical cluster.
 c     ntotnh3 - Number of molecules of NH3 in the critical cluster.
 c     dpnucl -  Nucleation diameter (nm).
-      subroutine compute_ternary_nucleation_merikanto(rh, temp, natmp, 
-     $     mrtmp, jnucl, ntoth2so4, ntotnh3, dpnucl)
+      subroutine compute_ternary_nucleation_merikanto(rhtmp, temptmp, 
+     $     natmp, mrtmp, jnucl, ntoth2so4, ntotnh3, dpnucl)
 
       double precision a0(20), a1(20), a2(20), a3(20)
 
@@ -79,6 +79,7 @@ c     dpnucl -  Nucleation diameter (nm).
      $     -0.002836873785758324, 0.00013564560238552576,
      $     -1.9201227328396297D-7,-1.9828365865570703D-7/
 
+      double precision rhtmp, temptmp
       double precision rh, temp, natmp, na, mrtmp, mr
       double precision jnucl, ntoth2so4, ntotnh3, dpnucl
 
@@ -92,15 +93,17 @@ c     dpnucl -  Nucleation diameter (nm).
       double precision tmin, tmax,
      $     rhmin, rhmax,
      $     namin, namax, mrmin, mrmax
-      parameter(tmin = 235.d0, tmax = 300.d0,
+      parameter(tmin = 235.d0, tmax = 295.d0,
      $     rhmin = 0.05d0, rhmax = 0.95d0,
-     $     namin = 1.d04, namax = 1.d09,
+     $     namin = 5.d04, namax = 1.d09,
      s     mrmin = 0.1d0, mrmax = 1000.d0)
 
 c     test if parameterization is valid.
 
-      na = natmp
-      mr = mrtmp
+      temp = dmin1(temptmp, tmax)
+      rh = rhtmp
+      na = dmin1(natmp, namax)
+      mr = dmin1(mrtmp, mrmax)
       if (temp.lt.tmin.or.temp.gt.tmax
      $     .or.rh.lt.rhmin.or.rh.gt.rhmax
      $     .or.na.lt.namin.or.mr.lt.mrmin) then
@@ -125,7 +128,7 @@ c     test if parameterization is valid.
          else
             if(na.GT.namax) write(*,*) 'nucleation - sulfate too high',
      $           na,namax
-!na = dmin1(na, namax)
+!     na = dmin1(na, namax)
             mr = dmin1(mr, mrmax)
             lnrh = dlog(rh)
             lnmr3 = lnmr2 * lnmr
@@ -230,30 +233,42 @@ c$$$  $0.0001500555743561457*t**2*Log(c3)**3*Log(rh) -
 c$$$  $1.9828365865570703e-7*t**3*Log(c3)**3*Log(rh)
 c$$$  $         jnucl = dexp(lnj)
 
-            if(jnucl.lt.1.d-5) jnucl = 0.d0
-
+            if(jnucl.lt.1.d-5) then
+               jnucl = 0.d0
+               ntoth2so4 = 0.0
+               ntotnh3 = 0.0
+            else
 c     compute total number of molecules in the critical cluster: this is
 c     ntot.
-
-            lnj2 = lnj * lnj
-            ntoth2so4 = -4.71542 + 0.134364*temp - 0.000471847 * t2
+               if(jnucl.gt.1.d6) then
+                  jnucl = 1.d6
+                  lnj = log(jnucl)
+               endif
+               lnj2 = lnj * lnj
+               ntoth2so4 = -4.71542 + 0.134364*temp - 0.000471847 * t2
      $      -2.56401 * lnna + 0.0113533 * temp* lnna + 0.00108019*lnna2 
      $      + 0.517137* lnmr - 0.00278825 * temp * lnmr + 0.806697*lnmr2
-     $      - 0.00318491 * temp * lnmr2 - 0.0995118 * lnmr3
-     $      + 0.000400728 * temp * lnmr3 + 1.32765 * lnj 
-     $      - 0.00616765*temp*lnj - 0.110614 * lnmr * lnj 
-     $      + 0.000436758 * temp* lnmr * lnj
-     $      + 0.000916366 * lnj2
+     $              - 0.00318491 * temp * lnmr2 - 0.0995118 * lnmr3
+     $              + 0.000400728 * temp * lnmr3 + 1.32765 * lnj 
+     $              - 0.00616765*temp*lnj - 0.110614 * lnmr * lnj 
+     $              + 0.000436758 * temp* lnmr * lnj
+     $              + 0.000916366 * lnj2
 
-            ntotnh3 = 71.2007 - 0.840960 * temp + 0.00248030 * t2 
+               ntotnh3 = 71.2007 - 0.840960 * temp + 0.00248030 * t2 
      $      + 2.77986 * lnna - 0.0147502 * temp * lnna + 0.0122645*lnna2
-     $      - 2.00993 * lnmr + 0.00868912 * temp * lnmr 
-     $      - 0.00914118 * lnna * lnmr + 0.137412 * lnmr2 
-     $      - 0.000625323 * temp * lnmr2 + 0.0000937733 * lnmr3 
-     $      + 0.520297 * lnj - 0.00241987 * temp * lnj
-     $      + 0.0791639 * lnmr * lnj - 0.000302159 * temp * lnmr* lnj
-     $      + 0.00469770 * lnj2
+     $              - 2.00993 * lnmr + 0.00868912 * temp * lnmr 
+     $              - 0.00914118 * lnna * lnmr + 0.137412 * lnmr2 
+     $              - 0.000625323 * temp * lnmr2 + 0.0000937733 * lnmr3 
+     $              + 0.520297 * lnj - 0.00241987 * temp * lnj
+     $         + 0.0791639 * lnmr * lnj - 0.000302159 * temp * lnmr* lnj
+     $              + 0.00469770 * lnj2
 
+               if((ntoth2so4.le.0.).OR.(ntotnh3.le.0.)) then
+                  jnucl = 0.d0
+                  ntoth2so4 = 0.0
+                  ntotnh3 = 0.0
+               endif
+            endif
 c     compute cluster diameter in nm.
 
             dpnucl = 1.1
