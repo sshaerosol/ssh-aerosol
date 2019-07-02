@@ -139,8 +139,10 @@ c     test if parameterization is valid.
          jnucl = dexp(lnj)
 
          if(jnucl.lt.1.d-5) jnucl = 0.d0
-         if(jnucl.gt.1.d6) jnucl = 1.d6
-
+         if(jnucl.gt.1.d6) then
+            jnucl = 1.d6
+            lnj = log(jnucl)
+          endif
 c     compute total number of molecules in the critical cluster: this is
 c     ntot.
 
