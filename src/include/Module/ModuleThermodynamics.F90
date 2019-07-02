@@ -346,7 +346,7 @@ contains
           jesp=List_species(s)
           qti=qti+c_mass(j,jesp)     ! µg.m-3
        end do
-       if (c_number(j).gt.TINYN.OR.qti.gt.TINYM) then
+       if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
           do jesp=1,N_aerosol
              qext(jesp)=c_mass(j,jesp)
           enddo

@@ -323,6 +323,7 @@ contains
           !    endif
 
           if(jnucl.gt.0.d0.and.(.not.IsNaN(jnucl*0.d0))) then
+            if(ntot.GT.0.d0.OR.ntotnh3.GT.0.0) then
 	     dndt(isection) =dndt(isection) +jnucl ! #part.m-3.s-1
              dpnucl = size_diam_av(1) 
              dmdt = jnucl * PI/6.0 * dpnucl**3
@@ -342,6 +343,7 @@ contains
                 dqdt(isection,ESO4)=0.d0
                 dqdt(isection,ENH4)=0.d0
              endif
+            endif
           endif
 
        endif
