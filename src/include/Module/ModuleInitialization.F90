@@ -260,22 +260,22 @@ module aInitialization
     double precision, dimension(:,:), allocatable :: liquid_nsize
     
     !! part 8: divers parameters (species, I/O)
-    character (len=40) :: Coefficient_file ! repartition coefficient file
-    character (len=40) :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
-    character (len=40) :: init_aero_conc_num_file ! File for aerosols initial number concentrations
-    character (len=40) :: init_gas_conc_file ! File for gas-phase initial conc.
-    character (len=40) :: species_list_file ! File for species list.
-    character (len=40) :: aerosol_species_list_file ! File for species list.
-    character (len=40) :: namelist_species ! Namelist file for species list.
-    character (len=40) :: emis_gas_file
-    character (len=40) :: emis_aero_mass_file
-    character (len=40) :: emis_aero_num_file
-    character (len=40) :: mineral_dust(10), black_carbon(10)
-    character (len=40) :: isorropia_species_name(10)
-    character (len=40) :: aec_species_name(30)
-    character (len=40) :: pankow_species_name(6)
-    character (len=40) :: poa_species_name(10)
-    character (len=40) :: PSO4
+    character (len=80) :: Coefficient_file ! repartition coefficient file
+    character (len=80) :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
+    character (len=80) :: init_aero_conc_num_file ! File for aerosols initial number concentrations
+    character (len=80) :: init_gas_conc_file ! File for gas-phase initial conc.
+    character (len=80) :: species_list_file ! File for species list.
+    character (len=80) :: aerosol_species_list_file ! File for species list.
+    character (len=80) :: namelist_species ! Namelist file for species list.
+    character (len=80) :: emis_gas_file
+    character (len=80) :: emis_aero_mass_file
+    character (len=80) :: emis_aero_num_file
+    character (len=80) :: mineral_dust(10), black_carbon(10)
+    character (len=80) :: isorropia_species_name(10)
+    character (len=80) :: aec_species_name(30)
+    character (len=80) :: pankow_species_name(6)
+    character (len=80) :: poa_species_name(10)
+    character (len=80) :: PSO4
     character (len=10) :: precursor
     character (len=10), dimension(:), allocatable :: species_name
     character (len=20), dimension(:), allocatable :: aerosol_species_name
