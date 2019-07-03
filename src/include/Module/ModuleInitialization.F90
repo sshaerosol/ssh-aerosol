@@ -679,8 +679,7 @@ module aInitialization
 		    print*, 'inorganic compounds are at equilibrium.'
 		else 
 		    print*, 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
-		    print*, 'Pb - not available'
-		    stop
+
 		end if
 
                 if (ISOAPDYN == 1) then
