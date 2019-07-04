@@ -77,7 +77,9 @@ module aInitialization
     integer :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
     double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
     double precision :: min_adaptive_time_step       !Minimum time step
-    !double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
+    double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
+    double precision :: epser !  Relative error for time step adjustment
+    double precision :: epser_soap !  Relative difference of ros2 in SOAP
     integer :: dynamic_solver = 1 !KDSLV Tag type of solver
     integer :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
@@ -352,7 +354,7 @@ module aInitialization
 
      namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
           with_kelvin_effect, tequilibrium,&
-          dorg, coupled_phases, activity_model
+          dorg, coupled_phases, activity_model, epser, epser_soap
 
      namelist /physic_nucleation/ with_nucl, nucl_model
 

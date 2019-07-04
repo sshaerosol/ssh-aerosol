@@ -16,5 +16,5 @@ void soap_main(double LWC, double RH, double Temperature,
                char species_name[], double molecular_weight_aer[],
                double accomodation_coefficient[], int nlayer, int with_kelvin_effect,
                double tequilibrium, double dtaeromin, double dorg,
-               int coupled_phases, int activity_model);
+               int coupled_phases, int activity_model, double epser_soap);
 
