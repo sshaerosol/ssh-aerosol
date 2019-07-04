@@ -12,6 +12,10 @@ src/include/CHEMISTRY/cb05en/*.f
 *.os
 *.py[cod]
 *.mod
+src/include/spack/src/LU_generator
+src/include/spack/src/find_perm
+src/include/spack/src/spack_generator
+src/include/spack/src/spack_input
 
 ### Emacs files
 *~
@@ -29,3 +33,6 @@ ssh-aerosol-*
 *old
 .gitignore
 *png
+ssh-aerosol
+src/include/Talos/talos.py
+src/include/Talos/talos_wrap.cc
