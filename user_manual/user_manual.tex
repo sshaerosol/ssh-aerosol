@@ -631,6 +631,51 @@ two compounds at initial time (left panel) and after 12 h of simulation (right p
 \label{fig-coag-extb}
 \end{figure}
  
+\subsubsection{Condensation}
+
+The effect of 
+condensation on the mixing state is assessed by revisiting the condensation
+test case (typical of a regional haze scenario, see section~\ref{cond-sulf}) by assuming
+that the initial aerosol distribution is made of two low-volatility compounds
+of same density (sulfate and another low-volatility compound).
+As in \cite{zhu2015size}, 10 composition fractions are used.
+The configuration file for this test is {\it{namelist\_cond\_ext.ssh}}.
+Run the simulation by typing {\it{ssh-aerosol INIT/namelist\_cond\_ext.ssh}}.
+By summing the mass and number of particles of all size fraction sections, the
+size number and volume distribution are identical to those obtained with the
+internal mixing assumptions. This can be checked by going to the repertory
+{\it{graph}} and by running the python script {\it{dN\_Vdlogd\_cond\_ext.py}}
+(see Fig~\ref{fig-cond-ext}).
+The evolution of the mixing-state of particles after 12 h of condensation and coagulation may
+be seen by comparing the two panels in Fig~\ref{fig-cond-extb}, which shows
+the mass concentrations as a function of the size and fraction of one
+sulfate, which is one of the
+two compounds of the particles. 
+Sulfuric acid condenses to form
+sulfate. Because the condensation rate is greater for particles of
+low diameters, the sulfate fraction is greater for those particles at the end
+of the simulation (Figure~\ref{fig-cond-extb}).
+
+
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dNdlogd_COND_EXT.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dVdlogd_COND_EXT.png}
+        \end{center}
+\caption{Regional haze test case with mixing-state modelling. Number (left panel) and volume (right panel) concentrations.}
+\label{fig-cond-ext}
+\end{figure}
+ 
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/cond_mass_ext_init.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/cond_mass_ext_out.png}
+        \end{center}
+\caption{Mass concentrations as a function of the size and fraction of one of the
+two compounds at initial time (left panel) and after 12 h of simulation (right panel).}
+\label{fig-cond-extb}
+\end{figure}
+ 
 
 \bigskip
 
