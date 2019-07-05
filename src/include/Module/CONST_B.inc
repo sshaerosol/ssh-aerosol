@@ -4,6 +4,6 @@
 !    double precision ::  DTAEROMIN
 !    parameter(EPSER = 1.D-2) !! Relative error for time step adjustment
     parameter(ALFHP = 0.1D0)
-    parameter(TINYM = 1.d-10)
-    parameter(TINYN = 1.d-5)
+    parameter(TINYM = 1.d-15)
+    parameter(TINYN = 1.d-10)
     parameter(MTSBL = 1.0D0)
