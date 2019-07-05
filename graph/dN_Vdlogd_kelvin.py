@@ -8,9 +8,11 @@ from math import *
 from pylab import *
 from numpy import *
 import numpy as np
+import numpy.ma as ma
 #
 # Turn interactive plotting off
 plt.ioff()
+
 
 ################### input parameters #################################"
 pcase_kelv = '../results/kelvin/w_kelv'
@@ -204,7 +206,9 @@ for i in range(len(lists)) :
 		if (tmp[j] < 0.01) : tmp[j] = 0.0
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
-	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+        tmp = np.array(tmp)
+        masked = ma.masked_where(tmp == 0.0, tmp)
+	plt.plot(diam_mean, masked, cols[i],label = lbs[i])                 
      else:
 	tmp = np.zeros(num)
 	diam_tmp = np.zeros(num)
@@ -224,21 +228,28 @@ tmp = np.zeros(num)
 for j in range(num) :
 	tmp[j]= float(dist_nb[j])# / dt_exa_diam_out[j]
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
-plt.plot(points, tmp,'-',label = 'Devilliers_init')
+
+tmp = np.array(tmp)
+masked = ma.masked_where(tmp == 0.0, tmp)
+plt.plot(points, masked,'-',label = 'Devilliers_init')
 
 num = len(full_nb)
 tmp = np.zeros(num)
 for j in range(num) :
 	tmp[j]= float(full_nb[j])# / dt_exa_diam_out[j]
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
-plt.plot(full_diam, tmp,'-',label = 'Devilliers_out')
+tmp = np.array(tmp)
+masked = ma.masked_where(tmp == 0.0, tmp)
+plt.plot(full_diam, masked,'-',label = 'Devilliers_out')
 
 num = len(nfin_e_h)
 tmp = np.zeros(num)
 for j in range(num) :
 	tmp[j]= float(nfin_e_h[j])# / dt_exa_diam_out[j]
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
-plt.plot(dinit, tmp,'*',label = 'Devilliers_48bin_out')
+tmp = np.array(tmp)
+masked = ma.masked_where(tmp == 0.0, tmp)
+plt.plot(dinit, masked,'*',label = 'Devilliers_48bin_out')
 
 plt.xlabel(r'd($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
@@ -300,5 +311,3 @@ plt.xscale('log')
 plt.title( 'Particle Volume Distribution - case KELVIN')
 plt.legend(loc ='best')		# show legend
 fig.savefig('dVdlogd_KELVIN')
-
-
