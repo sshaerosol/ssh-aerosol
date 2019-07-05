@@ -32,7 +32,8 @@ core
 ssh-aerosol-*
 *old
 .gitignore
-*png
+graph/*.png
 ssh-aerosol
 src/include/Talos/talos.py
 src/include/Talos/talos_wrap.cc
+INIT/fractions.txt
