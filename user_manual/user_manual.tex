@@ -352,6 +352,7 @@ The reference solutions for the coagulation and condensation tests are those of 
 
 
 \subsubsection{Coagulation}
+\label{coag-test}
 
 The configuration file for this test is {\it{namelist\_coag.ssh}}.
 In the coagulation test case, only coagulation is considered by setting the variable of {\it{with\_coag}} of the file {\it{namelist\_coag.ssh}} to 1.
@@ -578,6 +579,58 @@ The inorganic concentrations stay low (5~$\mu g$~$m^{-3}$ of sulfate was introdu
 \label{fig-platt}
 \end{figure}
        
+\subsection{Mixing state}
+The previous test cases relied on the internal mixing assumption (one aerosol
+composition per aerosol size section).
+The internal mixing assumption relies on the assumption that particles from different sources
+mix instantaneously when they are present in the same air mass. Although this assumption may
+be realistic far from emission sources, it may be difficult to justify close to emission sources,
+where emitted particles can have compositions that are very different from background particles
+and from particles emitted from different sources.
+All aerosol dynamic processes may affect the mixing state of particles.
+
+\subsubsection{Coagulation}
+
+To illustrate how coagulation affects the mixing state of particles, the
+coagulation test case (see section~\ref{coag-test}) is revisited by assuming
+that the initial aerosol distribution is made of two low-volatility compounds
+of same density (sulfate and another low-volatility compound).
+The configuration file for this test is {\it{namelist\_coag\_ext.ssh}}.
+In this coagulation test case, the composition is discretized using 4 sections
+by setting the variable {\it{N\_frac}} to 4. The bound values of the fraction
+sections are specified using the variable {\it{frac\_input}}.
+
+Run the simulation by typing {\it{ssh-aerosol INIT/namelist\_coag\_ext.ssh}}.
+By summing the mass and number of particles of all size fraction sections, the
+size number and volume distribution are identical to those obtained with the
+internal mixing assumptions. This can be checked by going to the repertory
+{\it{graph}} and by running the python script {\it{dN\_Vdlogd\_coag\_ext.py}}
+(see Fig~\ref{fig-coag-ext}).
+The evolution of the mixing-state of particles after 12 h of coagulation may
+be seen by comparing the two panels in Fig~\ref{fig-coag-extb}, which shows
+the number concentrations as a function of the size and fraction of one
+sulfate, which is one of the
+two compounds of the particles.
+
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dNdlogd_COAG_EXT.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dVdlogd_COAG_EXT.png}
+        \end{center}
+\caption{Coagulation test case with mixing-state modelling. Number (left panel) and volume (right panel) concentrations.}
+\label{fig-coag-ext}
+\end{figure}
+ 
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/coag_ext_init.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/coag_ext_out.png}
+        \end{center}
+\caption{Number concentrations as a function of the size and fraction of one of the
+two compounds at initial time (left panel) and after 12 h of simulation (right panel).}
+\label{fig-coag-extb}
+\end{figure}
+ 
 
 \bigskip
 
