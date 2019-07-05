@@ -238,7 +238,7 @@ contains
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
-       if(N_fracmax.gt.1 .and. redistribution_method.ne.0) then
+       if(N_fracmax.gt.1 ) then !.and. redistribution_method.ne.0) then
           call redistribution_fraction()!fraction redistribution
        endif
 
@@ -341,10 +341,10 @@ contains
              if((tag_nucl.EQ.1).OR.(splitting.EQ.1)) then 
                 call update_wet_diameter_liquid(1,N_size,concentration_mass, &
                      concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
-                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
                 if(N_fracmax.gt.1) then
                    call redistribution_fraction()!fraction redistribution
                 endif
+                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
              endif
           endif
        endif
