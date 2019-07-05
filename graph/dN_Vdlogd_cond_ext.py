@@ -158,7 +158,9 @@ for i in range(len(lists)) :
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
         if(i>=3):
-	   plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+           tmp = np.array(tmp)
+           masked = ma.masked_where(tmp == 0.0, tmp)
+	   plt.plot(diam_mean, masked, cols[i],label = lbs[i])
 
 plt.xlabel(r'd($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
@@ -187,7 +189,9 @@ for i in range(len(lists2)) :
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
 
         if(i>=3):
-          plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+          tmp = np.array(tmp)
+          masked = ma.masked_where(tmp == 0.0, tmp)
+          plt.plot(diam_mean, masked, cols[i],label = lbs[i])
 
 plt.xlabel(r'd($\mu$m)')
 #plt.ylabel(r'dN/d log d (cm$^{-3}$)')
