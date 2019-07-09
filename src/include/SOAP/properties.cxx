@@ -512,19 +512,22 @@ void tau_dif(model_config &config, vector<species>& surrogate,
       for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
 	for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 	  {
-	    //determine the organic phase coefficient diffusion
-            compute_viscosity(config, surrogate, b, ilayer);
-
-	    morphology_factor=1.0+config.Alayer(ilayer,0)*pow(fs,4)+config.Alayer(ilayer,1)*pow(fs,3)
-	      +config.Alayer(ilayer,2)*pow(fs,2)+config.Alayer(ilayer,3)*fs;
-	    morphology_factor=max(morphology_factor,1.0e-3);
 	    if (ilayer==config.nlayer-1)
 	      for (i=0;i<n;++i)
-		surrogate[i].tau_diffusion(b,ilayer,iphase)=pow(config.diameters(b)*1.0e-6,2)/
-		  (4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer))
-		  *morphology_factor;
+		surrogate[i].tau_diffusion(b,ilayer,iphase)=
+		  min(1.0e-5*config.tequilibrium,1.0e-20);
+		  //pow(config.diameters(b)*1.0e-6,2)/
+		  //(4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer))
+		  //*morphology_factor;
 	    else
 	      {
+		//determine the organic phase coefficient diffusion
+		compute_viscosity(config, surrogate, b, ilayer);
+		
+		morphology_factor=1.0+config.Alayer(ilayer,0)*pow(fs,4)+config.Alayer(ilayer,1)*pow(fs,3)
+		  +config.Alayer(ilayer,2)*pow(fs,2)+config.Alayer(ilayer,3)*fs;
+		morphology_factor=max(morphology_factor,1.0e-3);
+		
 		double morphology_factor2=1.0+config.Alayer(ilayer+1,0)*pow(fs,4)+config.Alayer(ilayer+1,1)*pow(fs,3)
 		  +config.Alayer(ilayer+1,2)*pow(fs,2)+config.Alayer(ilayer+1,3)*fs;
 		morphology_factor2=max(morphology_factor2,1.0e-3);
@@ -539,9 +542,7 @@ void tau_dif(model_config &config, vector<species>& surrogate,
 		    +surrogate[i].tau_diffusion(b,ilayer+1,iphase);
 	      }	      
 	  }
-      /*
-	for (i=0;i<n;++i)
-	cout << surrogate[i].name << " " << surrogate[i].tau_diffusion << " " << config.diameters << endl;*/
+     
     }
 
 
