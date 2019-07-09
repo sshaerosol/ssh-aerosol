@@ -1801,10 +1801,6 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
       //phase separation?
       config.use_global_dynamic_parameters=false; //Assume the same composition over all bins
       // and layers
-      //      config.tequilibrium=0.1;                 //time under which equilibrium is assumed
-      config.EPSER=0.01;                       //relative difference of ros2
-      //  config.deltatmin=1.0e-5; //1.0e-5;                 //minimal time step
-                         //minimal concentrations of organics
       
       config.constant_dorg=true;
 

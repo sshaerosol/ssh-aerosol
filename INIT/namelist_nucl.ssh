@@ -71,7 +71,7 @@ min_adaptive_time_step = 0.01,          !Minimum time step
 /
 
 &physic_particle_numerical_issues
-DTAEROMIN = 1E-5,              	!Minimum time step
+DTAEROMIN = 1E-1,               	!Minimum time step
 redistribution_method = 12,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
 fixed_density = 1.56D-06,        
@@ -95,6 +95,8 @@ tequilibrium = 1.d-15,                     ! time under which equilibrium is ass
 dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
+epser = 0.01,                     ! relative error precision for time step adjustment
+epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 /
 
 &physic_nucleation

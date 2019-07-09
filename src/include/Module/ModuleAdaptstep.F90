@@ -140,6 +140,8 @@ contains
                   initial_time_splitting,timestep_splitting,delta_t)
              nb_iter = 1
           else
+             timestep_coag = DMIN1(timestep_coag,delta_t-current_sub_time)
+             timestep_cond = DMIN1(timestep_cond,delta_t-current_sub_time)
              timestep_splitting = DMAX1(timestep_coag,timestep_cond)
              timestep_splitting = DMIN1(timestep_splitting,delta_t-current_sub_time)
           endif
@@ -236,7 +238,7 @@ contains
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
-       if(N_fracmax.gt.1 .and. redistribution_method.ne.0) then
+       if(N_fracmax.gt.1 ) then !.and. redistribution_method.ne.0) then
           call redistribution_fraction()!fraction redistribution
        endif
 
@@ -272,14 +274,14 @@ contains
     implicit none
 
     integer:: solver,splitting
-    double precision:: time_t,time_p,time_step_sulf
+    double precision:: time_t,time_step_sulf
     double precision:: final_sub_time,current_sub_time,sub_timestep_splitting
     integer :: i,j
 
-    time_p=0.d0
     time_t=final_sub_time-current_sub_time
     !    ******Dynamic time loop
     do while ( current_sub_time .lt. final_sub_time )
+
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
        time_step_sulf = 0.0
@@ -298,7 +300,6 @@ contains
 
        if(ICUT.eq.N_size.AND.tag_nucl.eq.0) then
           if ((sulfate_computation.eq.1).AND.(time_step_sulf>0)) then !Case full equilibrium but sulfate computed dynamically
-             time_p=time_p+sub_timestep_splitting
              current_sub_time = current_sub_time + sub_timestep_splitting
              sub_timestep_splitting = DMIN1(time_step_sulf,final_sub_time-current_sub_time)
           else ! case full equilibrium and sulfate computed in full equilibrium
@@ -323,24 +324,27 @@ contains
                concentration_gas,dqdt,&
                current_sub_time,sub_timestep_splitting)
        endif
+       
+       if(ICUT.eq.N_size.AND.tag_nucl.eq.0.AND.sulfate_computation.eq.0) then
+          call mass_conservation(concentration_mass,concentration_number,&
+               concentration_gas, total_mass)
+       else
+          If (current_sub_time.le.final_sub_time) then
+             call mass_conservation(concentration_mass,concentration_number,&
+                  concentration_gas, total_mass)
 
-       call mass_conservation(concentration_mass,concentration_number,&
-            concentration_gas, total_mass)
-
-       time_p=time_p+sub_timestep_splitting
-
-       If (current_sub_time.le.final_sub_time.and.ICUT.ne.N_size) then
-          call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-               concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
-               final_sub_time)
-          ! Need to redistribute onto fixed grid if nucleation is solved with 
-          ! condensation/evaporation or if processes are not splitted
-          if((tag_nucl.EQ.1).OR.(splitting.EQ.1)) then 
-             call update_wet_diameter_liquid(1,N_size,concentration_mass, &
-                  concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
-             if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
-             if(N_fracmax.gt.1) then
-                call redistribution_fraction()!fraction redistribution
+             call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
+                  concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
+                  final_sub_time)
+             ! Need to redistribute onto fixed grid if nucleation is solved with 
+             ! condensation/evaporation or if processes are not splitted
+             if((tag_nucl.EQ.1).OR.(splitting.EQ.1)) then 
+                call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+                     concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+                if(N_fracmax.gt.1) then
+                   call redistribution_fraction()!fraction redistribution
+                endif
+                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
              endif
           endif
        endif
@@ -384,19 +388,24 @@ contains
     double precision:: time_splitting,initial_time_splitting
     double precision:: tmp,tscale
     double precision:: t_total!total time of the simunlation
-    integer::ICUT_tmp
     double precision :: rate,ce_kernal_coef(N_size, N_aerosol)
-
-    ICUT_tmp = ICUT!avoid the influence of hybrid method
 
     !     Coagulation time step.
 
     sub_time_splitting=t_total-initial_time_splitting
-
+    
     tag_coag = with_coag
     tag_cond = with_cond
     tag_nucl = with_nucl
     call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
+    if (sulfate_computation.eq.1) then
+       do j = 1,N_size! Reassigned distribution by mass of each species
+          call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
+               quadratic_speed(ESO4), accomodation_coefficient(ESO4), &
+               wet_diameter(j), rate)
+          dqdt1(j,ESO4) =  dqdt1(j,ESO4) + rate * c_number(j)*c_gas(ESO4)
+       enddo
+    endif
 
     do j=1,N_size
        tmp=c_number(j)*dndt1(j)
@@ -464,10 +473,7 @@ contains
     double precision:: time_splitting,initial_time_splitting
     double precision:: tmp,tscale
     double precision:: t_total!total time of the simunlation
-    integer::ICUT_tmp
     double precision :: rate,ce_kernal_coef(N_size, N_aerosol)
-
-    ICUT_tmp = ICUT!avoid the influence of hybrid method
 
     !     Coagulation time step.
 
@@ -501,7 +507,6 @@ contains
 
     !     Cond/evap time step.
     if (with_cond.eq.1.OR.with_nucl.eq.1) then
-       ICUT=0
        tag_coag=0
        tag_cond=with_cond
        tag_nucl=with_nucl
@@ -540,11 +545,12 @@ contains
     else
        time_splitting=time_cond
     endif
+    time_cond = DMIN1(time_splitting,DMAX1(time_cond,DTAEROMIN))
+    time_coag = DMIN1(time_splitting,DMAX1(time_coag,DTAEROMIN))
 
     time_splitting=DMIN1(time_splitting,t_total-initial_time_splitting)
     time_splitting = DMAX1(time_splitting,DTAEROMIN)
-    time_cond = DMIN1(time_splitting,DMAX1(time_cond,DTAEROMIN))
-    time_coag = DMIN1(time_splitting,DMAX1(time_coag,DTAEROMIN))
+
 
     ! if only one process then set
     ! splitting step to whole timestep
@@ -552,12 +558,10 @@ contains
     if(with_coag.eq.0.OR.with_cond.eq.0)  then
        time_splitting = t_total-initial_time_splitting
     endif
-    if(ICUT.eq.N_size) then
-       time_splitting=t_total-initial_time_splitting
-       time_cond=time_splitting
-    endif
-
-    ICUT=ICUT_tmp
+!    if((ICUT.eq.N_size).AND.(with_nucl.EQ.0)) then 
+!       time_splitting=t_total-initial_time_splitting
+!       time_cond=time_splitting
+!    endif
 
   end subroutine initstep
 

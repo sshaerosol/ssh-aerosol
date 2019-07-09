@@ -280,7 +280,7 @@ contains
       endif
     enddo
 
-    if (sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
        jesp=isorropia_species(2)
        aatoteq = 0.d0
       ce_kernal_coef_tot(jesp) = 0.d0
@@ -307,7 +307,7 @@ contains
       qextold(jesp)=qaero(jesp)
     end do
 
-    if(sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
       !compute apparent gas concentration of sulfate
 !     i.e. the SO4 gas conc actually
 !     seen by equilibrium aerosols
@@ -347,7 +347,7 @@ contains
 
   !     ******redistribute on each cell according to Rates
 
-    if(sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
       jesp=isorropia_species(2)
       ce_kernal_coef_tot(jesp)=aatoteq!for later redistribution
     endif
@@ -372,7 +372,7 @@ contains
    
   ! give back initial SO4 gas conc
   ! minus that consumed by equi bins
-    if(sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
       jesp=isorropia_species(2)
       concentration_gas(jesp)=qgasi-qgasa
    else
@@ -428,7 +428,7 @@ contains
     frac_bin=0.d0
     dm_bin=0.d0
     iclip_bin=0
-    if(sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
        ibegin = -1
     else
        ibegin = isorropia_species(2)
@@ -529,7 +529,7 @@ contains
     frac_bin=0.d0
     dm_bin=0.d0
     iclip_bin=0
-    if(sulfate_computation.eq.0) then
+    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
        ibegin = -1
     else
        ibegin = isorropia_species(2)

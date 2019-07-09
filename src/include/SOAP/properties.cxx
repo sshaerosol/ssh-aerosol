@@ -45,15 +45,14 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
 	    for (j=0;j<config.nfunc_aq;j++)
 	      if (config.groups_aq(j,i2)>0.0)
 		{
-		  config.group_activity_molaq(j,i2)=1.0e0-log(config.sum2mol_aq(j,i2));                     
+                  if (config.sum2mol_aq(j,i2) > 0.0)
+                    config.group_activity_molaq(j,i2)=1.0e0-log(config.sum2mol_aq(j,i2));                     
 		  for (k=0;k<config.nfunc_aq;k++)      
 		    if (config.groups_aq(k,i2)>0.0)		      		      
 		      {
-			//cout << config.sum2mol_aq(k,i2) << " " << config.surface_fraction_molaq(k,i2) << " " << config.Inter2_aq(k,j) << " " << config.groups_aq(k,i2) << endl;
 			config.group_activity_molaq(j,i2)-=config.surface_fraction_molaq(k,i2)*config.Inter2_aq(j,k)/config.sum2mol_aq(k,i2);           		
 		      }
 		}
-	  //cout << surrogate[i].name << " " << surrogate[i].index_gamma_aq << endl;
 
           for (j=0;j<config.nmol_aq;++j)
             X_unifac(j)=0.0;
