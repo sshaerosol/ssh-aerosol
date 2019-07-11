@@ -14,11 +14,10 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 ################### input parameters #################################"
-pcasea = '../results/coag-ext/'
-pcaseb = '../results/coag/'
+pcase = '../results/coag-ext'
 sizebin_ssh = 50
 density = 1.84 * 1e-6 #in ug um-3
-N_fraction = 4
+N_fraction = 3
 
 #####################################################################
 num_org_init = []
@@ -89,54 +88,30 @@ for j in range(len(exa_diam_out)) :
 	if (j != 0) : dt_exa_diam_out.append(math.log10(float(exa_diam_out[j]))-math.log10(float(exa_diam_out[j-1])))
 ############################## extract results from simulation
 #### 
-cases = ['SSH-ext','SSH-int'] #, 'num1res0']
-pcase = [pcasea,pcaseb]
+cases = ['SSH'] #, 'num1res0']
+case_lb = ['SSH'] #, 'num1']
 #### get conc.
 num_init_sml = np.zeros((len(cases),sizebin_ssh))
 num_out_sml = np.zeros((len(cases),sizebin_ssh))
 mass_init_sml = np.zeros((len(cases),sizebin_ssh))
 mass_out_sml = np.zeros((len(cases),sizebin_ssh))
-cell_diam_init_sml = np.zeros(sizebin_ssh)
-cell_diam_out_sml = np.zeros(sizebin_ssh)
-
 for i in cases :
-    if(i == 'SSH-ext'):
 	for j in range(sizebin_ssh) :
-             for k in range(N_fraction):
-        	with open (pcase[cases.index(i)]+'/number/NUMBER_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+          for k in range(N_fraction):
+        	with open (pcase+'/number/NUMBER_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
 	  	     values = finit.read().splitlines()
 	  	num_init_sml[cases.index(i)][j] += float(values[0])
 	  	num_out_sml[cases.index(i)][j] += float(values[-1])
 
          
-		with open (pcase[cases.index(i)]+'/aero/PSO4_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+		with open (pcase+'/aero/PSO4_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
 			values = finit.read().splitlines()
 		mass_init_sml[cases.index(i)][j] += float(values[0])
 		mass_out_sml[cases.index(i)][j] += float(values[-1])
-                
-		with open (pcase[cases.index(i)]+'/aero/PMonomer_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+		with open (pcase+'/aero/PMonomer_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
 			values = finit.read().splitlines()
 		mass_init_sml[cases.index(i)][j] += float(values[0])
 		mass_out_sml[cases.index(i)][j] += float(values[-1])
-
-    else:
-	for j in range(sizebin_ssh) :
-		with open (pcase[cases.index(i)] +'/number/NUMBER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		num_init_sml[cases.index(i)][j] += float(values[0])
-		num_out_sml[cases.index(i)][j] += float(values[-1])
-		with open (pcase[cases.index(i)] +'/aero/PSO4_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] += float(values[0])
-		mass_out_sml[cases.index(i)][j] += float(values[-1])
-		with open (pcase[cases.index(i)] +'/aero/PNH4_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] += float(values[0])
-		mass_out_sml[cases.index(i)][j] += float(values[-1])
-		with open (pcase[cases.index(i)] +'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		cell_diam_init_sml[j] = float(values[0])
-		cell_diam_out_sml[j] = float(values[-1])
 
 ############################### drawing Particle Number Distribution
 lists = [num_org_init, num_org_out]
@@ -145,8 +120,8 @@ stl = ['-','-','-','-','-','-','-']
 cols = ['*','*','-','-','.','-','.','-']
 for i in num_init_sml : lists.append(i)
 for i in num_out_sml : lists.append(i)
-for i in cases : lbs.append(i + '_init')
-for i in cases : lbs.append(i + '_out')
+for i in case_lb : lbs.append(i + '_init')
+for i in case_lb : lbs.append(i + '_out')
 
 fig = plt.figure(1,figsize = (15,15))
 num = len(deltalogd)
@@ -157,8 +132,14 @@ for i in range(len(lists)) :
 		if (tmp[j] < 0.01) : tmp[j] = 0.0
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
-        if(i>=3):
-	   plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+
+num = len(exa_diam_out)
+tmp = np.zeros(num)
+for j in range(num) :
+	tmp[j]= float(exact_num_out[j])
+	if(tmp[j] < 0.01) : tmp[j] = 0.0
+plt.plot(exa_diam_out, tmp,'-',label = 'Zhang_out')
 
 plt.xlabel(r'd($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
@@ -173,8 +154,10 @@ lists2 = [mass_org_init, mass_org_out]
 for i in mass_init_sml : lists2.append(i)
 for i in mass_out_sml : lists2.append(i)
 lbs = ['SIREAM_init', 'SIREAM_out']
-for i in cases : lbs.append(i + '_init')
-for i in cases : lbs.append(i + '_out')
+#cols = ['b-','b-','y*','y*','r.','r-','g-','g-']
+cols = ['*','*','-','-','-','-','-','-']
+for i in case_lb : lbs.append(i + '_init')
+for i in case_lb : lbs.append(i + '_out')
 # lists = [org_init, org_out, num_init_sml[], num_init_sml[]]
 fig = plt.figure(2,figsize = (15,15))
 num = len(deltalogd)
@@ -185,9 +168,13 @@ for i in range(len(lists2)) :
 		if(tmp[j] < 0.01) : tmp[j] = 0.0
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
+	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
 
-        if(i>=3):
-          plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+num = len(exa_diam_out)
+tmp = np.zeros(num)
+for j in range(num) :
+	tmp[j]= float(exact_mass_out[j]) 
+plt.plot(exa_diam_out, exact_mass_out,'-',label = 'Zhang_out')
 
 plt.xlabel(r'd($\mu$m)')
 #plt.ylabel(r'dN/d log d (cm$^{-3}$)')

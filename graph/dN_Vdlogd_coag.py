@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 ################### input parameters #################################"
-pcase = '../results/coag/'
+pcase = '/cerea_raid/users/sartelet/ssh-aerosol/ssh-aerosol-0.6/results/coag/'
 sizebin_ssh = 50
 density = 1.84 * 1e-6 #in ug um-3
 
@@ -131,12 +131,7 @@ tmp = np.zeros(num)
 for j in range(num) :
 	tmp[j]= float(exact_num_out[j])
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
-#plt.plot(exa_diam_out, tmp,'-',label = 'Zhang_out')
-import numpy.ma as ma
-tmp = np.array(tmp)
-masked = ma.masked_where(tmp == 0.0, tmp)
-plt.plot(exa_diam_out, masked,'-',label = 'Zhang_out')
-
+plt.plot(exa_diam_out, tmp,'-',label = 'Zhang_out')
 
 plt.xlabel(r'd($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')

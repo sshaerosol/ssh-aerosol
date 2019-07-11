@@ -98,8 +98,6 @@ tequilibrium = 1.e-15,                     ! time under which equilibrium is ass
 dorg = 1.e-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
-epser = 0.01,                     ! relative error precision for time step adjustment
-epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 /
 
 &physic_nucleation

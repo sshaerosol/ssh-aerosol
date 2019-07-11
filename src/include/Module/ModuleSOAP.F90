@@ -101,7 +101,7 @@ contains
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
            aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap)
+           coupled_phases, activity_model)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -273,7 +273,7 @@ contains
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
            aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap)
+           coupled_phases, activity_model)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size

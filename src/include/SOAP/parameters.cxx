@@ -958,9 +958,6 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.surface_fraction_molorg.resize(config.nfunc_org,config.nmol_org); 
       config.sum2mol_org.resize(config.nfunc_org,config.nmol_org);
       config.group_activity_molorg.resize(config.nfunc_org,config.nmol_org);
-      config.group_activity_molorg=0.;
-      config.sum2mol_org=0.;
-      config.surface_fraction_molorg=0.;
       for (i=0;i<config.nmol_org;i++)
         {
           double sum_surf_mol=0.0;
@@ -1125,22 +1122,19 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.surface_fraction_molaq.resize(config.nfunc_aq,config.nmol_aq); 
       config.sum2mol_aq.resize(config.nfunc_aq,config.nmol_aq);
       config.group_activity_molaq.resize(config.nfunc_aq,config.nmol_aq);
-      config.group_activity_molaq=0.;
-      config.sum2mol_aq=0.;
-      config.surface_fraction_molaq=0.;
       for (i=0;i<config.nmol_aq;i++)
         {
           double sum_surf_mol=0.0;
           for (j=0;j<config.nfunc_aq;j++)
             if (config.groups_aq(j,i)>0.0)
-              {		
+              {                         
                 config.surface_fraction_molaq(j,i)+=config.QG_aq(j)*config.groups_aq(j,i);                
                 sum_surf_mol+=config.QG_aq(j)*config.groups_aq(j,i);  
               }
 
           for (j=0;j<config.nfunc_aq;j++)      
             config.surface_fraction_molaq(j,i)/=sum_surf_mol;
-        }     
+        }
 
       config.gamma_ions_inf.resize(config.nion_unifac);
       if (config.SR_ions)
@@ -1305,9 +1299,6 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.surface_fraction_moltot.resize(config.nfunc_tot,config.nmol_tot); 
       config.sum2mol_tot.resize(config.nfunc_tot,config.nmol_tot);
       config.group_activity_moltot.resize(config.nfunc_tot,config.nmol_tot);
-      config.group_activity_moltot=0.;
-      config.sum2mol_tot=0.;
-      config.surface_fraction_moltot=0.;
       for (i=0;i<config.nmol_tot;i++)
         {
           double sum_surf_mol=0.0;
@@ -1573,7 +1564,6 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.Vlayer(2)=0.12102374;
 	  config.Vlayer(3)=0.04255976;
 	  config.Vlayer(4)=0.01;
-          cout << "OK " << endl;
 	  config.alpha_layer(0)=1.0/1.00194135033;
 	  config.alpha_layer(1)=6.2/1.18/1.07132849494;
 	  config.alpha_layer(2)=68.0/0.91/2.3390977/1.0329289261;
@@ -1801,6 +1791,10 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
       //phase separation?
       config.use_global_dynamic_parameters=false; //Assume the same composition over all bins
       // and layers
+      //      config.tequilibrium=0.1;                 //time under which equilibrium is assumed
+      config.EPSER=0.01;                       //relative difference of ros2
+      //  config.deltatmin=1.0e-5; //1.0e-5;                 //minimal time step
+                         //minimal concentrations of organics
       
       config.constant_dorg=true;
 

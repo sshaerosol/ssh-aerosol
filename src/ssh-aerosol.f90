@@ -113,7 +113,7 @@ PROGRAM SSHaerosol
   end do			! finsh simulation
 
 
-  !call delete_empty_file() ! delete empty output files
+  call delete_empty_file() ! delete empty output files
 
   call free_allocated_memory()
   IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()

@@ -77,9 +77,7 @@ module aInitialization
     integer :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
     double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
     double precision :: min_adaptive_time_step       !Minimum time step
-    double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
-    double precision :: epser !  Relative error for time step adjustment
-    double precision :: epser_soap !  Relative difference of ros2 in SOAP
+    !double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
     integer :: dynamic_solver = 1 !KDSLV Tag type of solver
     integer :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
     integer :: redistribution_method !tag of redistribution method
@@ -262,22 +260,22 @@ module aInitialization
     double precision, dimension(:,:), allocatable :: liquid_nsize
     
     !! part 8: divers parameters (species, I/O)
-    character (len=80) :: Coefficient_file ! repartition coefficient file
-    character (len=80) :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
-    character (len=80) :: init_aero_conc_num_file ! File for aerosols initial number concentrations
-    character (len=80) :: init_gas_conc_file ! File for gas-phase initial conc.
-    character (len=80) :: species_list_file ! File for species list.
-    character (len=80) :: aerosol_species_list_file ! File for species list.
-    character (len=80) :: namelist_species ! Namelist file for species list.
-    character (len=80) :: emis_gas_file
-    character (len=80) :: emis_aero_mass_file
-    character (len=80) :: emis_aero_num_file
-    character (len=80) :: mineral_dust(10), black_carbon(10)
-    character (len=80) :: isorropia_species_name(10)
-    character (len=80) :: aec_species_name(30)
-    character (len=80) :: pankow_species_name(6)
-    character (len=80) :: poa_species_name(10)
-    character (len=80) :: PSO4
+    character (len=40) :: Coefficient_file ! repartition coefficient file
+    character (len=40) :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
+    character (len=40) :: init_aero_conc_num_file ! File for aerosols initial number concentrations
+    character (len=40) :: init_gas_conc_file ! File for gas-phase initial conc.
+    character (len=40) :: species_list_file ! File for species list.
+    character (len=40) :: aerosol_species_list_file ! File for species list.
+    character (len=40) :: namelist_species ! Namelist file for species list.
+    character (len=40) :: emis_gas_file
+    character (len=40) :: emis_aero_mass_file
+    character (len=40) :: emis_aero_num_file
+    character (len=40) :: mineral_dust(10), black_carbon(10)
+    character (len=40) :: isorropia_species_name(10)
+    character (len=40) :: aec_species_name(30)
+    character (len=40) :: pankow_species_name(6)
+    character (len=40) :: poa_species_name(10)
+    character (len=40) :: PSO4
     character (len=10) :: precursor
     character (len=10), dimension(:), allocatable :: species_name
     character (len=20), dimension(:), allocatable :: aerosol_species_name
@@ -354,7 +352,7 @@ module aInitialization
 
      namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
           with_kelvin_effect, tequilibrium,&
-          dorg, coupled_phases, activity_model, epser, epser_soap
+          dorg, coupled_phases, activity_model
 
      namelist /physic_nucleation/ with_nucl, nucl_model
 
@@ -681,7 +679,8 @@ module aInitialization
 		    print*, 'inorganic compounds are at equilibrium.'
 		else 
 		    print*, 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
-
+		    print*, 'Pb - not available'
+		    stop
 		end if
 
                 if (ISOAPDYN == 1) then

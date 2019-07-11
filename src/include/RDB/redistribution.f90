@@ -241,7 +241,7 @@ END SUBROUTINE REDISTRIBUTION
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
-!*     q(*)  (INOUT) gas/aero conc (Âµg.m-3)       *
+!*     q(*)  (INOUT) gas/aero conc (µg.m-3)       *
 !*     *
 !**************************************************
       IMPLICIT NONE
@@ -636,7 +636,7 @@ END SUBROUTINE REDISTRIBUTION
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
-!*     q(*)  (INOUT) gas/aero conc (Âµg.m-3)       *
+!*     q(*)  (INOUT) gas/aero conc (µg.m-3)       *
 !*     *
 !**************************************************
       IMPLICIT NONE
@@ -678,7 +678,6 @@ END SUBROUTINE REDISTRIBUTION
             MSD(js1) = DEXP(XSD(js1))
          else
             XSD(js1) = XSF(js1)
-            MSD(js1) = DEXP(XSD(js1))
          endif
          MSF(js1) = DEXP(XSF(js1))
          DSF(js1) = (dbound(js1)*dbound(js1+1))**0.5d0
@@ -793,7 +792,7 @@ END SUBROUTINE REDISTRIBUTION
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
-!*     q(*)  (INOUT) gas/aero conc (Âµg.m-3)       *
+!*     q(*)  (INOUT) gas/aero conc (µg.m-3)       *
 !*     *
 !**************************************************
       IMPLICIT NONE

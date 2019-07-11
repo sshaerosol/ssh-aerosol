@@ -15,6 +15,9 @@ plt.ioff()
 
 ################### input parameters #################################"
 pcase = '../results/cond-sulfate/r0/'
+#pcase = '/cerea_raid/users/sartelet/ssh-aerosol/ssh-aerosol-0.6/results/cond-sulfate/r10/'
+#pcase = '/cerea_raid/users/sartelet/ssh-aerosol/ssh-aerosol-0.6/results/cond-sulfate/r11/'
+#pcase = '/cerea_raid/users/sartelet/ssh-aerosol/ssh-aerosol-0.6/results/cond-sulfate/r12/'
 tag_fig = 'no_redist'
 #tag_fig = 'r10'
 #tag_fig = 'r11'
