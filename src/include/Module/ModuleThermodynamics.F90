@@ -62,6 +62,7 @@ contains
     double precision :: rhoaer!aerosol density based on the internal composition
     double precision :: rhoaer_dry
 
+    rhoaer = fixed_density
     do j=start_bin,end_bin
        !initialization
        do jesp=1,N_aerosol
@@ -345,7 +346,7 @@ contains
           jesp=List_species(s)
           qti=qti+c_mass(j,jesp)     ! µg.m-3
        end do
-       if (c_number(j).gt.TINYN.OR.qti.gt.TINYM) then
+       if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
           do jesp=1,N_aerosol
              qext(jesp)=c_mass(j,jesp)
           enddo

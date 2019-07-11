@@ -25,7 +25,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                            double* accomodation_coefficient, int* nlayer,
                            int* with_kelvin_effect, double* tequilibrium,
                            double* dtaeromin, double* dorg, int* coupled_phases,
-                           int* activity_model){
+                           int* activity_model, double* epser_soap){
 
   return soap_main(*LWC, *RH, *Temperature, 
                    *ionic, *chp, LWCorg, 
@@ -37,7 +37,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                    accomodation_coefficient, *nlayer,
                    *with_kelvin_effect, *tequilibrium,
                    *dtaeromin, *dorg, *coupled_phases,
-                   *activity_model);
+                   *activity_model, *epser_soap);
 
 }
 
@@ -59,7 +59,7 @@ void soap_main(double LWC, double RH, double Temperature,
                double accomodation_coefficient[], int nlayer,
                int with_kelvin_effect, double tequilibrium, double dtaeromin,
                double dorg, int coupled_phases,
-               int activity_model)
+               int activity_model, double epser_soap)
 {
 
   /*** General parameters and options ***/
@@ -100,6 +100,7 @@ void soap_main(double LWC, double RH, double Temperature,
   config.tequilibrium = tequilibrium;
   config.dorg = dorg;
   config.deltatmin = dtaeromin;
+  config.EPSER = epser_soap;
   if (coupled_phases == 1)
     config.coupled_phases = true;
   else
@@ -141,11 +142,11 @@ void soap_main(double LWC, double RH, double Temperature,
     }
   else
     throw string("Bad option given to the organic thermodynamic model.\n");
-
     
   parameters(config, surrogate, species_list_aer, molecular_weight_aer,
              accomodation_coefficient);
   check_config(config, surrogate);
+  config.EPSER=adaptive_time_step_tolerance;
   
   // If Na and Cl are included.
   bool NaCl = false; 
@@ -448,7 +449,7 @@ void soap_main(double LWC, double RH, double Temperature,
       dynamic_system(config,surrogate,
                      MOinit_layer, MOW_layer,number,vsol,
                      LWC_bins, AQinit_bins, ionic_bins, chp_bins,
-                     Temperature, RH, deltat);
+                     Temperature, RH, deltat);     
 
       // Give back the concentrations
       for (i = 0; i < n; ++i)

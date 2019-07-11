@@ -41,15 +41,15 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(µg/m^3)
-    !     c_mass: aerosol mass concentration (µg/m^3)
+    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
+    !     c_mass: aerosol mass concentration (Âµg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !     ce_kernal_coef: c/e kernel coefficient          ([m3.s-1]).
     !
     !     -- OUTPUT VARIABLES
     !
-    !     dqdt: particle mass derivation(µg/m^3/s)
-    !     dndt: particle number derivation(µg/m^3/s)
+    !     dqdt: particle mass derivation(Âµg/m^3/s)
+    !     dndt: particle number derivation(Âµg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -62,7 +62,8 @@ contains
 
     dqdt = 0.d0
     dndt = 0.d0
-    ! Call coag first for the case processes are coupled
+    ! Call coag first for the case processes are coupled 
+    ! (to not overwrite the derivatives from other processes)
     if (tag_coag.eq.1) then
        call fgde_coag (c_mass,c_number,dqdt,dndt)
     endif
@@ -88,15 +89,15 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(µg/m^3)
-    !     c_mass: aerosol mass concentration (µg/m^3)
+    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
+    !     c_mass: aerosol mass concentration (Âµg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !     ce_kernal_coef: c/e kernel coefficient          ([m3.s-1]).
     !
     !     -- OUTPUT VARIABLES
     !
-    !     dqdt: particle mass derivation(µg/m^3/s)
-    !     dndt: particle number derivation(µg/m^3/s)
+    !     dqdt: particle mass derivation(Âµg/m^3/s)
+    !     dndt: particle number derivation(Âµg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -120,9 +121,25 @@ contains
 
     call mass_conservation(c_mass,c_number,c_gas,total_mass)
 
+    ! In case of nucleation - always compute sulfate dynamically if sulfate_computation = 0
+    if((sulfate_computation.eq.0).AND.(tag_nucl.EQ.1)) then
+       do j=1,ICUT
+          qn=c_number(j)!initial number and mass
+	  jesp=isorropia_species(2)
+	  call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
+		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
+		accomodation_coefficient(jesp),& ! accomadation coef (adim)
+		wet_diam(j),   & ! wet aero diameter (Âµm)
+		ce_kernal_coef_i(jesp) ) ! c/e kernel coef (m3.s-1)
+          ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
+          ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
+          dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+       enddo
+    endif
+
     do j =(ICUT+1), N_size
        qn=c_number(j)!initial number and mass
-       !if(qn.gt.TINYN) then!skip empty cell
        do s=1,N_aerosol
           jesp=List_species(s)
           q(jesp)=c_mass(j,jesp)
@@ -141,16 +158,18 @@ contains
           IF (jesp.NE.ECl) THEN
 #endif
              ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
-             dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+             if (jesp.EQ.ESO4) then
+	       if(sulfate_computation.NE.1) then!do take sulfate into account here
+                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+               endif 
+             else
+                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+             endif   
 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
           ENDIF
 #endif
-	  if(sulfate_computation.eq.1) then!do not take sulfate into account
-             dqdt(j,ESO4)=0.d0
-	  endif
        enddo
-       ! endif
     enddo
 
     do j=1, N_size
@@ -174,14 +193,14 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(µg/m^3)
-    !     c_mass: aerosol mass concentration (µg/m^3)
+    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
+    !     c_mass: aerosol mass concentration (Âµg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !
     !     -- OUTPUT VARIABLES
     !
-    !     rate_mass: particle mass derivation(µg/m^3/s)
-    !     rate_number: particle number derivation(µg/m^3/s)
+    !     rate_mass: particle mass derivation(Âµg/m^3/s)
+    !     rate_number: particle number derivation(Âµg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -232,14 +251,14 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(µg/m^3)
-    !     c_mass: aerosol mass concentration (µg/m^3)
+    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
+    !     c_mass: aerosol mass concentration (Âµg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !
     !     -- OUTPUT VARIABLES
     !
-    !     dqdt: particle mass derivation(µg/m^3/s)
-    !     dndt: particle number derivation(µg/m^3/s)
+    !     dqdt: particle mass derivation(Âµg/m^3/s)
+    !     dndt: particle number derivation(Âµg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -262,7 +281,7 @@ contains
        !     mr should be in ppt
        mr = c_gas(ENH4)/17. * 22.41d0 *273.d0/Temperature * Pressure/101300.d0
 
-       na= c_gas(ESO4)*1.D-06&       ! convert to µg.cm-3
+       na= c_gas(ESO4)*1.D-06&       ! convert to Âµg.cm-3
             /98.d6 &        ! to mol.cm-3
             *Navog            ! to #molec.cm-3      
 
@@ -304,6 +323,7 @@ contains
           !    endif
 
           if(jnucl.gt.0.d0.and.(.not.IsNaN(jnucl*0.d0))) then
+            if(ntot.GT.0.d0.OR.ntotnh3.GT.0.0) then
 	     dndt(isection) =dndt(isection) +jnucl ! #part.m-3.s-1
              dpnucl = size_diam_av(1) 
              dmdt = jnucl * PI/6.0 * dpnucl**3
@@ -313,9 +333,9 @@ contains
              perc_so4 = perc_so4/tot_so4nh4
              perc_nh4 = perc_nh4/tot_so4nh4
 
-             !dqdt(isection,ESO4)=dqdt(isection,ESO4)+jnucl*ntot/Navog*molecular_weight_aer(ESO4) ! µg.m-3.s-1
+             !dqdt(isection,ESO4)=dqdt(isection,ESO4)+jnucl*ntot/Navog*molecular_weight_aer(ESO4) ! Âµg.m-3.s-1
 	     !dqdt(isection,ENH4)=dqdt(isection,ENH4)+jnucl*ntotnh3/Navog*molecular_weight_aer(ENH4)
-	     dqdt(isection,ESO4)=dqdt(isection,ESO4)+ dmdt * perc_so4 * fixed_density ! µg.m-3.s-1
+	     dqdt(isection,ESO4)=dqdt(isection,ESO4)+ dmdt * perc_so4 * fixed_density ! Âµg.m-3.s-1
 	     dqdt(isection,ENH4)=dqdt(isection,ENH4)+ dmdt * perc_nh4 * fixed_density
 
              if(IsNaN(dndt(isection)*0.d0)) then
@@ -323,6 +343,7 @@ contains
                 dqdt(isection,ESO4)=0.d0
                 dqdt(isection,ENH4)=0.d0
              endif
+            endif
           endif
 
        endif
@@ -335,13 +356,13 @@ contains
 
           qanucl= nanucl*1.D06&   ! convert to #molec.m-3
                /Navog&            ! to mol.m-3
-               *molecular_weight_aer(ESO4)        ! to µg.mol-1      
+               *molecular_weight_aer(ESO4)        ! to Âµg.mol-1      
 
           !     Compute nucleation kernel if qSO4 exceed qanucl  
 
           if (c_gas(ESO4).GE.qanucl) then
 
-             na= c_gas(ESO4)*1.D-06&    ! convert to µg.cm-3
+             na= c_gas(ESO4)*1.D-06&    ! convert to Âµg.cm-3
                   /molecular_weight_aer(ESO4)&     ! to mol.m-3
                   *Navog         ! to #molec.m-3
 
@@ -357,14 +378,14 @@ contains
              jnucl=jnucl*1.D06
 
              if(Navog.ne.0.d0.and.(.not.IsNaN(jnucl*0.d0))) then
-                ! h2so4 mass in nucleus (µg)
+                ! h2so4 mass in nucleus (Âµg)
                 mSO4= ntot&          ! #molec
                      /Navog&         ! Avogadro number (adim)
                      *xstar&         ! mol fraction of h2so4
-                     *molecular_weight_aer(ESO4)     ! mol weight µg.mol-1
+                     *molecular_weight_aer(ESO4)     ! mol weight Âµg.mol-1
 
                 dndt(1) =dndt(1) +jnucl ! #part.m-3.s-1
-                dqdt(1,ESO4)=dqdt(1,ESO4)+jnucl*mSO4! µg.m-3.s-1
+                dqdt(1,ESO4)=dqdt(1,ESO4)+jnucl*mSO4! Âµg.m-3.s-1
              endif
 
              if(IsNaN(dndt(1)*0.d0)) then

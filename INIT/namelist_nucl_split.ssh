@@ -71,7 +71,7 @@ min_adaptive_time_step = 0.01,          !Minimum time step
 /
 
 &physic_particle_numerical_issues
-DTAEROMIN = 1E-5,              	!Minimum time step
+DTAEROMIN = 1E-1,              	!Minimum time step
 redistribution_method = 12,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
 fixed_density = 1.56D-06,        

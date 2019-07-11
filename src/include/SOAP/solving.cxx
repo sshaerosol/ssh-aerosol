@@ -421,7 +421,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 			    {
 			      surrogate[i].Ag_old=surrogate[i].Ag;
 			      surrogate[i].Ap_old=surrogate[i].Ap;
-			      //surrogate[i].gamma_org_old=surrogate[i].gamma_org;
+			      surrogate[i].gamma_org_old=surrogate[i].gamma_org;
 			    }
 			}
                     
@@ -1862,7 +1862,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
                     activity_coefficients_dyn_sat(config, surrogate, Temperature, MOW, b, ilayer);
                     temp=surrogate[config.iH2O].MM/MOW(b,ilayer,iphase)*MOinit(b,ilayer,iphase)*RH
                       /surrogate[config.iH2O].gamma_org_layer(b,ilayer,iphase);
-                    error=(temp-surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase))/surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
+                    if (surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase) > 1.e-20) // YK
+                      error=(temp-surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase))/surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
                     surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)=temp;
                   }
                 else
@@ -1928,11 +1929,6 @@ void initialisation(model_config &config, vector<species> &surrogate,
             compute_kp_aq(config, surrogate, Temperature, ionic, chp, MMaq);
 	    
 	    temp=surrogate[config.iH2O].Aaq_bins_init(b);
-	    /*
-	    temp=surrogate[config.iH2O].MM/MMaq(b)*AQinit(b)*RH
-	    /surrogate[config.iH2O].gamma_aq;*/
-            //cout << surrogate[config.iH2O].Aaq_bins_init(b) << " " << surrogate[config.iH2O].gamma_aq << " " << chp(b) << " " << ionic(b) << " " << AQinit(b) <<  " " << conc_org(b)  << endl;
-            //cout << "total: "<< surrogate[config.iH2O].Atot << " " << chp(0) << " " << surrogate[config.iH2O].Kaq(b) << endl;
             surrogate[config.iH2O].Aaq_bins_init(b)=surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*AQinit(b)/(1.0+surrogate[config.iH2O].Kaq(b)*AQinit(b));
             
             if (surrogate[config.iH2O].Aaq_bins_init(b)>0.)
@@ -1988,11 +1984,12 @@ void initialisation(model_config &config, vector<species> &surrogate,
     }
   MO=MOinit;
   AQ=AQinit;
-  /*
-  for (i=0;i<n;i++)
-  cout << "after init " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(0) << " " << surrogate[i].Ag << " " << surrogate[i].time_aq(0) << " " << surrogate[i].gamma_aq_bins(0) << endl;*/
-    
-  //surrogate[config.iH2O].Aaq_bins_init(0)=1.0; 
+  
+  for (b=0;b<config.nbins;++b)		  
+    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+      for (iphase=0;iphase<config.max_number_of_phases;++iphase)
+         if(MOW(b,ilayer,iphase)<1)
+		 MOW(b,ilayer,iphase) = 200.;
 }
 
 void dynamic_system(model_config &config, vector<species> &surrogate,
