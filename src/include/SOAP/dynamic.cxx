@@ -22,15 +22,20 @@ void compute_kp_org(model_config &config, vector<species>& surrogate,
 	  for (iphase=0;iphase<config.nphase(b,config.nlayer-1);++iphase)
 	    {
 	      temp1+=MOinit(b,config.nlayer-1,iphase);
+	      if(MOW(b,config.nlayer-1,iphase) <= 1.) 
+				MOW(b,config.nlayer-1,iphase) = 200.0;
 	      temp2+=MOinit(b,config.nlayer-1,iphase)/MOW(b,config.nlayer-1,iphase);
 	    }
 	  if (temp1>0.0)
 	    MOWsurf=temp1/temp2;
 	  else
 	    MOWsurf=200.0;
-	  kelvin_effect=exp(2.0*config.surface_tension_org*1.0e-6*
-			    MOWsurf/(8.314*Temperature*config.rho_organic*
-				     0.5*config.diameters(b)*1.0e-6));
+          kelvin_effect = 2.0*config.surface_tension_org*
+	    MOWsurf/(8.314*Temperature*config.rho_organic*
+		     0.5*config.diameters(b));
+          if(kelvin_effect > 50.0)
+	    kelvin_effect = 50.0;
+	  kelvin_effect=exp(kelvin_effect);
 	}
       for (i=0;i<n;++i)
 	if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
@@ -57,9 +62,14 @@ void compute_kp_org(model_config &config, vector<species>& surrogate,
 			else
 			  surrogate[i].Kp(b,ilayer,iphase)=0.0;
 		      else
+			{
+			if(MOW(b,ilayer,iphase) <= 1.) 
+				MOW(b,ilayer,iphase) = 200.0;
+			if(surrogate[i].gamma_org_layer(b,ilayer,iphase) <=1.e-20)   //KS Why 0 there?
+				surrogate[i].gamma_org_layer(b,ilayer,iphase) = 1.0;
 			surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].kpi/MOW(b,ilayer,iphase)/
 			  surrogate[i].gamma_org_layer(b,ilayer,iphase);
-					
+			}		
 		      surrogate[i].Kp(b,ilayer,iphase)/=kelvin_effect;                        
 		    }
 		else
@@ -91,9 +101,14 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
     if (MMaq(b) > 0.0 and config.diameters(b)>0)
       {
 	if (config.compute_kelvin_effect) //compute the kelvin effect
-	  kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-			    (8.314*Temperature*config.AQrho(b)*
-			     0.5*config.diameters(b)*1.0e-6));
+	  {
+	    kelvin_effect=2.0*config.surface_tension_aq*MMaq(b)/
+	      (8.314*Temperature*config.AQrho(b)*
+	       0.5*config.diameters(b));
+	    if(kelvin_effect > 50.0)
+	      kelvin_effect = 50.0;
+	    kelvin_effect=exp(kelvin_effect);
+	  }
 	for (i=0;i<n;++i)
 	  if(surrogate[i].is_organic and surrogate[i].hydrophilic)
 	    {	  
@@ -133,7 +148,6 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 		    {
 		      surrogate[i].Kaq(b)/=kelvin_effect;
 		      surrogate[i].dKaq(b)/=kelvin_effect;
-		      //cout << kelvin_effect << endl;
 		    }
 		}
 	      else if (surrogate[i].name=="HNO3")
@@ -168,7 +182,6 @@ void compute_kp_aq(model_config &config, vector<species>& surrogate,
 		    {
 		      surrogate[i].Kaq(b)/=kelvin_effect;
 		      surrogate[i].dKaq(b)/=kelvin_effect;
-		      //cout << kelvin_effect << endl;
 		    }
 		}
 	    }
@@ -1114,7 +1127,7 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
                 sum_mass+=MOinit(b,ilayer,iphase);
           
             Kaq=surrogate[i].Kaq(b);          
-	    if (Kaq > 0. and AQinit(b)> 0.)
+	    if (Kaq > 0. and AQinit(b)> 0. and sum_mass > 1e-20)
 	      {
 		surrogate[i].k1_aq(b,index)=AQinit(b)/sum_mass*
 		  (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
@@ -1303,10 +1316,13 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
       kelvin_effect=1.0;
       if (config.compute_kelvin_effect) //compute the kelvin effect
         {
-          kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(b)/
-                            (8.314*Temperature*config.AQrho(b)*
-                             0.5*config.diameters(b)*1.0e-6));
-        }
+          kelvin_effect=2.0*config.surface_tension_aq*MMaq(b)/
+	    (8.314*Temperature*config.AQrho(b)*
+	     0.5*config.diameters(b));
+	  if(kelvin_effect > 50.0)
+	    kelvin_effect = 50.0;
+	  kelvin_effect=exp(kelvin_effect);
+	}
 
       for (i=0;i<n;++i)
         if (surrogate[i].is_inorganic_precursor)
@@ -1674,8 +1690,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
-
-  /*
+  
   for (i=0;i<n;++i)      		
     for (b=0;b<config.nbins;b++)
       for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -1683,7 +1698,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 	  {
 	    surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	    surrogate[i].Jdn(b,ilayer,iphase,index)=0.0;
-	    }*/
+	    }
   
   if (config.explicit_representation)
     {
@@ -1862,12 +1877,12 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)		
 			ktot1+=surrogate[i].k1(b,ilayer,iphase,index);
-		     		    
+		     		  
 		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)			
 			if (ilayer<ilayer_interface or
-			    (Jinterface*ktot1<=0.0 and sumkpmo_interface*surrogate[i].tau_air(b)<surrogate[i].tau_diffusion(b,ilayer_interface-1,iphase)))
+			    (Jinterface*ktot1<=0.0 and sumkpmo_interface*surrogate[i].tau_air(b)<surrogate[i].tau_diffusion(b,max(ilayer_interface-1,0),iphase)))
 			  {
 			    if (surrogate[i].k1(b,ilayer,iphase,index)>0.0)  
 			      sumkpositive+=surrogate[i].k1(b,ilayer,iphase,index);
@@ -2124,10 +2139,14 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
   double kelvin_effect=1.0;
   double Kaq;
   if (config.compute_kelvin_effect) //compute the kelvin effect    
-    kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-		      (8.314*Temperature*config.AQrho(index_b)*
-		       0.5*config.diameters(index_b)*1.0e-6));
-
+    {
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+			(8.314*Temperature*config.AQrho(index_b)*
+			 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
+    }
   Array <double,1> conc_org;
   conc_org.resize(config.nbins);
   for (b=0;b<config.nbins;b++)
@@ -2337,9 +2356,12 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
   double Kaq;
   if (config.compute_kelvin_effect) //compute the kelvin effect
     {
-      kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-			(8.314*Temperature*config.AQrho(index_b)*
-			 0.5*config.diameters(index_b)*1.0e-6));
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+	(8.314*Temperature*config.AQrho(index_b)*
+	 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
     }
 
   double conc_org=LWC(index_b);
@@ -2515,9 +2537,12 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
 
   if (config.compute_kelvin_effect) //compute the kelvin effect
     {
-      kelvin_effect=exp(2.0*config.surface_tension_aq*1.0e-6*MMaq(index_b)/
-			(8.314*Temperature*config.AQrho(index_b)*
-			 0.5*config.diameters(index_b)*1.0e-6));
+      kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
+	(8.314*Temperature*config.AQrho(index_b)*
+	 0.5*config.diameters(index_b));
+      if(kelvin_effect > 50.0)
+	kelvin_effect = 50.0;
+      kelvin_effect=exp(kelvin_effect);
     }
 
   double conc_org=LWC(index_b);
@@ -5393,14 +5418,16 @@ void adapstep(model_config &config, vector<species>& surrogate, double &Temperat
 	sum1=max(sum1,config.Vlayer(ilayer)*config.MOmin);
 	sum2=max(sum2,config.Vlayer(ilayer)*config.MOmin);
 
-        if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
-          n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
+	if (sum1 > tinym)
+          if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
+             n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
       }
 
   if (LWCtot>config.LWClimit) 
     for (b=0;b<config.nbins;++b)
-      if(AQ(b)>tinym2/Number(b) or AQinit(b)>tinym2/Number(b))
-	n2err2=max(n2err2,abs(AQinit(b)-AQ(b))/(AQinit(b)));
+        if(Number(b) > tinym)
+           if(AQ(b)>tinym2/Number(b) or AQinit(b)>tinym2/Number(b))
+  	      n2err2=max(n2err2,abs(AQinit(b)-AQ(b))/(AQinit(b)));
 
   if (config.compute_inorganic and LWCtot>config.LWClimit)
     {
@@ -5492,6 +5519,7 @@ void compute_diameters(model_config &config, vector<species>& surrogate,
               volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.AQrho(b));
 	  
           config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
+          if(config.diameters(b) < 1e-4) config.diameters(b) = 1e-4;
         }
     }
 }

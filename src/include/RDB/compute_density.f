@@ -55,11 +55,10 @@ C------------------------------------------------------------------------
          endif
       enddo
 
-      !if (conctot.LE.tinyc .OR. subrho.LE.tinyc) then
-      if (subrho.GT.0.d0) then
+      if (conctot.GE.tinyc .AND. subrho.GT.0.d0) then
          rho = conctot/subrho
       else
-         rho = 1.d0 
+         rho = 1.d-6 
       endif
       
       if (rho .EQ. 0.d0) then
