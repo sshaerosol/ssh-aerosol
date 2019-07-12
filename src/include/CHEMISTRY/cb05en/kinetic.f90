@@ -20,7 +20,7 @@
 !     http://cerea.enpc.fr/polyphemus/
 !------------------------------------------------------------------------
 
-subroutine kinetic90                        ( &
+subroutine kinetic                        ( &
     Ns,Nbin_aer,nr,IHETER,ICLD,rk,temp,xlw, &
     Press,azi,att,lwctmp,granulo,WetDiam,dsf_aero,ispeclost, &
     Wmol,LWCmin,option_photolysis)
@@ -545,7 +545,6 @@ subroutine kinetic90                        ( &
   rk( 25) =  exp( -0.2474064935803238D+02 &
    - (  0.3900000000000000D+03 )/temp)
   rk( 26) =  0.9999999999999999D-20
-  rk( 27) =  0.8850000000000000D+00
   Effko =  0.2000000000000000D-29* (temp / 3.d2) &
     **(- ( 0.3000000000000000D+01))
   Rapk =  0.2500000000000000D-10* (temp / 3.d2) &

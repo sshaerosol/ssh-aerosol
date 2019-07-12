@@ -20,7 +20,7 @@
 !     http://cerea.enpc.fr/polyphemus/
 !------------------------------------------------------------------------
 
-subroutine fexchem90                        ( &
+subroutine fexchem                        ( &
     NS,Nr,nemis,y,rk,ZCsourc,convers_factor,chem)
  
 !------------------------------------------------------------------------

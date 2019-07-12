@@ -20,7 +20,7 @@
 !     http://cerea.enpc.fr/polyphemus/
 !------------------------------------------------------------------------
 
-subroutine dimensions90                        ( &
+subroutine dimensions                        ( &
     Ns, Nr, Nr_photolysis)
 
 !------------------------------------------------------------------------

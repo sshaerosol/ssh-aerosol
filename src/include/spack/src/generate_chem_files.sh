@@ -51,7 +51,7 @@ fi
 #
 
 tmp_files="inSPACK perm.dat ${SPECIES}_preprocessed non_zero.dat non_zero_90.dat"
-output_file="dratedc.f fexchem.f fexloss.f fexprod.f jacdchemdc.f kinetic.f rates.f dimensions.f LU_decompose.f LU_solve.f non_zero.dat species.spack.dat dratedc_90.f90 fexchem_90.f90 fexloss_90.f90 fexprod_90.f90 jacdchemdc_90.f90 kinetic_90.f90 rates_90.f90 dimensions_90.f90 non_zero_90.dat"
+output_file="LU_decompose.f LU_solve.f species.spack.dat dratedc.f90 fexchem.f90 fexloss.f90 fexprod.f90 jacdchemdc.f90 kinetic.f90 rates.f90 dimensions.f90 non_zero.dat"
 
 # Automatically delete temporary files on exit.
 function on_exit {
@@ -75,10 +75,10 @@ rm -f $output_file
 $script_dir/spack_generator spack_config ${SPECIES}_preprocessed $REACT
 
 # Those unused files don't even compile:
-rm -f fexloss.f fexprod.f fexloss_90.f90 fexprod_90.f90
+rm -f fexloss.f90 fexprod.f90
 
 # Replaces strings "E+" by "D+" and "E-" by "D-" in the output to get double precision.
-sed -i 's/E\([+-]\)/D\1/g' *.f
+sed -i 's/E\([+-]\)/D\1/g' *.f90
 
 echo "======= 2 - LU decomposition and solver(s)..."
 

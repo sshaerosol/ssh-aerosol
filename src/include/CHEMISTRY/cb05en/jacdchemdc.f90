@@ -20,7 +20,7 @@
 !     http://cerea.enpc.fr/polyphemus/
 !------------------------------------------------------------------------
 
-subroutine jacdchemdc90                        ( &
+subroutine jacdchemdc                        ( &
     ns,nr,y,convers_factor,convers_factor_jac,rk,JacC)
  
 !------------------------------------------------------------------------

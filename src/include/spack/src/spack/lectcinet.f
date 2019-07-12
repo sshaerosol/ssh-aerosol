@@ -55,7 +55,6 @@ c
 c     Loop for reading the file.
 c     Write the first lines of the output routines
 
-      call write_header
       call write_header_90
 C
  100  read(ifdth,'(a)')chdon
@@ -127,12 +126,11 @@ c     END.
 c
       if (iarret.eq.0) go to 100
 c
-      CALL write_end
       CALL write_end_90
 c
 c     Write file non_zero.dat
 c
-      call WNONZERO(s,nr,jer)
+      call WNONZERO90(s,nr,jer)
 C
       write(*,*)'########################################'
       write(*,*)'########################################'
