@@ -10,6 +10,7 @@ PROGRAM SSHaerosol
   use lDiscretization
   use Resultoutput
   use gCoagulation
+  use SSHSaturne
 
   implicit none
 
