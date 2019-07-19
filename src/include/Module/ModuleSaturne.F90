@@ -22,14 +22,7 @@
 
 module SSHSaturne
 
-  use iso_c_binding
-
   implicit none
-
-  ! This flag defines if SSH-aerosol is running standalone or not
-  !   true if it is running standalone
-  !   false if it is running with Code_Saturne
-  logical(kind=c_bool), save, private :: ssh_standalone = .true.
 
   contains
 
@@ -46,7 +39,7 @@ module SSHSaturne
     subroutine cs_initialize(input_namelist_file) bind(c, name='cs_sshaerosol_initialize_')
 
       use iso_c_binding
-      use aInitialization, only : read_namelist, read_inputs
+      use aInitialization, only : read_namelist, read_inputs, N_gas, n_reaction, n_photolysis
       use lDiscretization, only : init_parameters, init_distributions
 
       implicit none
@@ -54,6 +47,9 @@ module SSHSaturne
       integer, parameter :: size_namelist_file = 40
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       character(len=size_namelist_file) :: namelist_file
+
+      ! N_gas = 93; N_reaction = 206; N_photolysis = 24 
+      call dimensions(N_gas, n_reaction, n_photolysis)  
 
       ! Read SSH simulation settings file
       namelist_file = transfer(input_namelist_file(1:size_namelist_file), &
@@ -70,6 +66,39 @@ module SSHSaturne
       call init_distributions()
 
     end subroutine cs_initialize
+
+! =============================================================
+!
+! External code can force SSH-aerosol to:
+!   deallocate memory
+!   close the log file
+!
+! =============================================================
+
+    subroutine cs_finalize() bind(c, name='cs_sshaerosol_finalize_')
+
+      use iso_c_binding
+      use aInitialization, only : free_allocated_memory, with_coag, ssh_logger, logfile
+      use bCoefficientRepartition, only : DeallocateCoefficientRepartition
+
+      implicit none
+
+      integer :: ierr
+
+      ! Free memory
+      call free_allocated_memory()
+      if (with_coag.eq.1) call DeallocateCoefficientRepartition()
+
+      ! Close log file if needed
+      if (ssh_logger) then
+        close(unit = logfile, iostat = ierr)
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when closing log file."
+          stop
+        endif
+      endif
+
+    end subroutine cs_finalize
 
 ! =============================================================
 !
@@ -116,12 +145,13 @@ module SSHSaturne
 !
 ! External code can set the flag to declare SSH-aerosol is not running standalone
 !
-! input : true if running standalone, false otherwise
+! input : true if running standalone (default), false otherwise
 ! =============================================================
 
     subroutine set_standalone(flag) bind(c, name='cs_set_sshaerosol_standalone_')
 
       use iso_c_binding
+      use aInitialization, only : ssh_standalone
 
       implicit none
 
@@ -135,12 +165,13 @@ module SSHSaturne
 !
 ! External code can get the flag to check if SSH-aerosol is running standalone
 !
-! return value : true if running standalone, false otherwise
+! return value : true if running standalone (default), false otherwise
 ! =============================================================
 
     function standalone() bind(c, name='cs_get_sshaerosol_standalone_')
 
       use iso_c_binding
+      use aInitialization, only : ssh_standalone
 
       implicit none
 
@@ -149,6 +180,69 @@ module SSHSaturne
       standalone = ssh_standalone
 
     end function standalone
+
+! =============================================================
+!
+! External code can set the flag to decide if SSH-aerosol is logging informations
+!
+! Important: This subroutine must be called before cs_initialize
+!
+! input : true if logging to a file (default), false otherwise
+! =============================================================
+
+    subroutine set_logger(flag) bind(c, name='cs_set_sshaerosol_logger_')
+
+      use iso_c_binding
+      use aInitialization, only : ssh_logger, ssh_logger_file, logfile
+
+      implicit none
+
+      logical(kind=c_bool), intent(in) :: flag
+      integer :: ierr
+      logical :: log_file_exists
+      
+      ssh_logger = flag
+
+      ! Create / replace log file if needed
+      if (ssh_logger) then
+        inquire(file = trim(ssh_logger_file), exist = log_file_exists, iostat = ierr)
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when inquiring log file."
+          stop
+        endif
+        if (log_file_exists) then
+          open(unit = logfile, file = trim(ssh_logger_file), status = "replace", iostat = ierr)
+        else
+          open(unit = logfile, file = trim(ssh_logger_file), status = "new", iostat = ierr)
+        endif
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when creating / replacing log file."
+          stop
+        endif
+      endif
+
+
+    end subroutine set_logger
+
+! =============================================================
+!
+! External code can get the flag to check if SSH-aerosol is logging informations
+!
+! return value : true if logging to a file (default), false otherwise
+! =============================================================
+
+    function logger() bind(c, name='cs_get_sshaerosol_logger_')
+
+      use iso_c_binding
+      use aInitialization, only : ssh_logger
+
+      implicit none
+
+      logical(kind=c_bool) :: logger
+      
+      logger = ssh_logger
+
+    end function logger
 
 ! =============================================================
 !

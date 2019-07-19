@@ -10,7 +10,7 @@ PROGRAM SSHaerosol
   use lDiscretization
   use Resultoutput
   use gCoagulation
-  use SSHSaturne
+  use SSHSaturne, only : standalone, logger
 
   implicit none
 
@@ -47,7 +47,8 @@ PROGRAM SSHaerosol
      current_time = initial_time + (t - 1) * delta_t
 
 
-     write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
+     if (standalone()) write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
+     if (logger()) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
@@ -120,8 +121,12 @@ PROGRAM SSHaerosol
   IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
   
 
-  write(*,*) "============================================"
-  write(*,*) "==== SSH-aerosol simulation completed  ====="
-  write(*,*) "============================================"
+  if (standalone()) write(*,*) "============================================"
+  if (standalone()) write(*,*) "==== SSH-aerosol simulation completed  ====="
+  if (standalone()) write(*,*) "============================================"
+  if (logger()) write(logfile,*) "============================================"
+  if (logger()) write(logfile,*) "==== SSH-aerosol simulation completed  ====="
+  if (logger()) write(logfile,*) "============================================"
+
   
 end PROGRAM SSHaerosol

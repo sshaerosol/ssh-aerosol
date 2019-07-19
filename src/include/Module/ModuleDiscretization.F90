@@ -40,7 +40,8 @@ contains
     allocate(N_fracbin(N_sizebin))
     if(N_frac.eq.1)  N_fracbin = 1
     call discretization()
-    print*, "N_size :", N_size
+    if (ssh_standalone) write(*,*) "N_size :", N_size
+    if (ssh_logger) write(logfile,*) "N_size :", N_size
     allocate(concentration_index(N_size, 2))
     allocate(concentration_index_iv(N_sizebin, N_fracmax))
     j = 1
@@ -59,7 +60,8 @@ contains
         do i = 1,N_sizebin+1
 	    diam_bound(i)= diam_input(1) * (diam_input(2)/ diam_input(1))**((i - 1) / dble(N_sizebin))
         enddo  ! set closer bounds to 1, 2.5, 10 if bounds auto-generated ??
-        write(*,*) "sizebin bound is auto-generated."
+        if (ssh_standalone) write(*,*) "sizebin bound is auto-generated."
+        if (ssh_logger) write(logfile,*) "sizebin bound is auto-generated."
      else if (tag_dbd == 1) then 
             diam_bound = diam_input
      end if
@@ -81,7 +83,8 @@ contains
     ELSE
       section_pass=1
     ENDIF
-    print*, 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
+    if (ssh_standalone) write(*,*) 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
+    if (ssh_logger) write(logfile,*) 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
 
  ! diameter !
   allocate(size_diam_av(N_sizebin))
@@ -226,7 +229,8 @@ contains
     allocate(dqdt(N_size,N_aerosol)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
     dqdt = 0.d0
 
-   write(*,*) "=====================finish initialising parameters==================="
+   if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
+   if (ssh_logger) write(logfile,*) "=====================finish initialising parameters==================="
    end subroutine init_parameters
 
 
@@ -385,7 +389,8 @@ subroutine discretization()
 
        if (N_frac.gt.1) then
           !case of external mixing
-          print*, "External mixing..."
+          if (ssh_standalone) write(*,*) "External mixing..."
+          if (ssh_logger) write(logfile,*) "External mixing..."
           do j=1,N_size                     ! j : index of cells
              do s=1, N_aerosol              ! s : index of species
                 jesp=List_species(s)        ! jesp : aerosol species
@@ -442,7 +447,8 @@ subroutine discretization()
 	enddo
       else ! default & N_frac.eq.1
 	!case of internal mixing N_size=N_sizebin
-         print*, "Internal mixing..."
+         if (ssh_standalone) write(*,*) "Internal mixing..."
+         if (ssh_logger) write(logfile,*) "Internal mixing..."
          do k=1,N_sizebin
             do s=1,N_aerosol
                if(tag_emis .ne. 0) then ! if with emission
@@ -510,7 +516,8 @@ subroutine discretization()
         	rho_wet_cell = fixed_density
 	else
 	        call compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
-		write(*,*)"Density is auto-generated."
+		if (ssh_standalone) write(*,*)"Density is auto-generated."
+		if (ssh_logger) write(logfile,*)"Density is auto-generated."
 	end if
 
   if (with_init_num == 1) then
@@ -533,7 +540,8 @@ subroutine discretization()
 	end do
 	! need size_diam_av and conc._mass
 	call compute_number()  ! only for initialisation
-	write(*,*)"Initial PM number concentration is auto-generated."
+	if (ssh_standalone) write(*,*)"Initial PM number concentration is auto-generated."
+	if (ssh_logger) write(logfile,*)"Initial PM number concentration is auto-generated."
   end if
 
   call compute_average_diameter()
@@ -558,17 +566,20 @@ subroutine discretization()
             elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
                tag_file=2
             else
-               print*,"Unsupported input coefficient file type for coagulation!"
+               if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation!"
+               if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation!"
                i_compute_repart = 1
             endif
          endif
       enddo
-      print*,'Coefficient Repartition Database:',Coefficient_file
+      if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
+      if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
 
       call ReadCoefficient(Coefficient_file, tag_file) ! defined in ModuleCoefficientRepartition
     endif
     if (i_compute_repart == 1) then
-       write(*,*) "Compute coefficient repartition"
+       if (ssh_standalone) write(*,*) "Compute coefficient repartition"
+       if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
     !kernel_cagulation :
       call ComputeCoefficientRepartition()
     endif
@@ -650,7 +661,8 @@ subroutine discretization()
                                       wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
 
- write(*,*)"=================================finish initial distribution==============================="
+ if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
+ if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
   end subroutine Init_distributions
 
