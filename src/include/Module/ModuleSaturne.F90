@@ -102,47 +102,6 @@ module SSHSaturne
 
 ! =============================================================
 !
-! External code can set the SSH-aerosol time step
-!
-! input : time step in seconds
-! =============================================================
-
-    subroutine set_dt(time_step) bind(c, name='cs_set_sshaerosol_dt_')
-
-      use iso_c_binding
-      use aInitialization, only : delta_t, dt
-
-      implicit none
-
-      real(c_double), intent(in) :: time_step
-
-      delta_t = time_step
-      dt = time_step ! this is probably useless
-
-    end subroutine set_dt
-
-! =============================================================
-!
-! External code can get the SSH-aerosol time step
-!
-! return value : time step in seconds
-! =============================================================
-
-    function get_dt() bind(c, name='cs_get_sshaerosol_dt_')
-
-      use iso_c_binding
-      use aInitialization, only : delta_t
-
-      implicit none
-
-      real(c_double) :: get_dt
-
-      get_dt = delta_t
-
-    end function get_dt
-
-! =============================================================
-!
 ! External code can set the flag to declare SSH-aerosol is not running standalone
 !
 ! input : true if running standalone (default), false otherwise
@@ -203,24 +162,25 @@ module SSHSaturne
       
       ssh_logger = flag
 
-      ! Create / replace log file if needed
+      ! Create log file if needed
       if (ssh_logger) then
+        ! Check if file exists
         inquire(file = trim(ssh_logger_file), exist = log_file_exists, iostat = ierr)
         if (ierr.ne.0) then
           write(*,*) "SSH-aerosol: error when inquiring log file."
           stop
         endif
+        ! Open or create the file
         if (log_file_exists) then
-          open(unit = logfile, file = trim(ssh_logger_file), status = "replace", iostat = ierr)
+          open(unit = logfile, file = trim(ssh_logger_file), access = "append", status = "old", action = "write", iostat = ierr)
         else
           open(unit = logfile, file = trim(ssh_logger_file), status = "new", iostat = ierr)
         endif
         if (ierr.ne.0) then
-          write(*,*) "SSH-aerosol: error when creating / replacing log file."
+          write(*,*) "SSH-aerosol: error when creating / opening log file."
           stop
         endif
       endif
-
 
     end subroutine set_logger
 
@@ -306,6 +266,385 @@ module SSHSaturne
 
 ! =============================================================
 !
+! External code can set the SSH-aerosol time step
+!
+! input : time step in seconds
+! =============================================================
+
+    subroutine set_dt(val) bind(c, name='cs_set_sshaerosol_dt_')
+
+      use iso_c_binding
+      use aInitialization, only : delta_t, dt
+
+      implicit none
+
+      real(c_double), intent(in) :: val
+
+      delta_t = val
+      dt = val ! this is probably useless
+
+    end subroutine set_dt
+
+! =============================================================
+!
+! External code can get the SSH-aerosol time step
+!
+! return value : time step in seconds
+! =============================================================
+
+    function get_dt() bind(c, name='cs_get_sshaerosol_dt_')
+
+      use iso_c_binding
+      use aInitialization, only : delta_t
+
+      implicit none
+
+      real(c_double) :: get_dt
+
+      get_dt = delta_t
+
+    end function get_dt
+
+! =============================================================
+!
+! External code can set the SSH-aerosol initial time
+!
+! input : initial time in seconds (GMT, computed from January 1st)
+! =============================================================
+
+    subroutine set_initial_t(val) bind(c, name='cs_set_sshaerosol_initial_t_')
+
+      use iso_c_binding
+      use aInitialization, only : initial_time
+
+      implicit none
+
+      real(c_double), intent(in) :: val
+
+      initial_time = val
+
+    end subroutine set_initial_t
+
+! =============================================================
+!
+! External code can get the SSH-aerosol initial time
+!
+! return value : initial time in seconds (GMT, computed from January 1st)
+! =============================================================
+
+    function get_initial_t() bind(c, name='cs_get_sshaerosol_initial_t_')
+
+      use iso_c_binding
+      use aInitialization, only : initial_time
+
+      implicit none
+
+      real(c_double) :: get_initial_t
+
+      get_initial_t = initial_time
+
+    end function get_initial_t
+
+! =============================================================
+!
+! External code can force to update the specific humidity
+!
+! =============================================================
+
+    subroutine cs_update_humidity() bind(c, name='cs_update_sshaerosol_humidity_')
+
+      use iso_c_binding
+      use aInitialization, only : humidity, pressure, pressure_sat, relative_humidity
+
+      implicit none
+
+      ! This is taken from the subroutine read_namelist
+      ! TODO have a dedicated subroutine to avoid duplication of code
+      humidity = 1.d0/(Pressure/(pressure_sat *0.62197d0* Relative_Humidity)-1.d0)
+
+    end subroutine cs_update_humidity
+
+! =============================================================
+!
+! External code can set the specific humidity
+!
+! input : specific humidity in kg / kg
+! =============================================================
+
+    subroutine cs_set_humidity(val) bind(c, name='cs_set_sshaerosol_humidity_')
+
+      use iso_c_binding
+      use aInitialization, only : humidity
+
+      implicit none
+
+      real(kind=c_double) :: val
+
+      humidity = val
+
+    end subroutine cs_set_humidity
+
+! =============================================================
+!
+! External code can get the specific humidity
+!
+! output : specific humidity in kg / kg
+! =============================================================
+
+    function cs_get_humidity() bind(c, name='cs_get_sshaerosol_humidity_')
+
+      use iso_c_binding
+      use aInitialization, only : humidity
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_humidity
+      
+      cs_get_humidity = humidity
+
+    end function cs_get_humidity
+
+! =============================================================
+!
+! External code can force to update the relative humidity
+!
+! =============================================================
+
+    subroutine cs_update_relhumidity() bind(c, name='cs_update_sshaerosol_relhumidity_')
+
+      use iso_c_binding
+      use aInitialization, only : humidity, temperature, pressure, relative_humidity
+
+      implicit none
+
+      call compute_relative_humidity(humidity, temperature, pressure, relative_humidity)
+
+    end subroutine cs_update_relhumidity
+
+! =============================================================
+!
+! External code can set the relative humidity
+!
+! input : relative humidity in ??? TODO
+! =============================================================
+
+    subroutine cs_set_relhumidity(val) bind(c, name='cs_set_sshaerosol_relhumidity_')
+
+      use iso_c_binding
+      use aInitialization, only : relative_humidity
+
+      implicit none
+
+      include 'CONST_A.INC' ! needed for threshold_RH_inf and threshold_RH_sup
+
+      real(kind=c_double) :: val
+
+      ! This is taken from the subroutine read_namelist
+      relative_humidity = min(max(val, threshold_RH_inf), threshold_RH_sup)
+
+    end subroutine cs_set_relhumidity
+
+! =============================================================
+!
+! External code can get the relative humidity
+!
+! output : relative humidity in ??? TODO
+! =============================================================
+
+    function cs_get_relhumidity() bind(c, name='cs_get_sshaerosol_relhumidity_')
+
+      use iso_c_binding
+      use aInitialization, only : relative_humidity
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_relhumidity
+
+      cs_get_relhumidity = relative_humidity
+
+    end function cs_get_relhumidity
+
+! =============================================================
+!
+! External code can set the temperature
+!
+! input : temperature in K
+! =============================================================
+
+    subroutine cs_set_temperature(val) bind(c, name='cs_set_sshaerosol_temperature_')
+
+      use iso_c_binding
+      use aInitialization, only : temperature
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      temperature = val
+
+    end subroutine cs_set_temperature
+
+! =============================================================
+!
+! External code can get the temperature
+!
+! output : temperature in K
+! =============================================================
+
+    function cs_get_temperature() bind(c, name='cs_get_sshaerosol_temperature_')
+
+      use iso_c_binding
+      use aInitialization, only : temperature
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_temperature
+
+      cs_get_temperature = temperature
+
+    end function cs_get_temperature
+
+! =============================================================
+!
+! External code can set the pressure
+!
+! input : pressure in Pa
+! =============================================================
+
+    subroutine cs_set_pressure(val) bind(c, name='cs_set_sshaerosol_pressure_')
+
+      use iso_c_binding
+      use aInitialization, only : pressure
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      pressure = val
+
+    end subroutine cs_set_pressure
+
+! =============================================================
+!
+! External code can get the pressure
+!
+! output : pressure in Pa
+! =============================================================
+
+    function cs_get_pressure() bind(c, name='cs_get_sshaerosol_pressure_')
+
+      use iso_c_binding
+      use aInitialization, only : pressure
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_pressure
+
+      cs_get_pressure = pressure
+
+    end function cs_get_pressure
+
+! =============================================================
+!
+! External code can set the pH
+!
+! input : pH in ??? TODO
+! =============================================================
+
+    subroutine cs_set_ph(val) bind(c, name='cs_set_sshaerosol_ph_')
+
+      use iso_c_binding
+      use aInitialization, only : ph
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      ph = val
+
+    end subroutine cs_set_ph
+
+! =============================================================
+!
+! External code can get the pH
+!
+! output : pH in ??? TODO
+! =============================================================
+
+    function cs_get_ph() bind(c, name='cs_get_sshaerosol_ph_')
+
+      use iso_c_binding
+      use aInitialization, only : ph
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_ph
+
+      cs_get_ph = ph
+
+    end function cs_get_ph
+
+! =============================================================
+!
+! External code can force to update the saturation pressure
+!
+! =============================================================
+
+    subroutine cs_update_pres_sat() bind(c, name='cs_update_sshaerosol_pres_sat_')
+
+      use iso_c_binding
+      use aInitialization, only : temperature, pressure_sat
+
+      implicit none
+
+      ! This is taken from the subroutine read_namelist
+      ! TODO have a dedicated subroutine to avoid duplication of code
+      pressure_sat = 611.2d0 * exp(17.67d0 * (temperature - 273.15d0) / (temperature - 29.65d0))
+
+    end subroutine cs_update_pres_sat
+
+! =============================================================
+!
+! External code can set the saturation pressure
+!
+! input : saturation pressure in Pa
+! =============================================================
+
+    subroutine cs_set_pres_sat(val) bind(c, name='cs_set_sshaerosol_pres_sat_')
+
+      use iso_c_binding
+      use aInitialization, only : pressure_sat
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      pressure_sat = val
+
+    end subroutine cs_set_pres_sat
+
+! =============================================================
+!
+! External code can get the saturation pressure
+!
+! output : saturation pressure in Pa
+! =============================================================
+
+    function cs_get_pres_sat() bind(c, name='cs_get_sshaerosol_pres_sat_')
+
+      use iso_c_binding
+      use aInitialization, only : pressure_sat
+
+      implicit none
+
+      real(kind=c_double) :: cs_get_pres_sat
+
+      cs_get_pres_sat = pressure_sat
+
+    end function cs_get_pres_sat
+
+! =============================================================
+!
 ! External code can set the gaseous concentrations
 !
 ! input : array of concentrations in micrograms / m^3
@@ -348,19 +687,19 @@ module SSHSaturne
 !
 ! External code can set the aerosols concentrations
 !
-! input : array of concentrations in micrograms / m^3
+! input : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
     subroutine cs_set_aero_concentration(array) bind(c, name='cs_set_sshaerosol_aero_concentration_')
 
       use iso_c_binding
-      use aInitialization, only : N_aerosol, concentration_gas
+      use aInitialization, only : N_size, N_aerosol, concentration_mass
 
       implicit none
 
-      real(kind=c_double), intent(in), dimension(N_aerosol) :: array
+      real(kind=c_double), intent(in), dimension(N_size, N_aerosol) :: array
 
-      concentration_gas(:) = array(:)
+      concentration_mass(:,:) = array(:,:)
 
     end subroutine cs_set_aero_concentration
 
@@ -368,19 +707,19 @@ module SSHSaturne
 !
 ! External code can get the aerosols concentrations
 !
-! output : array of concentrations in micrograms / m^3
+! output : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
     subroutine cs_get_aero_concentration(array) bind(c, name='cs_get_sshaerosol_aero_concentration_')
 
       use iso_c_binding
-      use aInitialization, only : N_aerosol, concentration_gas
+      use aInitialization, only : N_size, N_aerosol, concentration_mass
 
       implicit none
 
-      real(kind=c_double), intent(out), dimension(N_aerosol) :: array
-      
-      array(:) = concentration_gas(:)
+      real(kind=c_double), intent(out), dimension(N_size, N_aerosol) :: array
+
+      array(:,:) = concentration_mass(:,:)
 
     end subroutine cs_get_aero_concentration
 
@@ -391,7 +730,7 @@ module SSHSaturne
 ! input : current time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    subroutine cs_call_ssh_chemistry(time) bind(c, name='cs_call_sshaerosol_chemistry_')
+    subroutine cs_call_ssh_gaschemistry(time) bind(c, name='cs_call_sshaerosol_gaschemistry_')
 
       use iso_c_binding
       use aInitialization
@@ -425,6 +764,6 @@ module SSHSaturne
           1, not(with_fixed_density), concentration_number, &
           mass_density)
 
-    end subroutine cs_call_ssh_chemistry
+    end subroutine cs_call_ssh_gaschemistry
 
 end module SSHSaturne
