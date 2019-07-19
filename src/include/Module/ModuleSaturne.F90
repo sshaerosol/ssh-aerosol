@@ -187,7 +187,7 @@ module SSHSaturne
 !
 ! Important: This subroutine must be called before cs_initialize
 !
-! input : true if logging to a file (default), false otherwise
+! input : true if logging to a file, false (default) otherwise
 ! =============================================================
 
     subroutine set_logger(flag) bind(c, name='cs_set_sshaerosol_logger_')
@@ -228,7 +228,7 @@ module SSHSaturne
 !
 ! External code can get the flag to check if SSH-aerosol is logging informations
 !
-! return value : true if logging to a file (default), false otherwise
+! return value : true if logging to a file, false (default) otherwise
 ! =============================================================
 
     function logger() bind(c, name='cs_get_sshaerosol_logger_')
