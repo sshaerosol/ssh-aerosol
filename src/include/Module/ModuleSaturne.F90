@@ -78,7 +78,7 @@ module SSHSaturne
     subroutine cs_finalize() bind(c, name='cs_sshaerosol_finalize_')
 
       use iso_c_binding
-      use aInitialization, only : free_allocated_memory, with_coag, ssh_logger, logfile
+      use aInitialization, only : free_allocated_memory, with_coag, ssh_logger, close_logger
       use bCoefficientRepartition, only : DeallocateCoefficientRepartition
 
       implicit none
@@ -91,11 +91,7 @@ module SSHSaturne
 
       ! Close log file if needed
       if (ssh_logger) then
-        close(unit = logfile, iostat = ierr)
-        if (ierr.ne.0) then
-          write(*,*) "SSH-aerosol: error when closing log file."
-          stop
-        endif
+        call close_logger()
       endif
 
     end subroutine cs_finalize
@@ -149,40 +145,19 @@ module SSHSaturne
 ! input : true if logging to a file, false (default) otherwise
 ! =============================================================
 
-    subroutine set_logger(flag) bind(c, name='cs_set_sshaerosol_logger_')
+    subroutine cs_set_logger(cflag) bind(c, name='cs_set_sshaerosol_logger_')
 
       use iso_c_binding
-      use aInitialization, only : ssh_logger, ssh_logger_file, logfile
+      use aInitialization, only : set_logger
 
       implicit none
 
-      logical(kind=c_bool), intent(in) :: flag
-      integer :: ierr
-      logical :: log_file_exists
-      
-      ssh_logger = flag
+      logical(kind=c_bool), intent(in) :: cflag
+      logical :: flag
 
-      ! Create log file if needed
-      if (ssh_logger) then
-        ! Check if file exists
-        inquire(file = trim(ssh_logger_file), exist = log_file_exists, iostat = ierr)
-        if (ierr.ne.0) then
-          write(*,*) "SSH-aerosol: error when inquiring log file."
-          stop
-        endif
-        ! Open or create the file
-        if (log_file_exists) then
-          open(unit = logfile, file = trim(ssh_logger_file), access = "append", status = "old", action = "write", iostat = ierr)
-        else
-          open(unit = logfile, file = trim(ssh_logger_file), status = "new", iostat = ierr)
-        endif
-        if (ierr.ne.0) then
-          write(*,*) "SSH-aerosol: error when creating / opening log file."
-          stop
-        endif
-      endif
+      call set_logger(flag)
 
-    end subroutine set_logger
+    end subroutine cs_set_logger
 
 ! =============================================================
 !
@@ -354,7 +329,7 @@ module SSHSaturne
     subroutine cs_update_humidity() bind(c, name='cs_update_sshaerosol_humidity_')
 
       use iso_c_binding
-      use aInitialization, only : humidity, pressure, pressure_sat, relative_humidity
+      use aInitialization, only : temperature, humidity, pressure, pressure_sat, relative_humidity
 
       implicit none
 
