@@ -360,29 +360,13 @@ module SSHSaturne
 
       ! This is taken from the subroutine read_namelist
       ! TODO have a dedicated subroutine to avoid duplication of code
+      pressure_sat = 611.2d0 * exp(17.67d0 * (temperature - 273.15d0) / (temperature - 29.65d0))
+
+      ! This is taken from the subroutine read_namelist
+      ! TODO have a dedicated subroutine to avoid duplication of code
       humidity = 1.d0/(Pressure/(pressure_sat *0.62197d0* Relative_Humidity)-1.d0)
 
     end subroutine cs_update_humidity
-
-! =============================================================
-!
-! External code can set the specific humidity
-!
-! input : specific humidity in kg / kg
-! =============================================================
-
-    subroutine cs_set_humidity(val) bind(c, name='cs_set_sshaerosol_humidity_')
-
-      use iso_c_binding
-      use aInitialization, only : humidity
-
-      implicit none
-
-      real(kind=c_double) :: val
-
-      humidity = val
-
-    end subroutine cs_set_humidity
 
 ! =============================================================
 !
@@ -403,23 +387,6 @@ module SSHSaturne
       cs_get_humidity = humidity
 
     end function cs_get_humidity
-
-! =============================================================
-!
-! External code can force to update the relative humidity
-!
-! =============================================================
-
-    subroutine cs_update_relhumidity() bind(c, name='cs_update_sshaerosol_relhumidity_')
-
-      use iso_c_binding
-      use aInitialization, only : humidity, temperature, pressure, relative_humidity
-
-      implicit none
-
-      call compute_relative_humidity(humidity, temperature, pressure, relative_humidity)
-
-    end subroutine cs_update_relhumidity
 
 ! =============================================================
 !
@@ -583,65 +550,6 @@ module SSHSaturne
       cs_get_ph = ph
 
     end function cs_get_ph
-
-! =============================================================
-!
-! External code can force to update the saturation pressure
-!
-! =============================================================
-
-    subroutine cs_update_pres_sat() bind(c, name='cs_update_sshaerosol_pres_sat_')
-
-      use iso_c_binding
-      use aInitialization, only : temperature, pressure_sat
-
-      implicit none
-
-      ! This is taken from the subroutine read_namelist
-      ! TODO have a dedicated subroutine to avoid duplication of code
-      pressure_sat = 611.2d0 * exp(17.67d0 * (temperature - 273.15d0) / (temperature - 29.65d0))
-
-    end subroutine cs_update_pres_sat
-
-! =============================================================
-!
-! External code can set the saturation pressure
-!
-! input : saturation pressure in Pa
-! =============================================================
-
-    subroutine cs_set_pres_sat(val) bind(c, name='cs_set_sshaerosol_pres_sat_')
-
-      use iso_c_binding
-      use aInitialization, only : pressure_sat
-
-      implicit none
-
-      real(kind=c_double), intent(in) :: val
-
-      pressure_sat = val
-
-    end subroutine cs_set_pres_sat
-
-! =============================================================
-!
-! External code can get the saturation pressure
-!
-! output : saturation pressure in Pa
-! =============================================================
-
-    function cs_get_pres_sat() bind(c, name='cs_get_sshaerosol_pres_sat_')
-
-      use iso_c_binding
-      use aInitialization, only : pressure_sat
-
-      implicit none
-
-      real(kind=c_double) :: cs_get_pres_sat
-
-      cs_get_pres_sat = pressure_sat
-
-    end function cs_get_pres_sat
 
 ! =============================================================
 !
