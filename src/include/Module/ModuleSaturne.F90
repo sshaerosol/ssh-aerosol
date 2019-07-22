@@ -155,6 +155,7 @@ module SSHSaturne
       logical(kind=c_bool), intent(in) :: cflag
       logical :: flag
 
+      flag = cflag
       call set_logger(flag)
 
     end subroutine cs_set_logger
