@@ -146,7 +146,6 @@ void soap_main(double LWC, double RH, double Temperature,
   parameters(config, surrogate, species_list_aer, molecular_weight_aer,
              accomodation_coefficient);
   check_config(config, surrogate);
-  config.EPSER=adaptive_time_step_tolerance;
   
   // If Na and Cl are included.
   bool NaCl = false; 
