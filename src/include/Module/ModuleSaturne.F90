@@ -614,17 +614,16 @@ module SSHSaturne
 ! input : current time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    subroutine cs_call_ssh_gaschemistry(time) bind(c, name='cs_call_sshaerosol_gaschemistry_')
+    subroutine cs_call_ssh_gaschemistry() bind(c, name='cs_call_sshaerosol_gaschemistry_')
 
       use iso_c_binding
       use aInitialization
 
       implicit none
 
-      real(kind=c_double), intent(in) :: time
       double precision :: current_time
 
-      current_time = time
+      current_time = initial_time
 
       call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
