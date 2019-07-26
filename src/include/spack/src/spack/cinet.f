@@ -90,8 +90,8 @@ c
          endif
       enddo
 C
-      call WW(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
-      call DW(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
+      call WW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
+      call DW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
 c
 c     Check products
 c
@@ -203,18 +203,18 @@ c     Gas-phase only
       if (mot(i)(1:4).eq.'ARR1') then
          nb(nr)=1
          call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call WK1(nr,bp(1,nr))
+         call WK190(nr,bp(1,nr))
       elseif (mot(i)(1:4).eq.'ARR2') then
          nb(nr)=2
          call reel(bp(1,nr),mot(i+1),imot(i+1))
          call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call WK2(nr,bp(1,nr),bp(2,nr))
+         call WK290(nr,bp(1,nr),bp(2,nr))
       elseif (mot(i)(1:4).eq.'ARR3') then
          nb(nr)=3
          call reel(bp(1,nr),mot(i+1),imot(i+1))
          call reel(bp(2,nr),mot(i+2),imot(i+2))
          call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call WK3(nr,bp(1,nr),bp(2,nr),bp(3,nr))
+         call WK390(nr,bp(1,nr),bp(2,nr),bp(3,nr))
       elseif (mot(i)(1:5).eq.'ARRC2') then
          nb(nr)=2
          call reel(bp(1,nr),mot(i+1),imot(i+1))
@@ -253,7 +253,7 @@ c     Read according increasing or decreasing sequence
             enddo
          endif
 c
-         call WPHOT(nr,ntabphot,b,tabphot,0)
+         call WPHOT90(nr,ntabphot,b,tabphot,0)
 
 c     TROE: TROE/Fall-off for the general case.
       elseif (mot(i)(1:5).eq.'TROE4') then
@@ -262,7 +262,7 @@ c     TROE: TROE/Fall-off for the general case.
          call reel(bp(2,nr),mot(i+2),imot(i+2))
          call reel(bp(3,nr),mot(i+3),imot(i+3))
          call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call WTROE (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),0.6d0)
+         call WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),0.6d0)
 
       elseif (mot(i)(1:5).eq.'TROE5') then
          nb(nr)=4
@@ -271,7 +271,7 @@ c     TROE: TROE/Fall-off for the general case.
          call reel(bp(3,nr),mot(i+3),imot(i+3))
          call reel(bp(4,nr),mot(i+4),imot(i+4))
          call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call WTROE (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr))
+         call WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr))
 
       elseif (mot(i)(1:5).eq.'TROE7') then
          nb(nr)=4
@@ -282,7 +282,7 @@ c     TROE: TROE/Fall-off for the general case.
          call reel(bp(5,nr),mot(i+5),imot(i+5))
          call reel(bp(6,nr),mot(i+6),imot(i+6))
          call reel(bp(7,nr),mot(i+7),imot(i+7))
-         call WTROE7 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
+         call WTROE790 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
      &        bp(6,nr),bp(7,nr))
 
 c     TROE12: TROE/Fall-off for MOCA.
@@ -298,8 +298,8 @@ c     TROE12: TROE/Fall-off for MOCA.
          call reel(bp(8,nr),mot(i+8),imot(i+8))
          call reel(bp(9,nr),mot(i+9),imot(i+9))
          call reel(bp(10,nr),mot(i+10),imot(i+10))
-         call WTROE10 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
-     &        bp(6,nr),bp(7,nr),bp(8,nr),bp(9,nr),bp(10,nr))
+         call WTROE1090 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr),bp(6,nr),bp(7,nr),bp(8,nr),bp(9,nr),bp(10,nr))
 
 c     CVAR/MOCA: temperature-dependent stoichiometry.
       elseif (mot(i)(1:5).eq.'CVAR') then
@@ -311,7 +311,7 @@ c     CVAR/MOCA: temperature-dependent stoichiometry.
          call reel(bp(5,nr),mot(i+5),imot(i+5))
          call reel(bp(6,nr),mot(i+6),imot(i+6))
          call reel(bp(7,nr),mot(i+7),imot(i+7))
-         call WCV (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
+         call WCV90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
      &        bp(6,nr),bp(7,nr))
 
 c     RCFE: Reactions Calculated From Equilibria.
@@ -323,7 +323,7 @@ c     RCFE: Reactions Calculated From Equilibria.
          call reel(bp(4,nr),mot(i+4),imot(i+4))
          call reel(bp(5,nr),mot(i+5),imot(i+5))
          call reel(bp(6,nr),mot(i+6),imot(i+6))
-         call WRCFE (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
+         call WRCFE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
      &        bp(6,nr))
 
 c     SPEC: specific reactions.
@@ -335,15 +335,15 @@ c modif: YK(2010/02/15)
          write(*,*) 'For some specific reaction constants'
 c         if (chem_mechanism.eq.1) then
          if (mechanism_name .eq. "racm  ") then
-            call WSPEC_RACM (nr,ispebp(nr))
+            call WSPEC_RACM90 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM mechanism are used'
 c         elseif (chem_mechanism.eq.2) then
          elseif (mechanism_name .eq. "cb05  ") then
-            call WSPEC_CB05 (nr,ispebp(nr))
+            call WSPEC_CB0590 (nr,ispebp(nr))
             write(*,*) '   expressions in CB05 mechanism are used'
 c         elseif (chem_mechanism.eq.3) then
          elseif (mechanism_name .eq. "racm2 ") then
-            call WSPEC_RACM2 (nr,ispebp(nr))
+            call WSPEC_RACM290 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM2 mechanism are used'
          else
             write(*,*) 'Warning: specific reaction expression
@@ -374,7 +374,7 @@ c     Read according increasing or decreasing sequence
                b(jj)=bp(jj,nr)
             enddo
          endif
-         call WPHOT(nr,ntabphot,b,tabphot,1)
+         call WPHOT90(nr,ntabphot,b,tabphot,1)
 
 c     Third body.
       elseif (mot(i)(1:2).eq.'TB') then
@@ -404,13 +404,13 @@ c     Modification BS/KS 21/05/2002
 c     Case of a third body reaction: need for kinetics.
 
       if ((ittb(nr).ne.0).and.(nb(nr).eq.0)) goto 100
-      if (ittb(nr).ne.0) call WTB(nr,ittb(nr))
+      if (ittb(nr).ne.0) call WTB90(nr,ittb(nr))
 
 c     Update the chemical production term and the Jacobian matrix.
-      call WFJ(s,nr,jer)
+      call WFJ90(s,nr,jer)
 
 c     Update the production and loss terms (P-Lc formulation)
-      call WPL(s,nr,jer)
+      call WPL90(s,nr,jer)
 
 c     Conversion mol/l -> molec/cm3.
       if (indaqr(nr).eq.1) then

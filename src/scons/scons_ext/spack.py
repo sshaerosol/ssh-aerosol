@@ -71,8 +71,8 @@ class Spack:
         spack_env = self.utils.create_env()
 
         spack_fortran_output = []
-        for filename in ["dimensions.f", "dratedc.f", "fexchem.f",
-                         "jacdchemdc.f", "kinetic.f", "rates.f",
+        for filename in ["dimensions.f90", "dratedc.f90", "fexchem.f90",
+                         "jacdchemdc.f90", "kinetic.f90", "rates.f90",
                          "LU_decompose.f", "LU_solve.f", "LU_solve_tr.f"]:
             fortran_file = os.path.join(path, filename)
             spack_fortran_output.append(fortran_file)

@@ -11,6 +11,11 @@ C 	Label for dimensions.f
       integer nficdim
       common/labfiles/nfick,nficf,nficj,nficnz,nficloss,nficprod,
      &      nficw,nficdw,nficdim
+      integer nficK90,nficF90,nficJ90,nficnz90,nficloss90,nficprod90
+      integer nficw90,nficdw90
+      integer nficdim90
+      common/labfiles90/nfick90,nficf90,nficj90,nficnz90,nficloss90,
+     &      nficprod90,nficw90,nficdw90,nficdim90
 
 C
 C	Current free label
