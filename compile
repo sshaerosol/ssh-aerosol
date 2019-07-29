@@ -34,6 +34,23 @@ if [ -z $nacl]; then
 fi
 echo "NaCl: $nacl"
 
+# Read the option to choose whether openmp is taken into account.
+# Accepted values: yes or no
+# Default: openmp = no
+for i in "$@"
+do
+case $i in
+    -o=*|--openmp=*)
+    openmp="${i#*=}"
+    shift
+    ;;
+esac
+done
+if [ -z $openmp ]; then
+    openmp="no"
+fi
+echo "OpenMP: $openmp"
+
 file="ssh-aerosol"
 if [ -h $file ] 
 then
@@ -42,7 +59,7 @@ fi
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry nacl=$nacl openmp=no
-scons -j8 chemistry=$chemistry nacl=$nacl openmp=no
+scons -j8 chemistry=$chemistry nacl=$nacl openmp=$openmp
 
 cd ..
 ln -s src/ssh-aerosol-$chemistry ssh-aerosol
