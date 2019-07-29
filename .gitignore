@@ -3,7 +3,7 @@
 ### Directories
 src/.build/*
 results/*
-src/include/CHEMISTRY/cb05en/*.f
+src/include/CHEMISTRY/cb05en/*.f90
 
 ### Binaries
 *.o
