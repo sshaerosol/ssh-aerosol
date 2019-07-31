@@ -312,10 +312,11 @@ void soap_main(double LWC, double RH, double Temperature,
 	    }
 	  if (NaCl)
 	    for (i = 0; i < n; ++i) // Na+ and Cl-
-	      if ((surrogate[i].name == "Na") or (surrogate[i].name == "Cl"))
+	      if ((surrogate[i].name == "Na") or (surrogate[i].name == "HCl"))
 		{
-		  int iq_aero = (surrogate[i].soap_ind + 1) * config.nbins; 
-		  surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
+		  int iq_aero = (surrogate[i].soap_ind + 1) * config.nbins;
+                  for (b = 0; b < config.nbins; ++b)
+                    surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
 		}
         }
 
