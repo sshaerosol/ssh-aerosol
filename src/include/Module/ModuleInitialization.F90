@@ -1026,12 +1026,22 @@ subroutine read_inputs()
            endif
         enddo
 
+        ind = 0
         do js = 1, N_gas
            if (species_name(js) .eq. trim(precursor)) then
               aerosol_species_interact(s) = js
               count = count + 1
+              ind = 1
            endif
-        enddo 
+           if (ind == 1) exit
+        enddo
+        !! Check if a precursor name is found in the list of gas-phase species.
+        if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
+           if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+           if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+           stop
+        endif
+        
      enddo
      close(12)
 
