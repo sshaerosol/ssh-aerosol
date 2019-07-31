@@ -609,6 +609,46 @@ module SSHSaturne
 
 ! =============================================================
 !
+! External code can set the aerosols numbers per size bin
+!
+! input : 1D array in particles / m^3
+! =============================================================
+
+    subroutine cs_set_aero_number(array) bind(c, name='cs_set_sshaerosol_aero_number_')
+
+      use iso_c_binding
+      use aInitialization, only : N_size, N_aerosol, concentration_number
+
+      implicit none
+
+      real(kind=c_double), intent(in), dimension(N_size) :: array
+
+      concentration_number(:) = array(:)
+
+    end subroutine cs_set_aero_number
+
+! =============================================================
+!
+! External code can get the aerosols numbers per size bin
+!
+! output : 1D array in particles / m^3
+! =============================================================
+
+    subroutine cs_get_aero_number(array) bind(c, name='cs_get_sshaerosol_aero_number_')
+
+      use iso_c_binding
+      use aInitialization, only : N_size, N_aerosol, concentration_number
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_size) :: array
+
+      array(:) = concentration_number(:)
+
+    end subroutine cs_get_aero_number
+
+! =============================================================
+!
 ! External code can call the chemistry scheme
 !
 ! input : current time in seconds (GMT, computed from January 1st)
