@@ -148,7 +148,12 @@ void soap_main(double LWC, double RH, double Temperature,
   check_config(config, surrogate);
   
   // If Na and Cl are included.
-  bool NaCl = false; 
+  bool NaCl;
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+  NaCl = false;
+#else
+  NaCl = true;
+#endif
 
 
   /*** Initialiation ***/
