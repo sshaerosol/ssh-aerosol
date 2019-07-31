@@ -150,17 +150,17 @@ contains
          qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
          liquid)
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    qaero(ENa) = qaerona
-    qaero(ECl) = qaerocl
-    qgas(ECl) = qgascl
-#endif
-
     if (ISOAPDYN.eq.0) then
        call soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
             Temperature, qaero, qgas, liquid)
     endif
 
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+    qaero(ENa) = qaerona
+    qaero(ECl) = qaerocl
+    qgas(ECl) = qgascl
+#endif
+    
     qgas(EH2O)=0.0
     
       !for organic
