@@ -651,7 +651,6 @@ module SSHSaturne
 !
 ! External code can call the chemistry scheme
 !
-! input : current time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
     subroutine cs_call_ssh_gaschemistry() bind(c, name='cs_call_sshaerosol_gaschemistry_')
@@ -688,5 +687,52 @@ module SSHSaturne
           mass_density)
 
     end subroutine cs_call_ssh_gaschemistry
+
+! =============================================================
+!
+! External code can call the aerosol scheme
+!
+! =============================================================
+
+    subroutine cs_call_ssh_aerochemistry() bind(c, name='cs_call_sshaerosol_aerochemistry_')
+
+      use iso_c_binding
+      use aInitialization
+      use jAdaptstep, only : AERODYN
+
+      implicit none
+
+      integer :: s, j
+      double precision :: current_time
+
+      current_time = initial_time
+
+      ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
+      total_aero_mass = 0.d0
+      total_mass = 0.d0
+      do s = 1, N_aerosol
+        do j = 1, N_size
+          total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+        enddo
+	! update mass conc. of aerosol precursors
+	! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+        if (aerosol_species_interact(s) .gt. 0) then
+          concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
+        end if
+        total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
+      end do
+
+      ! Aerosol dynamic
+      CALL AERODYN(current_time,delta_t)
+
+      ! update mass conc. of aerosol precursors
+      ! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
+      do s = 1, N_aerosol
+        if (aerosol_species_interact(s) .gt. 0) then
+          concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
+        end if
+      end do
+
+    end subroutine cs_call_ssh_aerochemistry
 
 end module SSHSaturne
