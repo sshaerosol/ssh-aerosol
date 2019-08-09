@@ -1,3 +1,4 @@
+
 MODULE lDiscretization
   use aInitialization
   use bCoefficientRepartition
@@ -104,17 +105,6 @@ contains
 	Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
     end if
 
-     ! initialise photolysis
-     allocate(photolysis(n_photolysis))
-     photolysis = 0.d0
-     allocate(photolysis_reaction_index(n_photolysis))    
-     photolysis_reaction_index = [1, 8, 9 ,14, &
-         15, 24, 35, 50, &
-         51, 52, 61, 63, &
-         70, 73, 74, 85, &
-         89, 95, 100, 104, &
-         134, 139, 147, 190]
-
 ! for gas phase chemistry
 ! This index is modified by adding one later
   ! See ispeclost in Chemistry/common/hetrxn.f
@@ -124,7 +114,6 @@ contains
   heterogeneous_reaction_index(4)= 23-1 ! N2O5
 
   ind_jbiper = 14    ! aerosol species index
-  ind_kbiper = 24    ! photolysis index
 
   ns_source = 1
   allocate(source_index(ns_source))
