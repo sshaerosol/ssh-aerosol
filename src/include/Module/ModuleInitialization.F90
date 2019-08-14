@@ -282,6 +282,7 @@ module aInitialization
     character (len=10) :: precursor
     character (len=10), dimension(:), allocatable :: species_name
     character (len=20), dimension(:), allocatable :: aerosol_species_name
+    integer :: spec_name_len
     character (len=10), dimension(:), allocatable :: emis_gas_species_name
     character (len=10), dimension(:), allocatable :: emis_aer_species_name
     character (len=100) :: output_directory, output_dir2
@@ -947,6 +948,7 @@ subroutine read_inputs()
      N_aerosol = count - 1  ! minus the first comment line
 
      allocate(aerosol_species_name(N_aerosol))
+     spec_name_len = len(aerosol_species_name(1))
      allocate(Index_groups(N_aerosol))
      ! initialize basic physical and chemical parameters
      allocate(molecular_weight_aer(N_aerosol))
@@ -1353,7 +1355,8 @@ subroutine read_inputs()
 
 	if (allocated(lwc_nsize))  deallocate(lwc_nsize, stat=ierr)
 	if (allocated(ionic_nsize))  deallocate(ionic_nsize, stat=ierr)
-	if (allocated(proton_nsize))  deallocate(proton_nsize, stat=ierr)
+        if (allocated(proton_nsize))  deallocate(proton_nsize, stat=ierr)
+        if (allocated(chp_nsize))  deallocate(chp_nsize, stat=ierr)
 	if (allocated(liquid_nsize))  deallocate(liquid_nsize, stat=ierr)
 	if (allocated(concentration_inti))  deallocate(concentration_inti, stat=ierr)
 

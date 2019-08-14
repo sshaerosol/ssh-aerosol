@@ -99,7 +99,8 @@ contains
            DT2, DSD, csol, liquid,&
            N_aerosol, neq, q, aero, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
-           aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
+           aerosol_species_name, spec_name_len, molecular_weight_aer, &
+           accomodation_coefficient,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 
@@ -271,7 +272,7 @@ contains
            deltat,DSD,csol,liquid,&
            N_aerosol, neq, q, qaero, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
-           aerosol_species_name, molecular_weight_aer, accomodation_coefficient,&
+           aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 

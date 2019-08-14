@@ -21,7 +21,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                            double* qgas, double* lwc_Nsize,
                            double* ionic_Nsize, double* chp_Nsize,
                            double* liquid_Nsize, int* nbin,int* isoapdyn,
-                           char* species_name, double* molecular_weight_aer,
+                           char* species_name, int* name_len, double* molecular_weight_aer,
                            double* accomodation_coefficient, int* nlayer,
                            int* with_kelvin_effect, double* tequilibrium,
                            double* dtaeromin, double* dorg, int* coupled_phases,
@@ -33,7 +33,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                    *ns_aer, *neq, q, qaero, qgas,
                    lwc_Nsize,ionic_Nsize,chp_Nsize,
                    liquid_Nsize, *nbin, *isoapdyn,
-                   species_name, molecular_weight_aer,
+                   species_name, *name_len, molecular_weight_aer,
                    accomodation_coefficient, *nlayer,
                    *with_kelvin_effect, *tequilibrium,
                    *dtaeromin, *dorg, *coupled_phases,
@@ -55,7 +55,7 @@ void soap_main(double LWC, double RH, double Temperature,
                int ns_aer, int neq, double q[], double qaero[], double qgas[],
                double lwc_Nsize[], double ionic_Nsize[], double chp_Nsize[],
                double liquid_Nsize[], int nbin,int isoapdyn,
-               char species_name[], double molecular_weight_aer[],
+               char species_name[], int name_len, double molecular_weight_aer[],
                double accomodation_coefficient[], int nlayer,
                int with_kelvin_effect, double tequilibrium, double dtaeromin,
                double dorg, int coupled_phases,
@@ -83,17 +83,20 @@ void soap_main(double LWC, double RH, double Temperature,
     exit;}
 
   // Get aerosol species names.
-  int slength = int(strlen(species_name) / ns_aer);
+  // conversion char to string
+  string tmp2; 
+  for (i = 0; i < ns_aer * name_len; i++)
+    tmp2.push_back(species_name[i]);
+  
   for (i = 0; i < ns_aer; i++)
     {
-      string tmp2(species_name);
-      string tmp3(tmp2.substr(i*slength,slength));
-      for (int j = slength-1; j >= 0; --j)
+      string tmp3(tmp2.substr(i * name_len, name_len));
+      for (int j = name_len - 1; j >= 0; --j)
         {
           if(tmp3[j] == ' ')
             tmp3.erase(j, 1);
         }
-      species_list_aer.push_back(tmp3);  // YK
+      species_list_aer.push_back(tmp3);
     }
   
   config.nbins = nbin;
