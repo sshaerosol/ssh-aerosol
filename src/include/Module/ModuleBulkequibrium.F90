@@ -56,15 +56,13 @@ contains
     double precision:: total_ms(N_aerosol)
 
     !**** SOAP ****
-    double precision :: ZA(N_gas + N_size * N_aerosol)
     double precision :: liquid(12), ionic
-    DOUBLE PRECISION :: q(N_size*(1+N_aerosol)+N_aerosol)
+!!    DOUBLE PRECISION :: q(N_size*(1+N_aerosol)+N_aerosol)
     double precision qaerona,qaerocl,qgascl
 
 
 !!     ******zero init
-    do s=1,(N_aerosol-1)
-	jesp=List_species(s)
+    do jesp=1,(N_aerosol-1)
 	dq(jesp)=0.D0
 	qgas(jesp)=0.d0
 	qext(jesp)=0.D0
@@ -88,8 +86,7 @@ contains
   !compute local equi
 
   !compute only c/e coefficients
-    do s=1,(N_aerosol-1)
-      jesp=List_species(s)
+    do jesp=1,(N_aerosol-1)
       if (aerosol_species_interact(jesp).GT.0) then
 	emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
 		  
@@ -119,7 +116,7 @@ contains
       endif
     enddo
 
-    do s=1,(N_aerosol-1)
+    do s=1,(N_aerosol_layers-1)
       jesp=List_species(s)
       do j=1,N_size
 	qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
@@ -214,8 +211,7 @@ contains
     double precision :: liquid(12), ionic
       
 !!     ******zero init
-    do s=1, N_aerosol !nesp_isorropia
-      jesp=List_species(s)
+    do jesp=1, N_aerosol !nesp_isorropia
       dq(jesp)=0.D0
       qgas(jesp)=0.d0
       qext(jesp)=0.D0
@@ -228,7 +224,6 @@ contains
   !     ****** if sulfate computed dynamically avoid it
   !     ****** allocate equilibrium species list
     do jesp=1,nesp_isorropia
-!      eq_species(jesp)=isorropia_species(nesp_isorropia-nesp_eq+jesp)
       eq_species(jesp)=isorropia_species(jesp)
     enddo
 
@@ -419,7 +414,7 @@ contains
     double precision::AAi(N_size,N_aerosol)
     double precision::frac(N_size,N_aerosol)
     double precision::c_number(N_size)
-    double precision::c_mass(N_size,N_aerosol)
+    double precision::c_mass(N_size,N_aerosol_layers)
     double precision::frac_bin(N_sizebin,N_aerosol)
     double precision::dm_bin(N_sizebin,N_aerosol)
     integer::iclip_bin(N_sizebin,N_aerosol)
@@ -519,7 +514,7 @@ contains
     double precision::AAi(N_size,N_aerosol)
     double precision::frac(N_size,N_aerosol)
     double precision::c_number(N_size)
-    double precision::c_mass(N_size,N_aerosol)
+    double precision::c_mass(N_size,N_aerosol_layers)
     double precision::ck_ef(N_size,N_aerosol)
     double precision::frac_bin(N_sizebin,N_aerosol)
     double precision::dm_bin(N_sizebin,N_aerosol)

@@ -49,10 +49,10 @@ C------------------------------------------------------------------------
       conctot = 0.d0
       
       do j = 1, nesp_aer
-         if (j .NE. EH2O) then
+        if (j .NE. EH2O) then
             subrho = subrho + Cesp(k,j)/rho_esp(j)
             conctot = conctot + Cesp(k,j)
-         endif
+       endif
       enddo
 
       if (conctot.GE.tinyc .AND. subrho.GT.0.d0) then

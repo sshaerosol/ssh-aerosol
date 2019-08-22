@@ -49,7 +49,7 @@ contains
     implicit none
     integer :: jesp,s,j,k,i,start_bin,end_bin
     double precision :: c_number(N_size)
-    double precision :: c_mass(N_size,N_aerosol)
+    double precision :: c_mass(N_size,N_aerosol_layers)
     double precision :: c_inti(N_size,N_inside_aer)
     double precision :: wet_m(N_size)!wet mass
     double precision :: wet_d(N_size)!wet diameter
@@ -66,7 +66,11 @@ contains
     do j=start_bin,end_bin
        !initialization
        do jesp=1,N_aerosol
-          qext(jesp)=c_mass(j,jesp)
+          qext(jesp) = 0.d0
+       enddo
+       do jesp=1,N_aerosol_layers
+          s = List_species(jesp)
+          qext(s) = qext(s) + c_mass(j,jesp)
        enddo
        do jesp=1,N_inside_aer
           qinti(jesp)=0.d0
@@ -74,8 +78,7 @@ contains
        !     ******total dry mass
        qti=0.D0
        do s=1,(N_aerosol-1)
-          jesp=List_species(s)
-          qti=qti+qext(jesp)     !total dry mass µg.m-3
+          qti=qti+qext(s)     !total dry mass µg.m-3
        end do
 
        ! The threshold 0.0 for the minimum aerosol concentration 
@@ -231,7 +234,7 @@ contains
     !------------------------------------------------------------------------
     implicit none
     integer :: jesp,s,j,k,start_bin,end_bin
-    double precision ::c_mass(N_size,N_aerosol)
+    double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::c_number(N_size)
     double precision :: c_inti(N_size,N_inside_aer)
     double precision :: wet_m(N_size)!wet mass
@@ -246,18 +249,22 @@ contains
     total_water=0.d0
     total_IH=0.d0
     do j=start_bin,end_bin
-       ! rho_wet_cell(j)=0.d0 ! YK
        rho_wet_cell(j)=fixed_density
        total_water=total_water+c_mass(j,EH2O)
        total_IH=total_IH+c_inti(j,IH)
        qti=0.D0
-       do s=1,(N_aerosol-1)
-          jesp=List_species(s)
-          qti=qti+c_mass(j,jesp)     ! µg.m-3
+       do s=1,N_aerosol_layers
+          if(aerosol_species_name(List_species(s)).NE.'PH2O') then
+             qti=qti+c_mass(j,s)     ! µg.m-3
+          endif
        end do
+       do s=1,N_aerosol
+          qext(s) = 0.d0
+       enddo
        if (c_number(j).gt.TINYN.and.qti.gt.TINYM ) then
-          do jesp=1,N_aerosol
-             qext(jesp)=c_mass(j,jesp)
+          do jesp=1,N_aerosol_layers
+             s = List_species(jesp)
+             qext(s) = qext(s) + c_mass(j,jesp)
           enddo
           do jesp=1,N_inside_aer
              qinti(jesp)=c_inti(j,jesp)
@@ -272,13 +279,13 @@ contains
           if(rhoaer.gt.0.d0) then
              ! vad=qti/rhoaer!qti total dry mass
              vad=qti/rhoaer_dry!qti total dry mass YK: aerosol density without water.
-             wet_v(j)=vad+c_mass(j,EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+             wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
              ! aerosol diameter
              ! qn cannot be zero, checked in eqpart routine
              dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
              wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
              wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-             wet_m(j)=(qti+c_mass(j,EH2O))/c_number(j) ! single wet mass (µg)
+             wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
           endif
        else
           ! if too few aerosols or too few mass
@@ -325,7 +332,7 @@ contains
     implicit none
     integer :: jesp,s,j,k,start_bin,end_bin
 
-    double precision ::c_mass(N_size,N_aerosol)
+    double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::c_number(N_size)
     double precision :: c_inti(N_size,N_inside_aer)
     double precision :: wet_m(N_size)!wet mass
@@ -338,22 +345,26 @@ contains
 
     total_water=0.d0
     do j=start_bin,end_bin
-       ! rho_wet_cell(j)=0.d0 ! YK
        rho_wet_cell(j)=fixed_density
-       total_water=total_water+c_mass(j,EH2O)
        qti=0.D0
-       do s=1,(N_aerosol-1)
-          jesp=List_species(s)
-          qti=qti+c_mass(j,jesp)     ! µg.m-3
+       do s=1,N_aerosol_layers
+          if(aerosol_species_name(List_species(s)).NE.'PH2O') then
+             qti=qti+c_mass(j,s)     ! µg.m-3
+          else
+             total_water=total_water+c_mass(j,s)
+          endif
        end do
        if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
           do jesp=1,N_aerosol
-             qext(jesp)=c_mass(j,jesp)
+             qext(jesp)=0.d0
           enddo
-
+          do jesp=1,N_aerosol_layers
+             s = List_species(jesp)
+             qext(s) = qext(s) + c_mass(j,jesp)
+          enddo
           if (with_fixed_density == 0) then
-             call compute_density(N_size,N_aerosol,EH2O,TINYM,c_mass,&
-                  mass_density,j,rhoaer)
+             call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+                  mass_density_layers,j,rhoaer)
           else
              rhoaer = fixed_density 
           endif
@@ -365,13 +376,14 @@ contains
           endif
           if(rhoaer.gt.0.d0) then
              vad=qti/rhoaer!qti total dry mass
-             wet_v(j)=vad+c_mass(j,EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+             wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
              ! aerosol diameter
              ! qn cannot be zero, checked in eqpart routine
              dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
              wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
              wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-             wet_m(j)=(qti+c_mass(j,EH2O))/c_number(j) ! single wet mass (µg)
+             wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+             
           endif
        else
           ! if too few aerosols or too few mass
@@ -385,6 +397,7 @@ contains
        endif
     enddo
     if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
+
   end subroutine update_wet_diameter_liquid
 
   subroutine VOLAERO(nesp_aer,qext,qinti,rhoaer, rhoaer_dry)
@@ -652,8 +665,8 @@ contains
     !     k: particle mass derivation(µg/m^3/s)
     !------------------------------------------------------------------------
     implicit none
-    double precision:: q(N_size,N_aerosol)!1th order mass concentration
-    double precision:: k(N_size,N_aerosol)
+    double precision:: q(N_size,N_aerosol_layers)!1th order mass concentration
+    double precision:: k(N_size,N_aerosol_layers)
     double precision:: c_gas(N_aerosol)
     double precision:: ce_kernal_coef(N_size,N_aerosol)
 
@@ -663,8 +676,9 @@ contains
     double precision:: frac,qnew
 
     !     ****** prevent aerosol clipping
-    do s=1,(N_aerosol-1)
-       jesp=List_species(s)
+
+    do s=1,nesp_isorropia
+       jesp=isorropia_species(s)
        do j=(ICUT+1),N_size
 	  ! only when evaporation
           if (k(j,jesp).lt.0.D0) then
@@ -688,8 +702,8 @@ contains
        enddo
     enddo
     !     ****** prevent gas clipping
-    do s=1,(N_aerosol-1)
-       jesp=List_species(s)
+    do s=1,nesp_isorropia
+       jesp=isorropia_species(s)
        ! compute total mass rate per species
        ksum=0.D0
        do j=ICUT+1,N_size

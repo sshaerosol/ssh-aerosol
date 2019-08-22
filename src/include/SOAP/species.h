@@ -196,6 +196,7 @@ namespace soap
 	double Aginit,Aaqinit;
        
         int soap_ind; // Number in the aerosol species list
+        int soap_ind_aero; // Number in the aerosol species list including layers
   };
   
 }

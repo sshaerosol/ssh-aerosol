@@ -38,6 +38,7 @@ module aInitialization
     integer :: N_groups     !Number of groups
     integer :: N_fracmax    !Maximum number of composition sections per size section
     integer :: N_aerosol    !Number of aerosol species
+    integer :: N_aerosol_layers    !Number of aerosol species in the different layers
     integer :: N_sizebin    !Number of  size sections
     integer :: N_frac       !Number of fraction of each species
     integer :: N_reaction   !Number of gas-phase reactions
@@ -47,6 +48,7 @@ module aInitialization
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: N_organics   !Number of organics aerosol species
+    integer :: N_nonorganics   !Number of non-organics aerosol species
     integer :: N_inorganic  !Number of inorganic aerosol species
     integer :: N_inert      !number of inert aerosol species
     integer :: N_liquid     !Number of liquid internal species
@@ -54,7 +56,7 @@ module aInitialization
     integer :: N_inside_aer !Number of internal species
     integer :: N_hydrophilic!Number of hydrophilic organics aerosol species
     !parameter (N_aerosol = N_organics + N_inorganic + N_inert + 1)
-    parameter (N_organics=27,N_inorganic=5,N_inert=2,N_liquid=12)
+    parameter (N_organics=26,N_inorganic=5,N_inert=2,N_liquid=12)
     parameter (N_solid=9,N_inside_aer=21)
     parameter (N_hydrophilic=9)
 
@@ -151,6 +153,7 @@ module aInitialization
     !!part5: dimension data array    
     integer, dimension(:), allocatable :: Index_groups	!index of which group the species belongs to
     integer, dimension(:), allocatable :: List_species	!read species defined in cfg files
+    integer, dimension(:,:), allocatable :: index_species	!index of species if viscosity is taken into account
     Integer, dimension(:), allocatable :: aerosol_species_interact
     integer, dimension(:), allocatable :: N_fracbin	!vector of number of composition sections for each section
 
@@ -242,6 +245,7 @@ module aInitialization
     double precision ,dimension(:), allocatable :: molecular_diameter
     double precision ,dimension(:), allocatable :: collision_factor_aer
     double precision ,dimension(:), allocatable :: mass_density!(\B5g/m3) liquid mass density
+    double precision ,dimension(:), allocatable :: mass_density_layers!(\B5g/m3) liquid mass density
     double precision ,dimension(:), allocatable :: quadratic_speed! (m.s-1)
     double precision ,dimension(:), allocatable :: diffusion_coef! (m2.s-1)
     double precision ,dimension(:), allocatable :: soa_sat_conc! (\B5g.m-3)
@@ -257,6 +261,8 @@ module aInitialization
     double precision :: dorg
     integer :: coupled_phases
     integer :: nlayer
+    integer ,dimension(:), allocatable :: layer_number ! Number of the layer
+    double precision, dimension(:), allocatable :: Vlayer
     integer :: activity_model
     double precision, dimension(:), allocatable :: lwc_nsize, &
          ionic_nsize, proton_nsize, chp_nsize
@@ -857,6 +863,16 @@ module aInitialization
 	end if
      end if
 
+     if((with_coag == 1).AND.nlayer > 1) then
+        print*, 'coagulation can not be switched on if several aerosol layers.'
+        stop
+     endif
+
+     if((ISOAPDYN == 0).AND.nlayer > 1) then
+        print*, 'Organics can not be at equilibrium if several aerosol layers.'
+        stop
+     endif
+
      ! output
      read(10, nml = output, iostat = ierr)
      if (ierr .ne. 0) then
@@ -901,7 +917,7 @@ subroutine read_inputs()
     
 
 	implicit none
-	integer :: k,i,j,s,js, ind, count, ierr
+	integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer
 	double precision :: tmp
 	double precision, dimension(:), allocatable :: tmp_aero
 	character (len=40) :: ic_name, sname
@@ -947,9 +963,13 @@ subroutine read_inputs()
      if (ssh_logger) write(logfile,*) 'read aerosol species list.'
      N_aerosol = count - 1  ! minus the first comment line
 
+     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
+     N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
+
      allocate(aerosol_species_name(N_aerosol))
      spec_name_len = len(aerosol_species_name(1))
      allocate(Index_groups(N_aerosol))
+     allocate(index_species(N_aerosol,nlayer))
      ! initialize basic physical and chemical parameters
      allocate(molecular_weight_aer(N_aerosol))
      ! precursor
@@ -962,10 +982,13 @@ subroutine read_inputs()
      allocate(surface_tension(N_aerosol))
      allocate(accomodation_coefficient(N_aerosol))
      allocate(mass_density(N_aerosol))
+     allocate(mass_density_layers(N_aerosol_layers))
 !!     allocate(saturation_pressure(N_aerosol))
 !!     allocate(vaporization_enthalpy(N_aerosol))
      ! aerosol species
-     allocate(List_species(N_aerosol))
+     allocate(List_species(N_aerosol_layers))
+     allocate(layer_number(N_aerosol_layers))
+     allocate(Vlayer(nlayer))
      allocate(isorropia_species(nesp_isorropia))
      allocate(aec_species(nesp_aec))
      allocate(pankow_species(nesp_pankow)) 
@@ -978,16 +1001,6 @@ subroutine read_inputs()
      count = 0
      read(12, *) ! red # comment line
      do s = 1, N_aerosol
-        ! read(12, *) aerosol_species_name(s), Index_groups(s), molecular_weight_aer(s), &
-        !      precursor, saturation_pressure_mass(s), &
-        !      saturation_pressure_torr(s),  partition_coefficient(s), &
-        !      deliquescence_relative_humidity(s), &
-        !      collision_factor_aer(s), molecular_diameter(s), &
-        !      surface_tension(s), accomodation_coefficient(s), &
-        !      mass_density(s), saturation_pressure(s), &
-        !      vaporization_enthalpy(s)
-
-        !=== Warning (YK/KS) ===
         ! Surface_tension for organic and aqueous phases of organic aerosols
         ! is hardly coded in SOAP/parameters.cxx
         ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
@@ -996,37 +1009,65 @@ subroutine read_inputs()
              collision_factor_aer(s), molecular_diameter(s), &
              surface_tension(s), accomodation_coefficient(s), &
              mass_density(s)
-        
-        molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
-        list_species(s) = s
-        if (aerosol_species_name(s) .eq. "PMD") EMD = s
-        if (aerosol_species_name(s) .eq. "PBC") EBC = s
-        if (aerosol_species_name(s) .eq. "PNA") ENa = s
-        if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
-        if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
-        if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
-        if (aerosol_species_name(s) .eq. "PHCL") ECl = s
+        if (s <= N_nonorganics) then
+           mass_density_layers(s) = mass_density(s)
+           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
+           List_species(s) = s
+           if (aerosol_species_name(s) .eq. "PMD") EMD = s
+           if (aerosol_species_name(s) .eq. "PBC") EBC = s
+           if (aerosol_species_name(s) .eq. "PNA") ENa = s
+           if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
+           if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
+           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
+           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
 
-        do js = 1, nesp_isorropia
-           if (aerosol_species_name(s) .eq. isorropia_species_name(js)) then
-              isorropia_species(js) = s
+           do js = 1, nesp_isorropia
+              if (aerosol_species_name(s) .eq. isorropia_species_name(js)) then
+                 isorropia_species(js) = s
+              endif
+           enddo
+           do ilayer=1,nlayer
+              index_species(s,ilayer) = s
+           enddo
+           layer_number(s) = 1
+        else
+           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
+           if(s.NE.N_aerosol) then !avoid water
+             do ilayer = 0,nlayer-1
+               esp_layer = (s-N_nonorganics-1) *(nlayer-1) + s + ilayer
+               index_species(s,ilayer+1) = esp_layer
+               mass_density_layers(esp_layer) = mass_density(s)
+               List_species(esp_layer) = s
+!               molecular_weight_aer(esp_layer) = molecular_weight_aer(s)
+               !!aerosol_species_name(esp_layer) = aerosol_species_name(s)
+               !Index_groups(esp_layer) = Index_groups(s)
+!               mass_density(esp_layer) = mass_density(s)
+               layer_number(esp_layer) = ilayer
+             enddo
+           else
+               List_species(N_aerosol_layers) = s
+               do ilayer=1,nlayer
+                 index_species(N_aerosol,ilayer) = N_aerosol_layers 
+               enddo
+               layer_number(N_aerosol_layers) = 1
            endif
-        enddo
-        do js = 1, nesp_aec
-           if (aerosol_species_name(s) .eq. aec_species_name(js)) then
-              aec_species(js) = s
-           endif
-        enddo
-        do js = 1, nesp_pankow
-           if (aerosol_species_name(s) .eq. pankow_species_name(js)) then
-              pankow_species(js) = s
-           endif
-        enddo
-        do js = 1, nesp_pom
-           if (aerosol_species_name(s) .eq. poa_species_name(js)) then
-              poa_species(js) = s
-           endif
-        enddo
+           
+           do js = 1, nesp_aec
+              if (aerosol_species_name(s) .eq. aec_species_name(js)) then
+                 aec_species(js) = s
+              endif
+           enddo
+           do js = 1, nesp_pankow
+              if (aerosol_species_name(s) .eq. pankow_species_name(js)) then
+                 pankow_species(js) = s
+              endif
+           enddo
+           do js = 1, nesp_pom
+              if (aerosol_species_name(s) .eq. poa_species_name(js)) then
+                 poa_species(js) = s
+              endif
+           enddo
+        endif
 
         ind = 0
         do js = 1, N_gas
@@ -1050,8 +1091,6 @@ subroutine read_inputs()
     ! Initialize the concentrations of percursors
      if (ssh_standalone) write(*,*) "Number of precursors: ", count 
      if (ssh_logger) write(logfile,*) "Number of precursors: ", count 
-
-
       
      ! read gas-phase initial concentrations unit 21
      ! no comment lines for initial & emitted data
@@ -1272,8 +1311,41 @@ subroutine read_inputs()
             ! 1 mixing_state resolved !! option 1 not yet available)
           stop
    end if
+
+! Initialize Vlayer  !! Need to be removed from SOAP
+   if(nlayer == 1) then
+      Vlayer(1)=1.0
+   else 
+      if(nlayer == 2) then
+         Vlayer(1)=0.99
+         Vlayer(2)=0.01
+      else 
+         if(nlayer == 3) then
+            Vlayer(1)=0.6
+            Vlayer(2)=0.39
+            Vlayer(3)=0.01
+         else 
+            if(nlayer == 4) then
+               Vlayer(1)=0.6
+               Vlayer(2)=0.26
+               Vlayer(3)=0.13
+               Vlayer(4)=0.01
+            else 
+               if (nlayer == 5) then
+                  Vlayer(1)=0.608
+                  Vlayer(2)=0.2184165
+                  Vlayer(3)=0.12102374
+                  Vlayer(4)=0.04255976
+                  Vlayer(5)=0.01
+               endif
+            endif
+         endif
+      endif
+   endif
+
    if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
    if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
+
    if (allocated(tmp_aero))  deallocate(tmp_aero)
    end subroutine read_inputs
 
@@ -1309,6 +1381,7 @@ subroutine read_inputs()
 	if (allocated(species_name))  deallocate(species_name, stat=ierr)
 	if (allocated(aerosol_species_name))  deallocate(aerosol_species_name, stat=ierr)
 	if (allocated(Index_groups))  deallocate(Index_groups, stat=ierr)
+	if (allocated(index_species))  deallocate(index_species, stat=ierr)
 	if (allocated(molecular_weight_aer))  deallocate(molecular_weight_aer, stat=ierr)
 !!	if (allocated(saturation_pressure_mass))  deallocate(saturation_pressure_mass, stat=ierr)
 !!	if (allocated(saturation_pressure_torr))  deallocate(saturation_pressure_torr, stat=ierr)
@@ -1319,6 +1392,9 @@ subroutine read_inputs()
 	if (allocated(surface_tension))  deallocate(surface_tension, stat=ierr)
 	if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
 	if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
+	if (allocated(mass_density_layers))  deallocate(mass_density_layers, stat=ierr)
+	if (allocated(layer_number))  deallocate(layer_number, stat=ierr)
+	if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
 !!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
 !!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
 	if (allocated(List_species))  deallocate(List_species, stat=ierr)

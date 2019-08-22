@@ -26,7 +26,7 @@
   implicit none
  
 contains
-  subroutine SULFDYN(Q1,Q,N1,N,c_gas,dqdt,dtx,time_step_sulf)
+  subroutine SULFDYN(Q1,Q,N1,N,c_gas,dtx,time_step_sulf)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -53,15 +53,15 @@ contains
 !------------------------------------------------------------------------
     implicit none
     integer::j,jesp
-    double precision :: dqdt(N_size,N_aerosol)
     double precision ::c_gas(N_aerosol)!micg/m^-3
     double precision :: ce_kernal_coef_tot ! c/e kernel coef (m3.s-1)
-    double precision :: Q1(N_size,(N_aerosol)) ! Mass concentration
-    double precision :: Q(N_size,(N_aerosol)) ! Mass concentration  !!BUG
+    double precision :: Q1(N_size,N_aerosol_layers) ! Mass concentration
+    double precision :: Q(N_size,N_aerosol_layers) ! Mass concentration  !!BUG
     double precision :: N1(N_size) ! Number concentration
     double precision :: N(N_size) ! Number concentration
     double precision :: dtx,tmp,cond_so4!Time steps
     double precision :: dexploc,n2err,tmp_n2err,time_step_sulf
+    double precision :: dqdt(N_size)
 
     jesp=ESO4!Pointer
     ce_kernal_coef_tot = 0.0d0
@@ -71,24 +71,24 @@ contains
     do j = 1,N_size! Reassigned distribution by mass of each species
       call compute_condensation_transfer_rate(diffusion_coef(jesp), &
       quadratic_speed(jesp), accomodation_coefficient(jesp), &
-      wet_diameter(j), dqdt(j,jesp))
-      ce_kernal_coef_tot=ce_kernal_coef_tot+N(j)*dqdt(j,jesp)
+      wet_diameter(j), dqdt(j))
+      ce_kernal_coef_tot=ce_kernal_coef_tot+N(j)*dqdt(j)
     enddo
 
     do j = 1,N_size! Reassigned distribution by mass of each species
       if(ce_kernal_coef_tot.ne.0.d0) then
         dexploc = DEXP(-ce_kernal_coef_tot*dtx)
-	tmp=(dqdt(j,jesp)*N(j)/ce_kernal_coef_tot)*&
+	tmp=(dqdt(j)*N(j)/ce_kernal_coef_tot)*&
 	      (1.d0-dexploc) * c_gas(jesp)
         if (Q(j,jesp).GT.TINYM) then
-          tmp_n2err = (dqdt(j,jesp)*N(j)*dtx*c_gas(jesp))/Q(j,jesp)
+          tmp_n2err = (dqdt(j)*N(j)*dtx*c_gas(jesp))/Q(j,jesp)
           n2err = n2err + tmp_n2err*tmp_n2err
         endif
         Q(j,jesp) = Q(j,jesp)+tmp!renew mass
         Q1(j,jesp) = Q(j,jesp)
         cond_so4 = cond_so4+tmp
         N1(j)=N(j)
-        if(dtx.gt.0.d0) dqdt(j,jesp)=tmp/dtx!for redistribution
+        if(dtx.gt.0.d0) dqdt(j)=tmp/dtx!for redistribution
       endif
     enddo
     c_gas(jesp) = DMAX1(c_gas(jesp)*dexploc,0.d0)
@@ -143,24 +143,21 @@ contains
   
 
 !!     ******Initialization to zero
-    do s=1,N_aerosol
-      jesp=List_species(s)
+    do jesp=1,N_aerosol
       Kelvin_effect(jesp)=1.D0
       ce_kernel(jesp)=0.D0
       init_bulk_gas(jesp)=0.D0
       surface_equilibrium_conc(jesp)=0.D0 !surface equilibrium concentration
     end do
 
-    do s=1,N_aerosol
-      jesp=List_species(s)
+    do jesp=1,N_aerosol
       init_bulk_gas(jesp)=c_gas(jesp)!initial bulk gas conc (µg.m-3)
       qext(jesp)=q(jesp)
     enddo
 
 !     Aerosol wet density in µ g.µ m -3
     rhop = 0.d0
-    do s=1,N_aerosol
-      jesp=List_species(s)
+    do jesp=1,N_aerosol
       rhop=rhop+qext(jesp)
     enddo
 
@@ -171,8 +168,8 @@ contains
 
       ! we prevent evaporation when conc
       ! are too near from zero
-      do s=1,(N_aerosol-1)
-	jesp=List_species(s)
+      do s=1,nesp_isorropia
+	jesp=isorropia_species(s)
 	if (qext(jesp).LE.TINYM) then
 	  surface_equilibrium_conc(jesp)=0.D0
 	endif
@@ -199,9 +196,9 @@ contains
       if (wet_diam_used .lt. 1.d-3) then
          write(*,*) "kercond: too small wet_diameter",wet_diam_used
          stop
-      endif !! YK
-      do s=1,(N_aerosol-1)
-	jesp=List_species(s)
+      endif
+      do s=1,nesp_isorropia
+	jesp=isorropia_species(s)
 	if (aerosol_species_interact(jesp).gt.0) then!& .and.rhop.gt.1.d3
 	  emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
 	  call COMPUTE_KELVIN_COEFFICIENT(&
@@ -256,13 +253,13 @@ contains
 	    surface_equilibrium_conc,&          ! equi gas conc (µg.m-3)
 	    ce_kernel )        ! modified c/e kernel
       endif
-      concentration_mass(jj,EH2O)=qext(EH2O)!water updated here
+      concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
       do jesp=1,N_inside_aer
 	concentration_inti(JJ,jesp)=qinti(jesp)
       enddo
    else
-     concentration_number(jj)=0.d0
-     concentration_mass(jj,EH2O)=0.d0
+!!     concentration_number(jj)=0.d0
+     concentration_mass(jj,EH2O_layers)=0.d0
       do jesp=1,N_inside_aer
 	concentration_inti(JJ,jesp)=0.d0
       enddo     
