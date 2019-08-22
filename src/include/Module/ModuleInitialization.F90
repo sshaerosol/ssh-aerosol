@@ -21,6 +21,7 @@
 !!    This module read configuration file and initialize all global variables
 !!-----------------------------------------------------------------------
 module aInitialization
+    use iso_c_binding
 !    use dPhysicalbalance
     implicit none
     INCLUDE 'CONST.INC'
@@ -281,6 +282,7 @@ module aInitialization
     character (len=10) :: precursor
     character (len=10), dimension(:), allocatable :: species_name
     character (len=20), dimension(:), allocatable :: aerosol_species_name
+    integer :: spec_name_len
     character (len=10), dimension(:), allocatable :: emis_gas_species_name
     character (len=10), dimension(:), allocatable :: emis_aer_species_name
     character (len=100) :: output_directory, output_dir2
@@ -297,6 +299,35 @@ module aInitialization
     integer :: ind_jbiper, ind_kbiper   
     ! To take into account BiPER degradation inside the particle
 
+    !! part 7: used in coupling with external tools (ModuleSaturne)
+    !
+    ! This flag defines if SSH-aerosol is running standalone or not
+    !   true if it is running standalone, default
+    !   false if it is running with Code_Saturne
+    !
+    logical(kind=c_bool), save :: ssh_standalone = .true.
+    !
+    ! This flag defines if SSH-aerosol is logging information to a file
+    !   true if it is writing to a file
+    !   false otherwise, default
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!                                                                    !!!!!
+    !!!!!                          IMPORTANT                                 !!!!!
+    !!!!!                                                                    !!!!!
+    !!!!! change the flag to true with the subroutine set_logger             !!!!!
+    !!!!!                                                                    !!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !
+    logical(kind=c_bool), save :: ssh_logger = .false.
+    !
+    ! This is the name of the log file
+    !
+    character(len=80), save :: ssh_logger_file = "ssh-aerosol.log"
+    !
+    ! This is the unit used to write to the log file
+    !
+    integer, parameter :: logfile = 99
      
  contains
 
@@ -362,7 +393,8 @@ module aInitialization
 
      namelist /output/ output_directory, output_type
 
-     write(*,*) "=========================start read namelist.ssh file======================"
+     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
+     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
      ! read namelist.ssh file !
      open(unit = 10, file = namelist_file, status = "old")
      
@@ -373,20 +405,28 @@ module aInitialization
         stop
      else ! default output meteo data to check
 	if (temperature - 273.15e0 == 0) then
-		print*, 'temperature should higher than 273.15 K - stop'
+		write(*,*) 'temperature should higher than 273.15 K - stop'
 		stop
 	end if
 	pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
 	Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
 	humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
-	print*
-	print*,'<<<< Meteorological setup >>>>'
-        print*,'location', latitude, 'N', longitude,'E'
-        print*,'Temperature', Temperature, 'K'
-        print*,'Pressure', Pressure, 'Pa'
-        print*,'Relative Humidity', Relative_Humidity
-        print*,'Specific Humidity', Humidity
-        print*,'Cloud attenuation field', attenuation
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Meteorological setup >>>>'
+        if (ssh_standalone) write(*,*) 'location', latitude, 'N', longitude,'E'
+        if (ssh_logger) write(logfile,*) 'location', latitude, 'N', longitude,'E'
+        if (ssh_standalone) write(*,*) 'Temperature', Temperature, 'K'
+        if (ssh_logger) write(logfile,*) 'Temperature', Temperature, 'K'
+        if (ssh_standalone) write(*,*) 'Pressure', Pressure, 'Pa'
+        if (ssh_logger) write(logfile,*) 'Pressure', Pressure, 'Pa'
+        if (ssh_standalone) write(*,*) 'Relative Humidity', Relative_Humidity
+        if (ssh_logger) write(logfile,*) 'Relative Humidity', Relative_Humidity
+        if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
+        if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
+        if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
+        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
      end if
 
      ! time setup
@@ -396,12 +436,18 @@ module aInitialization
         stop
      else
          nt = int((final_time-initial_time) / delta_t) 
-	 print*
-	 print*,'<<<< Simulation time setup >>>>'
-         print*,'Begining time (from Jan. 1st)', initial_time, 's'
-         print*,'Simulation Time', final_time,'s'
-         print*,'Initial Time Step', delta_t,'s'
-         print*,'Number of iterations:', nt
+	 if (ssh_standalone) write(*,*) ''
+	 if (ssh_logger) write(logfile,*) ''
+	 if (ssh_standalone) write(*,*) '<<<< Simulation time setup >>>>'
+	 if (ssh_logger) write(logfile,*) '<<<< Simulation time setup >>>>'
+         if (ssh_standalone) write(*,*) 'Begining time (from Jan. 1st)', initial_time, 's'
+         if (ssh_logger) write(logfile,*) 'Begining time (from Jan. 1st)', initial_time, 's'
+         if (ssh_standalone) write(*,*) 'Simulation Time', final_time,'s'
+         if (ssh_logger) write(logfile,*) 'Simulation Time', final_time,'s'
+         if (ssh_standalone) write(*,*) 'Initial Time Step', delta_t,'s'
+         if (ssh_logger) write(logfile,*) 'Initial Time Step', delta_t,'s'
+         if (ssh_standalone) write(*,*) 'Number of iterations:', nt
+         if (ssh_logger) write(logfile,*) 'Number of iterations:', nt
      end if
     
      ! initial_condition
@@ -411,29 +457,37 @@ module aInitialization
 	write(*,*) "initial_condition data can not be read."
         stop
      else
-	print*
-	print*,'<<<< Inition condition >>>>'
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Inition condition >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Inition condition >>>>'
 
 	if (tag_init == 1) then 
-            print*, ' Mixing state resolved aerosol species are provided for initial condition.' 
-            print*, ' -- this option is not yet available.'
+            write(*,*) ' Mixing state resolved aerosol species are provided for initial condition.' 
+            write(*,*) ' -- this option is not yet available.'
             stop
         else
 	    tag_init = 0 	    ! default tag_init == 0
-	    print*,'Internally mixed aerosol species are provided for initial condition.'
+	    if (ssh_standalone) write(*,*) 'Internally mixed aerosol species are provided for initial condition.'
+	    if (ssh_logger) write(logfile,*) 'Internally mixed aerosol species are provided for initial condition.'
         end if 
 
-	print*, 'Gas-phase conc. input file :', init_gas_conc_file
-	print*, 'Particle conc. input file :', init_aero_conc_mass_file
+	if (ssh_standalone) write(*,*) 'Gas-phase conc. input file :', init_gas_conc_file
+	if (ssh_logger) write(logfile,*) 'Gas-phase conc. input file :', init_gas_conc_file
+	if (ssh_standalone) write(*,*) 'Particle conc. input file :', init_aero_conc_mass_file
+	if (ssh_logger) write(logfile,*) 'Particle conc. input file :', init_aero_conc_mass_file
         if (with_init_num .eq. 1) then
-	   print*, 'Aerosol number conc. is read from file :', init_aero_conc_num_file
+	   if (ssh_standalone) write(*,*) 'Aerosol number conc. is read from file :', init_aero_conc_num_file
+	   if (ssh_logger) write(logfile,*) 'Aerosol number conc. is read from file :', init_aero_conc_num_file
 	else 
 	    with_init_num = 0  ! default with_init_num == 0
-	    print*,' Aerosol number conc. is estimated from mass and diameter.' 
+	    if (ssh_standalone) write(*,*) ' Aerosol number conc. is estimated from mass and diameter.' 
+	    if (ssh_logger) write(logfile,*) ' Aerosol number conc. is estimated from mass and diameter.' 
         end if
      end if
 
-	print*, 'N_sizebin', N_sizebin
+	if (ssh_standalone) write(*,*) 'N_sizebin', N_sizebin
+	if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin
 	   allocate(init_bin_number(N_sizebin))
            init_bin_number = 0.d0
 
@@ -452,9 +506,14 @@ module aInitialization
 	write(*,*) "initial_diam_distribution data can not be read."
         stop
      else
-	if (tag_dbd == 1)  print*, 'Diameter bin bounds are read.'
-	if (tag_dbd == 0)  print*, 'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
-	print*, 'diam_input', diam_input
+	if (tag_dbd == 1 .and. ssh_standalone) write(*,*) 'Diameter bin bounds are read.'
+	if (tag_dbd == 1 .and. ssh_logger) write(logfile,*) 'Diameter bin bounds are read.'
+	if (tag_dbd == 0 .and. ssh_standalone) write(*,*) &
+		'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
+	if (tag_dbd == 0 .and. ssh_logger) write(logfile,*) &
+		'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
+	if (ssh_standalone) write(*,*) 'diam_input', diam_input
+	if (ssh_logger) write(logfile,*) 'diam_input', diam_input
      end if
 
      ! emissions
@@ -463,28 +522,36 @@ module aInitialization
 	write(*,*) "emissions data can not be read."
         stop
      else
-	print*,
-	print*,'<<<< Emissions >>>>'
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Emissions >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Emissions >>>>'
 	if (tag_emis == 2) then
-           print*, 'With externally-mixed emissions. -- this option is not yet available.'
+           write(*,*) 'With externally-mixed emissions. -- this option is not yet available.'
 	   stop
         else if (tag_emis == 1) then
-           print*, 'With internally-mixed emissions.'
+           if (ssh_standalone) write(*,*) 'With internally-mixed emissions.'
+           if (ssh_logger) write(logfile,*) 'With internally-mixed emissions.'
         else
 	   tag_emis = 0
-           print*, 'Without emission.'  ! default tag_emis == 0
+           if (ssh_standalone) write(*,*) 'Without emission.'  ! default tag_emis == 0
+           if (ssh_logger) write(logfile,*) 'Without emission.'  ! default tag_emis == 0
         end if
 
            allocate(emis_bin_number(N_sizebin))
            emis_bin_number = 0.d0
 	if (tag_emis .ne. 0) then
-	    print*, 'Gas-phase conc. emission file :', emis_gas_file
-	    print*, 'Particle conc. emission file :', emis_aero_mass_file
+	    if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', emis_gas_file
+	    if (ssh_logger) write(logfile,*) 'Gas-phase conc. emission file :', emis_gas_file
+	    if (ssh_standalone) write(*,*) 'Particle conc. emission file :', emis_aero_mass_file
+	    if (ssh_logger) write(logfile,*) 'Particle conc. emission file :', emis_aero_mass_file
             if (with_emis_num == 1) then
-	       print*, 'Emitted aerosol number conc. is read from file :', emis_aero_num_file
+	       if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is read from file :', emis_aero_num_file
+	       if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is read from file :', emis_aero_num_file
             else  ! default with_emis_num == 0 
 	       with_emis_num = 0
-	       print*, 'Emitted aerosol number conc. is estimated from mass and diameter.'
+	       if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
+	       if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
 	    end if
         end if 
      end if
@@ -496,20 +563,26 @@ module aInitialization
 	write(*,*) "mixing_state data can not be read - not enough data"
         stop
      else 
-	print*,
-	print*,'<<<< Mixing state >>>>'
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Mixing state >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Mixing state >>>>'
 	if (tag_external == 1) then
-	   print*, 'simulation is mixing-state resolved.'
-           print*, 'number of composition fractions:', N_frac 
-	   print*, 'number of grounps :', N_groups
+	   if (ssh_standalone) write(*,*) 'simulation is mixing-state resolved.'
+	   if (ssh_logger) write(logfile,*) 'simulation is mixing-state resolved.'
+           if (ssh_standalone) write(*,*) 'number of composition fractions:', N_frac 
+           if (ssh_logger) write(logfile,*) 'number of composition fractions:', N_frac 
+	   if (ssh_standalone) write(*,*) 'number of grounps :', N_groups
+	   if (ssh_logger) write(logfile,*) 'number of grounps :', N_groups
 	else  
 	   tag_external = 0   ! default tag_external == 0
-	   print*, 'simulation is internally mixed.' 
+	   if (ssh_standalone) write(*,*) 'simulation is internally mixed.' 
+	   if (ssh_logger) write(logfile,*) 'simulation is internally mixed.' 
 	   N_frac = 1
 	   N_groups = 1
 	end if
 	if (tag_emis == 2 .and. tag_external == 0) then
-           write(*,*)" Pb -- internally mixed simulation can not process externally-mixed emissions data."        
+           write(*,*) " Pb -- internally mixed simulation can not process externally-mixed emissions data."        
 	   stop
 	end if
 	   
@@ -529,7 +602,8 @@ module aInitialization
         stop
      else
 	if (kind_composition == 1)  then
-	   print*, 'manual fraction discretization methods.'
+	   if (ssh_standalone) write(*,*) 'manual fraction discretization methods.'
+	   if (ssh_logger) write(logfile,*) 'manual fraction discretization methods.'
 	   frac_bound = frac_input
         else
 	   if (frac_input(1) .ge. frac_input(2)) then  ! default
@@ -539,9 +613,11 @@ module aInitialization
            do i = 1, N_frac+1
 	      frac_bound(i)= (dble(i-1) / N_frac * (frac_input(2) - frac_input(1)) ) + frac_input(1)
            enddo
-           print*, 'auto fraction discretization methods.'
+           if (ssh_standalone) write(*,*) 'auto fraction discretization methods.'
+           if (ssh_logger) write(logfile,*) 'auto fraction discretization methods.'
 	end if
-	print*, 'fraction bounds :', frac_bound
+	if (ssh_standalone) write(*,*) 'fraction bounds :', frac_bound
+	if (ssh_logger) write(logfile,*) 'fraction bounds :', frac_bound
      end if
 
      ! species
@@ -550,9 +626,12 @@ module aInitialization
 	write(*,*) "gas_phase_species data can not be read."
         stop
      else
-	print*,
-	print*,'<<<< Species lists >>>>'
-	print*, 'gas phase species file :', species_list_file
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Species lists >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Species lists >>>>'
+	if (ssh_standalone) write(*,*) 'gas phase species file :', species_list_file
+	if (ssh_logger) write(logfile,*) 'gas phase species file :', species_list_file
      end if
 
      read(10, nml = aerosol_species, iostat = ierr)
@@ -560,7 +639,8 @@ module aInitialization
 	write(*,*) "aerosol_species data can not be read."
         stop
      else
-	print*, 'particle species file :', aerosol_species_list_file
+	if (ssh_standalone) write(*,*) 'particle species file :', aerosol_species_list_file
+	if (ssh_logger) write(logfile,*) 'particle species file :', aerosol_species_list_file
      end if
 
      ! gas chemistry
@@ -571,24 +651,34 @@ module aInitialization
      else
 
 	if (tag_chem == 0) then
-		print*,
-		print*,'<<<< Without Gas-phase chemistry >>>>'
+		if (ssh_standalone) write(*,*) ''
+		if (ssh_logger) write(logfile,*) ''
+		if (ssh_standalone) write(*,*) '<<<< Without Gas-phase chemistry >>>>'
+		if (ssh_logger) write(logfile,*) '<<<< Without Gas-phase chemistry >>>>'
 	else
-		print*,
-		print*,'<<<< Gas-phase chemistry >>>>'
+		if (ssh_standalone) write(*,*) ''
+		if (ssh_logger) write(logfile,*) ''
+		if (ssh_standalone) write(*,*) '<<<< Gas-phase chemistry >>>>'
+		if (ssh_logger) write(logfile,*) '<<<< Gas-phase chemistry >>>>'
         	if (with_heterogeneous == 1) then
-	   		print*, 'with heterogeneous reaction.'
+	   		if (ssh_standalone) write(*,*) 'with heterogeneous reaction.'
+	   		if (ssh_logger) write(logfile,*) 'with heterogeneous reaction.'
 		else  ! default with_heterogeneous == 0
 	   		with_heterogeneous = 0
-	   		print*, 'without heterogeneous reaction.' 
+	   		if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
+	   		if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
 		end if
 		if (with_adaptive == 1) then
-	   		print*, 'with adaptive step.'
-	   		print*, 'adaptive time step tolerance', adaptive_time_step_tolerance
-	   		print*, 'min adaptive time step', min_adaptive_time_step
+	   		if (ssh_standalone) write(*,*) 'with adaptive step.'
+	   		if (ssh_logger) write(logfile,*) 'with adaptive step.'
+	   		if (ssh_standalone) write(*,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
+	   		if (ssh_logger) write(logfile,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
+	   		if (ssh_standalone) write(*,*) 'min adaptive time step', min_adaptive_time_step
+	   		if (ssh_logger) write(logfile,*) 'min adaptive time step', min_adaptive_time_step
         	else
 	   		with_adaptive = 0
-	   		print*, 'without adaptive step.'
+	   		if (ssh_standalone) write(*,*) 'without adaptive step.'
+	   		if (ssh_logger) write(logfile,*) 'without adaptive step.'
 		end if
 	end if
      end if
@@ -599,50 +689,68 @@ module aInitialization
 	write(*,*) "physic_particle_numerical_issues data can not be read."
         stop
      else
-	print*,
-	print*,'<<<< Particle numerical issues >>>>'
-	print*, 'minimum time step for aerosol dynamics', DTAEROMIN,'s'
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Particle numerical issues >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Particle numerical issues >>>>'
+	if (ssh_standalone) write(*,*) 'minimum time step for aerosol dynamics', DTAEROMIN,'s'
+	if (ssh_logger) write(logfile,*) 'minimum time step for aerosol dynamics', DTAEROMIN,'s'
 
 	SELECT CASE (redistribution_method)
 	   CASE (3)
-	      print*, 'redistibution method : euler_mass'
+	      if (ssh_standalone) write(*,*) 'redistibution method : euler_mass'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : euler_mass'
 	   CASE (4)
-	      print*, 'redistibution method : euler_number'
+	      if (ssh_standalone) write(*,*) 'redistibution method : euler_number'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : euler_number'
 	   CASE (5)
-	      print*, 'redistibution method : hemen'
+	      if (ssh_standalone) write(*,*) 'redistibution method : hemen'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : hemen'
 	   CASE (6)
-	      print*, 'redistibution method : euler_coupled'
+	      if (ssh_standalone) write(*,*) 'redistibution method : euler_coupled'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : euler_coupled'
 	   CASE (10)
-	      print*, 'redistibution method : moving diameter'
+	      if (ssh_standalone) write(*,*) 'redistibution method : moving diameter'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : moving diameter'
 	   CASE (11)
-	      print*, 'redistibution method : siream'
+	      if (ssh_standalone) write(*,*) 'redistibution method : siream'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : siream'
 	   CASE (12)
-	      print*, 'redistibution method : siream - euler coupled'
+	      if (ssh_standalone) write(*,*) 'redistibution method : siream - euler coupled'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : siream - euler coupled'
 	   CASE (13)
-	      print*, 'redistibution method : siream - moving diameter'
+	      if (ssh_standalone) write(*,*) 'redistibution method : siream - moving diameter'
+	      if (ssh_logger) write(logfile,*) 'redistibution method : siream - moving diameter'
 	   CASE DEFAULT ! default redistribution_method = 0
 	      redistribution_method = 0
-	      print*, '! ! without redistibution'
+	      if (ssh_standalone) write(*,*) '! ! without redistibution'
+	      if (ssh_logger) write(logfile,*) '! ! without redistibution'
 	END SELECT
 
 	if (with_fixed_density == 1) then
-	   print*, 'fixed density is used.', fixed_density, 'kg/m^3'
+	   if (ssh_standalone) write(*,*) 'fixed density is used.', fixed_density, 'kg/m^3'
+	   if (ssh_logger) write(logfile,*) 'fixed density is used.', fixed_density, 'kg/m^3'
 	else
-	   print*, 'real density is computed.'
+	   if (ssh_standalone) write(*,*) 'real density is computed.'
+	   if (ssh_logger) write(logfile,*) 'real density is computed.'
         end if
 
 	if (splitting == 1) then
-	   print*, 'coagulation - cond/evap+nucl are coupled'
+	   if (ssh_standalone) write(*,*) 'coagulation - cond/evap+nucl are coupled'
+	   if (ssh_logger) write(logfile,*) 'coagulation - cond/evap+nucl are coupled'
 	else
-	   print*, 'coagulation - cond/evap+nucl are splitted'
+	   if (ssh_standalone) write(*,*) 'coagulation - cond/evap+nucl are splitted'
+	   if (ssh_logger) write(logfile,*) 'coagulation - cond/evap+nucl are splitted'
         end if
 
 
 	if (wet_diam_estimation == 1) then
-	   print*, 'initial wet diameter is computed from initial water conc. if available'
+	   if (ssh_standalone) write(*,*) 'initial wet diameter is computed from initial water conc. if available'
+	   if (ssh_logger) write(logfile,*) 'initial wet diameter is computed from initial water conc. if available'
 	else !default wet_diam_estimation == 0
 	   wet_diam_estimation = 0
-	   print*, 'initial wet diameter is computed by isorropia.'
+	   if (ssh_standalone) write(*,*) 'initial wet diameter is computed by isorropia.'
+	   if (ssh_logger) write(logfile,*) 'initial wet diameter is computed by isorropia.'
 	end if
      end if
 
@@ -653,17 +761,23 @@ module aInitialization
         stop
      else 
 	if (with_coag == 1) then
-	   print*, '! ! ! with coagulation.'
+	   if (ssh_standalone) write(*,*) '! ! ! with coagulation.'
+	   if (ssh_logger) write(logfile,*) '! ! ! with coagulation.'
            if(i_compute_repart == 0) then
-             print*, i_compute_repart,'repartition coefficient are read'
-	     print*, 'coefficient file : ', Coefficient_file
+             if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are read'
+             if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are read'
+	     if (ssh_standalone) write(*,*) 'coefficient file : ', Coefficient_file
+	     if (ssh_logger) write(logfile,*) 'coefficient file : ', Coefficient_file
            else
-             print*, i_compute_repart,'repartition coefficient are computed'
-	     print*, 'Nmc = ',Nmc
+             if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
+             if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
+	     if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
+	     if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
            endif
 	else
 	   with_coag = 0
-	   print*, 'without coagulation.'
+	   if (ssh_standalone) write(*,*) 'without coagulation.'
+	   if (ssh_logger) write(logfile,*) 'without coagulation.'
 	end if
      end if
 
@@ -674,25 +788,32 @@ module aInitialization
         stop
      else
 	if (with_cond == 1)  then ! defalut
-	   print*, '! ! ! with condensation/ evaporation.'
+	   if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
+	   if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
 		if (Cut_dim .le. diam_input(1)) then
-		    print*, 'inorganic compounds are at dynamic.'
+		    if (ssh_standalone) write(*,*) 'inorganic compounds are at dynamic.'
+		    if (ssh_logger) write(logfile,*) 'inorganic compounds are at dynamic.'
 		else if (Cut_dim .ge. diam_input(size(diam_input))) then
-		    print*, 'inorganic compounds are at equilibrium.'
+		    if (ssh_standalone) write(*,*) 'inorganic compounds are at equilibrium.'
+		    if (ssh_logger) write(logfile,*) 'inorganic compounds are at equilibrium.'
 		else 
-		    print*, 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
+		    if (ssh_standalone) write(*,*) 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
+		    if (ssh_logger) write(logfile,*) 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
 
 		end if
 
                 if (ISOAPDYN == 1) then
-	   	    print*, 'Dynamic SOA computation are at dynamic.'
+	   	    if (ssh_standalone) write(*,*) 'Dynamic SOA computation are at dynamic.'
+	   	    if (ssh_logger) write(logfile,*) 'Dynamic SOA computation are at dynamic.'
 		else
 	   	    ISOAPDYN = 0   ! defalut
-	   	    print*, 'Dynamic SOA computation are at equilibrium.'
+	   	    if (ssh_standalone) write(*,*) 'Dynamic SOA computation are at equilibrium.'
+	   	    if (ssh_logger) write(logfile,*) 'Dynamic SOA computation are at equilibrium.'
         	end if
 	else
 	   with_cond = 0
-	   print*, 'without condensation/ evaporation.'
+	   if (ssh_standalone) write(*,*) 'without condensation/ evaporation.'
+	   if (ssh_logger) write(logfile,*) 'without condensation/ evaporation.'
 	end if
      end if
 
@@ -703,16 +824,20 @@ module aInitialization
         stop
      else
 	if (with_nucl == 1) then
-	   print*, '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
+	   if (ssh_standalone) write(*,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
+	   if (ssh_logger) write(logfile,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
 	   if (nucl_model == 0) then
-	      print*, 'nucleation model : binary'
+	      if (ssh_standalone) write(*,*) 'nucleation model : binary'
+	      if (ssh_logger) write(logfile,*) 'nucleation model : binary'
 	   else 
               nucl_model = 1
-	      print*, 'nucleation model : ternary'
+	      if (ssh_standalone) write(*,*) 'nucleation model : ternary'
+	      if (ssh_logger) write(logfile,*) 'nucleation model : ternary'
 	   end if
 	else
 	   with_nucl = 0   ! defalut
-	   print*, 'Without nucleation.'
+	   if (ssh_standalone) write(*,*) 'Without nucleation.'
+	   if (ssh_logger) write(logfile,*) 'Without nucleation.'
 	end if
      end if
 
@@ -723,10 +848,12 @@ module aInitialization
         stop
      else
 	if (with_oligomerization == 1) then
-	   print*, 'with oligomerization.'
+	   if (ssh_standalone) write(*,*) 'with oligomerization.'
+	   if (ssh_logger) write(logfile,*) 'with oligomerization.'
 	else
 	   with_oligomerization = 0   ! defalut
-	   print*, 'without oligomerization.'
+	   if (ssh_standalone) write(*,*) 'without oligomerization.'
+	   if (ssh_logger) write(logfile,*) 'without oligomerization.'
 	end if
      end if
 
@@ -736,20 +863,26 @@ module aInitialization
 	write(*,*) "output setting can not be read."
         stop
      else
-	print*,
-	print*,'<<<< Results output >>>>'
+	if (ssh_standalone) write(*,*) ''
+	if (ssh_logger) write(logfile,*) ''
+	if (ssh_standalone) write(*,*) '<<<< Results output >>>>'
+	if (ssh_logger) write(logfile,*) '<<<< Results output >>>>'
 	if (output_type == 2) then
-	   print*, 'results are saved in binary files.'
+	   if (ssh_standalone) write(*,*) 'results are saved in binary files.'
+	   if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
 	else
 	   output_type = 1   ! defalut
-	   print*, 'results are saved in text files.'
+	   if (ssh_standalone) write(*,*) 'results are saved in text files.'
+	   if (ssh_logger) write(logfile,*) 'results are saved in text files.'
 	end if
-	print*, 'output directory :', output_directory
+	if (ssh_standalone) write(*,*) 'output directory :', output_directory
+	if (ssh_logger) write(logfile,*) 'output directory :', output_directory
      end if
      
      close(10)
      
-     write(*,*) "=========================finish read namelist.ssh file======================"
+     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
+     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
 
 
 end subroutine read_namelist
@@ -785,11 +918,13 @@ subroutine read_inputs()
         if (ierr == 0) count = count + 1
      end do
 
-     print*, 'read gas-phase species list.'
+     if (ssh_standalone) write(*,*) 'read gas-phase species list.'
+     if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
      if (N_gas == count - 1) then   ! minus the first comment line
-	print*, 'Number of gas-phase species', N_gas
+	if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
+	if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
      else 
-	print*, 'Given gas-phase species list does not fit chem() setting.'
+	write(*,*) 'Given gas-phase species list does not fit chem() setting.'
 	stop
      end if
 
@@ -808,10 +943,12 @@ subroutine read_inputs()
         read(12, *, iostat=ierr)
         if (ierr == 0) count = count + 1
      end do
-     print*, 'read aerosol species list.'
+     if (ssh_standalone) write(*,*) 'read aerosol species list.'
+     if (ssh_logger) write(logfile,*) 'read aerosol species list.'
      N_aerosol = count - 1  ! minus the first comment line
 
      allocate(aerosol_species_name(N_aerosol))
+     spec_name_len = len(aerosol_species_name(1))
      allocate(Index_groups(N_aerosol))
      ! initialize basic physical and chemical parameters
      allocate(molecular_weight_aer(N_aerosol))
@@ -891,17 +1028,28 @@ subroutine read_inputs()
            endif
         enddo
 
+        ind = 0
         do js = 1, N_gas
            if (species_name(js) .eq. trim(precursor)) then
               aerosol_species_interact(s) = js
               count = count + 1
+              ind = 1
            endif
-        enddo 
+           if (ind == 1) exit
+        enddo
+        !! Check if a precursor name is found in the list of gas-phase species.
+        if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
+           if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+           if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+           stop
+        endif
+        
      enddo
      close(12)
 
     ! Initialize the concentrations of percursors
-     write(*,*) "Number of precursors: ", count 
+     if (ssh_standalone) write(*,*) "Number of precursors: ", count 
+     if (ssh_logger) write(logfile,*) "Number of precursors: ", count 
 
 
       
@@ -933,11 +1081,13 @@ subroutine read_inputs()
 	   if (ind == 1) exit
         enddo
         if (ind .eq. 0) then
-           write(*,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
+           if (ssh_standalone) write(*,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
+           if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
         endif
      enddo
      close(21)
-  write(*,*) 'gas concentrations have been read'
+  if (ssh_standalone) write(*,*) 'gas concentrations have been read'
+  if (ssh_logger) write(logfile,*) 'gas concentrations have been read'
 
   if (tag_init == 0) then  ! change if species list and init are not in the same order
      ! Read aerosol initial mass concentrations unit 22
@@ -975,13 +1125,15 @@ subroutine read_inputs()
 	   if (ind  == 1) exit
         enddo
         if (ind .eq. 0) then
-           write(*,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
+           if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
+           if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
         endif
      enddo
 
      close(22)
 
-     write(*,*) 'initial mass concentrations have been read'
+     if (ssh_standalone) write(*,*) 'initial mass concentrations have been read'
+     if (ssh_logger) write(logfile,*) 'initial mass concentrations have been read'
   else if (tag_init == 1) then ! mixing_state resolved
 	     ! need to fill in the future
  	write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
@@ -998,14 +1150,16 @@ subroutine read_inputs()
 	      read(23,*, iostat = ierr) ic_name, init_bin_number
          close(23)
 	 if (ierr == 0) then
-            write(*,*) "Aerosol number conc. is read."
-            write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
+            if (ssh_standalone) write(*,*) "Aerosol number conc. is read."
+            if (ssh_logger) write(logfile,*) "Aerosol number conc. is read."
+            if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
+            if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
 	 else 
-            write(*,*)"Aerosol number conc. can not be read from file ",init_aero_conc_num_file
+            write(*,*) "Aerosol number conc. can not be read from file ",init_aero_conc_num_file
 	    stop
          end if 
       else if (tag_init == 1) then
-               print*, 'with_init_num == 1 .and. tag_init == 1 - not yet build'
+               write(*,*) 'with_init_num == 1 .and. tag_init == 1 - not yet build'
 	       stop
       end if
    end if 
@@ -1027,7 +1181,8 @@ subroutine read_inputs()
         if (ierr == 0) count = count + 1
         end do
 	count = count - 1 ! minus comment line
-        write(*,*) "Number of emitted gas-phase species:", count
+        if (ssh_standalone) write(*,*) "Number of emitted gas-phase species:", count
+        if (ssh_logger) write(logfile,*) "Number of emitted gas-phase species:", count
         
         rewind 31
         read(31,*)
@@ -1038,12 +1193,14 @@ subroutine read_inputs()
 		if (species_name(js) .eq. ic_name) then
 		   gas_emis(js) = tmp
 		   ind = 1
-	!print*, 'gas_emis', species_name(js), gas_emis(js)
+	!if (ssh_standalone) write(*,*) 'gas_emis', species_name(js), gas_emis(js)
+	!if (ssh_logger) write(logfile,*) 'gas_emis', species_name(js), gas_emis(js)
                 endif
 	        if (ind == 1) exit
            enddo
            if (ind .eq. 0) then
-              write(*,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
+              if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
+              if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
            end if
         end do
 
@@ -1059,14 +1216,18 @@ subroutine read_inputs()
         if (ierr == 0) count = count + 1
        end do
 	count = count - 1 ! minus comment line
-       write(*,*) "Number of emitted aerosols species:", count
+       if (ssh_standalone) write(*,*) "Number of emitted aerosols species:", count
+       if (ssh_logger) write(logfile,*) "Number of emitted aerosols species:", count
 
        rewind 32
        read(32,*)
        if (Tag_init .eq. 0) then
  	    do s=1, count
                 read(32,*, iostat = ierr) ic_name, (tmp_aero(k),k=1,N_sizebin)
-		if (ierr .ne. 0) stop  
+		if (ierr .ne. 0) then
+                  write(*,*) "Error when reading ic_name."
+                  stop
+                endif
 		ind = 0
 		do js = 1, N_aerosol
 			if (aerosol_species_name(js) == ic_name) then
@@ -1077,11 +1238,14 @@ subroutine read_inputs()
 			end if
 			if (ind ==1) exit
 		end do
-		if (ind == 0) print*, 'Not find the emission species', emis_aero_mass_file, ic_name
+		if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', emis_aero_mass_file, ic_name
+		if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', emis_aero_mass_file, ic_name
             enddo
-            write(*,*) "Emission mass conc. has been read."
+            if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
+            if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
         else if (tag_init .eq. 1) then ! external mixed
-		 write(*,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
+		 if (ssh_standalone) write(*,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
+		 if (ssh_logger) write(logfile,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
                  tag_emis = 0
         endif
        close(32)
@@ -1093,10 +1257,12 @@ subroutine read_inputs()
               read(33,*, iostat=ierr) ic_name, emis_bin_number
          close(33)
          if (ierr .eq. 0) then
-	     print*, "Emission number conc. has been read."
-	     print*, 'emis_bin_number', emis_bin_number
+	     if (ssh_standalone) write(*,*) "Emission number conc. has been read."
+	     if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
+	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
+	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
          else 
-            print*, "can not read aerosol number conc. from ", emis_aero_num_file
+            write(*,*) "can not read aerosol number conc. from ", emis_aero_num_file
             stop
          end if
       end if
@@ -1106,7 +1272,8 @@ subroutine read_inputs()
             ! 1 mixing_state resolved !! option 1 not yet available)
           stop
    end if
-   write(*,*) "=========================finish read inputs file======================"
+   if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
+   if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
    if (allocated(tmp_aero))  deallocate(tmp_aero)
    end subroutine read_inputs
 
@@ -1129,7 +1296,8 @@ subroutine read_inputs()
 	if (allocated(frac_input))  deallocate(frac_input, stat=ierr)
 	if (allocated(frac_bound))  deallocate(frac_bound, stat=ierr)
        if (ierr .ne. 0) then
-          stop "Deallocation error"
+          write(*,*) "Deallocation error"
+          stop
        endif
 	! read_inputs()
 	if (allocated(init_mass))  deallocate(init_mass, stat=ierr)  
@@ -1162,7 +1330,8 @@ subroutine read_inputs()
 
 	if (allocated(concentration_gas_all))  deallocate(concentration_gas_all, stat=ierr)
        if (ierr .ne. 0) then
-          stop "Deallocation error"
+          write(*,*) "Deallocation error"
+          stop
        endif
 	! init_parameters()
 	if (allocated(N_fracbin))  deallocate(N_fracbin, stat=ierr)
@@ -1186,7 +1355,8 @@ subroutine read_inputs()
 
 	if (allocated(lwc_nsize))  deallocate(lwc_nsize, stat=ierr)
 	if (allocated(ionic_nsize))  deallocate(ionic_nsize, stat=ierr)
-	if (allocated(proton_nsize))  deallocate(proton_nsize, stat=ierr)
+        if (allocated(proton_nsize))  deallocate(proton_nsize, stat=ierr)
+        if (allocated(chp_nsize))  deallocate(chp_nsize, stat=ierr)
 	if (allocated(liquid_nsize))  deallocate(liquid_nsize, stat=ierr)
 	if (allocated(concentration_inti))  deallocate(concentration_inti, stat=ierr)
 
@@ -1216,7 +1386,8 @@ subroutine read_inputs()
 	if (allocated(frac_grid))  deallocate(frac_grid, stat=ierr)
 	if (allocated(dqdt))  deallocate(dqdt, stat=ierr)
        if (ierr .ne. 0) then
-          stop "Deallocation error"
+          write(*,*) "Deallocation error"
+          stop
        endif
 	! discretization()
 	if (allocated(discretization_composition))  deallocate(discretization_composition, stat=ierr)
@@ -1231,10 +1402,77 @@ subroutine read_inputs()
 	! if (allocated(soa_part_coef)) deallocate(soa_part_coef, stat=ierr)
 	if (allocated(discretization_mass)) deallocate(discretization_mass)
        if (ierr .ne. 0) then
-          stop "Deallocation error"
+          write(*,*) "Deallocation error"
+          stop
        endif
 
 
   END subroutine free_allocated_memory
+
+! =============================================================
+!
+! Set the flag to decide if SSH-aerosol is logging informations
+!
+! Important: This subroutine must be called before read_namelist
+!
+! input : true if logging to a file, false (default) otherwise
+! =============================================================
+
+    subroutine set_logger(flag)
+
+      implicit none
+
+      logical, intent(in) :: flag
+
+      integer :: ierr
+      logical :: log_file_exists
+
+      ssh_logger = flag
+
+      ! Create log file if needed
+      if (ssh_logger) then
+        ! Check if file exists
+        inquire(file = trim(ssh_logger_file), exist = log_file_exists, iostat = ierr)
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when inquiring log file."
+          stop
+        endif
+        ! Open or create the file
+        if (log_file_exists) then
+          open(unit = logfile, file = trim(ssh_logger_file), access = "append", status = "old", action = "write", iostat = ierr)
+        else
+          open(unit = logfile, file = trim(ssh_logger_file), status = "new", iostat = ierr)
+        endif
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when creating / opening log file."
+          stop
+        endif
+      endif
+
+    end subroutine set_logger
+
+! =============================================================
+!
+! Properly close the log file to finalize the logger
+!
+! =============================================================
+
+    subroutine close_logger()
+
+      implicit none
+
+      integer :: ierr
+
+      ! Close log file if needed
+      if (ssh_logger) then
+        close(unit = logfile, iostat = ierr)
+        if (ierr.ne.0) then
+          write(*,*) "SSH-aerosol: error when closing log file."
+          stop
+        endif
+      endif
+
+
+    end subroutine close_logger
 
 end module aInitialization

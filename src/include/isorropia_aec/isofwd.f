@@ -1678,7 +1678,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -1819,7 +1819,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -1906,7 +1906,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -2051,7 +2051,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2250,7 +2250,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2362,7 +2362,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2470,7 +2470,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2581,7 +2581,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2769,7 +2769,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -2899,7 +2899,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3084,7 +3084,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3217,7 +3217,7 @@ C
       COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
-!$OMP THREADPRIVATE(/CASEG/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3538,7 +3538,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3646,7 +3646,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3758,7 +3758,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF NITRATES ***********************
@@ -3875,7 +3875,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -3999,7 +3999,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF NITRATES ***********************
@@ -4116,7 +4116,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -4265,7 +4265,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** REGIME DEPENDS ON THE EXISTANCE OF NITRATES ***********************
@@ -4382,7 +4382,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -4597,7 +4597,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -4705,7 +4705,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -5054,7 +5054,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -5146,7 +5146,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -5265,7 +5265,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -5346,7 +5346,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -5465,7 +5465,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -5616,7 +5616,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -5717,7 +5717,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -5816,7 +5816,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -5969,7 +5969,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** FIND DRY COMPOSITION **********************************************
@@ -6073,7 +6073,7 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -6379,7 +6379,7 @@ C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
-!$OMP THREADPRIVATE(/CASEJ/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -6478,7 +6478,7 @@ C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
-!$OMP THREADPRIVATE(/CASEJ/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -6562,7 +6562,7 @@ C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
-!$OMP THREADPRIVATE(/CASEJ/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
@@ -6661,7 +6661,7 @@ C
       DOUBLE PRECISION LAMDA, KAPA
       COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
-!$OMP THREADPRIVATE(/CASEJ/)
+
 
 C
 C *** SETUP PARAMETERS ************************************************
