@@ -56,19 +56,19 @@ contains
        enddo
     enddo
 
-   ! initialise bin bounds if need.
-     allocate(diam_bound(N_sizebin+1))
-     if (tag_dbd == 0) then  ! auto-generate bin bounds (method need to change in order to fit PM10 & PM2.5)
-        do i = 1,N_sizebin+1
-	    diam_bound(i)= diam_input(1) * (diam_input(2)/ diam_input(1))**((i - 1) / dble(N_sizebin))
-        enddo  ! set closer bounds to 1, 2.5, 10 if bounds auto-generated ??
-        if (ssh_standalone) write(*,*) "sizebin bound is auto-generated."
-        if (ssh_logger) write(logfile,*) "sizebin bound is auto-generated."
-     else if (tag_dbd == 1) then 
-            diam_bound = diam_input
-     end if
+    ! initialise bin bounds if need.
+    allocate(diam_bound(N_sizebin+1))
+    if (tag_dbd == 0) then  ! auto-generate bin bounds (method need to change in order to fit PM10 & PM2.5)
+       do i = 1,N_sizebin+1
+          diam_bound(i)= diam_input(1) * (diam_input(2)/ diam_input(1))**((i - 1) / dble(N_sizebin))
+       enddo  ! set closer bounds to 1, 2.5, 10 if bounds auto-generated ??
+       if (ssh_standalone) write(*,*) "sizebin bound is auto-generated."
+       if (ssh_logger) write(logfile,*) "sizebin bound is auto-generated."
+    else if (tag_dbd == 1) then 
+       diam_bound = diam_input
+    end if
 
-   !calculate ICUT the corresponding cell index of the cuting diameter
+    !calculate ICUT the corresponding cell index of the cuting diameter
     if(Cut_dim.gt.diam_bound(1)) then
        if (cut_dim .gt. diam_bound(N_sizebin + 1)) cut_dim = diam_bound(N_sizebin + 1)
        do k= 1,N_sizebin
@@ -106,31 +106,31 @@ contains
        Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
     end if
 
-! for gas phase chemistry
-! This index is modified by adding one later
-  ! See ispeclost in Chemistry/common/hetrxn.f
-  heterogeneous_reaction_index(1)= 86-1 ! HO2
-  heterogeneous_reaction_index(2)= 85-1 ! NO2
-  heterogeneous_reaction_index(3)= 78-1 ! NO3
-  heterogeneous_reaction_index(4)= 23-1 ! N2O5
+    ! for gas phase chemistry
+    ! This index is modified by adding one later
+    ! See ispeclost in Chemistry/common/hetrxn.f
+    heterogeneous_reaction_index(1)= 86-1 ! HO2
+    heterogeneous_reaction_index(2)= 85-1 ! NO2
+    heterogeneous_reaction_index(3)= 78-1 ! NO3
+    heterogeneous_reaction_index(4)= 23-1 ! N2O5
 
-  ind_jbiper = 14    ! aerosol species index
+    ind_jbiper = 14    ! aerosol species index
 
-  ns_source = 1
-  allocate(source_index(ns_source))
-  source_index = [1]
-  allocate(source(ns_source))
-  source = 0.d0
-  allocate(conversionfactor(n_gas))
-  allocate(conversionfactorjacobian(n_gas, n_gas))
+    ns_source = 1
+    allocate(source_index(ns_source))
+    source_index = [1]
+    allocate(source(ns_source))
+    source = 0.d0
+    allocate(conversionfactor(n_gas))
+    allocate(conversionfactorjacobian(n_gas, n_gas))
 
-  do j = 1, n_gas
-     conversionfactor(j) = Navog * 1.d-12 / molecular_weight(j)
-     do k = 1, n_gas
-        conversionfactorjacobian(j, k) = molecular_weight(j) / &
-             molecular_weight(k)
-     enddo
-  enddo
+    do j = 1, n_gas
+       conversionfactor(j) = Navog * 1.d-12 / molecular_weight(j)
+       do k = 1, n_gas
+          conversionfactorjacobian(j, k) = molecular_weight(j) / &
+               molecular_weight(k)
+       enddo
+    enddo
 
     ! initialise fraction discretization 
 
@@ -220,9 +220,9 @@ contains
     allocate(dqdt(N_size,N_aerosol_layers)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
     dqdt = 0.d0
 
-   if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
-   if (ssh_logger) write(logfile,*) "=====================finish initialising parameters==================="
-   end subroutine init_parameters
+    if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
+    if (ssh_logger) write(logfile,*) "=====================finish initialising parameters==================="
+  end subroutine init_parameters
 
 
   subroutine discretization()
@@ -401,21 +401,21 @@ contains
                       endif
                    endif
 
- !                  if(tag_external.eq.1) then !!in case of external mixed initial condition
-                      concentration_number(j) = concentration_number(j)+init_bin_number(k)&
-                           *init_bin_mass(k,s)/binx_mass(k)
-                      if(s.LE.N_nonorganics) then
-                         concentration_mass(j,s) = init_bin_mass(k,s) 
-                      else
-                         do lay=1,nlayer
-                            jesp = index_species(s,lay)
-                            concentration_mass(j,jesp) = init_bin_mass(k,s) * Vlayer(lay)
-                         enddo
-                      endif
- !                  endif
+                   !                  if(tag_external.eq.1) then !!in case of external mixed initial condition
+                   concentration_number(j) = concentration_number(j)+init_bin_number(k)&
+                        *init_bin_mass(k,s)/binx_mass(k)
+                   if(s.LE.N_nonorganics) then
+                      concentration_mass(j,s) = init_bin_mass(k,s) 
+                   else
+                      do lay=1,nlayer
+                         jesp = index_species(s,lay)
+                         concentration_mass(j,jesp) = init_bin_mass(k,s) * Vlayer(lay)
+                      enddo
+                   endif
+                   !                  endif
                    if(tag_emis .ne. 0 .and. with_emis_num.eq.1) then !!in case of external mixed initial condition
 		      emission_num_rate(j) = emis_bin_number(k) &
-			                       *emis_bin_mass(k,s)/binx_emis(k)   
+                           *emis_bin_mass(k,s)/binx_emis(k)   
                    endif
                    !endif
                 endif
@@ -439,33 +439,33 @@ contains
                          endif
                       endif
                    endif
-!                   if(tag_external.eq.1) then !!in case of external mixed initial condition
-		      concentration_number(j) = concentration_number(j)+init_bin_number(k)&
-                           *init_bin_mass(k,s)/binx_mass(k)
-                      if(s.LE.N_nonorganics) then
-                         concentration_mass(j,s) = init_bin_mass(k,s)
-                      else
-                         do lay=1,nlayer
-                            jesp = index_species(s,lay)
-                            concentration_mass(j,jesp) = init_bin_mass(k,s)* Vlayer(lay)
-                         enddo
-                      endif
-!                   endif
+                   !                   if(tag_external.eq.1) then !!in case of external mixed initial condition
+                   concentration_number(j) = concentration_number(j)+init_bin_number(k)&
+                        *init_bin_mass(k,s)/binx_mass(k)
+                   if(s.LE.N_nonorganics) then
+                      concentration_mass(j,s) = init_bin_mass(k,s)
+                   else
+                      do lay=1,nlayer
+                         jesp = index_species(s,lay)
+                         concentration_mass(j,jesp) = init_bin_mass(k,s)* Vlayer(lay)
+                      enddo
+                   endif
+                   !                   endif
                    if(tag_emis .ne. 0 .and.with_emis_num.eq.1) then !!in case of external mixed initial condition
                       emission_num_rate(j) = emis_bin_number(k) &
-			                *emis_bin_mass(k,s)/binx_emis(k)  
+                           *emis_bin_mass(k,s)/binx_emis(k)  
                    endif
 		   !endif
                 endif
              endif
 	  enddo
-	enddo
-      else ! default & N_frac.eq.1
-	!case of internal mixing N_size=N_sizebin
-         if (ssh_standalone) write(*,*) "Internal mixing..."
-         if (ssh_logger) write(logfile,*) "Internal mixing..."
-         do k=1,N_sizebin
-            do s=1,N_aerosol
+       enddo
+    else ! default & N_frac.eq.1
+       !case of internal mixing N_size=N_sizebin
+       if (ssh_standalone) write(*,*) "Internal mixing..."
+       if (ssh_logger) write(logfile,*) "Internal mixing..."
+       do k=1,N_sizebin
+          do s=1,N_aerosol
              if(s.LE.N_nonorganics) then
                 if(tag_emis .ne. 0) then ! if with emission
                    emission_rate(k,s) = emis_bin_mass(k,s)
@@ -489,21 +489,21 @@ contains
     endif
 
     ! ! incase of internal mixed initial condition ! !
- !   if(tag_external.eq.0.and.N_frac.gt.1) then
- !      do k=1,N_sizebin
- !         j=concentration_index_iv(k,1)
- !         concentration_number(j) = init_bin_number(k)
- !         do s=1, N_nonorganics!index of non organic species
- !            concentration_mass(j,s) = init_bin_mass(k,s) 
- !         enddo
- !         do s=N_nonorganics+1, N_aerosol !index of organics and water
- !            do lay=1,nlayer
- !               jesp = index_species(s,lay)
- !               concentration_mass(j,jesp) = init_bin_mass(k,s) * Vlayer(lay)
- !            enddo
- !         enddo
- !      enddo
- !   endif
+    !   if(tag_external.eq.0.and.N_frac.gt.1) then
+    !      do k=1,N_sizebin
+    !         j=concentration_index_iv(k,1)
+    !         concentration_number(j) = init_bin_number(k)
+    !         do s=1, N_nonorganics!index of non organic species
+    !            concentration_mass(j,s) = init_bin_mass(k,s) 
+    !         enddo
+    !         do s=N_nonorganics+1, N_aerosol !index of organics and water
+    !            do lay=1,nlayer
+    !               jesp = index_species(s,lay)
+    !               concentration_mass(j,jesp) = init_bin_mass(k,s) * Vlayer(lay)
+    !            enddo
+    !         enddo
+    !      enddo
+    !   endif
 
     if(tag_external.ne.0) then!incase of internal mixed initial condition
        if(N_frac.gt.1) then
@@ -535,139 +535,139 @@ contains
 
     ! initialise density ! after concentration_mass
 
-     allocate(density_aer_bin(N_size))
-	density_aer_bin = 0.0
-     allocate(density_aer_size(N_sizebin))
-	density_aer_size = 0.0
-     allocate(rho_wet_cell(N_size))
-	rho_wet_cell = 0.0
+    allocate(density_aer_bin(N_size))
+    density_aer_bin = 0.0
+    allocate(density_aer_size(N_sizebin))
+    density_aer_size = 0.0
+    allocate(rho_wet_cell(N_size))
+    rho_wet_cell = 0.0
 
-	if (with_fixed_density.eq.1) then
-		! convert from kg/m3 to µg/µm3 or µg/m3
-        	!rho1 = fixed_density * 1.0d-9    !µg/µm3     
-        	!rho2 = fixed_density * 1.0d+9    !µg/m3	       
-        	mass_density(EH2O)=fixed_density
-        	density_aer_bin=fixed_density
-        	density_aer_size=fixed_density
-        	rho_wet_cell = fixed_density
-	else
-	        call compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
-		if (ssh_standalone) write(*,*)"Density is auto-generated."
-		if (ssh_logger) write(logfile,*)"Density is auto-generated."
-	end if
+    if (with_fixed_density.eq.1) then
+       ! convert from kg/m3 to µg/µm3 or µg/m3
+       !rho1 = fixed_density * 1.0d-9    !µg/µm3     
+       !rho2 = fixed_density * 1.0d+9    !µg/m3	       
+       mass_density(EH2O)=fixed_density
+       density_aer_bin=fixed_density
+       density_aer_size=fixed_density
+       rho_wet_cell = fixed_density
+    else
+       call compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
+       if (ssh_standalone) write(*,*)"Density is auto-generated."
+       if (ssh_logger) write(logfile,*)"Density is auto-generated."
+    end if
 
-  if (with_init_num == 1) then
-	! calculate diameter
-	do k = 1, N_sizebin
-		tmp = 0.0
-		do s =1, N_aerosol
-			tmp = tmp + init_bin_mass(k,s)
-		end do
-		if (init_bin_number(k) .ne. 0) then
-			size_mass_av(k) = tmp / init_bin_number(k)
-		else
-			size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
-		end if
-	end do
-  else 
-	! calculate size_mass_av(n_sizebin)
-	do k = 1, N_sizebin
-		size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
-	end do
-	! need size_diam_av and conc._mass
-	call compute_number()  ! only for initialisation
-	if (ssh_standalone) write(*,*)"Initial PM number concentration is auto-generated."
-	if (ssh_logger) write(logfile,*)"Initial PM number concentration is auto-generated."
-  end if
+    if (with_init_num == 1) then
+       ! calculate diameter
+       do k = 1, N_sizebin
+          tmp = 0.0
+          do s =1, N_aerosol
+             tmp = tmp + init_bin_mass(k,s)
+          end do
+          if (init_bin_number(k) .ne. 0) then
+             size_mass_av(k) = tmp / init_bin_number(k)
+          else
+             size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
+          end if
+       end do
+    else 
+       ! calculate size_mass_av(n_sizebin)
+       do k = 1, N_sizebin
+          size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
+       end do
+       ! need size_diam_av and conc._mass
+       call compute_number()  ! only for initialisation
+       if (ssh_standalone) write(*,*)"Initial PM number concentration is auto-generated."
+       if (ssh_logger) write(logfile,*)"Initial PM number concentration is auto-generated."
+    end if
 
-  call compute_average_diameter()
-       ! need conc. mass, mass_density size_diam_av(n_sizebin), size_mass_av(n_sizebin)
-       ! give cell_diam_av(n_size) cell_mass_av(n_size) !!
+    call compute_average_diameter()
+    ! need conc. mass, mass_density size_diam_av(n_sizebin), size_mass_av(n_sizebin)
+    ! give cell_diam_av(n_size) cell_mass_av(n_size) !!
 
-   ! wet_diameter is initialized for heterogeneous reactions
-  call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-	concentration_inti,wet_mass,wet_diameter,wet_volume)
+    ! wet_diameter is initialized for heterogeneous reactions
+    call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+         concentration_inti,wet_mass,wet_diameter,wet_volume)
 
-  if (with_coag.eq.1) then !if coagulation
-    allocate(kernel_coagulation(N_size,N_size))
-    kernel_coagulation = 0.d0
+    if (with_coag.eq.1) then !if coagulation
+       allocate(kernel_coagulation(N_size,N_size))
+       kernel_coagulation = 0.d0
 
-    if (i_compute_repart == 0) then
-      do i=1,len(trim(Coefficient_file))!judge the input files
-         if(Coefficient_file(i:i)==".")then
-            if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
-               tag_file=1
-            elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
-               tag_file=0
-            elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
-               tag_file=2
-            else
-               if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation!"
-               if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation!"
-               i_compute_repart = 1
-            endif
-         endif
-      enddo
-      if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
-      if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
+       if (i_compute_repart == 0) then
+          do i=1,len(trim(Coefficient_file))!judge the input files
+             if(Coefficient_file(i:i)==".")then
+                if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
+                   tag_file=1
+                elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
+                   tag_file=0
+                elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
+                   tag_file=2
+                else
+                   if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation!"
+                   if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation!"
+                   i_compute_repart = 1
+                endif
+             endif
+          enddo
+          if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
+          if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
 
-      call ReadCoefficient(Coefficient_file, tag_file) ! defined in ModuleCoefficientRepartition
+          call ReadCoefficient(Coefficient_file, tag_file) ! defined in ModuleCoefficientRepartition
+       endif
+       if (i_compute_repart == 1) then
+          if (ssh_standalone) write(*,*) "Compute coefficient repartition"
+          if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
+          !kernel_cagulation :
+          call ComputeCoefficientRepartition()
+       endif
+
+       ! Check the quality of coagulation repartition coefficients
+       call check_repart_coeff() !! YK
+
+       call  COMPUTE_AIR_FREE_MEAN_PATH(Temperature,&
+            Pressure, air_free_mean_path, viscosity)
+
+       call  compute_average_diameter()  !!?
+
+       do j1 = 1, N_size
+          do j2 = 1, j1
+             call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
+                  wet_diameter(j1),wet_diameter(j2),&
+                  wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
+             ! symmetric kernels
+             kernel_coagulation(j2,j1)=kernel_coagulation(j1,j2)
+          enddo
+       enddo
     endif
-    if (i_compute_repart == 1) then
-       if (ssh_standalone) write(*,*) "Compute coefficient repartition"
-       if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
-    !kernel_cagulation :
-      call ComputeCoefficientRepartition()
-    endif
 
-    ! Check the quality of coagulation repartition coefficients
-    call check_repart_coeff() !! YK
- 
-    call  COMPUTE_AIR_FREE_MEAN_PATH(Temperature,&
-           Pressure, air_free_mean_path, viscosity)
+    if (with_cond.EQ.1) then  ! for condensation
 
-    call  compute_average_diameter()  !!?
+       allocate(quadratic_speed(N_aerosol))    
+       quadratic_speed=0.D0
+       allocate(diffusion_coef(N_aerosol))
+       diffusion_coef=0.D0
 
-    do j1 = 1, N_size
-         do j2 = 1, j1
-            call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
-                 wet_diameter(j1),wet_diameter(j2),&
-                 wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
-            ! symmetric kernels
-            kernel_coagulation(j2,j1)=kernel_coagulation(j1,j2)
-         enddo
-    enddo
-  endif
+       ! exist in ModuleAdapstep :
+       tmp = 0.d0
+       do i = 1, N_aerosol 
+          tmp= molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
 
-  if (with_cond.EQ.1) then  ! for condensation
+          if (aerosol_species_interact(i) .gt. 0) then    
+             ! gas diffusivity
+             call compute_gas_diffusivity(temperature, pressure, &
+                  molecular_diameter(i), tmp,collision_factor_aer(i), &
+                  diffusion_coef(i))  
+             ! quadratic mean velocity
+             call compute_quadratic_mean_velocity(temperature, tmp,quadratic_speed(i)) 
+          endif
+       end do
+    end if
 
-         allocate(quadratic_speed(N_aerosol))    
-         quadratic_speed=0.D0
-         allocate(diffusion_coef(N_aerosol))
-         diffusion_coef=0.D0
-
-	! exist in ModuleAdapstep :
-         tmp = 0.d0
-         do i = 1, N_aerosol 
-            tmp= molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
-		
-            if (aerosol_species_interact(i) .gt. 0) then    
-               ! gas diffusivity
-               call compute_gas_diffusivity(temperature, pressure, &
-                    molecular_diameter(i), tmp,collision_factor_aer(i), &
-                    diffusion_coef(i))  
-		! quadratic mean velocity
-               call compute_quadratic_mean_velocity(temperature, tmp,quadratic_speed(i)) 
-            endif
-         end do
-  end if
-
-  call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
-                                      wet_mass,wet_diameter,wet_volume,cell_diam_av)
+    call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+         wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
 
- if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
- if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
+    if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
+    if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
   end subroutine Init_distributions
 
