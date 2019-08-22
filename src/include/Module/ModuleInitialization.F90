@@ -1337,6 +1337,9 @@ subroutine read_inputs()
                   Vlayer(3)=0.12102374
                   Vlayer(4)=0.04255976
                   Vlayer(5)=0.01
+               else
+                  if (ssh_standalone) write(*,*) "Number of layers not implemented in ssh"
+                  if (ssh_logger) write(logfile,*) "Number of layers not implemented in ssh"
                endif
             endif
          endif
