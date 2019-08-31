@@ -556,7 +556,7 @@ subroutine discretization()
     allocate(kernel_coagulation(N_size,N_size))
     kernel_coagulation = 0.d0
 
-    if (i_compute_repart == 0) then
+    if (i_compute_repart == 0 .or. i_write_repart == 1) then
       do i=1,len(trim(Coefficient_file))!judge the input files
          if(Coefficient_file(i:i)==".")then
             if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
@@ -566,23 +566,28 @@ subroutine discretization()
             elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
                tag_file=2
             else
-               if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation!"
-               if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation!"
-               i_compute_repart = 1
+               if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation."
+               if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation."
+               if (i_compute_repart == 0) i_compute_repart = 1
+               if (i_write_repart == 1) i_write_repart = 0
             endif
          endif
       enddo
       if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
       if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
+    endif
 
-      call ReadCoefficient(Coefficient_file, tag_file) ! defined in ModuleCoefficientRepartition
-    endif
-    if (i_compute_repart == 1) then
-       if (ssh_standalone) write(*,*) "Compute coefficient repartition"
-       if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
-    !kernel_cagulation :
+    ! Subroutines are defined in ModuleCoefficientRepartition
+    if (i_compute_repart == 0) then
+      call ReadCoefficientRepartition(Coefficient_file, tag_file)
+    else if (i_compute_repart == 1) then
       call ComputeCoefficientRepartition()
+    else
+      if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
+      if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
+      stop
     endif
+    if (i_write_repart == 1) call WriteCoefficientRepartition(Coefficient_file, tag_file)
 
     ! Check the quality of coagulation repartition coefficients
     call check_repart_coeff() !! YK

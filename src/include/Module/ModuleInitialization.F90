@@ -86,6 +86,7 @@ module aInitialization
     integer :: redistribution_method !tag of redistribution method
     integer :: with_coag   !Tag gCoagulation
     integer :: i_compute_repart ! 0 if repartition coeff are read
+    integer :: i_write_repart ! 1 if repartition coeff are written, 0 otherwise
     integer :: with_cond   !Tag fCondensation
     integer :: with_nucl   !Tag nucleation
     Integer :: nucl_model  !ITERN !1= Ternary, 0= binary
@@ -380,7 +381,7 @@ module aInitialization
      namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
 		  	     with_fixed_density, fixed_density, splitting
 		 
-     namelist /physic_coagulation/ with_coag, i_compute_repart, Coefficient_file, Nmc
+     namelist /physic_coagulation/ with_coag, i_compute_repart, i_write_repart, Coefficient_file, Nmc
 
      namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
           with_kelvin_effect, tequilibrium,&
@@ -772,6 +773,21 @@ module aInitialization
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
 	     if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
 	     if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
+           endif
+           if (i_write_repart == 1) then
+             if (ssh_standalone) write(*,*) i_write_repart,'repartition coefficient are written'
+             if (ssh_logger) write(logfile,*) i_write_repart,'repartition coefficient are written'
+             if (ssh_standalone) write(*,*) 'coefficient file : ', Coefficient_file
+             if (ssh_logger) write(logfile,*) 'coefficient file : ', Coefficient_file
+           endif
+           ! Safety check
+           if (i_compute_repart .lt. 0 .or. i_compute_repart .gt. 1) then
+             write(*,*) "Wrong value for the parameter i_compute_repart. Abort."
+             stop
+           endif
+           if (i_write_repart .lt. 0 .or. i_write_repart .gt. 1) then
+             write(*,*) "Wrong value for the parameter i_write_repart. Abort."
+             stop
            endif
 	else
 	   with_coag = 0

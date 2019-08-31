@@ -40,12 +40,9 @@ Module bCoefficientRepartition
 
   ! Repartition coefficients.
   type(ptr_to_real_array), dimension(:), allocatable :: repartition_coefficient
-  type(ptr_to_real_array), dimension(:), allocatable :: repartition_coefficient_nc
   ! Index of repartition coefficients.
   type(ptr_to_integer_array), dimension(:), allocatable :: index1_repartition_coefficient
-  type(ptr_to_integer_array), dimension(:), allocatable :: index1_repartition_coefficient_nc
   type(ptr_to_integer_array), dimension(:), allocatable :: index2_repartition_coefficient
-  type(ptr_to_integer_array), dimension(:), allocatable :: index2_repartition_coefficient_nc
 
   ! Monte Carlo method.
   integer (kind=8) :: number_monte_carlo
@@ -70,6 +67,9 @@ contains
     double precision :: dsum,f1,f2,m1,m2,m12,fact,f12
     integer :: i1,i2,l1,l2,j1,j2,n,s,i,j,k,l,g
     integer :: ki
+
+    if (ssh_standalone) write(*,*) "Compute coefficient repartition"
+    if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
 
     ! Allocate repartition coefficient
     allocate(repartition_coefficient(N_size))
@@ -181,7 +181,7 @@ contains
 
   ! Read repartition coefficients and their indexes from file.
   ! Size and composition discretization must correspond.
-  subroutine ReadCoefficient(file,tag_file)
+  subroutine ReadCoefficientRepartition(file, tag_file)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -192,37 +192,39 @@ contains
 !
 !     -- INPUT VARIABLES
 !
-!     file: directory of coefficient repartition file
+!     file: name of coefficient repartition file
 !     tag_file: tag of file format 1=NetCDF 2=TXT 3=BIN
 !
 !------------------------------------------------------------------------   
     implicit none 
 
-    integer:: tag_file! Judge the type of input files NetCDF or Bin .TRUE. or .FALSE.
+    integer, intent(in) :: tag_file
     double precision:: TempCoef
     integer::j, l, i, Ncoef, varid, dimid, ncid, i1, i2 , Ncfix
     character (len=30), intent(in) :: file
     ! This is the name of the data file we will read.
     character (len = *), parameter :: NCP_NAME = "Ncompute"
     double precision::sum_coef(N_size,N_size)
+    type(ptr_to_real_array), dimension(N_size) :: repartition_coefficient_nc
+    type(ptr_to_integer_array), dimension(N_size) :: index1_repartition_coefficient_nc
+    type(ptr_to_integer_array), dimension(N_size) :: index2_repartition_coefficient_nc
 
        !TMP
        character( len = 5 ) :: cTemp
        character( len = 5 ) :: Temp
        character (len = 11):: DIM_NAME
        character (len = 11):: VAR_NAME
-    
-    if(tag_file.eq.1)then !in case of NetCDF input
-        print *, " Read repartition coefficients and their indexes from NetCDF file."
+
+    ! NetCDF input
+    if (tag_file .eq. 1) then
+       if (ssh_standalone) write(*,*) " Read repartition coefficients and their indexes from NetCDF file."
+       if (ssh_logger) write(logfile,*) " Read repartition coefficients and their indexes from NetCDF file."
        ! Open the file.
        call check( nf90_open(file, NF90_NOWRITE, ncid) )
        ! Allocate memory.
        allocate(index1_repartition_coefficient(N_size))
-       allocate(index1_repartition_coefficient_nc(N_size))!to read the oringinal version
        allocate(index2_repartition_coefficient(N_size))
-       allocate(index2_repartition_coefficient_nc(N_size))
        allocate(repartition_coefficient(N_size))
-       allocate(repartition_coefficient_nc(N_size))
       !OPEN(12,file='coeff_reff.txt')
       do i = 1, N_size
               write( cTemp,'(i4)' ) (i-1)
@@ -307,21 +309,14 @@ contains
            enddo
     enddo
     
-    do i1  = 1, N_size
-      do i2= 1, N_size
-      enddo
-    enddo
-    
-    !stop
+    ! TXT input
     elseif (tag_file.eq.2) then
-    write (*,'(A, F8.3)') ' Read repartition coefficients and their indexes from TXT file.'
+    if (ssh_standalone) write(*,*) " Read repartition coefficients and their indexes from TXT file."
+    if (ssh_logger) write(logfile,*) " Read repartition coefficients and their indexes from TXT file."
     open(11, file = file , status = "old")  
        allocate(index1_repartition_coefficient(N_size))
-       allocate(index1_repartition_coefficient_nc(N_size))!to read the oringinal version
        allocate(index2_repartition_coefficient(N_size))
-       allocate(index2_repartition_coefficient_nc(N_size))
        allocate(repartition_coefficient(N_size))
-       allocate(repartition_coefficient_nc(N_size))
 
     do j = 1,N_size
        read(11,*)repartition_coefficient_nc(j)%n
@@ -385,16 +380,21 @@ contains
            print*,'coef sum',i,TempCoef
     enddo
     close(11)
-    else ! in case of BIN input
-    write (*,'(A, F8.3)') ' Read repartition coefficients and their indexes from BIN file.'
+
+    ! BIN input
+    else
+    if (ssh_standalone) write(*,*) " Read repartition coefficients and their indexes from BIN file."
+    if (ssh_logger) write(logfile,*) " Read repartition coefficients and their indexes from BIN file."
     open(11, file = file ,form="unformatted" , status = "old")  
 
     allocate(repartition_coefficient(N_size))
     allocate(index1_repartition_coefficient(N_size))
     allocate(index2_repartition_coefficient(N_size))
-
+    
     do j = 1,N_size
-       read(11)repartition_coefficient(j)%n
+       read(11) repartition_coefficient(j)%n
+       index1_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+       index2_repartition_coefficient(j)%n = repartition_coefficient(j)%n
        allocate(repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
        allocate(index1_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
        allocate(index2_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
@@ -410,7 +410,109 @@ contains
     close(11)
     endif
     
-  end subroutine ReadCoefficient
+  end subroutine ReadCoefficientRepartition
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ! Write repartition coefficients and their indexes from file.
+  ! Size and composition discretization must correspond.
+  recursive subroutine WriteCoefficientRepartition(file, tag_file)
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine writes coefficient repartition data
+!     based on its directory and format (*.nc; *.txt; *.bin)
+!   
+!------------------------------------------------------------------------
+!      
+!     -- INPUT VARIABLES
+!      
+!     file: name of coefficient repartition file
+!     tag_file: tag of file format 1=NetCDF 2=TXT 3=BIN
+!      
+!------------------------------------------------------------------------   
+    implicit none
+
+    ! Inputs
+    integer, intent(in) :: tag_file
+    character (len=30), intent(in) :: file
+
+    ! Local variables
+    integer, parameter :: write_unit = 11
+    integer :: j, l
+    logical :: is_file
+
+    ! NetCDF output
+    if (tag_file.eq.1) then
+
+      if (ssh_standalone) write(*,*) "Warning: NetCDF writer is not ready. Fallback to TXT."
+      if (ssh_logger) write(logfile,*) "Warning: NetCDF writer is not ready. Fallback to TXT."
+      call WriteCoefficientRepartition(file, 2)
+
+    ! TXT
+    else if (tag_file.eq.2) then
+ 
+      ! Check if there is a file
+      inquire(file = file, exist = is_file)
+      ! If there is a file, it is replaced
+      if (is_file) then
+        open(write_unit, file = file , status = "replace")
+      ! Otherwise it is created
+      else
+        open(write_unit, file = file , status = "new")
+      endif
+
+      ! Write data
+      !   index is 0-based
+      do j = 1, N_size
+        write(write_unit,*) repartition_coefficient(j)%n
+        do l = 1, repartition_coefficient(j)%n 
+          write(write_unit,*) index1_repartition_coefficient(j)%arr(l) - 1
+          write(write_unit,*) index2_repartition_coefficient(j)%arr(l) - 1
+          write(write_unit,*) repartition_coefficient(j)%arr(l)
+        enddo
+      enddo
+
+      ! Close file
+      close(write_unit)
+
+    ! BIN
+    else if (tag_file.eq.3) then
+
+      ! Check if there is a file
+      inquire(file = file, exist = is_file)
+      ! If there is a file, it is replaced
+      if (is_file) then
+        open(write_unit, file = file, form = "unformatted", status = "replace")
+      ! Otherwise it is created
+      else
+        open(write_unit, file = file, form = "unformatted", status = "new")
+      endif
+
+      ! Write data
+      !   index is 1-based
+      do j = 1, N_size
+        write(write_unit) repartition_coefficient(j)%n
+        do l = 1, repartition_coefficient(j)%n
+          write(write_unit) index1_repartition_coefficient(j)%arr(l)
+          write(write_unit) index2_repartition_coefficient(j)%arr(l)
+          write(write_unit) repartition_coefficient(j)%arr(l)
+        enddo
+      enddo
+
+      ! Close file
+      close(write_unit)
+
+    ! Unknown fomat
+    else
+
+      if (ssh_standalone) write(*,*) "Warning: Unknown writer format. Fallback to TXT."
+      if (ssh_logger) write(logfile,*) "Warning: Unknown writer format. Fallback to TXT."
+      call WriteCoefficientRepartition(file, 2)
+
+    endif
+
+  end subroutine WriteCoefficientRepartition
 
   subroutine check(status)
 !------------------------------------------------------------------------

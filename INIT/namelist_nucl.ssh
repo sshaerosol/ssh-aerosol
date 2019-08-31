@@ -81,6 +81,7 @@ splitting = 1,             ! 0 if coagulation and (condensation/evaporation+nucl
 &physic_coagulation
 with_coag = 1,                 		!Tag of coagulation
 i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
 Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file
 Nmc = 2000                             ! Number of Monte Carlo points if repartition coeff are computed
 /
