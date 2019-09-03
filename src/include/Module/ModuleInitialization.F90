@@ -1103,7 +1103,6 @@ contains
 
     enddo
     close(12)
->>>>>>> master
 
     ! Initialize the concentrations of percursors
     if (ssh_standalone) write(*,*) "Number of precursors: ", count 
