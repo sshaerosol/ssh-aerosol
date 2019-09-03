@@ -58,8 +58,6 @@ contains
     !**** SOAP ****
     double precision :: inorg_total, inorg_bin(N_size) 
     integer :: neq
-    DOUBLE PRECISION :: q(N_size*(1+N_aerosol)+N_aerosol)
-    integer :: iq(N_aerosol, N_size) 
     double precision :: ionic, lwc, proton
     double precision :: lwcorg_Nsize(N_size)
     double precision :: liquid(12),rhoaer,lwcorg
@@ -77,8 +75,8 @@ contains
     if (with_fixed_density.ne.1) then
 
        do j1 = 1, N_size
-          call compute_density(N_size,N_aerosol,EH2O,TINYM,concentration_mass,&
-               mass_density,j1,rhoaer)
+          call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,&
+               mass_density_layers,j1,rhoaer)
           rho_wet_cell(j1) = rhoaer
           if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
        enddo
@@ -153,7 +151,7 @@ contains
 
        if(splitting == 0) then ! Split processes
           ! Solve with the slowest process (coagulation)
-          if (with_coag.eq.1) then
+          if ((with_coag.eq.1).AND.(nlayer.eq.1)) then
              current_sub_time = initial_time_splitting
              final_sub_time = current_sub_time+timestep_splitting
              tag_coag = 1
@@ -207,7 +205,7 @@ contains
 
        endif
 
-       if (ISOAPDYN.eq.0) then
+       if ((ISOAPDYN.eq.0).AND.(nlayer.eq.1)) then
 
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
 
@@ -219,8 +217,11 @@ contains
           do jesp=1,N_aerosol
              qext(jesp) = 0.d0
              surface_equilibrium_conc_tmp(jesp) = 0.d0
+          enddo
+          do jesp=1,N_aerosol_layers
+             s = List_species(jesp)
              do j=1,N_size
-                qext(jesp) = qext(jesp) + concentration_mass(j,jesp)
+                qext(s) = qext(s) + concentration_mass(j,jesp)
              enddo
           enddo
           call EQINORG(N_aerosol,qext,qinti_tmp,surface_equilibrium_conc_tmp,lwc,ionic,proton,liquid)
@@ -231,7 +232,7 @@ contains
           call SOAP_DYN(Relative_Humidity,&
                ionic, proton, lwc,lwcorg,&
                Temperature, delta_t,&
-               cell_diam_av, neq, q, iq, liquid)
+               cell_diam_av, neq, liquid)
 
        endif
 
@@ -294,7 +295,7 @@ contains
           !     solve sulfate dynamically
           if (sulfate_computation.eq.1) then
              call SULFDYN(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-                  concentration_number,concentration_gas,dqdt,sub_timestep_splitting,time_step_sulf)
+                  concentration_number,concentration_gas,sub_timestep_splitting,time_step_sulf)
           endif
        endif
 
@@ -344,7 +345,8 @@ contains
                 if(N_fracmax.gt.1) then
                    call redistribution_fraction()!fraction redistribution
                 endif
-                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
+                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution         
+
              endif
           endif
        endif
@@ -379,9 +381,9 @@ contains
     implicit none
 
     integer:: j,jesp,s
-    double precision:: c_mass(N_size,N_aerosol)
-    double precision:: dqdt1(N_size,N_aerosol)
-    double precision:: c_number(N_size)
+    double precision:: c_mass(N_size,N_aerosol_layers)
+    double precision:: dqdt1(N_size,N_aerosol_layers)
+    double precision:: c_number(N_size),qH2O(N_size)
     double precision:: dndt1(N_size)
     double precision:: c_gas(N_aerosol)
     double precision:: sub_time_splitting
@@ -397,7 +399,7 @@ contains
     tag_coag = with_coag
     tag_cond = with_cond
     tag_nucl = with_nucl
-    call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
+    call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
     if (sulfate_computation.eq.1) then
        do j = 1,N_size! Reassigned distribution by mass of each species
           call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
@@ -413,12 +415,13 @@ contains
           tscale = 0.1d0 * c_number(j)/DABS(dndt1(j))
           sub_time_splitting = DMIN1(sub_time_splitting,tscale)
        endif
-       do s= 1, (N_aerosol-1)
-          jesp=List_species(s)
-          tmp=c_mass(j,jesp)*dqdt1(j,jesp)
-          if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
-             tscale = 0.1d0 * c_mass(j,jesp)/DABS(dqdt1(j,jesp))
-             sub_time_splitting = DMIN1(sub_time_splitting,tscale)
+       do jesp= 1, N_aerosol_layers
+          if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+             tmp=c_mass(j,jesp)*dqdt1(j,jesp)
+             if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
+                tscale = 0.1d0 * c_mass(j,jesp)/DABS(dqdt1(j,jesp))
+                sub_time_splitting = DMIN1(sub_time_splitting,tscale)
+             endif
           endif
        enddo
     end do
@@ -463,9 +466,9 @@ contains
     implicit none
 
     integer:: j,jesp,s,splitting
-    double precision:: c_mass(N_size,N_aerosol)
-    double precision:: dqdt1(N_size,N_aerosol)
-    double precision:: c_number(N_size)
+    double precision:: c_mass(N_size,N_aerosol_layers)
+    double precision:: dqdt1(N_size,N_aerosol_layers)
+    double precision:: c_number(N_size),qH2O(N_size)
     double precision:: dndt1(N_size)
     double precision:: c_gas(N_aerosol)
     double precision:: time_coag
@@ -480,12 +483,12 @@ contains
     time_coag=t_total-initial_time_splitting
     time_cond=t_total-initial_time_splitting
 
-    if (with_coag.eq.1) then
+    if ((with_coag.eq.1).AND.(nlayer.eq.1)) then
        tag_coag=1
        tag_cond=0
        tag_nucl=0
 
-       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
+       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
 
        do j=1,N_size
           tmp=c_number(j)*dndt1(j)
@@ -493,12 +496,13 @@ contains
              tscale=c_number(j)/DABS(dndt1(j))
              time_coag=DMIN1(time_coag,tscale)
           endif
-          do s= 1, (N_aerosol-1)
-             jesp=List_species(s)
-             tmp=c_mass(j,jesp)*dqdt1(j,jesp)
-             if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
-                tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
-                time_coag=DMIN1(time_coag,tscale)
+          do jesp = 1,N_aerosol_layers
+             if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+                tmp=c_mass(j,jesp)*dqdt1(j,jesp)
+                if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
+                   tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
+                   time_coag=DMIN1(time_coag,tscale)
+                endif
              endif
           enddo
        end do
@@ -510,7 +514,7 @@ contains
        tag_coag=0
        tag_cond=with_cond
        tag_nucl=with_nucl
-       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef)
+       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
        if (sulfate_computation.eq.1) then
           do j = 1,N_size! Reassigned distribution by mass of each species
              call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
@@ -524,14 +528,15 @@ contains
              tscale=c_number(j)/DABS(dndt1(j))
              time_cond=DMIN1(time_cond,tscale)
 	  endif
-	  do s= 1, (N_aerosol-1)
-             jesp=List_species(s)  
-             tmp=c_mass(j,jesp)*dqdt1(j,jesp)
-             if (DABS(dqdt1(j,jesp)).gt.0.d0.and.c_mass(j,jesp).gt.TINYM) then
-                tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
-                time_cond=DMIN1(time_cond,tscale)
+          do jesp = 1,N_aerosol_layers
+             if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+                tmp=c_mass(j,jesp)*dqdt1(j,jesp)
+                if (DABS(dqdt1(j,jesp)).gt.0.d0.and.c_mass(j,jesp).gt.TINYM) then
+                   tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
+                   time_cond=DMIN1(time_cond,tscale)
+                endif
              endif
-	  enddo
+          enddo
        end do
 
        if (time_cond.lt.DTAEROMIN) then
@@ -590,8 +595,8 @@ contains
     implicit none
 
     integer j,jesp,s
-    double precision :: q1(N_size,N_aerosol)!tmp mass concentration
-    double precision :: q2(N_size,N_aerosol)!tmp mass concentration
+    double precision :: q1(N_size,N_aerosol_layers)!tmp mass concentration
+    double precision :: q2(N_size,N_aerosol_layers)!tmp mass concentration
     double precision :: n1(N_size)!1th order number concentration
     double precision :: n2(N_size)!2d order number concentration
     double precision :: tmp,n2err,R
@@ -607,11 +612,12 @@ contains
        endif
     end do
     do j=1,N_size
-       do s= 1, (N_aerosol-1) ! Do not consider water for time step
-          jesp=List_species(s)
-          if(q2(j,jesp).gt.TINYM) then
-             tmp=(q2(j,jesp)-q1(j,jesp))/(q2(j,jesp))
-             n2err=n2err+tmp*tmp
+       do jesp= 1,N_aerosol_layers ! Do not consider water for time step
+          if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+            if(q2(j,jesp).gt.TINYM) then
+               tmp=(q2(j,jesp)-q1(j,jesp))/(q2(j,jesp))
+               n2err=n2err+tmp*tmp
+            endif
           endif
        enddo
     enddo
@@ -661,23 +667,23 @@ contains
     implicit none
 
     integer::s,j,jesp!s is the species index of ESO4
-    double precision:: dqdt(N_size,N_aerosol)
-    double precision:: dq1dt(N_size,N_aerosol)
-    double precision:: dq2dt(N_size,N_aerosol)
+    double precision:: dqdt(N_size,N_aerosol_layers)
+    double precision:: dq1dt(N_size,N_aerosol_layers)
+    double precision:: dq2dt(N_size,N_aerosol_layers)
     double precision:: dn1dt(N_size)
-    double precision:: dn2dt(N_size)
+    double precision:: dn2dt(N_size),qH2O(N_size)
     double precision:: c_gas(N_aerosol)
     double precision:: c_gas_t(N_aerosol)
     double precision:: t_mass(N_aerosol)
     double precision:: dtetr,tmp,current_sub_time,sub_timestep_splitting
     double precision:: n1(N_size)!1th order number concentration
     double precision:: n2(N_size)!2d order number concentration
-    double precision:: q1(N_size,N_aerosol)!1th order mass concentration
-    double precision:: q2(N_size,N_aerosol)!2d order mass concentration
+    double precision:: q1(N_size,N_aerosol_layers)!1st order mass concentration
+    double precision:: q2(N_size,N_aerosol_layers)!2d order mass concentration
 
     !for condensation or coagulation
 
-    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef)
+    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)
     !     First step
     do j=1,N_size
        if(n2(j)+dn1dt(j)*sub_timestep_splitting.GE.TINYN) then
@@ -686,20 +692,21 @@ contains
           n1(j) = 0.0
           ! write(*,*) 'pb ETR n1 < 0',n2(j),sub_timestep_splitting*dn1dt(j),sub_timestep_splitting
        endif
-       do s=1,(N_aerosol) 
+       do s=1,N_aerosol_layers
           jesp=List_species(s)
           t_mass(jesp)=total_mass(jesp)
-          if(q2(j,jesp)+dq1dt(j,jesp)*sub_timestep_splitting.GE.TINYM) then
-             q1(j,jesp)=q2(j,jesp)+sub_timestep_splitting*dq1dt(j,jesp)
+          if(q2(j,s)+dq1dt(j,s)*sub_timestep_splitting.GE.TINYM) then
+             q1(j,s)=q2(j,s)+sub_timestep_splitting*dq1dt(j,s)
           else
-             q1(j,jesp) = 0.0
-             !if (dq1dt(j,jesp).GT.1.d-10) write(*,*) 'pb ETR q1 < 0',q2(j,jesp),sub_timestep_splitting*dq1dt(j,jesp),sub_timestep_splitting
+             q1(j,s) = 0.0
+             !if (dq1dt(j,s).GT.1.d-10) write(*,*) 'pb ETR q1 < 0',q2(j,s),sub_timestep_splitting*dq1dt(j,s),sub_timestep_splitting
           endif
        enddo
+!       q1(j,N_aerosol_layers) = qH2O(j) ! water is the last species
     enddo
 
     !     Second step
-    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef)
+    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
 
     dtetr=sub_timestep_splitting*5.0D-01
     current_sub_time = current_sub_time + sub_timestep_splitting
@@ -711,17 +718,17 @@ contains
           n2(j) = 0.0
           ! write(*,*) 'pb ETR n2 < 0',n2(j),sub_timestep_splitting*dn2dt(j),sub_timestep_splitting
        endif
-       do s=1,(N_aerosol)
-          jesp=List_species(s)
-          tmp=dtetr*(dq1dt(j,jesp)+dq2dt(j,jesp))
-          if(tmp+q2(j,jesp).GE.TINYM) then
-             dqdt(j,jesp)=tmp/sub_timestep_splitting
-             q2(j,jesp)=q2(j,jesp)+tmp
+       do s=1,N_aerosol_layers
+          tmp=dtetr*(dq1dt(j,s)+dq2dt(j,s))
+          if(tmp+q2(j,s).GE.TINYM) then
+             dqdt(j,s)=tmp/sub_timestep_splitting
+             q2(j,s)=q2(j,s)+tmp
           else
-             q2(j,jesp) = 0.0
+             q2(j,s) = 0.0
              !   write(*,*) 'pb ETR q2 < 0',q2(j,jesp),sub_timestep_splitting*dq2dt(j,jesp),sub_timestep_splitting
           endif
        enddo
+!       q2(j,N_aerosol_layers) = qH2O(j)!water is the last species
     enddo
 
   end subroutine Etr_solver
@@ -752,16 +759,16 @@ contains
     implicit none
 
     integer::s,j,jesp
-    double precision:: dqdt(N_size,N_aerosol)
-    double precision:: dndt(N_size)
+    double precision:: dqdt(N_size,N_aerosol_layers)
+    double precision:: dndt(N_size),qH2O(N_size)
     double precision:: c_number(N_size)!number concentration
-    double precision:: c_mass(N_size,N_aerosol)!micg/m^-3
+    double precision:: c_mass(N_size,N_aerosol_layers)!micg/m^-3
     double precision:: c_gas(N_aerosol)!micg/m^-3
     double precision:: tmp,current_sub_time,sub_timestep_splitting
     double precision :: ce_kernal_coef(N_size,N_aerosol)
 
     !for condensation
-    call fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef)
+    call fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
 
     do j=1,N_size
        if(c_number(j)+dndt(j)*sub_timestep_splitting.GE.0.d0) then
@@ -769,14 +776,14 @@ contains
        else
           c_number(j)= 0.d0
        endif
-       do s=1,(N_aerosol) 
-          jesp=List_species(s)
-          tmp=sub_timestep_splitting*dqdt(j,jesp)
-          if(tmp + c_mass(j,jesp).GE.0.d0) then
-             c_mass(j,jesp)=c_mass(j,jesp)+tmp
+       do s=1,N_aerosol_layers
+          tmp=sub_timestep_splitting*dqdt(j,s)
+          if(tmp + c_mass(j,s).GE.0.d0) then
+             c_mass(j,s)=c_mass(j,s)+tmp
           endif
        enddo
-    enddo
+!       c_mass(j,N_aerosol_layers) = qH2O(j) !water is the last species
+     enddo
 
     current_sub_time = current_sub_time + sub_timestep_splitting
   end subroutine Euler_solver
@@ -851,20 +858,20 @@ contains
     implicit none
 
     integer::j,jesp,s
-    double precision:: dqdt(N_size,N_aerosol)
-    double precision:: dq1dt(N_size,N_aerosol)
-    double precision:: dq2dt(N_size,N_aerosol)
+    double precision:: dqdt(N_size,N_aerosol_layers)
+    double precision:: dq1dt(N_size,N_aerosol_layers)
+    double precision:: dq2dt(N_size,N_aerosol_layers)
     double precision:: dn1dt(N_size)
     double precision:: dn2dt(N_size)
-    double precision:: Jdq1(N_size,N_aerosol)
-    double precision:: Jdq2(N_size,N_aerosol)
+    double precision:: Jdq1(N_size,N_aerosol_layers)
+    double precision:: Jdq2(N_size,N_aerosol_layers)
     double precision:: Jdn1(N_size)
-    double precision:: Jdn2(N_size)
+    double precision:: Jdn2(N_size),qH2O(N_size)
     double precision:: c_gas(N_aerosol)
     double precision:: c_gas_t(N_aerosol)
     double precision:: tmp
-    double precision:: q1(N_size,N_aerosol)!1th order mass concentration
-    double precision:: q2(N_size,N_aerosol)!2d order mass concentration
+    double precision:: q1(N_size,N_aerosol_layers)!1th order mass concentration
+    double precision:: q2(N_size,N_aerosol_layers)!2d order mass concentration
     double precision:: n1(N_size)!1th order number concentration
     double precision:: n2(N_size)!2d order number concentration
     double precision:: Gamma,temp1,temp2
@@ -872,12 +879,11 @@ contains
     parameter ( Gamma= 1.7071D0)
 
     !for condensation
-    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef)!compute first order derivative
+    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)!compute first order derivative
 
     !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
-       do s= 1, N_aerosol !!nesp_isorropia!(N_aerosol-1)
-          jesp=List_species(s)
+       do jesp= 1, N_aerosol_layers !!nesp_isorropia!(N_aerosol-1)
           Jdq1(j,jesp) = 0.d0
           if ( q2(j,jesp).gt.TINYM .and. dq1dt(j,jesp).lt.0.d0 ) then ! case of evaporation
              Jdq1(j,jesp) = dq1dt(j,jesp) / q2(j,jesp)!mass variation percentage of each bin
@@ -894,9 +900,8 @@ contains
     !     (and small bins (assumed in equilibrium))
     !     sum of condensation rates (temp2) is distributed between
     !     dynamical bins
-    do s= 1, N_aerosol !! nesp_isorropia!(N_aerosol-1)
-       jesp=List_species(s)
-       if (aerosol_species_interact(jesp).gt.0) then
+    do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
+       if (aerosol_species_interact(List_species(jesp)).gt.0) then
 	  temp1 = c_gas(jesp)
    !if(jesp.ge.E1.and.jesp.le.E2) then!Gas phase
    !   do j = 1, ICUT !small bins
@@ -925,8 +930,7 @@ contains
 
     do j = 1 , N_size
        dn1dt(j)=dn1dt(j)*sub_timestep_splitting/ ( 1.d0 - Gamma * Jdn1(j) * sub_timestep_splitting )
-       do s= 1,N_aerosol !! nesp_isorropia!(N_aerosol-1)
-          jesp=List_species(s)
+       do jesp= 1,N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
           dq1dt(j,jesp) = dq1dt(j,jesp) * sub_timestep_splitting / ( 1.d0 - Gamma * Jdq1(j,jesp) * sub_timestep_splitting )
        enddo
     enddo
@@ -935,22 +939,24 @@ contains
 
     do j = 1 , N_size
        n1(j) = DMAX1 ( 1.d-12*n2(j) , (n2(j)+dn1dt(j)) )
-       do s= 1, N_aerosol!! nesp_isorropia!(N_aerosol-1)
-          jesp=List_species(s)
+       do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
           q1(j,jesp) = DMAX1 (1.d-12*q2(j,jesp) , (q2(j,jesp)+dq1dt(j,jesp)) )
        enddo
     enddo
+!    do j = 1 , N_size
+!       q1(j,N_aerosol_layers) = qH2O(j) !water is the last species
+!    enddo
+
 
     !     ******3. compute the derivative dq2dt in (q+dq1dt ; Tin2+sub_timestep_splitting)
     !     ******&  the approximation of jacobian diagonal
 
     current_sub_time = current_sub_time + sub_timestep_splitting
 
-    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef)
+    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
 
     do j = 1 , N_size
-       do s= 1, N_aerosol !! nesp_isorropia!(N_aerosol-1)
-          jesp=List_species(s)
+       do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
           if (isnan(dq2dt(j,jesp))) then
              write(*,*) j,s,list_species(s),jdq1(j,jesp),dq2dt(j,jesp),q1(j,jesp)
              stop
@@ -970,10 +976,10 @@ contains
        enddo
     enddo
 
-    do s= 1, N_aerosol !!nesp_isorropia!(N_aerosol-1)
-       jesp=List_species(s)
-       if (aerosol_species_interact(jesp).gt.0) then
-          temp1 = c_gas(jesp)
+    do jesp= 1, N_aerosol_layers !!nesp_isorropia!(N_aerosol-1)
+       s = List_species(jesp)
+       if (aerosol_species_interact(s).gt.0) then
+          temp1 = c_gas(s)
           !          do j = 1, ICUT
           !             temp1 = temp1 + q1(j,jesp)
           !          enddo
@@ -997,8 +1003,7 @@ contains
        dn2dt(j)=(dn2dt(j)*sub_timestep_splitting- Gamma*sub_timestep_splitting&
 	    *(Jdn1(j)+Jdn2(j))*dn1dt(j))&
 	    / (1.d0- Gamma*Jdn2(j) *sub_timestep_splitting  )
-       do s= 1, N_aerosol !!nesp_isorropia!(N_aerosol-1)
-          jesp=List_species(s)
+       do jesp= 1, N_aerosol_layers !!nesp_isorropia!(N_aerosol-1)
           dq2dt(j,jesp) = (dq2dt(j,jesp)*sub_timestep_splitting- Gamma*sub_timestep_splitting&
                *(Jdq1(j,jesp)+Jdq2(j,jesp))*dq1dt(j,jesp))&
                / (1.d0- Gamma*Jdq2(j,jesp) *sub_timestep_splitting  )
@@ -1010,14 +1015,16 @@ contains
     do j = 1 , N_size
        tmp=n2(j)
        n2(j)=DMAX1 ( 1.d-12*n2(j) , (n2(j)+0.5d0*(dn1dt(j)+dn2dt(j))) )
-       do s = 1, N_aerosol !! nesp_isorropia
-          jesp=List_species(s)
+       do jesp = 1, N_aerosol_layers !! nesp_isorropia
 	  tmp=q2(j,jesp)
 	  q2(j,jesp)=DMAX1(1.d-12*q2(j,jesp),(q2(j,jesp)+0.5d0*(dq1dt(j,jesp)+dq2dt(j,jesp))) )
 	  tmp=q2(j,jesp)-tmp
 	  dqdt(j,jesp)=tmp/sub_timestep_splitting
        enddo
     enddo
+!    do j = 1 , N_size
+!       q2(j,N_aerosol_layers) = qH2O(j)  !water is the last species
+!    enddo
 
   end subroutine Ros2_solver
 

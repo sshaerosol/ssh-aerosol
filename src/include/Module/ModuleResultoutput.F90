@@ -175,7 +175,7 @@ contains
 !
 !------------------------------------------------------------------------
 
-    integer :: s, b, i, j
+    integer :: s, b, i, j, jesp
     !real (kind = 4) :: conc_save
     double precision :: conc_save
     character (len=100) output_filename
@@ -223,9 +223,10 @@ contains
     ! **** output_directory/TM/
     ! re-new total_aero_mass(N_aerosol)
         total_aero_mass = 0.d0
-	do s = 1, N_aerosol
+	do s = 1, N_aerosol_layers
+           jesp = List_species(s)
 	   do j = 1,N_size
-              total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+              total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
 	   enddo
 	end do
 
@@ -246,6 +247,19 @@ contains
        end if
     enddo
 
+    do s = 1, N_aerosol
+       do b = 1, N_size
+          concentration_mass_tmp(b ,s) = 0.d0
+       enddo
+    enddo
+    
+    do b = 1, N_size
+       do s = 1, N_aerosol_layers
+          jesp = List_species(s)
+          concentration_mass_tmp(b ,jesp) = concentration_mass_tmp(b ,jesp) + concentration_mass(b ,s)
+       enddo
+    enddo
+
     ! **** output_directory/aero/
     ! save aerosol concentration results over each time step
     do s = 1, N_aerosol
@@ -253,7 +267,7 @@ contains
           output_filename = trim(output_directory) // "/aero/" // trim(aerosol_species_name(s)) &  
                   // "_" // trim(str(b)) // trim(out_type(output_type))
           open(unit=100,file=output_filename, status="old", position = "append")
-               write(100,*) concentration_mass(b, s)
+               write(100,*) concentration_mass_tmp(b, s)
           close(100)
        end do
     end do
@@ -271,7 +285,7 @@ contains
 		enddo
 		do b = 1, N_aerosol-1	! without water
 		     do i = 1, j
-			conc_save = conc_save + concentration_mass(i, b)
+			conc_save = conc_save + concentration_mass_tmp(i, b)
 		     enddo
 		enddo
 	     else if (out_aero_num(s) .le. 2) then ! PBC and Dust, not PM2.5

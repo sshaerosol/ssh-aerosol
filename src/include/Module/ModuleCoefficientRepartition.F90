@@ -79,7 +79,7 @@ contains
     allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(random_vector(2+2*N_groups))
-  
+ 
     !!allocate(concentration_index_iv(N_sizebin, N_fracmax))
     !!allocate(discretization_composition(N_fracmax, N_groups, 2))
     ! Compute repartition coefficient

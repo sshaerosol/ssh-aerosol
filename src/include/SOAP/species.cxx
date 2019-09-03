@@ -11,17 +11,20 @@ using namespace std;
 void add_species( vector<species>& surrogate, species current_species, 
                   vector<string> species_list_aer,
                   double molecular_weight_aer[],
-                  double accomodation_coefficient[])
+                  double accomodation_coefficient[],
+                  int nlayer)
 {
 
   int nsp = species_list_aer.size();
 
   // Find the number in the aerosol species list
   current_species.soap_ind = -1;
+  current_species.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == current_species.name)
       {
         current_species.soap_ind = i;
+        current_species.soap_ind_aero = (i-7) * (nlayer-1) + i;
         current_species.MM =  molecular_weight_aer[i] / 1.e6;
         current_species.accomodation_coefficient = accomodation_coefficient[i];
       }
@@ -37,7 +40,8 @@ void add_species( vector<species>& surrogate, species current_species,
 }
   
 void creation_species( vector<species>& surrogate, vector<string> species_list_aer,
-                       double molecular_weight_aer[], double accomodation_coefficient[])
+                       double molecular_weight_aer[], double accomodation_coefficient[],
+                       int nlayer)
 {
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
@@ -100,7 +104,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
 
   /* ==== BiA1D ==== */ 
@@ -162,7 +166,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiA0D;
   BiA0D.name="BiA0D";
@@ -224,7 +228,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);  
+              accomodation_coefficient,nlayer);  
   
   species BiMT;
   BiMT.name="BiMT";
@@ -282,7 +286,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiMT, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
 
   species BiPER;
@@ -341,7 +345,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiPER, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiDER;
   BiDER.name="BiDER";
@@ -399,7 +403,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiDER, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
 
   species BiMGA;
@@ -459,7 +463,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species AnBlP;
   AnBlP.name="AnBlP";
@@ -517,7 +521,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species AnBmP;
   AnBmP.name="AnBmP";
@@ -575,7 +579,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiBlP;
   BiBlP.name="BiBlP";
@@ -633,7 +637,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   
   species BiBmP;
@@ -692,7 +696,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   
   species AnClP;
@@ -746,7 +750,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, AnClP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiNGA;
   BiNGA.name="BiNGA";
@@ -805,7 +809,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiNIT3;
   BiNIT3.name="BiNIT3"; 
@@ -863,7 +867,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species BiNIT;
   BiNIT.name="BiNIT";
@@ -921,7 +925,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   
   species POAlP;
@@ -978,7 +982,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, POAlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species POAmP;
   POAmP.name="POAmP";
@@ -1032,7 +1036,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, POAmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species POAhP;
   POAhP.name="POAhP";
@@ -1086,7 +1090,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, POAhP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species SOAlP;
   SOAlP.name="SOAlP";
@@ -1140,7 +1144,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species SOAmP;
   SOAmP.name="SOAmP";
@@ -1194,7 +1198,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species SOAhP;
   SOAhP.name="SOAhP";
@@ -1248,7 +1252,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species Monomer;
   Monomer.name="Monomer";
@@ -1306,7 +1310,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, Monomer, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
   
   species Dimer;
   Dimer.name="Dimer";
@@ -1364,7 +1368,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, Dimer, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species BiA3D;
   BiA3D.name="BiA3D";
@@ -1426,7 +1430,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   species H2O;
   H2O.name="H2O";
@@ -1476,7 +1480,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // and add the species if its name matches with
   // the given list.
   add_species(surrogate, H2O, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient);
+              accomodation_coefficient,nlayer);
 
   
   species SO4;
@@ -1495,6 +1499,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SO4.accomodation_coefficient=0.5;
   SO4.viscosity=1.0;
   SO4.soap_ind = -1;
+  SO4.soap_ind_aero = -1;
   SO4.is_solid=false;
   surrogate.push_back(SO4);
 
@@ -1514,6 +1519,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HSO4.accomodation_coefficient=0.5;
   HSO4.viscosity=1.0;
   HSO4.soap_ind = -1;
+  HSO4.soap_ind_aero = -1;
   HSO4.is_solid=false;
   surrogate.push_back(HSO4);
 
@@ -1533,6 +1539,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NO3.accomodation_coefficient=0.5;
   NO3.viscosity=1.0;
   NO3.soap_ind = -1;
+  NO3.soap_ind_aero = -1;
   NO3.is_solid=false;
   surrogate.push_back(NO3);
 
@@ -1552,6 +1559,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH4.accomodation_coefficient=0.5;
   NH4.viscosity=1.0;
   NH4.soap_ind = -1;
+  NH4.soap_ind_aero = -1;
   NH4.is_solid=false;
   surrogate.push_back(NH4);
 
@@ -1571,6 +1579,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H.accomodation_coefficient=0.5;
   H.viscosity=1.0;
   H.soap_ind = -1;
+  H.soap_ind_aero = -1;
   H.is_solid=false;
   surrogate.push_back(H);
 
@@ -1591,10 +1600,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   // Find the number in the aerosol species list
   Na.soap_ind = -1;
+  Na.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "NA" or species_list_aer[i].substr(1,-1) == "Na")
       {
         Na.soap_ind = i;
+        Na.soap_ind_aero = i;
         Na.MM =  molecular_weight_aer[i] / 1.e6;
         Na.accomodation_coefficient = accomodation_coefficient[i];
       }
@@ -1616,6 +1627,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Cl.accomodation_coefficient=0.5;
   Cl.viscosity=1.0;
   Cl.soap_ind = -1;
+  Cl.soap_ind_aero = -1;
   Cl.is_solid=false;
 
   species H2SO4;
@@ -1634,10 +1646,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   // Find the number in the aerosol species list
   H2SO4.soap_ind = -1;
+  H2SO4.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "SO4")
       {
         H2SO4.soap_ind = i;
+        H2SO4.soap_ind_aero = i;
         H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
         H2SO4.accomodation_coefficient = accomodation_coefficient[i];
       }
@@ -1661,10 +1675,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   // Find the number in the aerosol species list
   NH3.soap_ind = -1;
+  NH3.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "NH4")
       {
         NH3.soap_ind = i;
+        NH3.soap_ind_aero = i;
         NH3.MM =  molecular_weight_aer[i] / 1.e6;
         NH3.accomodation_coefficient = accomodation_coefficient[i];
       }
@@ -1688,10 +1704,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   // Find the number in the aerosol species list
   HNO3.soap_ind = -1;
+  HNO3.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "NO3")
       {
         HNO3.soap_ind = i;
+        HNO3.soap_ind_aero = i;
         HNO3.MM =  molecular_weight_aer[i] / 1.e6;
         HNO3.accomodation_coefficient = accomodation_coefficient[i];
       }
@@ -1715,10 +1733,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
 
   // Find the number in the aerosol species list
   HCl.soap_ind = -1;
+  HCl.soap_ind_aero = -1;
   for (int i = 0; i < nsp; ++i)
     if (species_list_aer[i].substr(1,-1) == "HCL")
       {
         HCl.soap_ind = i;
+        HCl.soap_ind_aero = i;
         HCl.MM =  molecular_weight_aer[i] / 1.e6;
         HCl.accomodation_coefficient = accomodation_coefficient[i];
       }

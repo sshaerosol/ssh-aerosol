@@ -43,14 +43,14 @@ contains
 !
 !------------------------------------------------------------------------
     implicit none
-    integer::k,j,f,jesp,s,b
+    integer::k,j,f,jesp,s,b,lay
     integer:: scheme !redistribution scheme 3 = euler_mass 4 = euler_number 5 = hemen 6 = euler_coupled
     integer:: section_pass!bin include 100nm
-    double precision:: Qesp(N_sizebin, N_aerosol)!Temperature mass concentration on each fraction
+    double precision:: Qesp(N_sizebin, N_aerosol_layers)!Temperature mass concentration on each fraction
     double precision:: N(N_sizebin)!Temperature mass concentration on each fraction
     double precision:: totQ(N_sizebin)
     double precision:: d(N_sizebin),d_after_cond(N_sizebin)
-    double precision:: tmp_n
+    double precision:: tmp_n,mass_redis_layer(N_aerosol_layers)
     Qesp=0.d0
     tmp_n=0.d0
 
@@ -65,23 +65,23 @@ contains
     do f=1,N_fracmax
       !extrac the mass and number distribution of each fraction out
       do k=1,N_sizebin
+	do s=1,N_aerosol_layers
+	  Qesp(k,s)=0.d0
+        enddo 
+      enddo
+      do k=1,N_sizebin
 	j=concentration_index_iv(k,f)
 	N(k)=concentration_number(j)
 	!totQ(k)=cell_mass(j)
-	do s=1,N_aerosol
-	  jesp=List_species(s)
-	  Qesp(k,jesp)=concentration_mass(j,jesp)
+	do s=1,N_aerosol_layers
+	  Qesp(k,s)=Qesp(k,s)+concentration_mass(j,s)
 	enddo
 	d(k)=size_diam_av(k)
 	d_after_cond(k)=cell_diam_av(j)
       enddo
 
-!      call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
-!      section_pass, mass_density, DQLIMIT, Qesp, N, totQ,&
-!      with_fixed_density, fixed_density * 1.0d-9)
-
-      call redistribution(N_sizebin,N_aerosol,EH2O,diam_bound, d, scheme, &
-      section_pass, mass_density, DQLIMIT, Qesp, N, totQ,&
+      call redistribution(N_sizebin,N_aerosol_layers,EH2O_layers,diam_bound, d, scheme, &
+      section_pass, mass_density_layers, DQLIMIT, Qesp, N, totQ,&
       with_fixed_density, fixed_density,d_after_cond)
 
 
@@ -91,9 +91,8 @@ contains
 	concentration_number(j)=N(k)
 	cell_mass(j)=totQ(k)
 	cell_diam_av(j)=d_after_cond(k)
-	do s=1,N_aerosol
-	  jesp=List_species(s)
-	  concentration_mass(j,jesp)=Qesp(k,jesp)
+	do s=1,N_aerosol_layers
+	  concentration_mass(j,s)=Qesp(k,s)
 	enddo
       enddo
     enddo
@@ -116,7 +115,7 @@ contains
     implicit none
     integer::k,i,i1,g,dj,j,jesp,s
     double precision:: mass_groups(N_size,N_groups)!mass by groups
-    double precision:: mass_var(N_size,(N_aerosol-1))!mass variation map
+    double precision:: mass_var(N_size,(N_aerosol_layers-1))!mass variation map
     double precision:: numb_var(N_size)!number variation map
     double precision::mass_total,f1,f2
     !calculate redistribution map
@@ -125,7 +124,7 @@ contains
 
     do j= 1, N_size  
        numb_var(j)=0.d0
-       do jesp=1,(N_aerosol-1)
+       do jesp=1,(N_aerosol_layers-1)
        	  mass_var(j,jesp)=0.d0
        enddo
        do g= 1, N_groups
@@ -137,11 +136,13 @@ contains
     do j= 1, N_size !!for each grid the number of size sections x fraction sections
       mass_total_grid (j)=0.d0
 !      Compute fraction of each species in the grid point before redistribution      
-      do s=1,(N_aerosol-1)
-	jesp=List_species(s)
-	g=index_groups(jesp)
-	mass_groups(j,g)=mass_groups(j,g)+concentration_mass(j,jesp)
-	mass_total_grid (j)=mass_total_grid (j) + concentration_mass(j,jesp)
+      do s=1,N_aerosol_layers-1
+         jesp= List_species(s)
+         if(aerosol_species_name(jesp).NE.'PH2O') then
+            g=index_groups(jesp)
+            mass_groups(j,g)=mass_groups(j,g)+concentration_mass(j,s)
+            mass_total_grid (j)=mass_total_grid (j) + concentration_mass(j,s)
+         endif
       enddo
 
       do g= 1, N_groups
@@ -181,11 +182,13 @@ contains
             k=concentration_index_iv(i1,i)
             numb_var(k)=numb_var(k)+concentration_number(j)
             concentration_number(j)=0.d0!minimize numerical disarrange due to difference scale
-            do s=1,(N_aerosol-1)
+            do s=1,N_aerosol_layers-1
                jesp=List_species(s)
-               mass_var(k,jesp)=mass_var(k,jesp)+ &
-                    concentration_mass(j,jesp)
-               concentration_mass(j,jesp)=0.d0
+               if(aerosol_species_name(jesp).NE.'PH2O') then
+                  mass_var(k,s)=mass_var(k,s)+ &
+                       concentration_mass(j,s)
+                  concentration_mass(j,s)=0.d0
+               endif
             enddo
          endif
       enddo
@@ -201,15 +204,16 @@ contains
           mass_groups(j,g)=0.d0
        enddo
        !renew Temperature frac of each grid
-       do s= 1, (N_aerosol-1)
+       do s= 1, (N_aerosol_layers-1)
           jesp=List_species(s)
-          concentration_mass(j,jesp)=concentration_mass(j,jesp)+mass_var(j,jesp)
+          concentration_mass(j,s)=concentration_mass(j,s)+mass_var(j,s)
           if(jesp.ne.EH2O) then
              g=index_groups(jesp)
-             mass_total_grid (j) = mass_total_grid (j) + concentration_mass(j,jesp)
-             mass_groups(j,g)=mass_groups(j,g)+concentration_mass(j,jesp)
+             mass_total_grid (j) = mass_total_grid (j) + concentration_mass(j,s)
+             mass_groups(j,g)=mass_groups(j,g)+concentration_mass(j,s)
           endif
        enddo
+
        do g= 1, N_groups
           if(mass_total_grid (j).gt.0d0) then
              frac_grid(j,g) =mass_groups(j,g)/mass_total_grid (j)
@@ -220,10 +224,6 @@ contains
     
   end subroutine redistribution_fraction
 
-  ! subroutine redistribution_lwc(lwc,ionic,proton,liquid, &
-  !                      lwc_Nsize,ionic_Nsize,proton_Nsize,liquid_Nsize)
-  ! subroutine redistribution_lwc(lwc,ionic,proton,liquid, &
-  !                      ionic_Nsize,proton_Nsize,liquid_Nsize)
   subroutine redistribution_lwc(lwc,ionic,proton,liquid)
 !------------------------------------------------------------------------
 !
@@ -241,7 +241,7 @@ contains
     implicit none
 
     double precision :: inorg_total, inorg_bin(N_size)
-    integer :: jesp, js
+    integer :: jesp, js,lay
     double precision :: lwc,ionic, proton,liquid(12)
 !    double precision :: lwc_Nsize(N_size),proton_Nsize(N_size)
 !    double precision :: proton_Nsize(N_size)
@@ -255,15 +255,13 @@ contains
        do js=1,N_size !! ICUT2
           inorg_total = inorg_total + concentration_mass(js, jesp)
           inorg_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
-
        enddo
     enddo
 
     do js=1,N_size
 
-       
        if (inorg_total .gt. 0.D0) then
-          concentration_mass(js, EH2O) = lwc * inorg_bin(js) / inorg_total
+          concentration_mass(js, EH2O_layers) = lwc * inorg_bin(js)/inorg_total
           lwc_Nsize(js) = lwc * inorg_bin(js) / inorg_total
           proton_Nsize(js) = proton * inorg_bin(js) / inorg_total
           ionic_Nsize(js) = ionic 
@@ -271,7 +269,7 @@ contains
             liquid_Nsize(jesp,js) = liquid(jesp)
           enddo
        else
-          concentration_mass(js, EH2O) = 0.d0
+          concentration_mass(js, EH2O_layers) = 0.d0
        end if
     enddo
   end subroutine redistribution_lwc
@@ -325,11 +323,11 @@ contains
 
     do js=1,N_size
        if (org_total .gt. 0.D0) then
-          concentration_mass(js, EH2O) = concentration_mass(js, EH2O) + &
+          concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &
                                       lwcorg * org_bin(js) / org_total
           lwcorg_Nsize(js) = lwcorg * org_bin(js) / org_total
        else
-          concentration_mass(js, EH2O) = 0.d0
+          concentration_mass(js, EH2O_layers) = 0.d0
        end if
     enddo
 
