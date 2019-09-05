@@ -94,7 +94,7 @@ ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.
-dorg = 1.e-24,                          ! diffusion coefficient in the organic phase.
+dorg = 1.e-21,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment

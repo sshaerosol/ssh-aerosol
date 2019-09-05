@@ -94,7 +94,7 @@ ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.
-dorg = 1.e-20,                          ! diffusion coefficient in the organic phase.
+dorg = 1.e-23,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
@@ -112,6 +112,6 @@ with_oligomerization = 1
 /
 
 &output
-output_directory = "results/visco/visco4_poamp/", ! modify result saving paths 
+output_directory = "results/visco/visco7_poamp/", ! modify result saving paths 
 output_type = 1               ! 1: text, 2: binary
 /

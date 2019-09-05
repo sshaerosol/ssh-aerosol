@@ -20,9 +20,9 @@ tag_init = 0,                     ! initial method for aerosol species (0 intern
 wet_diam_estimation = 0       	  ! 0 = isorropia, 1 = Gerber MTSBL
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 1,                    ! Number of size bin
-init_gas_conc_file = "./inputs/inputs-visco/init_gas.dat",                     ! Initial data for gas
-init_aero_conc_mass_file = "./inputs/inputs-visco/init_aero.dat",        !  Initial data for aero mass  
-init_aero_conc_num_file = "./inputs/inputs-visco/init_num.dat",     !  Initial data for aero number  
+init_gas_conc_file = "./inputs/inputs-visco_soalp/init_gas.dat",                     ! Initial data for gas
+init_aero_conc_mass_file = "./inputs/inputs-visco_soalp/init_aero.dat",        !  Initial data for aero mass  
+init_aero_conc_num_file = "./inputs/inputs-visco_soalp/init_num.dat",     !  Initial data for aero number  
 /
 
 &initial_diam_distribution       
@@ -94,7 +94,7 @@ ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.
-dorg = 1.e-20,                          ! diffusion coefficient in the organic phase.
+dorg = 1.e-24,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
@@ -112,6 +112,6 @@ with_oligomerization = 1
 /
 
 &output
-output_directory = "results/visco/visco4_poamp/", ! modify result saving paths 
+output_directory = "results/visco/visco1_soalp/", ! modify result saving paths 
 output_type = 1               ! 1: text, 2: binary
 /
