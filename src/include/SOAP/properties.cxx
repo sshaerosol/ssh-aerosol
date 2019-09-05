@@ -514,10 +514,12 @@ void tau_dif(model_config &config, vector<species>& surrogate,
 	    if (ilayer==config.nlayer-1)
 	      for (i=0;i<n;++i)
 		surrogate[i].tau_diffusion(b,ilayer,iphase)=
-		  min(1.0e-5*config.tequilibrium,1.0e-20);
-		  //pow(config.diameters(b)*1.0e-6,2)/
-		  //(4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer))
-		  //*morphology_factor;
+		  min(1.0e-5*config.tequilibrium,1.0e-20);		
+		/* surrogate[i].tau_diffusion(b,ilayer,iphase)=min(
+		    pow(config.diameters(b)*1.0e-6,2)/
+		    (4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer)),0.1*config.tequilibrium);		*/
+
+	    //*morphology_factor;
 	    else
 	      {
 		//determine the organic phase coefficient diffusion
@@ -539,12 +541,17 @@ void tau_dif(model_config &config, vector<species>& surrogate,
 		    (4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer+1))
 		    *morphology_factor2
 		    +surrogate[i].tau_diffusion(b,ilayer+1,iphase);
+	       
+
 	      }	      
 	  }
      
     }
 
-
+  /*
+  for (i=0;i<n;++i)
+    if (surrogate[i].Atot>0.)
+      cout << surrogate[i].name << " " << surrogate[i].tau_diffusion << endl;*/
 }
   
 double species::Psat(double &Temperature)
