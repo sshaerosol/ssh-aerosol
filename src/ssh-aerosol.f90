@@ -13,7 +13,7 @@ PROGRAM SSHaerosol
 
   implicit none
 
-  integer :: t, j, s
+  integer :: t, j, s,jesp
   character (len=40) :: namelist_ssh  ! Configuration file
   double precision :: current_time, ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
 
@@ -46,7 +46,8 @@ PROGRAM SSHaerosol
      current_time = initial_time + (t - 1) * delta_t
 
 
-     write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
+     if (ssh_standalone) write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
+     if (ssh_logger) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
@@ -85,12 +86,15 @@ PROGRAM SSHaerosol
 	! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry  
     total_aero_mass = 0.d0
     total_mass = 0.d0
-    do s = 1, N_aerosol
+    do s = 1, N_aerosol_layers
+       jesp = List_species(s)
        do j=1,N_size
-         total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+         total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
        enddo
+    enddo
 	! update mass conc. of aerosol precursors
 	! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+    do s = 1, N_aerosol
        if (aerosol_species_interact(s) .gt. 0) then
           concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
        end if
@@ -119,8 +123,12 @@ PROGRAM SSHaerosol
   IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
   
 
-  write(*,*) "============================================"
-  write(*,*) "==== SSH-aerosol simulation completed  ====="
-  write(*,*) "============================================"
+  if (ssh_standalone) write(*,*) "============================================"
+  if (ssh_standalone) write(*,*) "==== SSH-aerosol simulation completed  ====="
+  if (ssh_standalone) write(*,*) "============================================"
+  if (ssh_logger) write(logfile,*) "============================================"
+  if (ssh_logger) write(logfile,*) "==== SSH-aerosol simulation completed  ====="
+  if (ssh_logger) write(logfile,*) "============================================"
+
   
 end PROGRAM SSHaerosol

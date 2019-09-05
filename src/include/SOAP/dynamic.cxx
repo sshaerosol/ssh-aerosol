@@ -2020,9 +2020,13 @@ void flux_org(model_config &config, vector<species>& surrogate,
 				    else
 				      a=surrogate[i].k1(b,ilayer,iphase,index)-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;			      
 				  else // inner layers
-				    {                                   
-				      a=1.0/(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/(sumkpositive-max(sumk,0.0))*(kcond-max(sumk,0.0)))+1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;
-				      b2+=a;
+				    {                                  
+                                      if(sumkpositive > 0.0) {
+		  		        a=1.0/(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/(sumkpositive-max(sumk,0.0))*(kcond-max(sumk,0.0)))+1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;
+				        b2+=a;
+					}
+                                      else
+                                        a = 0;
 				    }
 				     	    
 			    

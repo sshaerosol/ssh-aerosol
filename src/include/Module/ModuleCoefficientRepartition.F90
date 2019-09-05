@@ -24,6 +24,7 @@
 Module bCoefficientRepartition
   use aInitialization
   use netcdf
+  use omp_lib
   implicit none
 
   ! Parameter and variable definitions
@@ -78,7 +79,7 @@ contains
     allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(random_vector(2+2*N_groups))
-  
+ 
     !!allocate(concentration_index_iv(N_sizebin, N_fracmax))
     !!allocate(discretization_composition(N_fracmax, N_groups, 2))
     ! Compute repartition coefficient
@@ -91,6 +92,7 @@ contains
 	do j1 = 1,N_size
           do j2 = 1,N_size
              dsum = 0.0
+!$omp parallel do reduction(+:dsum) private(random_vector,l1,l2,i1,i2,m1,m2,m12,fact,g,f1,f2,f12)
              do n = 1, Nmc
                 call random_number(random_vector)
                 l1 = concentration_index(j1, 1)
@@ -135,6 +137,7 @@ contains
                 enddo
                 dsum = dsum + fact
              enddo
+!$omp end parallel do
           
              dsum = dsum / dble(Nmc)
            

@@ -1853,7 +1853,6 @@ C
       DOUBLE PRECISION FUNCTION GETASR (SO4I, RHI)
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
       COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
-!$OMP THREADPRIVATE(/ASRC/)
       DOUBLE PRECISION SO4I, RHI
 CCC
 CCC *** SOLVE USING FULL COMPUTATIONS, NOT LOOK-UP TABLES **************
@@ -1912,7 +1911,7 @@ C
       BLOCK DATA AERSR
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
       COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
-!$OMP THREADPRIVATE(/ASRC/)
+
 C
       DATA ASSO4/1.0E-9, 2.5E-9, 5.0E-9, 7.5E-9, 1.0E-8,
      &           2.5E-8, 5.0E-8, 7.5E-8, 1.0E-7, 2.5E-7, 
@@ -2781,7 +2780,6 @@ C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
-!$OMP THREADPRIVATE(/SOLUT/)
       CHARACTER SC*1
 C
 C *** CALCULATE ION PAIR CONCENTRATIONS ACCORDING TO SPECIFIC CASE ****
@@ -3672,7 +3670,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC198/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3728,7 +3726,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC223/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3785,7 +3783,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC248/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3841,7 +3839,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC273/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3897,7 +3895,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC298/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3953,7 +3951,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC323/)
+
       REAL IN
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3993,7 +3991,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC198/)
+
 
 C
 C  *** NaCl
@@ -6192,7 +6190,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC223/)
+
 
 C
 C  *** NaCl
@@ -8391,7 +8389,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC248/)
+
 
 C
 C  *** NaCl
@@ -10590,7 +10588,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC273/)
+
 
 C
 C  *** NaCl
@@ -12789,7 +12787,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC298/)
+
 
 C
 C  *** NaCl
@@ -14988,7 +14986,7 @@ C
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
-!$OMP THREADPRIVATE(/KMC323/)
+
 
 C
 C  *** NaCl
@@ -17722,7 +17720,7 @@ C
       REAL    X, EX10, Y, AINT10, ADEC10, K
       INTEGER K1, K2
       COMMON /EXPNC/ AINT10(20), ADEC10(200)
-!$OMP THREADPRIVATE(/EXPNC/)
+
 
 C
 C *** LIMIT X TO [-K, K] RANGE *****************************************
@@ -17763,7 +17761,7 @@ C *** Common block definition
 C
       REAL AINT10, ADEC10
       COMMON /EXPNC/ AINT10(20), ADEC10(200)
-!$OMP THREADPRIVATE(/EXPNC/)
+
 
 C
 C *** Integer part        

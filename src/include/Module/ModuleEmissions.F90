@@ -75,14 +75,15 @@ contains
        m_emis = 0.d0
        subrho = 0.d0
        k = concentration_index(j, 1) ! number for sizebin
-       do s = 1, N_aerosol  ! 
+       do s = 1, N_aerosol_layers
+          jesp = List_species(s)   
           qemis = emission_rate(j,s)
           ! add conc. mass
           concentration_mass(k,s)=concentration_mass(k,s)+qemis*emis_dt
-          total_mass(s) = total_mass(s) + qemis*emis_dt
+          total_mass(jesp) = total_mass(jesp) + qemis*emis_dt
 
           m_emis = m_emis + qemis ! total emission mass
-          subrho = subrho +  emission_rate(j,s) / mass_density(s)   ! emission density
+          subrho = subrho +  emission_rate(j,s) / mass_density(jesp)   ! emission density
 
        end do
 
@@ -111,9 +112,10 @@ contains
 
     !	! re-calculate total_mass(N_aerosol) because mass change due to emission   
     total_aero_mass = 0.d0
-    do s = 1, N_aerosol
+    do s = 1, N_aerosol_layers
+       jesp = List_species(s)   
        do j=1,N_size
-          total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+          total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
        enddo
     end do
 

@@ -31,7 +31,7 @@ Module hCongregation
   implicit none
 
 contains
-  subroutine fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef)
+  subroutine fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -50,12 +50,13 @@ contains
     !
     !     dqdt: particle mass derivation(µg/m^3/s)
     !     dndt: particle number derivation(µg/m^3/s)
+    !     qH2O: mass of water absorbed by inorganics
     !
     !------------------------------------------------------------------------
     implicit none
-    double precision ::c_number(N_size)
-    double precision ::c_mass(N_size,N_aerosol)
-    double precision ::dqdt(N_size,N_aerosol)
+    double precision ::c_number(N_size),qH2O(N_size)
+    double precision ::c_mass(N_size,N_aerosol_layers)
+    double precision ::dqdt(N_size,N_aerosol_layers)
     double precision ::dndt(N_size)
     double precision ::c_gas(N_aerosol)
     double precision ::ce_kernal_coef(N_size,N_aerosol)
@@ -73,12 +74,12 @@ contains
     endif
 
     if (tag_cond.eq.1) then
-       call fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef)
+       call fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
     endif
 
   end subroutine fgde
 
-  subroutine fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef)
+  subroutine fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
 
     !------------------------------------------------------------------------
     !
@@ -98,11 +99,12 @@ contains
     !
     !     dqdt: particle mass derivation(µg/m^3/s)
     !     dndt: particle number derivation(µg/m^3/s)
+    !     qH2O: mass of water absorbed by inorganics
     !
     !------------------------------------------------------------------------
     implicit none
     integer::j,jesp,s
-    double precision:: dqdt(N_size,N_aerosol)
+    double precision:: dqdt(N_size,N_aerosol_layers),qH2O(N_size)
     double precision:: dndt(N_size)
     double precision :: ce_kernel(N_aerosol)
     double precision :: ce_kernal_coef(N_size,N_aerosol)
@@ -110,7 +112,7 @@ contains
     double precision :: qn		!number concentration in current grid point
     double precision :: q(N_aerosol)	!mass concentration in current grid point
     double precision :: c_gas(N_aerosol)
-    double precision:: c_mass(N_size,N_aerosol)
+    double precision:: c_mass(N_size,N_aerosol_layers)
     double precision:: c_number(N_size),wet_mass(N_size)
     double precision:: wet_diam(N_size),wet_vol(N_size),cell_diam(N_size)
 
@@ -123,31 +125,42 @@ contains
 
     ! In case of nucleation - always compute sulfate dynamically if sulfate_computation = 0
     if((sulfate_computation.eq.0).AND.(tag_nucl.EQ.1)) then
-       do j=1,ICUT
-          qn=c_number(j)!initial number and mass
-	  jesp=isorropia_species(2)
-	  call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+       do j=1,N_size
+          if(concentration_index(j, 1) <= ICUT) then! k : index of size bins
+            qn=c_number(j)!initial number and mass
+	    jesp=isorropia_species(2)
+	    call COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
 		wet_diam(j),   & ! wet aero diameter (µm)
 		ce_kernal_coef_i(jesp) ) ! c/e kernel coef (m3.s-1)
-          ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
-          ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
-          dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+            ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
+            ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
+            dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+          endif
        enddo
     endif
-
-    do j =(ICUT+1), N_size
+!!! ICUT and external mixing does not work
+    !do j =(ICUT+1), N_size
+    do j =1, N_size
+      if(concentration_index(j, 1) > ICUT) then! k : index of size bins
        qn=c_number(j)!initial number and mass
        do s=1,N_aerosol
-          jesp=List_species(s)
-          q(jesp)=c_mass(j,jesp)
-          ce_kernal_coef_i(jesp)=ce_kernal_coef(j,jesp)
+          q(s) = 0.d0
        enddo
+       do s=1,N_aerosol_layers
+          jesp=List_species(s)
+          q(jesp)=q(jesp)+ c_mass(j,s)
+          ce_kernal_coef_i(jesp) = 0.d0 !ce_kernal_coef(j,jesp)
+       enddo
+      ! do s=N_nonorganics+1,N_aerosol
+      !   q(s) = 0.0
+      !   ce_kernal_coef_i(s) = 0.0
+      ! enddo
        call KERCOND(qn,q,c_gas,wet_diam(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
             lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid)
-
+       qH2O(j) = q(EH2O)
        do s=1,12
           liquid_Nsize(s,j) = liquid(s)
        enddo
@@ -170,10 +183,11 @@ contains
           ENDIF
 #endif
        enddo
+     endif
     enddo
 
     do j=1, N_size
-       do s=1,N_aerosol
+       do s=1,N_aerosol_layers
           if (isnan(dqdt(j,s))) then
              write(*,*) j,s,dqdt(j,s)
              stop
@@ -206,7 +220,7 @@ contains
     implicit none
     integer :: j,j1,j2
     double precision ::c_number(N_size)
-    double precision ::c_mass(N_size,N_aerosol)
+    double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::rate_number(N_size)
     double precision ::rate_mass(N_size,N_aerosol)
 
@@ -262,10 +276,10 @@ contains
     !
     !------------------------------------------------------------------------
     implicit none
-    double precision:: dqdt(N_size,N_aerosol)
+    double precision:: dqdt(N_size,N_aerosol_layers)
     double precision:: dndt(N_size)
     double precision :: c_gas(N_aerosol)
-    double precision :: c_mass(N_size,N_aerosol)
+    double precision :: c_mass(N_size,N_aerosol_layers)
     double precision :: c_number(N_size)
     double precision	:: mr,na
     double precision	:: jnucl,ntot,ntotnh3
@@ -332,7 +346,6 @@ contains
              tot_so4nh4 = perc_so4 + perc_nh4
              perc_so4 = perc_so4/tot_so4nh4
              perc_nh4 = perc_nh4/tot_so4nh4
-
              !dqdt(isection,ESO4)=dqdt(isection,ESO4)+jnucl*ntot/Navog*molecular_weight_aer(ESO4) ! µg.m-3.s-1
 	     !dqdt(isection,ENH4)=dqdt(isection,ENH4)+jnucl*ntotnh3/Navog*molecular_weight_aer(ENH4)
 	     dqdt(isection,ESO4)=dqdt(isection,ESO4)+ dmdt * perc_so4 * fixed_density ! µg.m-3.s-1

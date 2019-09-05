@@ -21,7 +21,6 @@ C
       INTEGER METSTBL
       COMMON /INPT/ W(NCOMP), WAER(NCOMP), TEMP, RH, IPROB, METSTBL,
      &              NADJ
-!$OMP THREADPRIVATE(/INPT/)
 
 C
 C *** WATER ACTIVITIES OF PURE SALT SOLUTIONS **************************
@@ -29,7 +28,6 @@ C
       COMMON /ZSR / AWAS(NZSR), AWSS(NZSR), AWAC(NZSR), AWSC(NZSR),
      &              AWAN(NZSR), AWSN(NZSR), AWSB(NZSR), AWAB(NZSR),
      &              AWSA(NZSR), AWLC(NZSR)
-!$OMP THREADPRIVATE(/ZSR/)
 
 C
 C *** DELIQUESCENCE RELATIVE HUMIDITIES ********************************
@@ -37,7 +35,6 @@ C
       INTEGER WFTYP
       COMMON /DRH / DRH2SO4,  DRNH42S4, DRNAHSO4, DRNACL,   DRNANO3, 
      &              DRNA2SO4, DRNH4HS4, DRLC,     DRNH4NO3, DRNH4CL
-!$OMP THREADPRIVATE(/DRH/)
 
       COMMON /MDRH/ DRMLCAB,  DRMLCAS,  DRMASAN,  DRMG1,    DRMG2,
      &              DRMG3,    DRMH1,    DRMH2,    DRMI1,    DRMI2,
@@ -45,7 +42,6 @@ C
      &              DRMR4,    DRMR5,    DRMR6,    DRMR7,    DRMR8,
      &              DRMR9,    DRMR10,   DRMR11,   DRMR12,   DRMR13,
      &              WFTYP
-!$OMP THREADPRIVATE(/MDRH/)
 
 C
 C *** VARIABLES FOR LIQUID AEROSOL PHASE *******************************
@@ -59,20 +55,17 @@ C
      &              EPSACT,       COH,           CHNO3,       CHCL,         
      &              WATER,        IONIC,         IACALC,      
      &              FRST,         CALAIN,        CALAOU,      DRYF
-!$OMP THREADPRIVATE(/IONS/)
 
 C
 C *** VARIABLES FOR SOLID AEROSOL PHASE ********************************
 C
       COMMON /SALT/ CH2SO4,  CNH42S4, CNH4HS4, CNACL,   CNA2SO4, 
      &              CNANO3,  CNH4NO3, CNH4CL,  CNAHSO4, CLC
-!$OMP THREADPRIVATE(/SALT/)
 
 C
 C *** VARIABLES FOR GAS PHASE ******************************************
 C
       COMMON /GAS / GNH3, GHNO3, GHCL 
-!$OMP THREADPRIVATE(/GAS/)
 
 C
 C *** EQUILIBRIUM CONSTANTS ********************************************
@@ -80,25 +73,21 @@ C
       COMMON /EQUK/ XK1, XK2, XK3, XK4, XK5, XK6, XK7, XK8, XK9, XK10,
      &              XK11,XK12,XK13,XK14,XKW, XK21,XK22,XK31,XK32,XK41,
      &              XK42
-!$OMP THREADPRIVATE(/EQUK/)
 
 C
 C *** MOLECULAR WEIGHTS ************************************************
 C
       DOUBLE PRECISION IMW
       COMMON /OTHR/ R, IMW(NIONS), WMW(NCOMP), SMW(NPAIR)
-!$OMP THREADPRIVATE(/OTHR/)
 
 C
 C *** SOLUTION/INFO VARIABLES ******************************************
 C
       CHARACTER SCASE*15
       COMMON /CASE/ SULRATW, SULRAT, SODRAT, SCASE
-!$OMP THREADPRIVATE(/CASE/)
 
 C
       COMMON /SOLN/ EPS, MAXIT, NSWEEP, NDIV, ICLACT
-!$OMP THREADPRIVATE(/SOLN/)
 
 C
 C *** ERROR SYSTEM *****************************************************
@@ -107,21 +96,18 @@ C
       INTEGER   ERRSTK, NOFER   
       LOGICAL   STKOFL   
       COMMON /EROR/ STKOFL, NOFER, ERRSTK(NERRMX), ERRMSG(NERRMX)
-!$OMP THREADPRIVATE(/EROR/)
 
 C
 C *** GENERIC VARIABLES ************************************************
 C
       CHARACTER VERSION*15
       COMMON /CGEN/ GREAT, TINY, TINY2, ZERO, ONE, VERSION
-!$OMP THREADPRIVATE(/CGEN/)
 
 C
 C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS  
 C
       DOUBLE PRECISION ORGANION, WATORG 
       COMMON /ORG/ ORGANION, WATORG
-!$OMP THREADPRIVATE(/ORG/)
 C
 C *** END OF INCLUDE FILE **********************************************
 C

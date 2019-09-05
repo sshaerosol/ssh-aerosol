@@ -3,7 +3,6 @@
 ### Directories
 src/.build/*
 results/*
-src/include/CHEMISTRY/cb05en/*.f
 
 ### Binaries
 *.o
@@ -12,10 +11,6 @@ src/include/CHEMISTRY/cb05en/*.f
 *.os
 *.py[cod]
 *.mod
-src/include/spack/src/LU_generator
-src/include/spack/src/find_perm
-src/include/spack/src/spack_generator
-src/include/spack/src/spack_input
 
 ### Emacs files
 *~
@@ -37,3 +32,18 @@ ssh-aerosol
 src/include/Talos/talos.py
 src/include/Talos/talos_wrap.cc
 INIT/fractions.txt
+user_manual/user_manual.aux
+user_manual/user_manual.log
+user_manual/user_manual.out
+user_manual/user_manual.toc
+
+### Spack
+src/include/CHEMISTRY/cb05en/*.f*
+src/include/CHEMISTRY/cb05/*.f*
+src/include/CHEMISTRY/racm/*.f*
+src/include/CHEMISTRY/racm2/*.f*
+src/include/CHEMISTRY/*/species.spack.dat
+src/include/spack/src/LU_generator
+src/include/spack/src/find_perm
+src/include/spack/src/spack_generator
+src/include/spack/src/spack_input

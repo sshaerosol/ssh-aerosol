@@ -1573,7 +1573,6 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
 	  config.Vlayer(2)=0.12102374;
 	  config.Vlayer(3)=0.04255976;
 	  config.Vlayer(4)=0.01;
-          cout << "OK " << endl;
 	  config.alpha_layer(0)=1.0/1.00194135033;
 	  config.alpha_layer(1)=6.2/1.18/1.07132849494;
 	  config.alpha_layer(2)=68.0/0.91/2.3390977/1.0329289261;
@@ -1822,7 +1821,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
 	  
   //create the vector of species and the various parameters of the model 
   creation_species(surrogate,species_list_aer, molecular_weight_aer,
-                   accomodation_coefficient); 
+                   accomodation_coefficient,config.nlayer); 
   system_coupling(config, surrogate);
   param_unifac(config, surrogate); 
   system_aiomfac(config, surrogate);
