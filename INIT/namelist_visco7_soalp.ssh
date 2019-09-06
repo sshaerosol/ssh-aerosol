@@ -112,6 +112,6 @@ with_oligomerization = 1
 /
 
 &output
-output_directory = "results/visco/visco1_soalp/", ! modify result saving paths 
+output_directory = "results/visco/visco7_soalp/", ! modify result saving paths 
 output_type = 1               ! 1: text, 2: binary
 /
