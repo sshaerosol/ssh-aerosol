@@ -1,6 +1,6 @@
-for ivisco in "0","1" "2" "3" "4" "5" 
+for ivisco in `seq 1 8`
 do
     ./ssh-aerosol INIT/namelist_visco${ivisco}_poamp.ssh
-    #../git-ssh/ssh-aerosol/ssh-aerosol namelist_visco${ivisco}_poalp.ssh
-    #../git-ssh/ssh-aerosol/ssh-aerosol namelist_visco${ivisco}_soalp.ssh
+    ./ssh-aerosol INIT/namelist_visco${ivisco}_poalp.ssh
+    ./ssh-aerosol INIT/namelist_visco${ivisco}_soalp.ssh
 done
