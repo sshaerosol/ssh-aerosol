@@ -20,9 +20,9 @@ tag_init = 0,                     ! initial method for aerosol species (0 intern
 wet_diam_estimation = 0       	  ! 0 = isorropia, 1 = Gerber MTSBL
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 1,                    ! Number of size bin
-init_gas_conc_file = "./inputs/inputs-visco/init_gas.dat",                     ! Initial data for gas
-init_aero_conc_mass_file = "./inputs/inputs-visco/init_aero.dat",        !  Initial data for aero mass  
-init_aero_conc_num_file = "./inputs/inputs-visco/init_num.dat",     !  Initial data for aero number  
+init_gas_conc_file = "./inputs/inputs-visco_soalp/init_gas.dat",                     ! Initial data for gas
+init_aero_conc_mass_file = "./inputs/inputs-visco_soalp/init_aero.dat",        !  Initial data for aero mass  
+init_aero_conc_num_file = "./inputs/inputs-visco_soalp/init_num.dat",     !  Initial data for aero number  
 /
 
 &initial_diam_distribution       
@@ -83,7 +83,6 @@ splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucl
 &physic_coagulation
 with_coag = 0,                 		!Tag of coagulation
 i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
-i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
 Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file coef_s5_f3_b7.nc for external mixing, coef_s1_f1_b7.nc for internal mixing
 Nmc = 10000                             ! Number of Monte Carlo points if repartition coeff are computed
 /
@@ -95,7 +94,7 @@ ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.
-dorg = 1.e-18,                          ! diffusion coefficient in the organic phase.
+dorg = 1.e-22,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
@@ -113,6 +112,6 @@ with_oligomerization = 1
 /
 
 &output
-output_directory = "results/visco/visco2_poamp/", ! modify result saving paths 
+output_directory = "results/visco/visco6_soalp/", ! modify result saving paths 
 output_type = 1               ! 1: text, 2: binary
 /
