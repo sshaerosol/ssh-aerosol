@@ -51,8 +51,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco2.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic3+species1) as f1 :
 	values = f1.read().splitlines()
@@ -60,8 +60,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco3.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic4+species1) as f1 :
 	values = f1.read().splitlines()
@@ -69,8 +69,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco4.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic5+species1) as f1 :
 	values = f1.read().splitlines()
@@ -78,8 +78,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco5.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic6+species1) as f1 :
 	values = f1.read().splitlines()
@@ -87,8 +87,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco6.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic7+species1) as f1 :
 	values = f1.read().splitlines()
@@ -96,8 +96,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco7.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 with open (namefic8+species1) as f1 :
 	values = f1.read().splitlines()
@@ -105,11 +105,11 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco8.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
+        #t.append(t0)
+        #t0=t0+deltat*1./3600
 
 
-semilogx(t,visco1,'0.5')
+#semilogx(t,visco1,'0.5')
 semilogx(t,visco2,'b')
 semilogx(t,visco3,'c')
 semilogx(t,visco4,'g')
@@ -117,7 +117,7 @@ semilogx(t,visco5,'y')
 semilogx(t,visco6,'m')
 semilogx(t,visco7,'r')
 semilogx(t,visco8,'k')
-savefig("visco_poamp.png")
+savefig("visco_soalp.png")
 
 
 

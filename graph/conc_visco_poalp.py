@@ -119,7 +119,7 @@ for i in range(len(values)) :
         values[i] = float(values[i]) + float(values2[i])  
         visco8.append(float(values[i]))
 
-semilogx(t,visco1,'0.5')
+#semilogx(t,visco1,'0.5')
 semilogx(t,visco2,'b')
 semilogx(t,visco3,'c')
 semilogx(t,visco4,'g')
