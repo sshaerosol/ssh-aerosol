@@ -1818,6 +1818,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
   config.nh_aq_init=1;
   config.nh_org_init=1;
   config.nh_max=10;
+  config.molalmax=70.; //Limit high values of molalities to prevent numerical issues
 	  
   //create the vector of species and the various parameters of the model 
   creation_species(surrogate,species_list_aer, molecular_weight_aer,
