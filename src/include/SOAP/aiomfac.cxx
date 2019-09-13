@@ -46,22 +46,12 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       // LONG - RANGE computation           //
       ////////////////////////////////////////
 
-      double sum_molality=0.0;
-      for (i=0;i<nions;++i)
-        sum_molality+=abs(molality_ions(i));
-
-      //To prevent too high molalities
-      /*
-      if (sum_molality>1.0e4)
-        for (i=0;i<nions;++i)
-        molality_ions(i)=molality_ions(i)/sum_molality*1.0e4;*/
-
-      double sqrt_ionic=pow(ionic,0.5); 
-      double A=1.327757e5*pow(rho,0.5)/(pow(permittivity*Temperature,3.0/2));
-      double b=6.369696*pow(rho,0.5)/(pow(permittivity*Temperature,0.5));      
-      double A2=A*(1+b*sqrt_ionic-1.0/(1+b*sqrt_ionic)
+      long double sqrt_ionic=pow(ionic,0.5); 
+      long double A=1.327757e5*pow(rho,0.5)/(pow(permittivity*Temperature,3.0/2));
+      long double b=6.369696*pow(rho,0.5)/(pow(permittivity*Temperature,0.5));      
+      long double A2=A*(1+b*sqrt_ionic-1.0/(1+b*sqrt_ionic)
                    -2.0*log(1.0+b*sqrt_ionic));
-      double A3=A*sqrt_ionic/(1+b*sqrt_ionic);
+      long double A3=A*sqrt_ionic/(1+b*sqrt_ionic);
 
       for (k=0;k<nsolvents;++k)
         gamma_LR_solvents(k)=exp(2*molar_mass_solvents(k)/pow(b,3)*A2); 
@@ -73,10 +63,10 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       // MEDIUM - RANGE computation           //
       //////////////////////////////////////////
 	  
-      Array<double, 2> Bki,IBki_deriv;
-      Array<double, 2> Bca,IBca_deriv;
-      Array<double, 2> Cca,ICca_deriv;
-      Array<double, 1> Afaci,sumIBkXk;
+      Array<long double, 2> Bki,IBki_deriv;
+      Array<long double, 2> Bca,IBca_deriv;
+      Array<long double, 2> Cca,ICca_deriv;
+      Array<long double, 1> Afaci,sumIBkXk;
       Afaci.resize(nions);
       sumIBkXk.resize(nions);
       Bki.resize(ngroups,nions);
@@ -87,8 +77,8 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       ICca_deriv.resize(nions,nions);
       Bki=0.;
       Bca=0.;      
-      double I1=exp(-1.2*sqrt_ionic);
-      double I2=I1/sqrt_ionic;
+      long double I1=exp(-1.2*sqrt_ionic);
+      long double I2=I1/sqrt_ionic;
 
       for (k=0;k<ngroups;++k)
         for (i=0;i<nions;++i)
@@ -119,12 +109,12 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
 	      ICca_deriv(i,j)=0.0;
             }
 
-      Array<double, 1> Xk;
-      Array<double, 1> log_gammak;
+      Array<long double, 1> Xk;
+      Array<long double, 1> log_gammak;
       log_gammak.resize(ngroups);
       Xk.resize(ngroups);
 	  
-      double sumXk=0.0;
+      long double sumXk=0.0;
       for (k=0;k<ngroups;++k)
         {
           Xk(k)=0.0;
@@ -141,11 +131,11 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
         cout << "sumXk is zero" << endl;
 
       //cout << Xk << endl;
-      double molar_mass_average=0.0;
+      long double molar_mass_average=0.0;
       for (k=0;k<ngroups;++k)
         molar_mass_average+=Xk(k)*molar_mass_groups(k); //CHANGED Based on a corrigeum published in ACP by Zuend. BEFORE: molar_mass_average+=X_solvents(k)*molar_mass_solvents(k); 
 
-      double mi_zi=0.0;
+      long double mi_zi=0.0;
       for (i=0;i<nions;++i)
         mi_zi+=molality_ions(i)*abs(charges_ions(i));
       
@@ -196,7 +186,7 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
               
               log_gammak(k)+=Bki(k,i)*molality_ions(i);	                 
               
-              double a=0.;                 
+              long double a=0.;                 
               for (l=0;l<ngroups;++l)            
                 a+=(Bki(l,i)+IBki_deriv(l,i)*ionic)*Xk(l)/molar_mass_average;
               
@@ -221,8 +211,8 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
           for (k=0;k<ngroups;++k)
             gamma_MR_solvents(l)+=groups_solvents(l,k)*log_gammak(k);
 
-          gamma_MR_solvents(l)=min(gamma_MR_solvents(l),logmax);
-          gamma_MR_solvents(l)=max(gamma_MR_solvents(l),-logmax);	  
+          if (gamma_MR_solvents(l)>logmax) gamma_MR_solvents(l)=logmax;
+          if (gamma_MR_solvents(l)<-logmax) gamma_MR_solvents(l)=-logmax;
           gamma_MR_solvents(l)=exp(gamma_MR_solvents(l));
           //cout << "MR " << l << " " << gamma_MR_solvents(l) << endl;
         }
@@ -230,12 +220,12 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
       sumIBkXk=0.;
       for (j=0;j<nions;++j)
         {
-          //double a=0.;
+          //long double a=0.;
           for (k=0;k<ngroups;++k)              
             sumIBkXk(j)+=IBki_deriv(k,j)*Xk(k);
         }
 
-      double loggamma;
+      long double loggamma;
       for (i=0;i<nions;++i)
         if(charges_ions(i)>0.0)
           {
@@ -245,7 +235,7 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
 			
             for (j=0;j<nions;++j)
               {
-                double a=sumIBkXk(j);
+                long double a=sumIBkXk(j);
 
                 a*=pow(charges_ions(i),2)/(2*molar_mass_average);
 			          
@@ -267,8 +257,8 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
                 loggamma+=a*molality_ions(j);
               }
 
-            loggamma=min(loggamma,logmax);
-            loggamma=max(loggamma,-logmax);
+            if (loggamma>logmax) loggamma=logmax;
+            if (loggamma<-logmax) loggamma=-logmax; 
             gamma_MR_ions(i)=exp(loggamma);
           }
         else
@@ -282,7 +272,7 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
             //  cout << "A: " << loggamma << " " << molar_mass_average << endl;            
             for (j=0;j<nions;++j)
               {
-                double a=sumIBkXk(j);
+                long double a=sumIBkXk(j);
                 a*=pow(charges_ions(i),2)/(2*molar_mass_average);
                 /*
                 if (i==6)
@@ -328,8 +318,8 @@ void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
             /*
             if (i==6)
             cout << charges_ions(i) << " " << i << " " << loggamma << endl;*/
-            loggamma=min(loggamma,logmax);
-            loggamma=max(loggamma,-logmax);            
+            if (loggamma>logmax) loggamma=logmax;
+            if (loggamma<-logmax) loggamma=-logmax;            
             gamma_MR_ions(i)=exp(loggamma);
           }
       //cout << molality_ions << endl;
