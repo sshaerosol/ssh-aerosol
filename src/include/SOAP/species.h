@@ -107,6 +107,7 @@ namespace soap
         int iiter;
 
     double chpinit,ionicinit,initAQ;
+    double molalmax;
 
   };
 
@@ -193,9 +194,10 @@ namespace soap
         Array<int, 1> iion,iproduct;
 	double velocity,knui;
 
-	double Aginit,Aaqinit;
+	double Aginit,Aaqinit,Apinit;
        
         int soap_ind; // Number in the aerosol species list
+        int soap_ind_aero; // Number in the aerosol species list including layers
   };
   
 }

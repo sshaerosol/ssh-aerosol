@@ -35,7 +35,7 @@
           ,EBiBlP,EBiBmP,EBiNGA,EBiNIT3,EBiNIT&
           ,EBiMGA,EBiDER,ESOAhP,EPOAlP,EPOAmP&
           ,EAnCLP,ESOAlP,ESOAmP,EPOAhP,EH2O&
-          ,EMonomer,EDimer,EBiA3D,EorgNIT
+          ,EMonomer,EDimer,EBiA3D,EorgNIT,EH2O_layers
       INTEGER IH,INa,INH4,ICl,ISO4,IHSO4,INO3&
           ,IH2O,INH3,IHCl,IHNO3,IOH
       INTEGER SNaNO3,SNH4NO3,SNACl,SNH4Cl,SLC&

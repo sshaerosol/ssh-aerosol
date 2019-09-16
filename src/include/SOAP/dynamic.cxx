@@ -1829,6 +1829,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		  Array <double,2> rJ_interface;
 		  rJ_interface.resize(config.nlayer,config.max_number_of_phases);
 		  rJ_interface=0.0;
+		  ilayer_interface=config.nlayer-1;
 		  for (ilayer=0;ilayer<config.nlayer-1;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].tau_diffusion(b,ilayer,iphase)>=config.tequilibrium and surrogate[i].tau_diffusion(b,ilayer+1,iphase)<config.tequilibrium)
@@ -1847,6 +1848,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
 			}
 		      Vinterface+=config.Vlayer(ilayer);
 		    }
+
+		  //cout << ilayer_interface << endl;
 
 		  double Jinterface=(surrogate[i].Ag*sumkpmo_interface-ap_interface)/tau_interface;
 	      
@@ -2017,9 +2020,13 @@ void flux_org(model_config &config, vector<species>& surrogate,
 				    else
 				      a=surrogate[i].k1(b,ilayer,iphase,index)-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;			      
 				  else // inner layers
-				    {                                   
-				      a=1.0/(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/(sumkpositive-max(sumk,0.0))*(kcond-max(sumk,0.0)))+1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;
-				      b2+=a;
+				    {                                  
+                                      if(sumkpositive > 0.0) {
+		  		        a=1.0/(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/(sumkpositive-max(sumk,0.0))*(kcond-max(sumk,0.0)))+1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;
+				        b2+=a;
+					}
+                                      else
+                                        a = 0;
 				    }
 				     	    
 			    
@@ -2122,6 +2129,9 @@ void flux_org(model_config &config, vector<species>& surrogate,
 								surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	      }
       }
+
+
+
 }
 
 void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b, double Temperature, Array <double, 1> chp, 
