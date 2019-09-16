@@ -305,11 +305,11 @@ module aInitialization
   integer :: ind_jbiper, ind_kbiper   
   ! To take into account BiPER degradation inside the particle
 
-  !! part 7: used in coupling with external tools (ModuleSaturne)
+  !! part 7: used in coupling with external tools (ModuleAPI)
   !
   ! This flag defines if SSH-aerosol is running standalone or not
   !   true if it is running standalone, default
-  !   false if it is running with Code_Saturne
+  !   false if it is running with an external tool
   !
   logical(kind=c_bool), save :: ssh_standalone = .true.
   !

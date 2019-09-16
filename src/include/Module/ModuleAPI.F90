@@ -16,11 +16,11 @@
 !!-----------------------------------------------------------------------
 !!
 !!     -- DESCRIPTION
-!!    This module propose wrappers to interface SSH-aerosol with Code_Saturne
+!!    This module propose wrappers to interface SSH-aerosol with external tools
 !!
 !!-----------------------------------------------------------------------
 
-module SSHSaturne
+module SSHaerosolAPI
 
   implicit none
 
@@ -36,7 +36,7 @@ module SSHSaturne
 !   maximum length of input set to 40 chars (cf read_namelist)
 ! =============================================================
 
-    subroutine cs_initialize(input_namelist_file) bind(c, name='cs_sshaerosol_initialize_')
+    subroutine api_initialize(input_namelist_file) bind(c, name='api_sshaerosol_initialize_')
 
       use iso_c_binding
       use aInitialization, only : read_namelist, read_inputs, N_gas, n_reaction, n_photolysis
@@ -65,7 +65,7 @@ module SSHSaturne
       ! Initialize distributions
       call init_distributions()
 
-    end subroutine cs_initialize
+    end subroutine api_initialize
 
 ! =============================================================
 !
@@ -75,7 +75,7 @@ module SSHSaturne
 !
 ! =============================================================
 
-    subroutine cs_finalize() bind(c, name='cs_sshaerosol_finalize_')
+    subroutine api_finalize() bind(c, name='api_sshaerosol_finalize_')
 
       use iso_c_binding
       use aInitialization, only : free_allocated_memory, with_coag, ssh_logger, close_logger
@@ -94,7 +94,7 @@ module SSHSaturne
         call close_logger()
       endif
 
-    end subroutine cs_finalize
+    end subroutine api_finalize
 
 ! =============================================================
 !
@@ -103,7 +103,7 @@ module SSHSaturne
 ! input : true if running standalone (default), false otherwise
 ! =============================================================
 
-    subroutine set_standalone(flag) bind(c, name='cs_set_sshaerosol_standalone_')
+    subroutine set_standalone(flag) bind(c, name='api_set_sshaerosol_standalone_')
 
       use iso_c_binding
       use aInitialization, only : ssh_standalone
@@ -123,7 +123,7 @@ module SSHSaturne
 ! return value : true if running standalone (default), false otherwise
 ! =============================================================
 
-    function standalone() bind(c, name='cs_get_sshaerosol_standalone_')
+    function standalone() bind(c, name='api_get_sshaerosol_standalone_')
 
       use iso_c_binding
       use aInitialization, only : ssh_standalone
@@ -140,12 +140,12 @@ module SSHSaturne
 !
 ! External code can set the flag to decide if SSH-aerosol is logging informations
 !
-! Important: This subroutine must be called before cs_initialize
+! Important: This subroutine must be called before api_initialize
 !
 ! input : true if logging to a file, false (default) otherwise
 ! =============================================================
 
-    subroutine cs_set_logger(cflag) bind(c, name='cs_set_sshaerosol_logger_')
+    subroutine api_set_logger(cflag) bind(c, name='api_set_sshaerosol_logger_')
 
       use iso_c_binding
       use aInitialization, only : set_logger
@@ -158,7 +158,7 @@ module SSHSaturne
       flag = cflag
       call set_logger(flag)
 
-    end subroutine cs_set_logger
+    end subroutine api_set_logger
 
 ! =============================================================
 !
@@ -167,7 +167,7 @@ module SSHSaturne
 ! return value : true if logging to a file, false (default) otherwise
 ! =============================================================
 
-    function logger() bind(c, name='cs_get_sshaerosol_logger_')
+    function logger() bind(c, name='api_get_sshaerosol_logger_')
 
       use iso_c_binding
       use aInitialization, only : ssh_logger
@@ -187,18 +187,18 @@ module SSHSaturne
 ! return value : number of gas species
 ! =============================================================
 
-    function cs_get_ngas() bind(c, name='cs_get_sshaerosol_ngas_')
+    function api_get_ngas() bind(c, name='api_get_sshaerosol_ngas_')
 
       use iso_c_binding
       use aInitialization, only : N_gas
 
       implicit none
 
-      integer(kind=c_int) :: cs_get_ngas
+      integer(kind=c_int) :: api_get_ngas
       
-      cs_get_ngas = N_gas
+      api_get_ngas = N_gas
 
-    end function cs_get_ngas
+    end function api_get_ngas
 
 ! =============================================================
 !
@@ -207,18 +207,18 @@ module SSHSaturne
 ! return value : number of aerosols species
 ! =============================================================
 
-    function cs_get_naero() bind(c, name='cs_get_sshaerosol_naero_')
+    function api_get_naero() bind(c, name='api_get_sshaerosol_naero_')
 
       use iso_c_binding
       use aInitialization, only : N_aerosol
 
       implicit none
 
-      integer(kind=c_int) :: cs_get_naero
+      integer(kind=c_int) :: api_get_naero
       
-      cs_get_naero = N_aerosol
+      api_get_naero = N_aerosol
 
-    end function cs_get_naero
+    end function api_get_naero
 
 ! =============================================================
 !
@@ -227,39 +227,50 @@ module SSHSaturne
 ! return value : number of aerosols size bins
 ! =============================================================
 
-    function cs_get_nsizebin() bind(c, name='cs_get_sshaerosol_nsizebin_')
+    function api_get_nsizebin() bind(c, name='api_get_sshaerosol_nsizebin_')
 
       use iso_c_binding
       use aInitialization, only : N_sizebin
 
       implicit none
 
-      integer(kind=c_int) :: cs_get_nsizebin
+      integer(kind=c_int) :: api_get_nsizebin
       
-      cs_get_nsizebin = N_sizebin
+      api_get_nsizebin = N_sizebin
 
-    end function cs_get_nsizebin
+    end function api_get_nsizebin
 
 ! =============================================================
 !
 ! External code can set the SSH-aerosol time step
 !
 ! input : time step in seconds
+! return value : false if the time step is too small
 ! =============================================================
 
-    subroutine set_dt(val) bind(c, name='cs_set_sshaerosol_dt_')
+    function set_dt(val) bind(c, name='api_set_sshaerosol_dt_')
 
       use iso_c_binding
       use aInitialization, only : delta_t, dt
 
+      include 'CONST_B.INC' ! needed for DTAEROMIN
+
       implicit none
 
       real(c_double), intent(in) :: val
+      logical(kind=c_bool) :: set_dt
 
-      delta_t = val
-      dt = val ! this is probably useless
+      if (val > DTAEROMIN) then
+        set_dt = .true.
+        delta_t = val
+        dt = val ! this is probably useless
+      else
+        set_dt = .false.
+        delta_t = DTAEROMIN
+        dt = DTAEROMIN ! this is probably useless
+      endif
 
-    end subroutine set_dt
+    end function set_dt
 
 ! =============================================================
 !
@@ -268,7 +279,7 @@ module SSHSaturne
 ! return value : time step in seconds
 ! =============================================================
 
-    function get_dt() bind(c, name='cs_get_sshaerosol_dt_')
+    function get_dt() bind(c, name='api_get_sshaerosol_dt_')
 
       use iso_c_binding
       use aInitialization, only : delta_t
@@ -288,7 +299,7 @@ module SSHSaturne
 ! input : initial time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    subroutine set_initial_t(val) bind(c, name='cs_set_sshaerosol_initial_t_')
+    subroutine set_initial_t(val) bind(c, name='api_set_sshaerosol_initial_t_')
 
       use iso_c_binding
       use aInitialization, only : initial_time
@@ -308,7 +319,7 @@ module SSHSaturne
 ! return value : initial time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    function get_initial_t() bind(c, name='cs_get_sshaerosol_initial_t_')
+    function get_initial_t() bind(c, name='api_get_sshaerosol_initial_t_')
 
       use iso_c_binding
       use aInitialization, only : initial_time
@@ -327,7 +338,7 @@ module SSHSaturne
 !
 ! =============================================================
 
-    subroutine cs_update_humidity() bind(c, name='cs_update_sshaerosol_humidity_')
+    subroutine api_update_humidity() bind(c, name='api_update_sshaerosol_humidity_')
 
       use iso_c_binding
       use aInitialization, only : temperature, humidity, pressure, pressure_sat, relative_humidity
@@ -342,7 +353,7 @@ module SSHSaturne
       ! TODO have a dedicated subroutine to avoid duplication of code
       humidity = 1.d0/(Pressure/(pressure_sat *0.62197d0* Relative_Humidity)-1.d0)
 
-    end subroutine cs_update_humidity
+    end subroutine api_update_humidity
 
 ! =============================================================
 !
@@ -351,18 +362,18 @@ module SSHSaturne
 ! output : specific humidity in kg / kg
 ! =============================================================
 
-    function cs_get_humidity() bind(c, name='cs_get_sshaerosol_humidity_')
+    function api_get_humidity() bind(c, name='api_get_sshaerosol_humidity_')
 
       use iso_c_binding
       use aInitialization, only : humidity
 
       implicit none
 
-      real(kind=c_double) :: cs_get_humidity
+      real(kind=c_double) :: api_get_humidity
       
-      cs_get_humidity = humidity
+      api_get_humidity = humidity
 
-    end function cs_get_humidity
+    end function api_get_humidity
 
 ! =============================================================
 !
@@ -371,7 +382,7 @@ module SSHSaturne
 ! input : relative humidity in ??? TODO
 ! =============================================================
 
-    subroutine cs_set_relhumidity(val) bind(c, name='cs_set_sshaerosol_relhumidity_')
+    subroutine api_set_relhumidity(val) bind(c, name='api_set_sshaerosol_relhumidity_')
 
       use iso_c_binding
       use aInitialization, only : relative_humidity
@@ -385,7 +396,7 @@ module SSHSaturne
       ! This is taken from the subroutine read_namelist
       relative_humidity = min(max(val, threshold_RH_inf), threshold_RH_sup)
 
-    end subroutine cs_set_relhumidity
+    end subroutine api_set_relhumidity
 
 ! =============================================================
 !
@@ -394,18 +405,18 @@ module SSHSaturne
 ! output : relative humidity in ??? TODO
 ! =============================================================
 
-    function cs_get_relhumidity() bind(c, name='cs_get_sshaerosol_relhumidity_')
+    function api_get_relhumidity() bind(c, name='api_get_sshaerosol_relhumidity_')
 
       use iso_c_binding
       use aInitialization, only : relative_humidity
 
       implicit none
 
-      real(kind=c_double) :: cs_get_relhumidity
+      real(kind=c_double) :: api_get_relhumidity
 
-      cs_get_relhumidity = relative_humidity
+      api_get_relhumidity = relative_humidity
 
-    end function cs_get_relhumidity
+    end function api_get_relhumidity
 
 ! =============================================================
 !
@@ -414,7 +425,7 @@ module SSHSaturne
 ! input : temperature in K
 ! =============================================================
 
-    subroutine cs_set_temperature(val) bind(c, name='cs_set_sshaerosol_temperature_')
+    subroutine api_set_temperature(val) bind(c, name='api_set_sshaerosol_temperature_')
 
       use iso_c_binding
       use aInitialization, only : temperature
@@ -425,7 +436,7 @@ module SSHSaturne
 
       temperature = val
 
-    end subroutine cs_set_temperature
+    end subroutine api_set_temperature
 
 ! =============================================================
 !
@@ -434,18 +445,18 @@ module SSHSaturne
 ! output : temperature in K
 ! =============================================================
 
-    function cs_get_temperature() bind(c, name='cs_get_sshaerosol_temperature_')
+    function api_get_temperature() bind(c, name='api_get_sshaerosol_temperature_')
 
       use iso_c_binding
       use aInitialization, only : temperature
 
       implicit none
 
-      real(kind=c_double) :: cs_get_temperature
+      real(kind=c_double) :: api_get_temperature
 
-      cs_get_temperature = temperature
+      api_get_temperature = temperature
 
-    end function cs_get_temperature
+    end function api_get_temperature
 
 ! =============================================================
 !
@@ -454,7 +465,7 @@ module SSHSaturne
 ! input : pressure in Pa
 ! =============================================================
 
-    subroutine cs_set_pressure(val) bind(c, name='cs_set_sshaerosol_pressure_')
+    subroutine api_set_pressure(val) bind(c, name='api_set_sshaerosol_pressure_')
 
       use iso_c_binding
       use aInitialization, only : pressure
@@ -465,7 +476,7 @@ module SSHSaturne
 
       pressure = val
 
-    end subroutine cs_set_pressure
+    end subroutine api_set_pressure
 
 ! =============================================================
 !
@@ -474,18 +485,18 @@ module SSHSaturne
 ! output : pressure in Pa
 ! =============================================================
 
-    function cs_get_pressure() bind(c, name='cs_get_sshaerosol_pressure_')
+    function api_get_pressure() bind(c, name='api_get_sshaerosol_pressure_')
 
       use iso_c_binding
       use aInitialization, only : pressure
 
       implicit none
 
-      real(kind=c_double) :: cs_get_pressure
+      real(kind=c_double) :: api_get_pressure
 
-      cs_get_pressure = pressure
+      api_get_pressure = pressure
 
-    end function cs_get_pressure
+    end function api_get_pressure
 
 ! =============================================================
 !
@@ -494,7 +505,7 @@ module SSHSaturne
 ! input : pH in ??? TODO
 ! =============================================================
 
-    subroutine cs_set_ph(val) bind(c, name='cs_set_sshaerosol_ph_')
+    subroutine api_set_ph(val) bind(c, name='api_set_sshaerosol_ph_')
 
       use iso_c_binding
       use aInitialization, only : ph
@@ -505,7 +516,7 @@ module SSHSaturne
 
       ph = val
 
-    end subroutine cs_set_ph
+    end subroutine api_set_ph
 
 ! =============================================================
 !
@@ -514,18 +525,18 @@ module SSHSaturne
 ! output : pH in ??? TODO
 ! =============================================================
 
-    function cs_get_ph() bind(c, name='cs_get_sshaerosol_ph_')
+    function api_get_ph() bind(c, name='api_get_sshaerosol_ph_')
 
       use iso_c_binding
       use aInitialization, only : ph
 
       implicit none
 
-      real(kind=c_double) :: cs_get_ph
+      real(kind=c_double) :: api_get_ph
 
-      cs_get_ph = ph
+      api_get_ph = ph
 
-    end function cs_get_ph
+    end function api_get_ph
 
 ! =============================================================
 !
@@ -534,7 +545,7 @@ module SSHSaturne
 ! input : array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine cs_set_gas_concentration(array) bind(c, name='cs_set_sshaerosol_gas_concentration_')
+    subroutine api_set_gas_concentration(array) bind(c, name='api_set_sshaerosol_gas_concentration_')
 
       use iso_c_binding
       use aInitialization, only : N_gas, concentration_gas_all
@@ -545,7 +556,7 @@ module SSHSaturne
 
       concentration_gas_all(:) = array(:)
 
-    end subroutine cs_set_gas_concentration
+    end subroutine api_set_gas_concentration
 
 ! =============================================================
 !
@@ -554,7 +565,7 @@ module SSHSaturne
 ! output : array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine cs_get_gas_concentration(array) bind(c, name='cs_get_sshaerosol_gas_concentration_')
+    subroutine api_get_gas_concentration(array) bind(c, name='api_get_sshaerosol_gas_concentration_')
 
       use iso_c_binding
       use aInitialization, only : N_gas, concentration_gas_all
@@ -565,7 +576,7 @@ module SSHSaturne
       
       array(:) = concentration_gas_all(:)
 
-    end subroutine cs_get_gas_concentration
+    end subroutine api_get_gas_concentration
 
 ! =============================================================
 !
@@ -574,7 +585,7 @@ module SSHSaturne
 ! input : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine cs_set_aero_concentration(array) bind(c, name='cs_set_sshaerosol_aero_concentration_')
+    subroutine api_set_aero_concentration(array) bind(c, name='api_set_sshaerosol_aero_concentration_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_mass
@@ -585,7 +596,7 @@ module SSHSaturne
 
       concentration_mass(:,:) = array(:,:)
 
-    end subroutine cs_set_aero_concentration
+    end subroutine api_set_aero_concentration
 
 ! =============================================================
 !
@@ -594,7 +605,7 @@ module SSHSaturne
 ! output : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine cs_get_aero_concentration(array) bind(c, name='cs_get_sshaerosol_aero_concentration_')
+    subroutine api_get_aero_concentration(array) bind(c, name='api_get_sshaerosol_aero_concentration_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_mass
@@ -605,7 +616,7 @@ module SSHSaturne
 
       array(:,:) = concentration_mass(:,:)
 
-    end subroutine cs_get_aero_concentration
+    end subroutine api_get_aero_concentration
 
 ! =============================================================
 !
@@ -614,7 +625,7 @@ module SSHSaturne
 ! input : 1D array in particles / m^3
 ! =============================================================
 
-    subroutine cs_set_aero_number(array) bind(c, name='cs_set_sshaerosol_aero_number_')
+    subroutine api_set_aero_number(array) bind(c, name='api_set_sshaerosol_aero_number_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_number
@@ -625,7 +636,7 @@ module SSHSaturne
 
       concentration_number(:) = array(:)
 
-    end subroutine cs_set_aero_number
+    end subroutine api_set_aero_number
 
 ! =============================================================
 !
@@ -634,7 +645,7 @@ module SSHSaturne
 ! output : 1D array in particles / m^3
 ! =============================================================
 
-    subroutine cs_get_aero_number(array) bind(c, name='cs_get_sshaerosol_aero_number_')
+    subroutine api_get_aero_number(array) bind(c, name='api_get_sshaerosol_aero_number_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_number
@@ -645,7 +656,7 @@ module SSHSaturne
 
       array(:) = concentration_number(:)
 
-    end subroutine cs_get_aero_number
+    end subroutine api_get_aero_number
 
 ! =============================================================
 !
@@ -653,7 +664,7 @@ module SSHSaturne
 !
 ! =============================================================
 
-    subroutine cs_call_ssh_gaschemistry() bind(c, name='cs_call_sshaerosol_gaschemistry_')
+    subroutine api_call_ssh_gaschemistry() bind(c, name='api_call_sshaerosol_gaschemistry_')
 
       use iso_c_binding
       use aInitialization
@@ -686,7 +697,7 @@ module SSHSaturne
           1, not(with_fixed_density), concentration_number, &
           mass_density)
 
-    end subroutine cs_call_ssh_gaschemistry
+    end subroutine api_call_ssh_gaschemistry
 
 ! =============================================================
 !
@@ -694,7 +705,7 @@ module SSHSaturne
 !
 ! =============================================================
 
-    subroutine cs_call_ssh_aerochemistry() bind(c, name='cs_call_sshaerosol_aerochemistry_')
+    subroutine api_call_ssh_aerochemistry() bind(c, name='api_call_sshaerosol_aerochemistry_')
 
       use iso_c_binding
       use aInitialization
@@ -733,6 +744,6 @@ module SSHSaturne
         end if
       end do
 
-    end subroutine cs_call_ssh_aerochemistry
+    end subroutine api_call_ssh_aerochemistry
 
-end module SSHSaturne
+end module SSHaerosolAPI
