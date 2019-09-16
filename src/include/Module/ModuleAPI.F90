@@ -251,9 +251,7 @@ module SSHaerosolAPI
     function set_dt(val) bind(c, name='api_set_sshaerosol_dt_')
 
       use iso_c_binding
-      use aInitialization, only : delta_t, dt
-
-      include 'CONST_B.INC' ! needed for DTAEROMIN
+      use aInitialization, only : delta_t, dt, DTAEROMIN
 
       implicit none
 
