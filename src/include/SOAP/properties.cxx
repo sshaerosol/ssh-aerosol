@@ -1686,19 +1686,27 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
     gamma_molal=1.0/(surrogate[config.iH2O].MM*0.001*(1./xsms+summolal));   
   //cout << "gamma molal " << gamma_molal << " " << xsms << " " << summolal << endl;
 
-  for (i=0;i<n;++i)
-    if (surrogate[i].hydrophilic and sum>0)
-      {
-        surrogate[i].Xaq/=sum;
-        MMaq+=surrogate[i].Xaq*surrogate[i].MM;
-	//cout << "comp " << surrogate[i].name << " " << surrogate[i].Xaq << " " << surrogate[i].MM << " " << sum << endl;
-        if (surrogate[i].index_gamma_aq>=0 and (surrogate[i].is_organic or i==config.iH2O))
-          {	   
-            sumX_unifac+=surrogate[i].Xaq;	   
-	    X_unifac(surrogate[i].index_gamma_aq)+=surrogate[i].Xaq;
-          }
-      } 
+  if (sum>0.)
+    {
+    for (i=0;i<n;++i)
+      if (surrogate[i].hydrophilic and sum>0.)
+        {
+          surrogate[i].Xaq/=sum;
+          MMaq+=surrogate[i].Xaq*surrogate[i].MM;
+          //cout << "comp " << surrogate[i].name << " " << surrogate[i].Xaq << " " << surrogate[i].MM << " " << sum << endl;
+          if (surrogate[i].index_gamma_aq>=0 and (surrogate[i].is_organic or i==config.iH2O))
+            {	   
+              sumX_unifac+=surrogate[i].Xaq;	   
+              X_unifac(surrogate[i].index_gamma_aq)+=surrogate[i].Xaq;
+            }
+        }
+    }
+  else
+    {
+      MMaq=18.;
+    }
 
+  
   if (config.iH2O>=0)
     XH2O=surrogate[config.iH2O].Xaq;
 
@@ -1855,12 +1863,13 @@ void hygroscopicity_tot(model_config &config, vector<species>& surrogate,
   double other=max(AQinit-surrogate[config.iH2O].Aaq,0.0);
   double delta=pow(1.-alpha*RH-other*beta,2.)+4*other*beta;  
   double aqnew=0.0;
-
+  
   if (surrogate[config.iH2O].Aaq>config.MOmin and surrogate[config.iH2O].Aaq/AQinit>0.3)
     aqnew=(-1.+alpha*RH+other*beta+pow(delta,0.5))/(2.*beta)-other;
   else
     aqnew=alpha*RH*AQinit/(1.0+beta*AQinit);
-  aqnew=min(max(aqnew,0.1*surrogate[config.iH2O].Aaq),10.*surrogate[config.iH2O].Aaq);
+  if (surrogate[config.iH2O].Aaq>0.)
+    aqnew=min(max(aqnew,0.1*surrogate[config.iH2O].Aaq),10.*surrogate[config.iH2O].Aaq);
   //min(max(alpha*RH*AQinit/(1.0+beta*AQinit),0.1*surrogate[config.iH2O].Aaq),10.*surrogate[config.iH2O].Aaq);
   surrogate[config.iH2O].Aaq=factor*aqnew+(1.0-factor)*surrogate[config.iH2O].Aaq;
 
@@ -1991,13 +2000,13 @@ void activity_coefficients_LR_MR(model_config &config, vector<species>& surrogat
             //if (surrogate[i].gamma_aq<=1.0e-10)
             //  exit(0);
           }
-        /*
-	  if (surrogate[i].gamma_aq<=1.0e-10)
+        
+        if (surrogate[i].gamma_aq<=1.0e-10)
           {            
-	  surrogate[i].gamma_LR*=1.e-8/surrogate[i].gamma_aq;
-	  surrogate[i].gamma_SRMR*=1.0e-8/surrogate[i].gamma_aq;
-	  surrogate[i].gamma_aq=1.0e-6;
-	  } */
+            surrogate[i].gamma_LR=1.; //e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_SRMR=1.; //0e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_aq=1.; //0e-6;
+	  } 
         
       }  
 
@@ -2021,6 +2030,11 @@ void compute_organion(model_config &config, vector<species>& surrogate,
       for (i=0;i<n;i++)
 	if (surrogate[i].hydrophilic)
 	  conc_org+=surrogate[i].Aaq_bins_init(b);
+
+      for (i=0;i<n;++i)
+        if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)          
+          conc_org=max(conc_org,surrogate[i].Aaq/surrogate[i].MM/config.molalmax*1000.0);      
+      
       conc_org=max(conc_org,1.e-5*config.MOmin);
       //conc_org=max(conc_org,config.MOmin);
 
@@ -2066,7 +2080,12 @@ void compute_organion2(model_config &config, vector<species>& surrogate,
       for (i=0;i<n;i++)
 	if (surrogate[i].hydrophilic)
 	  conc_org+=surrogate[i].Aaq_bins_init(b);
-      conc_org=max(conc_org,1.e-5*config.MOmin);
+
+      for (i=0;i<n;++i)
+        if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)          
+          conc_org=max(conc_org,surrogate[i].Aaq/surrogate[i].MM/config.molalmax*1000.0);      
+      
+      conc_org=max(conc_org,1.e-5*config.MOmin);      
       //conc_org=max(conc_org,config.MOmin);
       
       for (i=0;i<n;++i)
