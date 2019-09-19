@@ -8,8 +8,8 @@ Relative_Humidity = 0.6	! if 0, compute RH from specific humidity. if not, use i
 
 
 &setup_time
-initial_time = 43200.0,          ! in seconds from January 1st   
-final_time = 86400.0,             
+initial_time = 0.0,          ! in seconds from January 1st   
+final_time = 43200.0,             
 delta_t = 43200.0,                 
 time_emis = 0,        	 
 /
