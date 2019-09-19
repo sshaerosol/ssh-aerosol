@@ -253,7 +253,6 @@ module aInitialization
   double precision ,dimension(:), allocatable :: molecular_weight! (\B5g/mol) gas=phase
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-<<<<<<< b5e1490c234527683f331ef7899f70217078a16f
   integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
   double precision, dimension(:), allocatable :: coefficient
   integer :: coef_size
@@ -391,7 +390,7 @@ contains
          aec_species_name,pankow_species_name,&
          poa_species_name
 
-    namelist /physic_gas_chemistry/ tag_chem, attenuation, with_photolysis, &
+    namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
          with_heterogeneous, with_adaptive, &
          adaptive_time_step_tolerance, min_adaptive_time_step, &
          photolysis_dir, photolysis_file, &
@@ -613,7 +612,8 @@ contains
           kind_composition = 0 ! default
           allocate(frac_input(2)) 
        end if
-
+    end if
+    
     ! fraction_distribution
     allocate(frac_bound(N_frac+1))
     read(10, nml = fraction_distribution, iostat = ierr)
@@ -931,10 +931,10 @@ contains
 
 
     implicit none
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer
+    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
-    character (len=40) :: ic_name, sname
+    character (len=40) :: ic_name, sname, tmp_name
 
     ! read gas-phase species namelist ! unit = 11
     allocate(molecular_weight(N_gas))
