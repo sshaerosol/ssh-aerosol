@@ -366,9 +366,9 @@ C     photolytic reactions may be read.
             IF (option_photolysis.eq.2) then
 c     IF (Nrphot.GT.0) THEN
                DO i=1,Nrphot
-                  DLRKi(Nreactphot(i)+1) = Zatt *
+                  DLRKi(Nreactphot(i)) = Zatt *
      $                 DLCphotolysis_rates(i)
-                  DLRKf(Nreactphot(i)+1) = Zattf *
+                  DLRKf(Nreactphot(i)) = Zattf *
      $                 DLCphotolysis_ratesf(i)
                ENDDO
             ENDIF

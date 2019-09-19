@@ -1,0 +1,28 @@
+# This file contains informations about photolysis data prepared 
+# for CB05 chemical mechanism.
+# 1st colonne: Name of binary file for a reaction
+# 2nd colonne: Photolysis index in CB05 chemical mechanism.
+NO2     1
+O3O3P   8
+O3O1D   9
+NO3NO2  14
+NO3NO   15
+HONO    24
+H2O2    35
+HNO4    50
+HNO3    51
+N2O5    52
+ORGNIT  61
+HOP     63
+MHP     70
+HCHOrad 73
+HCHOmol 74
+ALD     85
+PAN     89
+PACD    95
+C2CHO   100
+PANX    104
+OPEN    134
+MGLY    139
+ISPD    147
+BiPER   190

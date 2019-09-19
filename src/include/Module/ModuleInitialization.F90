@@ -74,7 +74,7 @@ module aInitialization
   integer :: kind_composition  ! 1 for auto discretization and 0 for manual discretization
 
   integer :: tag_chem
-  integer :: with_photolysis
+  integer :: option_photolysis
   integer :: with_heterogeneous  !Tag of heterogeneous reaction 
 
   integer :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
@@ -127,7 +127,7 @@ module aInitialization
   !!part 4: System state parameters    
   ! time setting
   double precision :: final_time,dt,time_emis,delta_t, initial_time  
-
+  double precision :: current_time
   double precision :: Temperature,Relative_Humidity,Pressure,Humidity, pH, pressure_sat
   double precision :: longitude, latitude
   double precision :: attenuation
@@ -157,7 +157,7 @@ module aInitialization
   Integer, dimension(:), allocatable :: aerosol_species_interact
   integer, dimension(:), allocatable :: N_fracbin	!vector of number of composition sections for each section
 
-  Double precision,dimension(:), allocatable :: photolysis
+  Double precision,dimension(:), allocatable :: photolysis_rate
   integer, dimension(:), allocatable :: photolysis_reaction_index
 
   Double precision,dimension(:), allocatable :: density_aer_bin 	!density of each grid bins
@@ -253,6 +253,7 @@ module aInitialization
   double precision ,dimension(:), allocatable :: molecular_weight! (\B5g/mol) gas=phase
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+<<<<<<< b5e1490c234527683f331ef7899f70217078a16f
   integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
   double precision, dimension(:), allocatable :: coefficient
   integer :: coef_size
@@ -293,6 +294,16 @@ module aInitialization
   character (len=10), dimension(:), allocatable :: emis_aer_species_name
   character (len=100) :: output_directory, output_dir2
 
+  ! Photolysis
+  character (len=80) :: photolysis_file ! File for photolysis list.
+  character (len=80) :: photolysis_dir ! Directory for photolysis list.
+  character (len=10), dimension(:), allocatable :: photolysis_name 
+  integer :: n_time_angle
+  double precision :: time_angle_min, delta_time_angle
+  integer :: n_latitude
+  double precision :: latitude_min, delta_latitude
+  integer :: n_altitude
+  double precision :: altitude_photolysis_input(30)
 
   !!part 6: used in ssh-aerosol.f90 chem()
   integer :: ns_source
@@ -382,7 +393,11 @@ contains
 
     namelist /physic_gas_chemistry/ tag_chem, attenuation, with_photolysis, &
          with_heterogeneous, with_adaptive, &
-         adaptive_time_step_tolerance, min_adaptive_time_step
+         adaptive_time_step_tolerance, min_adaptive_time_step, &
+         photolysis_dir, photolysis_file, &
+         n_time_angle, time_angle_min, delta_time_angle, &
+         n_latitude, latitude_min, delta_latitude, &
+         n_altitude, altitude_photolysis_input
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -598,7 +613,6 @@ contains
           kind_composition = 0 ! default
           allocate(frac_input(2)) 
        end if
-    end if
 
     ! fraction_distribution
     allocate(frac_bound(N_frac+1))
@@ -972,19 +986,12 @@ contains
     allocate(index_species(N_aerosol,nlayer))
     ! initialize basic physical and chemical parameters
     allocate(molecular_weight_aer(N_aerosol))
-    ! precursor
-    !!     allocate(saturation_pressure_mass(N_aerosol))        
-    !!     allocate(saturation_pressure_torr(N_aerosol))
-    !!     allocate(partition_coefficient(N_aerosol))
-    !!     allocate(deliquescence_relative_humidity(N_aerosol))
     allocate(collision_factor_aer(N_aerosol))
     allocate(molecular_diameter(N_aerosol)) 
     allocate(surface_tension(N_aerosol))
     allocate(accomodation_coefficient(N_aerosol))
     allocate(mass_density(N_aerosol))
     allocate(mass_density_layers(N_aerosol_layers))
-    !!     allocate(saturation_pressure(N_aerosol))
-    !!     allocate(vaporization_enthalpy(N_aerosol))
     ! aerosol species
     allocate(List_species(N_aerosol_layers))
     allocate(layer_number(N_aerosol_layers))
@@ -1020,6 +1027,7 @@ contains
           if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
+          if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
 
           do js = 1, nesp_isorropia
              if (aerosol_species_name(s) .eq. isorropia_species_name(js)) then
@@ -1346,6 +1354,46 @@ contains
        endif
     endif
 
+    ! read input file for photolysis rate (unit 34)
+    allocate(photolysis_name(n_photolysis))
+    allocate(photolysis_reaction_index(n_photolysis))
+    allocate(photolysis_rate(n_photolysis))
+    photolysis_rate = 0.d0
+     
+    open(unit = 34, file = photolysis_file, status = "old")
+    count = 0 
+    ierr = 0
+    nline = 0
+    do while(ierr .eq. 0)
+       read(34, *, iostat=ierr) tmp_name
+       if (ierr == 0) then
+          if (trim(tmp_name) .eq. "#") then
+             nline = nline + 1
+          else
+             count = count + 1
+          end if
+       end if
+    end do
+
+    if (count .ne. n_photolysis) then
+       write(*,*) "Error: number of files for photolysis rate should be ", &
+            n_photolysis
+       write(*,*) "However, the number of given files is ", count
+       stop
+    end if
+       
+    rewind 34
+    do s = 1, nline
+       read(34, *) ! read comment lines.
+    end do
+    do s = 1, count
+       read(34, *) photolysis_name(s), photolysis_reaction_index(s)
+       if (photolysis_name(s) == "BiPER") then
+          ind_kbiper = s    ! photolysis index for BiPER
+       end if
+    end do
+    close(34)
+    
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
 
@@ -1425,7 +1473,7 @@ contains
     if (allocated(density_aer_size))  deallocate(density_aer_size, stat=ierr)
     if (allocated(rho_wet_cell))  deallocate(rho_wet_cell, stat=ierr)
 
-    if (allocated(photolysis))  deallocate(photolysis, stat=ierr)
+    if (allocated(photolysis_rate))  deallocate(photolysis_rate, stat=ierr)
     if (allocated(photolysis_reaction_index))  deallocate(photolysis_reaction_index, stat=ierr)
     if (allocated(source_index))  deallocate(source_index, stat=ierr)
     if (allocated(source))  deallocate(source, stat=ierr)
@@ -1480,6 +1528,10 @@ contains
     ! if (allocated(soa_sat_conc)) deallocate(soa_sat_conc, stat=ierr)
     ! if (allocated(soa_part_coef)) deallocate(soa_part_coef, stat=ierr)
     if (allocated(discretization_mass)) deallocate(discretization_mass)
+
+    ! for photolysis
+    if (allocated(photolysis_name)) deallocate(photolysis_name, stat=ierr)
+    if (allocated(photolysis_reaction_index)) deallocate(photolysis_reaction_index, stat=ierr)    
     if (ierr .ne. 0) then
        write(*,*) "Deallocation error"
        stop

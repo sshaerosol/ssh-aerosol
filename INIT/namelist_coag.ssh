@@ -8,8 +8,8 @@ Relative_Humidity = 0.6	! if 0, compute RH from specific humidity. if not, use i
 
 
 &setup_time
-initial_time = 0.0,             
-final_time = 43200.0,             
+initial_time = 43200.0,          ! in seconds from January 1st   
+final_time = 86400.0,             
 delta_t = 43200.0,                 
 time_emis = 0,        	 
 /
@@ -65,11 +65,21 @@ poa_species_name = "PSOAlP", "PSOAmP", "PSOAhP", "PPOAlP", "PPOAmP", "PPOAhP"
 &physic_gas_chemistry
 tag_chem = 0,				!Tag of gas-phase chemistry
 attenuation = 1.d0,               ! Cloud attenuation field ([fraction]) - 1 = no attenuation
-with_photolysis = 1			!Tag of photolysis reaction
+option_photolysis = 1,			!1 if photolysis rates are estimated in the program, 2 read from binary files.
 with_heterogeneous = 0,                 !Tag of heterogeneous reaction 
 with_adaptive = 1,                      !Tag of adaptive time step for chemistry 1 if adaptive time step.
 adaptive_time_step_tolerance = 0.001,    !Relative tolerance for deciding if the time step is kept
 min_adaptive_time_step = 0.001,          !Minimum time step
+photolysis_dir = "./photolysis/",  ! Directory where binary files are located.
+photolysis_file = "./photolysis/photolysis-cb05.dat",  ! File for photolysis list
+n_time_angle = 9,
+time_angle_min = 0.d0,
+delta_time_angle = 1.d0,
+n_latitude = 10,
+latitude_min = 0.d0,
+delta_latitude = 10.d0,
+n_altitude = 9,
+altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0, 15000.0, 20000.0, 
 /
 
 
