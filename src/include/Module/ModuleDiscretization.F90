@@ -114,8 +114,6 @@ contains
     heterogeneous_reaction_index(3)= 78-1 ! NO3
     heterogeneous_reaction_index(4)= 23-1 ! N2O5
 
-    ind_jbiper = 14    ! aerosol species index
-
     ns_source = 1
     allocate(source_index(ns_source))
     source_index = [1]

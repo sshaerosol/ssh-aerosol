@@ -11,6 +11,7 @@ results/*
 *.os
 *.py[cod]
 *.mod
+*.bin
 
 ### Emacs files
 *~
@@ -31,6 +32,7 @@ graph/*.png
 ssh-aerosol
 src/include/Talos/talos.py
 src/include/Talos/talos_wrap.cc
+src/include/atmopy/*
 INIT/fractions.txt
 user_manual/user_manual.aux
 user_manual/user_manual.log
