@@ -679,10 +679,10 @@ module SSHaerosolAPI
           current_time, attenuation, &
           humidity, temperature,&
           pressure, source, &
-          photolysis, delta_t, attenuation,&
+          photolysis_rate, delta_t, attenuation,&
           humidity, temperature,&
           pressure, source, &
-          photolysis, longitude,&
+          photolysis_rate, longitude,&
           latitude, concentration_gas_all,&
           0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
           0.d0,&
@@ -691,7 +691,7 @@ module SSHaerosolAPI
           heterogeneous_reaction_index, &
           concentration_mass,&
           with_adaptive, adaptive_time_step_tolerance,&
-          min_adaptive_time_step, with_photolysis, ind_jbiper, ind_kbiper,&
+          min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
           1, not(with_fixed_density), concentration_number, &
           mass_density)
 
