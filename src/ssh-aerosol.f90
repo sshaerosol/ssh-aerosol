@@ -1,7 +1,6 @@
 
 PROGRAM SSHaerosol
 
-
   use aInitialization
   use jAdaptstep
   use bCoefficientRepartition
@@ -10,26 +9,27 @@ PROGRAM SSHaerosol
   use lDiscretization
   use Resultoutput
   use gCoagulation
-
+  use mod_photolysis
+  
   implicit none
 
   integer :: t, j, s,jesp
   character (len=40) :: namelist_ssh  ! Configuration file
-  double precision :: current_time, ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
+  double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
 
 
   ! Initialisation: discretization and distribution  
   call getarg(1, namelist_ssh) 
 
-  ! N_gas = 93; N_reaction = 206; N_photolysis = 24 
+  ! Read the number of gas-phase species and chemical reactions
   call dimensions(N_gas, n_reaction, n_photolysis)  
 
   call read_namelist(namelist_ssh)                  
 
   call read_inputs()                                
-
+ 
   call init_parameters()  
-
+ 
   call init_distributions()  
 
   call init_output_conc() 
@@ -44,11 +44,13 @@ PROGRAM SSHaerosol
   do t = 1, nt
 
      current_time = initial_time + (t - 1) * delta_t
-
-
+    
      if (ssh_standalone) write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
      if (ssh_logger) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
+     ! Read the photolysis rates.
+     if (tag_chem .ne. 0) call read_photolysis()
+    
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
 
@@ -66,10 +68,10 @@ PROGRAM SSHaerosol
           current_time, attenuation, &
           humidity, temperature,&
           pressure, source, &
-          photolysis, delta_t, attenuation,&
+          photolysis_rate, delta_t, attenuation,&
           humidity, temperature,&
           pressure, source, &
-          photolysis, longitude,&
+          photolysis_rate, longitude,&
           latitude, concentration_gas_all,&
           0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
           0.d0,&
@@ -78,7 +80,7 @@ PROGRAM SSHaerosol
           heterogeneous_reaction_index, &
           concentration_mass,&
           with_adaptive, adaptive_time_step_tolerance,&
-          min_adaptive_time_step, with_photolysis, ind_jbiper, ind_kbiper,&
+          min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
           1, not(with_fixed_density), concentration_number, &
           mass_density)
       end if
