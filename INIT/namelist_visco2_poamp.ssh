@@ -93,6 +93,7 @@ splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucl
 &physic_coagulation
 with_coag = 0,                 		!Tag of coagulation
 i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
 Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file coef_s5_f3_b7.nc for external mixing, coef_s1_f1_b7.nc for internal mixing
 Nmc = 10000                             ! Number of Monte Carlo points if repartition coeff are computed
 /
