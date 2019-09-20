@@ -669,14 +669,14 @@ module SSHaerosolAPI
 
       implicit none
 
-      double precision :: current_time
+      double precision :: current_time_api
 
-      current_time = initial_time
+      current_time_api = initial_time
 
       call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
           0, lwc_cloud_threshold, molecular_weight, &
-          current_time, attenuation, &
+          current_time_api, attenuation, &
           humidity, temperature,&
           pressure, source, &
           photolysis_rate, delta_t, attenuation,&
@@ -712,9 +712,9 @@ module SSHaerosolAPI
       implicit none
 
       integer :: s, j
-      double precision :: current_time
+      double precision :: current_time_api
 
-      current_time = initial_time
+      current_time_api = initial_time
 
       ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
       total_aero_mass = 0.d0
@@ -732,7 +732,7 @@ module SSHaerosolAPI
       end do
 
       ! Aerosol dynamic
-      CALL AERODYN(current_time,delta_t)
+      CALL AERODYN(current_time_api,delta_t)
 
       ! update mass conc. of aerosol precursors
       ! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
