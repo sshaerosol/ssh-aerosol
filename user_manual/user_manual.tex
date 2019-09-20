@@ -313,7 +313,141 @@ The output directory may be specified, as well as the format of the files (text 
                 \includegraphics[angle=0,width=\textwidth]{fig/output.png}
         \end{center}
 \end{figure}
-               
+
+\subsection{Coupling with external tools}
+
+SSHaerosol can be coupled with external (3D) tools using the shared library (\texttt{ssh-aerosol.so}) available in the \texttt{src} folder after compilation.
+A prototype of the typical workflow is described hereafter.
+
+\subsubsection*{Prerequisite}
+
+The following piece of \textbf{C} code is taken from the open-source CFD code Code\_Saturne.
+The subroutine \texttt{\_get\_dl\_function\_pointer} is used to interact with the members of the shared library object.
+
+\begin{verbatim}
+/*----------------------------------------------------------------------------
+ * Get a shared library function pointer
+ *
+ * parameters:
+ *   handle           <-- pointer to shared library (result of dlopen)
+ *   name             <-- name of function symbol in library
+ *   errors_are_fatal <-- abort if true, silently ignore if false
+ *
+ * returns:
+ *   pointer to function in shared library
+ *----------------------------------------------------------------------------*/
+
+static void *
+_get_dl_function_pointer(void        *handle,
+                         const char  *lib_path,
+                         const char  *name,
+                         bool         errors_are_fatal)
+{
+  void  *retval = NULL;
+  char  *error = NULL;
+
+  dlerror();    /* Clear any existing error */
+
+  retval = dlsym(handle, name);
+  error = dlerror();
+
+  if (error != NULL) { /* Try different symbol names */
+    char *name_ = NULL;
+    dlerror();    /* Clear any existing error */
+    int _size_ = strlen(name) + strlen("_");
+    BFT_MALLOC(name_, _size_ + 1, char);
+    strcpy(name_, name);
+    strcat(name_, "_");
+    retval = dlsym(handle, name_);
+    error = dlerror();
+    BFT_FREE(name_);
+  }
+
+  if (error != NULL && errors_are_fatal)
+    bft_error(__FILE__, __LINE__, 0,
+              _("Error while trying to find symbol %s in lib %s: %s\n"),
+              name,
+              lib_path,
+              dlerror());
+
+  return retval;
+}
+\end{verbatim}
+
+\subsubsection*{Initialization}
+
+First, the external code should load the shared library using \texttt{dlopen}.
+\begin{verbatim}
+  /* Load the shared object */
+  _aerosol_so = dlopen(lib_path, RTLD_LAZY);
+\end{verbatim}
+
+Then, it should decide wether SSHaerosol outputs to the terminal or to a file.
+\begin{verbatim}
+  /* Declare SSH-aerosol as not running standalone */
+  {
+    typedef void (*cs_set_sshaerosol_t)(bool*);
+    cs_set_sshaerosol_t fct =
+      (cs_set_sshaerosol_t) _get_dl_function_pointer(_aerosol_so,
+                                                     lib_path,
+                                                    "api_set_sshaerosol_standalone",
+                                                     true);
+    bool flag = false;
+    fct(&flag);
+  }
+  /* Force SSH-aerosol to write output to a file */
+  if (cs_glob_rank_id <= 0) {
+    typedef void (*cs_set_sshaerosol_t)(bool*);
+    cs_set_sshaerosol_t fct =
+      (cs_set_sshaerosol_t) _get_dl_function_pointer(_aerosol_so,
+                                                     lib_path,
+                                                    "api_set_sshaerosol_logger",
+                                                     true);
+    bool flag = true;
+    fct(&flag);
+  }
+\end{verbatim}
+
+Then, SSHaerosol can be initialized.
+\begin{verbatim}
+  /* Initialize SSH-aerosol */
+  {
+    const char namelist_ssh[40] = "namelist_coag.ssh";
+    typedef void (*cs_set_sshaerosol_t)(char*);
+    cs_set_sshaerosol_t fct =
+      (cs_set_sshaerosol_t) _get_dl_function_pointer(_aerosol_so,
+                                                     lib_path,
+                                                    "api_sshaerosol_initialize",
+                                                     true);
+    fct(&namelist_ssh);
+  }
+\end{verbatim}
+
+\subsection*{Time advancement}
+
+The time advancement in the external 3D code could look as follow: for each time step, a loop on the cells is performed and the code
+\begin{itemize}
+\item Sets the time step in SSHaerosol using \texttt{api\_set\_sshaerosol\_dt}
+\item Sets the Pressure, Temperature, pH, ... in SSHaerosol using \texttt{api\_set\_sshaerosol\_temperature} and similar functions
+\item Sets the gaseous concentrations in SSHaerosol using \texttt{api\_set\_sshaerosol\_gas\_concentration}
+\item Sets the aerosol concentrations in SSHaerosol using \texttt{api\_set\_sshaerosol\_aero\_concentration}
+\item Sets the aerosol numbers in SSHaerosol using \texttt{api\_set\_sshaerosol\_aero\_number}
+\item Computes one time for the gaseous chemistry and for the aerosol chemistry in the given cell using \texttt{api\_call\_sshaerosol\_gaschemistry} and \texttt{api\_call\_sshaerosol\_aerochemistry}
+\item Reads the new concentrations in the given cell from SSHaerosol using the \texttt{api\_get\_*} functions and use them in the external code
+\end{itemize}
+
+\subsection*{Finalization}
+
+At the end of the simulation, the external tool should call the subroutine \texttt{api\_sshaerosol\_finalize}.
+Then, the shared library can  be released using \texttt{dlclose}.
+\begin{verbatim}
+    dlclose(_aerosol_so);
+\end{verbatim}
+
+\subsection*{Parallelism}
+If the external tool is running with MPI, each MPI process should load the shared library and perform all the aforementioned operations.
+However, please note that only one MPI process can use the logger (\texttt{api\_set\_sshaerosol\_logger}).
+
 \section{Test cases}
 \addcontentsline{toc}{section}{Test cases}
 
@@ -459,7 +593,7 @@ thermodynamic equilibrium.
                 \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/HNO3_COND-EVAP_time.png}
                 \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/NH3_COND-EVAP_time.png}
         \end{center}
-\caption{Condensation/évaporation of inorganic test case. Time evolution of
+\caption{Condensation/\'evaporation of inorganic test case. Time evolution of
   HNO$_3$ concentrations (left panel) and NH$_3$ concentrations (right panel).}
 \label{fig-cond-evap}
 \end{figure}

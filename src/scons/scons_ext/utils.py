@@ -650,6 +650,9 @@ to highly recommended debugging and optimization options.
             program_dependencies = [self.rebase_dir(build_dir, target)] \
                                     + src_dependencies + dir_dependencies
             program = env.Program(program_name, program_dependencies)
+            # Generate shared library for ssh-aerosol
+            if 'ssh-aerosol.f90' in target:
+                mylib = env.SharedLibrary('ssh-aerosol.so', 'ssh-aerosol.f90')
             if program_name in self.command_line_target:
                 BUILD_TARGETS.append(program_name + env["PROGSUFFIX"])
 
