@@ -40,6 +40,7 @@ user_manual/user_manual.out
 user_manual/user_manual.toc
 
 ### Spack
+src/include/CHEMISTRY/cb05*/*.f*
 src/include/CHEMISTRY/cb05en/*.f*
 src/include/CHEMISTRY/cb05/*.f*
 src/include/CHEMISTRY/racm/*.f*

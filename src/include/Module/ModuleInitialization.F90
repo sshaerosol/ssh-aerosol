@@ -54,11 +54,9 @@ module aInitialization
   integer :: N_liquid     !Number of liquid internal species
   integer :: N_solid      !Number of solid internal species
   integer :: N_inside_aer !Number of internal species
-  integer :: N_hydrophilic!Number of hydrophilic organics aerosol species
   !parameter (N_aerosol = N_organics + N_inorganic + N_inert + 1)
-  parameter (N_organics=26,N_inorganic=5,N_inert=2,N_liquid=12)
+  parameter (N_organics=32,N_inorganic=5,N_inert=2,N_liquid=12)
   parameter (N_solid=9,N_inside_aer=21)
-  parameter (N_hydrophilic=9)
 
   !!part 2: parameters of system options
 
@@ -114,7 +112,7 @@ module aInitialization
   Integer, dimension(:), allocatable :: pankow_species
   Integer, dimension(:), allocatable :: poa_species
   Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom, nesp_eq_org
-  parameter (nesp_isorropia=5,nesp_aec=19,nesp_pankow=1,nesp_pom=6, nesp_eq_org=26)
+  parameter (nesp_isorropia=5,nesp_aec=25,nesp_pankow=1,nesp_pom=6, nesp_eq_org=32)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -153,6 +151,7 @@ module aInitialization
 
   !!part5: dimension data array    
   integer, dimension(:), allocatable :: Index_groups	!index of which group the species belongs to
+  integer, dimension(:), allocatable :: aerosol_type
   integer, dimension(:), allocatable :: List_species	!read species defined in cfg files
   integer, dimension(:,:), allocatable :: index_species	!index of species if viscosity is taken into account
   Integer, dimension(:), allocatable :: aerosol_species_interact
@@ -999,6 +998,7 @@ contains
     allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
     allocate(Index_groups(N_aerosol))
+    allocate(aerosol_type(N_aerosol)) !! YK
     allocate(index_species(N_aerosol,nlayer))
     ! initialize basic physical and chemical parameters
     allocate(molecular_weight_aer(N_aerosol))
@@ -1027,7 +1027,8 @@ contains
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-       read(12, *) aerosol_species_name(s), Index_groups(s), molecular_weight_aer(s), &
+       read(12, *) aerosol_species_name(s), aerosol_type(s), &
+            Index_groups(s), molecular_weight_aer(s), &
             precursor, &
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
@@ -1448,6 +1449,7 @@ contains
     if (allocated(species_name))  deallocate(species_name, stat=ierr)
     if (allocated(aerosol_species_name))  deallocate(aerosol_species_name, stat=ierr)
     if (allocated(Index_groups))  deallocate(Index_groups, stat=ierr)
+    if (allocated(aerosol_type))  deallocate(aerosol_type, stat=ierr) !! YK
     if (allocated(index_species))  deallocate(index_species, stat=ierr)
     if (allocated(molecular_weight_aer))  deallocate(molecular_weight_aer, stat=ierr)
     !!	if (allocated(saturation_pressure_mass))  deallocate(saturation_pressure_mass, stat=ierr)
