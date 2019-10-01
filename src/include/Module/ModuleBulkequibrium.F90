@@ -77,12 +77,7 @@ contains
     do s=1,nesp_aec
       eq_species(s)=aec_species(s)
     enddo
-    do s=1,nesp_pankow
-      eq_species(s+nesp_aec)=pankow_species(s)
-    enddo
-    do s=1,nesp_pom
-      eq_species(s+nesp_aec+nesp_pankow)=poa_species(s)
-    enddo
+
   !compute local equi
 
   !compute only c/e coefficients

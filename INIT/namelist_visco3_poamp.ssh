@@ -49,17 +49,11 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./species-list/species-list-cb05en.dat"                    !Species list for CB05 
+species_list_file = "./species-list/species-list-cb05.dat",                    !Species list for CB05 
 /
 
 &aerosol_species
-aerosol_species_list_file = "./species-list/species-list-aer-en.dat"        !Aerosol species list
-mineral_dust = "PMD",
-black_carbon = "PBC", !! The number of species in each category must correspond to the numbers in ModuleInitialisation
-isorropia_species_name = "PNA", "PSO4", "PNH4", "PNO3","PHCL",
-aec_species_name = "PBiA2D", "PBiA1D", "PBiA0D", "PAGLY", "PAMGLY","PBiMT","PBiPER", "PBiDER", "PBiMGA", "PAnBlP", "PAnBmP", "PBiBlP", "PBiBmP","PBiNGA", "PBiNIT3", "PBiNIT", "PBiA3D", "PMonomer", "PDimer"
-pankow_species_name = "PAnClP",
-poa_species_name = "PSOAlP", "PSOAmP", "PSOAhP", "PPOAlP", "PPOAmP", "PPOAhP"
+aerosol_species_list_file = "./species-list/species-list-aer.dat",        !Aerosol species list
 /
 
 &physic_gas_chemistry

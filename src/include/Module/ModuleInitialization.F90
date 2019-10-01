@@ -55,7 +55,8 @@ module aInitialization
   integer :: N_solid      !Number of solid internal species
   integer :: N_inside_aer !Number of internal species
   !parameter (N_aerosol = N_organics + N_inorganic + N_inert + 1)
-  parameter (N_organics=32,N_inorganic=5,N_inert=2,N_liquid=12)
+!  parameter (N_organics=32,N_inorganic=5,N_inert=2,N_liquid=12) ! YK
+  parameter (N_liquid=12)
   parameter (N_solid=9,N_inside_aer=21)
 
   !!part 2: parameters of system options
@@ -109,11 +110,7 @@ module aInitialization
   ! Number of different species group
   Integer, dimension(:), allocatable :: isorropia_species
   Integer, dimension(:), allocatable :: aec_species
-  Integer, dimension(:), allocatable :: pankow_species
-  Integer, dimension(:), allocatable :: poa_species
-  Integer :: nesp, nesp_isorropia, nesp_aec, nesp_pankow, nesp_pom, nesp_eq_org
-  parameter (nesp_isorropia=5,nesp_aec=25,nesp_pankow=1,nesp_pom=6, nesp_eq_org=32)
-
+  Integer :: nesp, nesp_isorropia, nesp_aec, nesp_eq_org
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
@@ -279,12 +276,8 @@ module aInitialization
   character (len=80) :: emis_gas_file
   character (len=80) :: emis_aero_mass_file
   character (len=80) :: emis_aero_num_file
-  character (len=80) :: mineral_dust(10), black_carbon(10)
-  character (len=80) :: isorropia_species_name(10)
-  character (len=80) :: aec_species_name(30)
-  character (len=80) :: pankow_species_name(6)
-  character (len=80) :: poa_species_name(10)
-  character (len=80) :: PSO4
+  character (len=80), dimension(:), allocatable :: isorropia_species_name
+  character (len=80), dimension(:), allocatable :: aec_species_name
   character (len=10) :: precursor
   character (len=10), dimension(:), allocatable :: species_name
   character (len=20), dimension(:), allocatable :: aerosol_species_name
@@ -385,10 +378,7 @@ contains
 
     namelist /gas_phase_species/ species_list_file
 
-    namelist /aerosol_species/ aerosol_species_list_file, mineral_dust,&
-         black_carbon, isorropia_species_name,&
-         aec_species_name,pankow_species_name,&
-         poa_species_name
+    namelist /aerosol_species/ aerosol_species_list_file
 
     namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
          with_heterogeneous, with_adaptive, &
@@ -992,13 +982,11 @@ contains
     if (ssh_logger) write(logfile,*) 'read aerosol species list.'
     N_aerosol = count - 1  ! minus the first comment line
 
-    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
 
     allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
     allocate(Index_groups(N_aerosol))
-    allocate(aerosol_type(N_aerosol)) !! YK
+    allocate(aerosol_type(N_aerosol))
     allocate(index_species(N_aerosol,nlayer))
     ! initialize basic physical and chemical parameters
     allocate(molecular_weight_aer(N_aerosol))
@@ -1007,22 +995,15 @@ contains
     allocate(surface_tension(N_aerosol))
     allocate(accomodation_coefficient(N_aerosol))
     allocate(mass_density(N_aerosol))
-    allocate(mass_density_layers(N_aerosol_layers))
-    ! aerosol species
-    allocate(List_species(N_aerosol_layers))
-    allocate(layer_number(N_aerosol_layers))
     allocate(Vlayer(nlayer))
-    allocate(isorropia_species(nesp_isorropia))
-    allocate(aec_species(nesp_aec))
-    allocate(pankow_species(nesp_pankow)) 
-    allocate(poa_species(nesp_pom))
     ! relation between Aerosol and GAS
     allocate(aerosol_species_interact(N_aerosol))      
     aerosol_species_interact = 0
 
+    ! Read lines from aerosol species file.
     rewind 12
     count = 0
-    read(12, *) ! red # comment line
+    read(12, *) ! Read a header line (#)
     do s = 1, N_aerosol
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
@@ -1033,6 +1014,85 @@ contains
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
             mass_density(s)
+
+       ! Find pairs of aerosol species and its precursor.
+       ind = 0
+       do js = 1, N_gas
+          if (species_name(js) .eq. trim(precursor)) then
+             aerosol_species_interact(s) = js
+             count = count + 1
+             ind = 1
+          endif
+          if (ind == 1) exit
+       enddo
+       !! Check if a precursor name is found in the list of gas-phase species.
+       if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+          stop
+       endif
+    enddo
+    close(12)
+    if (ssh_standalone) write(*,*) "   --- Number of precursors: ", count 
+    if (ssh_logger) write(logfile,*) "   --- Number of precursors: ", count 
+    
+    ! Count the number of species for each type.
+    N_inert = 0
+    nesp_isorropia = 0
+    nesp_aec = 0
+    do s = 1, N_aerosol
+       ! Inert aerosols: BC and mineral dust
+       if (aerosol_type(s) == 1 .or. aerosol_type(s) == 2) then
+          N_inert = N_inert + 1
+       ! Inorganic species   
+       else if (aerosol_type(s) == 3) then
+          nesp_isorropia = nesp_isorropia + 1
+       ! Organic species   
+       else if (aerosol_type(s) == 4) then
+          nesp_aec = nesp_aec + 1
+       ! Water   
+       else if (aerosol_type(s) == 9) then
+          EH2O = s
+       end if
+    end do
+    N_inorganic = nesp_isorropia
+    N_organics = nesp_aec
+    nesp_eq_org = N_organics
+    
+    write(*,*) "   --- Number of inert species:", N_inert
+    write(*,*) "   --- Number of inorganic species:", N_inorganic
+    write(*,*) "   --- Number of organic species:", N_organics
+    write(*,*) "   --- Index for water:", EH2O
+
+    ! Allocate aerosol arrays
+    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
+    N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
+    EH2O_layers = N_aerosol_layers
+    allocate(mass_density_layers(N_aerosol_layers))
+    allocate(List_species(N_aerosol_layers))
+    allocate(layer_number(N_aerosol_layers))
+    allocate(isorropia_species(nesp_isorropia))
+    allocate(isorropia_species_name(nesp_isorropia))
+    allocate(aec_species(nesp_aec))
+    allocate(aec_species_name(nesp_aec))
+
+    ! Read aerosol species name.
+    js = 0
+    i = 0
+    do s = 1, N_aerosol
+       if (aerosol_type(s) == 3) then
+          i = i + 1
+          isorropia_species_name(i) = aerosol_species_name(s)
+          isorropia_species(i) = s
+       else if (aerosol_type(s) == 4) then
+          js = js + 1
+          aec_species_name(js) = aerosol_species_name(s)
+          aec_species(js) = s
+       endif
+    end do
+    
+    do s = 1, N_aerosol
+       ! For non-organic species.
        if (s <= N_nonorganics) then
           mass_density_layers(s) = mass_density(s)
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
@@ -1046,15 +1106,11 @@ contains
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
 
-          do js = 1, nesp_isorropia
-             if (aerosol_species_name(s) .eq. isorropia_species_name(js)) then
-                isorropia_species(js) = s
-             endif
-          enddo
           do ilayer=1,nlayer
              index_species(s,ilayer) = s
           enddo
           layer_number(s) = 1
+       ! For organic species
        else
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
           if(s.NE.N_aerosol) then !avoid water
@@ -1076,46 +1132,8 @@ contains
              enddo
              layer_number(N_aerosol_layers) = 1
           endif
-
-          do js = 1, nesp_aec
-             if (aerosol_species_name(s) .eq. aec_species_name(js)) then
-                aec_species(js) = s
-             endif
-          enddo
-          do js = 1, nesp_pankow
-             if (aerosol_species_name(s) .eq. pankow_species_name(js)) then
-                pankow_species(js) = s
-             endif
-          enddo
-          do js = 1, nesp_pom
-             if (aerosol_species_name(s) .eq. poa_species_name(js)) then
-                poa_species(js) = s
-             endif
-          enddo
        endif
-
-       ind = 0
-       do js = 1, N_gas
-          if (species_name(js) .eq. trim(precursor)) then
-             aerosol_species_interact(s) = js
-             count = count + 1
-             ind = 1
-          endif
-          if (ind == 1) exit
-       enddo
-       !! Check if a precursor name is found in the list of gas-phase species.
-       if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-          stop
-       endif
-
     enddo
-    close(12)
-
-    ! Initialize the concentrations of percursors
-    if (ssh_standalone) write(*,*) "Number of precursors: ", count 
-    if (ssh_logger) write(logfile,*) "Number of precursors: ", count 
 
     ! read gas-phase initial concentrations unit 21
     ! no comment lines for initial & emitted data
@@ -1469,8 +1487,7 @@ contains
     if (allocated(List_species))  deallocate(List_species, stat=ierr)
     if (allocated(isorropia_species))  deallocate(isorropia_species, stat=ierr)
     if (allocated(aec_species))  deallocate(aec_species, stat=ierr)
-    if (allocated(pankow_species))  deallocate(pankow_species, stat=ierr)
-    if (allocated(poa_species))  deallocate(poa_species, stat=ierr)
+    if (allocated(aec_species_name))  deallocate(aec_species_name, stat=ierr)
     if (allocated(aerosol_species_interact))  deallocate(aerosol_species_interact, stat=ierr)
 
     if (allocated(concentration_gas_all))  deallocate(concentration_gas_all, stat=ierr)

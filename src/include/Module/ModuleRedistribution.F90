@@ -305,22 +305,6 @@ contains
        enddo
     enddo
 
-    do jesp=1,nesp_pankow
-       jesp2 = pankow_species(jesp)
-       do js=1,N_size
-          org_total = org_total + concentration_mass(js, jesp2)
-          org_bin(js) = org_bin(js) + concentration_mass(js, jesp2)
-       enddo
-    enddo
-
-    do jesp=1,nesp_pom
-       jesp2 = poa_species(jesp)
-       do js=1,N_size
-          org_total = org_total + concentration_mass(js, jesp2)
-          org_bin(js) = org_bin(js) + concentration_mass(js, jesp2)
-       enddo
-    enddo
-
     do js=1,N_size
        if (org_total .gt. 0.D0) then
           concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &

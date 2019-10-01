@@ -28,9 +28,8 @@ contains
     G1=ESO4
     G2=ECl
     E1=EMD
-    EH2O = N_aerosol
-    EH2O_layers = N_aerosol_layers
     E2=EH2O-1
+
     pH = 4.d5
     n_emis=0.d0
     m_emis=0.d0
