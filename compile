@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Read the option for Chemistry kinetic mechanism.
-# Accepted values: racm, racm2, cb05, cb05en
-# Default: chemistry=cb05en
+# Accepted values: racm, racm2, cb05
+# Default: chemistry=cb05
 for i in "$@"
 do
 case $i in
@@ -12,8 +12,8 @@ case $i in
     ;;
 esac
 done
-if [ -z $chemistry]; then
-    chemistry="cb05en"
+if [ -z $chemistry ]; then
+    chemistry="cb05"
 fi
 echo "Chemistry: $chemistry"
 
@@ -29,7 +29,7 @@ case $i in
     ;;
 esac
 done
-if [ -z $nacl]; then
+if [ -z $nacl ]; then
     nacl="no"
 fi
 echo "NaCl: $nacl"
