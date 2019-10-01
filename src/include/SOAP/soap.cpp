@@ -77,10 +77,6 @@ void soap_main(double LWC, double RH, double Temperature,
 
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
-  
-  if(ns_aer != 34)
-    {cout << "ERROR SOAP.CPP - NUMBER OF SPECIES IS NOT 34",ns_aer;
-    exit;}
 
   // Get aerosol species names.
   // conversion char to string
