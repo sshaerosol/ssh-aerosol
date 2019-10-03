@@ -604,6 +604,7 @@ to highly recommended debugging and optimization options.
 
         # In case there is a list of dependencies to be excluded.
         filtered_dependencies = []
+        exclude_dependency = ["include/Module/ModuleAPI.F90"]
 #        exclude_dependency = [ re.compile(p) for p in exclude_dependency ][:]
         # regex = re.compile(r'.build')
         for dependency in src_dependencies:
@@ -652,7 +653,7 @@ to highly recommended debugging and optimization options.
             program = env.Program(program_name, program_dependencies)
             # Generate shared library for ssh-aerosol
             if 'ssh-aerosol.f90' in target:
-                mylib = env.SharedLibrary('ssh-aerosol.so', 'ssh-aerosol.f90')
+                mylib = env.SharedLibrary('ssh-aerosol.so', ['ssh-aerosol.f90','include/Module/ModuleAPI.F90'])
             if program_name in self.command_line_target:
                 BUILD_TARGETS.append(program_name + env["PROGSUFFIX"])
 
