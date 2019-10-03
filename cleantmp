@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in dimensions.f90 dratedc.f90 fexchem.f90 jacdchemdc.f90 kinetic.f90 rates.f90 LU_decompose.f LU_solve.f LU_solve_tr.f
+do
+  rm -rf src/include/CHEMISTRY/*/${i}
+done

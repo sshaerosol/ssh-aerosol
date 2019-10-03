@@ -220,7 +220,7 @@ class Utils:
         return env
 
 
-    def create_programs(self):
+    def create_programs(self, generate_program = True):
         """Creates the SCons program targets."""
 
         #############
@@ -604,8 +604,8 @@ to highly recommended debugging and optimization options.
 
         # In case there is a list of dependencies to be excluded.
         filtered_dependencies = []
-        exclude_dependency = ["include/Module/ModuleAPI.F90"]
-#        exclude_dependency = [ re.compile(p) for p in exclude_dependency ][:]
+        exclude_dependency = []
+        # exclude_dependency = [ re.compile(p) for p in exclude_dependency ][:]
         # regex = re.compile(r'.build')
         for dependency in src_dependencies:
             regex = re.compile(str(dependency))
@@ -639,7 +639,7 @@ to highly recommended debugging and optimization options.
             
         src_dependencies = filtered_dependencies
 
-        #=== Programs creation.
+        #=== Programs / shared library creation.
         # Rebasing dependencies and target into 'build_dir':
         # (to call BuildVariant is not enough, this is a SCons strangeness)
         src_dependencies = self.rebase_dir(build_dir, src_dependencies)
@@ -650,16 +650,20 @@ to highly recommended debugging and optimization options.
             program_name = '.'.join(os.path.splitext(target)[:-1])
             program_dependencies = [self.rebase_dir(build_dir, target)] \
                                     + src_dependencies + dir_dependencies
-            program = env.Program(program_name, program_dependencies)
-            # Generate shared library for ssh-aerosol
-            if 'ssh-aerosol.f90' in target:
-                mylib = env.SharedLibrary('ssh-aerosol.so', ['ssh-aerosol.f90','include/Module/ModuleAPI.F90'])
-            if program_name in self.command_line_target:
-                BUILD_TARGETS.append(program_name + env["PROGSUFFIX"])
+            # Either we generate the program
+            if generate_program:
+                program = env.Program(program_name, program_dependencies)
+                if program_name in self.command_line_target:
+                    BUILD_TARGETS.append(program_name + env["PROGSUFFIX"])
 
-            # In case another SConstruct wants to depend on this source
-            # directory:
-            # (It is used to build Spack as needed)
-            Depends(Dir(self.src_dir), program)
+                # In case another SConstruct wants to depend on this source
+                # directory:
+                # (It is used to build Spack as needed)
+                Depends(Dir(self.src_dir), program)
+
+            # Or we generate the shared library for ssh-aerosol
+            else:
+                if 'ssh-aerosol.f90' in target:
+                    env.SharedLibrary('ssh-aerosol.so', program_dependencies)
 
         return env

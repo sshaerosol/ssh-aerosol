@@ -58,9 +58,14 @@ if 'chemistry' not in ARGUMENTS:
 if 'nacl' not in ARGUMENTS:
     ARGUMENTS["nacl"] = 'no'
 
+# Default: no shared library
+if 'sharedlib' not in ARGUMENTS:
+    ARGUMENTS["sharedlib"] = 'no'
+
 chemistry_list = utils.create_list("chemistry", 
                                    ["racm", "racm2", "cb05"], "*")
 nacl_list = utils.create_list("nacl", ["yes", "no"], "*")
+sharedlib_list = utils.create_list("sharedlib", ["yes", "no"], "*")
 
 # src_dependencies is nececessary in scons/scons_ext/utils.py
 # to compile soap.cpp
@@ -82,7 +87,11 @@ for chemistry in chemistry_list:
         elif nacl == "yes":
             build_flavor.append("nacl")
 
-        utils.create_programs()
+        for sharedlib in sharedlib_list:
+            if sharedlib == "no":
+                utils.create_programs()
+            elif sharedlib == "yes":
+                utils.create_programs(False)
 
         # Avoids displaying the libraries checking next time since libraries
         # does not change in this case.
