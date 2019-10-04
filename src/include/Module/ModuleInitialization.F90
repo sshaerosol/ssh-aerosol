@@ -1490,6 +1490,7 @@ contains
     !!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
     if (allocated(List_species))  deallocate(List_species, stat=ierr)
     if (allocated(isorropia_species))  deallocate(isorropia_species, stat=ierr)
+    if (allocated(isorropia_species_name))  deallocate(isorropia_species_name, stat=ierr)
     if (allocated(aec_species))  deallocate(aec_species, stat=ierr)
     if (allocated(aec_species_name))  deallocate(aec_species_name, stat=ierr)
     if (allocated(aerosol_species_interact))  deallocate(aerosol_species_interact, stat=ierr)
