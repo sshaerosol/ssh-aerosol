@@ -604,7 +604,7 @@ C------------------------------------------------------------------------
       double precision b1,b2,b3,b4,b5,b6
 
 C
-c      call WK290(nr,b5,b6)
+      call WK290(nr,b5,b6)
 C
       write(nficK90,10)b1,b2
       write(nficK90,11)b3,b4
