@@ -1059,10 +1059,14 @@ contains
     N_organics = nesp_aec
     nesp_eq_org = N_organics
     
-    write(*,*) "   --- Number of inert species:", N_inert
-    write(*,*) "   --- Number of inorganic species:", N_inorganic
-    write(*,*) "   --- Number of organic species:", N_organics
-    write(*,*) "   --- Index for water:", EH2O
+    if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
+    if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert
+    if (ssh_standalone) write(*,*) "   --- Number of inorganic species:", N_inorganic
+    if (ssh_logger) write(logfile,*) "   --- Number of inorganic species:", N_inorganic
+    if (ssh_standalone) write(*,*) "   --- Number of organic species:", N_organics
+    if (ssh_logger) write(logfile,*) "   --- Number of organic species:", N_organics
+    if (ssh_standalone) write(*,*) "   --- Index for water:", EH2O
+    if (ssh_logger) write(logfile,*) "   --- Index for water:", EH2O
 
     ! Allocate aerosol arrays
     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
