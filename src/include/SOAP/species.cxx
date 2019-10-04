@@ -1643,7 +1643,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   H2SO4.KDiffusion_air=1.07e-5;
   H2SO4.viscosity=1.0;
-
+  H2SO4.is_solid=false;
+  
   // Find the number in the aerosol species list
   H2SO4.soap_ind = -1;
   H2SO4.soap_ind_aero = -1;
@@ -1672,7 +1673,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   //  NH3.accomodation_coefficient=0.5;
   NH3.KDiffusion_air=2.17e-5;
   NH3.viscosity=1.0;
-
+  NH3.is_solid=false;
+  
   // Find the number in the aerosol species list
   NH3.soap_ind = -1;
   NH3.soap_ind_aero = -1;
@@ -1701,7 +1703,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   //  HNO3.accomodation_coefficient=0.5;
   HNO3.KDiffusion_air=1.47e-5;
   HNO3.viscosity=1.0;
-
+  HNO3.is_solid=false;
+  
   // Find the number in the aerosol species list
   HNO3.soap_ind = -1;
   HNO3.soap_ind_aero = -1;
@@ -1730,7 +1733,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   //  HCl.accomodation_coefficient=0.5;
   HCl.KDiffusion_air=1.72e-5;
   HCl.viscosity=1.0;
-
+  HCl.is_solid=false;
+  
   // Find the number in the aerosol species list
   HCl.soap_ind = -1;
   HCl.soap_ind_aero = -1;

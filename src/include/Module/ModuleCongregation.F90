@@ -228,6 +228,7 @@ contains
 
     rate_number=0.d0
     rate_mass=0.d0
+    total_number = 0.d0
 
     do j = 1,N_size
        total_number=total_number+c_number(j)

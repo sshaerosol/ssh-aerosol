@@ -1709,6 +1709,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
       surrogate[i].k1_aq.resize(config.nbins,2);
       surrogate[i].Jdn_aq.resize(config.nbins,2);
       surrogate[i].time_aq.resize(config.nbins);
+      surrogate[i].time_aq = 0.0;
       //surrogate[i].gamma_old.resize(config.max_number_of_phases);
       surrogate[i].Kp.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       /*for (b=0;b<config.nbins;++b)		  

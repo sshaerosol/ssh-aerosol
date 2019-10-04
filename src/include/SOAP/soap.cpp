@@ -173,6 +173,9 @@ void soap_main(double LWC, double RH, double Temperature,
       surrogate[i].Ap = 0.0;
       surrogate[i].Aaq = 0.0;
       surrogate[i].Ag = 0.0;
+      surrogate[i].fion1 = 0.0;
+      surrogate[i].fion2 = 0.0;
+      surrogate[i].nion = 0;
     }
 
   /*** Use the global equilibrium approach ***/
@@ -439,6 +442,7 @@ void soap_main(double LWC, double RH, double Temperature,
       Array<double,3> MOinit_layer,MOW_layer;
       MOinit_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       MOW_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      MOW_layer = 0.0;
       for (b=0;b<config.nbins;++b)
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
           {
