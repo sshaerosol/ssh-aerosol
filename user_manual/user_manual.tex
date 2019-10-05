@@ -30,9 +30,9 @@
 
 \def\figratio{0.7}
 
-\title{ssh-aerosol}
+\title{SSH-aerosol}
 \date{}
-\author{ssh-aerosol user manual and test cases}
+\author{SSH-aerosol user manual and test cases}
 
 \begin{document}
 
@@ -41,13 +41,16 @@
 \section*{About}
 
 \begin{itemize}
-\item[] {\bf Purpose:} introduction to ssh-aerosol and launching simulations
+\item[] {\bf Purpose:} introduction to SSH-aerosol and launching simulations
   for test cases. Very basic post-processing is also
   presented. 
 \item[] {\bf Authors:} \\Karine Sartelet, \url{karine.sartelet@enpc.fr};\\
   Youngseob Kim, \url{youngseob.kim@enpc.fr};\\ Zhizhao Wang,
-  \url{zhizhao.wang@enpc.fr}; \\Florian Couvidat, \url{florian.couvidat@ineris.fr}.
-\item[] {\bf ssh-aerosol version:} 0.7
+  \url{zhizhao.wang@enpc.fr};\\ C\'edric Flageul,
+  \url{cedric.flageul@enpc.fr}; \\Florian Couvidat, \url{florian.couvidat@ineris.fr}.
+\item[] {\bf SSH-aerosol version:} 1.0
+\item[] SSH-aerosol is distributed under the GNU General Public License v3
+\item[] Copyright (C) 2019 CEREA (ENPC), INERIS
 \end{itemize}
 
 \tableofcontents
@@ -56,7 +59,7 @@
 
 \section{Introduction}
 \addcontentsline{toc}{section}{Introduction}
-The ssh-aerosol model is modular and the user can choose the physical and chemical complexity required.
+The SSH-aerosol model is modular and the user can choose the physical and chemical complexity required.
 The model is based on the merge of three state-of-the-art models:
 \begin{itemize}
 \item SCRAM : The Size-Composition Resolved Aerosol Model \cite{zhu2015size} that simulates the dynamics and the mixing state of atmospheric particles. It classifies particles by both composition and size, based on a comprehensive combination of all chemical species and their mass-fraction sections. All three main processes involved in aerosol dynamics (coagulation, condensation/evaporation and nucleation) are included.
@@ -64,9 +67,9 @@ The model is based on the merge of three state-of-the-art models:
 \item H$^2$O: The Hydrophilic/Hydrophobic Organics \cite{couvidat2012hydrophilic} mechanism uses a molecular surrogate approach to represent the myriad of formation of semi-volatile organic compounds formed from the oxidation in the atmosphere of volatile organic compounds. The mechanism was shown to give satisfactory results for SOA formation (for example in \cite{kim2019modeling}).
 \end{itemize}
 
-ssh-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 \section*{Hardware and software requirement}
-ssh-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GUN gcc Compiler and under a Linux system. Before the compilation, make sure the construction tool: SCONS has already been installed.
+SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GUN gcc Compiler and under a Linux system. Before the compilation, make sure the construction tool: SCONS has already been installed.
 If not you can obtain it through the following instruction of the site below:
 http://www.scons.org/wiki/SconsTutorial1
 
@@ -79,7 +82,7 @@ After all the required software and library are ready, the compilation can be do
 \section{Folder structure}
 \addcontentsline{toc}{section}{Folder structure}
 
-The ssh-aerosol package contains different repertories for source code,  configuration files, input files, output files, and visualisation of outputs.
+The SSH-aerosol package contains different repertories for source code,  configuration files, input files, output files, and visualisation of outputs.
 
 \subsection{Source code}
 The folder src is where all source code files are stored. The main program file is ssh-aerosol.f90.  Besides, there are 2 sub-folders under the src directory: the scons folder contains the files necessary for compiling the program and the include folder contains the source code, which is itself separated in different folders
@@ -96,7 +99,7 @@ The folder src is where all source code files are stored. The main program file 
 \end {itemize}
 
 \subsection{Input files}
-The main configuration file for the program ssh-aerosol is namelist.ssh. It requires several input data:
+The main configuration file for the program SSH-aerosol is namelist.ssh. It requires several input data:
 \begin{itemize}
 \item The list of species and their properties. They are in the repertory species-list. 
 \item The initial concentrations and emissions, which are in the repertory inputs
@@ -125,6 +128,30 @@ During the simulation, five subfolders and a report file are automatically gener
 	\item Report file 'report.txt' : it records the main settings of the simulation.
 \end{itemize}
 The user can also modify the name of the output folder (output\_directory) or select the output file type (output\_type = 1 for text outputs and = 2 for binary outputs) in the file \textit{namelist.ssh}.
+
+\section{Array structure}
+
+The variables and arrays corresponding to the number of compounds in the different
+phases, as well as the concentrations are defined in the routine
+\textit{src/Module/ModuleInitialisation.F90}. Arrays are allocated at the
+beginning of the program and desallocated at the end. The array
+\textit{concentration\_number} contains the number concentrations for each size
+and composition section. \textit{concentration\_mass} contains the mass
+concentrations of each chemical compound for each size
+and composition section. The order of the chemical compounds is given in the
+file \textit{species-list/species-list-aer.dat}. Note that in case of a
+viscous aerosol, if several layers are considered, for each organic
+compound, the mass concentration is defined for each layer. Then for each
+size and composition section, the array \textit{concentration\_mass} contains
+the mass concentrations of each chemical compound and in each layer if the
+compound is organic and hydrophobic. 
+
+In soap.cpp, the hydrophobic organic-phase concentrations in the different layers are
+noted \textit{Ap\_layer}, while the aqueous-phase concentrations  are
+noted \textit{Aaq}. 
+In SSH-aerosol v1.0, an organic compound is assumed to be either hydrophylic,
+either hydrophobic. This will be improved in further version by saving for
+each compound both the organic and aqueous-phase concentrations.
 
 \section{Main options}
 \addcontentsline{toc}{section}{Main options}
@@ -199,7 +226,7 @@ In this file, gas-phase species are listed together with their molar weight in g
 
 Aerosol species are detailed in the group aerosol\_species, where the variable aerosol\_species\_list\_file contains the name of the file with the list of aerosol species.
 In this file, each aerosol species is listed on a line, together with specific properties: the group to which the species belong in case of mixing-state resolved particles, their molar weight (g/mol) and gaseous precursors, the collision factor, molecular diameter (Angstrom), surface tension (N/m), accomodation coefficient (between 0 and 1) and density in $\mu$g~$\mu$m$^3$.
-The categories to which species correspond are also listed. They should not be modified and they must correspond to those set in the routine ModuleInitialisation.f90 of ssh-aerosol.
+The categories to which species correspond are also listed. They should not be modified and they must correspond to those set in the routine ModuleInitialisation.f90 of SSH-aerosol.
 
 \begin{figure}[H]
         \begin{center}
@@ -494,7 +521,7 @@ The configuration file for this test is {\it{namelist\_coag.ssh}}.
 In the coagulation test case, only coagulation is considered by setting the variable of {\it{with\_coag}} of the file {\it{namelist\_coag.ssh}} to 1.
 
 The partition coefficients may be precomputed in a C++ routine. Here, the
-coefficients are directly computed by ssh-aerosol (option {\it{i\_compute\_repart}}), using a
+coefficients are directly computed by SSH-aerosol (option {\it{i\_compute\_repart}}), using a
 Monte-Carlo method (Nmc represents the Monte Carlo number). The larger Nmc is,
 the more accurate the coefficients are, but the more CPU time it takes to
 compute them.
@@ -502,7 +529,7 @@ Run the simulation by typing {\it{ssh-aerosol INIT/namelist\_coag.ssh}}.
 You can compare the number and volume distribution of particles at the initial
 time and after 12~h by going to the repertory {\it{graph}} and by running the
 python script {\it{dN\_Vdlogd\_coag.py}}.
-ssh-aerosol does very well in representing the growth of particles by
+SSH-aerosol does very well in representing the growth of particles by
 coagulation, as shown in Fig~\ref{fig-coag}.
 
 \begin{figure}[H]
@@ -526,7 +553,7 @@ Run the simulation by typing {\it{ssh-aerosol INIT/namelist\_cond.ssh}}.
 You can compare the number and volume distribution of particles at the initial
 time and after 12~h by going to the repertory {\it{graph}} and by running the
 python script {\it{dN\_Vdlogd\_cond.py}}.
-ssh-aerosol does very well in representing
+SSH-aerosol does very well in representing
 the Aitken mode as well as the growth of the accumulation mode if no
 redistribution is used ({\it{redistribution\_method}} = 0 in
 {\it{namelist\_cond.ssh}}), as shown in Fig~\ref{fig-cond-noredist}. 
@@ -642,7 +669,7 @@ condensation/evaporation when it is not included in the model. The ultrafine par
        
 \subsubsection{Nucleation}
 
-To assess the ability of ssh-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006development} is simulated. The initial distribution is the same as in the condensation of sulfuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulfuric
+To assess the ability of SSH-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006development} is simulated. The initial distribution is the same as in the condensation of sulfuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulfuric
 acid production rate is 0.825~$\mu$g~m$^{-3}$~h$^{-1}$,
 the temperature is 288.15 K and the relative humidity is 60\%. The particles are initially assumed to be made of 70\% sulfate and 30\% ammonium. The initial gas phase ammonia concentration is taken to be 8~$\mu$g~m$^{-3}$. The concentrations of gas phase ammonia and particulate-phase ammonium evolve with time due to both nucleation and condensation/evaporation
 The ternary nucleation of \cite{napari} is used, but to avoid artificially large nucleation rates in the parameterisation of \cite{napari}, a maximum nucleation rate of 1.d6 \#particles~cm$^{-3}$ is set.
@@ -812,7 +839,53 @@ two compounds at initial time (left panel) and after 12 h of simulation (right p
 \label{fig-cond-extb}
 \end{figure}
  
+\subsection{Viscosity}
+     
+The gas/particle mass transfer is strongly affected by particle viscosity. To
+illustate this effect, the condensation of hydrophobic organic surrogates of different volatility is studied for different
+values of the viscosity, represented by different values of the organic-phase
+diffusion coefficients D (10$^{-18}$, 10$^{-19}$, 10$^{-20}$,
+10$^{-21}$, 10$^{-22}$, 10$^{-23}$, 10$^{-24}$ m$^2$~s$^{-1}$). The value
+D~=~10$^{-12}$ m$^2$~s$^{-1}$ corresponds to an inviscid particle, while the value
+D~=~10$^{-24}$ m$^2$~s$^{-1}$ corresponds to a very viscous particle.
+Each particle is discretized into 5 layers to model the flux of diffusion of the
+organic compound in the particle. 
+The test cases presented here are similar to those of the Figure 6 of \cite{couvidat2015secondary}. 
+Three surrogates are successively studied: SOAlP, POAlP and POAmP and  which have 
+ partitioning coefficients K$_p$ equal to 100~m$^3$~$\mu$g$^{-1}$,
+ 1~m$^3$~$\mu$g$^{-1}$, and 0.01~m$^3$~$\mu$g$^{-1}$.
+The surrogate that condenses is initially only in the gas
+phase, with a mass of 5 $\mu$g~m$^{-3}$. It condenses on an organic phase of
+5~$\mu$g~m$^{-3}$ made of SOAlP, which has a very low volatility (K$_p$~=~100~m$^3$~$\mu$g$^{-1}$).
+The test cases may be launched by launching the script
+ {\it{INIT/launch\_visco.sh}}. After computation of the condensation of the surrogates
+from different values of the viscosity, three graphs can be displayed by
+running the scripts {\it{conc\_visco\_poalp.py}}, {\it{conc\_visco\_poamp.py}},
+{\it{conc\_visco\_soalp.py}} (one graph per surrogate). They are shown in 
+Fig~\ref{fig-visco}, which represents the time variations of particle-phase organic
+concentrations of the surrogate (POAlP in upper left panel, POAmP in upper
+right panel and SOAlP in lower panel). 
+The surrogate of low volatility (SOAlP) condenses quickly onto the organic
+phase, independently of the viscosity (upper left panel of Fig~\ref{fig-visco}). All the organic mass is then in the
+particle phase.  
+Although the condensation of POAlP is influenced by the viscosity, a large fraction of the gas-phase concentration of POAlP condenses quickly (upper right panel of Fig~\ref{fig-visco}).
+For POAmP, which is the most volatile of the three surrogates, high viscosity
+(low diffusion coefficient) strongly inhibits the condensation of POAmP (lower right panel of Fig~\ref{fig-visco}).
 
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_soalp.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_poalp.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_poamp.png}
+        \end{center}
+\caption{Viscosity test case: time evolution of organic concentrations (SOAlP
+  in the upper left, POAlP in the upper right, POAmP in the lower left) for
+  several organic-phase diffusivity: 10$^{-18}$ (dark blue), 10$^{-19}$ (light
+  blue), 10$^{-20}$ (green), 10$^{-21}$ (yellow),
+10$^{-22}$ (magenta), 10$^{-23}$ (red), 10$^{-24}$ (black) m$^2$~s$^{-1}$.}
+\label{fig-visco}
+\end{figure}
+       
 \bigskip
 
 
