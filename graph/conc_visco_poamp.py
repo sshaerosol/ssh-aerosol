@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 sizebin = 1
-visco1=[]
 visco2=[]
 visco3=[]
 visco4=[]
@@ -26,7 +25,6 @@ visco8=[]
 t=[]
 t0=0
 deltat=600.
-namefic1 = '../results/visco/visco1_poamp/aero/'
 namefic2 = '../results/visco/visco2_poamp/aero/'
 namefic3 = '../results/visco/visco3_poamp/aero/'
 namefic4 = '../results/visco/visco4_poamp/aero/'
@@ -38,17 +36,6 @@ namefic8 = '../results/visco/visco8_poamp/aero/'
 
 species1 = 'PPOAmP_1.txt'
 species2 = 'PSOAlP_1.txt'
-with open (namefic1+species1) as f1 :
-	values = f1.read().splitlines()
-with open (namefic1+species2) as f2 :
-	values2 = f2.read().splitlines()
-for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
-        values[i] = float(values[i]) + float(values2[i])  
-        visco1.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
 
 with open (namefic2+species1) as f1 :
 	values = f1.read().splitlines()
@@ -59,6 +46,8 @@ for i in range(len(values)) :
 	tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco2.append(float(values[i]))
+        t.append(t0)
+        t0=t0+deltat*1./3600
 
 with open (namefic3+species1) as f1 :
 	values = f1.read().splitlines()
@@ -120,14 +109,18 @@ for i in range(len(values)) :
         values[i] = float(values[i]) + float(values2[i])  
         visco8.append(float(values[i]))
 
-#semilogx(t,visco1,'0.5')
-semilogx(t,visco2,'b')
-semilogx(t,visco3,'c')
-semilogx(t,visco4,'g')
-semilogx(t,visco5,'y')
-semilogx(t,visco6,'m')
-semilogx(t,visco7,'r')
-semilogx(t,visco8,'k')
+ylim(4.9, 5.5)
+semilogx(t,visco2,'b',label='10$^{-18}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco3,'c',label='10$^{-19}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco4,'g',label='10$^{-20}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco5,'y',label='10$^{-21}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco6,'m',label='10$^{-22}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco7,'r',label='10$^{-23}$') #m$^2$ s$^{-1}$')
+semilogx(t,visco8,'k',label='10$^{-24}$') #m$^2$ s$^{-1}$')
+title("Kp $\simeq$ 0.01")
+xlabel('Time (s)')
+ylabel('Organic concentrations ($\mu$g~m$^{-3}$)')
+legend(loc ='best')	
 savefig("visco_poamp.png")
 
 

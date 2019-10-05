@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 sizebin = 1
-visco1=[]
 visco2=[]
 visco3=[]
 visco4=[]
@@ -25,7 +24,6 @@ visco8=[]
 t=[]
 t0=0
 deltat=600.
-namefic1 = '../results/visco/visco1_soalp/aero/'
 namefic2 = '../results/visco/visco2_soalp/aero/'
 namefic3 = '../results/visco/visco3_soalp/aero/'
 namefic4 = '../results/visco/visco4_soalp/aero/'
@@ -36,14 +34,6 @@ namefic8 = '../results/visco/visco8_soalp/aero/'
 
 
 species1 = 'PSOAlP_1.txt'
-with open (namefic1+species1) as f1 :
-	values = f1.read().splitlines()
-for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]              
-        values[i] = float(values[i])   
-        visco1.append(float(values[i]))
-        t.append(t0)
-        t0=t0+deltat*1./3600
 
 with open (namefic2+species1) as f1 :
 	values = f1.read().splitlines()
@@ -51,8 +41,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco2.append(float(values[i]))
-        #t.append(t0)
-        #t0=t0+deltat*1./3600
+        t.append(t0)
+        t0=t0+deltat*1./3600
 
 with open (namefic3+species1) as f1 :
 	values = f1.read().splitlines()
@@ -109,14 +99,17 @@ for i in range(len(values)) :
         #t0=t0+deltat*1./3600
 
 
-#semilogx(t,visco1,'0.5')
-semilogx(t,visco2,'b')
-semilogx(t,visco3,'c')
-semilogx(t,visco4,'g')
-semilogx(t,visco5,'y')
-semilogx(t,visco6,'m')
-semilogx(t,visco7,'r')
-semilogx(t,visco8,'k')
+semilogx(t,visco2,'b',label='10$^{-18}$')
+semilogx(t,visco3,'c',label='10$^{-19}$')
+semilogx(t,visco4,'g',label='10$^{-20}$')
+semilogx(t,visco5,'y',label='10$^{-21}$')
+semilogx(t,visco6,'m',label='10$^{-22}$')
+semilogx(t,visco7,'r',label='10$^{-23}$')
+semilogx(t,visco8,'k',label='10$^{-24}$')
+title("Kp $\simeq$ 100")
+xlabel('Time (s)')
+ylabel('Organic concentrations ($\mu$g~m$^{-3}$)')
+legend(loc ='best')	
 savefig("visco_soalp.png")
 
 
