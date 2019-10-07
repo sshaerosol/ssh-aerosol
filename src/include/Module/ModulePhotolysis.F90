@@ -27,7 +27,7 @@ MODULE mod_photolysis
   implicit none
 
   real(4), dimension(:, :, :), allocatable :: file_rates_real
-  double precision, dimension(:, :, :), allocatable :: file_rates
+  double precision, dimension(:, :, :, :), allocatable :: file_rates
 
   integer :: photolysis_date_min = 0 ! in seconds
   integer :: photolysis_delta_t = 1 ! in days
@@ -37,8 +37,46 @@ MODULE mod_photolysis
   double precision, dimension(:), allocatable :: altitude_photolysis
   
 contains
- 
-  subroutine read_photolysis()
+  
+  subroutine init_photolysis()
+
+    integer :: day,mypos
+    character (len=80) :: dir_photolysis 
+    integer :: j, k, r, t
+
+    ! Get time record to read binary fiels.
+    ! Photolysis data at this record are be used.
+    day = (current_time - photolysis_date_min) / 86400. / &
+         photolysis_delta_t + 1
+    day0_photolysis = day
+   
+    ! Read photolysis rate
+    do r = 1, n_photolysis
+
+       ! Read from binary files.
+       open(unit = 50, file = trim(photolysis_dir)//"/"//&
+            trim(photolysis_name(r))//".bin", &
+            form = 'unformatted', access = 'stream', status = 'old')
+       mypos = 1 + 4 * (n_time_angle * n_latitude * n_altitude) * &
+            (day0_photolysis - 1)
+       read(unit = 50, pos = mypos) &
+            (((file_rates_real(t, j, k), k = 1, n_altitude), &
+            j = 1, n_latitude), t = 1, n_time_angle)
+       close(50)
+       
+       ! Conversion from real to double precision.
+       do k = 1, n_altitude
+          do j = 1, n_latitude
+             do t = 1, n_time_angle
+                file_rates(r, t, j, k) = dble(file_rates_real(t, j, k))
+             end do
+          end do
+       end do
+    end do
+
+  end subroutine init_photolysis
+
+  subroutine interpol_photolysis()
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -52,24 +90,19 @@ contains
     !------------------------------------------------------------------------
     
     implicit none
-    integer :: j, k, r, t
-    character (len=80) :: dir_photolysis 
+    integer :: r
 
     double precision :: time_angle
     integer :: angle_in, j_in, k_in
     double precision :: alpha_angle, alpha_y, alpha_z 
     double precision :: one_alpha_angle, one_alpha_y, one_alpha_z
-    integer :: day, nb_days
-    integer :: mypos
+    integer :: nb_days,day
 
-    ! Get time record to read binary fiels.
-    ! Photolysis data at this record are be used.
-    day = (current_time - photolysis_date_min) / 86400 / &
+    day = (current_time - photolysis_date_min) / 86400. / &
          photolysis_delta_t + 1
-    
-    ! Allocate arrays for photolysis
-    call allocate_photolysis()    
-
+    if(day.NE.day0_photolysis) then
+       call init_photolysis()   
+    endif
     ! Interpolation
     ! Along z
     k_in = 1
@@ -87,7 +120,7 @@ contains
     if (time_angle > 12.d0) then
        time_angle = 24.d0 - time_angle
     end if
-    
+
     angle_in = int((time_angle - time_angle_min) / delta_time_angle) + 1
     alpha_angle = (time_angle - time_angle_min - &
          dble(angle_in - 1) * delta_time_angle) / &
@@ -96,57 +129,34 @@ contains
     one_alpha_angle = 1.d0 - alpha_angle
     one_alpha_y = 1.d0 - alpha_y
     one_alpha_z = 1.d0 - alpha_z
-    
-    ! Read photolysis rate
-    do r = 1, n_photolysis
 
-       ! Read from binary files.
-       open(unit = 50, file = trim(photolysis_dir)//"/"//&
-            trim(photolysis_name(r))//".bin", &
-            form = 'unformatted', access = 'stream', status = 'old')
-       mypos = 1 + 4 * (n_time_angle * n_latitude * n_altitude) * &
-            (day - 1)
-       read(unit = 50, pos = mypos) &
-            (((file_rates_real(t, j, k), k = 1, n_altitude), &
-            j = 1, n_latitude), t = 1, n_time_angle)
-       close(50)
-       
-       ! Conversion from real to double precision.
-       do k = 1, n_altitude
-          do j = 1, n_latitude
-             do t = 1, n_time_angle
-                file_rates(t, j, k) = file_rates_real(t, j, k)
-             end do
-          end do
-       end do
+    ! Interpol photolysis rate
+    do r = 1, n_photolysis
        
        if (angle_in >= n_time_angle) then
           photolysis_rate(r) = 0.d0
        else
           photolysis_rate(r) = &
-               one_alpha_z * one_alpha_y * one_alpha_angle &
-               * file_rates(angle_in, j_in, k_in) &
+               one_alpha_z * one_alpha_y * one_alpha_angle* &
+               file_rates(r, angle_in, j_in, k_in) &
                + alpha_z * one_alpha_y * one_alpha_angle &
-               * file_rates(angle_in, j_in, k_in + 1) &
+               * file_rates(r, angle_in, j_in, k_in + 1) &
                + one_alpha_z * alpha_y * one_alpha_angle &
-               * file_rates(angle_in, j_in + 1, k_in) &
+               * file_rates(r, angle_in, j_in + 1, k_in) &
                + alpha_z * alpha_y * one_alpha_angle &
-               * file_rates(angle_in, j_in + 1, k_in + 1) &
+               * file_rates(r, angle_in, j_in + 1, k_in + 1) &
                + one_alpha_z * one_alpha_y * alpha_angle &
-               * file_rates(angle_in + 1, j_in, k_in) &
+               * file_rates(r, angle_in + 1, j_in, k_in) &
                + alpha_z * one_alpha_y * alpha_angle &
-               * file_rates(angle_in + 1, j_in, k_in + 1) &
+               * file_rates(r, angle_in + 1, j_in, k_in + 1) &
                + one_alpha_z * alpha_y * alpha_angle &
-               * file_rates(angle_in + 1, j_in + 1, k_in) &
+               * file_rates(r, angle_in + 1, j_in + 1, k_in) &
                + alpha_z * alpha_y * alpha_angle & 
-               * file_rates(angle_in + 1, j_in + 1, k_in + 1)
+               * file_rates(r, angle_in + 1, j_in + 1, k_in + 1)
        end if
     end do
     
-    call deallocate_photolysis()
-    
-  end subroutine read_photolysis
-
+  end subroutine interpol_photolysis
 
   subroutine allocate_photolysis()
 
@@ -178,7 +188,7 @@ contains
        altitude_photolysis(i) = altitude_photolysis_input(i)
     end do
         
-    allocate(file_rates(n_time_angle, n_latitude, n_altitude))
+    allocate(file_rates(n_photolysis, n_time_angle, n_latitude, n_altitude))
     allocate(file_rates_real(n_time_angle, n_latitude, n_altitude))
     
   end subroutine allocate_photolysis

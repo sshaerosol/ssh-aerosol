@@ -73,7 +73,8 @@ module aInitialization
   integer :: kind_composition  ! 1 for auto discretization and 0 for manual discretization
 
   integer :: tag_chem
-  integer :: option_photolysis
+  integer :: option_photolysis, day0_photolysis ! current day in photolysis files
+  double precision :: time_update_photolysis
   integer :: with_heterogeneous  !Tag of heterogeneous reaction 
 
   integer :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
@@ -381,6 +382,7 @@ contains
     namelist /aerosol_species/ aerosol_species_list_file
 
     namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
+         time_update_photolysis, & 
          with_heterogeneous, with_adaptive, &
          adaptive_time_step_tolerance, min_adaptive_time_step, &
          photolysis_dir, photolysis_file, &

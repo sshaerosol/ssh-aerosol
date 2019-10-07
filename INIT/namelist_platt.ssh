@@ -60,7 +60,8 @@ aerosol_species_list_file = "./species-list/species-list-aer.dat",        !Aeros
 &physic_gas_chemistry
 tag_chem = 1,				!Tag of gas-phase chemistry
 attenuation = 1.d0,               ! Cloud attenuation field ([fraction]) - 1 = no attenuation
-option_photolysis = 2,			!1 if photolysis rates are estimated in the program, 2 read from binary files.
+option_photolysis = 1,			!1 if photolysis rates are estimated in the program, 2 read from binary files.
+time_update_photolysis = 100000.        ! if photolysis are read, time in seconds between two reads
 with_heterogeneous = 0,                 !Tag of heterogeneous reaction 
 with_adaptive = 1,                      !Tag of adaptive time step for chemistry 1 if adaptive time step.
 adaptive_time_step_tolerance = 0.001,    !Relative tolerance for deciding if the time step is kept

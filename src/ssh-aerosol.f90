@@ -13,10 +13,11 @@ PROGRAM SSHaerosol
   
   implicit none
 
-  integer :: t, j, s,jesp
+  integer :: t, j, s,jesp,day
   character (len=40) :: namelist_ssh  ! Configuration file
   double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
 
+  double precision :: t_since_update_photolysis
 
   ! Initialisation: discretization and distribution  
   call getarg(1, namelist_ssh) 
@@ -38,19 +39,33 @@ PROGRAM SSHaerosol
 
   call save_concentration() 
 
-
+  if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+    ! Allocate arrays for photolysis
+    call allocate_photolysis()    
+    ! Read photolysis rate for current day
+    current_time = initial_time
+    call init_photolysis() 
+    call interpol_photolysis()
+  endif
   ! **** simulation starts 
+  t_since_update_photolysis = 0.d0
 
   do t = 1, nt
 
      current_time = initial_time + (t - 1) * delta_t
-    
+     t_since_update_photolysis = t_since_update_photolysis +  delta_t
+
      if (ssh_standalone) write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
      if (ssh_logger) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
      ! Read the photolysis rates.
-     if (tag_chem .ne. 0 .and. option_photolysis .eq. 2) call read_photolysis()
-    
+     if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+       if (t_since_update_photolysis >= time_update_photolysis) then
+        call interpol_photolysis()
+        t_since_update_photolysis = 0.d0
+       endif
+     endif
+
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
 
@@ -123,6 +138,11 @@ PROGRAM SSHaerosol
 
   call free_allocated_memory()
   IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
+ 
+    ! Desallocate arrays for photolysis
+  if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+    call deallocate_photolysis()    
+  endif
   
 
   if (ssh_standalone) write(*,*) "============================================"

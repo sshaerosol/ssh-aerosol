@@ -353,23 +353,24 @@ C     photolytic reactions are calculated in kinetic.f
      s           wet_diameter_aer,DSF,
      s           hetero_species_index,Wmol,LWCmin,
      s           option_photolysis)
-            CALL Kinetic(Ns,Nbin_aer,Nr,
-     s           IHETER,ICLD,DLRKf,DLtempf,
-     s           DLhumidf,DLpressf,
-     s           Zangzenf,Zattf,lwca,granulo_aer,
-     s           wet_diameter_aer,DSF,
-     s           hetero_species_index,Wmol,LWCmin,
-     s           option_photolysis)
+!            CALL Kinetic(Ns,Nbin_aer,Nr,
+!     s           IHETER,ICLD,DLRKf,DLtempf,
+!     s           DLhumidf,DLpressf,
+!     s           Zangzenf,Zattf,lwca,granulo_aer,
+!     s           wet_diameter_aer,DSF,
+!     s           hetero_species_index,Wmol,LWCmin,
+!     s           option_photolysis)
+               DO i=1,Nr
+                  DLRKf(i) = DLRKi(i) 
+               ENDDO
 
 C     If option_photolysis is 2,
 C     photolytic reactions may be read.
             IF (option_photolysis.eq.2) then
-c     IF (Nrphot.GT.0) THEN
                DO i=1,Nrphot
                   DLRKi(Nreactphot(i)) = Zatt *
      $                 DLCphotolysis_rates(i)
-                  DLRKf(Nreactphot(i)) = Zattf *
-     $                 DLCphotolysis_ratesf(i)
+                  DLRKf(Nreactphot(i)) = DLRKi(Nreactphot(i)) 
                ENDDO
             ENDIF
             
@@ -377,14 +378,14 @@ c     IF (Nrphot.GT.0) THEN
      s           convers_factor, convers_factor_jac,tschem,
      s           tfchem_tmp,DLRki,DLRkf,ZC_old,DLK1,DLK2)
             
-            IF (jBiPER/=0) THEN
-               DO Jb=1,nbin_aer
-                  saveDLBiPER(Jb)=max(DLconc_aer(Jb,
-     s                 jBiPER)
-     s                 -DLRKi(kBiPER)*tstep*
-     s                 DLconc_aer(Jb,jBiPER),0.0)
-               ENDDO
-            ENDIF
+!            IF (jBiPER/=0) THEN
+!               DO Jb=1,nbin_aer
+!                  saveDLBiPER(Jb)=max(DLconc_aer(Jb,
+!     s                 jBiPER)
+!     s                 -DLRKi(kBiPER)*tstep*
+!     s                 DLconc_aer(Jb,jBiPER),0.0)
+!               ENDDO
+!            ENDIF
             
             IF(option_adaptive_time_step.EQ.1) then
 C     Check that the time step was ok
@@ -427,19 +428,19 @@ c     supEdtstep = supEdtstep/ATOL
                      tfchem_tmp = tfchem
                      tstep = tfchem_tmp - tschem
                   Endif
-                  IF(jBiPER/=0) THEN
-                      DO Jb=1,nbin_aer
-                     DLconc_aer(Jb,jBiPER)=saveDLBiPER(Jb)
-                      ENDDO
-                  ENDIF
+!                  IF(jBiPER/=0) THEN
+!                      DO Jb=1,nbin_aer
+!                     DLconc_aer(Jb,jBiPER)=saveDLBiPER(Jb)
+!                      ENDDO
+!                  ENDIF
                Endif
             ELSE
                tschem = tfchem
-               IF(jBiPER/=0) THEN
-                      DO Jb=1,nbin_aer
-                  DLconc_aer(Jb,jBiPER)=saveDLBiPER(Jb)
-                      ENDDO
-               ENDIF  
+!               IF(jBiPER/=0) THEN
+!                      DO Jb=1,nbin_aer
+!                  DLconc_aer(Jb,jBiPER)=saveDLBiPER(Jb)
+!                      ENDDO
+!               ENDIF  
             ENDIF
 
          Enddo                  !End loop Do while for time stepping
