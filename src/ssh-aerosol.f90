@@ -49,7 +49,7 @@ PROGRAM SSHaerosol
      if (ssh_logger) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
 
      ! Read the photolysis rates.
-     if (tag_chem .ne. 0) call read_photolysis()
+     if (tag_chem .ne. 0 .and. option_photolysis .eq. 2) call read_photolysis()
     
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
