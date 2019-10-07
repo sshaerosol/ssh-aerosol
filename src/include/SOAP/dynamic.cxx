@@ -199,9 +199,9 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
   int i,b,ilayer,iphase;
   int n=surrogate.size();
   double sum1,sum2,sum3;
-  //double taumin;
   double time_dif;
-  
+  double Vlayer_dif=0.0;
+
   //compute total particulate concentrations
   if (config.explicit_representation)
     {      
@@ -210,8 +210,7 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 	  for (b=0;b<config.nbins;++b)
 	    {	      
 	      time_dif=0.0;
-	      double Vlayer_dif=0.0;
-	      /*int nlim=pow(pow(config.Radius(b,config.nlayer),2)/(pi*pi**/
+	      Vlayer_dif=0.0;
 	
 	      for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
 		{
@@ -228,10 +227,6 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		  sum3=0.0;
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		    sum3+=MOinit(b,ilayer,iphase);
-		  /*
-                    sum4=0.0;
-                    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                    sum4+=MOinit(b,0,iphase);*/
 
 		  time_dif=pow(config.dbound(b,config.nlayer)-config.dbound(b,ilayer),2)/(surrogate[i].dif_org(b,ilayer));			   	      
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -270,27 +265,6 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 	    surrogate[i].Ap=sum(surrogate[i].Ap_layer_init);
 	    if (surrogate[i].hydrophilic and LWCtot>config.LWClimit)
 	      surrogate[i].Ap+=sum(surrogate[i].Aaq_bins_init);
-	    /*surrogate[i].Ap=0.0;
-	    for (b=0;b<config.nbins;++b)
-	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
-		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		  surrogate[i].Ap+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
-
-	    if (surrogate[i].Ap!=surrogate[i].Ap)
-	      {
-		cout << "nan" << "org " << surrogate[i].name << endl;
-		throw string("NAN: org \"") + surrogate[i].name + "\".";
-	      }
-		
-	    if (surrogate[i].hydrophilic and LWCtot>config.LWClimit)
-	      for (b=0;b<config.nbins;++b)
-		surrogate[i].Ap+=surrogate[i].Aaq_bins_init(b);
-
-	    if (surrogate[i].Ap!=surrogate[i].Ap)
-	      {
-		cout << "nan" << "AQ " << surrogate[i].name << endl;
-		throw string("NAN: aq \"") + surrogate[i].name + "\".";
-		}*/
 	  }
 
       //compute the characteristic time
@@ -320,23 +294,6 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 			   sum1/config.Vlayer(ilayer)*surrogate[i].tau_air(b)*
 			   (sum3/config.Vlayer(ilayer)+AQinit(b))/sum3*config.Vlayer(ilayer))
 			  /(1.0+sum1/sum2*surrogate[i].Ap);
-
-			/*
-			if (i==config.iH2O)
-			  {			    
-			    double a1=sum1/sum3;
-			    double b1=1.0-sum1-a1*surrogate[i].Atot;
-			    double c1=-(sum3-sum2);
-			    double delta=pow(b1,2.0)-4.0*a1*c1;			    
-			    double MO2=max(sum3,(-b1+pow(delta,0.5))/(2.0*a1));			 
-			    double f1=pow((AQinit(b)+MO2/config.Vlayer(ilayer))/(AQinit(b)+MOinit(b,ilayer,iphase)/config.Vlayer(ilayer)),1.0/3.0);			    
-			    surrogate[i].time(b,ilayer,iphase)=
-			      (surrogate[i].tau_diffusion(b,ilayer,iphase)+
-			       MO2/sum3*sum1/config.Vlayer(ilayer)*surrogate[i].tau_air(b)/f1*
-			       (MO2/config.Vlayer(ilayer)+AQinit(b))/MO2*config.Vlayer(ilayer))
-			      /(1.0+MO2/sum3*sum1/sum2*surrogate[i].Ap);
-			  }*/
-
 		      }
 
 		  else 
@@ -377,6 +334,13 @@ void characteristic_time_aq(model_config &config, vector<species>& surrogate, do
   double LWCtot=0.0;
   Array <double, 1> max_time_inorg;
   max_time_inorg.resize(config.nbins);
+  double conc_aq,sumMO;
+  double AQ2;
+  double a1,f1;
+  double b1;
+  double c1;
+  double delta;
+
   for (b=0;b<config.nbins;++b)
     max_time_inorg(b)=0.0;
   
@@ -422,7 +386,7 @@ void characteristic_time_aq(model_config &config, vector<species>& surrogate, do
           }
       
       //compute the characteristic time
-      double conc_aq,sumMO;
+      conc_aq,sumMO;
       for (i=0;i<n;++i)
         if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
           for (b=0;b<config.nbins;++b)
@@ -436,20 +400,20 @@ void characteristic_time_aq(model_config &config, vector<species>& surrogate, do
               if(Kaq<config.kp_low_volatility)
                 if (surrogate[i].Aaq_bins_init(b)>0.0)
 		  {
-		    double AQ2=AQinit(b); 
+		    AQ2=AQinit(b); 
 		    surrogate[i].time_aq(b)=
 		      (AQ2+sumMO)/AQ2*
 		      (Kaq*AQ2*surrogate[i].tau_air(b))
 		      /(1.0+Kaq*AQ2/surrogate[i].Aaq_bins_init(b)*surrogate[i].Aaq);		    
 		    if (i==config.iH2O)
 		      {		       
-			double a1=Kaq;
-			double b1=1.0-Kaq*AQ2-Kaq*surrogate[i].Atot;
-			double c1=-(AQinit(b)-surrogate[i].Aaq_bins_init(b));
-			double delta=pow(b1,2.0)-4.0*a1*c1;
+		        a1=Kaq;
+			b1=1.0-Kaq*AQ2-Kaq*surrogate[i].Atot;
+			c1=-(AQinit(b)-surrogate[i].Aaq_bins_init(b));
+			delta=pow(b1,2.0)-4.0*a1*c1;
 			
 			AQ2=max(AQinit(b),(-b1+pow(delta,0.5))/(2.0*a1));
-			double f1=pow((AQ2+sumMO)/(AQinit(b)+sumMO),1.0/3.0);			
+			f1=pow((AQ2+sumMO)/(AQinit(b)+sumMO),1.0/3.0);			
 			surrogate[i].time_aq(b)=
 			  (AQ2+sumMO)/AQ2*
 			  (Kaq*AQ2*surrogate[i].tau_air(b)/f1)
@@ -637,9 +601,14 @@ void compute_flux_chem(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,j,b,ilayer,iphase,jion;
   double gamma=1.+0.5*pow(2,0.5);  
+  double sum_flux_gas=0.0;
+  double Xmono=0.0;          
+  double XH2O;
+  double xmin=1.0e-10;
+
   for (i=0;i<n;++i)
     {      
-      double sum_flux_gas=0.0;
+      sum_flux_gas=0.0;
       for (b=0;b<config.nbins;++b)
         {
           for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -664,13 +633,13 @@ void compute_flux_chem(model_config &config, vector<species>& surrogate,
         for (ilayer=0;ilayer<config.nlayer;ilayer++)
           for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
             {        
-              double Xmono=0.0;          
+              Xmono=0.0;          
               for (i=0;i<n;i++)
                 if (surrogate[i].is_monomer and surrogate[i].is_organic)              
                   Xmono+=surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*MOW(b,ilayer,iphase)/surrogate[i].MM/max(MOinit(b,ilayer,iphase),1.0e-10);              
 
-              double XH2O=surrogate[config.iH2O].gamma_org_layer(b,ilayer,iphase)*surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)*MOW(b,ilayer,iphase)/surrogate[config.iH2O].MM/max(MOinit(b,ilayer,iphase),1.0e-10);
-              double xmin=1.0e-10;
+              XH2O=surrogate[config.iH2O].gamma_org_layer(b,ilayer,iphase)*surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)*MOW(b,ilayer,iphase)/surrogate[config.iH2O].MM/max(MOinit(b,ilayer,iphase),1.0e-10);
+              xmin=1.0e-10;
 
               for (i=0;i<n;++i)
                 if (surrogate[i].is_organic and surrogate[i].hydrophobic) 
@@ -1101,6 +1070,10 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
   int n=surrogate.size();
   int i,b,ilayer,iphase;
   double sum_mass;  
+  double conc_aq;
+  double conc_org;
+  double sumkpositive=0.0;
+  double sumknegative=0.0;
 
   for (i=0;i<n;++i)      		
     for (b=0;b<config.nbins;b++)
@@ -1111,7 +1084,7 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
 
   for (b=0;b<config.nbins;++b)
     {
-      double conc_org=LWC(b);
+      conc_org=LWC(b);
       for (i=0;i<n;++i)
         if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
           conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -1127,7 +1100,7 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
                 sum_mass+=MOinit(b,ilayer,iphase);
           
             Kaq=surrogate[i].Kaq(b);          
-	    if (Kaq > 0. and AQinit(b)> 0. and sum_mass > 1e-20)
+	    if (Kaq > 1.e-20 and AQinit(b)> 1e-20 and sum_mass > 1e-20 and surrogate[i].tau_air(b) > 0.)
 	      {
 		surrogate[i].k1_aq(b,index)=AQinit(b)/sum_mass*
 		  (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
@@ -1146,7 +1119,7 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
               for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 sum_mass+=MOinit(b,ilayer,iphase);          
 
-            double conc_aq;
+            conc_aq;
             if (surrogate[i].name=="H2SO4")
               {	      
                 surrogate[i].k1_aq(b,index)=surrogate[i].Ag/surrogate[i].tau_air(b);      
@@ -1197,8 +1170,8 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
   for (i=0;i<n;++i)      
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
       {
-        double sumkpositive=0.0;
-        double sumknegative=0.0;
+        sumkpositive=0.0;
+        sumknegative=0.0;
         for (b=0;b<config.nbins;b++)
           if (surrogate[i].time_aq(b)>=config.tequilibrium)			
             {
@@ -1228,44 +1201,6 @@ void flux_aq(model_config &config, vector<species>& surrogate, Array<double, 1> 
 						 surrogate[i].Aaq_bins_init(b);
           }
       }
-  /*
-    else
-    if (surrogate[i].is_inorganic_precursor==false)
-    {
-    double conc_aq=0.0;
-
-
-    double sumkpositive=0.0;
-    double sumknegative=0.0;
-    for (b=0;b<config.nbins;b++)
-    if (surrogate[i].time_aq(b)>=config.tequilibrium)			
-    {
-    if (surrogate[i].k1_aq(b,index)>0.0)  
-    sumkpositive+=surrogate[i].k1_aq(b,index);
-    else if (surrogate[i].k1_aq(b,index)<0.0) 
-    sumknegative+=surrogate[i].k1_aq(b,index);
-    }
-		
-    for (b=0;b<config.nbins;b++)
-    {
-    //Flux limitations				
-    if (surrogate[i].k1_aq(b,index)>0.0 and surrogate[i].Ag*surrogate[i].Kaq(b)*AQinit(b)-concaq>0.0)
-    surrogate[i].k1_aq(b,index)=min(surrogate[i].k1_aq(b,index),1.0/config.deltatmin*
-    ((surrogate[i].Ag+max(-sumknegative-sumkpositive,0.0)*config.deltatmin+concaq)*surrogate[i].Kaq(b)*AQinit(b)/
-    (1.0+surrogate[i].Kaq(b)*AQinit(b))-concaq));
-    else if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Ag*surrogate[i].Kaq(b)*AQinit(b)-concaq<0.0)
-    surrogate[i].k1_aq(b,index)=max(surrogate[i].k1_aq(b,index),1.0/config.deltatmin*
-    ((surrogate[i].Ag+min(sumknegative+sumkpositive,0.0)*config.deltatmin+concaq)*surrogate[i].Kaq(b)*AQinit(b)/
-    (1.0+surrogate[i].Kaq(b)*AQinit(b))-concaq));
-		
-    //compute fluxes
-    surrogate[i].Jdn_aq(b,index)=0.0; 
-    if (surrogate[i].k1_aq(b,index)<0.0 and
-    concaq>tiny)
-    surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/
-    concaq;
-    }
-    }*/
 
 }
 
@@ -1289,6 +1224,14 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
   double organion,organion2,kelvin_effect;
   double sum_mass,faq;
   int ilayer,iphase;
+  double conc_org,f;
+  double fion1=0.0;
+  double fion2=0.0;
+  double ratio_gamma;
+  double ratio_gamma1;
+  double ratio_gamma2;
+  double Kac,Kac1,Kac2;
+  double Kh,dK,K,dJ,total;
 
   for (b=0;b<config.nbins;b++)
     {
@@ -1298,7 +1241,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
       c1=0.0;
       Jhp=0.0;
 
-      double conc_org=LWC(b);
+      conc_org=LWC(b);
       for (i=0;i<n;++i)
         if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
           conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -1330,7 +1273,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
             if (surrogate[i].name=="H2SO4")	      
               {
 		
-                double f=1.0;
+                f=1.0;
                 if(surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+
                    surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM>0.0)
                   f=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM/
@@ -1395,10 +1338,10 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                 {
                   if (surrogate[i].aq_type=="monoacid")
                     {
-                      double fion1=0.0;
-                      double fion2=0.0;
+                      fion1=0.0;
+                      fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+                      Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
 							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);		      
                       organion=fion1*(surrogate[i].Agt-(surrogate[i].Aaq_bins_init(b)+surrogate[i].Ag-surrogate[i].Agt)/(Kaq*AQinit(b)))
                         /surrogate[i].MM/conc_org*1000./surrogate[i].tau_air(b)*faq;			
@@ -1407,10 +1350,10 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                     }	
                   else if (surrogate[i].aq_type=="diacid")
                     {
-                      double fion1=0.0;
-                      double fion2=0.0;
+                      fion1=0.0;
+                      fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+                      Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
 							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
                       organion=(fion1+2.0*fion2)*(surrogate[i].Agt-(surrogate[i].Aaq_bins_init(b)+surrogate[i].Ag-surrogate[i].Agt)/(Kaq*AQinit(b)))
@@ -1424,11 +1367,11 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                 {
                   if (surrogate[i].name=="H2SO4")	      
                     {
-                      double K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(b)
+                      K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(b)
                         /(surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));
                       a1+=(2.0-1.0/(1.0+K/chp2))*surrogate[i].Agt/surrogate[i].tau_air(b)/surrogate[i].MM; 		
 		      
-                      double total=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+
+                      total=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+
                         surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM;	       		     
                       asulf=config.AQrho(b)*total/AQinit(b)*1.0/pow(1.0+K/chp2,2.0)*K/(chp2*chp2);
                     }
@@ -1499,7 +1442,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                       if (surrogate[i].Agt>0.0 and surrogate[i].k1_aq(b,index)>0.0)						 
                         dt1=min(dt1,0.1*abs(surrogate[i].Agt/surrogate[i].k1_aq(b,index)));			
 			 
-                      double conc_aq=0.0;
+                      conc_aq=0.0;
                       if (surrogate[i].name=="NH3")
                         {			    
                           conc_aq=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM*surrogate[i].MM+
@@ -1540,7 +1483,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
 		  
                   surrogate[i].k1_aq(b,index)=(surrogate[i].Agt*Kaq*chp2*AQinit(b)-conc_aq)/
                     (Kaq*chp2*AQinit(b)*surrogate[i].tau_air(b))*faq;
-                  double dJ=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp/(chp2*chp2);
+                  dJ=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp/(chp2*chp2);
                   a2+=surrogate[i].k1_aq(b,index)*dt1+0.5*dJ*dt1*dt1;
 
                   surrogate[i].Agt=max(surrogate[i].Agt-surrogate[i].k1_aq(b,index)*dt1-0.5*dJ*dt1*dt1,0.01*surrogate[i].Agt);		  
@@ -1553,7 +1496,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
 		  
                   surrogate[i].k1_aq(b,index)=(surrogate[i].Agt*Kaq/chp2*AQinit(b)-conc_aq)/
                     (Kaq/chp2*AQinit(b)*surrogate[i].tau_air(b))*faq;
-                  double dJ=-conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp;
+                  dJ=-conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp;
                   b2+=surrogate[i].k1_aq(b,index)*dt1+0.5*dJ*dt1*dt1;
 		  
                   surrogate[i].Agt=max(surrogate[i].Agt-surrogate[i].k1_aq(b,index)*dt1-0.5*dJ*dt1*dt1,0.01*surrogate[i].Agt);		  
@@ -1566,7 +1509,7 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
 		  
                   surrogate[i].k1_aq(b,index)=(surrogate[i].Agt*Kaq/chp2*AQinit(b)-conc_aq)/
                     (Kaq/chp2*AQinit(b)*surrogate[i].tau_air(b))*faq;
-                  double dJ=-conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp;
+                  dJ=-conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq*Jhp;
                   c2+=surrogate[i].k1_aq(b,index)*dt1+0.5*dJ*dt1*dt1;
 				  
                   surrogate[i].Agt=max(surrogate[i].Agt-surrogate[i].k1_aq(b,index)*dt1-0.5*dJ*dt1*dt1,0.01*surrogate[i].Agt);		 		  
@@ -1577,21 +1520,21 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
 
                   if (surrogate[i].aq_type=="monoacid")
                     {	      
-                      double fion1=0.0;
-                      double fion2=0.0;
+                      fion1=0.0;
+                      fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+                      Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
 							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
-                      double ratio_gamma=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
-                      double Kac=surrogate[i].Kacidity1/ratio_gamma;
-                      double Kh=surrogate[i].Kpart_aq(Temperature, MMaq(b))/kelvin_effect/surrogate[i].gamma_aq_bins(b);
+                      ratio_gamma=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
+                      Kac=surrogate[i].Kacidity1/ratio_gamma;
+                      Kh=surrogate[i].Kpart_aq(Temperature, MMaq(b))/kelvin_effect/surrogate[i].gamma_aq_bins(b);
                       
 
                       surrogate[i].k1_aq(b,index)=faq*
                         (surrogate[i].Agt*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b)-surrogate[i].Ag+surrogate[i].Agt)/
                         (Kaq*AQinit(b)*surrogate[i].tau_air(b));
-                      double dJ=-surrogate[i].Aaq_bins_init(b)/pow(Kaq*AQinit(b),2)/surrogate[i].tau_air(b)*faq*
+                      dJ=-surrogate[i].Aaq_bins_init(b)/pow(Kaq*AQinit(b),2)/surrogate[i].tau_air(b)*faq*
                         Kh*AQinit(b)*Kac/(chp2*chp2)*Jhp;
                       surrogate[i].Aaq+=surrogate[i].k1_aq(b,index)*dt1+0.5*dJ*dt1*dt1;
                       surrogate[i].Agt=max(surrogate[i].Agt-surrogate[i].k1_aq(b,index)*dt1-0.5*dJ*dt1*dt1,0.01*surrogate[i].Agt);
@@ -1599,24 +1542,24 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
                   
                   else if (surrogate[i].aq_type=="diacid")
                     {	      
-                      double fion1=0.0;
-                      double fion2=0.0;
+                      fion1=0.0;
+                      fion2=0.0;
                       surrogate[i].gamma_LR=surrogate[i].LR(b);
-                      double Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
+                      Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(b), chp2,surrogate[config.iHp].LR(b),
 							       surrogate[config.iHp].SRMR(b),MMaq(b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 		      
-                      double ratio_gamma1=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
-                      double ratio_gamma2=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b);
-                      double Kac1=surrogate[i].Kacidity1/ratio_gamma1;
-                      double Kac2=surrogate[i].Kacidity2/ratio_gamma2;
-                      double Kh=surrogate[i].Kpart_aq(Temperature, MMaq(b))/kelvin_effect/surrogate[i].gamma_aq_bins(b);
+                      ratio_gamma1=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b)/surrogate[i].gamma_LR;
+                      ratio_gamma2=pow(surrogate[config.iHp].LR(b),2.0)*surrogate[config.iHp].SRMR(b);
+                      Kac1=surrogate[i].Kacidity1/ratio_gamma1;
+                      Kac2=surrogate[i].Kacidity2/ratio_gamma2;
+                      Kh=surrogate[i].Kpart_aq(Temperature, MMaq(b))/kelvin_effect/surrogate[i].gamma_aq_bins(b);
 
                       surrogate[i].k1_aq(b,index)=faq*
                         (surrogate[i].Agt*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b)-surrogate[i].Ag+surrogate[i].Agt)/
                         (Kaq*AQinit(b)*surrogate[i].tau_air(b));
 
-                      double dK=-Kac1*Kh/pow(chp2,2.0)-2.0*Kac1*Kac2*Kh/pow(chp2,3.0);
-                      double dJ=surrogate[i].Aaq_bins_init(b)/pow(Kaq*AQinit(b),2)/surrogate[i].tau_air(b)*faq*dK*AQinit(b)*Jhp;
+                      dK=-Kac1*Kh/pow(chp2,2.0)-2.0*Kac1*Kac2*Kh/pow(chp2,3.0);
+                      dJ=surrogate[i].Aaq_bins_init(b)/pow(Kaq*AQinit(b),2)/surrogate[i].tau_air(b)*faq*dK*AQinit(b)*Jhp;
                       surrogate[i].Aaq+=surrogate[i].k1_aq(b,index)*dt1+0.5*dJ*dt1*dt1;
                       surrogate[i].Agt=max(surrogate[i].Agt-surrogate[i].k1_aq(b,index)*dt1-0.5*dJ*dt1*dt1,0.01*surrogate[i].Agt);		      
                     }
@@ -1665,12 +1608,13 @@ void correct_flux_ph(model_config &config, vector<species>& surrogate, double &T
 void compute_morphology(model_config &config, Array<double,1> &vsol, Array<double, 1> & Number)
 {
   int b,ilayer;
+  double vorg;
   //compute morpholgy
   for (b=0;b<config.nbins;++b)
     if (Number(b) > 0.0)  
       {
         config.dbound(b,0)=pow(3.0/(4.0*3.14159)*vsol(b),1.0/3.0)/Number(b);
-        double vorg=(4.0/3.0*3.14159*pow(0.5e-6*config.diameters(b),3.0)-vsol(b)/Number(b));  
+        vorg=(4.0/3.0*3.14159*pow(0.5e-6*config.diameters(b),3.0)-vsol(b)/Number(b));  
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
           {
             config.dbound(b,ilayer+1)=pow(pow(config.dbound(b,ilayer),3)+3.0/(4.0*3.14159)*vorg*config.Vlayer(ilayer),1.0/3.0);
@@ -1690,7 +1634,37 @@ void flux_org(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
-  
+   Array<double, 1> kpmo_interface;
+  kpmo_interface.resize(config.nlayer);
+  Array <double,2> rJ_interface;
+  rJ_interface.resize(config.nlayer,config.max_number_of_phases);
+  double sumkpositive=0.0;
+  double sumknegative=0.0;
+  double sumkpmo_interface=0.0;
+  double sumk=0.0;
+  double sum1=0.0;
+  double sum2=0.0;
+  double sumap=0.0;
+  double kpmo=0.0;
+  double F1=0.0;
+  double F2=0.0;
+  double surf1=0.0;
+  double surf2=0.0;
+  double dorg=0.0;
+  bool eq_last_layer=true;
+  double tau_interface= 0.0;
+  double ap_interface=0.0;		  
+  double Vinterface=0.0;
+  int ilayer_interface=0;		  
+  double Jinterface=0.0;
+  double ktot1=0.0;
+  double kcond=0.0;	    	      
+  double ktot=0.0;
+  double b2=0.0;
+  double c2=0.0;
+  double a=0.0;
+  int jlayer;
+   
   for (i=0;i<n;++i)      		
     for (b=0;b<config.nbins;b++)
       for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -1746,20 +1720,20 @@ void flux_org(model_config &config, vector<species>& surrogate,
 	    
 	      for (ilayer=0;ilayer<config.nlayer;++ilayer)		    
 		{
-		  double F1=0.0;
-		  double F2=0.0;
+		  F1=0.0;
+		  F2=0.0;
 		  sum=0.0;
 		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		    sum+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase));
 
 		  if (ilayer>0)
 		    {
-		      double surf1=4.0*3.14159*pow(config.dbound(b,ilayer),2);
-		      double sum1=0.0;
+		      surf1=4.0*3.14159*pow(config.dbound(b,ilayer),2);
+		      sum1=0.0;
 		      for (iphase=0;iphase<config.nphase(b,ilayer-1);++iphase)
 			sum1+=surrogate[i].Ap_layer_init(b,ilayer-1,iphase)/(surrogate[i].Kp(b,ilayer-1,iphase)*MOinit(b,ilayer-1,iphase));
 
-		      double dorg=(config.dbound(b,ilayer)-config.Radius(b,ilayer-1))/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1))*surrogate[i].dif_org(b,ilayer-1)
+		      dorg=(config.dbound(b,ilayer)-config.Radius(b,ilayer-1))/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1))*surrogate[i].dif_org(b,ilayer-1)
 			+(config.Radius(b,ilayer)-config.dbound(b,ilayer))/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1))*surrogate[i].dif_org(b,ilayer);
 			
 		      F1=surf1*dorg*(sum1-sum)/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1));
@@ -1767,12 +1741,12 @@ void flux_org(model_config &config, vector<species>& surrogate,
 
 		  if (ilayer<config.nlayer-1)
 		    {
-		      double surf2=4.0*3.14159*pow(config.dbound(b,ilayer+1),2);
-		      double sum2=0.0;
+		      surf2=4.0*3.14159*pow(config.dbound(b,ilayer+1),2);
+		      sum2=0.0;
 		      for (iphase=0;iphase<config.nphase(b,ilayer+1);++iphase)
 			sum2+=surrogate[i].Ap_layer_init(b,ilayer+1,iphase)/(surrogate[i].Kp(b,ilayer+1,iphase)*MOinit(b,ilayer+1,iphase));
 
-		      double dorg=(config.dbound(b,ilayer+1)-config.Radius(b,ilayer))/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer))*surrogate[i].dif_org(b,ilayer)
+		      dorg=(config.dbound(b,ilayer+1)-config.Radius(b,ilayer))/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer))*surrogate[i].dif_org(b,ilayer)
 			+(config.Radius(b,ilayer+1)-config.dbound(b,ilayer+1))/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer))*surrogate[i].dif_org(b,ilayer+1);
 			
 		      F2=surf2*dorg*(sum2-sum)/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer));
@@ -1815,19 +1789,15 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      sum_mass+=MOinit(b,ilayer,iphase);
 
-		  bool eq_last_layer=true;
-		  double sumkpositive=0.0;
-		  double sumknegative=0.0;
-		  double tau_interface=max(1.0,surrogate[i].tau_diffusion(b,0,0));
-		  Array<double, 1> kpmo_interface;
-		  double ap_interface=0.0;		  
-		  double Vinterface=0.0;
-		  double sumkpmo_interface=0.0;
-		  int ilayer_interface=0;		  
-		  kpmo_interface.resize(config.nlayer);
+		  eq_last_layer=true;
+		  sumkpositive=0.0;
+		  sumknegative=0.0;
+		  tau_interface=max(1.0,surrogate[i].tau_diffusion(b,0,0));
+		  ap_interface=0.0;		  
+		  Vinterface=0.0;
+		  sumkpmo_interface=0.0;
+		  ilayer_interface=0;		  
 		  kpmo_interface=0.0;
-		  Array <double,2> rJ_interface;
-		  rJ_interface.resize(config.nlayer,config.max_number_of_phases);
 		  rJ_interface=0.0;
 		  ilayer_interface=config.nlayer-1;
 		  for (ilayer=0;ilayer<config.nlayer-1;++ilayer)
@@ -1849,9 +1819,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		      Vinterface+=config.Vlayer(ilayer);
 		    }
 
-		  //cout << ilayer_interface << endl;
-
-		  double Jinterface=(surrogate[i].Ag*sumkpmo_interface-ap_interface)/tau_interface;
+		  Jinterface=(surrogate[i].Ag*sumkpmo_interface-ap_interface)/tau_interface;
 	      
 		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -1875,7 +1843,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		      else
 			surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	      
-		  double ktot1=0.0;
+		  ktot1=0.0;
 		  for (ilayer=0;ilayer<ilayer_interface;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)		
@@ -1915,22 +1883,22 @@ void flux_org(model_config &config, vector<species>& surrogate,
 			      sumknegative+=surrogate[i].k1(b,ilayer,iphase,index);
 			  }
       	      
-		  double kcond=0.0;	    	      
-		  double ktot=sumkpositive+sumknegative;
+		  kcond=0.0;	    	      
+		  ktot=sumkpositive+sumknegative;
 	      
 		  if (ktot>0.0)			
 		    {
-		      double sum1=0.0;
-		      double sum2=0.0;
+		      sum1=0.0;
+		      sum2=0.0;
 		      for (ilayer=0;ilayer<config.nlayer;++ilayer)		   
 			if (surrogate[i].time(b,ilayer,0)>=config.tequilibrium)
 			  {					  
-			    double sumk=0.0;
+			    sumk=0.0;
 			    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 			      sumk+=surrogate[i].k1(b,ilayer,iphase,index);
 			
-			    double sumap=0.0;
-			    double kpmo=0.0;
+			    sumap=0.0;
+			    kpmo=0.0;
 	
 			    if (sumk>0.0)
 			      {
@@ -1947,18 +1915,18 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    }
 		  else if (ktot<0.0)
 		    {
-		      double sum1=0.0;
-		      double sum2=0.0;
+		      sum1=0.0;
+		      sum2=0.0;
 		      for (ilayer=0;ilayer<config.nlayer;++ilayer)
 			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 			  if (surrogate[i].time(b,ilayer,0)>=config.tequilibrium)
 			    {
-			      double sumk=0.0;
+			      sumk=0.0;
 			      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 				sumk+=surrogate[i].k1(b,ilayer,iphase,index);
 			  			 
-			      double sumap=0.0;
-			      double kpmo=0.0;
+			      sumap=0.0;
+			      kpmo=0.0;
 			  
 			      if (sumk<0.0)
 				{
@@ -1977,8 +1945,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    }
 		  
 		  kcond=(1.0-AQinit(b)/sum_mass)*(kcond)/surrogate[i].tau_air(b);	  	      
-		  double b2=0.0;
-		  double c2=0.0;
+		  b2=0.0;
+		  c2=0.0;
 		  if (eq_last_layer)
 		    {
 		      for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -1994,8 +1962,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    }
 		  else
 		    {
-		      int jlayer;
-		      double sumk=0.0;
+		      jlayer;
+		      sumk=0.0;
 		      for (jlayer=ilayer_interface;jlayer<config.nlayer;jlayer++)
 			for (jphase=0;jphase<config.nphase(b,jlayer);++jphase)
 			  sumk+=surrogate[i].k1(b,jlayer,jphase,index);
@@ -2005,7 +1973,6 @@ void flux_org(model_config &config, vector<species>& surrogate,
 			  if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)		  	  
 			    if (surrogate[i].k1(b,ilayer,iphase,index)>0.0 and ktot>0.0 and kcond>0.0)
 			      {			   			 
-				double a;							       				
                                 if (kcond-max(sumk,0.0)<=0.0)
                                   {
                                     if (ilayer>=ilayer_interface)
@@ -2094,8 +2061,8 @@ void flux_org(model_config &config, vector<species>& surrogate,
   for (i=0;i<n;++i)      
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
       {
-	double sumkpositive=0.0;
-	double sumknegative=0.0;
+	sumkpositive=0.0;
+	sumknegative=0.0;
 	for (b=0;b<config.nbins;b++)
 	  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 	    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -2148,6 +2115,18 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
   int b;
   double kelvin_effect=1.0;
   double Kaq;
+  Array <double,1> conc_org;
+  conc_org.resize(config.nbins);
+  double ratio_gamma1=0.0;
+  double ratio_gamma2=0.0;
+  double Kac1=0.0;
+  double Kac2=0.0;
+  double Kh=0.0;
+  double dK=0.0;
+  double fion1=0.0;
+  double fion2=0.0;
+  double K, ratio_gamma, Kac;
+
   if (config.compute_kelvin_effect) //compute the kelvin effect    
     {
       kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
@@ -2157,8 +2136,6 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 	kelvin_effect = 50.0;
       kelvin_effect=exp(kelvin_effect);
     }
-  Array <double,1> conc_org;
-  conc_org.resize(config.nbins);
   for (b=0;b<config.nbins;b++)
     {
       conc_org(b)=LWC(b);  
@@ -2242,7 +2219,7 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
             total=surrogate[config.iHSO4m].Aaq_bins_init(index_b)/surrogate[config.iHSO4m].MM
               +surrogate[config.iSO4mm].Aaq_bins_init(index_b)/surrogate[config.iSO4mm].MM;
 
-	    double K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
+	    K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
               /(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iSO4mm].gamma_aq_bins(index_b));
 	  
             derivative-=1000.*total/conc_org(index_b)*1.0/pow(1.0+K/chp(index_b),2.0)*K/(chp(index_b)*chp(index_b)); //HSO4m+SO4mm
@@ -2264,16 +2241,16 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
                       sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
                     }
 
-		double fion1=0.0;
-		double fion2=0.0;
+		fion1=0.0;
+		fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 
-		double ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-		double Kac=surrogate[i].Kacidity1/ratio_gamma;
-		double Kh=surrogate[i].Kpart_aq(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		double dK=-Kac*Kh/pow(chp(index_b),2.0);
+		ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+		Kac=surrogate[i].Kacidity1/ratio_gamma;
+		Kh=surrogate[i].Kpart_aq(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		dK=-Kac*Kh/pow(chp(index_b),2.0);
 		
                 derivative+=1000.*AQinit(index_b)/conc_org(index_b)*total*fion1*
 		  (-(1.0-fion1)/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ+dK/sum_K_AQ
@@ -2283,8 +2260,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 	    else
 	      {
 		total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-		double fion1=0.0;
-		double fion2=0.0;
+		fion1=0.0;
+		fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
@@ -2306,18 +2283,18 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
                       sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
                     }
 
-		double fion1=0.0;
-		double fion2=0.0;
+		fion1=0.0;
+		fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 
-		double ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-		double ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
-		double Kac1=surrogate[i].Kacidity1/ratio_gamma1;
-		double Kac2=surrogate[i].Kacidity2/ratio_gamma2;
-		double Kh=surrogate[i].Kpart_aq(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		double dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
+		ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+		ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
+		Kac1=surrogate[i].Kacidity1/ratio_gamma1;
+		Kac2=surrogate[i].Kacidity2/ratio_gamma2;
+		Kh=surrogate[i].Kpart_aq(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
 		
 		derivative+=1000.*total*AQinit(index_b)/conc_org(index_b)*
 		  ((fion1*(fion1-1.0)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ
@@ -2327,8 +2304,8 @@ void error_ph_bins(model_config &config, vector<species> &surrogate, int index_b
 	    else
 	      {
 		total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-		double fion1=0.0;
-		double fion2=0.0;
+		fion1=0.0;
+		fion2=0.0;
 		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 		Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
@@ -2360,10 +2337,8 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
   double inorganion=0.0;
   double organion=0.0;
   double total;
-  //double sum_K_AQ;
-  //int b;
   double kelvin_effect=1.0;
-  double Kaq;
+  double Kaq,conc_org,K,fion1,fion2;
   if (config.compute_kelvin_effect) //compute the kelvin effect
     {
       kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
@@ -2374,12 +2349,11 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
       kelvin_effect=exp(kelvin_effect);
     }
 
-  double conc_org=LWC(index_b);
+  conc_org=LWC(index_b);
   for (i=0;i<n;++i)
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
       conc_org+=surrogate[i].Aaq_bins_init(index_b);
   conc_org=max(conc_org,1.e-5*config.MOmin);
-  //conc_org=max(conc_org,config.MOmin);
 
   derivative=0.0;
   for (i=0;i<n;++i)
@@ -2402,7 +2376,7 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
             total=surrogate[config.iHSO4m].Aaq_bins_init(index_b)/surrogate[config.iHSO4m].MM
               +surrogate[config.iSO4mm].Aaq_bins_init(index_b)/surrogate[config.iSO4mm].MM;
 
-	    double K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
+	    K=surrogate[i].Kequilibrium(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
               /(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iSO4mm].gamma_aq_bins(index_b));
             derivative-=1000.*total/conc_org*1.0/pow(1.0+K/chp(index_b),2.0)*K/(chp(index_b)*chp(index_b)); //HSO4m+SO4mm
 	    inorganion+=1000.*total/conc_org*(2.0-1.0/(1.0+K/chp(index_b)));
@@ -2413,8 +2387,8 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
 	if (surrogate[i].aq_type=="monoacid")
 	  {
 	    total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-	    double fion1=0.0;
-	    double fion2=0.0;
+	    fion1=0.0;
+	    fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config,Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
@@ -2424,8 +2398,8 @@ void error_ph_dyn(model_config &config, vector<species> &surrogate, int index_b,
 	else if (surrogate[i].aq_type=="diacid")
 	  {
 	    total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-	    double fion1=0.0;
-	    double fion2=0.0;
+	    fion1=0.0;
+	    fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);	    
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
 					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
@@ -2462,12 +2436,14 @@ void compute_ph_dyn(model_config &config, vector<species> &surrogate, double Tem
   Array<double, 1> conc_org;
   conc_org.resize(config.nbins);
   conc_org=LWC;
+  Array <double, 1> chp2;
+  chp2.resize(config.nbins);
+
   for (b=0;b<config.nbins;b++)
     {
       for (i=0;i<n;i++)
         if (surrogate[i].is_organic or i==config.iH2O)
           conc_org(b)+=surrogate[i].Aaq_bins_init(b);
-      //conc_org(b)=max(conc_org(b),config.MOmin);
       conc_org(b)=max(conc_org(b),1.e-5*config.MOmin);
     }
 
@@ -2481,8 +2457,6 @@ void compute_ph_dyn(model_config &config, vector<species> &surrogate, double Tem
             {
               double error_h=1000.0;
               double derivative_h;
-              Array <double, 1> chp2;
-              chp2.resize(config.nbins);
               int b2;
               int index=0;
               for (b2=0;b2<config.nbins;b2++)
@@ -2540,8 +2514,6 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
   double inorganion=0.0;
   double organion=0.0;
   double total;
-  //double sum_K_AQ;
-  //int b;
   double kelvin_effect=1.0;
   double Kaq=0.;
 
@@ -2560,7 +2532,6 @@ void error_ph_dyn2(model_config &config, vector<species> &surrogate, int index_b
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
       conc_org+=surrogate[i].Aaq_bins(index_b);
   conc_org=max(conc_org,1.e-5*config.MOmin);
-  //conc_org=max(conc_org,config.MOmin);
 
   derivative=0.0;
   for (i=0;i<n;++i)
@@ -2638,6 +2609,14 @@ void compute_ph_dyn2(model_config &config, vector<species> &surrogate, double Te
   Array<double, 1> conc_org;
   conc_org.resize(config.nbins);
   conc_org=LWC;
+  double error_h=1000.0;
+  double derivative_h;
+  int b2;
+  int index=0;
+  double chp_new;
+  Array <double, 1> chp2;
+  chp2.resize(config.nbins);
+
   for (b=0;b<config.nbins;b++)
     {
       for (i=0;i<n;i++)
@@ -2654,15 +2633,10 @@ void compute_ph_dyn2(model_config &config, vector<species> &surrogate, double Te
         {
           if (config.compute_inorganic)
             {
-              double error_h=1000.0;
-              double derivative_h;
-              Array <double, 1> chp2;
-              chp2.resize(config.nbins);
-              int b2;
-              int index=0;
+              error_h=1000.0;
+              index=0;
               for (b2=0;b2<config.nbins;b2++)
                 chp2(b2)=chp(b2);
-              double chp_new;
               
 	      while(abs(error_h/chp2(b))>1.0e-3 and index<1000)
 		{
@@ -2721,6 +2695,17 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
   double XH2O;
   Array<double, 1> X_unifac,gamma_unifac;
   int b;
+  double AQ=0.0;
+  double error_h=1000.0;
+  double derivative_h;
+  Array <double, 1> chp_save;
+  chp_save.resize(config.nbins);
+  Array <double, 1> chp2;
+  chp2.resize(config.nbins);
+  int b2;
+  int index=0;
+  double chp_new;
+  double conc_org;	  
   
   if (config.use_global_dynamic_parameters)
     {
@@ -2761,7 +2746,7 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
           if(surrogate[i].is_organic or i==config.iH2O)
             AQ+=surrogate[i].Aaq;
 
-      double conc_org=0.;	 
+      conc_org=0.;	 
       for (b=0;b<config.nbins;++b)
         {
           conc_org+=LWC(b);	  
@@ -2812,9 +2797,7 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
     }
   else
     {
-      double AQ=0.0;
-      Array <double, 1> chp_save;
-      chp_save.resize(config.nbins);
+      AQ=0.0;
       for (b=0;b<config.nbins;b++)
         chp_save(b)=chp(b);
 
@@ -2840,9 +2823,7 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
               if(surrogate[i].is_organic or i==config.iH2O)
                 AQ+=surrogate[i].Aaq;
 
-          
-	  double conc_org;	  
-	  conc_org=LWC(b);	  
+          conc_org=LWC(b);	  
 	  for (i=0;i<n;i++)
 	    if (surrogate[i].is_organic or i==config.iH2O)
 	      conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -2876,15 +2857,8 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
         {
           if (config.compute_inorganic)
             {
-              double error_h=1000.0;
-              double derivative_h;
-              Array <double, 1> chp2;
-              chp2.resize(config.nbins);
-              int b2;
-              int index=0;
-              for (b2=0;b2<config.nbins;b2++)
-                chp2(b2)=chp_save(b2);
-              double chp_new;
+              error_h=1000.0;
+              index=0;
               
 	      while(abs(error_h/chp2(b))>1.0e-3 and index<1000)
 		{
@@ -2904,7 +2878,6 @@ void activity_coefficients_dyn_aq(model_config &config, vector<species>& surroga
 		}
 	      chp(b)=factor*chp2(b)+(1.0-factor)*chp(b);
 
-              double conc_org;	  
               conc_org=LWC(b);	  
               for (i=0;i<n;i++)
                 if (surrogate[i].is_organic or i==config.iH2O)
@@ -3074,7 +3047,11 @@ void equilibrium_aq(model_config &config, vector<species>& surrogate, double &te
   //                  than tequilibrium)
   int n=surrogate.size();
   int i,b;
-  //double Kaq;
+  double Mads;
+  double conc_equilibrium;
+  double sum=0.0;
+  bool is_equilibrium=false; //indicates if there is concentrations at equilibrium
+
   //compute activity coefficients
   if (compute_activity_coefficients)
     {
@@ -3084,10 +3061,6 @@ void equilibrium_aq(model_config &config, vector<species>& surrogate, double &te
       
       compute_kp_aq(config, surrogate, Temperature, ionic, chp, MMaq);
     }
-  
-  double conc_equilibrium;
-  double sum=0.0;
-  bool is_equilibrium=false; //indicates if there is concentrations at equilibrium
   
   if (config.compute_organic)
     for (i=0;i<n;++i)
@@ -3151,7 +3124,7 @@ void equilibrium_aq(model_config &config, vector<species>& surrogate, double &te
             }
 	  else	      
 	    {
-              double Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
+              Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
               surrogate[config.iH2O].Aaq_bins_init(b)=factor*
                 surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*Mads/sum+
                 (1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);
@@ -3195,6 +3168,7 @@ void equilibrium_tot(model_config &config, vector<species>& surrogate, double &t
   bool is_equilibrium=false;
   double LWCtot=0.0;
   int index_b; //,index_layer;
+  double Mads,conceq;
   for (b=0;b<config.nbins;++b)
     LWCtot+=LWC(b);
   
@@ -3304,7 +3278,7 @@ void equilibrium_tot(model_config &config, vector<species>& surrogate, double &t
                       Temperature, RH, MMaq, factor);
 
   sum=1.0;
-  double conceq=surrogate[config.iH2O].Ag;  
+  conceq=surrogate[config.iH2O].Ag;  
   for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
     {	  	 	
       if (surrogate[config.iH2O].hydrophilic)
@@ -3336,7 +3310,7 @@ void equilibrium_tot(model_config &config, vector<species>& surrogate, double &t
 		(1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);
 	    else	      
 	      {
-		double Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
+		Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
 		surrogate[config.iH2O].Aaq_bins_init(b)=factor*
 		  surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*Mads/sum+
 		  (1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);
@@ -3414,6 +3388,9 @@ void equilibrium_org(model_config &config, vector<species>& surrogate, double &t
   //int index_b,index_layer;
   Array<double, 1> Kp;
   Kp.resize(config.max_number_of_phases);
+  double conc_equilibrium;
+  double sum=0.0;
+  bool is_equilibrium=false;
 
   //compute activity coefficients
   if (config.compute_organic and compute_activity_coefficients)
@@ -3421,10 +3398,6 @@ void equilibrium_org(model_config &config, vector<species>& surrogate, double &t
       activity_coefficients_dyn_org(config, surrogate, Temperature, MOW);
       compute_kp_org(config, surrogate, MOinit, Temperature, MOW);
     }
-  
-  double conc_equilibrium;
-  double sum=0.0;
-  bool is_equilibrium=false;
   
   if (config.compute_organic)
     {
@@ -3502,7 +3475,7 @@ void equilibrium_org(model_config &config, vector<species>& surrogate, double &t
                   MO(b,ilayer,iphase)=0.0;
           }
 
-      double sum=1.0;
+      sum=1.0;
       for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
 	{	  	 	  
 	  if (surrogate[config.iH2O].hydrophobic and config.compute_organic)
@@ -3736,6 +3709,7 @@ void dynamic_org(model_config &config, vector<species>& surrogate,
   Array<double,1> Kp;
   MOinit2.resize(config.nbins,config.nlayer,config.max_number_of_phases);
   Kp.resize(config.max_number_of_phases);
+  double sumconc,sumconc2;
   //double conc_equilibrium;
   
   //     gamma > .25     ->  A-stable  ( x(n+1)-x(n))*f(x(n)) > 0
@@ -3892,7 +3866,6 @@ void dynamic_org(model_config &config, vector<species>& surrogate,
                 surrogate[i].Ap_layer(b,ilayer,iphase)=0.0;
 
       //make sure that the sum of concentrations is not higher than the total concentration
-      double sumconc,sumconc2;
       for (i=0;i<n;++i)
         if (surrogate[i].hydrophobic and surrogate[i].is_organic)
           {
@@ -4413,6 +4386,10 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
   chp0=chp;
   double error_chp=1;
   int iter=0;
+  double conc_org;
+  double sum_rates_gas;
+  double sumt;
+  double sumconc,sumconc2;
 
   while (iter<50 and error_chp>1.0e-3)
     {
@@ -4423,7 +4400,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
 	  compute_ph_dyn(config, surrogate, Temperature, chp, AQinit, ionic, MMaq, LWC);
 	  for (b=0;b<config.nbins;++b)
 	    {	  
-              double conc_org=LWC(b);
+              conc_org=LWC(b);
               for (i=0;i<n;++i)
                 if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
                   conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -4484,7 +4461,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
       {
 	conc_available=surrogate[i].Ag;
 	sum_rates=0.0;
-        double sum_rates_gas=surrogate[i].flux_chem_gas(0)/DT2;
+        sum_rates_gas=surrogate[i].flux_chem_gas(0)/DT2;
         if (config.chemistry==false)
           {        
             if (config.compute_organic)
@@ -4639,7 +4616,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
 	  compute_ph_dyn(config, surrogate, Temperature, chp, AQinit2, ionic, MMaq, LWC);	  
 	  for (b=0;b<config.nbins;++b)
 	    {	  
-              double conc_org=LWC(b);
+              conc_org=LWC(b);
               for (i=0;i<n;++i)
                 if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
                   conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -4818,8 +4795,6 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
   if (config.chemistry==false)
     if (config.compute_organic)
       {
-        double sumt;
-        double sumconc,sumconc2;
         for (i=0;i<n;++i)
           if (surrogate[i].is_organic)
             {
@@ -4861,8 +4836,9 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
                     if (surrogate[i].hydrophilic)
                       for (b=0;b<config.nbins;++b)
                         if (surrogate[i].time_aq(b)>=tequilibrium)
-                          surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc*
-                            0.999*surrogate[i].Atot;
+                          if (sumconc > 0.0)
+                            surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc*
+                              0.999*surrogate[i].Atot;
                         else
                           surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc2*
                             0.001*surrogate[i].Atot;
@@ -4978,7 +4954,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
       compute_ph_dyn2(config, surrogate, Temperature, chp, AQ, ionic, MMaq, LWC);
       for (b=0;b<config.nbins;++b)
 	{	  
-          double conc_org=LWC(b);
+          conc_org=LWC(b);
           for (i=0;i<n;++i)
 	    if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
 	      conc_org+=surrogate[i].Aaq_bins(b);
@@ -5030,6 +5006,10 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   chp0=chp;
   double error_chp=1;
   int iter=0;
+  double sumconc,sumconc2;
+  double conc_org;
+  double inorganion=0.0;
+
   while (iter<50 and error_chp>1.0e-3)
     {
       error_chp=0.0;
@@ -5039,7 +5019,7 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
 	  compute_ph_dyn(config, surrogate, Temperature, chp, AQinit, ionic, MMaq, LWC);
 	  for (b=0;b<config.nbins;++b)
 	    {	  
-              double conc_org=LWC(b);
+              conc_org=LWC(b);
               for (i=0;i<n;++i)
                 if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
                   conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -5134,13 +5114,13 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
     {
       for (b=0;b<config.nbins;++b)
 	{	
-	  double conc_org=LWC(b);
+	  conc_org=LWC(b);
 	  for (i=0;i<n;++i)
 	    if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
 	      conc_org+=surrogate[i].Aaq_bins_init(b);
           conc_org=max(conc_org,1.0e-5*config.MOmin);
 
-	  double inorganion=0.0;
+	  inorganion=0.0;
 	  for (i=0;i<n;++i)
 	    if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
 	      {
@@ -5182,7 +5162,7 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
 	  compute_ph_dyn(config, surrogate, Temperature, chp, AQinit2, ionic, MMaq, LWC);	  
 	  for (b=0;b<config.nbins;++b)
 	    {	  
-              double conc_org=LWC(b);
+              conc_org=LWC(b);
               for (i=0;i<n;++i)
                 if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
                   conc_org+=surrogate[i].Aaq_bins_init(b);
@@ -5261,7 +5241,6 @@ void dynamic_aq(model_config &config, vector<species>& surrogate,
   //make sure that the sum of concentrations is not higher than the total concentration
   if (config.compute_organic)
     {
-      double sumconc,sumconc2;
       for (i=0;i<n;++i)
         if(surrogate[i].is_organic and surrogate[i].hydrophilic)
           {
@@ -5462,26 +5441,8 @@ void adapstep(model_config &config, vector<species>& surrogate, double &Temperat
 	    }
 	}
 
-      /*
-	double chp1a;
-	double chp2; 
-	double chp0a;*/
       for (b=0;b<config.nbins;++b)
 	{
-          /*
-	    double inorg0=0.0;
-	    double inorg1=0.0;
-	    double inorg2=0.0;
-	    for (i=0;i<n;++i)
-	    if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and config.iH2O!=i and config.iHp!=i)
-	    {
-	    inorg0-=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
-	    inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
-	    inorg2-=surrogate[i].Aaq_bins(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQ(b);	      
-	    }
-	    chp0a=0.5*(inorg0+pow(pow(inorg0,2)+4*config.Ke,0.5));
-	    chp1a=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
-	    chp2=0.5*(inorg2+pow(pow(inorg2,2)+4*config.Ke,0.5));*/
 	  n2err2=max(n2err2,abs(chp(b)-chp1(b))/chp1(b));
 	}
     }
@@ -5496,7 +5457,6 @@ void adapstep(model_config &config, vector<species>& surrogate, double &Temperat
   deltat1=deltat1*pow(config.EPSER/n2err,0.5);
   deltat1=max(deltatmin,deltat1);
   deltat1=min(tend-t,deltat1);
-  //deltat1=min(deltat1,1.e-2);
  
 }
 
