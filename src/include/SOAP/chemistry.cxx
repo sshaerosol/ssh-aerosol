@@ -1,3 +1,8 @@
+//!!-----------------------------------------------------------------------
+//!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+//!!     SSH-aerosol is distributed under the GNU General Public License v3
+//!!-----------------------------------------------------------------------
+
 void kinetic(model_config &config, vector<species>& surrogate,
              double &MOinit,double &MOW,double &MMaq,
              double &LWC, double &AQinit, double &ionic, double &chp,

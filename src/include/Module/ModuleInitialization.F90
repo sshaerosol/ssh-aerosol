@@ -1,20 +1,6 @@
 !!-----------------------------------------------------------------------
-!!     Copyright (C) 2012-2018, ENPC - EDF R&D - INERIS
-!!     Author(s): Shupeng Zhu
-!!
-!!     This file is part of the Size Composition Resolved Aerosol Model (SCRAM), a
-!!     component of the SSH-aerosol model.
-!!
-!!     SSH-aerosol is a free software; you can redistribute it and/or modify
-!!     it under the terms of the GNU General Public License as published
-!!     by the Free Software Foundation; either version 2 of the License,
-!!     or (at your option) any later version.
-!!
-!!     SSH-aerosol is distributed in the hope that it will be useful, but
-!!     WITHOUT ANY WARRANTY; without even the implied warranty of
-!!     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-!!     General Public License for more details.
-!!
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 !!
 !!     -- DESCRIPTION

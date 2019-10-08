@@ -1,3 +1,8 @@
+//!!-----------------------------------------------------------------------
+//!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+//!!     SSH-aerosol is distributed under the GNU General Public License v3
+//!!-----------------------------------------------------------------------
+
 using namespace soap;
 
 void compute_kp_org(model_config &config, vector<species>& surrogate,

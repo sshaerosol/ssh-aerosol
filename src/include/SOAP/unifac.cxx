@@ -1,3 +1,8 @@
+//!!-----------------------------------------------------------------------
+//!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+//!!     SSH-aerosol is distributed under the GNU General Public License v3
+//!!-----------------------------------------------------------------------
+
 #ifndef UNIFAC_CXX
 #define UNIFAC_CXX
 

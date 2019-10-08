@@ -1,10 +1,6 @@
 !!-----------------------------------------------------------------------
-!!     Copyright (C) 2003-2014, ENPC - INRIA - EDF R&D
-!!     Author(s): Shupeng Zhu
-!!
-!!     This file is part of the Size Composition Resolved Aerosol Model (SCRAM), a
-!!     component of the air quality modeling system Polyphemus.
-!
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
 Module Resultoutput

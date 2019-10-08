@@ -1,3 +1,8 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
+
 SUBROUTINE EULER_NUMBER(ns, nesp, eh2o, dbound, grand, alpha, &
      fixed_diameter, diameter_before_redist, X, log_fixed_diameter, kloc, LMD, rho, Qesp, N)
 

@@ -1,3 +1,8 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
+
 SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
      X,diam , logdiam,kloc, alpha, LMD, rho, Qesp, N)
 

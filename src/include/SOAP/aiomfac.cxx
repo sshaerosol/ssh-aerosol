@@ -1,3 +1,8 @@
+//!!-----------------------------------------------------------------------
+//!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+//!!     SSH-aerosol is distributed under the GNU General Public License v3
+//!!-----------------------------------------------------------------------
+
 #include <math.h>
 
 void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,

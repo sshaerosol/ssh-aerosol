@@ -1,3 +1,8 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
+
 SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
                        kloc, Qesp, N)
 

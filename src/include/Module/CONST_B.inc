@@ -1,3 +1,8 @@
+!-----------------------------------------------------------------------
+!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!     SSH-aerosol is distributed under the GNU General Public License v3
+!-----------------------------------------------------------------------
+
     double precision ::  ALFHP! percentage of H+ allowed to c/e(0.1)
 !    double precision ::  EPSER
     double precision ::  TINYM,TINYN,MTSBL

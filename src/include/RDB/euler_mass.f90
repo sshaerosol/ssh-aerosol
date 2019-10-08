@@ -1,3 +1,8 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
+
 SUBROUTINE EULER_MASS(ns, nesp, EH2O,dbound, grand, X, diameter_before_redist, fixed_diameter, log_fixed_diameter, &
      kloc, LMD, Qesp, N)
 
