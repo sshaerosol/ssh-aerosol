@@ -1,7 +1,0 @@
-#
-# Input control file for wn10.f code; currently only reads the first file,
-#    as we're only expecting to update one at a time.
-#                                                       Oliver  (4 Sept 98)
-#
-# filename --------  output -----------  label ------------  temps -----  cols
-data/CB05/PACD           Xsect_10wnumb/CB05/PACD           PACD       Giguere  298.0  298.0  2
