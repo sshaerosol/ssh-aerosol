@@ -51,6 +51,7 @@ src/include/spack/src/find_perm
 src/include/spack/src/spack_generator
 src/include/spack/src/spack_input
 src/include/spack/src/.scons.log
+src/include/spack/src/mechanism/*
 
 ###
 src/include/common/*
