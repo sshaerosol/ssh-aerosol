@@ -117,7 +117,7 @@ During the simulation, five subfolders and a report file are automatically gener
 	\item Subfolder {\it{aero}}: this subfolder contains files that record the time variation of particulate mass concentration ($\mu$g~m$^{-3}$) of each species in each size section. The file is named after the species name followed by the index of the size section (index = 1, 2,..., N\_sizebin). For example, file \textit{PNO3\_1.txt} notes the time variation of nitrate particulate mass concentration in the first size section.\\ 
 	The files that record the time variation of organic particles, inorganic particles, black carbon, dust, PM$_{2.5}$ and PM$_{10}$ mass concentration ($\mu$g~m$^{-3}$) are also located in the subfolder aero, under the name \textit{Organic.txt, Inorganic.txt, Black\_Carbon.txt, Dust.txt, PM2.5.txt} and \textit{PM10.txt}, respectively.
 
-	\item Subfolder {\it{TM}}: this subfolder contains files that record the time variation of total mass concentration ($\mu g/m^3$) and totoal aerosol mass concentration of all size sections ($\mu$g~m$^{-3}$). The files is named after the aerosol species name, (followed by the name of its gas phase percursor for recording total mass) and followed by '\_TM'.\\ 
+	\item Subfolder {\it{TM}}: this subfolder contains files that record the time variation of total mass concentration ($\mu g/m^3$) and total aerosol mass concentration of all size sections ($\mu$g~m$^{-3}$). The files is named after the aerosol species name, (followed by the name of its gas phase precursor for recording total mass) and followed by '\_TM'.\\ 
 	For example, the file 'PSO4\_TM.txt' notes the time variation of sulfate particulate mass concentration, while the file 'PSO4\_SULF\_TM.txt' notes the time variation of the total sulfate concentration in both the gas phase and the particulate phase.
 	
 	\item Subfolder {\it{number}}: this subfolder contains files that record the time variation of particulate number concentrations ($\#$~m$^3$) of each size section. The file (ex.\textit{NUMBER\_1.txt}) is named after 'NUMBER\_' followed by the index of size section. \\ The file \textit{TNUM.txt} that records the time variation of total number concentration ($\#$~m$^{-3}$) is located in this subfolder as well.
@@ -251,7 +251,7 @@ diam_input = 1.0000000000000000E-03	1.2022644346174130E-03
 
 \subsection{Mixing state}
 
-The group {\textit{mixing\_state}} defines the mixing state of particles. The variable {\textit{tag\_external}} is set to 0 for internally-mixed particles and to 1 for mixing-state resolved particles. The variable {\textit{N\_groups}} defines the number of group of aerosol compounds for which the composition is discretized. It is set to 1 for internal mixing, because the composition of compounds is then not discretized. In case of mixing-state resolved particles, the belonging of each compound to a group is specified in the input file detailing the aerosol compounds and their properties.
+The group {\textit{mixing\_state}} defines the mixing state of particles. The variable {\textit{tag\_external}} is set to 0 for internally-mixed particles and to 1 for mixing-state resolved particles. The variable {\textit{N\_groups}} defines the number of group of aerosol compounds for which the composition is discretised. It is set to 1 for internal mixing, because the composition of compounds is then not discretised. In case of mixing-state resolved particles, the belonging of each compound to a group is specified in the input file detailing the aerosol compounds and their properties.
 The variable {\textit{N\_frac}} determines the number of mass fraction sections used in the discretisation of composition. 
 Finally, the variable {\textit{kind\_composition}} determines whether the fraction are discretized by the program (they are then evenly discretised, {\textit{kind\_composition = 1}}), or whether they are read. If they are read, they need to be specified in the group {\textit{fraction\_distribution}}.
 
@@ -360,11 +360,11 @@ altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0,
 \subsubsection{Numerical issues related to aerosols}
 
 The group {\textit{physic\_particle\_numerical\_issues}} lists options related to numerical issues when solving aerosol dynamics. 
-The variable {\textit{DTAEROMIN}} specfies the The minimum time step (in seconds) that can be used in the solver. 
-Different redistribution methods of mass and number concentrations onto the fixed diameter grids may be used (variable {\textit{redistribution\_method}}). If only the process of condensation/evaporation is considered for aerosol dynamics, then it is possible to not apply redistribution ({\textit{redistribution\_method = 0}}). If nucleation and/or coagulation is also considered, then a redistribution method should be chosen. It is advised to use the redistribution 10 (moving diameter) or 12 (euler coupled). The different redistributions ({\textit{redistribution\_method}}) are euler mass (3), euler number (4), hemen (5), moving diameter (10), area-based as in SIREAM (11), euler coupled (12).
+The variable {\textit{DTAEROMIN}} specifies the The minimum time step (in seconds) that can be used in the solver. 
+Different redistribution methods of mass and number concentrations onto the fixed diameter grids may be used (variable {\textit{redistribution\_method}}). If only the process of condensation/evaporation is considered for aerosol dynamics, then it is possible to not apply redistribution ({\textit{redistribution\_method = 0}}). If nucleation and/or coagulation is also considered, then a redistribution method should be chosen. It is advised to use the redistribution 10 (moving diameter) or 12 (Euler coupled). The different redistributions ({\textit{redistribution\_method}}) are Euler mass (3), Euler number (4), hemen (5), moving diameter (10), area-based as in SIREAM (11), Euler coupled (12).
 The density of particles may be computed during the simulation depending on the composition of particles if the variable {\textit{with\_fixed\_density}} is set to 0. If it is set to 1, then the density is fixed through the simulation to the value set by the variable {\textit{fixed\_density}} (in $\mu$g~$\mu$m$^{-3}$). Note that the variable {\textit{fixed\_density}} needs to be set.
 
-Numerically, the nucleation and condensation/evaporation of inorganics are always solved simultaneously, because nucleation and condensation/evaporation are competing processes. Coagulation may also be coupled to nucleation and condensation/evaporation if the variable splitting is set to 1. If splitting = 0, coagulation is splitted from nucleation and condensation/evaporation. If nucleation is taken into account, it is recommanded to set splitting to 1.
+Numerically, the nucleation and condensation/evaporation of inorganics are always solved simultaneously, because nucleation and condensation/evaporation are competing processes. Coagulation may also be coupled to nucleation and condensation/evaporation if the variable splitting is set to 1. If splitting = 0, coagulation is splitted from nucleation and condensation/evaporation. If nucleation is taken into account, it is recommended to set splitting to 1.
 
 \begin{verbatim}
 &physic_particle_numerical_issues
@@ -382,7 +382,7 @@ splitting = 0,             ! 0 if coagulation and
 \subsubsection{Coagulation}
 
 The group {\textit{physic\_coagulation}} lists options related to coagulation. The variable {\textit{with\_coag}} defines whether coagulation is taken into account ({\textit{with\_coag = 1}}) or not ({\textit{with\_coag =0}}). 
-Rapartition coefficients may be computed in the simulation ({\textit{i\_compute\_repart = 1}}) or read from a netcdf file ({\textit{i\_compute\_repart = 0}}). If they are read from a file, its name should be specified ({\textit{Coefficient\_file}}). If they are computed, the number of Monte Carlo points used to compute them should be specified ({\textit{Nmc}}). This number should be large enough and its value depends on the section discretization used.
+Repartition coefficients may be computed in the simulation ({\textit{i\_compute\_repart = 1}}) or read from a netcdf file ({\textit{i\_compute\_repart = 0}}). If they are read from a file, its name should be specified ({\textit{Coefficient\_file}}). If they are computed, the number of Monte Carlo points used to compute them should be specified ({\textit{Nmc}}). This number should be large enough and its value depends on the section discretisation used.
 
 
 \begin{verbatim}
@@ -399,7 +399,7 @@ Nmc = 2000                     ! Number of Monte Carlo points to compute
           
 \subsubsection{Condensation/evaporation}
 
-The group {\textit{physic\_condensation}} lists options related to condensation/evaporation. The variable {\textit{with\_cond}} defines whether condensation/evaporation is taken into account ({\textit{with\_cond = 1}}) or not ({\textit{with\_cond =0}}). Kelvin effect may be taken into account ({\textit{with\_kelvin\_effect = 1}}), as recommanded if ultrafine particles are simulated, or ignored ({\textit{with\_kelvin\_effect = 0}}).
+The group {\textit{physic\_condensation}} lists options related to condensation/evaporation. The variable {\textit{with\_cond}} defines whether condensation/evaporation is taken into account ({\textit{with\_cond = 1}}) or not ({\textit{with\_cond =0}}). Kelvin effect may be taken into account ({\textit{with\_kelvin\_effect = 1}}), as recommended if ultrafine particles are simulated, or ignored ({\textit{with\_kelvin\_effect = 0}}).
 For the condensation/evaporation of inorganic compounds, {\textit{Cut\_dim}} corresponds to the diameter under which thermodynamic equilibrium is assumed. Set it to 0 to compute dynamically condensation/evaporation for all particles, and set it to a value larger than larger diameter to assume thermodynamic equilibrium.
 For the condensation/evaporation of organic compounds, ISOAPDYN determines whether thermodynamic equilibrium is assumed for all particles ({\textit{ISOAPDYN = 0}}) or whether condensation/evaporation is computed dynamically ({\textit{ISOAPDYN = 1}}). Even if it is computed dynamically, thermodynamic equilibrium may be used for the condensation/evaporation of small particles by setting a characteristic time under which equilibrium is assumed for organics (e.g. {\textit{tequilibrium}} = 0.1 seconds). For numerical reasons, {\textit{tequilibrium}} may not be set to 0, but condensation/evaporation of all particles is solved dynamically if ({\textit{ISOAPDYN = 1}}) and {\textit{tequilibrium}} is set to a small value (e.g. 1.d-15). In the current version of the code, the diffusion coefficient {\textit{dorg}} in the organic phase is assumed constant. Typical values would be 1.d-12 for non viscous particles and 1.d-24 for very viscous particles. 
 The variable {\textit{coupled\_phases}} should be set to 1 if the resolution of the aqueous and organic phases is coupled and to 0 if they are solved independently. The interactions between compounds in the particles may be assumed to be ideal ({\textit{activity\_model = 1}}), or activity coefficients may be computed with unifac (interactions between organics only, {\textit{activity\_model = 2}}) or with aiomfac ({\textit{activity\_model = 3}}).
@@ -530,7 +530,7 @@ _get_dl_function_pointer(void        *handle,
 }
 \end{verbatim}
 
-\subsubsection*{Initialization}
+\subsubsection*{Initialisation}
 
 First, the external code should load the shared library using \texttt{dlopen}.
 \begin{verbatim}
@@ -564,7 +564,7 @@ Then, it should decide whether SSH-aerosol outputs to the terminal or to a file.
   }
 \end{verbatim}
 
-Then, SSH-aerosol can be initialized.
+Then, SSH-aerosol can be initialised.
 \begin{verbatim}
   /* Initialize SSH-aerosol */
   {
@@ -592,7 +592,7 @@ The time advancement in the external 3D code could look as follow: for each time
 \item Reads the new concentrations in the given cell from SSH-aerosol using the \texttt{api\_get\_*} functions and use them in the external code
 \end{itemize}
 
-\subsection*{Finalization}
+\subsection*{Finalisation}
 
 At the end of the simulation, the external tool should call the subroutine \texttt{api\_sshaerosol\_finalize}.
 Then, the shared library can  be released using \texttt{dlclose}.
@@ -631,11 +631,11 @@ Internal mixing (flag {\it{tag\_external}} set to 0) or mixing-state resolved pa
 
 \subsection{Dynamic of coagulation and condensation}
 
-In the literature, to test the overall behavior of PM models, the following 
+In the literature, to test the overall behaviour of PM models, the following 
 basic tests of
 condensation and coagulation of sulfate are often considered \cite{seigneur1986simulation,zhang1999simulation,binkowski2003models}. A tri-modal PM distribution is considered initially,
 with particles being made exclusively of sulfate. The parameters of the initial distribution
-considered here are those of hazy conditions for the condensation test with a sulfuric
+considered here are those of hazy conditions for the condensation test with a sulphuric
 acid production rate of 9.9 $\mu$g m$^{-3}$, and those of urban conditions for the coagulation test \cite{seigneur1986simulation,zhang1999simulation} , because these two tests represent the two most
 stringent conditions for coagulation and condensation. Temperature is taken as 283.15 K.
 Simulations are conducted for 12 hours.
@@ -720,7 +720,7 @@ You can change the accomodation coefficient in the file {\it{species-list/specie
 \subsubsection{Condensation of low-volatility organics}
 
 Extremely-low volatility organic compounds (ELVOCs) are formed from the ozonolysis of monoterpenes \cite{chrit2017modelling} .
-Similarly to sulfate, these compounds have a very low saturation vapor pressure and they therefore should condense with a kinetic similar to sulfate if they had the same density.
+Similarly to sulfate, these compounds have a very low saturation vapour pressure and they therefore should condense with a kinetic similar to sulfate if they had the same density.
 The test case on the sulfate condensation is redone with the ELVOC Monomer, by artificially setting its density to that of sulfate.
 The configuration file for this test is {\it{namelist\_cond\_monomer.ssh}}.
 The monomer density is modified in the file {\it{species-list-monomer/species-list-aer-en.dat}}.
@@ -763,7 +763,7 @@ ultrafine particles emitted from the exhaust of a diesel engine was simulated.
 As in \cite{devilliers2013new}, a typical diesel engine emission initial
 distribution from \cite{kittelson2006road} is used here to
 study the gas/particle conversion of nonadecane (C19H40). It has a
-reference saturation vapor pressure of 6.1~10$^{-4}$ Pa at T = 298 K, which is
+reference saturation vapour pressure of 6.1~10$^{-4}$ Pa at T = 298 K, which is
 very close to that of the model compound POAmP.
 Particles are assumed here to consist solely of POAmP.
 To show the importance of the Kelvin effect, two simulations are conducted:
@@ -797,7 +797,7 @@ condensation/evaporation when it is not included in the model. The ultrafine par
        
 \subsubsection{Nucleation}
 
-To assess the ability of SSH-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006development} is simulated. The initial distribution is the same as in the condensation of sulfuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulfuric
+To assess the ability of SSH-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006development} is simulated. The initial distribution is the same as in the condensation of sulphuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulphuric
 acid production rate is 0.825~$\mu$g~m$^{-3}$~h$^{-1}$,
 the temperature is 288.15 K and the relative humidity is 60\%. The particles are initially assumed to be made of 70\% sulfate and 30\% ammonium. The initial gas phase ammonia concentration is taken to be 8~$\mu$g~m$^{-3}$. The concentrations of gas phase ammonia and particulate-phase ammonium evolve with time due to both nucleation and condensation/evaporation
 The ternary nucleation of \cite{napari} is used, but to avoid artificially large nucleation rates in the parameterisation of \cite{napari}, a maximum nucleation rate of 1.d6 \#particles~cm$^{-3}$ is set.
@@ -847,7 +847,7 @@ These compounds condense more easily onto particles than their precursors and th
 \cite{platt2013secondary} performed ageing experiments on emissions from an Euro 5 gasoline car. They monitored the total hydrocarbon mass (THC) as well as organic aerosol (OA) concentrations. 
 The test case presented here corresponds to the simulation performed in \cite{sartelet2018emission}.
 
-In our model, THC is assumed to be the sum of VOC and I/S VOCs (intermediate and semi-volatile VOCs). THC is initialized as measured in the experiments of \cite{platt2013secondary} before lights-on (1.4 ppmv + 0.9 ppmv of propene). IVOCs are estimated from VOC emissions using the ratio 0.17 estimated by \cite{zhao2016intermediate}, and NOx concentrations are initialized such as having a VOC/NOx ratio equal to 5.6 as in \cite{platt2013secondary} . 
+In our model, THC is assumed to be the sum of VOC and I/S VOCs (intermediate and semi-volatile VOCs). THC is initialised as measured in the experiments of \cite{platt2013secondary} before lights-on (1.4 ppmv + 0.9 ppmv of propene). IVOCs are estimated from VOC emissions using the ratio 0.17 estimated by \cite{zhao2016intermediate}, and NOx concentrations are initialised such as having a VOC/NOx ratio equal to 5.6 as in \cite{platt2013secondary} . 
 The speciation of VOCs to model species was done following \cite{theloke2007compilation}.
 
 The configuration file for this test is {\it{namelist\_platt.ssh}}.
@@ -942,7 +942,7 @@ be seen by comparing the two panels in Fig~\ref{fig-cond-extb}, which shows
 the mass concentrations as a function of the size and fraction of one
 sulfate, which is one of the
 two compounds of the particles. 
-Sulfuric acid condenses to form
+Sulphuric acid condenses to form
 sulfate. Because the condensation rate is greater for particles of
 low diameters, the sulfate fraction is greater for those particles at the end
 of the simulation (Figure~\ref{fig-cond-extb}).
@@ -970,7 +970,7 @@ two compounds at initial time (left panel) and after 12 h of simulation (right p
 \subsection{Viscosity}
      
 The gas/particle mass transfer is strongly affected by particle viscosity. To
-illustate this effect, the condensation of hydrophobic organic surrogates of different volatilities is studied for different
+illustrate this effect, the condensation of hydrophobic organic surrogates of different volatility is studied for different
 values of the viscosity, represented by different values of the organic-phase
 diffusion coefficients D (10$^{-18}$, 10$^{-19}$, 10$^{-20}$,
 10$^{-21}$, 10$^{-22}$, 10$^{-23}$, 10$^{-24}$ m$^2$~s$^{-1}$). The value
@@ -1008,7 +1008,7 @@ For POAmP, which is the most volatile of the three surrogates, high viscosity
         \end{center}
 \caption{Viscosity test case: time evolution of organic concentrations (SOAlP
   in the upper left, POAlP in the upper right, POAmP in the lower left) for
-  several organic-phase diffusivities: 10$^{-18}$ (dark blue), 10$^{-19}$ (light
+  several organic-phase diffusivity: 10$^{-18}$ (dark blue), 10$^{-19}$ (light
   blue), 10$^{-20}$ (green), 10$^{-21}$ (yellow),
 10$^{-22}$ (magenta), 10$^{-23}$ (red), 10$^{-24}$ (black) m$^2$~s$^{-1}$.}
 \label{fig-visco}
