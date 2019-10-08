@@ -29,12 +29,10 @@ utils = SConscript(polyphemus_path + '/scons/utils')(globals())
 # Include paths: put the absolute paths, the relative paths or the paths
 # into the Polyphemus directory.
 include_path_template = """
-    include/common
     include/Talos
     include/SeldonData
     include/AtmoData
     include/isorropia_aec
-    include/fastJX
     include/CHEMISTRY/{chemistry}
     include/CHEMISTRY/common_scram
     include/INC
