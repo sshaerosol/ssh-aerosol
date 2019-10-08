@@ -93,8 +93,6 @@ C------------------------------------------------------------------------
       INCLUDE 'CONST.INC'
       INCLUDE 'CONST_A.INC'
       INCLUDE 'hetrxn.inc'
-      INCLUDE 'aerpar.inc'
-      INCLUDE 'droppar.inc'
 
       INTEGER Ns,Nbin_aer
 
@@ -123,6 +121,17 @@ C------------------------------------------------------------------------
       DOUBLE PRECISION sigm_tmp,parm_tmp,wmol_tmp
       DOUBLE PRECISION Wmol(Ns),LWCmin
 
+C     YK
+      double precision dactiv, avdiam
+c     WET DIAMETERS OF THE TWO SECTIONS
+      
+c     If bulk, diameter = avdiam
+      parameter (avdiam = 20)   ! in \mu m   
+c     
+c     ACTIVATION DIAMETER (Dry)
+c     
+      parameter (dactiv = 0.2D0) ! in \mu m
+      
 C     Constants.
       avdiammeter = 1.d-6 * avdiam
 
