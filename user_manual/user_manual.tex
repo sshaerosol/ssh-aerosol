@@ -58,8 +58,8 @@
 \newpage
 
 \section{Introduction}
-\addcontentsline{toc}{section}{Introduction}
-The SSH-aerosol model is modular and the user can choose the physical and chemical complexity required.
+%\addcontentsline{toc}{section}{Introduction}
+The SSH-aerosol model represents the physico chemical transformation undergone by aerosols in the troposphere. The term aerosol designs here particles with the surrounding gas. SSH-aerosol is designed to be modular and the user can choose the physical and chemical complexity required.
 The model is based on the merge of three state-of-the-art models:
 \begin{itemize}
 \item SCRAM : The Size-Composition Resolved Aerosol Model \cite{zhu2015size} that simulates the dynamics and the mixing state of atmospheric particles. It classifies particles by both composition and size, based on a comprehensive combination of all chemical species and their mass-fraction sections. All three main processes involved in aerosol dynamics (coagulation, condensation/evaporation and nucleation) are included.
@@ -69,71 +69,70 @@ The model is based on the merge of three state-of-the-art models:
 
 SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 \section*{Hardware and software requirement}
-SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GUN gcc Compiler and under a Linux system. Before the compilation, make sure the construction tool: SCONS has already been installed.
-If not you can obtain it through the following instruction of the site below:
+SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Before the compilation, make sure the construction tool: SCONS has already been installed.
+If not you can obtain it through the instruction of the site: \\
 http://www.scons.org/wiki/SconsTutorial1
 
 The random access memory (RAM) requirement for a 0D simulation is very small. 
 
-The NetCDF library may be required if you have precomputed coagulation repartition coefficients, you can download from the following site:
+The NetCDF library may be required if you have precomputed coagulation repartition coefficients, you can download from the following site:\\
 http://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
 
 \section{Folder structure}
-\addcontentsline{toc}{section}{Folder structure}
+%\addcontentsline{toc}{section}{Folder structure}
 
 The SSH-aerosol package contains different repertories for source code,  configuration files, input files, output files, and visualisation of outputs.
 
 \subsection{Source code}
-The folder src is where all source code files are stored. The main program file is ssh-aerosol.f90.  Besides, there are 2 sub-folders under the src directory: the scons folder contains the files necessary for compiling the program and the include folder contains the source code, which is itself separated in different folders
+The folder {\it{src}} is where all source code files are stored. The main program file is {\it{ssh-aerosol.f90}}.  Besides, there are 2 sub-folders under the {\it{src}} directory: the {\it{scons}} folder contains the files necessary for compiling the program and the include folder contains the source code, which is itself separated in different folders
 \begin{itemize}
-\item Module contains SCRAM subroutines to model aerosol dynamics
-\item SOAP contains SOAP subroutines to model organic aerosol thermodynamic
-\item CHEMISTRY contains H$^2$O subroutines to model gas-phase chemistry. These routines are generated from a list of reactions and species specified in the folder spack.
-\item spack contains the gas-phase chemical model generator.
-     \item AtmoData is a tool for data processing in atmospheric sciences..
- \item RDB: contains subroutines for size redistribution used in SCRAM.
-\item isorropia\_aec contains ISORROPIA subroutines, a well known module for the computation of inorganic thermodynamic equilibrium between gas and aerosol.
-\item INC contains include files which define some system parameter variables.
-%%??? OTHER FOLDERS - WHAT ARE THEY NEEDED FOR ?????
+\item {\it{Module}} contains SCRAM subroutines to model aerosol dynamics
+\item {\it{SOAP}} contains SOAP subroutines to model organic aerosol thermodynamic
+\item {\it{CHEMISTRY}} contains H$^2$O subroutines to model gas-phase chemistry. These routines are generated from a list of reactions and species specified in the folder {\it{spack}}.
+\item {\it{spack}} contains the gas-phase chemical model generator.
+\item {\it{AtmoData}} is a tool for data processing in atmospheric sciences.
+ \item {\it{RDB}} contains subroutines for size redistribution used in SCRAM.
+\item {\it{isorropia\_aec}} contains ISORROPIA subroutines, a well known module for the computation of inorganic thermodynamic equilibrium between gas and aerosol.
+\item {\it{INC}} contains include files which define some system parameter variables.
 \end {itemize}
 
 \subsection{Input files}
-The main configuration file for the program SSH-aerosol is namelist.ssh. It requires several input data:
+The main configuration file for the program of SSH-aerosol is {\it{namelist.ssh}}. It requires several input data:
 \begin{itemize}
-\item The list of species and their properties. They are in the repertory species-list. 
-\item The initial concentrations and emissions, which are in the repertory inputs
-\item The configuration files are in the repertory INIT
+\item The list of species and their properties. They are in the repertory {\it{species-list}}. 
+\item The initial concentrations and emissions, which are in the repertory {\it{inputs}}.
+\item The configuration files are in the repertory {\it{INIT}}.
 \end{itemize}
 
 \subsection{Output files}
-The simulation results are stored in the folder results. The folder graph contains a few python routines to postprocess the results and display.
+The simulation results are stored in the folder {\it{results}}. The folder {\it{graph}} contains a few python routines to postprocess the results and display.
 During the simulation, five subfolders and a report file are automatically generated/updated in the folder results:
 
 \begin{itemize}
-	\item Subfolder gas : this subfolder contains files that record the time variation of gas phase mass concentration ($\mu g/m^3$) of each species.
+	\item Subfolder {\it{gas}}: this subfolder contains files that record the time variation of gas phase mass concentration ($\mu$g~m$^{-3}$) of each species.
 	 The species name (which is defined by the species list) is adopted as the file name (ex.\textit{HNO3.txt}).\\ 
-	 In each file, a total of N + 1 rows of data are listed (N represents the number of iterations). The first line in the file records the initial concentration before the simulation, while line i (i = 2, 3,..., N + 1) records the gas phase mass concentration after i-1 time step in the simulation. All the concentration files files described in the folder results follow the same output format.
+	 In each file, a total of N + 1 rows of data are listed (N represents the number of iterations). The first line in the file records the initial concentration before the simulation, while line i (i = 2, 3,..., N + 1) records the gas phase mass concentration after i-1 time steps in the simulation. All the concentration files files described in the folder results follow the same output format.
 	 
-	\item Subfolder aero : this subfolder contains files that record the time variation of particulate mass concentration ($\mu g/m^3$) of each species in each size section. The file is named after the species name plusing the index of the size section (index = 1, 2,..., N\_sizebin). For example, file \textit{PNO3\_1.txt} notes the time variation of nitrate particulate mass concentration in the first size section.\\ 
-	The files that record the time variation of organic particles, inorganic particles, black carbon, dust, PM$_{2.5}$ and PM$_{10}$ mass concentration ($\mu g/m^3$) are also located in the subfolder aero, under the name \textit{Organic.txt, Inorganic.txt, Black\_Carbon.txt, Dust.txt, PM2.5.txt} and \textit{PM10.txt}, respectively.
+	\item Subfolder {\it{aero}}: this subfolder contains files that record the time variation of particulate mass concentration ($\mu$g~m$^{-3}$) of each species in each size section. The file is named after the species name followed by the index of the size section (index = 1, 2,..., N\_sizebin). For example, file \textit{PNO3\_1.txt} notes the time variation of nitrate particulate mass concentration in the first size section.\\ 
+	The files that record the time variation of organic particles, inorganic particles, black carbon, dust, PM$_{2.5}$ and PM$_{10}$ mass concentration ($\mu$g~m$^{-3}$) are also located in the subfolder aero, under the name \textit{Organic.txt, Inorganic.txt, Black\_Carbon.txt, Dust.txt, PM2.5.txt} and \textit{PM10.txt}, respectively.
 
-	\item Subfolder TM : this subfolder contains files that record the time variation of total mass concentration ($\mu g/m^3$) and totoal aerosol mass concentration of all size sections ($\mu g/m^3$). The files is named after the aerosol species name, (plusing the name of its gas phase percursor for recording total mass) and plusing '\_TM'.\\ 
+	\item Subfolder {\it{TM}}: this subfolder contains files that record the time variation of total mass concentration ($\mu g/m^3$) and totoal aerosol mass concentration of all size sections ($\mu$g~m$^{-3}$). The files is named after the aerosol species name, (followed by the name of its gas phase percursor for recording total mass) and followed by '\_TM'.\\ 
 	For example, the file 'PSO4\_TM.txt' notes the time variation of sulfate particulate mass concentration, while the file 'PSO4\_SULF\_TM.txt' notes the time variation of the total sulfate concentration in both the gas phase and the particulate phase.
 	
-	\item Subfolder number : this subfolder contains files that record the time variation of particulate number concentrations ($ \# /m^3$) of each size section. The file (ex.\textit{NUMBER\_1.txt}) is named after 'NUMBER\_' plusing the index of size section. \\ The file \textit{TNUM.txt} that records the time variation of total number concentration ($ \# /m^3$) is located in this subfolder as well.
+	\item Subfolder {\it{number}}: this subfolder contains files that record the time variation of particulate number concentrations ($\#$~m$^3$) of each size section. The file (ex.\textit{NUMBER\_1.txt}) is named after 'NUMBER\_' followed by the index of size section. \\ The file \textit{TNUM.txt} that records the time variation of total number concentration ($\#$~m$^{-3}$) is located in this subfolder as well.
 	
-	\item Subfolder diameter : this subfolder contains files that record the time variation of the average diameter ($\mu m$) of each size section. The file (ex.\textit{DIAMETER\_1.txt}) is named after 'DIAMETER\_' plusing the index of size section.
+	\item Subfolder {\it{diameter}}: this subfolder contains files that record the time variation of the average diameter ($\mu$m) of each size section. The file (ex.\textit{DIAMETER\_1.txt}) is named after 'DIAMETER\_' followed by the index of size section.
 	
-	\item Report file 'report.txt' : it records the main settings of the simulation.
+	\item Report file {\it{report.txt}}: it records the main settings of the simulation.
 \end{itemize}
-The user can also modify the name of the output folder (output\_directory) or select the output file type (output\_type = 1 for text outputs and = 2 for binary outputs) in the file \textit{namelist.ssh}.
+The user can also modify the name of the output folder ({\it{output\_directory}}) or select the output file type ({\it{output\_type = 1}} for text {\it{outputs and = 2}} for binary outputs) in the file \textit{namelist.ssh}.
 
 \section{Array structure}
 
 The variables and arrays corresponding to the number of compounds in the different
 phases, as well as the concentrations are defined in the routine
-\textit{src/Module/ModuleInitialisation.F90}. Arrays are allocated at the
+{\textit{src/Module/ModuleInitialisation.F90}}. Arrays are allocated at the
 beginning of the program and desallocated at the end. The array
 \textit{concentration\_number} contains the number concentrations for each size
 and composition section. \textit{concentration\_mass} contains the mass
@@ -141,209 +140,338 @@ concentrations of each chemical compound for each size
 and composition section. The order of the chemical compounds is given in the
 file \textit{species-list/species-list-aer.dat}. Note that in case of a
 viscous aerosol, if several layers are considered, for each organic
-compound, the mass concentration is defined for each layer. Then for each
+compound, the mass concentration is stored for each layer. In that case, for each
 size and composition section, the array \textit{concentration\_mass} contains
 the mass concentrations of each chemical compound and in each layer if the
-compound is organic and hydrophobic. 
+compound is organic and hydrophobic. An example of the storage of mass concentrations for a size and composition section $i$ is displayed in Fig.~\ref{fig-array}. In this example, 3 compounds are considered, and three layers are used to represent the condensation/evaporation of the compound~2, which is the only compound hydrophobic and organic out of the 3.
 
-In soap.cpp, the hydrophobic organic-phase concentrations in the different layers are
+Note that in \textit{soap.cpp}, the organic and aqueous concentrations are stored in different arrays, and a compound can have an aqueous and an organic phase. The organic-phase concentrations in the different layers are
 noted \textit{Ap\_layer}, while the aqueous-phase concentrations  are
 noted \textit{Aaq}. 
 In SSH-aerosol v1.0, an organic compound is assumed to be either hydrophylic,
-either hydrophobic. This will be improved in further version by saving for
+either hydrophobic, and therefore to have either an organic or an aqueous phase. This will be improved in further version by storing for
 each compound both the organic and aqueous-phase concentrations.
 
-\section{Main options}
-\addcontentsline{toc}{section}{Main options}
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.95\textwidth]{fig/array.png}
+        \end{center}
+\caption{Storage of the concentrations of chemical compounds in the array {/it{concentration\_mass}} for a section $i$. Case of 3 compounds with 3 layers for compound~2, which is an hydrophobic organic compound.}
+\label{fig-array}
+\end{figure}
 
-The different options are listed in the file namelist.ssh. They are grouped in different parts.
+\section{Main options}
+%\addcontentsline{toc}{section}{Main options}
+
+The different options are listed in the file {\textit{namelist.ssh}}. They are grouped in different parts.
 
 \subsection{Meteorology}
 
 Input data concerning latitude (in degrees), longitude (in degrees), Temperature (in Kelvin), Pressure (in Pascal) and Relative Humidity (fraction) are listed in the group setup\_meteo. 
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/setupmeteo.png}
-       \end{center}
-\end{figure}
+\begin{verbatim}
+
+&setup_meteo
+latitude = 48.2,                ! Latitude
+longitude = 2.22,               ! Longitude
+Temperature = 273.16,    	! Temperature
+Pressure = 1.01325e05,         	! Pressure
+Relative_Humidity = 0.6	! if 0, compute RH from specific humidity. 
+                        ! If not, specify RH value.
+/
+
+\end{verbatim}
+
 
 \subsection{Time}
 
-The group setup\_time lists the initial time of the simulation (in seconds from 1$^{st}$ January), the final time (in seconds from 1$^{st}$ January) and the time step output of the simulation (in seconds). This time step corresponds to the time step when concentrations are written in the output files, but also to the time step used for splitting the resolution of gaseous chemistry, aerosol processes and emissions. Note that gaseous chemistry and aerosol processes are then solved with smaller time steps.
+The group {\textit{setup\_time}} lists the initial time of the simulation (in seconds from 1$^{st}$ January), the final time (in seconds from 1$^{st}$ January) and the time step output of the simulation (in seconds). This time step corresponds to the time step when concentrations are written in the output files, but also to the time step used for splitting the resolution of gaseous chemistry, aerosol processes and emissions. Note that gaseous chemistry and aerosol processes are then solved with smaller time steps.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=0.6\textwidth]{fig/setuptime.png}
-       \end{center}
-\end{figure}
+\begin{verbatim}
+&setup_time
+initial_time = 0.0,          ! in seconds from January 1st   
+final_time = 43200.0,             
+delta_t = 43200.0,                 
+time_emis = 0,        	 
+/
+\end{verbatim}
 
 \subsection{Initial conditions}
  
-The group initial\_condition lists the initial conditions of the simulation. The number of size section is defined in the variable N\_sizebin. The variable tag\_dbd defines whether particle size bounds are either generated in the program by assuming they are equally spaced logarithmically (tag\_dbd = 0) or whether they are read (tag\_dbd = 1). If they are read, they need to be specified in the group initial\_diam\_distribution.
-The variable tag\_init defines whether the particles are internally mixed (tag\_init = 0) or not (tag\_init = 1) initially. It needs to be set to 0 in the current model version.
-The variable with\_init\_num defines whether number concentrations are estimated from mass concentrations and diameters of each size section (with\_init\_num = 0) or whether number concentrations are read (with\_init\_num = 1).
-The variable wet\_diam\_estimation is equal to 0 if isorropia is called
+The group {\textit{initial\_condition}} lists the initial conditions of the simulation. The number of size sections is defined in the variable {\textit{N\_sizebin}}. The variable {\textit{tag\_dbd}} defines whether particle size bounds are either generated in the program by assuming they are equally spaced logarithmically ({\textit{tag\_dbd = 0}}) or whether they are read ({\textit{tag\_dbd = 1}}). If they are read, they need to be specified in the group {\textit{initial\_diam\_distribution}}.
+The variable {\textit{tag\_init}} defines whether the particles are internally mixed ({\textit{tag\_init = 0}}) or not ({\textit{tag\_init = 1}}) initially. It needs to be set to 0 in the current model version.
+The variable {\textit{with\_init\_num}} defines whether number concentrations are estimated from mass concentrations and diameters of each size section ({\textit{with\_init\_num = 0}}) or whether number concentrations are read ({\textit{with\_init\_num = 1}}).
+The variable {\textit{wet\_diam\_estimation}} is equal to 0 if isorropia is called
 initially to estimate the liquid water content of particles and the wet
-diameter. If wet\_diam\_estimation is equal to 1, the initial wet diameter is
+diameter. If {\textit{wet\_diam\_estimation}} is equal to 1, the initial wet diameter is
 estimated from the input water concentrations (and so it is equal to the dry
 diameter if water concentration is zero initially).
-Finally, the names of the files containing initial gas and mass concentrations and number concentrations (if with\_init\_num = 1) are specified by the variables init\_gas\_conc\_file, init\_aero\_conc\_mass\_file and init\_num\_conc\_num\_file respectively.
+Finally, the names of the files containing initial gas and mass concentrations and number concentrations (if {\textit{with\_init\_num = 1}}) are specified by the variables {\textit{init\_gas\_conc\_file}}, {\textit{init\_aero\_conc\_mass\_file}} and {\textit{init\_num\_conc\_num\_file}} respectively.
 The unit for gas and aerosol mass concentrations is $\mu$g~m$^{-3}$, and the unit for number concentration is \#particles~m$^{-3}$.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/initialconditions.png}
-                \includegraphics[angle=0,width=\textwidth]{fig/initialdiamdistribution.png}
-       \end{center}
-\end{figure}
+\begin{verbatim}
+&initial_condition
+with_init_num = 1,        ! 0 estimated from mass and diameter; 
+			  ! 1 number conc. for each bin is read 
+tag_init = 0,             ! initial method for aerosol species 
+                          ! (0 internally mixed,
+                          ! 1 mixing_state resolved (notavailable)
+wet_diam_estimation = 1   ! Initial estimation of wet diameter
+                          ! (0 = isorropia, 1=none)
+tag_dbd = 1,	          ! Method for defining particle size bounds 
+		          ! (0 if they are auto generated, 1 if bounds are read)
+N_sizebin = 50,           ! Number of size bin
+init_gas_conc_file = "inputs/init_gas.dat",        ! Initial data for gas
+init_aero_conc_mass_file = "inputs/init_aero.dat", ! Initial data for aero mass  
+init_aero_conc_num_file = "inputs/init_num.dat",   ! Initial data for aero number  
+/
+
+&initial_diam_distribution       
+diam_input = 1.0000000000000000E-03	1.2022644346174130E-03	
+	1.4454397707459280E-03	1.7378008287493760E-03	2.0892961308540399E-03	
+	2.5118864315095799E-03	3.0199517204020170E-03	3.6307805477010140E-03	
+	4.3651583224016601E-03	5.2480746024977272E-03	6.3095734448019337E-03	
+	7.5857757502918377E-03	9.1201083935590985E-03	1.0964781961431851E-02	
+	1.3182567385564069E-02	1.5848931924611141E-02	1.9054607179632480E-02	
+	2.2908676527677741E-02	2.7542287033381681E-02	3.3113112148259113E-02	
+	3.9810717055349727E-02	4.7863009232263859E-02	5.7543993733715687E-02	
+	6.9183097091893658E-02	8.3176377110267125E-02	1.0000000000000001E-01	
+	1.2022644346174140E-01	1.4454397707459279E-01	1.7378008287493751E-01	
+	2.0892961308540400E-01	2.5118864315095812E-01	3.0199517204020171E-01	
+	3.6307805477010152E-01	4.3651583224016621E-01	5.2480746024977298E-01	
+	6.3095734448019380E-01	7.5857757502918444E-01	9.1201083935590987E-01	
+	1.0964781961431860E+00	1.3182567385564070E+00	1.5848931924611140E+00	
+	1.9054607179632490E+00	2.2908676527677749E+00	2.7542287033381689E+00	
+	3.3113112148259121E+00	3.9810717055349771E+00	4.7863009232263849E+00	
+	5.7543993733715766E+00	6.9183097091893693E+00	8.3176377110267090E+00	
+	1.0000000000000011E+01
+/ 
+\end{verbatim}
 
 
 \subsection{Mixing state}
 
-The group mixing\_state defines the mixing state of particles. The variable tag\_external is set to 0 for internally-mixed particles and to 1 for mixing-state resolved particles. The variable N\_groups defines the number of group of aerosol compounds for which the composition is discretized. It is set to 1 for internal mixing, because the composition of compounds is then not discretized. In case of mixing-state resolved particles, the belonging of each compound to a group is specified in the input file detailing the aerosol compounds and their properties.
-The variable N\_frac determines the number of mass fraction sections used in the discretisation of composition. 
-Finally, the variable kind\_composition determines whether the fraction are discretized by the program (they are then evenly discretised, kind\_composition = 1), or whether they are read. If they are read, they need to be specified in the group fraction\_distribution.
+The group {\textit{mixing\_state}} defines the mixing state of particles. The variable {\textit{tag\_external}} is set to 0 for internally-mixed particles and to 1 for mixing-state resolved particles. The variable {\textit{N\_groups}} defines the number of group of aerosol compounds for which the composition is discretized. It is set to 1 for internal mixing, because the composition of compounds is then not discretized. In case of mixing-state resolved particles, the belonging of each compound to a group is specified in the input file detailing the aerosol compounds and their properties.
+The variable {\textit{N\_frac}} determines the number of mass fraction sections used in the discretisation of composition. 
+Finally, the variable {\textit{kind\_composition}} determines whether the fraction are discretized by the program (they are then evenly discretised, {\textit{kind\_composition = 1}}), or whether they are read. If they are read, they need to be specified in the group {\textit{fraction\_distribution}}.
 
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/mixingstate.png}
-                \includegraphics[angle=0,width=\textwidth]{fig/fractiondistribution.png}
-       \end{center}
-\end{figure}
+\begin{verbatim}
+&mixing_state
+tag_external = 0,     ! Mixing state(0 for internally mixed, 
+	              ! 1 for mixing-state resolved) 
+N_groups = 1,         ! Nb of species groups
+N_frac = 1, 	      ! Nb of mass fraction sections
+kind_composition = 1, ! Fraction discretization methods 
+		      ! (1 for auto discretization and 
+                      ! 0 for manual discretization)
+/
+
+
+&fraction_distribution
+frac_input= 0.0 1.0,  ! Set fraction bounds manully
+/
+
+\end{verbatim}
 
 \subsection{Gas and aerosol species}
 
-The gas phase species are detailed in the group gas\_phase\_species, where the variable species\_list\_file contains the name of the file with the list of gas-phase species.
+The gas phase species are detailed in the group {\textit{gas\_phase\_species}}, where the variable {\textit{species\_list\_file}} contains the name of the file with the list of gas-phase species.
 In this file, gas-phase species are listed together with their molar weight in g/mol. Note that the order of the species in this file should not be changed. It is set by the preprocessor of gas-phase chemical schemes.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/gasphase.png}
-        \end{center}
-\end{figure}
 
-Aerosol species are detailed in the group aerosol\_species, where the variable aerosol\_species\_list\_file contains the name of the file with the list of aerosol species.
+\begin{verbatim}
+&gas_phase_species
+species_list_file = "./species-list/species-list-cb05en.dat"   
+/
+\end{verbatim}
+
+Aerosol species are detailed in the group {\textit{aerosol\_species}}, where the variable {\textit{aerosol\_species\_list\_file}} contains the name of the file with the list of aerosol species.
 In this file, each aerosol species is listed on a line, together with specific properties: the group to which the species belong in case of mixing-state resolved particles, their molar weight (g/mol) and gaseous precursors, the collision factor, molecular diameter (Angstrom), surface tension (N/m), accomodation coefficient (between 0 and 1) and density in $\mu$g~$\mu$m$^3$.
-The categories to which species correspond are also listed. They should not be modified and they must correspond to those set in the routine ModuleInitialisation.f90 of SSH-aerosol.
+The categories to which species correspond are also listed. They should not be modified and they must correspond to those set in the routine {\textit{ModuleInitialisation.f90}} of SSH-aerosol.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/aerosolspecies.png}
-        \end{center}
-\end{figure}
-
+\begin{verbatim}
+&aerosol_species
+aerosol_species_list_file = "./species-list/species-list-aer.dat",
+/
+\end{verbatim}
 
 \subsection{Emissions}
 
-The group emissions defines options linked to emissions. The variable tag\_emis defines whether emissions are used (tag\_emis = 1) or not (tag\_emis = 0). Emissions are assumed to be internally mixed. Gas-phase emissions and/or particle-phase emissions can be specified. Number concentrations at emission may be determined from mass emissions and section diameters if the variable with\_emis\_num is set to 0. They are read from a file is the variable with\_emis\_num is set to 1. 
-The name of the file containing the list of gas-phase emitted species and their emission rates should be specified using the variable emis\_gas\_file. Similarly, the name of the file containing the list of aerosol-phase emitted species and their emission rates should be specified using the variable emis\_aero\_mass\_file. Note that the unit for emission rates is $\mu$g~m$^{-3}$~s$^{-1}$. If number emissions are read, the name of the files containing emission rates should be specified using the variable emis\_aero\_num\_file. The units of number emissions should be \#particles~m$^{-3}$~s$^{-1}$.
+The group {\textit{emissions}} defines options linked to emissions. The variable {\textit{tag\_emis}} defines whether emissions are used ({\textit{tag\_emis = 1}}) or not ({\textit{tag\_emis = 0}}).
+Emissions are assumed to be internally mixed. Gas-phase emissions and/or particle-phase emissions can be specified. Number concentrations at emission may be determined from mass emissions and section diameters if the variable {\textit{with\_emis\_num}} is set to 0. They are read from a file is the variable {\textit{with\_emis\_num}} is set to 1. 
+The name of the file containing the list of gas-phase emitted species and their emission rates should be specified using the variable {\textit{emis\_gas\_file}}. Similarly, the name of the file containing the list of aerosol-phase emitted species and their emission rates should be specified using the variable {\textit{emis\_aero\_mass\_file}}. Note that the unit for emission rates is $\mu$g~m$^{-3}$~s$^{-1}$. If number emissions are read, the name of the files containing emission rates should be specified using the variable {\textit{emis\_aero\_num\_file}}. The units of number emissions should be \#particles~m$^{-3}$~s$^{-1}$.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/emissions.png}
-        \end{center}
-\end{figure}
+\begin{verbatim}
+&emissions
+tag_emis = 0,       ! 0 Without emissions, 
+                    ! 1 with internally-mixed emissions, 
+                    ! 2 with externally-mixed emissions  
+with_emis_num = 0,  ! 0 if number estimated from mass and diameter; 
+		    ! 1 if read
+emis_gas_file = "./inputs/emis_gas.dat",
+emis_aero_mass_file = "./inputs/emis_aero.dat", 
+emis_aero_num_file = "./inputs/emis_aero_num.dat" 
+/
+\end{verbatim}
 
 
 \subsection{Numerical and physical options}
 
 \subsubsection{Gas-phase chemistry}
 
-The group physic\_gas\_chemistry lists options related to gas-phase chemistry. 
-The variable tag\_chem defines whether gas-phase chemistry is used (tag\_chem = 1) or not (tag\_chem =0). 
-Photolysis reactions may be taken into account (with\_photolysis = 1) or ignored (with\_photolysis = 0). In case photolysis reactions are taken into account, they may be attenuated by clouds. The cloud attenuation (variable attenuation) has a value below 1 in case of cloud attenuation of photolysis, and it is equal to 1 if no cloud attenuation (clear sky).
-Heterogeneous reactions at the surface of particles may be taken into account (variable with\_heterogeneous = 1) or ignored (variable with\_heterogeneous = 0). An adaptive time step may be used to solve gaseous chemistry (variable with\_adaptive). It is advised to use the adaptative time step and to set the relative tolerance to decide if the time step is kept to 0.01 or 0.001. The minimum time step (in seconds) that can be used in the solver is set with the variable min\_adaptive\_time\_step.
+The group {\textit{physic\_gas\_chemistry}} lists options related to gas-phase chemistry. 
+The variable {\textit{tag\_chem}} defines whether gas-phase chemistry is used ({\textit{tag\_chem = 1}}) or not ({\textit{tag\_chem =0}}). 
+Photolysis reactions may be taken into account ({\textit{with\_photolysis = 1}}) or ignored ({\textit{with\_photolysis = 0}}). In case photolysis reactions are taken into account, they may be attenuated by clouds. The cloud attenuation (variable attenuation) has a value below 1 in case of cloud attenuation of photolysis, and it is equal to 1 if no cloud attenuation (clear sky).
+Heterogeneous reactions at the surface of particles may be taken into account (variable {\textit{with\_heterogeneous = 1}}) or ignored (variable {\textit{with\_heterogeneous = 0}}). An adaptive time step may be used to solve gaseous chemistry (variable {\textit{with\_adaptive}}). It is advised to use the adaptative time step and to set the relative tolerance to decide if the time step is kept to 0.01 or 0.001. The minimum time step (in seconds) that can be used in the solver is set with the variable {\textit{min\_adaptive\_time\_step}}.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/gaschemistry.png}
-        \end{center}
-\end{figure}
+
+\begin{verbatim}
+&physic_gas_chemistry
+tag_chem = 0,		   	 ! Tag of gas-phase chemistry
+attenuation = 1.d0,              ! Cloud attenuation field (0 to 1)
+				 ! (1 = no attenuation)
+option_photolysis = 1,	 	 ! 1 if default photolysis rates, 
+                                 ! 2 if read from binary files.
+time_update_photolysis = 100000. ! if photolysis are read, 
+				 ! time in seconds between two reads
+with_heterogeneous = 0,          ! Tag of heterogeneous reaction 
+with_adaptive = 1,               ! Tag of adaptive time step for chemistry 
+				 ! 1 if adaptive time step.
+adaptive_time_step_tolerance = 0.001, ! Relative tolerance to decide 
+			 	 ! if the time step is kept
+min_adaptive_time_step = 0.001,  ! Minimum time step in seconds
+photolysis_dir = "./photolysis/", ! Directory where binary files are.
+photolysis_file = "./photolysis/photolysis-cb05.dat",  ! Photolysis list
+n_time_angle = 9,                ! Parameters specific to the tabulation 
+			 	 ! of photolysis rates
+time_angle_min = 0.d0,   ! if read from files
+delta_time_angle = 1.d0,
+n_latitude = 10,
+latitude_min = 0.d0,
+delta_latitude = 10.d0,
+n_altitude = 9,
+altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 
+	10000.0, 15000.0, 20000.0, 
+/
+\end{verbatim}
+
 
 \subsubsection{Numerical issues related to aerosols}
 
-The group physic\_particle\_numerical\_issues lists options related to numerical issues when solving aerosol dynamics. 
-The variable DTAEROMIN specfies the The minimum time step (in seconds) that can be used in the solver. 
-Different redistribution methods of mass and number concentrations onto the fixed diameter grids may be used (variable redistribution\_method). If only the process of condensation/evaporation is considered for aerosol dynamics, then it is possible to not apply redistribution (redistribution\_method = 0). If nucleation and/or coagulation is also considered, then a redistribution method should be chosen. It is advised to use the redistribution 10 (moving diameter) or 12 (euler coupled). The different redistributions (redistribution\_method) are euler mass (3), euler number (4), hemen (5), moving diameter (10), area-based as in SIREAM (11), euler coupled (12).
-The density of particles may be computed during the simulation depending on the composition of particles if the variable with\_fixed\_density is set to 0. If it is set to 1, then the density is fixed through the simulation to the value set by the variable fixed\_density (in $\mu$g~$\mu$m$^{-3}$). Note that the variable fixed\_density needs to be set.
+The group {\textit{physic\_particle\_numerical\_issues}} lists options related to numerical issues when solving aerosol dynamics. 
+The variable {\textit{DTAEROMIN}} specfies the The minimum time step (in seconds) that can be used in the solver. 
+Different redistribution methods of mass and number concentrations onto the fixed diameter grids may be used (variable {\textit{redistribution\_method}}). If only the process of condensation/evaporation is considered for aerosol dynamics, then it is possible to not apply redistribution ({\textit{redistribution\_method = 0}}). If nucleation and/or coagulation is also considered, then a redistribution method should be chosen. It is advised to use the redistribution 10 (moving diameter) or 12 (euler coupled). The different redistributions ({\textit{redistribution\_method}}) are euler mass (3), euler number (4), hemen (5), moving diameter (10), area-based as in SIREAM (11), euler coupled (12).
+The density of particles may be computed during the simulation depending on the composition of particles if the variable {\textit{with\_fixed\_density}} is set to 0. If it is set to 1, then the density is fixed through the simulation to the value set by the variable {\textit{fixed\_density}} (in $\mu$g~$\mu$m$^{-3}$). Note that the variable {\textit{fixed\_density}} needs to be set.
 
 Numerically, the nucleation and condensation/evaporation of inorganics are always solved simultaneously, because nucleation and condensation/evaporation are competing processes. Coagulation may also be coupled to nucleation and condensation/evaporation if the variable splitting is set to 1. If splitting = 0, coagulation is splitted from nucleation and condensation/evaporation. If nucleation is taken into account, it is recommanded to set splitting to 1.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/numericalissues.png}
-        \end{center}
-\end{figure}
+\begin{verbatim}
+&physic_particle_numerical_issues
+DTAEROMIN = 1E-5,              	! Minimum time step
+redistribution_method = 0,   	! Redistibution method: 0: no redistribution
+				! 10: 10 Moving Diameter, 12: euler_coupled
+with_fixed_density = 1,       	! 1 if density is fixed - 0 else
+fixed_density = 1.84D-06,        
+splitting = 0,             ! 0 if coagulation and 
+		! (condensation/evaporation+nucleation) are splitted 
+		! 1 if they are not
+/
+\end{verbatim}
 
 \subsubsection{Coagulation}
 
-The group physic\_coagulation lists options related to coagulation. The variable with\_coag defines whether coagulation is taken into account (with\_coag = 1) or not (with\_coag =0). 
-Rapartition coefficients may be computed in the simulation (i\_compute\_repart = 1) or read from a netcdf file (i\_compute\_repart = 0). If they are read from a file, its name should be specified (Coefficient\_file). If they are computed, the number of Monte Carlo points used to compute them should be specified (Nmc). This number should be large enough and its value depends on the section discretization used.
+The group {\textit{physic\_coagulation}} lists options related to coagulation. The variable {\textit{with\_coag}} defines whether coagulation is taken into account ({\textit{with\_coag = 1}}) or not ({\textit{with\_coag =0}}). 
+Rapartition coefficients may be computed in the simulation ({\textit{i\_compute\_repart = 1}}) or read from a netcdf file ({\textit{i\_compute\_repart = 0}}). If they are read from a file, its name should be specified ({\textit{Coefficient\_file}}). If they are computed, the number of Monte Carlo points used to compute them should be specified ({\textit{Nmc}}). This number should be large enough and its value depends on the section discretization used.
 
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/coagulation.png}
-        \end{center}
-\end{figure}
+\begin{verbatim}
+&physic_coagulation
+with_coag = 1,                 ! Tag of coagulation
+i_compute_repart = 1,          ! 0 if repartition coeff are not computed 
+                               ! but read from file, 1 if they are 
+i_write_repart = 0,            ! 1 to write repartition coeff file, 0 otherwise
+Coefficient_file = "coef_s1_f1_b6.nc",  ! Repartition coefficient file
+Nmc = 2000                     ! Number of Monte Carlo points to compute
+                               ! repartition coefficients
+/
+\end{verbatim}
           
 \subsubsection{Condensation/evaporation}
 
-The group physic\_condensation lists options related to condensation/evaporation. The variable with\_cond defines whether condensation/evaporation is taken into account (with\_cond = 1) or not (with\_cond =0). Kelvin effect may be taken into account (with\_kelvin\_effect = 1), as recommanded if ultrafine particles are simulated, or ignored (with\_kelvin\_effect = 0).
-For the condensation/evaporation of inorganic compounds, Cut\_dim corresponds to the diameter under which thermodynamic equilibrium is assumed. Set it to 0 to compute dynamically condensation/evaporation for all particles, and set it to a value larger than larger diameter to assume thermodynamic equilibrium.
-For the condensation/evaporation of organic compounds, ISOAPDYN determines whether thermodynamic equilibrium is assumed for all particles (ISOAPDYN = 0) or whether condensation/evaporation is computed dynamically (ISOAPDYN = 1). Even if it is computed dynamically, thermodynamic equilibrium may be used for the condensation/evaporation of small particles by setting a characteristic time under which equilibrium is assumed for organics (e.g. tequilibrium = 0.1 seconds). For numerical reasons, tequilibrium may not be set to 0, but condensation/evaporation of all particles is solved dynamically if (ISOAPDYN = 1) and tequilibrium is set to a small value (e.g. 1.d-15). In the current version of the code, the diffusion coefficient dorg in the organic phase is assumed constant. Typical values would be 1.d-12 for non viscous particles and 1.d-23 for very viscous particles. 
-The variable coupled\_phases should be set to 1 if the resolution os the aqueous and organic phases is coupled and to 0 if they are solved independently. The interactions between compounds in the particles may be assumed to be ideal (activity\_model = 1), or activity coefficients may be computed with unifac (interactions between organics only, activity\_model = 2) or with aiomfac (activity\_model = 3).
+The group {\textit{physic\_condensation}} lists options related to condensation/evaporation. The variable {\textit{with\_cond}} defines whether condensation/evaporation is taken into account ({\textit{with\_cond = 1}}) or not ({\textit{with\_cond =0}}). Kelvin effect may be taken into account ({\textit{with\_kelvin\_effect = 1}}), as recommanded if ultrafine particles are simulated, or ignored ({\textit{with\_kelvin\_effect = 0}}).
+For the condensation/evaporation of inorganic compounds, {\textit{Cut\_dim}} corresponds to the diameter under which thermodynamic equilibrium is assumed. Set it to 0 to compute dynamically condensation/evaporation for all particles, and set it to a value larger than larger diameter to assume thermodynamic equilibrium.
+For the condensation/evaporation of organic compounds, ISOAPDYN determines whether thermodynamic equilibrium is assumed for all particles ({\textit{ISOAPDYN = 0}}) or whether condensation/evaporation is computed dynamically ({\textit{ISOAPDYN = 1}}). Even if it is computed dynamically, thermodynamic equilibrium may be used for the condensation/evaporation of small particles by setting a characteristic time under which equilibrium is assumed for organics (e.g. {\textit{tequilibrium}} = 0.1 seconds). For numerical reasons, {\textit{tequilibrium}} may not be set to 0, but condensation/evaporation of all particles is solved dynamically if ({\textit{ISOAPDYN = 1}}) and {\textit{tequilibrium}} is set to a small value (e.g. 1.d-15). In the current version of the code, the diffusion coefficient {\textit{dorg}} in the organic phase is assumed constant. Typical values would be 1.d-12 for non viscous particles and 1.d-24 for very viscous particles. 
+The variable {\textit{coupled\_phases}} should be set to 1 if the resolution of the aqueous and organic phases is coupled and to 0 if they are solved independently. The interactions between compounds in the particles may be assumed to be ideal ({\textit{activity\_model = 1}}), or activity coefficients may be computed with unifac (interactions between organics only, {\textit{activity\_model = 2}}) or with aiomfac ({\textit{activity\_model = 3}}).
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/condensation.png}
-        \end{center}
-\end{figure}
-          
+\begin{verbatim}
+&physic_condensation
+with_cond = 0,             ! Tag of condensation/evaporation
+Cut_dim = 0.0,             ! Diameter under which equilibrium
+                           ! is assumed for inorganics
+ISOAPDYN = 1,              ! 0 = equilibrium, 1 = dynamic
+nlayer = 1,
+with_kelvin_effect = 0,    ! 1 if kelvin effect is taken into account.
+tequilibrium = 0.1,        ! time under which equilibrium 
+                           ! is assumed for organics.
+dorg = 1.d-12,             ! diffusion coefficient 
+                           ! in the organic phase.
+coupled_phases = 1,        ! 1 if aqueous and organic phases 
+                           ! are coupled
+activity_model = 1,        ! 1: ideal, 2: unifac, 3: aiomfac
+epser = 0.01,              ! relative error for time step adjustment
+epser_soap = 0.01,         ! relative difference of ros2 in SOAP  
+/
+
+\end{verbatim}
+
 \subsubsection{Nucleation}
 
 
-The group physic\_nucleation lists options related to nucleation. The variable with\_nucl defines whether nucleation is taken into account (with\_nucl = 1) or not (with\_nucl =0). If nucleation is taken into account, then the lower diameter bound should be about 1 nm. Three nucleation models are implemented.
+The group {\textit{physic\_nucleation}} lists options related to nucleation. The variable {\textit{with\_nucl}} defines whether nucleation is taken into account ({\textit{with\_nucl = 1}}) or not ({\textit{with\_nucl =0}}). If nucleation is taken into account, then the lower diameter bound should be about 1~nm. Three nucleation models are implemented.
 \begin{itemize}
-\item binary: water and sulfate with the parameterisation of \cite{vehk} (nucl\_model = 0)
-\item ternary: water, sulfate and ammonium with the parameterisation of \cite{napari} (nucl\_model = 1) or with the parameterisation of \cite{merikantoa, merikantob} (nucl\_model = 2).
+\item binary: water and sulfate with the parameterisation of \cite{vehk} ({\textit{nucl\_model = 0}})
+\item ternary: water, sulfate and ammonium with the parameterisation of \cite{napari} ({\textit{nucl\_model = 1}}) or with the parameterisation of \cite{merikantoa, merikantob} ({\textit{nucl\_model = 2}}).
 To avoid artificially large nucleation rates in the parameterisation of \cite{napari}, a maximum nucleation rate of 1.d6 \#particles~cm$^{-3}$ is set.
 \end{itemize}
 
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/nucleation.png}
-        \end{center}
-\end{figure}
-          
+\begin{verbatim}
+&physic_nucleation
+with_nucl = 0,    ! Tag of nucleation 
+	    	  ! Need to have the lowest diameter about 1 nm.
+nucl_model = 0,   ! Nucleation model 
+                  ! (0: binary of Vekhamaki, 1: ternary of Napari, 
+		  ! 2: ternary of Merikanto)
+/
+\end{verbatim} 
 
 \subsubsection{Organics}
 
-Concerning organic reactions in the particles, oligomerization of pinonaldehyde may be considered (with\_oligomerization = 1) or not.
+Concerning organic reactions in the particles, oligomerization of pinonaldehyde may be considered ({\textit{with\_oligomerization = 1}}) or not.
 
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/organic.png}
-        \end{center}
-\end{figure}
- 
+
+\begin{verbatim}
+&physic_organic
+with_oligomerization = 1      
+/
+\end{verbatim}
+
 
 \subsection{Output}
 
-The output directory may be specified, as well as the format of the files (text if output\_type = 1, and binary if output\_type = 2).
+The output directory may be specified, as well as the format of the files (text if {\textit{output\_type = 1}}, and binary if {\textit{output\_type = 2}}).
  
-\begin{figure}[H]
-        \begin{center}
-                \includegraphics[angle=0,width=\textwidth]{fig/output.png}
-        \end{center}
-\end{figure}
+\begin{verbatim}
+&output
+output_directory = "results/coag/", 
+output_type = 1               ! 1: text, 2: binary
+/
+\end{verbatim}
 
 \subsection{Coupling with external tools}
 
-SSHaerosol can be coupled with external (3D) tools using the shared library (\texttt{libssh-aerosol.so}) available in the \texttt{src} folder after compilation.
+SSH-aerosol can be coupled with external (3D) tools using the shared library (\texttt{libssh-aerosol.so}) available in the \texttt{src} folder after compilation.
 The \texttt{.so} file is produced with the command \texttt{./compile --sharedlib=yes}.
 A prototype of the typical workflow is described hereafter.
 
@@ -410,16 +538,16 @@ First, the external code should load the shared library using \texttt{dlopen}.
   _aerosol_so = dlopen(lib_path, RTLD_LAZY);
 \end{verbatim}
 
-Then, it should decide wether SSHaerosol outputs to the terminal or to a file.
+Then, it should decide whether SSH-aerosol outputs to the terminal or to a file.
 \begin{verbatim}
   /* Declare SSH-aerosol as not running standalone */
   {
     typedef void (*cs_set_sshaerosol_t)(bool*);
     cs_set_sshaerosol_t fct =
       (cs_set_sshaerosol_t) _get_dl_function_pointer(_aerosol_so,
-                                                     lib_path,
-                                                    "api_set_sshaerosol_standalone",
-                                                     true);
+                                        lib_path,
+                                        "api_set_sshaerosol_standalone",
+                                        true);
     bool flag = false;
     fct(&flag);
   }
@@ -436,7 +564,7 @@ Then, it should decide wether SSHaerosol outputs to the terminal or to a file.
   }
 \end{verbatim}
 
-Then, SSHaerosol can be initialized.
+Then, SSH-aerosol can be initialized.
 \begin{verbatim}
   /* Initialize SSH-aerosol */
   {
@@ -455,13 +583,13 @@ Then, SSHaerosol can be initialized.
 
 The time advancement in the external 3D code could look as follow: for each time step, a loop on the cells is performed and the code
 \begin{itemize}
-\item Sets the time step in SSHaerosol using \texttt{api\_set\_sshaerosol\_dt}
-\item Sets the Pressure, Temperature, pH, ... in SSHaerosol using \texttt{api\_set\_sshaerosol\_temperature} and similar functions
-\item Sets the gaseous concentrations in SSHaerosol using \texttt{api\_set\_sshaerosol\_gas\_concentration}
-\item Sets the aerosol concentrations in SSHaerosol using \texttt{api\_set\_sshaerosol\_aero\_concentration}
-\item Sets the aerosol numbers in SSHaerosol using \texttt{api\_set\_sshaerosol\_aero\_number}
-\item Computes one time for the gaseous chemistry and for the aerosol chemistry in the given cell using \texttt{api\_call\_sshaerosol\_gaschemistry} and \texttt{api\_call\_sshaerosol\_aerochemistry}
-\item Reads the new concentrations in the given cell from SSHaerosol using the \texttt{api\_get\_*} functions and use them in the external code
+\item Sets (initialises) the time step in SSH-aerosol using \texttt{api\_set\_sshaerosol\_dt}
+\item Sets the Pressure, Temperature, pH, ... in SSH-aerosol using \texttt{api\_set\_sshaerosol\_temperature} and similar functions
+\item Sets the gaseous concentrations in SSH-aerosol using \texttt{api\_set\_sshaerosol\_gas\_concentration}
+\item Sets the aerosol concentrations in SSH-aerosol using \texttt{api\_set\_sshaerosol\_aero\_concentration}
+\item Sets the aerosol numbers in SSH-aerosol using \texttt{api\_set\_sshaerosol\_aero\_number}
+\item Advance in time (computes one time step) for the gaseous chemistry and for the aerosol chemistry in the given cell using \texttt{api\_call\_sshaerosol\_gaschemistry} and \\ \texttt{api\_call\_sshaerosol\_aerochemistry}
+\item Reads the new concentrations in the given cell from SSH-aerosol using the \texttt{api\_get\_*} functions and use them in the external code
 \end{itemize}
 
 \subsection*{Finalization}
@@ -477,12 +605,12 @@ If the external tool is running with MPI, each MPI process should load the share
 However, please note that only one MPI process can use the logger (\texttt{api\_set\_sshaerosol\_logger}).
 
 \section{Test cases}
-\addcontentsline{toc}{section}{Test cases}
+%\addcontentsline{toc}{section}{Test cases}
 
 This section presents a few test-cases to demonstrate how the model works.
 
 During the practical session, we will work in the directory
-\cmd{ssh-aerosol}. 
+{\textit{ssh-aerosol}}. 
 To compile the program, please type {\it{compile}}. Before compiling, you may
 clean previous compilation by typing {\it{clean}}.
 
@@ -842,14 +970,14 @@ two compounds at initial time (left panel) and after 12 h of simulation (right p
 \subsection{Viscosity}
      
 The gas/particle mass transfer is strongly affected by particle viscosity. To
-illustate this effect, the condensation of hydrophobic organic surrogates of different volatility is studied for different
+illustate this effect, the condensation of hydrophobic organic surrogates of different volatilities is studied for different
 values of the viscosity, represented by different values of the organic-phase
 diffusion coefficients D (10$^{-18}$, 10$^{-19}$, 10$^{-20}$,
 10$^{-21}$, 10$^{-22}$, 10$^{-23}$, 10$^{-24}$ m$^2$~s$^{-1}$). The value
 D~=~10$^{-12}$ m$^2$~s$^{-1}$ corresponds to an inviscid particle, while the value
 D~=~10$^{-24}$ m$^2$~s$^{-1}$ corresponds to a very viscous particle.
 Each particle is discretized into 5 layers to model the flux of diffusion of the
-organic compound in the particle. 
+organic compounds in the particle. 
 The test cases presented here are similar to those of the Figure 6 of \cite{couvidat2015secondary}. 
 Three surrogates are successively studied: SOAlP, POAlP and POAmP and  which have 
  partitioning coefficients K$_p$ equal to 100~m$^3$~$\mu$g$^{-1}$,
@@ -874,13 +1002,13 @@ For POAmP, which is the most volatile of the three surrogates, high viscosity
 
 \begin{figure}[H]
         \begin{center}
-                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_soalp.png}
-                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_poalp.png}
-                \includegraphics[angle=0,width=0.45\textwidth]{fig/visco_poamp.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/visco_soalp.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/visco_poalp.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/visco_poamp.png}
         \end{center}
 \caption{Viscosity test case: time evolution of organic concentrations (SOAlP
   in the upper left, POAlP in the upper right, POAmP in the lower left) for
-  several organic-phase diffusivity: 10$^{-18}$ (dark blue), 10$^{-19}$ (light
+  several organic-phase diffusivities: 10$^{-18}$ (dark blue), 10$^{-19}$ (light
   blue), 10$^{-20}$ (green), 10$^{-21}$ (yellow),
 10$^{-22}$ (magenta), 10$^{-23}$ (red), 10$^{-24}$ (black) m$^2$~s$^{-1}$.}
 \label{fig-visco}
@@ -888,8 +1016,8 @@ For POAmP, which is the most volatile of the three surrogates, high viscosity
        
 \bigskip
 
-
-\addcontentsline{toc}{section}{References}
+\section{References}
+%\addcontentsline{toc}{section}{References}
 \bibliographystyle{apalike}
 \bibliography{testcases}
 
