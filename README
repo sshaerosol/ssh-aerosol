@@ -1,6 +1,7 @@
 *** What is SSH-aerosol ***
 
-
+SSH-aerosol model represents the physico chemical transformation undergone by
+aerosols in the troposphere.
 
 *** Installation ***
 
@@ -10,8 +11,7 @@ Buliding
 $ compile
 
 The arguement for the chemical mechanism can be used. 
-Default mechanism is cb05 and the available mechanisms are cb05, racm, racm2
-and cb05en.
+Default mechanism is cb05 and the available mechanisms are cb05, racm and racm2.
     
     -c or --chemisty
     
@@ -22,36 +22,38 @@ $ compile --chemistry=cb05
 Run
 ---
 
-$ ssh-aerosol-cb05 ssh-aerosol.cfg
+$ ./ssh-aerosol INIT/namelist_xxx.ssh
 
 
 Input files
 -----------
 
-## --- ssh-aerosol.cfg
+## --- namelist_xxx.ssh
 
-This file is the main configuration fiile.
-
+This file is the main configuration file.
 
 ## --- species-list-cb05.dat
 
 This file contains the list of gas-phase species.
 
-## --- species-list-aerosol.dat
+## --- species-list-aer.dat
 
 This file contains the list of aerosol species.
 
 ## --- init_gas.dat
 
-This file contains initial data for gas-phase species.
+This file contains initial concentrations for gas-phase species.
 
-## --- init_aerosol.dat
+## --- init_aero.dat
 
-This file contains initial data for aerosol species.
+This file contains initial mass concentrations for aerosol species.
 
-## --- coef_s1_f1_b7.nc and coef_s5_f3_b7.nc
+## --- init_num.dat
 
-This file contains an example coagulation coefficient data for 
-internal mixing (coef_s1_f1_b7.nc) and external mixing (coef_s5_f3_b7.nc).
+This file contains initial number concentrations for aerosol species.
+
+## --- coef_s1_f1_b7.nc
+
+This file contains an example coagulation coefficient data.
 
 
