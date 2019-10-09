@@ -10,6 +10,8 @@
 \usepackage{placeins}
 \usepackage{cite}
 
+\usepackage{hyperref}
+\hypersetup{backref = true, pagebackref = true, colorlinks= true, linkcolor = black, citecolor = black, urlcolor = black}
 \usepackage{framed}
 \usepackage{color}
 \definecolor{lightgray}{rgb}{0.95,0.95,0.95}
@@ -69,15 +71,20 @@ The model is based on the merge of three state-of-the-art models:
 
 SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 \section*{Hardware and software requirement}
-SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Before the compilation, make sure the construction tool: SCONS has already been installed.
-If not you can obtain it through the instruction of the site: \\
-http://www.scons.org/wiki/SconsTutorial1
+SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Intel compiler should also wrk. If not, please report to  \url{ssh-aerosol-help@liste.enpc.fr}.
+Before the compilation, make sure the construction tool: SCONS has already been installed. 
+If not you can obtain it through the instruction of the site: \url{http://www.scons.org/wiki/SconsTutorial1}\\
+
+The following external libraries are required:
+\begin{itemize}
+\item C++ library Blitz++ (\url{https://github.com/blitzpp/blitz})
+\item NetCDF library may be required if you have precomputed coagulation repartition coefficients, you can download from the following site:
+\url{http://www.unidata.ucar.edu/downloads/netcdf/index.jsp}
+\end{itemize}
+After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
 
 The random access memory (RAM) requirement for a 0D simulation is very small. 
 
-The NetCDF library may be required if you have precomputed coagulation repartition coefficients, you can download from the following site:\\
-http://www.unidata.ucar.edu/downloads/netcdf/index.jsp
-After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
 
 \section{Folder structure}
 %\addcontentsline{toc}{section}{Folder structure}

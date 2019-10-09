@@ -38,6 +38,9 @@ user_manual/user_manual.aux
 user_manual/user_manual.log
 user_manual/user_manual.out
 user_manual/user_manual.toc
+user_manual/user_manual.bbl
+user_manual/user_manual.blg
+user_manual/user_manual.pdf
 
 ### Spack
 src/include/CHEMISTRY/cb05*/*.f*
