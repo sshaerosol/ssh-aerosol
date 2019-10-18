@@ -146,7 +146,9 @@ for i in range(len(lists)) :
 		if(dd <=0.0):
                   dd = 1.
 		tmp[j]= float(lists[i][j]) / dd* 1E-6 #in cm-3
-		if (tmp[j] < 0.00001) : tmp[j] = 0.0
+		if (tmp[j] < 0.00001) : 
+			tmp[j] = 0.0
+			cell_diam_out_sml[j] = diam_mean[j]
 	plt.plot(cell_diam_out_sml, tmp, cols[i],label = lbs[i])
 
 num = len(exa_diam_out)
@@ -197,7 +199,9 @@ for i in range(len(lists2)) :
 		if(dd <=0.0):
                   dd = 1.
 		tmp[j]= float(lists2[i][j]) / dd /density
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
+		if (tmp[j] < 0.01) : 
+			tmp[j] = 0.0
+			cell_diam_out_sml[j] = diam_mean[j]
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
 	plt.plot(cell_diam_out_sml, tmp, cols[i],label = lbs[i])
