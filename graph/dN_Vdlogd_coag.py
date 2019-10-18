@@ -72,7 +72,7 @@ with open ('coag_ref/coag_ni_exact.txt') as fexai :
 	    exti = fexai.readline()
             str_exti = exti.split()
 	    exact_num_out.append(str_exti[1])
-    	    exa_diam_out.append(str_exti[0])
+    	    exa_diam_out.append(float(str_exti[0]))
 with open ('coag_ref/coag_vi_exact.txt') as fexa2 :
 	for j in range(60):
 	    exti = fexa2.readline()
