@@ -8,7 +8,6 @@ from math import *
 from pylab import *
 from numpy import *
 import numpy as np
-from atmopy import *
 import matplotlib.pyplot as plt
 # Turn interactive plotting off
 plt.ioff()
@@ -41,8 +40,8 @@ for i in range(len(values)) :
 	tmp = values[i].split('   ', -1)[0]              
         values[i] = float(values[i])   
         visco2.append(float(values[i]))
-        t.append(t0)
         t0=t0+deltat*1./3600
+        t.append(t0)
 
 with open (namefic3+species1) as f1 :
 	values = f1.read().splitlines()
@@ -109,8 +108,5 @@ semilogx(t,visco8,'k',label='10$^{-24}$')
 title("Kp $\simeq$ 100")
 xlabel('Time (s)')
 ylabel('Organic concentrations ($\mu$g~m$^{-3}$)')
-legend(loc ='best')	
+legend(loc ='best')
 savefig("visco_soalp.png")
-
-
-

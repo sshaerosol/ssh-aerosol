@@ -8,7 +8,6 @@ from math import *
 from pylab import *
 from numpy import *
 import numpy as np
-from atmopy import *
 import matplotlib.pyplot as plt
 # Turn interactive plotting off
 plt.ioff()
