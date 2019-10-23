@@ -77,7 +77,7 @@ altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0
 
 
 &physic_particle_numerical_issues
-DTAEROMIN = 1E-1,               	!Minimum time step
+DTAEROMIN = 0.1,               	!Minimum time step
 redistribution_method = 12,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
 fixed_density = 1.56D-06,        
@@ -98,7 +98,7 @@ Cut_dim = 0.0,             ! KCUT	ICUT = 0
 ISOAPDYN = 0,                !0 = equilibrium, 1 = dynamic
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
-tequilibrium = 1.d-15,                     ! time under which equilibrium is assumed.
+tequilibrium = 0.1,                     ! time under which equilibrium is assumed.
 dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
