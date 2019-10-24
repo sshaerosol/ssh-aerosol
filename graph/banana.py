@@ -94,6 +94,8 @@ cb=colorbar(cmap=cmap, norm=norm)
 #cb.set_ticklabels([r'0', r'$1 \times 10^{-3}$',r'$1 \times 10^{-1}$',r'$10$',r'$1 \times 10^{3}$'])
 #cb.set_label(r'd N/d log d_p (${10^3 cm^{-3}}$)')
 
+tick_range = np.logspace(3,13,num=13-3+1, base=10, dtype="int")
+cb.set_ticks(tick_range)
 xlabel(r"time ($mn$)")
 ylabel(r"diameter (${\mu m}$)")
 savefig('fig_banana.png')
