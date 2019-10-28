@@ -58,12 +58,12 @@ int main(int argc, char** argv)
 
   // Output files.
   ofstream OutputDec;
-  OutputDec.open("LU_decompose.f", ofstream::out);
+  OutputDec.open("LU_decompose.f90", ofstream::out);
   ofstream OutputSol;
-  OutputSol.open("LU_solve.f", ofstream::out);
+  OutputSol.open("LU_solve.f90", ofstream::out);
 
   // For Fortran...
-  string align = "      ";
+  string align = "";
 
   // Matrices M and bool_M.
   RegularGrid<int> GridX(Ns);
@@ -140,8 +140,8 @@ int main(int argc, char** argv)
 
   OutputDec << endl;
 
-  //  OutputDec << "C     -- INCLUDE FILES" << endl;
-  //  OutputDec << "C     PARACHEM: parameters for sizes of 'chemical' arrays."
+  //  OutputDec << "!     -- INCLUDE FILES" << endl;
+  //  OutputDec << "!     PARACHEM: parameters for sizes of 'chemical' arrays."
   //   << endl << endl;
   //OutputDec << align << "INCLUDE \'PARACHEM.INC\'" << endl;
   OutputDec << endl;
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
                 {
                   if (!add)
                     {
-                      OutputDec << "C     Lower part." << endl;
+                      OutputDec << "!     Lower part." << endl;
                       temp = "temp = M(";
                     }
                   else
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
                 {
                   if (!add)
                     {
-                      OutputDec << "C     Upper part." << endl;
+                      OutputDec << "!     Upper part." << endl;
                       temp = "temp = M(";
                     }
                   else
@@ -240,7 +240,7 @@ int main(int argc, char** argv)
           else if (bool_M(i, q))
             // M(i,q) = M(i,q) / M(i,i);
             {
-              OutputDec << "C     Upper part." << endl;
+              OutputDec << "!     Upper part." << endl;
               OutputDec << align + "M("
         + to_str(i + 1) + ", " + to_str(q + 1)
         + ") = M("
@@ -290,8 +290,8 @@ int main(int argc, char** argv)
 
   OutputSol << endl;
 
-  // OutputSol << "C     -- INCLUDE FILES" << endl;
-  //OutputSol << "C     PARACHEM: parameters for sizes of 'chemical' arrays."
+  // OutputSol << "!     -- INCLUDE FILES" << endl;
+  //OutputSol << "!     PARACHEM: parameters for sizes of 'chemical' arrays."
   //<< endl << endl;
   //OutputSol << align << "INCLUDE \'PARACHEM.INC\'" << endl;
   //OutputSol << endl;
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
 
   // Forward substitution.
 
-  OutputSol << "C     Forward substitution." << endl;
+  OutputSol << "!     Forward substitution." << endl;
   OutputSol << endl;
 
   for (i = 0; i < Ns; i++)
@@ -348,7 +348,7 @@ int main(int argc, char** argv)
 
   // Backward substitution.
 
-  OutputSol << "C     Backward substitution." << endl;
+  OutputSol << "!     Backward substitution." << endl;
   OutputSol << endl;
 
   for (i = Ns - 2; i > -1; i--)
@@ -392,7 +392,7 @@ int main(int argc, char** argv)
   // SOLVE_TR //
 
     ofstream OutputSolTr;
-    OutputSolTr.open("LU_solve_tr.f", ofstream::out);
+    OutputSolTr.open("LU_solve_tr.f90", ofstream::out);
 
     ifstream SolTrHeader;
     SolTrHeader.open(argv[6]);
@@ -418,8 +418,8 @@ int main(int argc, char** argv)
 
     OutputSolTr << endl;
 
-    // OutputSolTr << "C     -- INCLUDE FILES" << endl;
-    //OutputSolTr << "C     PARACHEM: parameters for sizes of 'chemical' arrays."
+    // OutputSolTr << "!     -- INCLUDE FILES" << endl;
+    //OutputSolTr << "!     PARACHEM: parameters for sizes of 'chemical' arrays."
     //<< endl << endl;
     //OutputSolTr << align << "INCLUDE \'PARACHEM.INC\'" << endl;
     //OutputSolTr << endl;
@@ -434,7 +434,7 @@ int main(int argc, char** argv)
 
     // Forward substitution.
 
-    OutputSolTr << "C     Forward substitution." << endl;
+    OutputSolTr << "!     Forward substitution." << endl;
     OutputSolTr << endl;
 
     for (i = 1; i < Ns; i++)
@@ -470,7 +470,7 @@ int main(int argc, char** argv)
 
     // Backward substitution.
 
-    OutputSolTr << "C     Backward substitution." << endl;
+    OutputSolTr << "!     Backward substitution." << endl;
     OutputSolTr << endl;
 
     for (i = Ns - 1; i > -1; i--)
