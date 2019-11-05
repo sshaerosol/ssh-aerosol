@@ -118,4 +118,5 @@ with_oligomerization = 1
 &output
 output_directory = "results/nucl_coupl/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
+particles_composition_file = "INIT/fractions.txt"
 /

@@ -260,6 +260,7 @@ module aInitialization
   character (len=80) :: species_list_file ! File for species list.
   character (len=80) :: aerosol_species_list_file ! File for species list.
   character (len=80) :: namelist_species ! Namelist file for species list.
+  character (len=80) :: particles_composition_file ! File for particles composition
   character (len=80) :: emis_gas_file
   character (len=80) :: emis_aero_mass_file
   character (len=80) :: emis_aero_num_file
@@ -389,7 +390,7 @@ contains
 
     namelist /physic_organic/ with_oligomerization
 
-    namelist /output/ output_directory, output_type
+    namelist /output/ output_directory, output_type, particles_composition_file
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
@@ -894,12 +895,14 @@ contains
           if (ssh_standalone) write(*,*) 'results are saved in binary files.'
           if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
        else
-          output_type = 1   ! defalut
+          output_type = 1   ! default
           if (ssh_standalone) write(*,*) 'results are saved in text files.'
           if (ssh_logger) write(logfile,*) 'results are saved in text files.'
        end if
        if (ssh_standalone) write(*,*) 'output directory :', output_directory
        if (ssh_logger) write(logfile,*) 'output directory :', output_directory
+       if (ssh_standalone) write(*,*) 'Particles composition file : ', particles_composition_file
+       if (ssh_logger) write(logfile,*) 'Particles composition file : ', particles_composition_file
     end if
 
     close(10)

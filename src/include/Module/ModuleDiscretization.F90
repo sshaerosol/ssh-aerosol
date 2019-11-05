@@ -245,7 +245,7 @@ contains
     integer:: Nubvaild
     integer:: i,s,j,k,s1,rankk
 
-    open(unit = 11, file = "INIT/fractions.txt")
+    open(unit = 11, file = particles_composition_file)
     Nubvaild=0
     rankk=0
     allocate(counter(N_groups-1))
@@ -311,7 +311,7 @@ contains
        N_size = N_size + N_fracbin(k)
     enddo
 
-    open(unit = 11, file = "INIT/fractions.txt",status = "old")
+    open(unit = 11, file = particles_composition_file, status = "old")
 
     do i = 1, N_fracmax
        do s = 1, N_groups
