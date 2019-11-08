@@ -230,6 +230,52 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can get the name of given aerosol species
+!
+! input : number of the aerosol species
+! return value : name of the aerosol species
+! =============================================================
+
+    subroutine api_get_aero_name(aero_num, c_string) bind(c, name='api_get_sshaerosol_aero_name_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol, aerosol_species_name, logfile, ssh_standalone, ssh_logger
+
+      implicit none
+
+      ! Arguments
+
+      integer, intent(in) :: aero_num
+      character(len = 1, kind = c_char), dimension(81), intent(out) :: c_string
+
+      ! Local variables
+
+      integer i, strlen
+
+      ! Safety bounds check
+      if (1.gt.aero_num .or. aero_num.gt.N_aerosol) then
+        if (ssh_standalone) write(*,*) "Error: given aerosol number out of bounds."
+        if (ssh_standalone) write(*,*) "Given : ", aero_num
+        if (ssh_standalone) write(*,*) "Bounds: [1,",N_aerosol,"]"
+        if (ssh_logger) write(logfile,*) "Error: given aerosol number out of bounds."
+        if (ssh_logger) write(logfile,*) "Given : ", aero_num
+        if (ssh_logger) write(logfile,*) "Bounds: [1,",N_aerosol,"]"
+        stop
+      endif
+
+      ! Fill with aerosol species name
+      strlen = min(80,len_trim(aerosol_species_name(aero_num)))
+      do i = 1, strlen
+        c_string(i) = aerosol_species_name(aero_num)(i:i)
+      enddo
+
+      ! C termination
+      c_string(strlen + 1) = C_NULL_CHAR
+
+    end subroutine api_get_aero_name
+
+! =============================================================
+!
 ! External code can set the SSH-aerosol time step
 !
 ! input : time step in seconds
