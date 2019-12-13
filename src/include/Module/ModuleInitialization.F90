@@ -1024,6 +1024,12 @@ contains
        endif
     enddo
     close(12)
+    ! Safety check
+    if (minval(Index_groups).lt.1 .or. maxval(Index_groups).gt.N_groups) then
+       if (ssh_standalone) write(*,*) "Error: Incorrect group index in aerosol_species_list_file."
+       if (ssh_logger) write(logfile,*) "Error: Incorrect group index in aerosol_species_list_file."
+       stop
+    endif
     if (ssh_standalone) write(*,*) "   --- Number of precursors: ", count 
     if (ssh_logger) write(logfile,*) "   --- Number of precursors: ", count 
     
