@@ -39,7 +39,7 @@ emis_aero_num_file = "./inputs/emis_aero_num.dat"
 
 &mixing_state
 tag_external = 1,             !Mixing state(0 for internally mixed, 1 for mixing-state resolved) !!! Initial concentrations are assumed to be internally mixed.
-N_groups = 2,                  !Nb of Species group (internal within group, external between groups)
+N_groups = 3,                  !Nb of Species group (internal within group, external between groups)
 N_frac = 4, 	                  ! Mass fraction sections for each species
 kind_composition = 1,          !Fraction discretization methods 1 for auto discretization and 0 for manual discretization
 /
