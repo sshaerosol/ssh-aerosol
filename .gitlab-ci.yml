@@ -1,0 +1,228 @@
+image: debian
+
+default:
+  before_script:
+    - apt update
+    - apt -y install scons libblitz-dev gfortran gcc g++ swig libnetcdff-dev python-dev python-matplotlib
+
+stages:
+  - build
+  - test
+
+compile:
+  stage: build
+  script:
+    - ./clean
+    - ./compile
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - src/ssh-aerosol-*
+
+compile-omp:
+  stage: build
+  script:
+    - ./clean
+    - ./compile --openmp=yes
+
+compile-lib:
+  stage: build
+  script:
+    - ./clean
+    - ./compile --sharedlib=yes
+
+compile-omp-lib:
+  stage: build
+  script:
+    - ./clean
+    - ./compile --openmp=yes --sharedlib=yes
+
+nacl:
+  stage: build
+  script:
+    - ./clean
+    - ./compile --nacl=yes
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - src/ssh-aerosol-*
+
+condensation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_cond.ssh
+   - ./ssh-aerosol INIT/namelist_cond-evap-inorg-eq.ssh
+   - ./ssh-aerosol INIT/namelist_cond-evap-inorg.ssh
+   - ./ssh-aerosol INIT/namelist_cond_ext.ssh
+   - ./ssh-aerosol INIT/namelist_cond_monomer.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r10.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r11.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r12.ssh
+   - cd graph
+   - python dN_Vdlogd_cond.py
+   - python dN_Vdlogd_cond_monomer.py
+   - python dN_Vdlogd_cond_r11.py
+   - python dN_Vdlogd_cond_ext.py
+   - python dN_Vdlogd_cond_r10.py
+   - python dN_Vdlogd_cond_r12.py
+   - python gas_cond-evap.py
+   - python cond_mass_2D.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - compile
+
+kelvin:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_kelvin.ssh
+   - ./ssh-aerosol INIT/namelist_kelvin_nokelv.ssh
+   - cd graph
+   - python dN_Vdlogd_kelvin.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - compile
+
+nucleation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_nucl.ssh
+   - ./ssh-aerosol INIT/namelist_nucl_split.ssh
+   - cd graph
+   - python dN_Vdlogd_nucl.py
+   - python banana.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - compile
+
+platt:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_platt.ssh
+   - cd graph
+   - python plot_platt_particles.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - compile
+
+coagulation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_coag.ssh
+   - ./ssh-aerosol INIT/namelist_coag_ext.ssh
+   - cd graph
+   - python dN_Vdlogd_coag.py
+   - python coag_2D.py
+   - python dN_Vdlogd_coag_ext.py 
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - compile
+
+nacl_condensation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_cond.ssh
+   - ./ssh-aerosol INIT/namelist_cond-evap-inorg-eq.ssh
+   - ./ssh-aerosol INIT/namelist_cond-evap-inorg.ssh
+   - ./ssh-aerosol INIT/namelist_cond_ext.ssh
+   - ./ssh-aerosol INIT/namelist_cond_monomer.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r10.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r11.ssh
+   - ./ssh-aerosol INIT/namelist_cond_r12.ssh
+   - cd graph
+   - python dN_Vdlogd_cond.py
+   - python dN_Vdlogd_cond_monomer.py
+   - python dN_Vdlogd_cond_r11.py
+   - python dN_Vdlogd_cond_ext.py
+   - python dN_Vdlogd_cond_r10.py
+   - python dN_Vdlogd_cond_r12.py
+   - python gas_cond-evap.py
+   - python cond_mass_2D.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - nacl
+
+nacl_kelvin:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_kelvin.ssh
+   - ./ssh-aerosol INIT/namelist_kelvin_nokelv.ssh
+   - cd graph
+   - python dN_Vdlogd_kelvin.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - nacl
+
+nacl_nucleation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_nucl.ssh
+   - ./ssh-aerosol INIT/namelist_nucl_split.ssh
+   - cd graph
+   - python dN_Vdlogd_nucl.py
+   - python banana.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - nacl
+
+nacl_platt:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_platt.ssh
+   - cd graph
+   - python plot_platt_particles.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - nacl
+
+nacl_coagulation:
+  stage: test
+  script:
+   - ln -s src/ssh-aerosol-* ./ssh-aerosol
+   - ./ssh-aerosol INIT/namelist_coag.ssh
+   - ./ssh-aerosol INIT/namelist_coag_ext.ssh
+   - cd graph
+   - python dN_Vdlogd_coag.py
+   - python coag_2D.py
+   - python dN_Vdlogd_coag_ext.py 
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graph/*png
+  dependencies:
+    - nacl
