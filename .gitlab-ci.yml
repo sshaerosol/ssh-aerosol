@@ -1,7 +1,6 @@
 image: debian
 
-default:
-  before_script:
+before_script:
     - apt update
     - apt -y install scons libblitz-dev gfortran gcc g++ swig libnetcdff-dev python-dev python-matplotlib
 
