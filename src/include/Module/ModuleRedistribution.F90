@@ -296,8 +296,6 @@ contains
           concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &
                                       lwcorg * org_bin(js) / org_total
           lwcorg_Nsize(js) = lwcorg * org_bin(js) / org_total
-       else
-          concentration_mass(js, EH2O_layers) = 0.d0
        end if
     enddo
 
