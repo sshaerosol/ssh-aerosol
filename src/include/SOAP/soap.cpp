@@ -370,7 +370,8 @@ void soap_main(double LWC, double RH, double Temperature,
               else if (NaCl and (surrogate[i].name == "Na" or surrogate[i].name == "Cl"))
                 {
                   int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
-                  surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
+                  for (b = 0; b < config.nbins; ++b)
+                      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
 
                 }
               else
