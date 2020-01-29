@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+set -e
+#
+rm namelist.ssh
+ln -s INIT/namelist_nucl.ssh namelist.ssh
+rm -rf results/nucl_coupl
+LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_simple
+#
+rm namelist.ssh
+ln -s INIT/namelist_nucl_split.ssh namelist.ssh
+rm -rf results/nucl_split
+LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_simple
+#
+cd graph
+python dN_Vdlogd_nucl.py
+python banana.py
+cd ../

@@ -3,7 +3,7 @@
 // ./compile && LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_exemple
 //
 // Note:
-//   - In this exemple, all the prototypes of the functions are 
+//   - In this exemple, all the prototypes of the functions are
 //     used and discarded on the fly. The prototypes should rather
 //     be defined once with clearer names so they can be reused.
 //   - The complete API can be found in ../src/include/Module/ModuleAPI.f90
@@ -15,7 +15,7 @@
   !!     Copyright (C) 2019 CEREA (ENPC) - INERIS
   !!     SSH-aerosol is distributed under the GNU General Public License v3
   !!-----------------------------------------------------------------------
- 
+
   This file is also partly from Code_Saturne, a general-purpose CFD tool.
 
   Copyright (C) 1998-2019 EDF S.A.
@@ -131,7 +131,7 @@ void main(int argc, char** argv)
 
     void *handle;
     const char lib_path[] = "libssh-aerosol.so";
-    
+
     dlerror();    /* Clear any existing error */
 
     // Try to load the shared library
@@ -147,7 +147,7 @@ void main(int argc, char** argv)
     // This removes most of the output to stdout
     {
       typedef void (*api_set_sshaerosol_t)(bool*);
-      api_set_sshaerosol_t fct = 
+      api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_set_sshaerosol_standalone_",
@@ -160,7 +160,7 @@ void main(int argc, char** argv)
     // Only one rank should activate the logger in parallel
     {
       typedef void (*api_set_sshaerosol_t)(bool*);
-      api_set_sshaerosol_t fct = 
+      api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_set_sshaerosol_logger",
@@ -172,7 +172,7 @@ void main(int argc, char** argv)
     // Check that SSH-aerosol is not running standalone
     {
       typedef bool (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_standalone",
@@ -184,7 +184,7 @@ void main(int argc, char** argv)
     // Check we have correctly activated the logger
     {
       typedef bool (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_logger",
@@ -209,7 +209,7 @@ void main(int argc, char** argv)
     // Get the number of gas species
     {
       typedef int (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_ngas",
@@ -221,7 +221,7 @@ void main(int argc, char** argv)
     // Get the number of aerosols
     {
       typedef int (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_naero",
@@ -233,7 +233,7 @@ void main(int argc, char** argv)
     // Get the number of size bins
     {
       typedef int (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_nsizebin",
@@ -270,9 +270,9 @@ void main(int argc, char** argv)
       typedef double (*api_get_sshaerosol_dt_t)();
       api_get_sshaerosol_dt_t fct =
         (api_get_sshaerosol_dt_t) _get_dl_function_pointer(handle,
-                                                          lib_path,                                      
+                                                          lib_path,
                                                          "api_get_sshaerosol_initial_t",
-                                                          true);                                         
+                                                          true);
       tt = fct();
       printf("Initial time : %f\n", tt);
     }
@@ -292,7 +292,7 @@ void main(int argc, char** argv)
     // Set the time step of SSH-aerosol
     {
       typedef bool (*api_set_sshaerosol_dt_t)(double*);
-      api_set_sshaerosol_dt_t fct = 
+      api_set_sshaerosol_dt_t fct =
         (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
                                                          "api_set_sshaerosol_dt",
@@ -305,7 +305,7 @@ void main(int argc, char** argv)
     // Read again the time step used by SSH-aerosol
     {
       typedef double (*api_get_sshaerosol_dt_t)();
-      api_get_sshaerosol_dt_t fct = 
+      api_get_sshaerosol_dt_t fct =
         (api_get_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
                                                          "api_get_sshaerosol_dt",
@@ -315,13 +315,13 @@ void main(int argc, char** argv)
     }
 
     // Restore the time step
-    {                                                                                                    
-      typedef bool (*api_set_sshaerosol_dt_t)(double*);                                                  
-      api_set_sshaerosol_dt_t fct =                                                                      
-        (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,                                       
-                                                          lib_path,                                      
+    {
+      typedef bool (*api_set_sshaerosol_dt_t)(double*);
+      api_set_sshaerosol_dt_t fct =
+        (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,
+                                                          lib_path,
                                                          "api_set_sshaerosol_dt",
-                                                          true);                                         
+                                                          true);
       bool check = fct(&dtref);
     }
 
@@ -340,7 +340,7 @@ void main(int argc, char** argv)
     // Read the gas species concentrations in SSH-aerosol
     {
       typedef void* (*api_get_sshaerosol_t)(double*);
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_gas_concentration",
@@ -354,7 +354,7 @@ void main(int argc, char** argv)
     // Set the gas species concentrations in SSH-aerosol
     {
       typedef void (*api_set_sshaerosol_t)(double*);
-      api_set_sshaerosol_t fct = 
+      api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_set_sshaerosol_gas_concentration",
@@ -370,7 +370,7 @@ void main(int argc, char** argv)
     // Read again the gas species concentrations
     {
       typedef void* (*api_get_sshaerosol_t)(double*);
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_gas_concentration",
@@ -396,7 +396,7 @@ void main(int argc, char** argv)
     // Read the aerosols concentrations
     {
       typedef void* (*api_get_sshaerosol_t)(double*);
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_aero_concentration",
@@ -410,7 +410,7 @@ void main(int argc, char** argv)
     // Set the aerosol concentrations
     {
       typedef void (*api_set_sshaerosol_t)(double*);
-      api_set_sshaerosol_t fct = 
+      api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_set_sshaerosol_aero_concentration",
@@ -426,7 +426,7 @@ void main(int argc, char** argv)
     // Read again the aerosols concentration
     {
       typedef void* (*api_get_sshaerosol_t)(double*);
-      api_get_sshaerosol_t fct = 
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_aero_concentration",
@@ -452,7 +452,7 @@ void main(int argc, char** argv)
     // Read the aerosols numbers
     {
       typedef void* (*api_get_sshaerosol_t)(double*);
-      api_get_sshaerosol_t fct =                       
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_aero_number",
@@ -464,7 +464,7 @@ void main(int argc, char** argv)
     }
 
     // Set the aerosols numbers
-    { 
+    {
       typedef void (*api_set_sshaerosol_t)(double*);
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
@@ -481,8 +481,8 @@ void main(int argc, char** argv)
 
     // Read again the aerosols numbers
     {
-      typedef void* (*api_get_sshaerosol_t)(double*);  
-      api_get_sshaerosol_t fct =                       
+      typedef void* (*api_get_sshaerosol_t)(double*);
+      api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
                                                       "api_get_sshaerosol_aero_number",
@@ -492,7 +492,7 @@ void main(int argc, char** argv)
       printf("Get aerosols numbers:");
       for (int i = 0; i < nsizebin; i++) printf(" %f", data[i]);
       printf("\n");
-    } 
+    }
 
     // Restore the aerosols numbers
     {
@@ -507,16 +507,16 @@ void main(int argc, char** argv)
 
     // Ask SSH-aerosol to perform some IO
     {
-      typedef bool (*api_sshaerosol_t)();                                                                
-      api_sshaerosol_t fct =                                                                             
-        (api_sshaerosol_t) _get_dl_function_pointer(handle,                                              
+      typedef void (*api_sshaerosol_t)();
+      api_sshaerosol_t fct =
+        (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
                                                    "api_call_sshaerosol_initoutput",
                                                     true);
       fct();
     }
     {
-      typedef bool (*api_sshaerosol_t)();
+      typedef void (*api_sshaerosol_t)();
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
@@ -525,7 +525,7 @@ void main(int argc, char** argv)
       fct();
     }
     {
-      typedef bool (*api_sshaerosol_t)();
+      typedef void (*api_sshaerosol_t)();
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
@@ -536,7 +536,7 @@ void main(int argc, char** argv)
 
     // Initialize photolysis
     {
-      typedef bool (*api_sshaerosol_t)();
+      typedef void (*api_sshaerosol_t)();
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
@@ -567,7 +567,7 @@ void main(int argc, char** argv)
 
       // Update photolysis
       {
-        typedef bool (*api_sshaerosol_t)();
+        typedef void (*api_sshaerosol_t)();
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
@@ -578,7 +578,7 @@ void main(int argc, char** argv)
 
       // Emissions
       {
-        typedef bool (*api_sshaerosol_t)();
+        typedef void (*api_sshaerosol_t)();
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
@@ -589,7 +589,7 @@ void main(int argc, char** argv)
 
       // Call gaseous chemistry
       {
-        typedef bool (*api_sshaerosol_t)();
+        typedef void (*api_sshaerosol_t)();
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
@@ -599,8 +599,8 @@ void main(int argc, char** argv)
       }
 
       // Call aerosols dynamic
-      { 
-        typedef bool (*api_sshaerosol_t)();
+      {
+        typedef void (*api_sshaerosol_t)();
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
@@ -615,9 +615,9 @@ void main(int argc, char** argv)
 
       // Ask SSH-aerosol to perform some IO
       {
-        typedef bool (*api_sshaerosol_t)();                                                                
-        api_sshaerosol_t fct =                                                                             
-          (api_sshaerosol_t) _get_dl_function_pointer(handle,                                              
+        typedef void (*api_sshaerosol_t)();
+        api_sshaerosol_t fct =
+          (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
                                                      "api_call_sshaerosol_output",
                                                       true);

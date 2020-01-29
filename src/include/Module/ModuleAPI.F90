@@ -16,6 +16,74 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can use a simplified initialization for SSH
+!
+! input : namelist.ssh file
+!   maximum length of input set to 40 chars (cf read_namelist)
+! =============================================================
+
+    subroutine api_simple_initialize(input_namelist_file, ngas, naero, nbin) bind(c, name='api_sshaerosol_simple_initialize_')
+
+      use iso_c_binding
+
+      implicit none
+
+      integer, parameter :: size_namelist_file = 40
+      character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
+      integer(kind=c_int), intent(out) :: ngas, naero, nbin
+      logical(kind=c_bool), parameter :: ok=.true.
+      logical(kind=c_bool), parameter :: nope=.false.
+      real(c_double) :: time
+
+      call set_standalone(nope)
+      call api_set_logger(ok)
+      call api_initialize(input_namelist_file)
+      ngas = api_get_ngas()
+      naero = api_get_naero()
+      nbin = api_get_nsizebin()
+      call api_call_ssh_initoutput()
+      call api_call_ssh_report()
+      call api_call_ssh_output()
+      call api_call_ssh_initphoto()
+      time = get_initial_t()
+      call set_current_t(time)
+
+    end subroutine api_simple_initialize
+
+! =============================================================
+!
+! External code can use a simplified time step for SSH
+!
+! input : time step
+! =============================================================
+
+    subroutine api_simple_dt(dt) bind(c, name='api_sshaerosol_simple_dt_')
+
+      use iso_c_binding
+      use aInitialization, only : logfile, ssh_standalone, ssh_logger
+
+      implicit none
+
+      real(c_double), intent(in) :: dt
+      real(c_double) :: time
+
+      if (.not.set_dt(dt)) then
+        if (ssh_standalone) write(*,*) "Error. Decrease the time step."
+        if (ssh_logger) write(logfile,*) "Error. Decrease the time step."
+        stop
+      endif
+      time = get_current_t()
+      call set_current_t(time + dt)
+      call api_call_ssh_updatephoto()
+      call api_call_ssh_emission()
+      call api_call_ssh_gaschemistry()
+      call api_call_ssh_aerochemistry()
+      call api_call_ssh_output()
+
+    end subroutine api_simple_dt
+
+! =============================================================
+!
 ! External code can force SSH-aerosol to:
 !   read simulation settings from file
 !   call initialize functions
@@ -855,7 +923,7 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
-! External code can call the save_concentration subroutine
+! External code can call the init_output_conc subroutine
 !         
 ! =============================================================
           

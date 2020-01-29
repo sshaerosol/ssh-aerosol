@@ -4,12 +4,12 @@ set -e
 rm namelist.ssh
 ln -s INIT/namelist_nucl.ssh namelist.ssh
 rm -rf results/nucl_coupl
-./c_example
+LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_example
 #
 rm namelist.ssh
 ln -s INIT/namelist_nucl_split.ssh namelist.ssh
 rm -rf results/nucl_split
-./c_example
+LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_example
 #
 cd graph
 python dN_Vdlogd_nucl.py
