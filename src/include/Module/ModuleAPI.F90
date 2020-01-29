@@ -366,6 +366,46 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can set the SSH-aerosol current time
+!
+! input : current time in seconds (GMT, computed from January 1st)
+! =============================================================
+
+    subroutine set_current_t(val) bind(c, name='api_set_sshaerosol_current_t_')
+
+      use iso_c_binding
+      use aInitialization, only : current_time
+
+      implicit none
+
+      real(c_double), intent(in) :: val
+
+      current_time = val
+
+    end subroutine set_current_t
+
+! =============================================================
+!
+! External code can get the SSH-aerosol current time
+!
+! return value : current time in seconds (GMT, computed from January 1st)
+! =============================================================
+
+    function get_current_t() bind(c, name='api_get_sshaerosol_current_t_')
+
+      use iso_c_binding
+      use aInitialization, only : current_time
+
+      implicit none
+
+      real(c_double) :: get_current_t
+
+      get_current_t = current_time
+
+    end function get_current_t
+
+! =============================================================
+!
 ! External code can force to update the specific humidity
 !
 ! =============================================================
@@ -692,6 +732,24 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can call the emissions subroutine
+!
+! =============================================================
+
+    subroutine api_call_ssh_emission() bind(c, name='api_call_sshaerosol_emission_')
+
+      use iso_c_binding
+      use aInitialization, only : tag_emis, delta_t
+      use mEmissions, only : emission
+
+      implicit none
+
+      if (tag_emis .ne. 0) call emission(delta_t)
+
+    end subroutine api_call_ssh_emission
+
+! =============================================================
+!
 ! External code can call the chemistry scheme
 !
 ! =============================================================
@@ -777,5 +835,102 @@ module SSHaerosolAPI
       end do
 
     end subroutine api_call_ssh_aerochemistry
+
+! =============================================================
+!
+! External code can call the save_report subroutine
+!         
+! =============================================================
+
+    subroutine api_call_ssh_report() bind(c, name='api_call_sshaerosol_report_')
+
+      use iso_c_binding
+      use Resultoutput
+
+      implicit none
+
+      call save_report()
+
+    end subroutine api_call_ssh_report
+
+! =============================================================
+!
+! External code can call the save_concentration subroutine
+!         
+! =============================================================
+          
+    subroutine api_call_ssh_initoutput() bind(c, name='api_call_sshaerosol_initoutput_')
+      
+      use iso_c_binding
+      use Resultoutput 
+
+      implicit none
+
+      call init_output_conc()
+
+    end subroutine api_call_ssh_initoutput
+
+! =============================================================
+!
+! External code can call the save_concentration subroutine
+!         
+! =============================================================
+          
+    subroutine api_call_ssh_output() bind(c, name='api_call_sshaerosol_output_')
+
+      use iso_c_binding
+      use Resultoutput
+
+      implicit none
+
+      call save_concentration()
+
+    end subroutine api_call_ssh_output
+
+! =============================================================
+!
+! External code can initialize the photolysis
+!
+! =============================================================
+
+    subroutine api_call_ssh_initphoto() bind(c, name='api_call_sshaerosol_initphoto_')
+
+      use iso_c_binding
+      use aInitialization
+      use mod_photolysis
+
+      implicit none
+
+      if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+        ! Allocate arrays for photolysis
+        call allocate_photolysis()
+        ! Read photolysis rate for current day
+        current_time = initial_time
+        call init_photolysis()
+        call interpol_photolysis()
+      endif
+
+    end subroutine api_call_ssh_initphoto
+
+! =============================================================
+!    
+! External code can update the photolysis
+!
+! =============================================================
+
+    subroutine api_call_ssh_updatephoto() bind(c, name='api_call_sshaerosol_updatephoto_')
+
+      use iso_c_binding
+      use aInitialization
+      use mod_photolysis
+
+      implicit none
+
+      ! Read the photolysis rates.
+      if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+        call interpol_photolysis()
+      endif
+
+    end subroutine api_call_ssh_updatephoto
 
 end module SSHaerosolAPI

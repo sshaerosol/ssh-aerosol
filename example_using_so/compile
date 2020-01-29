@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+gcc -g -o c_example example.c -ldl ../src/libssh-aerosol.so -rdynamic
