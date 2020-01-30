@@ -29,6 +29,10 @@ compile-lib:
   script:
     - ./clean
     - ./compile --sharedlib=yes
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - src/libssh-aerosol.so
 
 compile-omp-lib:
   stage: build
@@ -104,6 +108,22 @@ nucleation:
       - graph/*png
   dependencies:
     - compile
+
+nucleation-lib:
+  stage: test
+  script:
+   - cd example_using_so
+   - ./compile
+   - ./run_simple
+   - cd graph
+   - python dN_Vdlogd_nucl.py
+   - python banana.py
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - example_using_so/graph/*png
+  dependencies:
+    - compile-lib
 
 platt:
   stage: test
