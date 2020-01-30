@@ -174,6 +174,17 @@ void main(int argc, char** argv)
 
     }
 
+    // Finalize SSH
+    {
+      typedef void (*api_sshaerosol_t)();
+      api_sshaerosol_t fct =
+        (api_sshaerosol_t) _get_dl_function_pointer(handle,
+                                                    lib_path,
+                                                   "api_sshaerosol_finalize",
+                                                    true);
+      fct();
+    }
+
     // Close the shared library
     printf("dclose\n");
     dlclose(handle);
