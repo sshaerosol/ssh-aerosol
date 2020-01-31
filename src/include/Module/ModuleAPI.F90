@@ -159,7 +159,7 @@ module SSHaerosolAPI
 ! input : true if running standalone (default), false otherwise
 ! =============================================================
 
-    subroutine set_standalone(flag) bind(c, name='api_set_sshaerosol_standalone_')
+    subroutine set_standalone(flag) bind(c, name='api_sshaerosol_set_standalone_')
 
       use iso_c_binding
       use aInitialization, only : ssh_standalone
@@ -179,7 +179,7 @@ module SSHaerosolAPI
 ! return value : true if running standalone (default), false otherwise
 ! =============================================================
 
-    function standalone() bind(c, name='api_get_sshaerosol_standalone_')
+    function standalone() bind(c, name='api_sshaerosol_get_standalone_')
 
       use iso_c_binding
       use aInitialization, only : ssh_standalone
@@ -201,7 +201,7 @@ module SSHaerosolAPI
 ! input : true if logging to a file, false (default) otherwise
 ! =============================================================
 
-    subroutine api_set_logger(cflag) bind(c, name='api_set_sshaerosol_logger_')
+    subroutine api_set_logger(cflag) bind(c, name='api_sshaerosol_set_logger_')
 
       use iso_c_binding
       use aInitialization, only : set_logger
@@ -223,7 +223,7 @@ module SSHaerosolAPI
 ! return value : true if logging to a file, false (default) otherwise
 ! =============================================================
 
-    function logger() bind(c, name='api_get_sshaerosol_logger_')
+    function logger() bind(c, name='api_sshaerosol_get_logger_')
 
       use iso_c_binding
       use aInitialization, only : ssh_logger
@@ -243,7 +243,7 @@ module SSHaerosolAPI
 ! return value : number of gas species
 ! =============================================================
 
-    function api_get_ngas() bind(c, name='api_get_sshaerosol_ngas_')
+    function api_get_ngas() bind(c, name='api_sshaerosol_get_ngas_')
 
       use iso_c_binding
       use aInitialization, only : N_gas
@@ -263,7 +263,7 @@ module SSHaerosolAPI
 ! return value : number of aerosols species
 ! =============================================================
 
-    function api_get_naero() bind(c, name='api_get_sshaerosol_naero_')
+    function api_get_naero() bind(c, name='api_sshaerosol_get_naero_')
 
       use iso_c_binding
       use aInitialization, only : N_aerosol
@@ -283,7 +283,7 @@ module SSHaerosolAPI
 ! return value : number of aerosols size bins
 ! =============================================================
 
-    function api_get_nsizebin() bind(c, name='api_get_sshaerosol_nsizebin_')
+    function api_get_nsizebin() bind(c, name='api_sshaerosol_get_nsizebin_')
 
       use iso_c_binding
       use aInitialization, only : N_sizebin
@@ -304,7 +304,7 @@ module SSHaerosolAPI
 ! return value : name of the aerosol species
 ! =============================================================
 
-    subroutine api_get_aero_name(aero_num, c_string) bind(c, name='api_get_sshaerosol_aero_name_')
+    subroutine api_get_aero_name(aero_num, c_string) bind(c, name='api_sshaerosol_get_aero_name_')
 
       use iso_c_binding
       use aInitialization, only : N_aerosol, aerosol_species_name, logfile, ssh_standalone, ssh_logger
@@ -350,7 +350,7 @@ module SSHaerosolAPI
 ! return value : false if the time step is too small
 ! =============================================================
 
-    function set_dt(val) bind(c, name='api_set_sshaerosol_dt_')
+    function set_dt(val) bind(c, name='api_sshaerosol_set_dt_')
 
       use iso_c_binding
       use aInitialization, only : delta_t, dt, DTAEROMIN
@@ -379,7 +379,7 @@ module SSHaerosolAPI
 ! return value : time step in seconds
 ! =============================================================
 
-    function get_dt() bind(c, name='api_get_sshaerosol_dt_')
+    function get_dt() bind(c, name='api_sshaerosol_get_dt_')
 
       use iso_c_binding
       use aInitialization, only : delta_t
@@ -399,7 +399,7 @@ module SSHaerosolAPI
 ! input : initial time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    subroutine set_initial_t(val) bind(c, name='api_set_sshaerosol_initial_t_')
+    subroutine set_initial_t(val) bind(c, name='api_sshaerosol_set_initial_t_')
 
       use iso_c_binding
       use aInitialization, only : initial_time
@@ -419,7 +419,7 @@ module SSHaerosolAPI
 ! return value : initial time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    function get_initial_t() bind(c, name='api_get_sshaerosol_initial_t_')
+    function get_initial_t() bind(c, name='api_sshaerosol_get_initial_t_')
 
       use iso_c_binding
       use aInitialization, only : initial_time
@@ -439,7 +439,7 @@ module SSHaerosolAPI
 ! input : current time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    subroutine set_current_t(val) bind(c, name='api_set_sshaerosol_current_t_')
+    subroutine set_current_t(val) bind(c, name='api_sshaerosol_set_current_t_')
 
       use iso_c_binding
       use aInitialization, only : current_time
@@ -459,7 +459,7 @@ module SSHaerosolAPI
 ! return value : current time in seconds (GMT, computed from January 1st)
 ! =============================================================
 
-    function get_current_t() bind(c, name='api_get_sshaerosol_current_t_')
+    function get_current_t() bind(c, name='api_sshaerosol_get_current_t_')
 
       use iso_c_binding
       use aInitialization, only : current_time
@@ -478,7 +478,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_update_humidity() bind(c, name='api_update_sshaerosol_humidity_')
+    subroutine api_update_humidity() bind(c, name='api_sshaerosol_update_humidity_')
 
       use iso_c_binding
       use aInitialization, only : temperature, humidity, pressure, pressure_sat, relative_humidity
@@ -502,7 +502,7 @@ module SSHaerosolAPI
 ! output : specific humidity in kg / kg
 ! =============================================================
 
-    function api_get_humidity() bind(c, name='api_get_sshaerosol_humidity_')
+    function api_get_humidity() bind(c, name='api_sshaerosol_get_humidity_')
 
       use iso_c_binding
       use aInitialization, only : humidity
@@ -522,7 +522,7 @@ module SSHaerosolAPI
 ! input : relative humidity in ??? TODO
 ! =============================================================
 
-    subroutine api_set_relhumidity(val) bind(c, name='api_set_sshaerosol_relhumidity_')
+    subroutine api_set_relhumidity(val) bind(c, name='api_sshaerosol_set_relhumidity_')
 
       use iso_c_binding
       use aInitialization, only : relative_humidity
@@ -545,7 +545,7 @@ module SSHaerosolAPI
 ! output : relative humidity in ??? TODO
 ! =============================================================
 
-    function api_get_relhumidity() bind(c, name='api_get_sshaerosol_relhumidity_')
+    function api_get_relhumidity() bind(c, name='api_sshaerosol_get_relhumidity_')
 
       use iso_c_binding
       use aInitialization, only : relative_humidity
@@ -565,7 +565,7 @@ module SSHaerosolAPI
 ! input : temperature in K
 ! =============================================================
 
-    subroutine api_set_temperature(val) bind(c, name='api_set_sshaerosol_temperature_')
+    subroutine api_set_temperature(val) bind(c, name='api_sshaerosol_set_temperature_')
 
       use iso_c_binding
       use aInitialization, only : temperature
@@ -585,7 +585,7 @@ module SSHaerosolAPI
 ! output : temperature in K
 ! =============================================================
 
-    function api_get_temperature() bind(c, name='api_get_sshaerosol_temperature_')
+    function api_get_temperature() bind(c, name='api_sshaerosol_get_temperature_')
 
       use iso_c_binding
       use aInitialization, only : temperature
@@ -605,7 +605,7 @@ module SSHaerosolAPI
 ! input : pressure in Pa
 ! =============================================================
 
-    subroutine api_set_pressure(val) bind(c, name='api_set_sshaerosol_pressure_')
+    subroutine api_set_pressure(val) bind(c, name='api_sshaerosol_set_pressure_')
 
       use iso_c_binding
       use aInitialization, only : pressure
@@ -625,7 +625,7 @@ module SSHaerosolAPI
 ! output : pressure in Pa
 ! =============================================================
 
-    function api_get_pressure() bind(c, name='api_get_sshaerosol_pressure_')
+    function api_get_pressure() bind(c, name='api_sshaerosol_get_pressure_')
 
       use iso_c_binding
       use aInitialization, only : pressure
@@ -645,7 +645,7 @@ module SSHaerosolAPI
 ! input : pH in ??? TODO
 ! =============================================================
 
-    subroutine api_set_ph(val) bind(c, name='api_set_sshaerosol_ph_')
+    subroutine api_set_ph(val) bind(c, name='api_sshaerosol_set_ph_')
 
       use iso_c_binding
       use aInitialization, only : ph
@@ -665,7 +665,7 @@ module SSHaerosolAPI
 ! output : pH in ??? TODO
 ! =============================================================
 
-    function api_get_ph() bind(c, name='api_get_sshaerosol_ph_')
+    function api_get_ph() bind(c, name='api_sshaerosol_get_ph_')
 
       use iso_c_binding
       use aInitialization, only : ph
@@ -685,7 +685,7 @@ module SSHaerosolAPI
 ! input : array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine api_set_gas_concentration(array) bind(c, name='api_set_sshaerosol_gas_concentration_')
+    subroutine api_set_gas_concentration(array) bind(c, name='api_sshaerosol_set_gas_')
 
       use iso_c_binding
       use aInitialization, only : N_gas, concentration_gas_all
@@ -705,7 +705,7 @@ module SSHaerosolAPI
 ! output : array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine api_get_gas_concentration(array) bind(c, name='api_get_sshaerosol_gas_concentration_')
+    subroutine api_get_gas_concentration(array) bind(c, name='api_sshaerosol_get_gas_')
 
       use iso_c_binding
       use aInitialization, only : N_gas, concentration_gas_all
@@ -725,7 +725,7 @@ module SSHaerosolAPI
 ! input : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine api_set_aero_concentration(array) bind(c, name='api_set_sshaerosol_aero_concentration_')
+    subroutine api_set_aero_concentration(array) bind(c, name='api_sshaerosol_set_aero_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_mass
@@ -745,7 +745,7 @@ module SSHaerosolAPI
 ! output : 2D array of concentrations in micrograms / m^3
 ! =============================================================
 
-    subroutine api_get_aero_concentration(array) bind(c, name='api_get_sshaerosol_aero_concentration_')
+    subroutine api_get_aero_concentration(array) bind(c, name='api_sshaerosol_get_aero_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_mass
@@ -765,7 +765,7 @@ module SSHaerosolAPI
 ! input : 1D array in particles / m^3
 ! =============================================================
 
-    subroutine api_set_aero_number(array) bind(c, name='api_set_sshaerosol_aero_number_')
+    subroutine api_set_aero_number(array) bind(c, name='api_sshaerosol_set_aero_num_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_number
@@ -785,7 +785,7 @@ module SSHaerosolAPI
 ! output : 1D array in particles / m^3
 ! =============================================================
 
-    subroutine api_get_aero_number(array) bind(c, name='api_get_sshaerosol_aero_number_')
+    subroutine api_get_aero_number(array) bind(c, name='api_sshaerosol_get_aero_num_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, concentration_number
@@ -804,7 +804,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_call_ssh_emission() bind(c, name='api_call_sshaerosol_emission_')
+    subroutine api_call_ssh_emission() bind(c, name='api_sshaerosol_emission_')
 
       use iso_c_binding
       use aInitialization, only : tag_emis, delta_t
@@ -822,7 +822,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_call_ssh_gaschemistry() bind(c, name='api_call_sshaerosol_gaschemistry_')
+    subroutine api_call_ssh_gaschemistry() bind(c, name='api_sshaerosol_gaschemistry_')
 
       use iso_c_binding
       use aInitialization
@@ -831,9 +831,10 @@ module SSHaerosolAPI
 
       double precision :: current_time_api
 
-      current_time_api = initial_time
+      current_time_api = current_time
 
-      call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+      if (tag_chem .ne. 0) then
+        call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
           0, lwc_cloud_threshold, molecular_weight, &
           current_time_api, attenuation, &
@@ -854,6 +855,7 @@ module SSHaerosolAPI
           min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
           1, not(with_fixed_density), concentration_number, &
           mass_density)
+      endif
 
     end subroutine api_call_ssh_gaschemistry
 
@@ -863,7 +865,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_call_ssh_aerochemistry() bind(c, name='api_call_sshaerosol_aerochemistry_')
+    subroutine api_call_ssh_aerochemistry() bind(c, name='api_sshaerosol_aerodyn_')
 
       use iso_c_binding
       use aInitialization
@@ -910,7 +912,7 @@ module SSHaerosolAPI
 !         
 ! =============================================================
 
-    subroutine api_call_ssh_report() bind(c, name='api_call_sshaerosol_report_')
+    subroutine api_call_ssh_report() bind(c, name='api_sshaerosol_report_')
 
       use iso_c_binding
       use Resultoutput
@@ -927,7 +929,7 @@ module SSHaerosolAPI
 !         
 ! =============================================================
           
-    subroutine api_call_ssh_initoutput() bind(c, name='api_call_sshaerosol_initoutput_')
+    subroutine api_call_ssh_initoutput() bind(c, name='api_sshaerosol_initoutput_')
       
       use iso_c_binding
       use Resultoutput 
@@ -944,7 +946,7 @@ module SSHaerosolAPI
 !         
 ! =============================================================
           
-    subroutine api_call_ssh_output() bind(c, name='api_call_sshaerosol_output_')
+    subroutine api_call_ssh_output() bind(c, name='api_sshaerosol_output_')
 
       use iso_c_binding
       use Resultoutput
@@ -961,7 +963,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_call_ssh_initphoto() bind(c, name='api_call_sshaerosol_initphoto_')
+    subroutine api_call_ssh_initphoto() bind(c, name='api_sshaerosol_initphoto_')
 
       use iso_c_binding
       use aInitialization
@@ -986,7 +988,7 @@ module SSHaerosolAPI
 !
 ! =============================================================
 
-    subroutine api_call_ssh_updatephoto() bind(c, name='api_call_sshaerosol_updatephoto_')
+    subroutine api_call_ssh_updatephoto() bind(c, name='api_sshaerosol_updatephoto_')
 
       use iso_c_binding
       use aInitialization

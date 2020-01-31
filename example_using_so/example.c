@@ -150,7 +150,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_standalone_",
+                                                      "api_sshaerosol_set_standalone",
                                                        true);
       bool flag = false;
       fct(&flag);
@@ -163,7 +163,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_logger",
+                                                      "api_sshaerosol_set_logger",
                                                        true);
       bool flag = true;
       fct(&flag);
@@ -175,7 +175,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_standalone",
+                                                      "api_sshaerosol_get_standalone",
                                                        true);
       bool flag = fct();
       printf("Standalone is %s\n", flag ? "true" : "false");
@@ -187,7 +187,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_logger",
+                                                      "api_sshaerosol_get_logger",
                                                        true);
       bool flag = fct();
       printf("Logger is %s\n", flag ? "true" : "false");
@@ -212,7 +212,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_ngas",
+                                                      "api_sshaerosol_get_ngas",
                                                        true);
       ns = fct();
       printf("N_gas : %d\n", ns);
@@ -224,7 +224,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_naero",
+                                                      "api_sshaerosol_get_naero",
                                                        true);
       naero = fct();
       printf("N_aerosol : %d\n", naero);
@@ -236,7 +236,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_nsizebin",
+                                                      "api_sshaerosol_get_nsizebin",
                                                        true);
       nsizebin = fct();
       printf("N_sizebin : %d\n", nsizebin);
@@ -257,7 +257,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                         lib_path,
-                                                       "api_get_sshaerosol_aero_name",
+                                                       "api_sshaerosol_get_aero_name",
                                                         true);
       int iaero = 4;
       char name[81];
@@ -271,7 +271,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_dt_t fct =
         (api_get_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
-                                                         "api_get_sshaerosol_initial_t",
+                                                         "api_sshaerosol_get_initial_t",
                                                           true);
       tt = fct();
       printf("Initial time : %f\n", tt);
@@ -283,7 +283,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_dt_t fct =
         (api_get_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
-                                                         "api_get_sshaerosol_dt",
+                                                         "api_sshaerosol_get_dt",
                                                           true);
       dtref = fct();
       printf("Delta t : %f\n", dtref);
@@ -295,7 +295,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_dt_t fct =
         (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
-                                                         "api_set_sshaerosol_dt",
+                                                         "api_sshaerosol_set_dt",
                                                           true);
       double dt = 0.123456;
       bool check = fct(&dt);
@@ -308,7 +308,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_dt_t fct =
         (api_get_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
-                                                         "api_get_sshaerosol_dt",
+                                                         "api_sshaerosol_get_dt",
                                                           true);
       double dt = fct();
       printf("Delta t : %f\n", dt);
@@ -320,7 +320,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_dt_t fct =
         (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                           lib_path,
-                                                         "api_set_sshaerosol_dt",
+                                                         "api_sshaerosol_set_dt",
                                                           true);
       bool check = fct(&dtref);
     }
@@ -343,7 +343,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_gas_concentration",
+                                                      "api_sshaerosol_get_gas_",
                                                        true);
       fct(gas);
       printf("Get gaseous concentrations:");
@@ -357,7 +357,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_gas_concentration",
+                                                      "api_sshaerosol_set_gas_",
                                                        true);
       double data[ns];
       for (int i = 0; i < ns; i++) data[i] = i+1;
@@ -373,7 +373,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_gas_concentration",
+                                                      "api_sshaerosol_get_gas_",
                                                        true);
       double data[ns];
       fct(&data);
@@ -388,7 +388,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_gas_concentration",
+                                                      "api_sshaerosol_set_gas",
                                                        true);
       fct(gas);
     }
@@ -399,7 +399,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_aero_concentration",
+                                                      "api_sshaerosol_get_aero_",
                                                        true);
       fct(aero);
       printf("Get aerosols concentrations:");
@@ -413,7 +413,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_aero_concentration",
+                                                      "api_sshaerosol_set_aero_",
                                                        true);
       double data[naero*nsizebin];
       for (int i = 0; i < naero*nsizebin; i++) data[i] = i+1;
@@ -429,7 +429,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_aero_concentration",
+                                                      "api_sshaerosol_get_aero_",
                                                        true);
       double data[naero*nsizebin];
       fct(&data);
@@ -444,7 +444,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_aero_concentration",
+                                                      "api_sshaerosol_set_aero_",
                                                        true);
       fct(aero);
     }
@@ -455,7 +455,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_aero_number",
+                                                      "api_sshaerosol_get_aero_num",
                                                        true);
       fct(aeronum);
       printf("Get aerosols numbers:");
@@ -469,7 +469,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_aero_number",
+                                                      "api_sshaerosol_set_aero_num",
                                                        true);
       double data[nsizebin];
       for (int i = 0; i < nsizebin; i++) data[i] = 0;
@@ -485,7 +485,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_get_sshaerosol_aero_number",
+                                                      "api_sshaerosol_get_aero_num",
                                                        true);
       double data[nsizebin];
       fct(&data);
@@ -500,7 +500,7 @@ void main(int argc, char** argv)
       api_set_sshaerosol_t fct =
         (api_set_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_set_sshaerosol_aero_number",
+                                                      "api_sshaerosol_set_aero_num",
                                                        true);
       fct(aeronum);
     }
@@ -511,7 +511,7 @@ void main(int argc, char** argv)
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
-                                                   "api_call_sshaerosol_initoutput",
+                                                   "api_sshaerosol_initoutput",
                                                     true);
       fct();
     }
@@ -520,7 +520,7 @@ void main(int argc, char** argv)
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
-                                                   "api_call_sshaerosol_report",
+                                                   "api_sshaerosol_report",
                                                     true);
       fct();
     }
@@ -529,7 +529,7 @@ void main(int argc, char** argv)
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
-                                                   "api_call_sshaerosol_output",
+                                                   "api_sshaerosol_output",
                                                     true);
       fct();
     }
@@ -540,7 +540,7 @@ void main(int argc, char** argv)
       api_sshaerosol_t fct =
         (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                     lib_path,
-                                                   "api_call_sshaerosol_initphoto",
+                                                   "api_sshaerosol_initphoto",
                                                     true);
       fct();
     }
@@ -560,7 +560,7 @@ void main(int argc, char** argv)
         api_set_sshaerosol_dt_t fct =
           (api_set_sshaerosol_dt_t) _get_dl_function_pointer(handle,
                                                             lib_path,
-                                                           "api_set_sshaerosol_current_t",
+                                                           "api_sshaerosol_set_current_t",
                                                             true);
         fct(&tt);
       }
@@ -571,7 +571,7 @@ void main(int argc, char** argv)
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
-                                                     "api_call_sshaerosol_updatephoto",
+                                                     "api_sshaerosol_updatephoto",
                                                       true);
         fct();
       }
@@ -582,7 +582,7 @@ void main(int argc, char** argv)
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
-                                                     "api_call_sshaerosol_emission",
+                                                     "api_sshaerosol_emission",
                                                       true);
         fct();
       }
@@ -593,7 +593,7 @@ void main(int argc, char** argv)
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
-                                                     "api_call_sshaerosol_gaschemistry",
+                                                     "api_sshaerosol_gaschemistry",
                                                       true);
         fct();
       }
@@ -604,7 +604,7 @@ void main(int argc, char** argv)
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
-                                                     "api_call_sshaerosol_aerochemistry",
+                                                     "api_sshaerosol_aerodyn",
                                                       true);
         fct();
       }
@@ -619,7 +619,7 @@ void main(int argc, char** argv)
         api_sshaerosol_t fct =
           (api_sshaerosol_t) _get_dl_function_pointer(handle,
                                                       lib_path,
-                                                     "api_call_sshaerosol_output",
+                                                     "api_sshaerosol_output",
                                                       true);
         fct();
       }
