@@ -99,10 +99,10 @@ void main(int argc, char** argv)
 
   // Number of gas species
   int ns;
+  // Number of aerosol layers
+  int nlayer;
   // Number of aerosols
-  int naero;
-  // Number of sizebins
-  int nsizebin;
+  int nsize;
   // Time step
   double dtref;
   // Time
@@ -144,13 +144,13 @@ void main(int argc, char** argv)
                                                             lib_path,
                                                            "api_sshaerosol_simple_initialize",
                                                             true);
-      api_sshaerosol_initialize(&namelist_ssh, &ns, &naero, &nsizebin);
+      api_sshaerosol_initialize(&namelist_ssh, &ns, &nlayer, &nsize);
     }
 
     // Allocate memory
     gas = (double*) malloc(ns*sizeof(double));
-    aero = (double*) malloc(naero*nsizebin*sizeof(double));
-    aeronum = (double*) malloc(nsizebin*sizeof(double));
+    aero = (double*) malloc(nlayer*nsize*sizeof(double));
+    aeronum = (double*) malloc(nsize*sizeof(double));
     if (gas == NULL || aero == NULL || aeronum == NULL) {
       printf("Memory allocation failed");
       exit(1);

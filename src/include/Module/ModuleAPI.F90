@@ -22,7 +22,7 @@ module SSHaerosolAPI
 !   maximum length of input set to 40 chars (cf read_namelist)
 ! =============================================================
 
-    subroutine api_simple_initialize(input_namelist_file, ngas, naero, nbin) bind(c, name='api_sshaerosol_simple_initialize_')
+    subroutine api_simple_initialize(input_namelist_file, ngas, nlayer, nsize) bind(c, name='api_sshaerosol_simple_initialize_')
 
       use iso_c_binding
 
@@ -30,7 +30,7 @@ module SSHaerosolAPI
 
       integer, parameter :: size_namelist_file = 40
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
-      integer(kind=c_int), intent(out) :: ngas, naero, nbin
+      integer(kind=c_int), intent(out) :: ngas, nlayer, nsize
       logical(kind=c_bool), parameter :: ok=.true.
       logical(kind=c_bool), parameter :: nope=.false.
       real(c_double) :: time
@@ -39,8 +39,8 @@ module SSHaerosolAPI
       call api_set_logger(ok)
       call api_initialize(input_namelist_file)
       ngas = api_get_ngas()
-      naero = api_get_naero()
-      nbin = api_get_nsizebin()
+      nlayer = api_get_nlayer()
+      nsize = api_get_nsize()
       call api_call_ssh_initoutput()
       call api_call_ssh_report()
       call api_call_ssh_output()
@@ -275,6 +275,46 @@ module SSHaerosolAPI
       api_get_naero = N_aerosol
 
     end function api_get_naero
+
+! =============================================================
+!
+! External code can get the number of aerosols layers
+!
+! return value : number of aerosol layers
+! =============================================================
+
+    function api_get_nlayer() bind(c, name='api_sshaerosol_get_nlayer_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol_layers
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nlayer
+
+      api_get_nlayer = N_aerosol_layers
+
+    end function api_get_nlayer
+
+! =============================================================
+!
+! External code can get the number of aerosols
+!
+! return value : number of aerosols
+! =============================================================
+
+    function api_get_nsize() bind(c, name='api_sshaerosol_get_nsize_')
+
+      use iso_c_binding
+      use aInitialization, only : N_size
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nsize
+
+      api_get_nsize = N_size
+
+    end function api_get_nsize
 
 ! =============================================================
 !
@@ -728,11 +768,11 @@ module SSHaerosolAPI
     subroutine api_set_aero_concentration(array) bind(c, name='api_sshaerosol_set_aero_')
 
       use iso_c_binding
-      use aInitialization, only : N_size, N_aerosol, concentration_mass
+      use aInitialization, only : N_size, N_aerosol_layers, concentration_mass
 
       implicit none
 
-      real(kind=c_double), intent(in), dimension(N_size, N_aerosol) :: array
+      real(kind=c_double), intent(in), dimension(N_size, N_aerosol_layers) :: array
 
       concentration_mass(:,:) = array(:,:)
 
@@ -748,11 +788,11 @@ module SSHaerosolAPI
     subroutine api_get_aero_concentration(array) bind(c, name='api_sshaerosol_get_aero_')
 
       use iso_c_binding
-      use aInitialization, only : N_size, N_aerosol, concentration_mass
+      use aInitialization, only : N_size, N_aerosol_layers, concentration_mass
 
       implicit none
 
-      real(kind=c_double), intent(out), dimension(N_size, N_aerosol) :: array
+      real(kind=c_double), intent(out), dimension(N_size, N_aerosol_layers) :: array
 
       array(:,:) = concentration_mass(:,:)
 
@@ -768,7 +808,7 @@ module SSHaerosolAPI
     subroutine api_set_aero_number(array) bind(c, name='api_sshaerosol_set_aero_num_')
 
       use iso_c_binding
-      use aInitialization, only : N_size, N_aerosol, concentration_number
+      use aInitialization, only : N_size, concentration_number
 
       implicit none
 
@@ -788,7 +828,7 @@ module SSHaerosolAPI
     subroutine api_get_aero_number(array) bind(c, name='api_sshaerosol_get_aero_num_')
 
       use iso_c_binding
-      use aInitialization, only : N_size, N_aerosol, concentration_number
+      use aInitialization, only : N_size, concentration_number
 
       implicit none
 

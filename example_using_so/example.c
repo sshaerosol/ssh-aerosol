@@ -108,10 +108,10 @@ void main(int argc, char** argv)
   int ns;
   // Number of reactions
   int nr;
+  // Number of aerosol layers
+  int nlayer;
   // Number of aerosols
-  int naero;
-  // Number of sizebins
-  int nsizebin;
+  int nsize;
   // Time step
   double dtref;
   // Time
@@ -218,34 +218,34 @@ void main(int argc, char** argv)
       printf("N_gas : %d\n", ns);
     }
 
+    // Get the number of aerosol layers
+    {
+      typedef int (*api_get_sshaerosol_t)();
+      api_get_sshaerosol_t fct =
+        (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
+                                                       lib_path,
+                                                      "api_sshaerosol_get_nlayer",
+                                                       true);
+      nlayer = fct();
+      printf("N_aerosol_layers : %d\n", nlayer);
+    }
+
     // Get the number of aerosols
     {
       typedef int (*api_get_sshaerosol_t)();
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_sshaerosol_get_naero",
+                                                      "api_sshaerosol_get_nsize",
                                                        true);
-      naero = fct();
-      printf("N_aerosol : %d\n", naero);
-    }
-
-    // Get the number of size bins
-    {
-      typedef int (*api_get_sshaerosol_t)();
-      api_get_sshaerosol_t fct =
-        (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
-                                                       lib_path,
-                                                      "api_sshaerosol_get_nsizebin",
-                                                       true);
-      nsizebin = fct();
-      printf("N_sizebin : %d\n", nsizebin);
+      nsize = fct();
+      printf("N_size : %d\n", nsize);
     }
 
     // Allocate memory
     gas = (double*) malloc(ns*sizeof(double));
-    aero = (double*) malloc(naero*nsizebin*sizeof(double));
-    aeronum = (double*) malloc(nsizebin*sizeof(double));
+    aero = (double*) malloc(nlayer*nsize*sizeof(double));
+    aeronum = (double*) malloc(nsize*sizeof(double));
     if (gas == NULL || aero == NULL || aeronum == NULL) {
       printf("Memory allocation failed");
       exit(1);
@@ -403,7 +403,7 @@ void main(int argc, char** argv)
                                                        true);
       fct(aero);
       printf("Get aerosols concentrations:");
-      for (int i = 0; i < naero*nsizebin; i++) printf(" %f", aero[i]);
+      for (int i = 0; i < nlayer*nsize; i++) printf(" %f", aero[i]);
       printf("\n");
     }
 
@@ -415,11 +415,11 @@ void main(int argc, char** argv)
                                                        lib_path,
                                                       "api_sshaerosol_set_aero_",
                                                        true);
-      double data[naero*nsizebin];
-      for (int i = 0; i < naero*nsizebin; i++) data[i] = i+1;
+      double data[nlayer*nsize];
+      for (int i = 0; i < nlayer*nsize; i++) data[i] = i+1;
       fct(&data);
       printf("Set aerosols concentrations:");
-      for (int i = 0; i < naero*nsizebin; i++) printf(" %f", data[i]);
+      for (int i = 0; i < nlayer*nsize; i++) printf(" %f", data[i]);
       printf("\n");
     }
 
@@ -431,10 +431,10 @@ void main(int argc, char** argv)
                                                        lib_path,
                                                       "api_sshaerosol_get_aero_",
                                                        true);
-      double data[naero*nsizebin];
+      double data[nlayer*nsize];
       fct(&data);
       printf("Get aerosols concentrations:");
-      for (int i = 0; i < naero*nsizebin; i++) printf(" %f", data[i]);
+      for (int i = 0; i < nlayer*nsize; i++) printf(" %f", data[i]);
       printf("\n");
     }
 
@@ -459,7 +459,7 @@ void main(int argc, char** argv)
                                                        true);
       fct(aeronum);
       printf("Get aerosols numbers:");
-      for (int i = 0; i < nsizebin; i++) printf(" %f", aeronum[i]);
+      for (int i = 0; i < nsize; i++) printf(" %f", aeronum[i]);
       printf("\n");
     }
 
@@ -471,11 +471,11 @@ void main(int argc, char** argv)
                                                        lib_path,
                                                       "api_sshaerosol_set_aero_num",
                                                        true);
-      double data[nsizebin];
-      for (int i = 0; i < nsizebin; i++) data[i] = 0;
+      double data[nsize];
+      for (int i = 0; i < nsize; i++) data[i] = 0;
       fct(&data);
       printf("Set aerosols numbers:");
-      for (int i = 0; i < nsizebin; i++) printf(" %f", data[i]);
+      for (int i = 0; i < nsize; i++) printf(" %f", data[i]);
       printf("\n");
     }
 
@@ -487,10 +487,10 @@ void main(int argc, char** argv)
                                                        lib_path,
                                                       "api_sshaerosol_get_aero_num",
                                                        true);
-      double data[nsizebin];
+      double data[nsize];
       fct(&data);
       printf("Get aerosols numbers:");
-      for (int i = 0; i < nsizebin; i++) printf(" %f", data[i]);
+      for (int i = 0; i < nsize; i++) printf(" %f", data[i]);
       printf("\n");
     }
 
