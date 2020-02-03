@@ -380,7 +380,8 @@ contains
 
     if (N_frac.gt.1) then
        !case of external mixing
-       print*, "External mixing..."
+       if (ssh_standalone) write(*,*) 'External mixing...'
+       if (ssh_logger) write(logfile,*) 'External mixing...'
        do j=1,N_size                     ! j : index of cells
           do s=1, N_aerosol             ! s : index of species
              g=Index_groups(s)           ! g : group number
