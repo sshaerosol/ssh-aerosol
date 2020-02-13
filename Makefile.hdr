@@ -1,0 +1,171 @@
+#-*-makefile-*-
+
+### This header file is automatically included in the secondary Makefiles.
+### Please tune it to your own installation
+
+### Specify where the headers and libraries of your netCDF package reside.
+# Example :
+#   if the file libnetcdf.a is located at
+#   /opt/netcdf-3.5.1-IFORT-64/lib/libnetcdf.a
+#   then NETCDFLIB=/opt/netcdf-3.5.1-IFORT-64/lib
+#
+#   if the file netcdf.mod is located at
+#   /opt/netcdf-3.5.1-IFORT-64/include/netcdf.mod
+#   then NETCDFINC=/opt/netcdf-3.5.1-IFORT-64/include
+#
+# To avoid trouble, netCDF should have been compiled with the
+# same compiler you use to build CHIMERE
+# In most Linux distributions, netCDF has been compiled using gfortran.
+# This may not be compatible with the f90 compilers required for CHIMERE.
+#
+NETCDFDIR	=       $(my_netcdfdir)
+NETCDFLIB	=       $(my_netcdflib)
+PNETCDFLIB	=       $(my_pnetcdflib)
+NETCDFINC	=       $(my_netcdfinc)
+PNETCDFINC	=       $(my_pnetcdfinc)
+HDF5LIB		=       $(my_hdflib)
+HDF5INC		=       $(my_hdfinc)
+
+### If you want to build the ECMWF meteo interface, you need the ECMWF
+#   "GRIB_API" package and you must tell where to find it
+GRIBLIB         =       $(my_griblib)
+GRIBINC         =       $(my_gribinc)
+JASPLIB         =       $(my_jasperlib)
+BLITZLIB	=	$(my_blitzinc)
+
+### Where is your compiler located
+### You can get it by issuing the command "which ifort"
+REALFC	=	${my_ifort}
+
+REALCC	=	${my_icc}
+
+### Where is your mpif77 wrapper located
+### You can get it by issuing the command "which mpif77"
+MF90	=	${my_mpif90}
+
+### Choose your execution mode { PROD | DEVEL }
+### PROD is fast, DEVEL allows for more checking and error tracking
+MODE	=	${my_mode}
+
+### If you work with a high resolution grid and many levels, the size of
+#   your data segment may be higher than 2 GB. In this case, CHIMERE shall
+#   be compiled with special options. If you choose BIGARRAY = YES, then
+#   these special options will be selected, at the expense of a slower
+#   run-time execution. Please note that the lam and netCDF libraries
+#   shall also be built for large addressing space. Refer to the LAM and NETCDF
+#   HOWTOs in this directory.
+BIGARRAY = ${my_bigarray}
+
+### With some 4 GNU/Linux distribution, you may
+#   experience problems with ifort and Interprocedural Optimisation.
+#   If this is the case, you should disable it.
+#   Otherwise just comment out the following line to get the maximum
+#   performance of CHIMERE.
+#FC4_BUG = -no-ipo
+
+#########################################################################
+### In principle, you should not have to modify too many things below ...
+# NetCDF config for various possible cases (nc-config/nf-config, hdf5, etc.)
+INFCONFIG		=	$(shell [ -e $(NETCDFDIR)/bin/nf-config ]&& echo yes)
+INCCONFIG		=	$(shell [ -e $(NETCDFDIR)/bin/nc-config ]&& echo yes)
+ifeq ($(INFCONFIG),yes)
+	NCCONFIG          =       $(NETCDFDIR)/bin/nf-config
+else ifeq ($(INCCONFIG),yes)
+	NCCONFIG          =       $(NETCDFDIR)/bin/nc-config
+else
+	NCCONFIG          =       none
+endif
+#
+ifeq ($(NCCONFIG),none)
+	NCFLIB		=	$(shell [ -e $(NETCDFLIB)/libnetcdff.a ]&& echo twolibs)
+	CULIB		=	$(shell nm $(NETCDFLIB)/libnetcdf.a | grep -q curl && echo need_curl)
+	HDLIB		=	$(shell [ -e $(NETCDFDIR)/bin/nc-config ]&& $(NETCDFDIR)/bin/nc-config --has-hdf5)
+	ifeq ($(NCFLIB),twolibs)
+	CDFLIB          =       -lnetcdff -lnetcdf
+	else
+	CDFLIB          =       -lnetcdf
+	endif
+	ifeq ($(HDLIB),yes)
+	CDFLIB1          =       $(CDFLIB) -lhdf5 -lhdf5_hl
+	else
+	CDFLIB1          =       $(CDFLIB)
+	endif
+	ifeq ($(CULIB),need_curl)
+	CDFLIBS         =       $(CDFLIB1) -lcurl
+	else
+	CDFLIBS         =       $(CDFLIB1)
+	endif
+	NETCDFLIBS		=	$(CDFLIBS) -L${NETCDFLIB} -L${HDF5LIB}
+else
+	NETCDFLIBS		=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')
+endif
+PNETCDFLIBS		=	-L${PNETCDFLIB} -lpnetcdf
+
+# End netcdf config
+
+MPIFC	=	$(MF90)
+FC	=	$(REALFC)
+MPIFLAG	=	MPI
+
+##### IFORT #####
+COMPILO	=	FINE
+F77=$(FC)
+ifeq	($(MODE),DEVEL)
+# For debug/development
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -ip -mp1 -prec_div -fpp -ftrapuv -g  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
+F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -ip -mp1 -prec_div -fpp -ftrapuv -g  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
+CCFALGS= -g -traceback -debug all
+endif
+ifeq	($(MODE),PROD)
+# for production
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 # -real-size 64
+F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 # -real-size 64
+CCFLAGS= -lifcore -O3 -fp-model fast=2
+endif
+ifeq	($(MODE),PROF)
+# for profiling
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -g -p # -real-size 64
+F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -fpp  -traceback  -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -g -p # -real-size 64
+CCFALGS= -g -traceback -debug all
+endif
+
+ifeq	($(BIGARRAY),YES)
+# For data segment > 2GB
+F77FLAGS = $(F77FLAGS1) -mcmodel=medium -i-dynamic
+F77FLAGS_PNETCDF = $(F77FLAGS1_PNETCDF) -mcmodel=medium -i-dynamic
+else
+F77FLAGS = $(F77FLAGS1)
+F77FLAGS_PNETCDF = $(F77FLAGS1_PNETCDF)
+endif
+FFLAGS_BIG = $(F77FLAGS) -free -lstdc++ 
+FFLAGS = -I${GRIBINC} -I${PNETCDFINC} $(F77FLAGS) -free -lstdc++ -no-wrap-margin
+FFLAGS_PNETCDF = -I${GRIBINC} -I${NETCDFINC} $(F77FLAGS_PNETCDF) -free -lstdc++
+
+
+# For OASIS compilation
+export CHAN=MPI1
+export F90=$(my_mpif90) -I${my_mpiinc}
+export F=$(F90)
+export f90=$(F90)
+export f=$(F90)
+export CC=$(my_mpicc) -I${my_mpiinc}
+export LD=$(my_mpif90) -L${my_mpilib}
+export NETCDF_INCLUDE1=$(my_netcdfinc)
+export NETCDF_INCLUDE2=/usr/lib64/gfortran/modules
+export NETCDF_LIBRARY=-L/usr/lib64 $(CDFLIB) $(my_hdfdir)/lib
+export FLIBS=$(NETCDF_LIBRARY)
+export CPPDEF=-Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+export F90FLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCLUDE1} -I${NETCDF_INCLUDE2}
+export f90FLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCLUDE1} -I${NETCDF_INCLUDE2}
+export fFLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCLUDE1} -I${NETCDF_INCLUDE2}
+export CCFLAGS=$(CPPDEF) -I${NETCDF_INCLUDE} -I${GFORTRAN_INC_MOD}
+
+
+# Misc. commands
+RM	=	/bin/rm -f
+AR	=	/usr/bin/ar
+CPP	=	/usr/bin/cpp
+LN	=	/bin/ln -sf
+CD	=	cd
+
+.SUFFIXES:

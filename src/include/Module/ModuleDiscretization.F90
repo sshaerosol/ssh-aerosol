@@ -156,10 +156,7 @@ contains
     concentration_inti=0.d0
 
     allocate(total_mass(N_aerosol))
-    total_mass=0.d0
-
-    allocate(concentration_gas(N_aerosol))
-    concentration_gas=0.d0
+    total_mass=0.d0    
 
     allocate(concentration_number(N_size)) 
     concentration_number=0.d0
@@ -172,8 +169,6 @@ contains
 
     allocate(concentration_mass_tmp(N_size,N_aerosol_layers)) ! ModuleAdaptstep
     concentration_mass_tmp=0.d0
-
-
 
     allocate(emission_rate(N_size,N_aerosol_layers)) ! ModuleEmission
     emission_rate=0.d0
@@ -349,7 +344,6 @@ contains
     speciesfrac=1.d0  !adjust mass distribution for different species
 
     ! calculate the referenced initial mass and number distribution of each bin
-
     if(tag_init.eq.0) then 
        tmp = 0.d0
        ! Compute the percentage of mass distribution

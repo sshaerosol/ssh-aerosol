@@ -213,7 +213,7 @@ contains
        allocate(repartition_coefficient(N_size))
       !OPEN(12,file='coeff_reff.txt')
       do i = 1, N_size
-              write( cTemp,'(i4)' ) (i-1)
+             if (ssh_standalone) write( cTemp,'(i4)' ) (i-1)
              Temp=trim(adjustl(cTemp ))
              DIM_NAME = 'Ncoef_'//Temp
               ! Get the varid of the data variable, based on its name.
@@ -363,7 +363,7 @@ contains
              i2=index2_repartition_coefficient(i)%arr(l)
              TempCoef=TempCoef+repartition_coefficient(i)%arr(l)
            enddo
-           print*,'coef sum',i,TempCoef
+           if (ssh_standalone) print*,'coef sum',i,TempCoef
     enddo
     close(11)
 
