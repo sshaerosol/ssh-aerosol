@@ -19,24 +19,24 @@ module aInitialization
   include 'CONST_B.inc'
 
   !!part 1: parameters of system dimension
-  Integer :: N_gas        !Complete gas species number
-  integer :: N_size       !Total number of size and composition sections
-  integer :: N_groups     !Number of groups
-  integer :: N_fracmax    !Maximum number of composition sections per size section
-  integer :: N_aerosol    !Number of aerosol species
-  integer :: N_aerosol_layers    !Number of aerosol species in the different layers
-  integer :: N_sizebin    !Number of  size sections
-  integer :: N_frac       !Number of fraction of each species
-  integer :: N_reaction   !Number of gas-phase reactions
-  integer :: N_photolysis !Number of photolyses
-  integer :: Nt           !Number of iteration
-  integer :: Nmc          
+  Integer, save :: N_gas        !Complete gas species number
+  integer, save :: N_size       !Total number of size and composition sections
+  integer, save :: N_groups     !Number of groups
+  integer, save :: N_fracmax    !Maximum number of composition sections per size section
+  integer, save :: N_aerosol    !Number of aerosol species
+  integer, save :: N_aerosol_layers    !Number of aerosol species in the different layers
+  integer, save :: N_sizebin    !Number of  size sections
+  integer, save :: N_frac       !Number of fraction of each species
+  integer, save :: N_reaction   !Number of gas-phase reactions
+  integer, save :: N_photolysis !Number of photolyses
+  integer, save :: Nt           !Number of iteration
+  integer, save :: Nmc          
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  integer :: N_organics   !Number of organics aerosol species
-  integer :: N_nonorganics   !Number of non-organics aerosol species
-  integer :: N_inorganic  !Number of inorganic aerosol species
-  integer :: N_inert      !number of inert aerosol species
+  integer, save :: N_organics   !Number of organics aerosol species
+  integer, save :: N_nonorganics   !Number of non-organics aerosol species
+  integer, save :: N_inorganic  !Number of inorganic aerosol species
+  integer, save :: N_inert      !number of inert aerosol species
   integer :: N_liquid     !Number of liquid internal species
   integer :: N_solid      !Number of solid internal species
   integer :: N_inside_aer !Number of internal species
@@ -47,175 +47,175 @@ module aInitialization
 
   !!part 2: parameters of system options
 
-  integer :: with_fixed_density!IDENS
-  integer :: tag_init		! 0 internally mixed; 1 mixing_state resolved
-  integer :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
-  integer :: wet_diam_estimation	! 0 = isorropia ?
-  integer :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
-  integer :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
-  integer :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
+  integer, save :: with_fixed_density!IDENS
+  integer, save :: tag_init		! 0 internally mixed; 1 mixing_state resolved
+  integer, save :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
+  integer, save :: wet_diam_estimation	! 0 = isorropia ?
+  integer, save :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
+  integer, save :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
+  integer, save :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
 
-  integer :: tag_external  ! 0 for internally mixed, 1 for mixing-state resolved
-  integer :: kind_composition  ! 1 for auto discretization and 0 for manual discretization
+  integer, save :: tag_external  ! 0 for internally mixed, 1 for mixing-state resolved
+  integer, save :: kind_composition  ! 1 for auto discretization and 0 for manual discretization
 
-  integer :: tag_chem
-  integer :: option_photolysis, day0_photolysis ! current day in photolysis files
-  double precision :: time_update_photolysis
-  integer :: with_heterogeneous  !Tag of heterogeneous reaction 
+  integer, save :: tag_chem
+  integer, save :: option_photolysis, day0_photolysis ! current day in photolysis files
+  double precision, save :: time_update_photolysis
+  integer, save :: with_heterogeneous  !Tag of heterogeneous reaction 
 
-  integer :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
-  double precision :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
-  double precision :: min_adaptive_time_step       !Minimum time step
-  double precision :: DTAEROMIN !Minimum time step for aerosol dynamics
-  double precision :: epser !  Relative error for time step adjustment
-  double precision :: epser_soap !  Relative difference of ros2 in SOAP
-  integer :: dynamic_solver = 1 !KDSLV Tag type of solver
-  integer :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
-  integer :: redistribution_method !tag of redistribution method
-  integer :: with_coag   !Tag gCoagulation
-  integer :: i_compute_repart ! 0 if repartition coeff are read
-  integer :: i_write_repart ! 1 if repartition coeff are written, 0 otherwise
-  integer :: with_cond   !Tag fCondensation
-  integer :: with_nucl   !Tag nucleation
-  Integer :: nucl_model  !ITERN !1= Ternary, 0= binary
-  integer :: ICUT        !ICUT
-  double precision :: Cut_dim  !cuting diameter between equi/dynamic inorganic
-  integer :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
-  integer :: with_oligomerization!IOLIGO
-  integer :: output_type
-  integer :: splitting
+  integer, save :: with_adaptive       !Tag of adaptive time step for chemistry 1 if adaptive time step.
+  double precision, save :: adaptive_time_step_tolerance !Relative tolerance for deciding if the time step is kept
+  double precision, save :: min_adaptive_time_step       !Minimum time step
+  double precision, save :: DTAEROMIN !Minimum time step for aerosol dynamics
+  double precision, save :: epser !  Relative error for time step adjustment
+  double precision, save :: epser_soap !  Relative difference of ros2 in SOAP
+  integer, save :: dynamic_solver = 1 !KDSLV Tag type of solver
+  integer, save :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
+  integer, save :: redistribution_method !tag of redistribution method
+  integer, save :: with_coag   !Tag gCoagulation
+  integer, save :: i_compute_repart ! 0 if repartition coeff are read
+  integer, save :: i_write_repart ! 1 if repartition coeff are written, 0 otherwise
+  integer, save :: with_cond   !Tag fCondensation
+  integer, save :: with_nucl   !Tag nucleation
+  Integer, save :: nucl_model  !ITERN !1= Ternary, 0= binary
+  integer, save :: ICUT        !ICUT
+  double precision, save :: Cut_dim  !cuting diameter between equi/dynamic inorganic
+  integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
+  integer, save :: with_oligomerization!IOLIGO
+  integer, save :: output_type
+  integer, save :: splitting
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  Integer :: aqueous_module!ICLD
-  Integer :: with_incloud_scav!IINCLD
-  integer :: with_kelvin_effect!IKELV
-  integer :: section_pass
-  double precision :: tequilibrium ! time under which equilibrium is assumed
+  Integer, save :: aqueous_module!ICLD
+  Integer, save :: with_incloud_scav!IINCLD
+  integer, save :: with_kelvin_effect!IKELV
+  integer, save :: section_pass
+  double precision, save :: tequilibrium ! time under which equilibrium is assumed
 
   ! ! part 3: System pointers
-  Integer :: E1,E2,G1,G2 !Mark the begin and end of dynamic aerosol (except EH2O)
+  Integer, save :: E1,E2,G1,G2 !Mark the begin and end of dynamic aerosol (except EH2O)
   ! Number of different species group
-  Integer, dimension(:), allocatable :: isorropia_species
-  Integer, dimension(:), allocatable :: aec_species
-  Integer :: nesp, nesp_isorropia, nesp_aec, nesp_eq_org
+  Integer, dimension(:), allocatable, save :: isorropia_species
+  Integer, dimension(:), allocatable, save :: aec_species
+  Integer, save :: nesp, nesp_isorropia, nesp_aec, nesp_eq_org
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
-  Integer :: ictmNH3,ictmHNO3,ictmHCl,ictmSO2,ictmH2O2,ictmHCHO,ictmHNO2
-  Integer :: ictmO3,ictmOH,ictmHO2,ictmNO3,ictmNO,ictmNO2,ictmPAN,ictmH2SO4
+  Integer, save :: ictmNH3,ictmHNO3,ictmHCl,ictmSO2,ictmH2O2,ictmHCHO,ictmHNO2
+  Integer, save :: ictmO3,ictmOH,ictmHO2,ictmNO3,ictmNO,ictmNO2,ictmPAN,ictmH2SO4
   ! pointers of cloud species.
 
 
 
   !!part 4: System state parameters    
   ! time setting
-  double precision :: final_time,dt,time_emis,delta_t, initial_time  
-  double precision :: current_time
-  double precision :: Temperature,Relative_Humidity,Pressure,Humidity, pH, pressure_sat
-  double precision :: longitude, latitude
-  double precision :: attenuation
-  double precision :: fixed_density
-  double precision :: lwc_cloud_threshold
+  double precision, save :: final_time,dt,time_emis,delta_t, initial_time  
+  double precision, save :: current_time
+  double precision, save :: Temperature,Relative_Humidity,Pressure,Humidity, pH, pressure_sat
+  double precision, save :: longitude, latitude
+  double precision, save :: attenuation
+  double precision, save :: fixed_density
+  double precision, save :: lwc_cloud_threshold
 
-  integer :: tag_coag,tag_cond,tag_nucl
+  integer, save :: tag_coag,tag_cond,tag_nucl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  double precision :: viscosity!Dynamic viscosity ([kg/m/s]).
-  double precision :: air_free_mean_path
-  double precision :: total_water!total mass of water
-  double precision :: total_IH!total mass of H+
-  double precision :: total_PH!overall PH value
-  double precision :: n_emis
-  double precision :: m_emis
-  double precision :: aero_total_mass 
-  Double precision,dimension(:), allocatable :: total_mass!, total_mass_old!total mass of each species
-  Double precision,dimension(:), allocatable :: discretization_mass
-  Double precision :: p_fact,k_fact
-  Double precision :: DQLIMIT
+  double precision, save :: viscosity!Dynamic viscosity ([kg/m/s]).
+  double precision, save :: air_free_mean_path
+  double precision, save :: total_water!total mass of water
+  double precision, save :: total_IH!total mass of H+
+  double precision, save :: total_PH!overall PH value
+  double precision, save :: n_emis
+  double precision, save :: m_emis
+  double precision, save :: aero_total_mass 
+  Double precision,dimension(:), allocatable, save :: total_mass!, total_mass_old!total mass of each species
+  Double precision,dimension(:), allocatable, save :: discretization_mass
+  Double precision, save :: p_fact,k_fact
+  Double precision, save :: DQLIMIT
 
   !!part5: dimension data array    
-  integer, dimension(:), allocatable :: Index_groups	!index of which group the species belongs to
-  integer, dimension(:), allocatable :: aerosol_type
-  integer, dimension(:), allocatable :: List_species	!read species defined in cfg files
-  integer, dimension(:,:), allocatable :: index_species	!index of species if viscosity is taken into account
-  Integer, dimension(:), allocatable :: aerosol_species_interact
-  integer, dimension(:), allocatable :: N_fracbin	!vector of number of composition sections for each section
+  integer, dimension(:), allocatable, save :: Index_groups	!index of which group the species belongs to
+  integer, dimension(:), allocatable, save :: aerosol_type
+  integer, dimension(:), allocatable, save :: List_species	!read species defined in cfg files
+  integer, dimension(:,:), allocatable, save :: index_species	!index of species if viscosity is taken into account
+  Integer, dimension(:), allocatable, save :: aerosol_species_interact
+  integer, dimension(:), allocatable, save :: N_fracbin	!vector of number of composition sections for each section
 
-  Double precision,dimension(:), allocatable :: photolysis_rate
-  integer, dimension(:), allocatable :: photolysis_reaction_index
+  Double precision,dimension(:), allocatable, save :: photolysis_rate
+  integer, dimension(:), allocatable, save :: photolysis_reaction_index
 
-  Double precision,dimension(:), allocatable :: density_aer_bin 	!density of each grid bins
-  Double precision,dimension(:), allocatable :: density_aer_size 	!density of each size section
-  Double precision , dimension(:), allocatable :: rho_wet_cell
+  Double precision,dimension(:), allocatable, save :: density_aer_bin 	!density of each grid bins
+  Double precision,dimension(:), allocatable, save :: density_aer_size 	!density of each size section
+  Double precision , dimension(:), allocatable, save :: rho_wet_cell
 
-  Double precision,dimension(:), allocatable :: diam_bound	! DBF diameter bounds of each size section
-  double precision,dimension(:), allocatable :: diam_input
-  double precision,dimension(:), allocatable :: frac_bound
-  double precision,dimension(:), allocatable :: frac_input
+  Double precision,dimension(:), allocatable, save :: diam_bound	! DBF diameter bounds of each size section
+  double precision,dimension(:), allocatable, save :: diam_input
+  double precision,dimension(:), allocatable, save :: frac_bound
+  double precision,dimension(:), allocatable, save :: frac_input
 
 
-  Double precision,dimension(:), allocatable :: size_diam_av	!DSF average diameter of each size section
-  Double precision,dimension(:), allocatable :: size_mass_av	!MSF average mass of each size section
+  Double precision,dimension(:), allocatable, save :: size_diam_av	!DSF average diameter of each size section
+  Double precision,dimension(:), allocatable, save :: size_mass_av	!MSF average mass of each size section
   !Double precision,dimension(:), allocatable :: size_log_av	!XSF
-  Double precision,dimension(:), allocatable :: cell_diam_av	!DSF average diameter of each grid cell
-  Double precision,dimension(:), allocatable :: cell_mass_av	!MSF average mass of each grid cell
-  Double precision,dimension(:), allocatable :: cell_log_av	!XSF
+  Double precision,dimension(:), allocatable, save :: cell_diam_av	!DSF average diameter of each grid cell
+  Double precision,dimension(:), allocatable, save :: cell_mass_av	!MSF average mass of each grid cell
+  Double precision,dimension(:), allocatable, save :: cell_log_av	!XSF
 
-  DOUBLE PRECISION, dimension(:), allocatable :: concentration_gas_all
-  Double precision,dimension(:), allocatable :: concentration_gas	! gas concentration of each species
-  integer, dimension(:,:), allocatable :: concentration_index !matrix from grid index to size and composition index
-  integer, dimension(:,:), allocatable :: concentration_index_iv !matrix from size and composition to grid index
-  Double precision,dimension(:), allocatable :: concentration_number	!number concentration of each grid cell
-  double precision , dimension(:,:), allocatable :: concentration_mass
+  DOUBLE PRECISION, dimension(:), allocatable, save :: concentration_gas_all
+  Double precision,dimension(:), allocatable, save :: concentration_gas	! gas concentration of each species
+  integer, dimension(:,:), allocatable, save :: concentration_index !matrix from grid index to size and composition index
+  integer, dimension(:,:), allocatable, save :: concentration_index_iv !matrix from size and composition to grid index
+  Double precision,dimension(:), allocatable, save :: concentration_number	!number concentration of each grid cell
+  double precision , dimension(:,:), allocatable, save :: concentration_mass
 
-  double precision, dimension(:), allocatable    :: gas_emis !storing Gas consentration (emission) micm^3cm^-3 
-  double precision,dimension(:,:), allocatable   :: init_bin_mass
-  double precision,dimension(:), allocatable     :: init_mass
-  double precision,dimension(:,:), allocatable   :: emis_bin_mass
-  double precision,dimension(:), allocatable     :: init_bin_number 
-  double precision,dimension(:), allocatable     :: emis_bin_number
+  double precision, dimension(:), allocatable, save :: gas_emis !storing Gas consentration (emission) micm^3cm^-3 
+  double precision,dimension(:,:), allocatable, save :: init_bin_mass
+  double precision,dimension(:), allocatable, save :: init_mass
+  double precision,dimension(:,:), allocatable, save :: emis_bin_mass
+  double precision,dimension(:), allocatable, save :: init_bin_number 
+  double precision,dimension(:), allocatable, save :: emis_bin_number
 
-  double precision , dimension(:,:), allocatable :: emission_rate
-  double precision , dimension(:), allocatable   :: emission_num_rate
+  double precision , dimension(:,:), allocatable, save :: emission_rate
+  double precision , dimension(:), allocatable, save :: emission_num_rate
 
-  Double precision,dimension(:), allocatable :: wet_diameter	!Aerosol wet diameter (\B5m). of each grid cell
-  Double precision,dimension(:), allocatable :: wet_mass	!Aerosol wet mass (\B5g). of each grid cell
-  Double precision,dimension(:), allocatable :: wet_volume	!Aerosol wet volume (\B5m^3). of each grid cell
-  double precision , dimension(:,:,:), allocatable :: discretization_composition! multi-array storing discretization of composition
+  Double precision,dimension(:), allocatable, save :: wet_diameter	!Aerosol wet diameter (\B5m). of each grid cell
+  Double precision,dimension(:), allocatable, save :: wet_mass	!Aerosol wet mass (\B5g). of each grid cell
+  Double precision,dimension(:), allocatable, save :: wet_volume	!Aerosol wet volume (\B5m^3). of each grid cell
+  double precision , dimension(:,:,:), allocatable, save :: discretization_composition! multi-array storing discretization of composition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  Double precision,dimension(:), allocatable :: mass_bound! MBF
-  Double precision,dimension(:), allocatable :: log_bound!XBF
-  Double precision,dimension(:), allocatable :: total_bin_mass!total mass of each size section
-  Double precision,dimension(:), allocatable :: size_sect!HSF log size of each section
+  Double precision,dimension(:), allocatable, save :: mass_bound! MBF
+  Double precision,dimension(:), allocatable, save :: log_bound!XBF
+  Double precision,dimension(:), allocatable, save :: total_bin_mass!total mass of each size section
+  Double precision,dimension(:), allocatable, save :: size_sect!HSF log size of each section
 
 
-  Double precision,dimension(:), allocatable :: mass_total_grid!total mass of each grid cell
-  Double precision,dimension(:), allocatable :: total_aero_mass!total aerosol mass of each species
-  Double precision,dimension(:), allocatable :: bin_mass!mass concentration of each size section
-  Double precision,dimension(:), allocatable :: bin_number!number concentration of each size section
-  Double precision,dimension(:), allocatable :: concentration_number_tmp!first order approximation of number
+  Double precision,dimension(:), allocatable, save :: mass_total_grid!total mass of each grid cell
+  Double precision,dimension(:), allocatable, save :: total_aero_mass!total aerosol mass of each species
+  Double precision,dimension(:), allocatable, save :: bin_mass!mass concentration of each size section
+  Double precision,dimension(:), allocatable, save :: bin_number!number concentration of each size section
+  Double precision,dimension(:), allocatable, save :: concentration_number_tmp!first order approximation of number
 
-  Double precision , dimension(:), allocatable :: cell_mass
-  double precision, dimension(:), allocatable :: number_init  !for each sizebin
+  Double precision , dimension(:), allocatable, save :: cell_mass
+  double precision, dimension(:), allocatable, save :: number_init  !for each sizebin
   !double precision, dimension(:), allocatable :: mass_init    !for each sizebin
 
 
-  double precision, dimension(:), allocatable :: per_mass_init!initial percentage of each species within aerosol
+  double precision, dimension(:), allocatable, save :: per_mass_init!initial percentage of each species within aerosol
 
 
 
   double precision,dimension(:), allocatable:: gas_mass_init
 
 
-  double precision , dimension(:,:), allocatable :: kernel_coagulation
-  double precision , dimension(:,:), allocatable :: ce_kernal_coef!c/e kernal
-  double precision , dimension(:,:), allocatable :: Kelvin_effect_ext!kelvin effect
-  double precision , dimension(:,:), allocatable :: frac_grid !excat fraction of each species in each grid
+  double precision , dimension(:,:), allocatable, save :: kernel_coagulation
+  double precision , dimension(:,:), allocatable, save :: ce_kernal_coef!c/e kernal
+  double precision , dimension(:,:), allocatable, save :: Kelvin_effect_ext!kelvin effect
+  double precision , dimension(:,:), allocatable, save :: frac_grid !excat fraction of each species in each grid
 
-  double precision , dimension(:,:), allocatable :: concentration_mass_tmp!first order apporximation
-  double precision , dimension(:,:), allocatable :: concentration_inti!internal inorganic aerosol concentration ([�g.m-3]).
-  double precision , dimension(:,:), allocatable :: dqdt
+  double precision , dimension(:,:), allocatable, save :: concentration_mass_tmp!first order apporximation
+  double precision , dimension(:,:), allocatable, save :: concentration_inti!internal inorganic aerosol concentration ([�g.m-3]).
+  double precision , dimension(:,:), allocatable, save :: dqdt
 
 
 
@@ -223,77 +223,77 @@ module aInitialization
   !double precision :: SMD(SNaNO3:SLC) = ()!molar weight of internal solids species
   !double precision :: IMW(N_liquid)!molar weight of inorganic species in aqueous_phase
   !double precision :: SMW(SNaNO3:SLC)!molar weight of solids
-  double precision ,dimension(:), allocatable :: accomodation_coefficient
-  double precision ,dimension(:), allocatable :: surface_tension
-  double precision ,dimension(:), allocatable :: molecular_weight_aer! (\B5g/mol)
-  double precision ,dimension(:), allocatable :: molecular_diameter
-  double precision ,dimension(:), allocatable :: collision_factor_aer
-  double precision ,dimension(:), allocatable :: mass_density!(\B5g/m3) liquid mass density
-  double precision ,dimension(:), allocatable :: mass_density_layers!(\B5g/m3) liquid mass density
-  double precision ,dimension(:), allocatable :: quadratic_speed! (m.s-1)
-  double precision ,dimension(:), allocatable :: diffusion_coef! (m2.s-1)
-  double precision ,dimension(:), allocatable :: soa_sat_conc! (\B5g.m-3)
-  double precision ,dimension(:), allocatable :: soa_part_coef!(m3/microg)
-  double precision ,dimension(:), allocatable :: molecular_weight! (\B5g/mol) gas=phase
+  double precision ,dimension(:), allocatable, save :: accomodation_coefficient
+  double precision ,dimension(:), allocatable, save :: surface_tension
+  double precision ,dimension(:), allocatable, save :: molecular_weight_aer! (\B5g/mol)
+  double precision ,dimension(:), allocatable, save :: molecular_diameter
+  double precision ,dimension(:), allocatable, save :: collision_factor_aer
+  double precision ,dimension(:), allocatable, save :: mass_density!(\B5g/m3) liquid mass density
+  double precision ,dimension(:), allocatable, save :: mass_density_layers!(\B5g/m3) liquid mass density
+  double precision ,dimension(:), allocatable, save :: quadratic_speed! (m.s-1)
+  double precision ,dimension(:), allocatable, save :: diffusion_coef! (m2.s-1)
+  double precision ,dimension(:), allocatable, save :: soa_sat_conc! (\B5g.m-3)
+  double precision ,dimension(:), allocatable, save :: soa_part_coef!(m3/microg)
+  double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  integer, dimension(:), allocatable :: Ncoefficient, index_first, index_second
-  double precision, dimension(:), allocatable :: coefficient
-  integer :: coef_size
-  double precision :: surface_tension_inorg, surface_tension_aq, surface_tension_org
+  integer, dimension(:), allocatable, save :: Ncoefficient, index_first, index_second
+  double precision, dimension(:), allocatable, save :: coefficient
+  integer, save :: coef_size
+  double precision, save :: surface_tension_inorg, surface_tension_aq, surface_tension_org
 
-  double precision :: dorg
-  integer :: coupled_phases
-  integer :: nlayer
-  integer ,dimension(:), allocatable :: layer_number ! Number of the layer
-  double precision, dimension(:), allocatable :: Vlayer
-  integer :: activity_model
-  double precision, dimension(:), allocatable :: lwc_nsize, &
+  double precision, save :: dorg
+  integer, save :: coupled_phases
+  integer, save :: nlayer
+  integer ,dimension(:), allocatable, save :: layer_number ! Number of the layer
+  double precision, dimension(:), allocatable, save :: Vlayer
+  integer, save :: activity_model
+  double precision, dimension(:), allocatable, save :: lwc_nsize, &
        ionic_nsize, proton_nsize, chp_nsize
-  double precision, dimension(:,:), allocatable :: liquid_nsize
+  double precision, dimension(:,:), allocatable, save :: liquid_nsize
 
   !! part 8: divers parameters (species, I/O)
-  character (len=80) :: Coefficient_file ! repartition coefficient file
-  character (len=80) :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
-  character (len=80) :: init_aero_conc_num_file ! File for aerosols initial number concentrations
-  character (len=80) :: init_gas_conc_file ! File for gas-phase initial conc.
-  character (len=80) :: species_list_file ! File for species list.
-  character (len=80) :: aerosol_species_list_file ! File for species list.
-  character (len=80) :: namelist_species ! Namelist file for species list.
-  character (len=80) :: particles_composition_file ! File for particles composition
-  character (len=80) :: emis_gas_file
-  character (len=80) :: emis_aero_mass_file
-  character (len=80) :: emis_aero_num_file
-  character (len=80), dimension(:), allocatable :: isorropia_species_name
-  character (len=80), dimension(:), allocatable :: aec_species_name
-  character (len=10) :: precursor
-  character (len=10), dimension(:), allocatable :: species_name
-  character (len=20), dimension(:), allocatable :: aerosol_species_name
-  integer :: spec_name_len
-  character (len=10), dimension(:), allocatable :: emis_gas_species_name
-  character (len=10), dimension(:), allocatable :: emis_aer_species_name
-  character (len=100) :: output_directory, output_dir2
+  character (len=80), save :: Coefficient_file ! repartition coefficient file
+  character (len=80), save :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
+  character (len=80), save :: init_aero_conc_num_file ! File for aerosols initial number concentrations
+  character (len=80), save :: init_gas_conc_file ! File for gas-phase initial conc.
+  character (len=80), save :: species_list_file ! File for species list.
+  character (len=80), save :: aerosol_species_list_file ! File for species list.
+  character (len=80), save :: namelist_species ! Namelist file for species list.
+  character (len=80), save :: particles_composition_file ! File for particles composition
+  character (len=80), save :: emis_gas_file
+  character (len=80), save :: emis_aero_mass_file
+  character (len=80), save :: emis_aero_num_file
+  character (len=80), dimension(:), allocatable, save :: isorropia_species_name
+  character (len=80), dimension(:), allocatable, save :: aec_species_name
+  character (len=10), save :: precursor
+  character (len=10), dimension(:), allocatable, save :: species_name
+  character (len=20), dimension(:), allocatable, save :: aerosol_species_name
+  integer, save :: spec_name_len
+  character (len=10), dimension(:), allocatable, save :: emis_gas_species_name
+  character (len=10), dimension(:), allocatable, save :: emis_aer_species_name
+  character (len=100), save :: output_directory, output_dir2
 
   ! Photolysis
-  character (len=80) :: photolysis_file ! File for photolysis list.
-  character (len=80) :: photolysis_dir ! Directory for photolysis list.
-  character (len=10), dimension(:), allocatable :: photolysis_name 
-  integer :: n_time_angle
-  double precision :: time_angle_min, delta_time_angle
-  integer :: n_latitude
-  double precision :: latitude_min, delta_latitude
-  integer :: n_altitude
-  double precision :: altitude_photolysis_input(30)
+  character (len=80), save :: photolysis_file ! File for photolysis list.
+  character (len=80), save :: photolysis_dir ! Directory for photolysis list.
+  character (len=10), dimension(:), allocatable, save :: photolysis_name 
+  integer, save :: n_time_angle
+  double precision, save :: time_angle_min, delta_time_angle
+  integer, save :: n_latitude
+  double precision, save :: latitude_min, delta_latitude
+  integer, save :: n_altitude
+  double precision, save :: altitude_photolysis_input(30)
 
   !!part 6: used in ssh-aerosol.f90 chem()
-  integer :: ns_source
-  integer, dimension(:), allocatable :: source_index
-  double precision, dimension(:), allocatable :: source  
-  double precision, dimension(:), allocatable :: conversionfactor
-  double precision, dimension(:,:), allocatable :: conversionfactorjacobian
+  integer, save :: ns_source
+  integer, dimension(:), allocatable, save :: source_index
+  double precision, dimension(:), allocatable, save :: source  
+  double precision, dimension(:), allocatable, save :: conversionfactor
+  double precision, dimension(:,:), allocatable, save :: conversionfactorjacobian
   ! Array of chemical volumic emissions at final time ([\mu.g/m^3/s]).
-  integer :: heterogeneous_reaction_index(4)
-  integer :: ind_jbiper, ind_kbiper   
+  integer, save :: heterogeneous_reaction_index(4)
+  integer, save :: ind_jbiper, ind_kbiper   
   ! To take into account BiPER degradation inside the particle
 
   !! part 7: used in coupling with external tools (ModuleAPI)

@@ -10,8 +10,8 @@ Module Resultoutput
   implicit none
 
 ! out_aero : array of file names; outpout time variation of organic, inorganic, PBC, Dust, PM2.5, PM10 results
-  character(20) :: out_aero(6) 
-  character(4) :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
+  character(20), save :: out_aero(6) 
+  character(4), save :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
 
 contains
 

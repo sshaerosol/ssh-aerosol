@@ -12,15 +12,15 @@ MODULE mod_photolysis
   
   implicit none
 
-  real(4), dimension(:, :, :), allocatable :: file_rates_real
-  double precision, dimension(:, :, :, :), allocatable :: file_rates
+  real(4), dimension(:, :, :), allocatable, save :: file_rates_real
+  double precision, dimension(:, :, :, :), allocatable, save :: file_rates
 
-  integer :: photolysis_date_min = 0 ! in seconds
-  integer :: photolysis_delta_t = 1 ! in days
+  integer, save :: photolysis_date_min = 0 ! in seconds
+  integer, save :: photolysis_delta_t = 1 ! in days
   
-  double precision, dimension(:), allocatable :: time_angle_photolysis
-  double precision, dimension(:), allocatable :: latitude_photolysis
-  double precision, dimension(:), allocatable :: altitude_photolysis
+  double precision, dimension(:), allocatable, save :: time_angle_photolysis
+  double precision, dimension(:), allocatable, save :: latitude_photolysis
+  double precision, dimension(:), allocatable, save :: altitude_photolysis
   
 contains
   
