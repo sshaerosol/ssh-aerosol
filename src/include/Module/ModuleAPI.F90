@@ -913,20 +913,23 @@ module SSHaerosolAPI
 
       implicit none
 
-      integer :: s, j
+      integer :: s, j, jesp
       double precision :: current_time_api
 
-      current_time_api = initial_time
+      current_time_api = current_time
 
       ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
       total_aero_mass = 0.d0
       total_mass = 0.d0
-      do s = 1, N_aerosol
+      do s = 1, N_aerosol_layers
+        jesp = List_species(s)
         do j = 1, N_size
-          total_aero_mass(s) = total_aero_mass(s) + concentration_mass(j,s)
+          total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
         enddo
-	! update mass conc. of aerosol precursors
-	! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+      enddo
+      ! update mass conc. of aerosol precursors
+      ! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+      do s = 1, N_aerosol
         if (aerosol_species_interact(s) .gt. 0) then
           concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
         end if
