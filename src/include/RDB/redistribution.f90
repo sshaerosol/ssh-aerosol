@@ -89,14 +89,12 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
     call REDIST(ns,naer,N,Qesp,fixed_density,dbound,d_after_cond)
   else 
   if(scheme.EQ.12) then
-    do jaer=1,naer
     DO k = 1, ns
        if (with_fixed_density .eq. 0) then
           CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
        else
           rho(k) = fixed_density  
        endif
-    ENDDO
     ENDDO
     call REDIST_EULERCOUPLE(ns,naer,N,Qesp,fixed_density,rho,dbound,d_after_cond)
   else
