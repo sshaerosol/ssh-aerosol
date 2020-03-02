@@ -21,7 +21,7 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
   Array<double, 1> X_unifac;
   Array<double, 1> gamma_unifac;
   double tval1,tval2;
-  //double tiny=1.0e-100;
+  double tiny=1.0e-100;
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
 
