@@ -42,13 +42,13 @@ contains
     lwc_cloud_threshold = 0.05d0
 
     ! discretization
-    allocate(N_fracbin(N_sizebin))
+    if(.not.allocated(N_fracbin)) allocate(N_fracbin(N_sizebin))
     if(N_frac.eq.1)  N_fracbin = 1
-    call discretization()
+    if (.not.allocated(discretization_composition)) call discretization()
     if (ssh_standalone) write(*,*) "N_size :", N_size
     if (ssh_logger) write(logfile,*) "N_size :", N_size
-    allocate(concentration_index(N_size, 2))
-    allocate(concentration_index_iv(N_sizebin, N_fracmax))
+    if(.not.allocated(concentration_index)) allocate(concentration_index(N_size, 2))
+    if(.not.allocated(concentration_index_iv)) allocate(concentration_index_iv(N_sizebin, N_fracmax))
     j = 1
     do k = 1,N_sizebin
        do i = 1, N_fracbin(k)
@@ -60,7 +60,7 @@ contains
     enddo
 
     ! initialise bin bounds if need.
-    allocate(diam_bound(N_sizebin+1))
+    if(.not.allocated(diam_bound)) allocate(diam_bound(N_sizebin+1))
     if (tag_dbd == 0) then  ! auto-generate bin bounds (method need to change in order to fit PM10 & PM2.5)
        do i = 1,N_sizebin+1
           diam_bound(i)= diam_input(1) * (diam_input(2)/ diam_input(1))**((i - 1) / dble(N_sizebin))
@@ -92,9 +92,9 @@ contains
     if (ssh_logger) write(logfile,*) 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
 
     ! diameter !
-    allocate(size_diam_av(N_sizebin))
+    if(.not.allocated(size_diam_av)) allocate(size_diam_av(N_sizebin))
     size_diam_av = 0.0
-    allocate(size_mass_av(N_sizebin))
+    if(.not.allocated(size_mass_av)) allocate(size_mass_av(N_sizebin))
     size_mass_av=0.d0
 
     do k= 1,N_sizebin
@@ -118,12 +118,12 @@ contains
     heterogeneous_reaction_index(4)= 23-1 ! N2O5
 
     ns_source = 1
-    allocate(source_index(ns_source))
+    if(.not.allocated(source_index)) allocate(source_index(ns_source))
     source_index = [1]
-    allocate(source(ns_source))
+    if(.not.allocated(source)) allocate(source(ns_source))
     source = 0.d0
-    allocate(conversionfactor(n_gas))
-    allocate(conversionfactorjacobian(n_gas, n_gas))
+    if(.not.allocated(conversionfactor)) allocate(conversionfactor(n_gas))
+    if(.not.allocated(conversionfactorjacobian)) allocate(conversionfactorjacobian(n_gas, n_gas))
 
     do j = 1, n_gas
        conversionfactor(j) = Navog * 1.d-12 / molecular_weight(j)
@@ -135,85 +135,85 @@ contains
 
     ! initialise fraction discretization 
 
-    allocate(discretization_mass(N_sizebin+1))
+    if(.not.allocated(discretization_mass)) allocate(discretization_mass(N_sizebin+1))
     discretization_mass = 0.d0
     do k = 1,N_sizebin+1
        discretization_mass(k) = fixed_density * pi * diam_bound(k) ** 3 / 6.d0
     end do
 
-    allocate(lwc_nsize(n_size)) ! SOAP !
+    if(.not.allocated(lwc_nsize)) allocate(lwc_nsize(n_size)) ! SOAP !
     lwc_nsize = 0.d0
-    allocate(ionic_nsize(n_size)) ! SOAP !
+    if(.not.allocated(ionic_nsize)) allocate(ionic_nsize(n_size)) ! SOAP !
     ionic_nsize = 0.d0
-    allocate(proton_nsize(n_size))  ! SOAP !
+    if(.not.allocated(proton_nsize)) allocate(proton_nsize(n_size))  ! SOAP !
     proton_nsize = 0.d0
-    allocate(chp_nsize(n_size))  ! SOAP !
+    if(.not.allocated(chp_nsize)) allocate(chp_nsize(n_size))  ! SOAP !
     chp_nsize = 0.d0
-    allocate(liquid_nsize(12,n_size))   ! SOAP !
+    if(.not.allocated(liquid_nsize)) allocate(liquid_nsize(12,n_size))   ! SOAP !
     liquid_nsize = 0.d0
 
-    allocate(concentration_inti(N_size,N_inside_aer)) ! ModuleCondensation !
+    if(.not.allocated(concentration_inti)) allocate(concentration_inti(N_size,N_inside_aer)) ! ModuleCondensation !
     concentration_inti=0.d0
 
-    allocate(total_mass(N_aerosol))
+    if(.not.allocated(total_mass)) allocate(total_mass(N_aerosol))
     total_mass=0.d0    
 
-    allocate(concentration_number(N_size)) 
+    if(.not.allocated(concentration_number)) allocate(concentration_number(N_size)) 
     concentration_number=0.d0
 
-    allocate(concentration_number_tmp(N_size)) ! ModuleAdaptstep
+    if(.not.allocated(concentration_number_tmp)) allocate(concentration_number_tmp(N_size)) ! ModuleAdaptstep
     concentration_number_tmp=0.d0
 
-    allocate(concentration_mass(N_size,N_aerosol_layers)) 
+    if(.not.allocated(concentration_mass)) allocate(concentration_mass(N_size,N_aerosol_layers)) 
     concentration_mass=0.d0
 
-    allocate(concentration_mass_tmp(N_size,N_aerosol_layers)) ! ModuleAdaptstep
+    if(.not.allocated(concentration_mass_tmp)) allocate(concentration_mass_tmp(N_size,N_aerosol_layers)) ! ModuleAdaptstep
     concentration_mass_tmp=0.d0
 
-    allocate(emission_rate(N_size,N_aerosol_layers)) ! ModuleEmission
+    if(.not.allocated(emission_rate)) allocate(emission_rate(N_size,N_aerosol_layers)) ! ModuleEmission
     emission_rate=0.d0
-    allocate(emission_num_rate(N_size))       ! ModuleEmission
+    if(.not.allocated(emission_num_rate)) allocate(emission_num_rate(N_size))       ! ModuleEmission
     emission_num_rate=0.d0
 
     ! cell : for each grid cell
-    allocate(cell_mass_av(N_size))
+    if(.not.allocated(cell_mass_av)) allocate(cell_mass_av(N_size))
     cell_mass_av=0.d0
 
-    allocate(cell_mass(N_size))
+    if(.not.allocated(cell_mass)) allocate(cell_mass(N_size))
     cell_mass = 0.d0
 
-    allocate(cell_diam_av(N_size)) ! average diameter of each grid cell
+    if(.not.allocated(cell_diam_av)) allocate(cell_diam_av(N_size)) ! average diameter of each grid cell
     cell_diam_av=0.d0
 
-    allocate(total_aero_mass(N_aerosol)) ! ModulePhysicalbalance, Emission, Adapstep
+    if(.not.allocated(total_aero_mass)) allocate(total_aero_mass(N_aerosol)) ! ModulePhysicalbalance, Emission, Adapstep
     total_aero_mass=0.d0
 
-    allocate(mass_total_grid(N_size))  ! ModulePhysicalbalance
+    if(.not.allocated(mass_total_grid)) allocate(mass_total_grid(N_size))  ! ModulePhysicalbalance
     mass_total_grid=0.d0
 
     ! wet !
-    allocate(wet_mass(N_size))
+    if(.not.allocated(wet_mass)) allocate(wet_mass(N_size))
     wet_mass=0.d0
 
-    allocate(wet_diameter(N_size))
+    if(.not.allocated(wet_diameter)) allocate(wet_diameter(N_size))
     wet_diameter=0.d0
 
-    allocate(wet_volume(N_size))
+    if(.not.allocated(wet_volume)) allocate(wet_volume(N_size))
     wet_volume=0.d0
 
-    allocate(bin_mass(N_sizebin))  ! ModulePhysicalbalance
+    if(.not.allocated(bin_mass)) allocate(bin_mass(N_sizebin))  ! ModulePhysicalbalance
     bin_mass = 0.d0
-    allocate(bin_number(N_sizebin)) ! ModulePhysicalbalance
+    if(.not.allocated(bin_number)) allocate(bin_number(N_sizebin)) ! ModulePhysicalbalance
     bin_number = 0.d0
 
     ! ModuleBulkequibrium ModuleAdaptstep ModuleCondensation ModuleCongregation ModuleThermodynamics
-    allocate(ce_kernal_coef(N_size,N_aerosol)) 
+    if(.not.allocated(ce_kernal_coef)) allocate(ce_kernal_coef(N_size,N_aerosol)) 
     ce_kernal_coef = 0.d0
 
-    allocate(frac_grid(N_size,N_groups)) ! ModulePhysicalbalance ModuleRedistribution
+    if(.not.allocated(frac_grid)) allocate(frac_grid(N_size,N_groups)) ! ModulePhysicalbalance ModuleRedistribution
     frac_grid = 0.d0
 
-    allocate(dqdt(N_size,N_aerosol_layers)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
+    if(.not.allocated(dqdt)) allocate(dqdt(N_size,N_aerosol_layers)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
     dqdt = 0.d0
 
     if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
@@ -531,11 +531,11 @@ contains
 
     ! initialise density ! after concentration_mass
 
-    allocate(density_aer_bin(N_size))
+    if(.not. allocated(density_aer_bin)) allocate(density_aer_bin(N_size))
     density_aer_bin = 0.0
-    allocate(density_aer_size(N_sizebin))
+    if(.not. allocated(density_aer_size)) allocate(density_aer_size(N_sizebin))
     density_aer_size = 0.0
-    allocate(rho_wet_cell(N_size))
+    if(.not. allocated(rho_wet_cell)) allocate(rho_wet_cell(N_size))
     rho_wet_cell = 0.0
 
     if (with_fixed_density.eq.1) then
@@ -585,7 +585,7 @@ contains
          concentration_inti,wet_mass,wet_diameter,wet_volume)
 
     if (with_coag.eq.1) then !if coagulation
-       allocate(kernel_coagulation(N_size,N_size))
+       if(.not. allocated(kernel_coagulation)) allocate(kernel_coagulation(N_size,N_size))
        kernel_coagulation = 0.d0
 
        if (i_compute_repart == 0 .or. i_write_repart == 1) then
@@ -613,7 +613,7 @@ contains
        if (i_compute_repart == 0) then
           call ReadCoefficientRepartition(Coefficient_file, tag_file)
        else if (i_compute_repart == 1) then
-          call ComputeCoefficientRepartition()
+          if (.not. allocated(repartition_coefficient)) call ComputeCoefficientRepartition()
        else
           if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
           if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
@@ -641,9 +641,9 @@ contains
 
     if (with_cond.EQ.1) then  ! for condensation
 
-       allocate(quadratic_speed(N_aerosol))    
+       if(.not. allocated(quadratic_speed)) allocate(quadratic_speed(N_aerosol))    
        quadratic_speed=0.D0
-       allocate(diffusion_coef(N_aerosol))
+       if(.not. allocated(diffusion_coef)) allocate(diffusion_coef(N_aerosol))
        diffusion_coef=0.D0
 
        ! exist in ModuleAdapstep :
