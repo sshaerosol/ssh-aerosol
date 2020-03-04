@@ -340,9 +340,9 @@ contains
     ! ============================================================= 
 
     implicit none
-    integer :: i,ierr,tag_file
+    integer :: i,ierr,tag_file, nml_out
     character (len=40), intent(in) :: namelist_file
-
+    character (len=40) :: namelist_out
 
     ! namelists to read namelist.ssh file 
 
@@ -397,6 +397,12 @@ contains
     ! read namelist.ssh file !
     open(unit = 10, file = namelist_file, status = "old")
 
+    ! Use default values if they are not given in namelist.ssh
+    ! And write to namelist.out
+    nml_out = 101
+    namelist_out = "namelist.out"
+    open(nml_out, file = namelist_out)
+
     ! meteorological setup
     read(10, nml = setup_meteo, iostat = ierr)
     if (ierr .ne. 0) then
@@ -407,6 +413,7 @@ contains
           write(*,*) 'temperature should higher than 273.15 K - stop'
           stop
        end if
+
        pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
        Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
        humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
@@ -428,6 +435,7 @@ contains
        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
     end if
 
+    
     ! time setup
     read(10, nml = setup_time, iostat = ierr)
     if (ierr .ne. 0) then
@@ -450,12 +458,19 @@ contains
     end if
 
     ! initial_condition
+    wet_diam_estimation = -999
     read(10, nml = initial_condition, iostat = ierr)
 
     if (ierr .ne. 0) then
        write(*,*) "initial_condition data can not be read."
        stop
     else
+       ! wet_diam_estimation = 1 by default
+       ! if it is not given in namelist
+       if (wet_diam_estimation == -999) then
+          wet_diam_estimation = 1
+       endif
+       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Inition condition >>>>'
@@ -643,12 +658,109 @@ contains
     end if
 
     ! gas chemistry
+    attenuation = -999.d0
+    option_photolysis = -999
+    time_update_photolysis = -999.d0
+    with_adaptive = -999
+    adaptive_time_step_tolerance = -999.d0
+    min_adaptive_time_step = -999.d0
+    photolysis_dir = "---"
+    photolysis_file = "---"
+    n_time_angle = -999
+    time_angle_min = -999.d0
+    delta_time_angle = -999.d0
+    n_latitude = -999
+    latitude_min = -999.d0
+    delta_latitude = -999.d0
+    n_altitude = -999
+    altitude_photolysis_input = -999.d0
     read(10, nml = physic_gas_chemistry, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_gas_chemistry data can not be read."
        stop
     else
-
+       ! attenuation = 1.d0 by default
+       ! if it is not given in namelist
+       if (attenuation == -999.d0) then
+          attenuation = 1.d0
+       endif
+       ! option_photolysis = 1 by default
+       ! if it is not given in namelist
+       if (option_photolysis == -999) then
+          option_photolysis = 1
+       endif
+       ! time_update_photolysis = 100000.d0 by default
+       ! if it is not given in namelist
+       if (time_update_photolysis == -999.d0) then
+          time_update_photolysis = 100000.d0
+       endif
+       ! with_adaptive = 1 by default
+       ! if it is not given in namelist
+       if (with_adaptive == -999) then
+          with_adaptive = 1
+       endif
+       ! adaptive_time_step_tolerance = 0.001 by default
+       ! if it is not given in namelist
+       if (adaptive_time_step_tolerance == -999.d0) then
+          adaptive_time_step_tolerance = 0.001
+       endif
+       ! min_adaptive_time_step = 0.001 by default
+       ! if it is not given in namelist
+       if (min_adaptive_time_step == -999.d0) then
+          min_adaptive_time_step = 0.001
+       endif
+       ! photolysis_dir = "./photolysis/" by default
+       ! if it is not given in namelist
+       if (trim(photolysis_dir) == "---") then
+          photolysis_dir = "./photolysis/"
+       endif
+       ! photolysis_file = "./photolysis/" by default
+       ! if it is not given in namelist
+       if (trim(photolysis_file) == "---") then
+          photolysis_file = "./photolysis/photolysis-cb05.dat"
+       endif       
+       ! n_time_angle = 9 by default
+       ! if it is not given in namelist
+       if (n_time_angle == -999) then
+          n_time_angle = 9
+       endif
+       ! time_angle_min = 0.d0 by default
+       ! if it is not given in namelist
+       if (time_angle_min == -999.d0) then
+          time_angle_min = 0.d0
+       endif
+       ! delta_time_angle = 1.d0 by default
+       ! if it is not given in namelist
+       if (delta_time_angle == -999.d0) then
+          delta_time_angle = 1.d0
+       endif
+       ! n_latitude = 10 by default
+       ! if it is not given in namelist
+       if (n_latitude == -999) then
+          n_latitude = 10
+       endif
+       ! latitude_min = 0.d0 by default
+       ! if it is not given in namelist
+       if (latitude_min == -999.d0) then
+          latitude_min = 0.d0
+       endif
+       ! delta_latitude = 10.d0 by default
+       ! if it is not given in namelist
+       if (delta_latitude == -999.d0) then
+          delta_latitude = 10.d0
+       endif
+       ! n_altitude = 9 by default
+       ! if it is not given in namelist
+       if (n_altitude == -999) then
+          n_altitude = 9
+       endif
+       ! altitude_photolysis_input by default
+       ! if it is not given in namelist
+       if (altitude_photolysis_input(1) == -999.d0) then
+          altitude_photolysis_input(1:9) = [0.0, 1000.0, 2000.0, 3000.0, &
+               4000.0, 5000.0, 10000.0, 15000.0, 20000.0]
+       endif       
+       
        if (tag_chem == 0) then
           if (ssh_standalone) write(*,*) ''
           if (ssh_logger) write(logfile,*) ''
@@ -683,11 +795,38 @@ contains
     end if
 
     ! particle numerical issues
+    dtaeromin = -999.d0
+    with_fixed_density = -999
+    fixed_density = -999.d0
+    splitting = -999
     read(10, nml = physic_particle_numerical_issues, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_particle_numerical_issues data can not be read."
        stop
     else
+
+       ! dtaerominn = 1.d-5 by default
+       ! if it is not given in namelist
+       if (dtaeromin == -999.d0) then
+          dtaeromin = 1.d-5
+       endif
+       ! with_fixed_density = 0 by default
+       ! if it is not given in namelist
+       if (with_fixed_density == -999) then
+          with_fixed_density = 0
+       endif
+       ! fixed_density = 1.84d-06 by default
+       ! if it is not given in namelist
+       if (fixed_density == -999.d0) then
+          fixed_density = 1.84d-06
+       endif
+       ! splitting = 1 by default
+       ! if it is not given in namelist
+       if (splitting == -999) then
+          splitting = 1
+       endif
+
+       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Particle numerical issues >>>>'
@@ -754,11 +893,18 @@ contains
     end if
 
     ! coagulation
+    nmc = -999
     read(10, nml = physic_coagulation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_coagulation data can not be read."
        stop
     else 
+       ! nmc = 1000000 by default
+       ! if it is not given in namelist
+       if (nmc == -999) then
+          nmc = 1000000
+       endif
+
        if (with_coag == 1) then
           if (ssh_standalone) write(*,*) '! ! ! with coagulation.'
           if (ssh_logger) write(logfile,*) '! ! ! with coagulation.'
@@ -796,11 +942,55 @@ contains
     end if
 
     ! condensation/ evaporation
+    nlayer = -999
+    with_kelvin_effect = -999
+    tequilibrium = -999.d0
+    dorg = -999.d0
+    coupled_phases = -999
+    epser = -999.d0
+    epser_soap = -999.d0
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
        stop
     else
+       ! nlayer = 1 by default
+       ! if it is not given in namelist
+       if (nlayer == -999) then
+          nlayer = 1
+       endif
+       ! with_kelvin_effect = 1 by default
+       ! if it is not given in namelist
+       if (with_kelvin_effect == -999) then
+          with_kelvin_effect = 1
+       endif
+       ! tequilibrium = 0.1d0 by default
+       ! if it is not given in namelist
+       if (tequilibrium == -999.d0) then
+          tequilibrium = 0.1d0
+       endif
+       ! dorg = 1.d-12 by default
+       ! if it is not given in namelist
+       if (dorg == -999.d0) then
+          dorg = 1.d-12
+       endif       
+       ! coupled_phases = 0 by default
+       ! if it is not given in namelist
+       if (coupled_phases == -999) then
+          coupled_phases = 0
+       endif
+       ! epser = 0.01 by default
+       ! if it is not given in namelist
+       if (epser == -999.d0) then
+          epser = 0.01
+       endif       
+       ! epser_soap = 0.01 by default
+       ! if it is not given in namelist
+       if (epser_soap == -999.d0) then
+          epser_soap = 0.01
+       endif
+
+       
        if (with_cond == 1)  then ! defalut
           if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
@@ -906,6 +1096,25 @@ contains
     end if
 
     close(10)
+
+    ! Write to namelist.out
+    write(nml_out, setup_meteo)
+    write(nml_out, setup_time)
+    write(nml_out, initial_condition)
+    write(nml_out, initial_diam_distribution)
+    write(nml_out, emissions)
+    write(nml_out, mixing_state)
+    write(nml_out, fraction_distribution)
+    write(nml_out, gas_phase_species)
+    write(nml_out, aerosol_species)
+    write(nml_out, physic_gas_chemistry)
+    write(nml_out, physic_particle_numerical_issues)
+    write(nml_out, physic_coagulation)
+    write(nml_out, physic_condensation)
+    write(nml_out, physic_nucleation)
+    write(nml_out, physic_organic)
+    write(nml_out, output)
+    close(nml_out)
 
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
