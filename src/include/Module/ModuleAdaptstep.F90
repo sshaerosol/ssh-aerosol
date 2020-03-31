@@ -120,10 +120,17 @@ contains
           if(nb_iter == 0) then
              ! Solve coagulation, condensation/evaporation and nucleation
              ! Compute the characteristic time step of each physical process.
-             call initstep(concentration_mass,concentration_number,&
-                  concentration_gas,timestep_coag,timestep_cond, &
-                  initial_time_splitting,timestep_splitting,delta_t)
+             !call initstep(concentration_mass,concentration_number,&
+             !     concentration_gas,timestep_coag,timestep_cond, &
+             !     initial_time_splitting,timestep_splitting,delta_t)
              nb_iter = 1
+             timestep_coag = DTAEROMIN 
+             timestep_cond = DTAEROMIN 
+             timestep_splitting = DTAEROMIN 
+             timestep_splitting = DMIN1(timestep_splitting,delta_t-initial_time_splitting) 
+             if(with_coag.eq.0.OR.with_cond.eq.0)  then 
+                timestep_splitting = delta_t-initial_time_splitting 
+             endif 
           else
              timestep_coag = DMIN1(timestep_coag,delta_t-current_sub_time)
              timestep_cond = DMIN1(timestep_cond,delta_t-current_sub_time)
@@ -131,9 +138,12 @@ contains
              timestep_splitting = DMIN1(timestep_splitting,delta_t-current_sub_time)
           endif
        else  
-          call initstep_coupled(concentration_mass,concentration_number,&
-               concentration_gas,sub_timestep_splitting, &
-               initial_time_splitting,timestep_splitting,delta_t)
+          !call initstep_coupled(concentration_mass,concentration_number,&
+          !     concentration_gas,sub_timestep_splitting, &
+          !     initial_time_splitting,timestep_splitting,delta_t)
+          sub_timestep_splitting = DTAEROMIN
+          sub_timestep_splitting = DMIN1(sub_timestep_splitting,delta_t-initial_time_splitting)
+          timestep_splitting = delta_t-initial_time_splitting
        endif
 
        if(splitting == 0) then ! Split processes
@@ -681,7 +691,6 @@ contains
           n1(j)=n2(j)+sub_timestep_splitting*dn1dt(j)
        else
           n1(j) = 0.0
-          ! write(*,*) 'pb ETR n1 < 0',n2(j),sub_timestep_splitting*dn1dt(j),sub_timestep_splitting
        endif
        do s=1,N_aerosol_layers
           jesp=List_species(s)
@@ -690,7 +699,6 @@ contains
              q1(j,s)=q2(j,s)+sub_timestep_splitting*dq1dt(j,s)
           else
              q1(j,s) = 0.0
-             !if (dq1dt(j,s).GT.1.d-10) write(*,*) 'pb ETR q1 < 0',q2(j,s),sub_timestep_splitting*dq1dt(j,s),sub_timestep_splitting
           endif
        enddo
 !       q1(j,N_aerosol_layers) = qH2O(j) ! water is the last species
