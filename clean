@@ -36,6 +36,12 @@ then
     rm -f $file
 fi
 
+file="namelist.out"
+if [ -f $file ] 
+then
+    rm -f $file
+fi
+
 # if [ "$1" = "all" ]; then
 #    lst=`ls -d tmp* 2>/dev/null`
 #    for di in ${lst}; do

@@ -340,9 +340,9 @@ contains
     ! ============================================================= 
 
     implicit none
-    integer :: i,ierr,tag_file
+    integer :: i,ierr,tag_file, nml_out
     character (len=40), intent(in) :: namelist_file
-
+    character (len=40) :: namelist_out
 
     ! namelists to read namelist.ssh file 
 
@@ -397,6 +397,12 @@ contains
     ! read namelist.ssh file !
     open(unit = 10, file = namelist_file, status = "old")
 
+    ! Use default values if they are not given in namelist.ssh
+    ! And write to namelist.out
+    nml_out = 101
+    namelist_out = "namelist.out"
+    open(nml_out, file = namelist_out)
+
     ! meteorological setup
     read(10, nml = setup_meteo, iostat = ierr)
     if (ierr .ne. 0) then
@@ -407,6 +413,7 @@ contains
           write(*,*) 'temperature should higher than 273.15 K - stop'
           stop
        end if
+
        pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
        Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
        humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
@@ -428,6 +435,7 @@ contains
        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
     end if
 
+    
     ! time setup
     read(10, nml = setup_time, iostat = ierr)
     if (ierr .ne. 0) then
@@ -450,12 +458,19 @@ contains
     end if
 
     ! initial_condition
+    wet_diam_estimation = -999
     read(10, nml = initial_condition, iostat = ierr)
 
     if (ierr .ne. 0) then
        write(*,*) "initial_condition data can not be read."
        stop
     else
+       ! wet_diam_estimation = 1 by default
+       ! if it is not given in namelist
+       if (wet_diam_estimation == -999) then
+          wet_diam_estimation = 1
+       endif
+       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Inition condition >>>>'
@@ -643,12 +658,109 @@ contains
     end if
 
     ! gas chemistry
+    attenuation = -999.d0
+    option_photolysis = -999
+    time_update_photolysis = -999.d0
+    with_adaptive = -999
+    adaptive_time_step_tolerance = -999.d0
+    min_adaptive_time_step = -999.d0
+    photolysis_dir = "---"
+    photolysis_file = "---"
+    n_time_angle = -999
+    time_angle_min = -999.d0
+    delta_time_angle = -999.d0
+    n_latitude = -999
+    latitude_min = -999.d0
+    delta_latitude = -999.d0
+    n_altitude = -999
+    altitude_photolysis_input = -999.d0
     read(10, nml = physic_gas_chemistry, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_gas_chemistry data can not be read."
        stop
     else
-
+       ! attenuation = 1.d0 by default
+       ! if it is not given in namelist
+       if (attenuation == -999.d0) then
+          attenuation = 1.d0
+       endif
+       ! option_photolysis = 1 by default
+       ! if it is not given in namelist
+       if (option_photolysis == -999) then
+          option_photolysis = 1
+       endif
+       ! time_update_photolysis = 100000.d0 by default
+       ! if it is not given in namelist
+       if (time_update_photolysis == -999.d0) then
+          time_update_photolysis = 100000.d0
+       endif
+       ! with_adaptive = 1 by default
+       ! if it is not given in namelist
+       if (with_adaptive == -999) then
+          with_adaptive = 1
+       endif
+       ! adaptive_time_step_tolerance = 0.001 by default
+       ! if it is not given in namelist
+       if (adaptive_time_step_tolerance == -999.d0) then
+          adaptive_time_step_tolerance = 0.001
+       endif
+       ! min_adaptive_time_step = 0.001 by default
+       ! if it is not given in namelist
+       if (min_adaptive_time_step == -999.d0) then
+          min_adaptive_time_step = 0.001
+       endif
+       ! photolysis_dir = "./photolysis/" by default
+       ! if it is not given in namelist
+       if (trim(photolysis_dir) == "---") then
+          photolysis_dir = "./photolysis/"
+       endif
+       ! photolysis_file = "./photolysis/" by default
+       ! if it is not given in namelist
+       if (trim(photolysis_file) == "---") then
+          photolysis_file = "./photolysis/photolysis-cb05.dat"
+       endif       
+       ! n_time_angle = 9 by default
+       ! if it is not given in namelist
+       if (n_time_angle == -999) then
+          n_time_angle = 9
+       endif
+       ! time_angle_min = 0.d0 by default
+       ! if it is not given in namelist
+       if (time_angle_min == -999.d0) then
+          time_angle_min = 0.d0
+       endif
+       ! delta_time_angle = 1.d0 by default
+       ! if it is not given in namelist
+       if (delta_time_angle == -999.d0) then
+          delta_time_angle = 1.d0
+       endif
+       ! n_latitude = 10 by default
+       ! if it is not given in namelist
+       if (n_latitude == -999) then
+          n_latitude = 10
+       endif
+       ! latitude_min = 0.d0 by default
+       ! if it is not given in namelist
+       if (latitude_min == -999.d0) then
+          latitude_min = 0.d0
+       endif
+       ! delta_latitude = 10.d0 by default
+       ! if it is not given in namelist
+       if (delta_latitude == -999.d0) then
+          delta_latitude = 10.d0
+       endif
+       ! n_altitude = 9 by default
+       ! if it is not given in namelist
+       if (n_altitude == -999) then
+          n_altitude = 9
+       endif
+       ! altitude_photolysis_input by default
+       ! if it is not given in namelist
+       if (altitude_photolysis_input(1) == -999.d0) then
+          altitude_photolysis_input(1:9) = [0.0, 1000.0, 2000.0, 3000.0, &
+               4000.0, 5000.0, 10000.0, 15000.0, 20000.0]
+       endif       
+       
        if (tag_chem == 0) then
           if (ssh_standalone) write(*,*) ''
           if (ssh_logger) write(logfile,*) ''
@@ -683,11 +795,38 @@ contains
     end if
 
     ! particle numerical issues
+    dtaeromin = -999.d0
+    with_fixed_density = -999
+    fixed_density = -999.d0
+    splitting = -999
     read(10, nml = physic_particle_numerical_issues, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_particle_numerical_issues data can not be read."
        stop
     else
+
+       ! dtaerominn = 1.d-5 by default
+       ! if it is not given in namelist
+       if (dtaeromin == -999.d0) then
+          dtaeromin = 1.d-5
+       endif
+       ! with_fixed_density = 0 by default
+       ! if it is not given in namelist
+       if (with_fixed_density == -999) then
+          with_fixed_density = 0
+       endif
+       ! fixed_density = 1.84d-06 by default
+       ! if it is not given in namelist
+       if (fixed_density == -999.d0) then
+          fixed_density = 1.84d-06
+       endif
+       ! splitting = 1 by default
+       ! if it is not given in namelist
+       if (splitting == -999) then
+          splitting = 1
+       endif
+
+       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Particle numerical issues >>>>'
@@ -754,11 +893,18 @@ contains
     end if
 
     ! coagulation
+    nmc = -999
     read(10, nml = physic_coagulation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_coagulation data can not be read."
        stop
     else 
+       ! nmc = 1000000 by default
+       ! if it is not given in namelist
+       if (nmc == -999) then
+          nmc = 1000000
+       endif
+
        if (with_coag == 1) then
           if (ssh_standalone) write(*,*) '! ! ! with coagulation.'
           if (ssh_logger) write(logfile,*) '! ! ! with coagulation.'
@@ -796,11 +942,55 @@ contains
     end if
 
     ! condensation/ evaporation
+    nlayer = -999
+    with_kelvin_effect = -999
+    tequilibrium = -999.d0
+    dorg = -999.d0
+    coupled_phases = -999
+    epser = -999.d0
+    epser_soap = -999.d0
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
        stop
     else
+       ! nlayer = 1 by default
+       ! if it is not given in namelist
+       if (nlayer == -999) then
+          nlayer = 1
+       endif
+       ! with_kelvin_effect = 1 by default
+       ! if it is not given in namelist
+       if (with_kelvin_effect == -999) then
+          with_kelvin_effect = 1
+       endif
+       ! tequilibrium = 0.1d0 by default
+       ! if it is not given in namelist
+       if (tequilibrium == -999.d0) then
+          tequilibrium = 0.1d0
+       endif
+       ! dorg = 1.d-12 by default
+       ! if it is not given in namelist
+       if (dorg == -999.d0) then
+          dorg = 1.d-12
+       endif       
+       ! coupled_phases = 0 by default
+       ! if it is not given in namelist
+       if (coupled_phases == -999) then
+          coupled_phases = 0
+       endif
+       ! epser = 0.01 by default
+       ! if it is not given in namelist
+       if (epser == -999.d0) then
+          epser = 0.01
+       endif       
+       ! epser_soap = 0.01 by default
+       ! if it is not given in namelist
+       if (epser_soap == -999.d0) then
+          epser_soap = 0.01
+       endif
+
+       
        if (with_cond == 1)  then ! defalut
           if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
@@ -906,6 +1096,25 @@ contains
     end if
 
     close(10)
+
+    ! Write to namelist.out
+    write(nml_out, setup_meteo)
+    write(nml_out, setup_time)
+    write(nml_out, initial_condition)
+    write(nml_out, initial_diam_distribution)
+    write(nml_out, emissions)
+    write(nml_out, mixing_state)
+    write(nml_out, fraction_distribution)
+    write(nml_out, gas_phase_species)
+    write(nml_out, aerosol_species)
+    write(nml_out, physic_gas_chemistry)
+    write(nml_out, physic_particle_numerical_issues)
+    write(nml_out, physic_coagulation)
+    write(nml_out, physic_condensation)
+    write(nml_out, physic_nucleation)
+    write(nml_out, physic_organic)
+    write(nml_out, output)
+    close(nml_out)
 
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
@@ -1444,268 +1653,6 @@ contains
 
     if (allocated(tmp_aero))  deallocate(tmp_aero)
   end subroutine read_inputs
-
-
-
-    subroutine read_inputs_light()
-
-
-    implicit none
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline
-    double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero
-    character (len=40) :: ic_name, sname, tmp_name
-
-    ! read gas-phase species namelist ! unit = 11
-    allocate(molecular_weight(N_gas))
-    allocate(species_name(N_gas))
-
-    open(unit = 11, file = species_list_file, status = "old")
-    count = 0
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(11, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do    
-
-    rewind 11
-    read(11, *)  ! read the first comment line
-    do s = 1, N_gas
-       read(11, *) species_name(s), molecular_weight(s)
-    enddo
-    close(11)
-
-    ! read aerosol species namelist ! unit = 12
-    open(unit = 12, file = aerosol_species_list_file, status = "old")
-    count = 0
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(12, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-    N_aerosol = count - 1  ! minus the first comment line
-
-
-    allocate(aerosol_species_name(N_aerosol))
-    spec_name_len = len(aerosol_species_name(1))
-    allocate(Index_groups(N_aerosol))
-    allocate(aerosol_type(N_aerosol))
-    allocate(index_species(N_aerosol,nlayer))
-    ! initialize basic physical and chemical parameters
-    allocate(molecular_weight_aer(N_aerosol))
-    allocate(collision_factor_aer(N_aerosol))
-    allocate(molecular_diameter(N_aerosol)) 
-    allocate(surface_tension(N_aerosol))
-    allocate(accomodation_coefficient(N_aerosol))
-    allocate(mass_density(N_aerosol))
-    allocate(Vlayer(nlayer))
-    ! relation between Aerosol and GAS
-    allocate(aerosol_species_interact(N_aerosol))      
-    aerosol_species_interact = 0
-
-    ! Read lines from aerosol species file.
-    rewind 12
-    count = 0
-    read(12, *) ! Read a header line (#)
-    do s = 1, N_aerosol
-       ! Surface_tension for organic and aqueous phases of organic aerosols
-       ! is hardly coded in SOAP/parameters.cxx
-       ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-       read(12, *) aerosol_species_name(s), aerosol_type(s), &
-            Index_groups(s), molecular_weight_aer(s), &
-            precursor, &
-            collision_factor_aer(s), molecular_diameter(s), &
-            surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s)
-
-       ! Find pairs of aerosol species and its precursor.
-       ind = 0
-       do js = 1, N_gas
-          if (species_name(js) .eq. trim(precursor)) then
-             aerosol_species_interact(s) = js
-             count = count + 1
-             ind = 1
-          endif
-          if (ind == 1) exit
-       enddo
-       !! Check if a precursor name is found in the list of gas-phase species.
-       if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-          stop
-       endif
-    enddo
-    close(12)
-    ! Safety check if index_groups is used
-    if (tag_external.eq.1) then
-       if (minval(Index_groups(1:N_aerosol_Layers-1)).lt.1) then
-          if (ssh_standalone) write(*,*) "Error: Incorrect group index in aerosol_species_list_file."    
-          if (ssh_logger) write(logfile,*) "Error: Incorrect group index in aerosol_species_list_file."  
-          stop
-       endif
-       if (maxval(Index_groups(1:N_aerosol_Layers-1)).gt.N_groups) then
-          if (ssh_standalone) write(*,*) "Error: Increase N_groups in namelist file."
-          if (ssh_logger) write(logfile,*) "Error: Increase N_groups in namelist file."
-          stop
-       endif
-    endif
-    
-    ! Count the number of species for each type.
-    N_inert = 0
-    nesp_isorropia = 0
-    nesp_aec = 0
-    do s = 1, N_aerosol
-       ! Inert aerosols: BC and mineral dust
-       if (aerosol_type(s) == 1 .or. aerosol_type(s) == 2) then
-          N_inert = N_inert + 1
-       ! Inorganic species   
-       else if (aerosol_type(s) == 3) then
-          nesp_isorropia = nesp_isorropia + 1
-       ! Organic species   
-       else if (aerosol_type(s) == 4) then
-          nesp_aec = nesp_aec + 1
-       ! Water   
-       else if (aerosol_type(s) == 9) then
-          EH2O = s
-       end if
-    end do
-    N_inorganic = nesp_isorropia
-    N_organics = nesp_aec
-    nesp_eq_org = N_organics    
-
-    ! Allocate aerosol arrays
-    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
-    EH2O_layers = N_aerosol_layers
-    allocate(mass_density_layers(N_aerosol_layers))
-    allocate(List_species(N_aerosol_layers))
-    allocate(layer_number(N_aerosol_layers))
-    allocate(isorropia_species(nesp_isorropia))
-    allocate(isorropia_species_name(nesp_isorropia))
-    allocate(aec_species(nesp_aec))
-    allocate(aec_species_name(nesp_aec))
-
-    ! Read aerosol species name.
-    js = 0
-    i = 0
-    do s = 1, N_aerosol
-       if (aerosol_type(s) == 3) then
-          i = i + 1
-          isorropia_species_name(i) = aerosol_species_name(s)
-          isorropia_species(i) = s
-       else if (aerosol_type(s) == 4) then
-          js = js + 1
-          aec_species_name(js) = aerosol_species_name(s)
-          aec_species(js) = s
-       endif
-    end do
-    
-    do s = 1, N_aerosol
-       ! For non-organic species.
-       if (s <= N_nonorganics) then
-          mass_density_layers(s) = mass_density(s)
-          molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
-          List_species(s) = s
-          if (aerosol_species_name(s) .eq. "PMD") EMD = s
-          if (aerosol_species_name(s) .eq. "PBC") EBC = s
-          if (aerosol_species_name(s) .eq. "PNA") ENa = s
-          if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
-          if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
-          if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
-          if (aerosol_species_name(s) .eq. "PHCL") ECl = s
-          if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
-
-          do ilayer=1,nlayer
-             index_species(s,ilayer) = s
-          enddo
-          layer_number(s) = 1
-       ! For organic species
-       else
-          molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
-          if(s.NE.N_aerosol) then !avoid water
-             do ilayer = 0,nlayer-1
-                esp_layer = (s-N_nonorganics-1) *(nlayer-1) + s + ilayer
-                index_species(s,ilayer+1) = esp_layer
-                mass_density_layers(esp_layer) = mass_density(s)
-                List_species(esp_layer) = s
-                !               molecular_weight_aer(esp_layer) = molecular_weight_aer(s)
-                !!aerosol_species_name(esp_layer) = aerosol_species_name(s)
-                !Index_groups(esp_layer) = Index_groups(s)
-                !               mass_density(esp_layer) = mass_density(s)
-                layer_number(esp_layer) = ilayer
-             enddo
-          else
-             List_species(N_aerosol_layers) = s
-             do ilayer=1,nlayer
-                index_species(N_aerosol,ilayer) = N_aerosol_layers 
-             enddo
-             layer_number(N_aerosol_layers) = 1
-          endif
-       endif
-    enddo
-
-    ! read gas-phase initial concentrations unit 21
-    ! no comment lines for initial & emitted data
-    allocate(concentration_gas_all(N_gas))
-    concentration_gas_all = 0.d0 ! set original value to 0    
-    allocate(concentration_gas(N_aerosol))
-    concentration_gas=0.d0
-    
-    if (tag_init == 0) then  ! change if species list and init are not in the same order
-       ! Read aerosol initial mass concentrations unit 22
-       ! internally mixed : mass for each sizebin of each species is given
-       allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
-       init_mass = 0.d0
-       allocate(init_bin_mass(N_sizebin,N_aerosol))
-       init_bin_mass = 0.d0
-       allocate(tmp_aero(N_sizebin))
-       tmp_aero = 0.d0
-       aero_total_mass = 0.d0      
-    else if (tag_init == 1) then ! mixing_state resolved
-       ! need to fill in the future
-       write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
-       stop
-    end if   
-
-    ! Initialize Vlayer  !! Need to be removed from SOAP
-    if(nlayer == 1) then
-       Vlayer(1)=1.0
-    else 
-       if(nlayer == 2) then
-          Vlayer(1)=0.99
-          Vlayer(2)=0.01
-       else 
-          if(nlayer == 3) then
-             Vlayer(1)=0.6
-             Vlayer(2)=0.39
-             Vlayer(3)=0.01
-          else 
-             if(nlayer == 4) then
-                Vlayer(1)=0.6
-                Vlayer(2)=0.26
-                Vlayer(3)=0.13
-                Vlayer(4)=0.01
-             else 
-                if (nlayer == 5) then
-                   Vlayer(1)=0.608
-                   Vlayer(2)=0.2184165
-                   Vlayer(3)=0.12102374
-                   Vlayer(4)=0.04255976
-                   Vlayer(5)=0.01
-                else
-                   if (ssh_standalone) write(*,*) "Number of layers not implemented in ssh"
-                   if (ssh_logger) write(logfile,*) "Number of layers not implemented in ssh"
-                endif
-             endif
-          endif
-       endif
-    endif
-    
-    if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
-    if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
-
-    if (allocated(tmp_aero))  deallocate(tmp_aero)
-  end subroutine read_inputs_light
 
 
   ! ============================================================

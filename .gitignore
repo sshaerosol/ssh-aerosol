@@ -64,3 +64,6 @@ src/include/atmopy/*
 src/include/AtmoData/*cxx
 src/include/AtmoData/*hxx
 run_testcase.py
+
+### Generated files
+namelist.out

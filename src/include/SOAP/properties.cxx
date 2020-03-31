@@ -21,7 +21,7 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
   Array<double, 1> X_unifac;
   Array<double, 1> gamma_unifac;
   double tval1,tval2;
-  //double tiny=1.0e-100;
+  double tiny_henry=1.0e-10;
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
 
@@ -73,8 +73,8 @@ void compute_gamma_infini(model_config &config, vector<species>& surrogate)
           surrogate[i].GAMMAinf=gamma_unifac(surrogate[i].index_gamma_aq);
           
           //cout << "Ginf " << surrogate[i].name << " " << surrogate[i].GAMMAinf << endl;
-          //if (surrogate[i].Henry <= tiny)
-	  surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
+          if (surrogate[i].Henry <= tiny_henry)
+	  	surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
 	  //cout << "Ginf " << surrogate[i].name << " " << surrogate[i].GAMMAinf << " " << surrogate[i].Henry << endl;
         }
       else
