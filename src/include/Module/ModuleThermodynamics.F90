@@ -69,7 +69,7 @@ contains
 
        ! The threshold 0.0 for the minimum aerosol concentration 
        ! should be avoided because it leads to a too small particle diameter.
-       if (qti.lt.TINYM) then ! No water  initially - compute it
+       if (qti.gt.TINYM) then ! No water  initially - compute it
           if(wet_diam_estimation.eq.0) then !with isorropia
              do i=1,nesp_isorropia
                 jesp=isorropia_species(i)
@@ -101,18 +101,18 @@ contains
                 wet_m(j)=size_mass_av(k)
              endif
           else
+             vad=qti/rhoaer!qti total dry mass
+             wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+             dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+              k=concentration_index(j, 1)
+              wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+              wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
+              wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+          endif
+       else
              k=concentration_index(j, 1)
              wet_d(j)=size_diam_av(k)
              wet_m(j)=size_mass_av(k)
-          endif
-       else
-          vad=qti/rhoaer!qti total dry mass
-          wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-          dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-          k=concentration_index(j, 1)
-          wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-          wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-          wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
        endif
     enddo
 
