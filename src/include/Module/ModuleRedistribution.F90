@@ -210,7 +210,7 @@ contains
     
   end subroutine redistribution_fraction
 
-  subroutine redistribution_lwc(lwc,ionic,proton,liquid)
+  subroutine redistribution_lwc(lwc,ionic,proton,liquid,iredist)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -226,6 +226,7 @@ contains
 !------------------------------------------------------------------------
     implicit none
 
+    integer :: iredist
     double precision :: inorg_total, inorg_bin(N_size)
     integer :: jesp, js,lay
     double precision :: lwc,ionic, proton,liquid(12)
@@ -247,7 +248,7 @@ contains
     do js=1,N_size
 
        if (inorg_total .gt. 0.D0) then
-          concentration_mass(js, EH2O_layers) = lwc * inorg_bin(js)/inorg_total
+          if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = lwc * inorg_bin(js)/inorg_total
           lwc_Nsize(js) = lwc * inorg_bin(js) / inorg_total
           proton_Nsize(js) = proton * inorg_bin(js) / inorg_total
           ionic_Nsize(js) = ionic 
@@ -255,7 +256,7 @@ contains
             liquid_Nsize(jesp,js) = liquid(jesp)
           enddo
        else
-          concentration_mass(js, EH2O_layers) = 0.d0
+          if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = 0.d0
        end if
     enddo
   end subroutine redistribution_lwc
