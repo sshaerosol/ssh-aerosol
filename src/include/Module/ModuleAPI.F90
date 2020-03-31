@@ -125,6 +125,89 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can force SSH-aerosol to intialize again
+!   internal variables. This subroutine must be called after
+!   updating thermodynamic variables or concentrations.
+!   TODO most of the code here is duplicated from the
+!   subroutine init_distributions.
+!   TODO add a dedicated subroutine to avoid duplicate
+!
+! =============================================================
+
+    subroutine api_reinitialize() bind(c, name='api_sshaerosol_init_again_')
+
+      use iso_c_binding
+      use aInitialization
+      use dPhysicalbalance
+      use cThermodynamics
+
+      implicit none
+
+      integer :: s, jesp, i
+      double precision :: tmp
+
+      ! Initialize the concentrations of aerosol with gas-phase percursors
+      total_aero_mass = 0.0
+      total_mass = 0.0
+      do s = 1, N_aerosol_layers
+        jesp=List_species(s)
+        do i=1,N_size
+          total_aero_mass(jesp)=total_aero_mass(jesp)+concentration_mass(i,s)
+        enddo
+      enddo
+      do s = 1, N_aerosol
+        if (aerosol_species_interact(s) .gt. 0) then
+          concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s)) !µg/m3
+        end if
+        total_mass(s)=total_mass(s) + total_aero_mass(s) + concentration_gas(s)
+      end do
+
+      density_aer_bin = 0.0
+      density_aer_size = 0.0
+      rho_wet_cell = 0.0
+      if (with_fixed_density.eq.1) then
+        ! convert from kg/m3 to µg/µm3 or µg/m3
+        !rho1 = fixed_density * 1.0d-9    !µg/µm3     
+        !rho2 = fixed_density * 1.0d+9    !µg/m3	       
+        mass_density(EH2O)=fixed_density
+        density_aer_bin=fixed_density
+        density_aer_size=fixed_density
+        rho_wet_cell = fixed_density
+      else
+        call compute_all_density()
+      end if
+
+      call compute_average_diameter()
+
+      call compute_wet_mass_diameter(1, N_size, concentration_mass, concentration_number, &
+                                     concentration_inti, wet_mass, wet_diameter, wet_volume)
+
+      if (with_cond.eq.1) then
+        quadratic_speed=0.D0
+        diffusion_coef=0.D0
+
+        ! exist in ModuleAdapstep :
+        tmp = 0.d0
+        do i = 1, N_aerosol
+          tmp = molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
+          if (aerosol_species_interact(i) .gt. 0) then
+            ! gas diffusivity
+            call compute_gas_diffusivity(temperature, pressure, molecular_diameter(i), tmp, &
+                                         collision_factor_aer(i), diffusion_coef(i))
+            ! quadratic mean velocity
+            call compute_quadratic_mean_velocity(temperature, tmp, quadratic_speed(i))
+          endif
+        end do
+      endif
+
+      call update_wet_diameter_liquid(1, N_size, concentration_mass, concentration_number, &
+                                      wet_mass, wet_diameter, wet_volume, cell_diam_av)
+
+
+    end subroutine api_reinitialize
+
+! =============================================================
+!
 ! External code can force SSH-aerosol to:
 !   deallocate memory
 !   close the log file
