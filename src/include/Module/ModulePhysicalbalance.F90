@@ -238,6 +238,7 @@ contains
       if (aerosol_species_interact(jesp).gt.0) then      
 	!renew the gas_concentration (reduce into aerosol)
 	  c_gas(jesp)=t_mass(jesp)-total_aero_mass(jesp)
+          if(c_gas(jesp).LT.TINYM) c_gas(jesp) = 0.d0
       else
 	  c_gas(jesp)=0.d0
       endif
@@ -261,11 +262,24 @@ contains
           enddo
        endif
     enddo
-    do s=N_nonorganics+1, N_aerosol-1
-          if(c_gas(s).lt.-TINYM) then
-             write(*,*) 'gas concentrations of organics is <0 in mass conservation',s,c_gas(s),t_mass(s),total_aero_mass(s)
-             stop
+    do s=N_nonorganics+1, N_aerosol_layers-1
+       jesp = List_species(s)
+       if(c_gas(jesp).lt.0.d0) then
+	  if(total_aero_mass(jesp).gt.0.d0) then
+             do j=1,N_size
+                   c_mass(j,s)=c_mass(j,s)+c_gas(jesp)*(c_mass(j,s)/total_aero_mass(jesp))
+             enddo
           endif
+          total_aero_mass(jesp)=t_mass(jesp)
+          c_gas(jesp)=0.d0
+       endif
+       if(total_aero_mass(jesp).lt.0.d0) then
+          total_aero_mass(jesp) =0.d0
+          c_gas(jesp)=t_mass(jesp)
+          do j=1,N_size
+             c_mass(j,s)=0.d0
+          enddo
+       endif
     enddo
 
   end subroutine mass_conservation
