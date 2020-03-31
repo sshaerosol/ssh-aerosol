@@ -187,6 +187,8 @@ contains
 
           call  bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
+          call mass_conservation(concentration_mass,concentration_number,&
+                                 concentration_gas, total_mass)
 
           call redistribution_lwc(lwc,ionic,proton,liquid)
 
@@ -197,6 +199,8 @@ contains
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
 
           call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
+          call mass_conservation(concentration_mass,concentration_number,&
+                                 concentration_gas, total_mass)
 
           call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
 
