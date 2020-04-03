@@ -144,11 +144,18 @@ contains
           if (repartition_coefficient_tmp(l) > 0.0) then
              repartition_coefficient(j)%n = repartition_coefficient(j)%n + 1
           endif
-  
+          
      enddo
-    
        index1_repartition_coefficient(j)%n = repartition_coefficient(j)%n
        index2_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+
+       ! YK to avoid zero Ncoef
+       if (repartition_coefficient(j)%n == 0) then
+          repartition_coefficient(j)%n = 1
+          repartition_coefficient_tmp(1) = 0.0
+          index1_repartition_coefficient_tmp(1) = j
+          index2_repartition_coefficient_tmp(1) = j
+       endif
 
        allocate(repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
        allocate(index1_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
@@ -159,6 +166,7 @@ contains
           index1_repartition_coefficient(j)%arr(l) = index1_repartition_coefficient_tmp(l)
           index2_repartition_coefficient(j)%arr(l) = index2_repartition_coefficient_tmp(l)
        enddo
+
     enddo
 
   end SUBROUTINE  ComputeCoefficientRepartition
@@ -220,6 +228,7 @@ contains
               call check( nf90_inq_dimid(ncid, DIM_NAME, dimid) )
               ! Read the data.
               call check( nf90_inquire_dimension(ncid, dimid, len= Ncoef) )
+
 	      ! Print the variables.
 	      index1_repartition_coefficient_nc(i)%n = Ncoef
 	      index2_repartition_coefficient_nc(i)%n = Ncoef
@@ -232,6 +241,7 @@ contains
 		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
 		  ! Read the data.
 		  call check( nf90_get_var(ncid, varid, index1_repartition_coefficient_nc(i)%arr))
+
                   VAR_NAME= 'index2_'//Temp
 		  ! Get the varid of the data variable, based on its name.
 		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
@@ -251,7 +261,8 @@ contains
                   i2=index2_repartition_coefficient_nc(i)%arr(l)
                   enddo
       end do
-    do j = 1, N_size
+ 
+   do j = 1, N_size
          Ncfix=repartition_coefficient_nc(j)%n
          Ncoef=Ncfix
          do l=1,repartition_coefficient_nc(j)%n! ckeck symmetric case
@@ -429,12 +440,75 @@ contains
     integer :: j, l
     logical :: is_file
 
+    integer :: dimid, ncid
+    integer :: index1_varid, index2_varid, coef_varid
+    character (len = 11) :: dim_name, var_name
+    character (len = 5) :: ctemp, temp
+ 
     ! NetCDF output
     if (tag_file.eq.1) then
 
-      if (ssh_standalone) write(*,*) "Warning: NetCDF writer is not ready. Fallback to TXT."
-      if (ssh_logger) write(logfile,*) "Warning: NetCDF writer is not ready. Fallback to TXT."
-      call WriteCoefficientRepartition(file, 2)
+       ! Create the netCDF file. The nf90_clobber parameter tells netCDF to
+       ! overwrite this file, if it already exists.
+       call check( nf90_create(file, NF90_CLOBBER, ncid) )
+
+       ! Define the dimensions. NetCDF will hand back an ID for each. 
+       call check( nf90_def_dim(ncid, "Nmc", Nmc, dimid) )
+       call check( nf90_def_dim(ncid, "Nsize", N_size, dimid) )
+       do j = 1, N_size
+          write(ctemp, '(i4)') (j-1)
+          temp = trim(adjustl(ctemp))
+          dim_name = 'Ncoef_'//temp
+          write(*,*) dim_name, '/', N_size, repartition_coefficient(j)%n, index1_repartition_coefficient(j)%arr
+          call check( nf90_def_dim(ncid, dim_name, repartition_coefficient(j)%n, dimid) )
+
+          ! Define the variables
+          var_name = 'index1_'//temp
+          call check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index1_varid) )
+          var_name = 'index2_'//temp
+          call check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index2_varid) )
+          var_name = 'coef_'//temp
+          call check( nf90_def_var(ncid, var_name, NF90_DOUBLE, dimid, coef_varid) )
+
+          ! End define mode. This tells netCDF we are done defining metadata.
+          call check( nf90_enddef(ncid) )
+
+          ! Index must decrease by 1 because it increases by 1 in 
+          ! ReadCoefficientRepartition()
+          ! coagulation-coef program generates NetCDF file.
+          ! Index starts from 1 in that generated file.
+          do l = 1, repartition_coefficient(j)%n
+             index1_repartition_coefficient(j)%arr(l) = &
+                  index1_repartition_coefficient(j)%arr(l) - 1
+             index2_repartition_coefficient(j)%arr(l) = &
+                  index2_repartition_coefficient(j)%arr(l) - 1
+          enddo
+
+          ! Write 'index1' data
+          call check( nf90_put_var(ncid, index1_varid, index1_repartition_coefficient(j)%arr) )
+          ! Write 'index2' data
+          call check( nf90_put_var(ncid, index2_varid, index2_repartition_coefficient(j)%arr) )
+          ! Write 'coefficient' data
+          call check( nf90_put_var(ncid, coef_varid, repartition_coefficient(j)%arr) )
+          ! Change into define mode
+          call check( nf90_redef(ncid) )
+
+          ! Index must increase again by 1 after writing to the file.
+          do l = 1, repartition_coefficient(j)%n
+             index1_repartition_coefficient(j)%arr(l) = &
+                  index1_repartition_coefficient(j)%arr(l) + 1
+             index2_repartition_coefficient(j)%arr(l) = &
+                  index2_repartition_coefficient(j)%arr(l) + 1
+          enddo
+
+       enddo
+       
+       ! Close the file.
+       call check( nf90_close(ncid) )
+
+       ! If we got this far, everything worked as expected. 
+      if (ssh_standalone) write(*,*) "*** SUCCESS writing file "//file
+      if (ssh_logger) write(logfile,*) "*** SUCCESS writing file "//file
 
     ! TXT
     else if (tag_file.eq.2) then
