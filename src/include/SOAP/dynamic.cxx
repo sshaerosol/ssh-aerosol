@@ -311,9 +311,7 @@ void characteristic_time(model_config &config, vector<species>& surrogate,
 		
 	      }
     }  
-  
-  for (i=0;i<n;i++)
-    surrogate[i].time=2.;
+
   for (b=0;b<config.nbins;++b)	  
     for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
       for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -1805,13 +1803,20 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		  kpmo_interface=0.0;
 		  rJ_interface=0.0;
 		  ilayer_interface=config.nlayer-1;
-		  for (ilayer=0;ilayer<config.nlayer-1;++ilayer)
-		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		      if (surrogate[i].tau_diffusion(b,ilayer,iphase)>=config.tequilibrium and surrogate[i].tau_diffusion(b,ilayer+1,iphase)<config.tequilibrium)
-			{
-			  tau_interface=surrogate[i].tau_diffusion(b,ilayer,iphase);
-			  ilayer_interface=ilayer+1;
-			}
+		  for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
+		    {
+		      //if (surrogate[i].Ap_layer_init(b,ilayer,0)>0) cout << ilayer << " " << surrogate[i].tau_diffusion(b,ilayer,0) << " " << config.tequilibrium << endl;
+		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			if (surrogate[i].tau_diffusion(b,ilayer,iphase)<config.tequilibrium)
+			  {
+			    tau_interface=surrogate[i].tau_diffusion(b,ilayer,iphase);
+			    ilayer_interface=ilayer;
+			    //if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>0) 
+			    //  cout << surrogate[i].name << " " << ilayer_interface << endl;
+			  }
+		    }
+		
+		  //ilayer_interface=1;
 
 		  for (ilayer=ilayer_interface;ilayer<config.nlayer;++ilayer)		   
 		    {
@@ -1825,7 +1830,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		    }
 
 		  Jinterface=(surrogate[i].Ag*sumkpmo_interface-ap_interface)/tau_interface;
-	      
+		  
 		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
@@ -1848,6 +1853,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 		      else
 			surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	      
+		  
 		  ktot1=0.0;
 		  for (ilayer=0;ilayer<ilayer_interface;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -1890,7 +1896,6 @@ void flux_org(model_config &config, vector<species>& surrogate,
       	      
 		  kcond=0.0;	    	      
 		  ktot=sumkpositive+sumknegative;
-	      
 		  if (ktot>0.0)			
 		    {
 		      sum1=0.0;
@@ -2031,6 +2036,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 			      }	  
 		    }
 		}
+
 	}
       else // There is a single layer.
 	{      
@@ -2062,6 +2068,7 @@ void flux_org(model_config &config, vector<species>& surrogate,
 	    }
 	}
     }
+  
 
   for (i=0;i<n;++i)      
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
@@ -2101,8 +2108,6 @@ void flux_org(model_config &config, vector<species>& surrogate,
 								surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	      }
       }
-
-
 
 }
 
