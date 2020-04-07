@@ -14,22 +14,25 @@ PROGRAM SSHaerosol
   use Resultoutput
   use gCoagulation
   use mod_photolysis
-  
+
   implicit none
 
   integer :: t, j, s,jesp,day
   character (len=40) :: namelist_ssh  ! Configuration file
-  double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
+  double precision, dimension(:), allocatable :: timer
 
-  double precision :: t_since_update_photolysis
+  double precision :: t_since_update_photolysis, t0
 
-  ! Initialisation: discretization and distribution  
-  call getarg(1, namelist_ssh) 
+  ! Initial time (microseconds)
+  call cpu_time(t0)
+
+  ! Initialisation: discretization and distribution
+  call getarg(1, namelist_ssh)
 
   ! Read the number of gas-phase species and chemical reactions
-  call dimensions(N_gas, n_reaction, n_photolysis)  
+  call dimensions(N_gas, n_reaction, n_photolysis)
 
-  call read_namelist(namelist_ssh)                  
+  call read_namelist(namelist_ssh)
 
   call read_inputs()                                
  
@@ -53,6 +56,12 @@ PROGRAM SSHaerosol
   endif
   ! **** simulation starts 
   t_since_update_photolysis = 0.d0
+
+  ! Initialization is finished
+  allocate(timer(nt+3))
+  timer(1) = t0
+  call cpu_time(t0)
+  timer(2) = t0
 
   do t = 1, nt
 
@@ -135,6 +144,10 @@ PROGRAM SSHaerosol
 
     call save_concentration()         ! Text or Binary format outout
 
+    ! Time step is finished
+    call cpu_time(t0)
+    timer(t+2) = t0
+
   end do			! finsh simulation
 
 
@@ -147,7 +160,6 @@ PROGRAM SSHaerosol
   if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
     call deallocate_photolysis()    
   endif
-  
 
   if (ssh_standalone) write(*,*) "============================================"
   if (ssh_standalone) write(*,*) "==== SSH-aerosol simulation completed  ====="
@@ -156,5 +168,26 @@ PROGRAM SSHaerosol
   if (ssh_logger) write(logfile,*) "==== SSH-aerosol simulation completed  ====="
   if (ssh_logger) write(logfile,*) "============================================"
 
+  ! Simulation is finished
+  call cpu_time(t0)
+  timer(nt+3) = t0
+
+  ! Print various times
+  if (ssh_standalone) then
+    write(*,*) ""
+    write(*,*) "Total simulation time in seconds : ", timer(nt+3) - timer(1)
+    write(*,*) "Initialization time in seconds : ", timer(2)-timer(1)
+    write(*,*) "Average time per time step in seconds : ", sum(timer(3:nt+2) - timer(2:nt+1))/dble(nt)
+    write(*,*) "Maximal time per time step in seconds : ", maxval(timer(3:nt+2) - timer(2:nt+1))
+    write(*,*) "Minimal time per time step in seconds : ", minval(timer(3:nt+2) - timer(2:nt+1))
+  endif
+  if (ssh_logger) then
+    write(logfile,*) ""
+    write(logfile,*) "Total simulation time in seconds : ", timer(nt+3) - timer(1)
+    write(logfile,*) "Initialization time in seconds : ", timer(2)-timer(1)
+    write(logfile,*) "Average time per time step in seconds : ", sum(timer(3:nt+2) - timer(2:nt+1))/dble(nt)
+    write(logfile,*) "Maximal time per time step in seconds : ", maxval(timer(3:nt+2) - timer(2:nt+1))
+    write(logfile,*) "Minimal time per time step in seconds : ", minval(timer(3:nt+2) - timer(2:nt+1))
+  endif
   
 end PROGRAM SSHaerosol
