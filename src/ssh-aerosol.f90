@@ -23,7 +23,7 @@ PROGRAM SSHaerosol
 
   double precision :: t_since_update_photolysis, t0
 
-  ! Initial time (microseconds)
+  ! Initial time (seconds)
   call cpu_time(t0)
 
   ! Initialisation: discretization and distribution
@@ -189,5 +189,8 @@ PROGRAM SSHaerosol
     write(logfile,*) "Maximal time per time step in seconds : ", maxval(timer(3:nt+2) - timer(2:nt+1))
     write(logfile,*) "Minimal time per time step in seconds : ", minval(timer(3:nt+2) - timer(2:nt+1))
   endif
+
+  ! Free memory
+  deallocate(timer)
   
 end PROGRAM SSHaerosol
