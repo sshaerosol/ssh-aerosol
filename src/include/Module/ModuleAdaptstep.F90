@@ -293,23 +293,9 @@ contains
           !     Compute gas mass conservation.
           call mass_conservation(concentration_mass,concentration_number,&
                concentration_gas, total_mass)
-          !     solve sulfate dynamically
-          if (sulfate_computation.eq.1) then
-             call SULFDYN(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
-                  concentration_number,concentration_gas,sub_timestep_splitting,time_step_sulf)
-          endif
        endif
 
-       if(ICUT.eq.N_size.AND.tag_nucl.eq.0) then
-          if ((sulfate_computation.eq.1).AND.(time_step_sulf>0)) then !Case full equilibrium but sulfate computed dynamically
-             current_sub_time = current_sub_time + sub_timestep_splitting
-             sub_timestep_splitting = DMIN1(time_step_sulf,final_sub_time-current_sub_time)
-          else ! case full equilibrium and sulfate computed in full equilibrium
-             sub_timestep_splitting=final_sub_time-current_sub_time
-             current_sub_time=final_sub_time
-          endif
-
-       elseif (solver.eq.0) then
+       if (solver.eq.0) then
           ! euler solver used for coagulation
           call Euler_solver(concentration_mass,concentration_number,concentration_gas,dqdt,&
                current_sub_time,sub_timestep_splitting)
@@ -327,29 +313,21 @@ contains
                current_sub_time,sub_timestep_splitting)
        endif
        
-       if(ICUT.eq.N_size.AND.tag_nucl.eq.0.AND.sulfate_computation.eq.0) then
-          call mass_conservation(concentration_mass,concentration_number,&
-               concentration_gas, total_mass)
-       else
-          If (current_sub_time.le.final_sub_time) then
-             call mass_conservation(concentration_mass,concentration_number,&
+       call mass_conservation(concentration_mass,concentration_number,&
                   concentration_gas, total_mass)
 
+       if (current_sub_time.le.final_sub_time) then
              call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
                   concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
                   final_sub_time)
              ! Need to redistribute onto fixed grid if nucleation is solved with 
              ! condensation/evaporation or if processes are not splitted
-             if((tag_nucl.EQ.1).OR.(splitting.EQ.1)) then 
-                call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+             call update_wet_diameter_liquid(1,N_size,concentration_mass, &
                      concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
-                if(N_fracmax.gt.1) then
+             if(N_fracmax.gt.1) then
                    call redistribution_fraction()!fraction redistribution
-                endif
-                if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution         
-
              endif
-          endif
+             if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution         
        endif
     end do
 
@@ -401,14 +379,6 @@ contains
     tag_cond = with_cond
     tag_nucl = with_nucl
     call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
-    if (sulfate_computation.eq.1) then
-       do j = 1,N_size! Reassigned distribution by mass of each species
-          call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
-               quadratic_speed(ESO4), accomodation_coefficient(ESO4), &
-               wet_diameter(j), rate)
-          dqdt1(j,ESO4) =  dqdt1(j,ESO4) + rate * c_number(j)*c_gas(ESO4)
-       enddo
-    endif
 
     do j=1,N_size
        tmp=c_number(j)*dndt1(j)
@@ -516,14 +486,6 @@ contains
        tag_cond=with_cond
        tag_nucl=with_nucl
        call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
-       if (sulfate_computation.eq.1) then
-          do j = 1,N_size! Reassigned distribution by mass of each species
-             call compute_condensation_transfer_rate(diffusion_coef(ESO4), &
-                  quadratic_speed(ESO4), accomodation_coefficient(ESO4), &
-                  wet_diameter(j), rate)
-             dqdt1(j,ESO4) =  dqdt1(j,ESO4) + rate * c_number(j)*c_gas(ESO4)
-          enddo
-       endif
        do j=1,N_size  !Loop from 1 in case of nucleation - if bins at equilibrium then dqdt1 = 0 from fgde
 	  if (DABS(dndt1(j)).gt.0.d0.and.c_number(j).gt.TINYN) then
              tscale=c_number(j)/DABS(dndt1(j))

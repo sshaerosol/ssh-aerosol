@@ -109,26 +109,26 @@ contains
 
     call mass_conservation(c_mass,c_number,c_gas,total_mass)
 
-    ! In case of nucleation - always compute sulfate dynamically if sulfate_computation = 0
-    if((sulfate_computation.eq.0).AND.(tag_nucl.EQ.1)) then
-       do j=1,N_size
-          if(concentration_index(j, 1) <= ICUT) then! k : index of size bins
-            qn=c_number(j)!initial number and mass
-	    jesp=isorropia_species(2)
-	    call COMPUTE_CONDENSATION_TRANSFER_RATE(&
-		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
-		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
-		accomodation_coefficient(jesp),& ! accomadation coef (adim)
-		wet_diam(j),   & ! wet aero diameter (µm)
-		ce_kernal_coef_i(jesp) ) ! c/e kernel coef (m3.s-1)
-            ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
-            ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
-            dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+   ! Compute dynamically low-volatility organics
+    do j=1,N_size
+       qn=c_number(j)!initial number and mass
+       do s=1,N_aerosol_layers
+          jesp = List_species(s)
+          if((inon_volatile(jesp).EQ.1).OR.  &
+              ((inon_volatile(jesp).EQ.0).AND.(concentration_index(j,1)>ICUT).AND.(jesp.EQ.ESO4))) then
+             call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+                diffusion_coef(jesp), &! diffusion coef (m2.s-1)
+                quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
+                accomodation_coefficient(jesp),& ! accomadation coef (adim)
+                wet_diam(j),   & ! wet aero diameter (µm)
+                ce_kernal_coef_i(jesp) ) ! c/e kernel coef (m3.s-1)
+             ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
+             ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
+             dqdt(j,s)=dqdt(j,s)+c_number(j)*ce_kernel(jesp)
           endif
        enddo
-    endif
-!!! ICUT and external mixing does not work
-    !do j =(ICUT+1), N_size
+    enddo
+
     do j =1, N_size
       if(concentration_index(j, 1) > ICUT) then! k : index of size bins
        qn=c_number(j)!initial number and mass
@@ -157,12 +157,8 @@ contains
           IF (jesp.NE.ECl) THEN
 #endif
              ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
-             if (jesp.EQ.ESO4) then
-	       if(sulfate_computation.NE.1) then!do take sulfate into account here
-                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
-               endif 
-             else
-                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+             if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
+                dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
              endif   
 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS

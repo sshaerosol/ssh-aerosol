@@ -70,7 +70,6 @@ module aInitialization
   double precision, save :: epser !  Relative error for time step adjustment
   double precision, save :: epser_soap !  Relative difference of ros2 in SOAP
   integer, save :: dynamic_solver = 1 !KDSLV Tag type of solver
-  integer, save :: sulfate_computation = 0 !ISULFCOND tag of sulfate condensation method
   integer, save :: redistribution_method !tag of redistribution method
   integer, save :: with_coag   !Tag gCoagulation
   integer, save :: i_compute_repart ! 0 if repartition coeff are read
@@ -235,6 +234,7 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: soa_sat_conc! (\B5g.m-3)
   double precision ,dimension(:), allocatable, save :: soa_part_coef!(m3/microg)
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
+  integer ,dimension(:), allocatable, save :: inon_volatile 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   integer, dimension(:), allocatable, save :: Ncoefficient, index_first, index_second
@@ -1038,6 +1038,7 @@ contains
              if (ssh_standalone) write(*,*) 'nucleation model : ternary'
              if (ssh_logger) write(logfile,*) 'nucleation model : ternary'
           end if
+          inon_volatile(ESO4) = 1 ! sulfate needs to be computed dynamically in case of nucleation
        else
           with_nucl = 0   ! defalut
           if (ssh_standalone) write(*,*) 'Without nucleation.'
@@ -1195,10 +1196,12 @@ contains
     allocate(surface_tension(N_aerosol))
     allocate(accomodation_coefficient(N_aerosol))
     allocate(mass_density(N_aerosol))
+    allocate(inon_volatile(N_aerosol))
     allocate(Vlayer(nlayer))
     ! relation between Aerosol and GAS
     allocate(aerosol_species_interact(N_aerosol))      
     aerosol_species_interact = 0
+    inon_volatile = 0
 
     ! Read lines from aerosol species file.
     rewind 12
@@ -1213,8 +1216,11 @@ contains
             precursor, &
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s)
-
+            mass_density(s), inon_volatile(s)
+        if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
+            write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
+            stop
+        endif
        ! Find pairs of aerosol species and its precursor.
        ind = 0
        do js = 1, N_gas
@@ -1607,6 +1613,12 @@ contains
           endif
        endif
     endif
+   
+    if(nlayer > 1) then ! Consider non-volatile species in SOAP
+        do i = 1, N_aerosol
+           if(i.NE.ESO4) inon_volatile(i) = 0
+        enddo
+    endif
 
     ! read input file for photolysis rate (unit 34)
     allocate(photolysis_name(n_photolysis))
@@ -1699,6 +1711,7 @@ contains
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
     if (allocated(mass_density_layers))  deallocate(mass_density_layers, stat=ierr)
+    if (allocated(inon_volatile))  deallocate(inon_volatile, stat=ierr)
     if (allocated(layer_number))  deallocate(layer_number, stat=ierr)
     if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
     !!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)

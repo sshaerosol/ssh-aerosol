@@ -102,7 +102,11 @@ contains
       do j=1,N_size
 	qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
       enddo
-      qgas(jesp)=concentration_gas(jesp)!initial gas for H2O
+      if (inon_volatile(jesp).EQ.0) then
+         qgas(jesp)=concentration_gas(jesp)
+      else
+         qgas(jesp) = 0.d0
+      endif
       total_ms(jesp)=qaero(jesp)+qgas(jesp)
       qextold(jesp)=qaero(jesp)
     end do
@@ -146,7 +150,8 @@ contains
       jesp=eq_species(s)
       if(aerosol_species_interact(jesp).GT.0) then
 	qext(jesp)=qaero(jesp)
-	concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
+        if (inon_volatile(jesp).EQ.0) &
+	    concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
 	if(qext(jesp).gt.0.d0) then
 	  dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
 	else
@@ -218,7 +223,6 @@ contains
 
       if (aerosol_species_interact(jesp).GT.0) then
 	    ! compute total ce_kernal_coef coef (s-1)	
-!	if(jesp.ne.isorropia_species(2)) then ! need to compute sulfate in case of sulfate equilibrium 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
          IF (jesp.NE.ECl) THEN
 #endif
@@ -256,22 +260,6 @@ contains
       endif
     enddo
 
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
-       jesp=isorropia_species(2)
-       aatoteq = 0.d0
-      ce_kernal_coef_tot(jesp) = 0.d0
-      do j=1,N_size
-	ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&
-	    +ce_kernal_coef(j,jesp)*concentration_number(j)
-      end do
-      qgasa=0.d0
-      qgasi=concentration_gas(jesp)
-    else
-  !     ****** if sulfate computed dynamically avoid it
-      jesp=isorropia_species(2)
-      qgasi=concentration_gas(jesp)
-    endif
-
     !compute total mass of each species
     do s=1,nesp_isorropia!inorganic
       jesp=isorropia_species(s)
@@ -283,20 +271,24 @@ contains
       qextold(jesp)=qaero(jesp)
     end do
 
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
+    jesp = isorropia_species(2)
+    qgasi = concentration_gas(jesp)
+    if (inon_volatile(jesp).EQ.0) then
       !compute apparent gas concentration of sulfate
 !     i.e. the SO4 gas conc actually
 !     seen by equilibrium aerosols
-      jesp=isorropia_species(2)
+      aatoteq = 0.d0
+      ce_kernal_coef_tot(jesp) = 0.d0
       do j=1,ICUT
-	aatoteq=aatoteq+ce_kernal_coef(j,jesp)*concentration_number(j)
+        ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&
+                     +ce_kernal_coef(j,jesp)*concentration_number(j)
+        aatoteq=aatoteq+ce_kernal_coef(j,jesp)*concentration_number(j)
       enddo
-      if(ce_kernal_coef_tot(jesp).gt.0.d0) then
+      if(ce_kernal_coef_tot(jesp).gt.0.d0) then ! gas concentration to be condensed
 	qgas(jesp)=concentration_gas(jesp)*aatoteq/ce_kernal_coef_tot(jesp)
       endif
       qgasa=qgas(jesp)
    else
-      jesp=isorropia_species(2)
       qgas(jesp)=0.d0
       qgasa = 0.d0
     endif
@@ -323,10 +315,6 @@ contains
 
   !     ******redistribute on each cell according to Rates
 
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
-      jesp=isorropia_species(2)
-      ce_kernal_coef_tot(jesp)=aatoteq!for later redistribution
-    endif
     do s=1, nesp_isorropia
       jesp=eq_species(s)
       if(aerosol_species_interact(jesp).GT.0) then      
@@ -348,13 +336,8 @@ contains
    
   ! give back initial SO4 gas conc
   ! minus that consumed by equi bins
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
-      jesp=isorropia_species(2)
-      concentration_gas(jesp)=qgasi-qgasa
-   else
-      jesp=isorropia_species(2)
-      concentration_gas(jesp)=qgasi
-   endif
+   jesp=isorropia_species(2)
+   concentration_gas(jesp)=qgasi-qgasa
 
 !    call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
 !    nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
@@ -399,22 +382,16 @@ contains
     double precision::frac_bin(N_sizebin,N_aerosol)
     double precision::dm_bin(N_sizebin,N_aerosol)
     integer::iclip_bin(N_sizebin,N_aerosol)
-    integer::k,ibegin
+    integer::k
  
     frac_bin=0.d0
     dm_bin=0.d0
     iclip_bin=0
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
-       ibegin = -1
-    else
-       ibegin = isorropia_species(2)
-    endif
    
     do s=1, nesp_eq
       jesp=eq_species(s)
       if (aerosol_species_interact(jesp).GT.0) then
-
-       if(jesp.NE.ibegin) then
+       if (inon_volatile(s).EQ.0) then ! Do not redistribute non-volatile species
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
        IF (jesp.NE.ECl .and. jesp.ne.ENa) THEN
 #endif
@@ -500,22 +477,17 @@ contains
     double precision::frac_bin(N_sizebin,N_aerosol)
     double precision::dm_bin(N_sizebin,N_aerosol)
     integer::iclip_bin(N_sizebin,N_aerosol)
-    integer::k,ibegin
+    integer::k
   
     frac_bin=0.d0
     dm_bin=0.d0
     iclip_bin=0
-    if ((sulfate_computation.eq.0).AND.(with_nucl.EQ.0)) then
-       ibegin = -1
-    else
-       ibegin = isorropia_species(2)
-    endif
     
     do s=1, nesp_eq
       jesp=eq_species(s)
       if (aerosol_species_interact(jesp).GT.0) then
 
-       if(jesp.NE.ibegin) then
+       if (inon_volatile(s).EQ.0) then ! Do not redistribute non-volatile species
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
       IF (jesp.NE.ECl) THEN
       IF (jesp.NE.ENa) THEN

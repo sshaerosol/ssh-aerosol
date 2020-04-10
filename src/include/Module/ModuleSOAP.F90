@@ -184,7 +184,11 @@ contains
             IQ(s,js)=icpt
          END DO
       END DO
-      
+     
+
+      q_soap = 0.0
+      qgas = 0.0
+
       do js = 1, N_size
          q_soap(js) = concentration_number(js)
       enddo
@@ -196,9 +200,10 @@ contains
             q_soap(N_size + i) = concentration_mass(js, jesp)
          enddo
       enddo
-    
       do jesp = 1,N_aerosol
-         q_soap(N_size*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
+        if (inon_volatile(jesp).EQ.0) then
+           q_soap(N_size*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
+        endif
       enddo
 
       lwcorg = 0.D0
@@ -215,7 +220,9 @@ contains
              jj=IQ(s,js)
              qaero(jesp)=qaero(jesp)+q_soap(jj)
           END DO
-          qgas(jesp) = q_soap(N_size * (1 + N_aerosol_layers) + jesp)
+          if (inon_volatile(jesp).EQ.0) then
+             qgas(jesp) = q_soap(N_size * (1 + N_aerosol_layers) + jesp)
+          endif
         endif
       enddo
       qgas(N_aerosol)=0.
@@ -257,14 +264,21 @@ contains
       enddo
       i = 0 
       do jesp = 1,N_aerosol_layers
+         s = List_species(jesp)
          do js = 1, N_size
             i = i + 1
-            concentration_mass(js, jesp) = q_soap(N_size + i) 
+            ! Need to redistribute the mass even for non volatile particles because layers may have changed
+              concentration_mass(js, jesp) = q_soap(N_size + i) 
          enddo
       enddo
     
       do jesp = 1,N_aerosol
-         concentration_gas(jesp) = q_soap(N_size*(1+N_aerosol_layers) + jesp) 
+        if (inon_volatile(jesp).EQ.0) then
+              concentration_gas(jesp) = q_soap(N_size*(1+N_aerosol_layers) + jesp) 
+        else
+                ! Add initial gas concentration that were not added to soap
+              concentration_gas(jesp) = concentration_gas(jesp) + q_soap(N_size*(1+N_aerosol_layers) + jesp) 
+        endif
       enddo
 
    END SUBROUTINE SOAP_DYN
