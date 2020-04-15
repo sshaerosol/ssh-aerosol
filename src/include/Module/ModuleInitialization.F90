@@ -1038,7 +1038,6 @@ contains
              if (ssh_standalone) write(*,*) 'nucleation model : ternary'
              if (ssh_logger) write(logfile,*) 'nucleation model : ternary'
           end if
-          inon_volatile(ESO4) = 1 ! sulfate needs to be computed dynamically in case of nucleation
        else
           with_nucl = 0   ! defalut
           if (ssh_standalone) write(*,*) 'Without nucleation.'
@@ -1358,6 +1357,9 @@ contains
        endif
     enddo
 
+    if(with_nucl.EQ.1) then
+          inon_volatile(ESO4) = 1 ! sulfate needs to be computed dynamically in case of nucleation
+    endif
     ! read gas-phase initial concentrations unit 21
     ! no comment lines for initial & emitted data
     allocate(concentration_gas_all(N_gas))
