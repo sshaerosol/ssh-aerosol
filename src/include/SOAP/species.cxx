@@ -1437,6 +1437,344 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   add_species(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
+  species ACIDMAL;
+  ACIDMAL.name="ACIDMAL";
+  ACIDMAL.is_inorganic_precursor=false;
+  ACIDMAL.Psat_ref=4.59e-8; // Saturation vapor pressure at Tref (torr)
+  ACIDMAL.Tref=298;
+  ACIDMAL.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
+  ACIDMAL.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  ACIDMAL.aq_type="aldehyde"; // "none","diacid","monoacid" or "aldehyde"
+  ACIDMAL.hydrophilic=true; // Does the species condense on the aqueous phase?
+  ACIDMAL.hydrophobic=false;  // Does the species condense on the organic phase?
+  ACIDMAL.nonvolatile=false;  // Is the compound nonvolatile?
+  ACIDMAL.kp_from_experiment= false;  // Use experimental partitioning constant at Tref?
+  ACIDMAL.kp_experiment= 2.56;       // Value of the experimental partitioning constant at Tref?
+  ACIDMAL.is_organic=true;  // Is the compound organic?
+  ACIDMAL.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  ACIDMAL.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  ACIDMAL.Koligo_org=0.0;
+  //Parameters for the oligomerization of aldehyde in the aqueous phase as BiA0D:  
+  ACIDMAL.Koligo_aq = 0.1;
+  ACIDMAL.pHref = 6.0;
+  ACIDMAL.beta = 1.91;
+  ACIDMAL.rho=1300.0;
+  ACIDMAL.KDiffusion_air=1.0e-5;
+  ACIDMAL.viscosity=1.68e12;
+  ACIDMAL.is_solid = false;
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+    
+  double group_tmp_acidmal [] = {0.0,0.0,0.0,0.0, // group C
+                                 0.0,0.0,0.0,0.0, //group C[OH]
+                                 0.0,0.0,0.0,0.0, //group Calcohol
+                                 0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                                 0.0,1.0,0.0,0.0,1.0, //group C=C
+                                 0.0,0.0, //group aromatic carbon (AC)
+                                 0.0,0.0,0.0, // group //AC-C
+                                 2.0,  //group OH
+                                 0.0, //group H2O
+                                 0.0, //group ACOH
+                                 0.0,0.0, //group ketone
+                                 1.0,   //group aldehyde  
+                                 0.0,0.0, //group ester
+                                 0.0,0.0,0.0, //group ether  
+                                 1.0,  //group acid
+                                 0.0,   //group ACNO2
+                                 0.0,0.0,0.0, //group NO3
+                                 0.0,0.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_acidmal)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+    ACIDMAL.groups[i] = group_tmp_acidmal[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+
+  species DHMB;
+  DHMB.name="DHMB";
+  DHMB.is_inorganic_precursor=false;
+  DHMB.Psat_ref=3.52e-6; // Saturation vapor pressure at Tref (torr)
+  DHMB.Tref=298;
+  DHMB.MM=154;           // Molar mass (g/mol)
+  DHMB.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
+  DHMB.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  DHMB.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
+  DHMB.hydrophilic=true; // Does the species condense on the aqueous phase?
+  DHMB.hydrophobic=false;  // Does the species condense on the organic phase?
+  DHMB.nonvolatile=false;  // Is the compound nonvolatile?
+  DHMB.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  DHMB.kp_experiment= 0.034;      // Value of the experimental partitioning constant at Tref?
+  DHMB.is_organic=true;  // Is the compound organic?
+  DHMB.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  DHMB.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  DHMB.Koligo_org=0.0;
+  DHMB.rho=1300.0;
+  DHMB.KDiffusion_air=1.0e-5;
+  DHMB.viscosity=1.68e12;  
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_dhmb [] = {1.0,0.0,0.0,0.0, // group C
+                              0.0,0.0,0.0,0.0, //group C[OH]
+                              0.0,0.0,0.0,0.0, //group Calcohol
+                              0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                              0.0,0.0,0.0,0.0,1.0, //group C=C
+                              0.0,0.0, //group aromatic carbon (AC)
+                              0.0,0.0,0.0, // group //AC-C
+                              2.0,  //group OH
+                              0.0, //group H2O
+                              0.0, //group ACOH
+                              0.0,2.0, //group ketone
+                              0.0,   //group aldehyde  
+                              0.0,0.0, //group ester
+                              0.0,0.0,0.0, //group ether  
+                              0.0,  //group acid
+                              0.0,   //group ACNO2
+                              0.0,0.0,0.0, //group NO3
+                              0.0,0.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_dhmb)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+    DHMB.groups[i] = group_tmp_dhmb[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, DHMB, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+
+  species PAHlN;
+  PAHlN.name="PAHlN";
+  PAHlN.is_inorganic_precursor=false;
+  PAHlN.Psat_ref=1e-12; // Saturation vapor pressure at Tref (torr)
+  PAHlN.Tref=298;
+  PAHlN.MM=198;           // Molar mass (g/mol)
+  PAHlN.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
+  PAHlN.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  PAHlN.aq_type="diacid"; // "none","diacid","monoacid" or "aldehyde"
+  PAHlN.Kacidity1=3.95e-4;    // First acidity constant as BiA3D
+  PAHlN.Kacidity2=7.70e-6;    // Second acidity constant
+  PAHlN.hydrophilic=true; // Does the species condense on the aqueous phase?
+  PAHlN.hydrophobic=false;  // Does the species condense on the organic phase?
+  PAHlN.nonvolatile=false;  // Is the compound nonvolatile?
+  PAHlN.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  PAHlN.kp_experiment=93817.62 ;       // Value of the experimental partitioning constant at Tref?
+  PAHlN.is_organic=true;  // Is the compound organic?
+  PAHlN.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  PAHlN.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  PAHlN.Koligo_org=0.0;
+  PAHlN.rho=1300.0;
+  PAHlN.KDiffusion_air=1.0e-5;
+  PAHlN.viscosity=1.68e12;  
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_pahln [] = {0.0,0.0,0.0,0.0, // group C
+                               0.0,0.0,0.0,0.0, //group C[OH]
+                               0.0,0.0,0.0,0.0, //group Calcohol
+                               0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                               0.0,0.0,0.0,0.0,0.0, //group C=C
+                               2.0,2.0, //group aromatic carbon (AC)
+                               0.0,0.0,0.0, // group //AC-C
+                               0.0,  //group OH
+                               0.0, //group H2O
+                               2.0, //group ACOH
+                               0.0,0.0, //group ketone
+                               0.0,   //group aldehyde  
+                               0.0,0.0, //group ester
+                               0.0,0.0,0.0, //group ether  
+                               2.0,  //group acid
+                               0.0,   //group ACNO2
+                               0.0,0.0,0.0, //group NO3
+                               0.0,0.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_pahln)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+	PAHlN.groups[i] = group_tmp_pahln[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+  
+  species PAHhN;
+  PAHhN.name="PAHhN";
+  PAHhN.is_inorganic_precursor=false;
+  PAHhN.Psat_ref=1e-6; // Saturation vapor pressure at Tref (torr)
+  PAHhN.Tref=298;
+  PAHhN.MM=166;           // Molar mass (g/mol)
+  PAHhN.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
+  PAHhN.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  PAHhN.aq_type="diacid"; // "none","diacid","monoacid" or "aldehyde"
+  PAHhN.Kacidity1=3.95e-4;    // First acidity constant as BiA3D
+  PAHhN.Kacidity2=7.70e-6;    // Second acidity constant
+  PAHhN.hydrophilic=true; // Does the species condense on the aqueous phase?
+  PAHhN.hydrophobic=false;  // Does the species condense on the organic phase?
+  PAHhN.nonvolatile=false;  // Is the compound nonvolatile?
+  PAHhN.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  PAHhN.kp_experiment=0.1119 ;       // Value of the experimental partitioning constant at Tref?
+  PAHhN.is_organic=true;  // Is the compound organic?
+  PAHhN.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  PAHhN.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  PAHhN.Koligo_org=0.0;
+  PAHhN.rho=1300.0;
+  PAHhN.KDiffusion_air=1.0e-5;
+  PAHhN.viscosity=1.68e12;  
+  
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_pahhn [] = {0.0,0.0,0.0,0.0, // group C
+                               0.0,0.0,0.0,0.0, //group C[OH]
+                               0.0,0.0,0.0,0.0, //group Calcohol
+                               0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                               0.0,0.0,0.0,0.0,0.0, //group C=C
+                               4.0,2.0, //group aromatic carbon (AC)
+                               0.0,0.0,0.0, // group //AC-C
+                               0.0,  //group OH
+                               0.0, //group H2O
+                               0.0, //group ACOH
+                               0.0,0.0, //group ketone
+                               0.0,   //group aldehyde  
+                               0.0,0.0, //group ester
+                               0.0,0.0,0.0, //group ether  
+                               2.0,  //group acid
+                               0.0,   //group ACNO2
+                               0.0,0.0,0.0, //group NO3
+                               0.0,0.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_pahhn)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+	PAHhN.groups[i] = group_tmp_pahhn[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+
+  species PSYR;
+  PSYR.name="PSYR";
+  PSYR.is_inorganic_precursor=false;
+  PSYR.Psat_ref=7.53e-6; // Saturation vapor pressure at Tref (torr)
+  PSYR.Tref=298;
+  PSYR.MM=186;           // Molar mass (g/mol)
+  PSYR.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
+  PSYR.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  PSYR.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
+  PSYR.hydrophilic=true; // Does the species condense on the aqueous phase?
+  PSYR.hydrophobic=false;  // Does the species condense on the organic phase?
+  PSYR.nonvolatile=false;  // Is the compound nonvolatile?
+  PSYR.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  PSYR.kp_experiment=1.294e-2 ;       // Value of the experimental partitioning constant at Tref?
+  PSYR.is_organic=true;  // Is the compound organic?
+  PSYR.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  PSYR.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  PSYR.Koligo_org=0.0;
+  PSYR.rho=1300.0;
+  PSYR.KDiffusion_air=1.0e-5;
+  PSYR.viscosity=1.68e12; 
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_psyr [] = {0.0,0.0,0.0,0.0, // group C
+                              0.0,0.0,0.0,0.0, //group C[OH]
+                              0.0,0.0,0.0,0.0, //group Calcohol
+                              0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                              0.0,0.0,0.0,1.0,1.0, //group C=C
+                              0.0,0.0, //group aromatic carbon (AC)
+                              0.0,0.0,0.0, // group //AC-C
+                              1.0,  //group OH
+                              0.0, //group H2O
+                              0.0, //group ACOH
+                              0.0,0.0, //group ketone
+                              2.0,   //group aldehyde  
+                              0.0,0.0, //group ester
+                              2.0,0.0,0.0, //group ether  
+                              0.0,  //group acid
+                              0.0,   //group ACNO2
+                              0.0,0.0,0.0, //group NO3
+                              0.0,0.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_psyr)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+    PSYR.groups[i] = group_tmp_psyr[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, PSYR, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+
+  species GHDPerox;
+  GHDPerox.name="GHDPerox";
+  GHDPerox.is_inorganic_precursor=false;
+  GHDPerox.Psat_ref=5.41e-7; // Saturation vapor pressure at Tref (torr)
+  GHDPerox.Tref=298;
+  GHDPerox.MM=174;           // Molar mass (g/mol)
+  GHDPerox.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
+  GHDPerox.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  GHDPerox.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
+  GHDPerox.hydrophilic=true; // Does the species condense on the aqueous phase?
+  GHDPerox.hydrophobic=false;  // Does the species condense on the organic phase?
+  GHDPerox.nonvolatile=false;  // Is the compound nonvolatile?
+  GHDPerox.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  GHDPerox.kp_experiment=0.1972 ;       // Value of the experimental partitioning constant at Tref?
+  GHDPerox.is_organic=true;  // Is the compound organic?
+  GHDPerox.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  GHDPerox.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  GHDPerox.Koligo_org=0.0;
+  GHDPerox.rho=1300.0;
+  GHDPerox.KDiffusion_air=1.0e-5;
+  GHDPerox.viscosity=1.68e12; 
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_ghdperox [] = {0.0,0.0,0.0,1.0, // group C
+                                  0.0,0.0,1.0,0.0, //group C[OH]
+                                  0.0,0.0,0.0,0.0, //group Calcohol
+                                  0.0,0.0,0.0,0.0, //group Calcohol-tail  
+                                  0.0,1.0,0.0,0.0,1.0, //group C=C
+                                  0.0,0.0, //group aromatic carbon (AC)
+                                  0.0,0.0,0.0, // group //AC-C
+                                  2.0,  //group OH
+                                  0.0, //group H2O
+                                  0.0, //group ACOH
+                                  0.0,0.0, //group ketone
+                                  0.0,   //group aldehyde  
+                                  0.0,0.0, //group ester
+                                  1.0,0.0,0.0, //group ether  
+                                  0.0,  //group acid
+                                  0.0,   //group ACNO2
+                                  0.0,0.0,0.0, //group NO3
+                                  0.0,1.0,0.0}; //group CO-OH
+
+  size = sizeof(group_tmp_ghdperox)/sizeof(double);
+  assert(size == 45);
+  for(int i = 0; i < size; ++i)
+	GHDPerox.groups[i] = group_tmp_ghdperox[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,nlayer);
+  
+  
   species H2O;
   H2O.name="H2O";
   H2O.is_inorganic_precursor=false;
