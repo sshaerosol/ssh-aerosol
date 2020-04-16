@@ -200,7 +200,7 @@ contains
           call mass_conservation(concentration_mass,concentration_number,&
                                  concentration_gas, total_mass)
 
-          call redistribution_lwc(lwc,ionic,proton,liquid,0)
+          call redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
 
        endif
 
@@ -226,7 +226,7 @@ contains
              enddo
           enddo
           call EQINORG(N_aerosol,qext,qinti_tmp,surface_equilibrium_conc_tmp,lwc,ionic,proton,liquid)
-          call redistribution_lwc(lwc,ionic,proton,liquid,1)
+          call redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
           !

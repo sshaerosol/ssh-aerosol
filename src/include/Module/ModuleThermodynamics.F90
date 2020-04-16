@@ -654,7 +654,8 @@ contains
 
     do s=1,nesp_isorropia
        jesp=isorropia_species(s)
-       do j=(ICUT+1),N_size
+       do j =1, N_size
+         if(concentration_index(j, 1) > ICUT) then! k : index of size bins
 	  ! only when evaporation
           if (k(j,jesp).lt.0.D0) then
              ! if q(j,s) is <=TINYM or =0
@@ -673,6 +674,7 @@ contains
                 ! 'little' more than TINYM
                 k(j,jesp)=0.99D0*k(j,jesp)
              endif
+            endif
           endif
        enddo
     enddo
@@ -681,8 +683,10 @@ contains
        jesp=isorropia_species(s)
        ! compute total mass rate per species
        ksum=0.D0
-       do j=ICUT+1,N_size
-	  ksum=ksum+k(j,jesp)     !µg.m-3.s-1
+       do j =1, N_size
+         if(concentration_index(j, 1) > ICUT) then! k : index of size bins
+	    ksum=ksum+k(j,jesp)     !µg.m-3.s-1
+         endif
        enddo
        ! we perform limiting in
        ! case of condensation only
@@ -690,8 +694,10 @@ contains
           ! this is the total lumped mass
           ! to perserve from clipping
           qsum=c_gas(jesp)
-          do j=1,ICUT
-             qsum=qsum+q(j,jesp)  ! µg.m-3
+          do j =1, N_size
+            if(concentration_index(j, 1) <= ICUT) then! k : index of size bins
+               qsum=qsum+q(j,jesp)  ! µg.m-3
+            endif
           enddo
           ! test if clipping occurs
           ! then perform the limitation
@@ -703,19 +709,22 @@ contains
              enddo
              ! tot max rate, µg.m-3.s-1
              ktlim=qsum       !/timestep_splitting
-             do j=ICUT+1,N_size
+             do j =1, N_size
+                if(concentration_index(j, 1) > ICUT) then! k : index of size bins
                 ! fraction, adim
-                if (ce_kernal_coef_tot .ne. 0.d0) then !! YK
-                   frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
-                else
-                   frac = 0.d0
-                endif !! YK
+                  if (ce_kernal_coef_tot .ne. 0.d0) then !! YK
+                     frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
+                  else
+                     frac = 0.d0
+                  endif !! YK
+               
                 ! we allow only a given fraction
                 ! of ktlim to condense on given bin
-                klim=ktlim*frac
+                  klim=ktlim*frac
                 ! apply the limit
                 ! only if necessary
-                if (k(j,jesp).gt.klim) k(j,jesp)=klim
+                  if (k(j,jesp).gt.klim) k(j,jesp)=klim
+                endif
              enddo
           endif
        endif

@@ -224,35 +224,37 @@ contains
       if (aerosol_species_interact(jesp).GT.0) then
 	    ! compute total ce_kernal_coef coef (s-1)	
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-         IF (jesp.NE.ECl) THEN
+        IF (jesp.NE.ECl) THEN
 #endif
-	do j = 1,ICUT	!FOR INOGANIC
-	  rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
-	  emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
+          do j =1, N_size
+            if(concentration_index(j, 1) <= ICUT) then
+	      rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
+	      emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
 
- 	  wet_diam=wet_diameter(j)
+ 	      wet_diam=wet_diameter(j)
 
         ! if (wet_diam .lt. 1.d-3) then
         !   write(*,*) "bulkequi_inorg: too small wet_diameter",wet_diam
          ! endif 
-	  call COMPUTE_KELVIN_COEFFICIENT(&
+	      call COMPUTE_KELVIN_COEFFICIENT(&
 		    Temperature,&          ! temperature (Kelvin)
 		    emw_tmp,&       ! ext mol weight (g.mol-1)
 		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
 		    wet_diam,&         ! wet aero diameter (µm)
 		    rhop_tmp,&      ! aerosol density (kg.m-3)
 		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
-	  call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+	      call COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
 		wet_diameter(j),   & ! wet aero diameter (Âµm)
 		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
-	    if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
-	    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+	      if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
+	      ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
 			+ce_kernal_coef(j,jesp)*concentration_number(j) !&
 !!			*(1.d0/(Kelvin_effect(j,jesp)-1.d0)) ! KS
-	enddo
+            endif
+          enddo
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
         ENDIF
 #endif
@@ -263,8 +265,10 @@ contains
     !compute total mass of each species
     do s=1,nesp_isorropia!inorganic
       jesp=isorropia_species(s)
-      do j=1,ICUT
-	qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
+      do j =1, N_size
+        if(concentration_index(j, 1) <= ICUT) then
+	  qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
+        endif
       enddo
       qgas(jesp)=concentration_gas(jesp)
       total_ms(jesp)=qaero(jesp)+qgas(jesp)
@@ -279,10 +283,12 @@ contains
 !     seen by equilibrium aerosols
       aatoteq = 0.d0
       ce_kernal_coef_tot(jesp) = 0.d0
-      do j=1,ICUT
-        ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&
+      do j =1, N_size
+        if(concentration_index(j, 1) <= ICUT) then
+          ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&
                      +ce_kernal_coef(j,jesp)*concentration_number(j)
-        aatoteq=aatoteq+ce_kernal_coef(j,jesp)*concentration_number(j)
+          aatoteq=aatoteq+ce_kernal_coef(j,jesp)*concentration_number(j)
+        endif
       enddo
       if(ce_kernal_coef_tot(jesp).gt.0.d0) then ! gas concentration to be condensed
 	qgas(jesp)=concentration_gas(jesp)*aatoteq/ce_kernal_coef_tot(jesp)
@@ -396,42 +402,50 @@ contains
        IF (jesp.NE.ECl .and. jesp.ne.ENa) THEN
 #endif
          iclip=0
-         do j=1,end_bin!judgment
-	  if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-  	    frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
-	    temp_mass=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	    if(temp_mass.lt.0.d0) iclip=1!case of over evaporation
-          endif
+         do j =1, N_size
+            if(concentration_index(j, 1) <= end_bin) then
+	      if(ce_kernal_coef_tot(jesp).gt.0.d0) then
+  	         frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+	         temp_mass=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
+	         if(temp_mass.lt.0.d0) iclip=1!case of over evaporation
+              endif
+            endif
          enddo
          if(iclip.eq.1) then !over evaporate
-  	  totaer=0.d0
-	  do j=1,end_bin
-	    totaer=totaer+c_mass(j,jesp)
-	  enddo
-	  if(totaer.gt.0.d0) then
-	    do j=1,end_bin
-	      frac(j,jesp)=c_mass(j,jesp)/totaer
-	      c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	      if(dq(jesp)*frac(j,jesp).ne.0.d0) then
-	        k=concentration_index(j,1)
-	        frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
-	        dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
-	        iclip_bin(k,jesp)=iclip
-             endif
-	    enddo
-	  endif
+           totaer=0.d0
+           do j =1, N_size
+              if(concentration_index(j, 1) <= end_bin) then
+	        totaer=totaer+c_mass(j,jesp)
+              endif
+	   enddo
+	   if(totaer.gt.0.d0) then
+             do j =1, N_size
+                if(concentration_index(j, 1) <= end_bin) then
+	          frac(j,jesp)=c_mass(j,jesp)/totaer
+	          c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
+	          if(dq(jesp)*frac(j,jesp).ne.0.d0) then
+	            k=concentration_index(j,1)
+	            frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
+	            dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
+	            iclip_bin(k,jesp)=iclip
+                  endif
+                endif
+	     enddo
+	   endif
         else!normal case
-	  do j=1,end_bin
-	   if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-	    frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
-	    c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	    if(dq(jesp)*frac(j,jesp).ne.0.d0) then
-	      k=concentration_index(j,1)
-	      frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
-	      dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
-	      iclip_bin(k,jesp)=iclip
-	    endif
-           endif
+          do j =1, N_size
+            if(concentration_index(j, 1) <= end_bin) then
+	      if(ce_kernal_coef_tot(jesp).gt.0.d0) then
+	         frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+	         c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
+	        if(dq(jesp)*frac(j,jesp).ne.0.d0) then
+	           k=concentration_index(j,1)
+	           frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
+	           dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
+	           iclip_bin(k,jesp)=iclip
+	        endif
+              endif
+            endif
 	  enddo
         endif
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS

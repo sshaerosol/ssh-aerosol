@@ -612,7 +612,7 @@ contains
     allocate(frac_bound(N_frac+1))
     read(10, nml = fraction_distribution, iostat = ierr)
     if (ierr .ne. 0) then
-       write(*,*) "mixing_state data can not be read."
+       write(*,*) "mixing_state data can not be read.",N_frac
        stop
     else
        if (kind_composition == 1)  then
