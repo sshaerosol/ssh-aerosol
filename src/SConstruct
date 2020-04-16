@@ -82,8 +82,8 @@ for chemistry in chemistry_list:
 
         if nacl == "no":
             preprocessor_defines.append("WITHOUT_NACL_IN_THERMODYNAMICS")
-        elif nacl == "yes":
-            build_flavor.append("nacl")
+#        elif nacl == "yes":
+#            build_flavor.append("nacl")
 
         for sharedlib in sharedlib_list:
             if sharedlib == "no":
