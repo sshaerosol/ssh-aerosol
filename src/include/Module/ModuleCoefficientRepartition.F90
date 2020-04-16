@@ -455,11 +455,13 @@ contains
        ! Define the dimensions. NetCDF will hand back an ID for each. 
        call check( nf90_def_dim(ncid, "Nmc", Nmc, dimid) )
        call check( nf90_def_dim(ncid, "Nsize", N_size, dimid) )
+       call check( nf90_def_dim(ncid, "Nb", N_sizebin, dimid) )
+       call check( nf90_def_dim(ncid, "Nc", N_fracmax, dimid) )
        do j = 1, N_size
           write(ctemp, '(i4)') (j-1)
           temp = trim(adjustl(ctemp))
           dim_name = 'Ncoef_'//temp
-          write(*,*) dim_name, '/', N_size, repartition_coefficient(j)%n, index1_repartition_coefficient(j)%arr
+
           call check( nf90_def_dim(ncid, dim_name, repartition_coefficient(j)%n, dimid) )
 
           ! Define the variables
