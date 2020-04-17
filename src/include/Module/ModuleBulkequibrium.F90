@@ -397,7 +397,7 @@ contains
     do s=1, nesp_eq
       jesp=eq_species(s)
       if (aerosol_species_interact(jesp).GT.0) then
-       if (inon_volatile(s).EQ.0) then ! Do not redistribute non-volatile species
+       if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
        IF (jesp.NE.ECl .and. jesp.ne.ENa) THEN
 #endif
@@ -501,7 +501,7 @@ contains
       jesp=eq_species(s)
       if (aerosol_species_interact(jesp).GT.0) then
 
-       if (inon_volatile(s).EQ.0) then ! Do not redistribute non-volatile species
+       if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
       IF (jesp.NE.ECl) THEN
       IF (jesp.NE.ENa) THEN
