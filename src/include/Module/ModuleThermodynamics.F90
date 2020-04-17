@@ -69,7 +69,7 @@ contains
 
        ! The threshold 0.0 for the minimum aerosol concentration 
        ! should be avoided because it leads to a too small particle diameter.
-       if (qti.gt.TINYM) then ! No water  initially - compute it
+       if ((qti.gt.TINYM).AND.(c_number(j).gt.TINYN)) then ! No water  initially - compute it
           if(wet_diam_estimation.eq.0) then !with isorropia
              do i=1,nesp_isorropia
                 jesp=isorropia_species(i)
@@ -84,7 +84,7 @@ contains
                 c_inti(j,jesp)=qinti(jesp)
              enddo
 
-             if(rhoaer.gt.0.d0.and.c_number(j).gt.TINYN) then
+             if(rhoaer.gt.0.d0) then
                 vad=qti/rhoaer!qti total dry mass
                 wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
                 ! aerosol diameter
