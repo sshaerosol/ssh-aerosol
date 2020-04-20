@@ -745,10 +745,13 @@ The variable {\it{Cut\_dim}} corresponds to the diameter until which thermodynam
 To compare this simulation to a simulation where thermodynamic equilibrium is assumed for condensation/evaporation, please set  {\it{Cut\_dim}} to 40 (the maximum diameter of the particles considered here). 
 This is done in the configuration file {\it{namelist\_cond-evap-inorg-eq.ssh}}.
 
+A hybrid method may also be used to compute condensation/evaporation: thermodynamic equilibrium is then computed only for size sections of mean diameter lower than a cutoff diameter, while condensation/evaporation is computed dynamically for size sections of diameter higher than the cutoff diameter. For example, a cutoff diameter {\it{Cut\_dim}} of 0.1~$\mu$m is set in the configuration file {\it{namelist\_cond-evap-inorg-icut.ssh}}.
+
+
 To assess the differences between these simulations, you can compare the time evolution of NH$_3$ and HNO$_3$, 
 by running the python script {\it{graph/gas\_cond-evap.py}}. As shown in
 Fig~\ref{fig-cond-evap}, the gas-phase concentrations quickly reach
-thermodynamic equilibrium.
+thermodynamic equilibrium. The concentrations computed with the hybrid approach are close to those computed by the dynamic approach.
 
 
 \begin{figure}[H]
