@@ -41,6 +41,9 @@ dt_exa_diam_init = []
 exa_diam_out = []
 dt_exa_diam_out = []
 
+font = {'size'   : 14}
+matplotlib.rc('font', **font)
+matplotlib.pyplot.xticks(fontsize=14)
 ############################## results from SIREAM ####################################################""
 sizebin = 50
 tmp1 = -1
@@ -164,6 +167,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution - case COND')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dNdlogd_COND_'+tag_fig)
 
 ############################### drawing Particle volume Distribution
@@ -176,7 +180,8 @@ cols = ['*','*','-','-','-','-','-','-']
 for i in case_lb : lbs.append(i + '_init')
 for i in case_lb : lbs.append(i + '_out')
 # lists = [org_init, org_out, num_init_sml[], num_init_sml[]]
-fig = plt.figure(2,figsize = (15,15))
+#fig = plt.figure(2,figsize = (15,15))
+plt.clf()
 num = len(deltalogd)
 for i in range(len(lists2)) :
      if(i < 3) or (iredist==1):
@@ -218,6 +223,7 @@ plt.xscale('log')
 #plt.yscale('log')
 plt.title( 'Particle Volume Distribution - case COND')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dVdlogd_COND_'+tag_fig)
 
 
