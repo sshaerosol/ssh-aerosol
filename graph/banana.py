@@ -67,27 +67,36 @@ for j in range(sizebin_ssh):
                 maxnumber = number[j][i] 
 print number.min(),maxnumber,'minmaxnumber'
       
+maxnumber = 6.e12      
+print number.min(),maxnumber,'minmaxnumber'
+
+font = {'size'   : 16}
+matplotlib.rc('font', **font)
+
+#mftst = 20
+#mfts = 20
+#mftw = 'bold'
 
 #--- graphique ---#
 fig = plt.figure()
-ax = fig.add_subplot(111)
+#ax = fig.add_subplot(111)
 
-title('Number distribution with '+str(int(sizebin_ssh))+' sections')
+title('Number distribution') # with '+str(int(sizebin_ssh))+' sections')
 cmap='jet'
-norm = colors.LogNorm(1e3,maxnumber)
+norm = colors.LogNorm(1e5,maxnumber)
 # make an image plot
 plt.imshow(number,interpolation='bilinear',aspect='auto',origin='lower',cmap=cmap, norm=norm)
 nombre_mn=int(len(temps)*pas_temps)
 plt.xlim(0,nombre_mn)
 #yticks(num_y, ("0.01","0.1","1"))
 plt.ylim(0,a*log(7)+b)
-yticks(num_y-(a*log(0.001)+b),diam_arrondi,size=10)
+yticks(num_y-(a*log(0.001)+b),diam_arrondi)
 nb_ticks = 6
 x_set_ticks=[0]
 for i in arange(1,nb_ticks,1): 
   x_set_ticks.append(i*nombre_mn/nb_ticks)
 
-xticks(x_set_ticks,x_set_ticks,rotation=0,size=10) 
+xticks(x_set_ticks,x_set_ticks,rotation=0) 
 # make a color bar
 cb=colorbar(cmap=cmap, norm=norm)
 #cb.set_ticks([1e-2,1e0,1e2,1e4,1e6])
@@ -96,8 +105,9 @@ cb=colorbar(cmap=cmap, norm=norm)
 
 tick_range = np.logspace(3,13,num=13-3+1, base=10, dtype="int")
 cb.set_ticks(tick_range)
-xlabel(r"time ($mn$)")
+xlabel(r"time ($min$)")
 ylabel(r"diameter (${\mu m}$)")
+plt.tight_layout()
 savefig('fig_banana.png')
 
 
