@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 # Turn interactive plotting off
 plt.ioff()
 ################### input parameters #################################"
-pcase = '../results/coag-ext/'
+pcase = '../results/cond-ext/'
 sizebin_ssh = 50
 density = 1.84 * 1e-6 #in ug um-3
-N_fraction = 4
-composition_bounds = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
+N_fraction = 10
+composition_bounds = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8,0.9, 1.0])
 
 #####################################################################
 ############################## results from SIREAM ####################################################""
@@ -36,7 +36,7 @@ sizebin = 50
 diam = []
 tmp1 = -1
 tmp2 = -1
-with open ('coag_ref/number.init') as f1 :
+with open ('cond_ref/number.init') as f1 :
 	values = f1.read().splitlines()
 for i in range(len(values)) :
 	if i <= (sizebin + 2) : continue # sizebound + title + star line
@@ -55,46 +55,51 @@ num_init = np.zeros((N_fraction,sizebin_ssh))
 num_out = np.zeros((N_fraction,sizebin_ssh))
 for j in range(sizebin_ssh) :
           for k in range(N_fraction):
-        	with open (pcase+'/number/NUMBER_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+        	with open (pcase+'/aero/PSO4_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
 	  	     values = finit.read().splitlines()
-	  	num_init[k][j] = float(values[0])
-	  	num_out[k][j] = float(values[-1])
-
+	  	num_init[k][j] += float(values[0])
+	  	num_out[k][j] += float(values[-1])
+        	with open (pcase+'/aero/PMonomer_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+	  	     values = finit.read().splitlines()
+	  	num_init[k][j] += float(values[0])
+	  	num_out[k][j] += float(values[-1])
+print  num_out[0][49], num_init[9][49]
 
 jetcmap = cm.get_cmap("jet", 500) #generate a jet map with 10 values
 jet_vals = jetcmap(np.arange(500)) #extract those values as an array
 cmap = ListedColormap(jet_vals)
 
 composition_bounds = composition_bounds.transpose()
+vmax0 = num_out.max()
 
 figure()
-pcolor(diam_bounds,composition_bounds,num_init,cmap=cmap)
+pcolor(diam_bounds,composition_bounds,num_init,cmap=cmap,vmax=vmax0)
 ylim(ymin = 0.0, ymax = 1.0)
 xticks(diam_bounds)
 yticks(composition_bounds)
 axes().set_xscale("log")
 xlabel(u"diameter [µm]",size=14) #3, fontweight = "bold")
-ylabel(u"Fraction of sulfate", size = 14) #, fontweight = "bold")
+ylabel(u"Fraction of sulfate", size = 14)#, fontweight = "bold")
 colorbar()
 xlim(xmin = 0.001, xmax = 10)
 yticks(composition_bounds)
-title(u"Particle number concentration [#/cm$^3$]",
+title(u"Particle mass concentration [$\mu$g/cm$^3$]",
       fontsize = 14)#, fontweight = "bold")
 plt.tight_layout()
-savefig('coag_ext_init.png')
+savefig('cond_mass_ext_init.png')
 
 figure()
-pcolor(diam_bounds,composition_bounds,num_out,cmap=cmap)
+pcolor(diam_bounds,composition_bounds,num_out,cmap=cmap,vmax=vmax0)
 ylim(ymin = 0.0, ymax = 1.0)
 xticks(diam_bounds)
 yticks(composition_bounds)
 axes().set_xscale("log")
-xlabel(u"diameter [µm]", size =14) #, fontweight = "bold")
-ylabel(u"Fraction of sulfate", size = 14) #, fontweight = "bold")
+xlabel(u"diameter [µm]",size=14)#3, fontweight = "bold")
+ylabel(u"Fraction of sulfate", size = 14)#, fontweight = "bold")
 colorbar()
 xlim(xmin = 0.001, xmax = 10)
 yticks(composition_bounds)
-title(u"Particle number concentration [#/cm$^3$]",
+title(u"Particle mass concentration [$\mu$g/cm$^3$]",
       fontsize = 14)#, fontweight = "bold")
 plt.tight_layout()
-savefig('coag_ext_out.png')
+savefig('cond_mass_ext_out.png')

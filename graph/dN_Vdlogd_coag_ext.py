@@ -38,6 +38,9 @@ dt_exa_diam_init = []
 exa_diam_out = []
 dt_exa_diam_out = []
 
+font = {'size'   : 14}
+matplotlib.rc('font', **font)
+matplotlib.pyplot.xticks(fontsize=14)
 ############################## results from SIREAM ####################################################""
 sizebin = 50
 tmp1 = -1
@@ -165,6 +168,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution - case COAG')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dNdlogd_COAG_EXT')
 
 ############################### drawing Particle volume Distribution
@@ -175,7 +179,8 @@ lbs = ['SIREAM_init', 'SIREAM_out']
 for i in cases : lbs.append(i + '_init')
 for i in cases : lbs.append(i + '_out')
 # lists = [org_init, org_out, num_init_sml[], num_init_sml[]]
-fig = plt.figure(2,figsize = (15,15))
+#fig = plt.figure(2,figsize = (15,15))
+plt.clf()
 num = len(deltalogd)
 for i in range(len(lists2)) :
 	tmp = np.zeros(num)
@@ -194,6 +199,7 @@ plt.xscale('log')
 #plt.yscale('log')
 plt.title( 'Particle Volume Distribution - case COAG')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dVdlogd_COAG_EXT')
 
 
