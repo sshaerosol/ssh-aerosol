@@ -320,14 +320,16 @@ contains
              call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
                   concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
                   final_sub_time)
+             if((tag_nucl.EQ.1).OR.((tag_cond.EQ.1).AND.(tag_coag.EQ.1))) then 
              ! Need to redistribute onto fixed grid if nucleation is solved with 
              ! condensation/evaporation or if processes are not splitted
-             call update_wet_diameter_liquid(1,N_size,concentration_mass, &
-                     concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
-             if(N_fracmax.gt.1) then
-                   call redistribution_fraction()!fraction redistribution
-             endif
-             if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution         
+               call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+                       concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+               if(N_fracmax.gt.1) then
+                    call redistribution_fraction()!fraction redistribution
+               endif
+               if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution    
+             endif     
        endif
     end do
 
