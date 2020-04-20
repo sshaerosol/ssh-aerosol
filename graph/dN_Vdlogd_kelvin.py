@@ -43,6 +43,9 @@ exa_diam_out = []
 dt_exa_diam_out = []
 
 
+font = {'size'   : 14}
+matplotlib.rc('font', **font)
+matplotlib.pyplot.xticks(fontsize=14)
 ############################## results from SIREAM COND to read diameters ####################################################""
 sizebin = 50
 tmp1 = -1
@@ -196,6 +199,7 @@ for i in cases : lbs.append(i + '_init')
 for i in cases : lbs.append(i + '_out')
 
 fig = plt.figure(1,figsize = (15,15))
+#fig.clf()
 num = len(deltalogd)
 for i in range(len(lists)) :
    if(i!=1):
@@ -257,13 +261,15 @@ plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution - case KELVIN')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dNdlogd_KELVIN')
 
 ############################### drawing Particle volume Distribution
 lists2 = []
 for i in mass_init_sml : lists2.append(i)
 for i in mass_out_sml : lists2.append(i)
-fig = plt.figure(2,figsize = (15,15))
+#fig = plt.figure(2,figsize = (15,15))
+fig.clf()
 num = len(deltalogd)
 for i in range(len(lists)) :
    if(i!=1):
@@ -310,4 +316,5 @@ plt.xlabel(r'd($\mu$m)')
 plt.xscale('log')
 plt.title( 'Particle Volume Distribution - case KELVIN')
 plt.legend(loc ='best')		# show legend
+plt.tight_layout()
 fig.savefig('dVdlogd_KELVIN')
