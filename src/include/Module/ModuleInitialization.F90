@@ -913,6 +913,7 @@ contains
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are read'
 	     if (ssh_standalone) write(*,*) 'coefficient file : ', Coefficient_file
 	     if (ssh_logger) write(logfile,*) 'coefficient file : ', Coefficient_file
+             i_write_repart = 0 ! Do no write repartition coefficients if they are not computed.
           else
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
