@@ -1459,6 +1459,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   ACIDMAL.pHref = 6.0;
   ACIDMAL.beta = 1.91;
   ACIDMAL.rho=1300.0;
+  ACIDMAL.is_monomer=false;
+  ACIDMAL.rion=false;
   ACIDMAL.KDiffusion_air=1.0e-5;
   ACIDMAL.viscosity=1.68e12;
   ACIDMAL.is_solid = false;
@@ -1515,9 +1517,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   DHMB.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   DHMB.Koligo_org=0.0;
   DHMB.rho=1300.0;
+  DHMB.is_monomer=false;
+  DHMB.rion=false;
   DHMB.KDiffusion_air=1.0e-5;
   DHMB.viscosity=1.68e12;  
-
+  DHMB.is_solid=false;
+  
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
@@ -1572,9 +1577,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   PAHlN.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   PAHlN.Koligo_org=0.0;
   PAHlN.rho=1300.0;
+  PAHlN.is_monomer=false;
+  PAHlN.rion=false;
   PAHlN.KDiffusion_air=1.0e-5;
   PAHlN.viscosity=1.68e12;  
-
+  PAHlN.is_solid=false;
+  
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
@@ -1629,8 +1637,11 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   PAHhN.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   PAHhN.Koligo_org=0.0;
   PAHhN.rho=1300.0;
+  PAHhN.is_monomer=false;
+  PAHhN.rion=false;
   PAHhN.KDiffusion_air=1.0e-5;
   PAHhN.viscosity=1.68e12;  
+  PAHhN.is_solid=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1684,8 +1695,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   PSYR.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   PSYR.Koligo_org=0.0;
   PSYR.rho=1300.0;
+  PSYR.is_monomer=false;
+  PSYR.rion=false;
   PSYR.KDiffusion_air=1.0e-5;
   PSYR.viscosity=1.68e12; 
+  PSYR.is_solid=false;
+
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
@@ -1738,9 +1753,12 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   GHDPerox.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   GHDPerox.Koligo_org=0.0;
   GHDPerox.rho=1300.0;
+  GHDPerox.is_monomer=false;
+  GHDPerox.rion=false;
   GHDPerox.KDiffusion_air=1.0e-5;
   GHDPerox.viscosity=1.68e12; 
-
+  GHDPerox.is_solid=false;
+  
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
