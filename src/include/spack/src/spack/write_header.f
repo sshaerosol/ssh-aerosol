@@ -64,10 +64,16 @@ c      mechanism_name = 'racm'
 c---------- for CB05
 c      elseif (chem_mechanism.eq.2) then
       elseif (mechanism_name .eq. "cb05  ") then
-      HR1=156
-      HR2=157
-      HR3=158
-      HR4=159
+      HR1=152
+      HR2=153
+      HR3=154
+      HR4=155
+
+C     for cb05v0
+c      HR1=156
+c      HR2=157
+c      HR3=158
+c      HR4=159
 c      mechanism_name = 'cb05'
 c---------- for RACM2
 c      elseif (chem_mechanism.eq.3) then
