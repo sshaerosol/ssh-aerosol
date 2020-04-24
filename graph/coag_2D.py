@@ -61,9 +61,10 @@ for j in range(sizebin_ssh) :
 	  	num_out[k][j] = float(values[-1])
 
 
-jetcmap = cm.get_cmap("jet", 500) #generate a jet map with 10 values
-jet_vals = jetcmap(np.arange(500)) #extract those values as an array
-cmap = ListedColormap(jet_vals)
+#jetcmap = cm.get_cmap("jet", 500) #generate a jet map with 10 values
+#jet_vals = jetcmap(np.arange(500)) #extract those values as an array
+#cmap = ListedColormap(jet_vals)
+cmap = plt.get_cmap('PuBuGn')
 
 composition_bounds = composition_bounds.transpose()
 
