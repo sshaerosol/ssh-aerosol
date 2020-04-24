@@ -50,7 +50,7 @@ exclude_dependency = [ ]
 
 # Default chemistry: cb05
 if 'chemistry' not in ARGUMENTS:
-    ARGUMENTS["chemistry"] = 'cb05'
+    ARGUMENTS["chemistry"] = 'cb05en'
 
 # Default: without nacl in thermodynamics
 if 'nacl' not in ARGUMENTS:
@@ -61,7 +61,7 @@ if 'sharedlib' not in ARGUMENTS:
     ARGUMENTS["sharedlib"] = 'no'
 
 chemistry_list = utils.create_list("chemistry", 
-                                   ["racm", "racm2", "cb05"], "*")
+                                   ["racm", "racm2", "cb05", "cb05en"], "*")
 nacl_list = utils.create_list("nacl", ["yes", "no"], "*")
 sharedlib_list = utils.create_list("sharedlib", ["yes", "no"], "*")
 
