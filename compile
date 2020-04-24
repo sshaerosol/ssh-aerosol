@@ -13,7 +13,7 @@ case $i in
 esac
 done
 if [ -z $chemistry ]; then
-    chemistry="cb05en"
+    chemistry="cb05"
 fi
 echo "Chemistry: $chemistry"
 

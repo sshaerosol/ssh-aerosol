@@ -50,7 +50,7 @@ exclude_dependency = [ ]
 
 # Default chemistry: cb05
 if 'chemistry' not in ARGUMENTS:
-    ARGUMENTS["chemistry"] = 'cb05en'
+    ARGUMENTS["chemistry"] = 'cb05'
 
 # Default: without nacl in thermodynamics
 if 'nacl' not in ARGUMENTS:
