@@ -37,8 +37,8 @@
 	         PARAMETER(diam_pass = 1.D-01)
 
 	DOUBLE PRECISION TINYM, TINYN
-      	         PARAMETER(TINYM = 0.D0) !1.D-19) !!1.D-15)
-      		 PARAMETER(TINYN = 0.D0) !1.D-06) !!1.D-03) 
+      	         PARAMETER(TINYM = 1.D-18) !1.D-19) !!1.D-15)
+      		 PARAMETER(TINYN = 1.D-10) !1.D-06) !!1.D-03) 
 
 	DOUBLE PRECISION DQLIMIT
 !	       	PARAMETER(DQLIMIT = 0.D0)
