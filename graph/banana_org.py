@@ -13,8 +13,8 @@ plt.ioff()
 
 
 ################### input parameters #################################"
-pcase = '../results/nucl_coupl/'
-tag_fig = 'nucl'
+pcase = '../results/nucl_org/'
+tag_fig = 'nucl_org'
 sizebin_ssh = 50
 time_ssh = 60
 pas_temps=1 #time step in min
@@ -66,22 +66,17 @@ for j in range(sizebin_ssh):
            if(number[j][i] > maxnumber):
                 maxnumber = number[j][i] 
 print number.min(),maxnumber,'minmaxnumber'
-      
 maxnumber = 6.e12      
 print number.min(),maxnumber,'minmaxnumber'
 
 font = {'size'   : 16}
 matplotlib.rc('font', **font)
 
-#mftst = 20
-#mfts = 20
-#mftw = 'bold'
-
 #--- graphique ---#
 fig = plt.figure()
-#ax = fig.add_subplot(111)
+ax = fig.add_subplot(111)
 
-title('Number distribution') # with '+str(int(sizebin_ssh))+' sections')
+title('Number distribution') #with '+str(int(sizebin_ssh))+' sections')
 #cmap='jet'
 cmap = plt.get_cmap('PuBuGn')
 norm = colors.LogNorm(1e5,maxnumber)
@@ -109,6 +104,6 @@ cb.set_ticks(tick_range)
 xlabel(r"time ($min$)")
 ylabel(r"diameter (${\mu m}$)")
 plt.tight_layout()
-savefig('fig_banana.png')
+savefig('fig_banana_org.png')
 
 
