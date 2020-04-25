@@ -1107,8 +1107,6 @@ void param_unifac(model_config &config, vector<species> &surrogate)
       config.Qparam_aq.resize(config.nmol_aq);
       config.Lparam_aq.resize(config.nmol_aq);
       config.Lparam_aq=0.;
-      //cout << config.groups_aq << endl;
-      //cout << config.RG_aq << endl;     
       for (i=0;i<config.nmol_aq;i++)
         {
           config.Rparam_aq(i)=0.0;
@@ -1116,7 +1114,6 @@ void param_unifac(model_config &config, vector<species> &surrogate)
           config.Lparam_aq(i)=0.0;   
           for (j=0;j<config.nfunc_aq;j++)
             {
-              //cout << j << endl;
               config.Rparam_aq(i)+=config.groups_aq(j,i)*config.RG_aq(j);
               config.Qparam_aq(i)+=config.groups_aq(j,i)*config.QG_aq(j);
             }
@@ -1366,11 +1363,12 @@ void check_config(model_config &config, vector<species>& surrogate)
 		
           if (surrogate[i].hydrophilic)
             {
+              //if (surrogate[i].compute_gamma_aq and surrogate[i].Henry<=tiny and
+              //    surrogate[i].Psat_ref>=tiny)
+              //  cout << "Henry's law constant of species " << surrogate[i].name
+              //       << " is computed from the saturation vapor pressure" << endl;
+              //else 
               if (surrogate[i].compute_gamma_aq and surrogate[i].Henry<=tiny and
-                  surrogate[i].Psat_ref>=tiny)
-                cout << "Henry's law constant of species " << surrogate[i].name
-                     << " is computed from the saturation vapor pressure" << endl;
-              else if (surrogate[i].compute_gamma_aq and surrogate[i].Henry<=tiny and
                        surrogate[i].Psat_ref<=tiny)
                 {
                   cout << "WARNING: bad input for Psat_ref or Henry of species "

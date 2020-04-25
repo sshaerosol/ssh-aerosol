@@ -781,12 +781,12 @@ END SUBROUTINE REDISTRIBUTION
           else
              diam(js1) = fixed_diameter(js1)
           endif
-          if(diam(js1).LT.dbound(js1)) then
-             write(*,*) 'EULERCOUPLE: diam lower than bound',diam(js1),dbound(js1),aam,rho(js1),N(js1)
-          endif
-          if(diam(js1).GT.dbound(js1+1)) then
-             write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1)
-          endif
+          !if(diam(js1).LT.dbound(js1)) then
+          !   write(*,*) 'EULERCOUPLE: diam lower than bound',diam(js1),dbound(js1),aam,rho(js1),N(js1)
+          !endif
+          !if(diam(js1).GT.dbound(js1+1)) then
+          !   write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1)
+          !endif
       ENDDO
   END SUBROUTINE REDIST_EULERCOUPLE
 !**************************************************
