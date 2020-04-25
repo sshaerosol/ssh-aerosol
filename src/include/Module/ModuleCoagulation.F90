@@ -155,7 +155,7 @@ contains
       call  Loss (distribution,coagulation_rate_loss,c_number)
       !call  Ratebalance(coagulation_rate_gain,coagulation_rate_loss)
       do j = 1,N_size
-	  rate_mass(j,jesp) = coagulation_rate_gain(j) - coagulation_rate_loss(j)!
+	  rate_mass(j,jesp) = rate_mass(j,jesp) + coagulation_rate_gain(j) - coagulation_rate_loss(j)!
 	  if(IsNaN(rate_mass(j,jesp)*0.d0)) print*,"infinity/NaN mass",j,jesp,rate_mass(j,jesp)
       enddo
     enddo
@@ -168,7 +168,7 @@ contains
       call  Loss (distribution, coagulation_rate_loss,c_number)
 
       do j = 1,N_size
-	rate_number(j) =0.5d0*coagulation_rate_gain(j) - coagulation_rate_loss(j)!
+	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j) - coagulation_rate_loss(j)!
 	if(IsNaN(rate_number(j)*0.d0)) print*,"infinity/NaN numb",j,rate_number(j)
       enddo
 

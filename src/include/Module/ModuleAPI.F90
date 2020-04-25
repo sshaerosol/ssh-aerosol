@@ -179,8 +179,17 @@ module SSHaerosolAPI
 
       call compute_average_diameter()
 
-      call compute_wet_mass_diameter(1, N_size, concentration_mass, concentration_number, &
-                                     concentration_inti, wet_mass, wet_diameter, wet_volume)
+      if(wet_diam_estimation.eq.0) then !with isorropia
+      ! Compute wet_mass using isorropia, only if it is updated in the computation of derivatives
+        call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+             concentration_inti,wet_mass,wet_diameter,wet_volume)
+      else
+        do i=1,N_size
+          concentration_mass(i,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
+        enddo
+        call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+             wet_mass,wet_diameter,wet_volume,cell_diam_av)
+      endif
 
       if (with_cond.eq.1) then
         quadratic_speed=0.D0
@@ -199,10 +208,6 @@ module SSHaerosolAPI
           endif
         end do
       endif
-
-      call update_wet_diameter_liquid(1, N_size, concentration_mass, concentration_number, &
-                                      wet_mass, wet_diameter, wet_volume, cell_diam_av)
-
 
     end subroutine api_reinitialize
 

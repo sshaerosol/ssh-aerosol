@@ -39,13 +39,13 @@ contains
        mass_total =0.d0
        do s=1,N_aerosol_layers
 	jesp=List_species(s)
-        if(aerosol_species_name(jesp).NE.'PH2O') then
+        !if(aerosol_species_name(jesp).NE.'PH2O') then
           mass_total = mass_total + concentration_mass(j,s)
           mass_total_grid (j) =mass_total
 	  if(mass_density(jesp).gt.0.d0) then
              volum_cell=volum_cell+concentration_mass(j,s)/mass_density(jesp)
 	  endif
-	 endif
+	 !endif
 	enddo
 	if (concentration_number(j).gt.0.d0) then
           cell_mass_av(j) =dble(mass_total)/dble(concentration_number(j)) !mass of single particle

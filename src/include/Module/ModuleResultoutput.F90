@@ -120,8 +120,6 @@ contains
 	write(unit=10,FMT=*), 'DTAEROMIN', DTAEROMIN, '	','redistribution_method', redistribution_method
 	write(unit=10,FMT=*), 'Method',dynamic_solver, '	 with_oligomerization', with_oligomerization
 	write(unit=10,FMT=*), 'with_fixed_density', with_fixed_density,'	', 'fixed_density', fixed_density, 'kg/m^3'
-	if (wet_diam_estimation == 1) write(unit=10,FMT=*), 'initial wet diameter is computed by Gerber.'
-	if (wet_diam_estimation == 0) write(unit=10,FMT=*), 'initial wet diameter is computed by isorropia.'
 	write(unit=10,FMT=*)
 	write(unit=10,FMT=*),'output directory :', trim(output_directory),'/'
 

@@ -46,26 +46,43 @@ contains
     double precision ::dndt(N_size)
     double precision ::c_gas(N_aerosol)
     double precision ::ce_kernal_coef(N_size,N_aerosol)
+    double precision:: wet_diam(N_size),wet_mass(N_size)
+    double precision:: wet_vol(N_size),cell_diam(N_size)
+    integer :: j
 
     dqdt = 0.d0
     dndt = 0.d0
-    ! Call coag first for the case processes are coupled 
-    ! (to not overwrite the derivatives from other processes)
-    if (tag_coag.eq.1) then
-       call fgde_coag (c_mass,c_number,dqdt,dndt)
+    ! Compute wet_mass_diameter using isorropia if wet_diam_estimation == 0, 
+    ! or from previously estimated water content else.
+    ! For dynamic sections, the wet_mass_diameter is computed in fgde_cond
+
+    if((wet_diam_estimation.eq.0).OR.((splitting.eq.0).AND.(tag_coag.eq.1))) then !with isorropia
+        call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+                                   concentration_inti,wet_mass,wet_diam,wet_vol)
+    else
+            Do j=1,ICUT
+           c_mass(j,N_aerosol_layers) = 0.d0
+        Enddo
+        call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
+                                      wet_mass,wet_diam,wet_vol,cell_diam)
     endif
+    call mass_conservation(c_mass,c_number,c_gas,total_mass)
 
     if (tag_nucl.eq.1) then
        call fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
     endif
 
     if (tag_cond.eq.1) then
-       call fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+       call fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
+    endif
+
+    if (tag_coag.eq.1) then
+       call fgde_coag (c_mass,c_number,dqdt,dndt,wet_diam,wet_mass)
     endif
 
   end subroutine fgde
 
-  subroutine fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+  subroutine fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
 
     !------------------------------------------------------------------------
     !
@@ -102,12 +119,50 @@ contains
     double precision:: c_number(N_size),wet_mass(N_size)
     double precision:: wet_diam(N_size),wet_vol(N_size),cell_diam(N_size)
 
-    double precision:: liquid(12)
+    double precision:: liquid(12),qtot
 
-    call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
-         wet_mass,wet_diam,wet_vol,cell_diam)
+    do j =1, N_size
+      if(concentration_index(j, 1) > ICUT) then! k : index of size bins
+       qn=c_number(j)!initial number and mass
+       if(qn.GT.TINYN) then
+         do s=1,N_aerosol
+            q(s) = 0.d0
+         enddo
+         qtot = 0.0
+         do s=1,N_aerosol_layers
+            jesp=List_species(s)
+            q(jesp)=q(jesp)+ c_mass(j,s)
+            qtot =qtot + c_mass(j,s)
+            ce_kernal_coef_i(jesp) = 0.d0 !ce_kernal_coef(j,jesp)
+         enddo
+        ! do s=N_nonorganics+1,N_aerosol
+        !   q(s) = 0.0
+        !   ce_kernal_coef_i(s) = 0.0
+        ! enddo
+         call KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
+               lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot)
+         qH2O(j) = q(EH2O)
+         do s=1,12
+            liquid_Nsize(s,j) = liquid(s)
+         enddo
+         !calculate the C/E kernal
+         do s=1, nesp_isorropia
+	    jesp = isorropia_species(s)
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+            IF (jesp.NE.ECl) THEN
+#endif
+               ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
+               if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
+                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+               endif   
 
-    call mass_conservation(c_mass,c_number,c_gas,total_mass)
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+            ENDIF
+#endif
+         enddo
+       endif
+     endif
+    enddo
 
    ! Compute dynamically low-volatility organics
     do j=1,N_size
@@ -129,45 +184,6 @@ contains
        enddo
     enddo
 
-    do j =1, N_size
-      if(concentration_index(j, 1) > ICUT) then! k : index of size bins
-       qn=c_number(j)!initial number and mass
-       do s=1,N_aerosol
-          q(s) = 0.d0
-       enddo
-       do s=1,N_aerosol_layers
-          jesp=List_species(s)
-          q(jesp)=q(jesp)+ c_mass(j,s)
-          ce_kernal_coef_i(jesp) = 0.d0 !ce_kernal_coef(j,jesp)
-       enddo
-      ! do s=N_nonorganics+1,N_aerosol
-      !   q(s) = 0.0
-      !   ce_kernal_coef_i(s) = 0.0
-      ! enddo
-       call KERCOND(qn,q,c_gas,wet_diam(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
-            lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid)
-       qH2O(j) = q(EH2O)
-       do s=1,12
-          liquid_Nsize(s,j) = liquid(s)
-       enddo
-       !calculate the C/E kernal
-       do s=1, nesp_isorropia
-	  jesp = isorropia_species(s)
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-          IF (jesp.NE.ECl) THEN
-#endif
-             ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
-             if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
-                dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
-             endif   
-
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-          ENDIF
-#endif
-       enddo
-     endif
-    enddo
-
     do j=1, N_size
        do s=1,N_aerosol_layers
           if (isnan(dqdt(j,s))) then
@@ -179,7 +195,7 @@ contains
 
   end subroutine fgde_cond
 
-  subroutine fgde_coag (c_mass,c_number,rate_mass,rate_number)
+  subroutine fgde_coag (c_mass,c_number,rate_mass,rate_number,wet_diam,wet_mass)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -205,11 +221,11 @@ contains
     double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::rate_number(N_size)
     double precision ::rate_mass(N_size,N_aerosol)
+    double precision:: wet_mass(N_size)
+    double precision:: wet_diam(N_size),wet_vol(N_size),cell_diam(N_size)
 
     double precision :: total_number
 
-    rate_number=0.d0
-    rate_mass=0.d0
     total_number = 0.d0
 
     do j = 1,N_size
@@ -218,13 +234,11 @@ contains
 
     if(total_number > 0.d0) then
 
-       call compute_average_diameter()
-
        do j1 = 1, N_size
           do j2 = 1, N_size
              call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
-                  cell_diam_av(j1),cell_diam_av(j2),&
-                  cell_mass_av(j1),cell_mass_av(j2), kernel_coagulation(j1,j2))
+                  wet_diam(j1),wet_diam(j2),&
+                  wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
           enddo
        enddo
 
@@ -271,8 +285,6 @@ contains
     double precision :: perc_so4, perc_nh4,tot_so4nh4
     integer :: iterp,s,isection
     !     Compute gas mass conservation
-
-    call mass_conservation(c_mass,c_number,c_gas, total_mass)
 
     if(nucl_model.eq.1.OR.nucl_model.eq.2) then            ! sulfuric-acid-ammonia-water nucl'n
        !     mr should be in ppt

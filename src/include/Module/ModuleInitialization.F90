@@ -1072,6 +1072,12 @@ contains
        stop
     endif
 
+    if ((with_coag == 1).AND.(with_cond == 0)) then
+          wet_diam_estimation = 0 ! Compute water content during coagulation, as it is not computed during condensation.
+    endif
+    if((with_cond == 1).AND.(Cut_dim.GE.diam_input(N_sizebin+1))) then
+            wet_diam_estimation = 0 ! Compute water content if full equilibrium
+    endif
     ! output
     read(10, nml = output, iostat = ierr)
     if (ierr .ne. 0) then

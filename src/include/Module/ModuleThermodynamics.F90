@@ -66,11 +66,9 @@ contains
        do s=1,(N_aerosol-1)
           qti=qti+qext(s)     !total dry mass µg.m-3
        end do
-
        ! The threshold 0.0 for the minimum aerosol concentration 
        ! should be avoided because it leads to a too small particle diameter.
        if ((qti.gt.TINYM).AND.(c_number(j).gt.TINYN)) then ! No water  initially - compute it
-          if(wet_diam_estimation.eq.0) then !with isorropia
              do i=1,nesp_isorropia
                 jesp=isorropia_species(i)
                 aero(i)=qext(jesp)
@@ -100,16 +98,11 @@ contains
                 wet_d(j)=size_diam_av(k)
                 wet_m(j)=size_mass_av(k)
              endif
-          else
-             vad=qti/rhoaer!qti total dry mass
-             wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-             dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-              k=concentration_index(j, 1)
-              wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-              wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-              wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
-          endif
        else
+             c_number(j) = 0.d0
+             do jesp=1,N_aerosol_layers
+                c_mass(j,s) = 0.d0
+             enddo
              k=concentration_index(j, 1)
              wet_d(j)=size_diam_av(k)
              wet_m(j)=size_mass_av(k)
@@ -171,7 +164,6 @@ contains
     !     clipping to tinym
 
     !     Aqueous phase total liquid water content and pH (proton) concentration
-    lwc = liquid(IH2O) * imw(IH2O) ! microg.m-3
     ionic = other(5)
     proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 
@@ -190,6 +182,7 @@ contains
     end do
     ! liquid water content
     lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
+    if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
   end subroutine calculatewater
 
   subroutine update_wet_diameter(start_bin,end_bin,c_mass,c_inti,c_number,wet_m,&
@@ -369,7 +362,6 @@ contains
              wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
              wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
              wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
-             
           endif
        else
           ! if too few aerosols or too few mass
@@ -606,6 +598,7 @@ contains
     ! liquid water content
     qext(EH2O)= qinti(IH2O)&
          +qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
+    if(qext(EH2O) < 1.1d-12) qext(EH2O) = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
     ! solid inorg aerosol
     do jesp=SNaNO3,SLC
        qinti(jesp)= DMAX1(aersld(jesp-12),0.D0)&

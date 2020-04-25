@@ -577,12 +577,19 @@ contains
     end if
 
     call compute_average_diameter()
-    ! need conc. mass, mass_density size_diam_av(n_sizebin), size_mass_av(n_sizebin)
-    ! give cell_diam_av(n_size) cell_mass_av(n_size) !!
 
-    ! wet_diameter is initialized for heterogeneous reactions
-    call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-         concentration_inti,wet_mass,wet_diameter,wet_volume)
+    ! wet_diameter is initialized 
+    if(wet_diam_estimation.eq.0) then !with isorropia
+      ! Compute wet_mass using isorropia, only if it is updated in the computation of derivatives
+      call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+           concentration_inti,wet_mass,wet_diameter,wet_volume)
+    else
+      do j=1,N_size
+         concentration_mass(j,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
+      enddo
+      call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+           wet_mass,wet_diameter,wet_volume,cell_diam_av)
+    endif
 
     if (with_coag.eq.1) then !if coagulation
        if(.not. allocated(kernel_coagulation)) allocate(kernel_coagulation(N_size,N_size))
@@ -661,10 +668,6 @@ contains
           endif
        end do
     end if
-
-    call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
-         wet_mass,wet_diameter,wet_volume,cell_diam_av)
-
 
     if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
     if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="

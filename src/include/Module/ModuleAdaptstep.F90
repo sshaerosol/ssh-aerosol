@@ -284,8 +284,6 @@ contains
     !    ******Dynamic time loop
     do while ( current_sub_time .lt. final_sub_time )
 
-       call update_wet_diameter_liquid(1,N_size,concentration_mass, &
-            concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
        time_step_sulf = 0.0
 
        if (tag_cond.eq.1) then

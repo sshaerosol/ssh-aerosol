@@ -91,8 +91,8 @@ contains
     endif
   end subroutine SULFDYN
 
-  subroutine KERCOND(qn,q,c_gas,Wet_diam,Temp,ce_kernel,ce_kernal_coef_i,jj,&
-                     lwc,ionic,proton,liquid)
+  subroutine KERCOND(c_mass,c_number,qn,q,c_gas,Wet_diam,wet_mass,Temp,ce_kernel,ce_kernal_coef_i,jj,&
+                     lwc,ionic,proton,liquid,qtot)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -117,16 +117,18 @@ contains
 !------------------------------------------------------------------------
     implicit none
     integer:: jesp,init,jj,s
+    double precision:: c_mass(N_size,N_aerosol_layers)
+    double precision:: c_number(N_size)
     double precision:: qn,qext(N_aerosol),init_bulk_gas(N_aerosol)
     double precision:: qinti(N_inside_aer),ce_kernal_coef_i(N_aerosol)
     double precision:: surface_equilibrium_conc(N_aerosol),ce_kernel(N_aerosol)
     double precision:: Kelvin_effect(N_aerosol),Wet_vol
-    double precision:: Wet_diam,Wet_diam_used,rhop
+    double precision:: Wet_diam,Wet_diam_used,rhop,wet_mass
     double precision:: c_gas(N_aerosol)!micg/m^-3
     double precision:: q(N_aerosol)!mass concentration in current grid point
-    double precision:: qih,emw_tmp,rhop_tmp,Temp
-    double precision:: lwc,ionic,proton, liquid(12)
-  
+    double precision:: qih,emw_tmp,rhop_tmp,Temp,dry_diam
+    double precision:: lwc,ionic,proton, liquid(12),qtot
+    double precision:: vad,rhoaer
 
 !!     ******Initialization to zero
     do jesp=1,N_aerosol
@@ -151,7 +153,22 @@ contains
 
 !calculate the equilibrium between aerosols and gas-phase
       call surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
-
+      concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
+!     Compute wet_diam and wet_mass 
+      if (with_fixed_density == 0) then
+        call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+                  mass_density_layers,jj,rhoaer)
+      else
+        rhoaer = fixed_density 
+      endif
+      if(rhoaer.gt.0.d0) then
+         vad=qtot/rhoaer!qtot total dry mass
+         wet_vol=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+         dry_diam=(vad/c_number(jj)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+         wet_diam=((wet_vol)/c_number(jj)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+         wet_diam=DMAX1(wet_diam,dry_diam)!wet diameter is always larger than dry diameter
+         wet_mass=(qtot+qext(EH2O))/c_number(jj) ! single wet mass (µg)
+       endif
       ! we prevent evaporation when conc
       ! are too near from zero
       do s=1,nesp_isorropia
@@ -229,7 +246,6 @@ contains
 				! liq or mix : H+ limitation flux
       else
 	if (qn.gt.0.d0) qih=qinti(IH)/qn    ! µg ,qn is number (qih is H+ per particl)
-	!print*,'water go',qext(EH2O)
 	call HPLFLIM( ALFHP,& ! percentage of H+ allowed to c/e(0.1)
 	    qih,&            ! int H+ conc (µg)
 	    N_aerosol,&          ! size of vectors following below
@@ -239,7 +255,6 @@ contains
 	    surface_equilibrium_conc,&          ! equi gas conc (µg.m-3)
 	    ce_kernel )        ! modified c/e kernel
       endif
-      concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
       do jesp=1,N_inside_aer
 	concentration_inti(JJ,jesp)=qinti(jesp)
       enddo
