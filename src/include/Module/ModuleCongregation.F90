@@ -60,8 +60,10 @@ contains
         call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
                                    concentration_inti,wet_mass,wet_diam,wet_vol)
     else
-            Do j=1,ICUT
-           c_mass(j,N_aerosol_layers) = 0.d0
+        Do j=1,N_size
+           if(concentration_index(j, 1) <= ICUT) then
+              c_mass(j,N_aerosol_layers) = 0.d0
+           endif
         Enddo
         call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
                                       wet_mass,wet_diam,wet_vol,cell_diam)
