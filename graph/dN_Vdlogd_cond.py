@@ -136,7 +136,7 @@ for i in range(len(lists)) :
 	tmp = np.zeros(num)
 	for j in range(num) :
 		tmp[j]= float(lists[i][j]) / deltalogd[j]* 1E-6 #in cm-3
-		if (tmp[j] < 0.00001) : tmp[j] = 0.0
+		if (tmp[j] < 0.0001) : tmp[j] = 0.0
 	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
      else:
 	tmp = np.zeros(num)
@@ -149,7 +149,7 @@ for i in range(len(lists)) :
 		if(dd <=0.0):
                   dd = 1.
 		tmp[j]= float(lists[i][j]) / dd* 1E-6 #in cm-3
-		if (tmp[j] < 0.00001) : 
+		if (tmp[j] < 0.0001) : 
 			tmp[j] = 0.0
 			cell_diam_out_sml[j] = diam_mean[j]
 	plt.plot(cell_diam_out_sml, tmp, cols[i],label = lbs[i])

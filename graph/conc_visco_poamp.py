@@ -118,7 +118,7 @@ semilogx(t,visco7,'r',label='10$^{-23}$') #m$^2$ s$^{-1}$')
 semilogx(t,visco8,'k',label='10$^{-24}$') #m$^2$ s$^{-1}$')
 title("Kp $\simeq$ 0.01")
 xlabel('Time (s)')
-ylabel('Organic concentrations ($\mu$g~m$^{-3}$)')
+ylabel('Organic concentrations ($\mu$g m$^{-3}$)')
 legend(loc ='best')	
 savefig("visco_poamp.png")
 

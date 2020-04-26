@@ -123,7 +123,7 @@ for i in range(len(lists)) :
 	tmp = np.zeros(num)
 	for j in range(num) :
 		tmp[j]= float(lists[i][j]) / deltalogd[j]
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
+		if (tmp[j] < 0.1) : tmp[j] = 0.0
 		else:
 			tmp[j] = tmp[j] * 1E-6 #in cm-3
 	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
@@ -132,7 +132,7 @@ num = len(exa_diam_out)
 tmp = np.zeros(num)
 for j in range(num) :
 	tmp[j]= float(exact_num_out[j])
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+	if(tmp[j] < 0.1) : tmp[j] = 0.0
 #plt.plot(exa_diam_out, tmp,'-',label = 'Zhang_out')
 import numpy.ma as ma
 tmp = np.array(tmp)
