@@ -35,6 +35,10 @@ namefic8 = '../results/visco/visco8_poalp/aero/'
 species1 = 'PPOAlP_1.txt'
 species2 = 'PSOAlP_1.txt'
 
+font = {'size'   : 14}
+matplotlib.rc('font', **font)
+matplotlib.pyplot.xticks(fontsize=14)
+
 with open (namefic2+species1) as f1 :
 	values = f1.read().splitlines()
 with open (namefic2+species2) as f2 :
@@ -119,6 +123,7 @@ title("Kp $\simeq$ 1")
 xlabel('Time (s)')
 ylabel('Organic concentrations ($\mu$g m$^{-3}$)')
 legend(loc ='best')	
+plt.tight_layout()
 savefig("visco_poalp.png")
 
 
