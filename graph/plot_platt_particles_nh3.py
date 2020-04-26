@@ -8,7 +8,7 @@ import numpy, pylab
 # Turn interactive plotting off
 plt.ioff()
 ################### input parameters #################################"
-dir2 = '../results/aerosol-platt/aero/'
+dir2 = '../results/aerosol-platt-nh3/aero/'
 
 Nt= 5 * 60
 #####################################################################
@@ -129,6 +129,6 @@ plt.plot(time, inorg,'y-',label='Inorganics')
 plt.ylabel("$\mu g.m^{-3}$", fontsize=18)
 plt.xlabel("time [h]", fontsize=18)
 plt.legend(loc=2)
-plt.savefig("platt-particles.png",bbox_inches='tight')
+plt.savefig("platt-particles-nh3.png",bbox_inches='tight')
 plt.tight_layout()
 plt.close(fig)
