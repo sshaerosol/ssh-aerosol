@@ -4516,7 +4516,7 @@ void dynamic_tot(model_config &config, vector<species>& surrogate,
 	
             if (surrogate[i].hydrophilic and LWCtot>config.LWClimit) //and i!=config.iH2O)
               for (b=0;b<config.nbins;++b)			  
-                if (surrogate[i].time(b)>=tequilibrium)
+                if (surrogate[i].time_aq(b)>=tequilibrium)
                   if (conc_available-surrogate[i].Aaq_bins_init(b)> tiny and
                       surrogate[i].k1_aq(b,0)>0.0)
                     surrogate[i].Jdn_aq(b,0)=-sum_rates/
