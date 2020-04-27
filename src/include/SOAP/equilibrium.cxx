@@ -206,7 +206,7 @@ void initialisation_eq(model_config &config, vector<species>& surrogate, double 
                 else if (surrogate[i].kp_from_experiment==false)
                   surrogate[i].kpi=surrogate[i].Kp_eff_org(Temperature, MOW);
               } 
-            if ((surrogate[i].hydrophilic) and surrogate[i].Aaq > 1.e-15) 
+            if ((surrogate[i].hydrophilic)) // and surrogate[i].Aaq > 1.e-15) 
               if (config.compute_aqueous_phase_properties)
                 surrogate[i].kaqi=surrogate[i].Kpart_aq(Temperature,MOW);              
               else
@@ -1438,6 +1438,7 @@ void error_aq(model_config &config, vector<species>& surrogate,
               Kp=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                             surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                 /surrogate[i].gamma_aq;
+
               surrogate[i].Aaq=factor*surrogate[i].Atot*Kp*AQinit/(1+Kp*AQinit)+
                 (1.0-factor)*surrogate[i].Aaq;
               AQ+=surrogate[i].Aaq;
