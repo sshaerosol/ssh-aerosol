@@ -861,7 +861,8 @@ double species::Kp_eff_aqreal(model_config &config,
       if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)        
         value=kaqi/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));        
       else        
-        value=kaqi/MMaq;        
+        value=kaqi/MMaq;
+      //cout << "Kaqi " << kaqi << endl; 
     }
   else if (aqt==0) //Kp_effective=Kp_theoric
     value=kaqi/MMaq;
@@ -1793,7 +1794,7 @@ void activity_coefficients_aq(model_config &config, vector<species>& surrogate,
 	  for (i=0;i<n;++i)
 	    {
 	      if (surrogate[i].index_gamma_aq >=0)
-		surrogate[i].gamma_aq=gamma_unifac(surrogate[i].index_gamma_aq);
+		surrogate[i].gamma_aq=gamma_unifac(surrogate[i].index_gamma_aq)/surrogate[i].GAMMAinf;
 	      else
 		surrogate[i].gamma_aq=1.0;
 	    }
