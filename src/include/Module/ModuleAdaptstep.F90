@@ -666,6 +666,7 @@ contains
 !       q1(j,N_aerosol_layers) = qH2O(j) ! water is the last species
     enddo
 
+    call mass_conservation(q1,n1,c_gas_t, total_mass)
     !     Second step
     call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
 
