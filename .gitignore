@@ -25,11 +25,9 @@ results/*
 */.sconsign.dblite
 unifac.csv
 core
-ssh-aerosol-*
 *old
 .gitignore
 graph/*.png
-ssh-aerosol
 src/include/Talos/talos.py
 src/include/Talos/talos_wrap.cc
 src/include/atmopy/*
@@ -41,6 +39,11 @@ user_manual/user_manual.toc
 user_manual/user_manual.bbl
 user_manual/user_manual.blg
 user_manual/user_manual.pdf
+
+### Executables
+example_fortran/launch
+ssh-aerosol
+ssh-aerosol-*
 
 ### Spack
 src/include/CHEMISTRY/cb05*/*.f*
