@@ -140,11 +140,11 @@ masked = ma.masked_where(tmp == 0.0, tmp)
 plt.plot(exa_diam_out, masked,'-',label = 'Zhang_out')
 
 
-plt.xlabel(r'd($\mu$m)')
+plt.xlabel(r'd ($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
-plt.title( 'Particle Number Distribution - case COAG')
+plt.title( 'Particle Number Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_COAG')
@@ -177,11 +177,11 @@ for j in range(num) :
 	tmp[j]= float(exact_mass_out[j]) 
 plt.plot(exa_diam_out, exact_mass_out,'-',label = 'Zhang_out')
 
-plt.xlabel(r'd($\mu$m)')
-#plt.ylabel(r'dN/d log d (cm$^{-3}$)')
+plt.xlabel(r'd ($\mu$m)')
+plt.ylabel(r'dV/d log d ($\mu$m$^3$ cm$^{-3}$)')
 plt.xscale('log')
 #plt.yscale('log')
-plt.title( 'Particle Volume Distribution - case COAG')
+plt.title( 'Particle Volume Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_COAG')

@@ -187,8 +187,8 @@ lists = []
 lists_diam = []
 lists_logdiam = []
 lbs=[]
-stl = ['-','-','-','-']
-cols = ['-','-','-','-']
+stl = ['-','-','-','-.']
+cols = ['-','-','-','-.']
 for i in num_init_sml : lists.append(i)
 for i in num_out_sml : lists.append(i)
 for i in cell_diam_init_sml : lists_diam.append(i)
@@ -255,11 +255,11 @@ tmp = np.array(tmp)
 masked = ma.masked_where(tmp == 0.0, tmp)
 plt.plot(dinit, masked,'*',label = 'Devilliers_48bin_out')
 
-plt.xlabel(r'd($\mu$m)')
+plt.xlabel(r'd ($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
-plt.title( 'Particle Number Distribution - case KELVIN')
+plt.title( 'Particle Number Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_KELVIN')
@@ -312,9 +312,10 @@ for j in range(num) :
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
 plt.plot(dinit, tmp,'*',label = 'Devilliers_48bin_out')
 
-plt.xlabel(r'd($\mu$m)')
+plt.xlabel(r'd ($\mu$m)')
 plt.xscale('log')
-plt.title( 'Particle Volume Distribution - case KELVIN')
+plt.ylabel(r'dV/d log d ($\mu$m$^3$ cm$^{-3}$)')
+plt.title( 'Particle Volume Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_KELVIN')

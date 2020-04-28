@@ -161,11 +161,11 @@ for j in range(num) :
 	if(tmp[j] < 0.01) : tmp[j] = 0.0
 plt.plot(exa_diam_out, tmp,'-',label = 'Zhang_out')
 
-plt.xlabel(r'd($\mu$m)')
+plt.xlabel(r'd ($\mu$m)')
 plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
-plt.title( 'Particle Number Distribution - case COND')
+plt.title( 'Particle Number Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_COND_'+tag_fig)
@@ -217,11 +217,12 @@ for j in range(num) :
 	tmp[j]= float(exact_mass_out[j]) 
 plt.plot(exa_diam_out, exact_mass_out,'-',label = 'Zhang_out')
 
-plt.xlabel(r'd($\mu$m)')
+plt.xlabel(r'd ($\mu$m)')
+plt.ylabel(r'dV/d log d ($\mu$m$^3$ cm$^{-3}$)')
 #plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 #plt.yscale('log')
-plt.title( 'Particle Volume Distribution - case COND')
+plt.title( 'Particle Volume Distribution')
 plt.legend(loc ='best')		# show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_COND_'+tag_fig)

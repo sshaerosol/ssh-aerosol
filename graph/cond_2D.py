@@ -84,7 +84,7 @@ ylabel(u"Fraction of sulfate", size = 14)#, fontweight = "bold")
 colorbar()
 xlim(xmin = 0.001, xmax = 10)
 yticks(composition_bounds)
-title(u"Particle mass concentration [$\mu$g/cm$^3$]",
+title(u"Particle mass concentration [$\mu$g m$^{-3}$]",
       fontsize = 14)#, fontweight = "bold")
 plt.tight_layout()
 savefig('cond_mass_ext_init.png')
@@ -100,7 +100,7 @@ ylabel(u"Fraction of sulfate", size = 14)#, fontweight = "bold")
 colorbar()
 xlim(xmin = 0.001, xmax = 10)
 yticks(composition_bounds)
-title(u"Particle mass concentration [$\mu$g/cm$^3$]",
+title(u"Particle mass concentration [$\mu$g m$^{-3}$]",
       fontsize = 14)#, fontweight = "bold")
 plt.tight_layout()
 savefig('cond_mass_ext_out.png')
