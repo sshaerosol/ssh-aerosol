@@ -112,10 +112,20 @@ contains
     ! for gas phase chemistry
     ! This index is modified by adding one later
     ! See ispeclost in Chemistry/common/hetrxn.f
-    heterogeneous_reaction_index(1)= 86-1 ! HO2
-    heterogeneous_reaction_index(2)= 85-1 ! NO2
-    heterogeneous_reaction_index(3)= 78-1 ! NO3
-    heterogeneous_reaction_index(4)= 23-1 ! N2O5
+    do k=1,N_gas
+      if(species_name(k) == 'HO2') then 
+         heterogeneous_reaction_index(1)= k-1
+      endif
+      if(species_name(k) == 'NO2') then 
+         heterogeneous_reaction_index(2)= k-1
+      endif
+      if(species_name(k) == 'NO3') then 
+         heterogeneous_reaction_index(3)= k-1 
+      endif
+      if(species_name(k) == 'N2O5') then 
+         heterogeneous_reaction_index(4)= k-1 
+      endif
+    enddo
 
     ns_source = 1
     if(.not.allocated(source_index)) allocate(source_index(ns_source))
