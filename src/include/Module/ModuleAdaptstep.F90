@@ -55,6 +55,8 @@ contains
 
     double precision :: timestep_splitting,sub_timestep_splitting
     double precision :: initial_time_splitting,current_sub_time,final_sub_time
+    double precision :: qaero(N_aerosol)
+    double precision :: watorg,organion,qgas(N_aerosol)
 
     lwcorg_nsize = 0.d0
 
@@ -213,19 +215,30 @@ contains
                                  concentration_gas, total_mass)
 
           call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
-
        else 
+          organion= 0.d0
+          watorg = 0.d0
+          proton= 0.d0
+          ionic = 0.d0
+          lwc= 0.d0
+          qaero = 0.d0
           do jesp=1,N_aerosol
-             qext(jesp) = 0.d0
-             surface_equilibrium_conc_tmp(jesp) = 0.d0
-          enddo
-          do jesp=1,N_aerosol_layers
-             s = List_species(jesp)
              do j=1,N_size
-                qext(s) = qext(s) + concentration_mass(j,jesp)
+                qaero(jesp) = qaero(jesp) + concentration_mass(j,jesp)
              enddo
+             qgas(jesp)=concentration_gas(jesp)
           enddo
-          call EQINORG(N_aerosol,qext,qinti_tmp,surface_equilibrium_conc_tmp,lwc,ionic,proton,liquid)
+          jesp=isorropia_species(2)
+          qgas(jesp)=0.d0
+          qgas(EH2O)=0.0
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+          qaero(ENa) = 0.d0
+          qaero(ECl) = 0.d0
+          qgas(ECl) = 0.d0
+#endif
+          call isoropia_drv(N_aerosol,&
+               qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
+               liquid)
           call redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
@@ -234,7 +247,6 @@ contains
                ionic, proton, lwc,lwcorg,&
                Temperature, delta_t,&
                cell_diam_av, neq, liquid)
-
        endif
 
        call update_wet_diameter_liquid(1,N_size,concentration_mass, &
