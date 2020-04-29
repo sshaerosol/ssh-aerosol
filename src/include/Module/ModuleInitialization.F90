@@ -431,8 +431,6 @@ contains
        if (ssh_logger) write(logfile,*) 'Relative Humidity', Relative_Humidity
        if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
        if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
-       if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
-       if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
     end if
 
     
@@ -792,6 +790,10 @@ contains
              if (ssh_logger) write(logfile,*) 'without adaptive step.'
           end if
        end if
+
+       if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
+       if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
+
     end if
 
     ! particle numerical issues
