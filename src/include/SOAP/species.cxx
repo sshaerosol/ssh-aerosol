@@ -1809,6 +1809,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   //  H2O.accomodation_coefficient=alpha;
   H2O.viscosity=1.0;  
   H2O.is_solid=false;
+  H2O.is_monomer=false;
+  H2O.rion=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1851,6 +1853,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SO4.is_organic=false;  // Is the compound organic?
   SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
   SO4.hydrophobic=false;  // Does the species condense on the organic phase?
+  SO4.nonvolatile=false;
+  SO4.kp_from_experiment=false;
   SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   SO4.charge=-2;
@@ -1862,6 +1866,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   SO4.soap_ind = -1;
   SO4.soap_ind_aero = -1;
   SO4.is_solid=false;
+  SO4.is_monomer=false;
+  SO4.rion=false;
   surrogate.push_back(SO4);
 
   species HSO4;
@@ -1871,6 +1877,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HSO4.is_organic=false;  // Is the compound organic?
   HSO4.hydrophilic=true; // Does the species condense on the aqueous phase?
   HSO4.hydrophobic=false;  // Does the species condense on the organic phase?
+  HSO4.nonvolatile=false;
   HSO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   HSO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   HSO4.charge=-1;
@@ -1882,6 +1889,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HSO4.soap_ind = -1;
   HSO4.soap_ind_aero = -1;
   HSO4.is_solid=false;
+  HSO4.is_monomer=false;
+  HSO4.rion=false;
   surrogate.push_back(HSO4);
 
   species NO3;
@@ -1891,6 +1900,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NO3.is_organic=false;  // Is the compound organic?
   NO3.hydrophilic=true; // Does the species condense on the aqueous phase?
   NO3.hydrophobic=false;  // Does the species condense on the organic phase?
+  NO3.nonvolatile=false;
+  NO3.kp_from_experiment=false;
   NO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   NO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   NO3.charge=-1;
@@ -1902,6 +1913,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NO3.soap_ind = -1;
   NO3.soap_ind_aero = -1;
   NO3.is_solid=false;
+  NO3.is_monomer=false;
+  NO3.rion=false;
   surrogate.push_back(NO3);
 
   species NH4;
@@ -1911,6 +1924,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH4.is_organic=false;  // Is the compound organic?
   NH4.hydrophilic=true; // Does the species condense on the aqueous phase?
   NH4.hydrophobic=false;  // Does the species condense on the organic phase?
+  NH4.nonvolatile=false;
+  NH4.kp_from_experiment=false;
   NH4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   NH4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   NH4.charge=1.0;
@@ -1922,6 +1937,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH4.soap_ind = -1;
   NH4.soap_ind_aero = -1;
   NH4.is_solid=false;
+  NH4.is_monomer=false;
+  NH4.rion=false;
   surrogate.push_back(NH4);
 
   species H;
@@ -1931,6 +1948,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H.is_organic=false;  // Is the compound organic?
   H.hydrophilic=true; // Does the species condense on the aqueous phase?
   H.hydrophobic=false;  // Does the species condense on the organic phase?
+  H.nonvolatile=false;
+  H.kp_from_experiment=false;
   H.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   H.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   H.charge=1.0;
@@ -1942,6 +1961,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H.soap_ind = -1;
   H.soap_ind_aero = -1;
   H.is_solid=false;
+  H.is_monomer=false;
+  H.rion=false;
   surrogate.push_back(H);
 
   species Na;
@@ -1950,6 +1971,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Na.is_organic=false;  // Is the compound organic?
   Na.hydrophilic=true; // Does the species condense on the aqueous phase?
   Na.hydrophobic=false;  // Does the species condense on the organic phase?
+  Na.nonvolatile=false;
+  Na.kp_from_experiment=false;
   Na.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   Na.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   Na.charge=1.0;
@@ -1958,6 +1981,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Na.KDiffusion_air=1.0e-5;
   Na.viscosity=1.0;
   Na.is_solid=false;
+  Na.is_monomer=false;
+  Na.rion=false;
 
   // Find the number in the aerosol species list
   Na.soap_ind = -1;
@@ -1979,6 +2004,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Cl.is_organic=false;  // Is the compound organic?
   Cl.hydrophilic=true; // Does the species condense on the aqueous phase?
   Cl.hydrophobic=false;  // Does the species condense on the organic phase?
+  Cl.nonvolatile=false;
+  Cl.kp_from_experiment=false;
   Cl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   Cl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   Cl.charge=-1.0;
@@ -1990,6 +2017,8 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   Cl.soap_ind = -1;
   Cl.soap_ind_aero = -1;
   Cl.is_solid=false;
+  Cl.is_monomer=false;
+  Cl.rion=false;
 
   species H2SO4;
   H2SO4.name="H2SO4";
@@ -2000,11 +2029,14 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   H2SO4.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
   H2SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
   H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
+  H2SO4.kp_from_experiment=false;
   H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   H2SO4.KDiffusion_air=1.07e-5;
   H2SO4.viscosity=1.0;
   H2SO4.is_solid=false;
+  H2SO4.is_monomer=false;
+  H2SO4.rion=false;
   
   // Find the number in the aerosol species list
   H2SO4.soap_ind = -1;
@@ -2029,12 +2061,15 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   NH3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
   NH3.hydrophilic=true; // Does the species condense on the aqueous phase?
   NH3.hydrophobic=false;  // Does the species condense on the organic phase?
+  NH3.kp_from_experiment=false;
   NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   //  NH3.accomodation_coefficient=0.5;
   NH3.KDiffusion_air=2.17e-5;
   NH3.viscosity=1.0;
   NH3.is_solid=false;
+  NH3.is_monomer=false;
+  NH3.rion=false;
   
   // Find the number in the aerosol species list
   NH3.soap_ind = -1;
@@ -2059,12 +2094,15 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HNO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
   HNO3.hydrophilic=true; // Does the species condense on the aqueous phase?
   HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
+  HNO3.kp_from_experiment=false;
   HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   //  HNO3.accomodation_coefficient=0.5;
   HNO3.KDiffusion_air=1.47e-5;
   HNO3.viscosity=1.0;
   HNO3.is_solid=false;
+  HNO3.is_monomer=false;
+  HNO3.rion=false;
   
   // Find the number in the aerosol species list
   HNO3.soap_ind = -1;
@@ -2089,12 +2127,15 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   HCl.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
   HCl.hydrophilic=true; // Does the species condense on the aqueous phase?
   HCl.hydrophobic=false;  // Does the species condense on the organic phase?
+  HCl.kp_from_experiment=false;
   HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
   HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
   //  HCl.accomodation_coefficient=0.5;
   HCl.KDiffusion_air=1.72e-5;
   HCl.viscosity=1.0;
   HCl.is_solid=false;
+  HCl.is_monomer=false;
+  HCl.rion=false;
   
   // Find the number in the aerosol species list
   HCl.soap_ind = -1;
