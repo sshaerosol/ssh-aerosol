@@ -2,5 +2,23 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
+* Version 1.1 release (2020-05-01)
+
+  + Model
+    - Improved redistribution methods.
+    - Added aerosol layers to take into account particle viscosity.
+    - Improved mass conservation for evaporation.
+
+  + Test case
+    - New test case with cutoff diameter between dynamic and equilibrium size
+      section.
+    - Nucleation with condensation of a low-volatility organic.
+      
+  + Interface
+    - Added implementation examples to use shared library and Fortran 90 module.
+    - Makefile added to compile with make.
+    - Reduced namelist.ssh to hide some options and input data which should
+      not be modified.
+
 * Version 1.0 release (2019-10-09)
 

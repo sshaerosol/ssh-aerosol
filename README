@@ -19,6 +19,9 @@ $ compile -c=cb05
 or 
 $ compile --chemistry=cb05
 
+scons is needed to compile the program. Makefile for make is also provided. It
+is a preliminary version and therefore is not fully tested. 
+
 Run
 ---
 
@@ -52,8 +55,23 @@ This file contains initial mass concentrations for aerosol species.
 
 This file contains initial number concentrations for aerosol species.
 
-## --- coef_s1_f1_b7.nc
+## --- coef_s1_f1_b50.nc
 
 This file contains an example coagulation coefficient data.
 
 
+*** Download input data ***
+
+Photolysis
+----------
+
+Please follow README in the "photolysis" sub-directory to download input data.
+photolysis-cb05.dat is provided for the indices of photolysis reactions.
+It should not be modified.
+
+
+*** Implementation examples ***
+
+Using shared library: see ./example_using_so
+
+Using Fortran90 module: see ./example_fortran
