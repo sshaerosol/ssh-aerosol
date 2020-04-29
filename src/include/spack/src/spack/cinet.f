@@ -338,7 +338,8 @@ c         if (chem_mechanism.eq.1) then
             call WSPEC_RACM90 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM mechanism are used'
 c         elseif (chem_mechanism.eq.2) then
-         elseif (mechanism_name .eq. "cb05  ") then
+         elseif (mechanism_name .eq. "cb05  " .or.
+     &           mechanism_name .eq. "cb05v0") then
             call WSPEC_CB0590 (nr,ispebp(nr))
             write(*,*) '   expressions in CB05 mechanism are used'
 c         elseif (chem_mechanism.eq.3) then
