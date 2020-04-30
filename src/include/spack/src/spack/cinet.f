@@ -122,7 +122,8 @@ c
          endif
       enddo
       if (indic.eq.0) then
-         write(6,*)'WARNING: product unknown ',nam(1)(1:imot(icurseur))
+        write(6,*)'WARNING: product unknown or reaction without product'
+c         ,nam(1)(1:imot(icurseur)),
       endif
 c
       icurseur = icurseur+1
@@ -332,7 +333,7 @@ c     SPEC: specific reactions.
          call entier(ispebp(nr),mot(i+1),imot(i+1))
 
 c modif: YK(2010/02/15)
-         write(*,*) 'For some specific reaction constants'
+         write(*,*) 'For some specific reactionconstants',mechanism_name
 c         if (chem_mechanism.eq.1) then
          if (mechanism_name .eq. "racm  ") then
             call WSPEC_RACM90 (nr,ispebp(nr))
