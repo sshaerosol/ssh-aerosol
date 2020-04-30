@@ -409,14 +409,11 @@ contains
        write(*,*) "setup_meteo data can not be read."
        stop
     else ! default output meteo data to check
-       if (temperature - 273.15e0 == 0) then
-          write(*,*) 'temperature should higher than 273.15 K - stop'
-          stop
-       end if
 
        pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
        Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
        humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
+
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
