@@ -5,6 +5,7 @@ scons -c
 
 rm -f `find -iname "*.bck"` 
 rm -f `find -iname "*.o"`
+rm -f `find -iname "*.os"`
 rm -f `find -iname "ssh-aerosol-*"`
 rm -f libssh-aerosol.so
 rm -rf .scon*
