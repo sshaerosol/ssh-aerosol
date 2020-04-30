@@ -64,9 +64,9 @@
 The SSH-aerosol model represents the physico chemical transformation undergone by aerosols in the troposphere. The term aerosol designs here particles with the surrounding gas. SSH-aerosol is designed to be modular and the user can choose the physical and chemical complexity required.
 The model is based on the merge of three state-of-the-art models:
 \begin{itemize}
-\item SCRAM : The Size-Composition Resolved Aerosol Model \cite{zhu2015size} that simulates the dynamics and the mixing state of atmospheric particles. It classifies particles by both composition and size, based on a comprehensive combination of all chemical species and their mass-fraction sections. All three main processes involved in aerosol dynamics (coagulation, condensation/evaporation and nucleation) are included.
-\item SOAP: The Secondary Organic Aerosol Processor \cite{couvidat2015secondary} is a thermodynamic model that compute the partitioning of organic compounds. It takes into account several processes involved in the formation of organic aerosol (hygroscopicity, absorption into the aqueous phase of particles, non-ideality and phase separation) and computes the formation of organic aerosol either with a classic equilibrium representation (the partitioning of organic compounds is instantaneous) or with a dynamic representation (where the model solves the dynamic of the condensation/evaporation limited by the viscosity of the particle). The dynamic representation was successfully used \cite{kim2019modeling} for the first study with a 3D air quality model on the impact of particle viscosity on SOA formation.
-\item H$^2$O: The Hydrophilic/Hydrophobic Organics \cite{couvidat2012hydrophilic} mechanism uses a molecular surrogate approach to represent the myriad of formation of semi-volatile organic compounds formed from the oxidation in the atmosphere of volatile organic compounds. The mechanism was shown to give satisfactory results for SOA formation (for example in \cite{kim2019modeling}).
+\item SCRAM : The Size-Composition Resolved Aerosol Model \cite{zhu2015} that simulates the dynamics and the mixing state of atmospheric particles. It classifies particles by both composition and size, based on a comprehensive combination of all chemical species and their mass-fraction sections. All three main processes involved in aerosol dynamics (coagulation, condensation/evaporation and nucleation) are included.
+\item SOAP: The Secondary Organic Aerosol Processor \cite{couvidat2015} is a thermodynamic model that compute the partitioning of organic compounds. It takes into account several processes involved in the formation of organic aerosol (hygroscopicity, absorption into the aqueous phase of particles, non-ideality and phase separation) and computes the formation of organic aerosol either with a classic equilibrium representation (the partitioning of organic compounds is instantaneous) or with a dynamic representation (where the model solves the dynamic of the condensation/evaporation limited by the viscosity of the particle). The dynamic representation was successfully used \cite{kim2019} for the first study with a 3D air quality model on the impact of particle viscosity on SOA formation.
+\item H$^2$O: The Hydrophilic/Hydrophobic Organics \cite{couvidat2012} mechanism uses a molecular surrogate approach to represent the myriad of formation of semi-volatile organic compounds formed from the oxidation in the atmosphere of volatile organic compounds. The mechanism was shown to give satisfactory results for SOA formation (for example in \cite{kim2019}).
 \end{itemize}
 
 SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
@@ -726,7 +726,7 @@ You can change the accomodation coefficient in the file {\it{species-list/specie
        
 \subsubsection{Condensation of low-volatility organics}
 
-Extremely-low volatility organic compounds (ELVOCs) are formed from the ozonolysis of monoterpenes \cite{chrit2017modelling} .
+Extremely-low volatility organic compounds (ELVOCs) are formed from the ozonolysis of monoterpenes \cite{chrit2017} .
 Similarly to sulfate, these compounds have a very low saturation vapour pressure and they therefore should condense with a kinetic similar to sulfate if they had the same density.
 The test case on the sulfate condensation is redone with the ELVOC Monomer, by artificially setting its density to that of sulfate.
 The configuration file for this test is {\it{namelist\_cond\_monomer.ssh}}.
@@ -735,7 +735,7 @@ In the input files for initial conditions {\it{init\_gas.dat}} and {\it{init\_ae
 The distributions are similar to those of the sulfate case.
 
 \subsubsection{Condensation/evaporation of inorganics}
-For inorganic compounds, differences between the particle compositions computed using equilibrium and dynamical sectional models have been stressed by numerous authors such as \cite{sartelet2006development} . This test case simulates the test case of the highly polluted day of 25 June 2001 of \cite{sartelet2006development} .
+For inorganic compounds, differences between the particle compositions computed using equilibrium and dynamical sectional models have been stressed by numerous authors such as \cite{sartelet2006}. This test case simulates the test case of the highly polluted day of 25 June 2001 of \cite{sartelet2006} .
 Measurements of PM and gaseous species made in Tokyo (Japan) are taken as initial conditions. Because the data were averaged continuously during 24 hours under varying meteorological conditions, this study can not assess the importance of the equilibrium approach compared to the dynamical approach. The model results obtained after thermodynamic equilibrium is reached are then compared.
 
 The configuration file for this test is {\it{namelist\_cond-evap-inorg.ssh}} for the case where condensation/evaporation is dynamic. 
@@ -768,9 +768,9 @@ thermodynamic equilibrium. The concentrations computed with the hybrid approach 
 \subsubsection{Kelvin effect}
 
 To illustrate the importance of the Kelvin effect for the growth of ultrafine
-particles, the test case of \cite{devilliers2013new} concerning the growth of
+particles, the test case of \cite{devilliers13} concerning the growth of
 ultrafine particles emitted from the exhaust of a diesel engine was simulated.
-As in \cite{devilliers2013new}, a typical diesel engine emission initial
+As in \cite{devilliers13}, a typical diesel engine emission initial
 distribution from \cite{kittelson2006road} is used here to
 study the gas/particle conversion of nonadecane (C19H40). It has a
 reference saturation vapour pressure of 6.1~10$^{-4}$ Pa at T = 298 K, which is
@@ -807,7 +807,7 @@ condensation/evaporation when it is not included in the model. The ultrafine par
        
 \subsubsection{Nucleation}
 
-To assess the ability of SSH-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006development} is simulated. The initial distribution is the same as in the condensation of sulphuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulphuric
+To assess the ability of SSH-aerosol to deal with simultaneous strong coagulation and condensation/nucleation, the nucleation test case presented in \cite{sartelet2006} is simulated. The initial distribution is the same as in the condensation of sulphuric acid test case of section~\ref{cond-sulf}. It corresponds to the hazy conditions of \cite{seigneur1986simulation}. The sulphuric
 acid production rate is 0.825~$\mu$g~m$^{-3}$~h$^{-1}$,
 the temperature is 288.15 K and the relative humidity is 60\%. The particles are initially assumed to be made of 70\% sulfate and 30\% ammonium. The initial gas phase ammonia concentration is taken to be 8~$\mu$g~m$^{-3}$. The concentrations of gas phase ammonia and particulate-phase ammonium evolve with time due to both nucleation and condensation/evaporation
 The ternary nucleation of \cite{napari} is used, but to avoid artificially large nucleation rates in the parameterisation of \cite{napari}, a maximum nucleation rate of 1.d6 \#particles~cm$^{-3}$ is set.
@@ -819,13 +819,23 @@ condensation/evaporation and nucleation) are solved simultaneously
 resolution of coagulation is splitted from condensation/evaporation and
 nucleation (configuration file {\it{namelist\_nucl\_split.ssh}}). 
 
-
 To compare the number and volume size distribution simulated with the two numerical algorithms, you can run the python script {\it{graph/dN\_Vdlogd\_nucl.py}}.
 
 The two numerical algorithms give similar number concentrations, as shown in Fig~\ref{fig-nucl}.
 
 The nucleated particles clearly grow to larger particles with time, as can be seen both in Fig~\ref{fig-nucl2} and by running the python script {\it{graph/banana.py}}.
 
+Ultra-fine particles grow under the combined effect of coagulation,
+condensation of sulphate and nucleation. 
+As shown in Figure~\ref{fig-nucl2}, the nucleated particles clearly grow to larger particles with time.
+This growth can be accelerated by the presence low-volatility compounds, as shown in \cite{pat18}, underlying the importance of an accurate modelling of the formation of ELVOCs for the growth of ultra-fine particles. 
+The simulation of Figures~\ref{fig-nucl} and~\ref{fig-nucl2} is redone by adding 1~$\mu$g~m$^{-3}$ of a SSH-aerosol surrogate, Monomer, which is an ELVOC formed from the oxidation of terpenes (configuration file {\it{namelist\_nucl\_org.ssh}}).
+To compare the number and volume size distribution simulated with/without the surrogate Monomer, you can run the python script {\it{graph/dN\_Vdlogd\_nucl\_org.py}}.
+As shown in Figure~\ref{fig-nucl3}, the comparison of the number concentration simulated with and without taking the surrogate Monomer into account shows that 
+the particles have grown to larger diameters because of the presence of Monomer. 
+The left panel of Figure~\ref{fig-nucl2} shows the time evolution of the number concentration for the different size sections without Monomer (script {\it{graph/banana.py}) and 
+the right panel of Figure~\ref{fig-nucl2} shows the same time evolution but with 1~$\mu$g~m$^{-3}$ of the surrogate Monomer condensing (script {\it{graph/banana\_org.py}). 
+The surrogate Monomer first condenses to existing particles around 0.01~$\mu$m, making them grow to larger diameters.
 
 \begin{figure}[H]
         \begin{center}
@@ -835,13 +845,24 @@ The nucleated particles clearly grow to larger particles with time, as can be se
 \caption{Nucleation test case. Number (left panel) and volume (right panel) concentrations.}
 \label{fig-nucl}
 \end{figure}
+
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dNdlogd_nucl_org.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/dVdlogd_nucl_org.png}
+        \end{center}
+\caption{Nucleation test case with Monomer surrogate added. Number (left panel) and volume (right panel) concentrations.}
+\label{fig-nucl3}
+\end{figure}
+       
        
 
 \begin{figure}[H]
         \begin{center}
                 \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/fig_banana.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/fig_banana_org.png}
         \end{center}
-\caption{Nucleation test case. Time evolution of the number concentrations.}
+\caption{Nucleation test case. Time evolution of the number concentrations. Without organics (right panel), with organics (surrogate Monomer, left panel).}
 \label{fig-nucl2}
 \end{figure}
        
@@ -851,32 +872,66 @@ The nucleated particles clearly grow to larger particles with time, as can be se
 After emission into the atmosphere, the oxidation of volatile organic compounds (VOCs) leads to less volatile compounds than the precursors. 
 These compounds condense more easily onto particles than their precursors and they contribute to the increase of particle mass.
 
+\subsubsection{Formation of condensable}
+
 \cite{platt2013secondary} performed ageing experiments on emissions from an Euro 5 gasoline car. They monitored the total hydrocarbon mass (THC) as well as organic aerosol (OA) concentrations. 
-The test case presented here corresponds to the simulation performed in \cite{sartelet2018emission}.
+The test case presented here corresponds to the simulation performed in \cite{sartelet2018}.
 
 In our model, THC is assumed to be the sum of VOC and I/S VOCs (intermediate and semi-volatile VOCs). THC is initialised as measured in the experiments of \cite{platt2013secondary} before lights-on (1.4 ppmv + 0.9 ppmv of propene). IVOCs are estimated from VOC emissions using the ratio 0.17 estimated by \cite{zhao2016intermediate}, and NOx concentrations are initialised such as having a VOC/NOx ratio equal to 5.6 as in \cite{platt2013secondary} . 
-The speciation of VOCs to model species was done following \cite{theloke2007compilation}.
+The speciation of VOCs to model species was done following \cite{theloke2007}.
 
 The configuration file for this test is {\it{namelist\_platt.ssh}}.
 
-Not only condensation/evaporation is considered by setting the variable of {\it{namelist\_platt.ssh}} {\it{with\_cond}} to 1, but also gaseous chemistry ( {\it{tag\_chem}}=1). Photolysis rates are predefined in this version of ssh, and a more accurate representation of those (similar to what is used in 3D) will be implemented soon.
+Not only condensation/evaporation is considered by setting the variable of {\it{namelist\_platt.ssh}} {\it{with\_cond}} to 1, but also gaseous chemistry ( {\it{tag\_chem}}=1). Predefined photolysis rates may be used, or tabulated values may be downloaded.
 
 After running the model for 5~h, the evolution of the aerosol concentrations with time may be displayed by running the script {\it{plot\_platt\_particles.py}}.
 As in the experiment after correction for wall loss, the concentrations of
 particles is about 200~$\mu g$~$m^{-3}$. More than half of the mass origins
 from the condensation/evaporation of aged I/S VOCs, as shown in Fig~\ref{fig-platt}.
-The inorganic concentrations stay low (5~$\mu g$~$m^{-3}$ of sulfate was introduced initially as a seed and does not vary during the simulation; and nitrate stays below 9~$\mu g$~$m^{-3}$).
-% If NH3 is introduced, large amounts of inorganic concentrations are formed
-% Barbara.
+The inorganic concentrations stay very low, as only 0.1~$\mu g$~$m^{-3}$) of sulfate and ammonium were introduced.
+
+Ammoniac emission was not considered in the previous test case. However, to reduce NOx emissions, ammoniac may also be emitted by recent vehicles \cite{suarez17}. 
+To illustrate the potential influence of NH$_3$ emission on secondary aerosol formation, the initial conditions of the test case above are modified to include NH$_3$ emissions, assumed to be 10\% of NOx emissions \cite{suarez17}. 
+The configuration file for this test is {\it{namelist\_platt\_nh3.ssh}}.
+After running the model, the evolution of the aerosol concentrations with time may be displayed by running the script {\it{plot\_platt\_particles\_nh3.py}}.
+As shown in Figure~\ref{fig-platt}, NH$_3$ emission leads to a large increase in inorganic aerosol concentrations (from 0.1~$\mu$g~m$^{-3}$ to about 37~$\mu$g~m$^{-3}$).
 
 \begin{figure}[H]
         \begin{center}
                 \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/platt-particles.png}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/platt-particles-nh3.png}
         \end{center}
-\caption{Platt test case. Time evolution of organic concentrations.}
+	\caption{Time evolution of organic and inorganic concentrations for the Platt test case: without NH$_3$ emissions (left panel), with NH$_3$ emissions (right panel).}
 \label{fig-platt}
 \end{figure}
-       
+
+\subsubsection{Absorption into an aqueous or an organic phase}
+\label{hybhyd}
+
+The SOA compounds formed from the exhaust are assumed to be mostly hydrophobic, and
+therefore condense onto an organic phase. SOA compounds formed from biogenic precursors have a stronger affinity with water \cite{couvidat11, couvidat2012}, and they may prefer condensing onto an aqueous phase, formed by hydrophilic organic compounds and water absorbed by inorganics and hydrophilic organic compounds \cite{kim2019}.
+To illustrate the influence of hygroscopicity, the exhaust test case of the previous section is simulated by adding 150~$\mu$g~m$^{-3}$ of isoprene. In the case when NH$_3$ is not emitted in the exhaust, biogenic condensables are formed but mostly stay in the gas phase, because they are mostly hydrophilic and 
+they can not condense efficiently on the hydrophobic particles formed from the exhaust emission.
+As shown in Figure~\ref{fig-platt-isop}, if NH$_3$ is added to the exhaust, inorganic aerosol concentrations largely increase, leading to an increase in isoprene SOA, which can then condense onto aqueous particles.
+
+In the previous test case, the influence of activity coefficients on the SOA formation is not taken into account. 
+Depending on the user's choice, short-range or short, medium and long-range activity coefficients can be modelled. If only short-range activity coefficients (interactions between uncharged molecules) are modelled, then they are computed using the UNIQUAC Functional-group Activity Coefficients (UNIFAC) thermodynamic model \cite{Fredenslund}, 
+which is based on a functional group method. If short, medium and long-range activity coefficients are modelled, i.e. taking into account the influence of inorganic ions in the SOA aqueous phase, they are computed using the Aerosol Inorganic-Organic Mixtures Functional groups Activity Coefficients (AIOMFAC) model \cite{zuend2008}. 
+
+The configuration file for the test case of exaust emissions with added isoprene emission is {\it{namelist\_platt\_nh3\_isop.ssh}}.
+Two other simulations may also be run using UNIFAC to compute activity coefficients ({\it{namelist\_platt\_nh3\_isopu.ssh}}) or AIOMFAC ({\it{namelist\_platt\_nh3\_isopa.ssh}}).
+
+The evolutions of the concentrations of isoprene SOA in particles as a function of time for these simulations may be seen in Figure~\ref{fig-platt-isop}, which can be plotted runing the script {\it{platt\_isop.py}}.
+As already shown in the 3D studies of \cite{couvidat2012, kim2019}, and as shown here in Figure~\ref{fig-platt-isop} for isoprene SOA, ideality strongly influences the partitioning between the gas and particle phase. 
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/platt-isop.png}
+        \end{center}
+	\caption{Time evolution of isoprene SOA in the particle phase.}
+\label{fig-platt-isop}
+\end{figure}
+      
+
 \subsection{Mixing state}
 The previous test cases relied on the internal mixing assumption (one aerosol
 composition per aerosol size section).
@@ -937,7 +992,7 @@ condensation on the mixing state is assessed by revisiting the condensation
 test case (typical of a regional haze scenario, see section~\ref{cond-sulf}) by assuming
 that the initial aerosol distribution is made of two low-volatility compounds
 of same density (sulfate and another low-volatility compound).
-As in \cite{zhu2015size}, 10 composition fractions are used.
+As in \cite{zhu2015}, 10 composition fractions are used.
 The configuration file for this test is {\it{namelist\_cond\_ext.ssh}}.
 Run the simulation by typing {\it{ssh-aerosol INIT/namelist\_cond\_ext.ssh}}.
 By summing the mass and number of particles of all size fraction sections, the
@@ -987,7 +1042,7 @@ D~=~10$^{-12}$ m$^2$~s$^{-1}$ corresponds to an inviscid particle, while the val
 D~=~10$^{-24}$ m$^2$~s$^{-1}$ corresponds to a very viscous particle.
 Each particle is discretized into 5 layers to model the flux of diffusion of the
 organic compounds in the particle. 
-The test cases presented here are similar to those of the Figure 6 of \cite{couvidat2015secondary}. 
+The test cases presented here are similar to those of the Figure 6 of \cite{couvidat2015}. 
 Three surrogates are successively studied: SOAlP, POAlP and POAmP and  which have 
  partitioning coefficients K$_p$ equal to 100~m$^3$~$\mu$g$^{-1}$,
  1~m$^3$~$\mu$g$^{-1}$, and 0.01~m$^3$~$\mu$g$^{-1}$.
