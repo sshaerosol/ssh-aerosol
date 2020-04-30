@@ -411,9 +411,12 @@ contains
     else ! default output meteo data to check
 
        pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
-       Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-       humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
-
+	if  (Relative_Humidity .gt. 0d0 ) then
+		Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+	       	humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
+	else
+		call compute_relative_humidity(humidity, temperature, Pressure, Relative_Humidity)
+	end if
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
