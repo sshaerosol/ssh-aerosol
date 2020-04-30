@@ -1246,7 +1246,7 @@ void solve_local_equilibriums_uncoupled(model_config config, vector<species> &su
               AQinit(b)=AQ(b);
 
               for (i=0;i<n;i++)
-                if (surrogate[i].hydrophilic and surrogate[i].Aaq_bins_init(b)>1.0e-5 and i!=config.iHp)
+                if (surrogate[i].hydrophilic and surrogate[i].Aaq_bins(b)>1.0e-5 and i!=config.iHp)
                   error_aq=max(error_aq,abs(surrogate[i].Aaq_bins_init(b)
                                             -surrogate[i].Aaq_bins(b))
                                /surrogate[i].Aaq_bins(b));
