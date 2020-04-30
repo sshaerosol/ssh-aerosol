@@ -50,9 +50,9 @@
   Youngseob Kim, \url{youngseob.kim@enpc.fr};\\ Zhizhao Wang,
   \url{zhizhao.wang@enpc.fr};\\ C\'edric Flageul,
   \url{cedric.flageul@enpc.fr}; \\Florian Couvidat, \url{florian.couvidat@ineris.fr}.
-\item[] {\bf SSH-aerosol version:} 1.0
+\item[] {\bf SSH-aerosol version:} 1.1
 \item[] SSH-aerosol is distributed under the GNU General Public License v3
-\item[] Copyright (C) 2019 CEREA (ENPC), INERIS
+\item[] Copyright (C) 2020 CEREA (ENPC), INERIS
 \end{itemize}
 
 \tableofcontents
@@ -290,12 +290,13 @@ In this file, gas-phase species are listed together with their molar weight in g
 
 \begin{verbatim}
 &gas_phase_species
-species_list_file = "./species-list/species-list-cb05en.dat"   
+species_list_file = "./species-list/species-list-cb05.dat"   
 /
 \end{verbatim}
 
 Aerosol species are detailed in the group {\textit{aerosol\_species}}, where the variable {\textit{aerosol\_species\_list\_file}} contains the name of the file with the list of aerosol species.
-In this file, each aerosol species is listed on a line, together with specific properties: the group to which the species belong in case of mixing-state resolved particles, their molar weight (g/mol) and gaseous precursors, the collision factor, molecular diameter (Angstrom), surface tension (N/m), accomodation coefficient (between 0 and 1) and density in $\mu$g~$\mu$m$^3$.
+In this file, each aerosol species is listed on a line, together with specific properties: the group to which the species belong in case of mixing-state resolved particles, their molar weight (g/mol) and gaseous precursors, the collision factor, molecular diameter (Angstrom), surface tension (N/m), accomodation coefficient (between 0 and 1), density in $\mu$g~$\mu$m$^3$ and whether or not the species is non-volatile ("1" for condensable but low-volatility species and "0" for others).
+Note that the condensation of non-volatile species is solved dynamically.
 The categories to which species correspond are also listed. They should not be modified and they must correspond to those set in the routine {\textit{ModuleInitialisation.f90}} of SSH-aerosol.
 
 \begin{verbatim}
@@ -628,7 +629,7 @@ initial conditions (meteorological, gas and aerosol concentrations) are
 required.
 The simulation can be run by typing {\it{ssh-aerosol INIT/namefile\_coag.ssh}}.
 
-The list of species and parameters are detailed in the files {\it{species-list/species-list-aer-en.dat}} and {\it{species-list/species-list-cb05en}}. The name and location of the files can be modified in the configuration file {\it{namelist*.ssh}}.
+The list of species and parameters are detailed in the files {\it{species-list/species-list-aer.dat}} and {\it{species-list/species-list-cb05.dat}}. The name and location of the files can be modified in the configuration file {\it{namelist*.ssh}}.
 
 Different processes can be considered (set the flag to 1) or ignored (set the flag to 0): emissions (flag {\it{tag\_emis}}),
 gaseous chemistry (flag {\it{tag\_chem}}),
@@ -705,7 +706,7 @@ used in \cite{zhang1999simulation} , the accommodation coefficient is set to 1. 
 to notice the sensitivity of results to the choice of the accommodation coefficient. 
 The growth of the Aitken mode is strongly reduced by decreasing the
 accommodation coefficient from 1 to 0.1.
-You can change the accomodation coefficient in the file {\it{species-list/species-list-aer-en.dat}}.
+You can change the accomodation coefficient in the file {\it{species-list/species-list-aer.dat}}.
 
 \begin{figure}[H]
         \begin{center}
@@ -731,7 +732,7 @@ Extremely-low volatility organic compounds (ELVOCs) are formed from the ozonolys
 Similarly to sulfate, these compounds have a very low saturation vapour pressure and they therefore should condense with a kinetic similar to sulfate if they had the same density.
 The test case on the sulfate condensation is redone with the ELVOC Monomer, by artificially setting its density to that of sulfate.
 The configuration file for this test is {\it{namelist\_cond\_monomer.ssh}}.
-The monomer density is modified in the file {\it{species-list-monomer/species-list-aer-en.dat}}.
+The monomer density is modified in the file {\it{species-list-monomer/species-list-aer-test.dat}}.
 In the input files for initial conditions {\it{init\_gas.dat}} and {\it{init\_aero.dat}} of the directory {\it{inputs/inputs-cond-monomer/}}, initial concentrations are assigned to monomer rather than sulfate. You can plot the number and volume distribution by using the python script {\it{graph/dN\_Vdlogd\_cond\_monomer.py}}. 
 The distributions are similar to those of the sulfate case.
 
@@ -834,9 +835,10 @@ The simulation of Figures~\ref{fig-nucl} and~\ref{fig-nucl2} is redone by adding
 To compare the number and volume size distribution simulated with/without the surrogate Monomer, you can run the python script {\it{graph/dN\_Vdlogd\_nucl\_org.py}}.
 As shown in Figure~\ref{fig-nucl3}, the comparison of the number concentration simulated with and without taking the surrogate Monomer into account shows that 
 the particles have grown to larger diameters because of the presence of Monomer. 
-The left panel of Figure~\ref{fig-nucl2} shows the time evolution of the number concentration for the different size sections without Monomer (script {\it{graph/banana.py}) and 
-the right panel of Figure~\ref{fig-nucl2} shows the same time evolution but with 1~$\mu$g~m$^{-3}$ of the surrogate Monomer condensing (script {\it{graph/banana\_org.py}). 
+The left panel of Figure~\ref{fig-nucl2} shows the time evolution of the number concentration for the different size sections without Monomer (script {\it{graph/banana.py}}) and 
+the right panel of Figure~\ref{fig-nucl2} shows the same time evolution but with 1~$\mu$g~m$^{-3}$ of the surrogate Monomer condensing (script {\it{graph/banana\_org.py}}). 
 The surrogate Monomer first condenses to existing particles around 0.01~$\mu$m, making them grow to larger diameters.
+Note that the condensation of the extremely low-volatility surrogate Monomer needs to be solved simultaneously to coagulation and nucleation to correctly represent this growth of ultra-fine particles (the parameter non\_volatile needs to be set to 1 for the surrogate Monomer in the input file {\it{species-list/species-list-aer.dat}}).
 
 \begin{figure}[H]
         \begin{center}
