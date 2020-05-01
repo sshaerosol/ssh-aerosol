@@ -613,13 +613,7 @@ module SSHaerosolAPI
 
       implicit none
 
-      ! This is taken from the subroutine read_namelist
-      ! TODO have a dedicated subroutine to avoid duplication of code
-      pressure_sat = 611.2d0 * exp(17.67d0 * (temperature - 273.15d0) / (temperature - 29.65d0))
-
-      ! This is taken from the subroutine read_namelist
-      ! TODO have a dedicated subroutine to avoid duplication of code
-      humidity = 1.d0/(Pressure/(pressure_sat *0.62197d0* Relative_Humidity)-1.d0)
+      call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
 
     end subroutine api_update_humidity
 

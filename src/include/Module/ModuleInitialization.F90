@@ -410,13 +410,24 @@ contains
        stop
     else ! default output meteo data to check
 
-       pressure_sat = 611.2 * dexp(17.67 * (temperature - 273.15) / (temperature - 29.65))
-	if  (Relative_Humidity .gt. 0d0 ) then
-		Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-	       	humidity =  1/(Pressure/(pressure_sat *0.62197* Relative_Humidity)-1)
-	else
-		call compute_relative_humidity(humidity, temperature, Pressure, Relative_Humidity)
-	end if
+       if  (Relative_Humidity .gt. 0d0 ) then
+          if (      Relative_Humidity.lt.Threshold_RH_inf &
+               .or. Relative_Humidity.gt.Threshold_RH_sup) then
+             if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
+             if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
+             Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+          endif
+          call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
+       else
+          call compute_psat_rh(humidity, temperature, Pressure, pressure_sat, Relative_Humidity)
+          if (      Relative_Humidity.lt.Threshold_RH_inf &
+               .or. Relative_Humidity.gt.Threshold_RH_sup) then
+             if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
+             if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
+             Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+             call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
+          endif
+       end if
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'

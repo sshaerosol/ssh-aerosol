@@ -255,9 +255,8 @@ contains
     initial_time=0.d0
     final_time=duration
     nt = int((final_time-initial_time) / delta_t)
-    pressure_sat = 611.2d0* dexp(17.67d0* (temperature - 273.15d0) / (temperature - 29.65d0))
     Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-    humidity =  1.d0/(Pressure/(pressure_sat *0.62197d0* Relative_Humidity)-1.d0)
+    call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
     concentration_gas_all=0.d0
     init_bin_mass=0.d0
     init_mass=0.d0
