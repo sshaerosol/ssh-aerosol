@@ -2,12 +2,15 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
-* Version 1.1 release (2020-05-01)
+* Version 1.1 release (2020-05-03)
 
   + Model
     - Improved redistribution methods.
-    - Improved the computation of wet diameter, especially for cases of coagulation only.
-    - Added the possibility to condense low-volatility compounds dynamically, even if full equilibrium is assumed for semi-volatile compounds. That improves the computation of the growth of ultrafine particles.
+    - Improved the computation of wet diameter, especially for cases of
+      coagulation only.
+    - Added the possibility to condense low-volatility compounds dynamically,
+      even if full equilibrium is assumed for semi-volatile compounds.
+      That improves the computation of the growth of ultrafine particles.
     - Improved mass conservation for evaporation.
 
   + Test case
