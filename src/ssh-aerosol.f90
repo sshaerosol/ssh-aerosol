@@ -14,7 +14,8 @@ PROGRAM SSHaerosol
   use Resultoutput
   use gCoagulation
   use mod_photolysis
-
+  use mod_meteo
+  
   implicit none
 
   integer :: t, j, s,jesp,day
@@ -35,7 +36,9 @@ PROGRAM SSHaerosol
   call read_namelist(namelist_ssh)
 
   call read_inputs()                                
- 
+
+  call read_meteo()
+  
   call init_parameters()  
  
   call init_distributions()  
@@ -82,6 +85,11 @@ PROGRAM SSHaerosol
      ! Emissions
      if (tag_emis .ne. 0) call emission(delta_t)
 
+     ! Read the meteorological data.
+     temperature = temperature_array(t)
+     pressure = pressure_array(t)
+     humidity = humidity_array(t)
+     
      ! Gas-phase chemistry
 
      ! initial and final physical parameters are set same

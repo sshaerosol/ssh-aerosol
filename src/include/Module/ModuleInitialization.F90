@@ -116,6 +116,10 @@ module aInitialization
   double precision, save :: fixed_density
   double precision, save :: lwc_cloud_threshold
 
+  double precision, dimension(:), allocatable, save :: temperature_array
+  double precision, dimension(:), allocatable, save :: humidity_array
+  double precision, dimension(:), allocatable, save :: pressure_array
+  
   integer, save :: tag_coag,tag_cond,tag_nucl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -273,7 +277,7 @@ module aInitialization
   character (len=10), dimension(:), allocatable, save :: emis_gas_species_name
   character (len=10), dimension(:), allocatable, save :: emis_aer_species_name
   character (len=100), save :: output_directory, output_dir2
-
+  
   ! Photolysis
   character (len=80), save :: photolysis_file ! File for photolysis list.
   character (len=80), save :: photolysis_dir ! Directory for photolysis list.
@@ -285,6 +289,10 @@ module aInitialization
   integer, save :: n_altitude
   double precision, save :: altitude_photolysis_input(30)
 
+  ! meteo
+  character (len=40) :: meteo_file
+  logical, save :: imeteo 
+  
   !!part 6: used in ssh-aerosol.f90 chem()
   integer, save :: ns_source
   integer, dimension(:), allocatable, save :: source_index
@@ -347,7 +355,7 @@ contains
     ! namelists to read namelist.ssh file 
 
     namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
-         Humidity, Relative_Humidity
+         Humidity, Relative_Humidity, meteo_file
 
     namelist /setup_time/ initial_time, final_time, delta_t,time_emis
 
@@ -404,30 +412,40 @@ contains
     open(nml_out, file = namelist_out)
 
     ! meteorological setup
+    meteo_file = ""
     read(10, nml = setup_meteo, iostat = ierr)
+
+    if (meteo_file == "") then
+       write(*,*) "File for meteorological data is not given."
+       imeteo = .false.
+    else
+       imeteo = .true.
+    endif
+
     if (ierr .ne. 0) then
        write(*,*) "setup_meteo data can not be read."
        stop
     else ! default output meteo data to check
 
-       if  (Relative_Humidity .gt. 0d0 ) then
-          if (      Relative_Humidity.lt.Threshold_RH_inf &
-               .or. Relative_Humidity.gt.Threshold_RH_sup) then
-             if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
-             if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
-             Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-          endif
-          call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
-       else
-          call compute_psat_rh(humidity, temperature, Pressure, pressure_sat, Relative_Humidity)
-          if (      Relative_Humidity.lt.Threshold_RH_inf &
-               .or. Relative_Humidity.gt.Threshold_RH_sup) then
-             if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
-             if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
-             Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-             call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
-          endif
-       end if
+       ! if  (Relative_Humidity .gt. 0d0 ) then
+       !    if (      Relative_Humidity.lt.Threshold_RH_inf &
+       !         .or. Relative_Humidity.gt.Threshold_RH_sup) then
+       !       if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
+       !       if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
+       !       Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+       !    endif
+       !    call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
+       ! else
+       !    call compute_psat_rh(humidity, temperature, Pressure, pressure_sat, Relative_Humidity)
+       !    if (      Relative_Humidity.lt.Threshold_RH_inf &
+       !         .or. Relative_Humidity.gt.Threshold_RH_sup) then
+       !       if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
+       !       if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
+       !       Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
+       !       call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
+       !    endif
+       ! end if
+
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
@@ -466,6 +484,11 @@ contains
        if (ssh_logger) write(logfile,*) 'Number of iterations:', nt
     end if
 
+    ! Allocate meteo data
+    allocate(temperature_array(nt))
+    allocate(pressure_array(nt))
+    allocate(humidity_array(nt))
+    
     ! initial_condition
     wet_diam_estimation = -999
     read(10, nml = initial_condition, iostat = ierr)
@@ -1826,6 +1849,13 @@ contains
        write(*,*) "Deallocation error"
        stop
     endif
+
+    ! meteo
+    if (allocated(temperature_array)) deallocate(temperature_array)
+    if (allocated(pressure_array)) deallocate(pressure_array)
+    if (allocated(humidity_array)) deallocate(humidity_array)
+    
+    
 
 
   END subroutine free_allocated_memory
