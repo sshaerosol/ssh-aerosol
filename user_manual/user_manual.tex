@@ -305,6 +305,68 @@ aerosol_species_list_file = "./species-list/species-list-aer.dat",
 /
 \end{verbatim}
 
+Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate (PNO3), ammonium (PNH4), chloride (PCL), sodium (PNA) and organics. Characteritics of the surrogates for aerosol organic species are detailed in Table~\ref{species}.
+
+\begin{table}
+\caption{Characteristic of the surrogates for aerosol organic species: abbreviation of the surrogate, type 	
+	(A: hydrophilic, type B: hydrophobic, type C: hydrophobic non-volatile and not used to compute activity coefficients),
+	Molecular structure, Molecular weight MW (g.mol$^{-1}$), OM/OC ratio r, Henry's law constant H ($\times$ 10$^8$ M/atm), partitioning constant K$_p$
+(m$^3$~$\mu$g$^{-1}$) for an ideal organic phase of molar mass 200 g/mol at 298~K, Enthalpy of vaporization (kJ.mol$^{-1}$), and precursors. The abbreviation n.v. means non volatile.}
+\centering
+\begin{tabular}{|c|c|p{2.8cm}|c|c|c|c|c|c|c}
+\hline
+	Surrogate & Type & Molecular structure& MW & r & H  & K$_p$ & $\Delta$H$_{\mathrm{vap}}$ & Precursor \\
+\hline
+	BiMT & A & methyl tetrol & 136 & 2.3 & 330 & 0.064 & 38 &  \\
+	BiPER & A & methyl dihydroxy dihydroperoxide & 168 & 2.8 & 81 & 0.036 & 38 &  \\
+	BiDER & A & methyl tetrol & 136 & 2.3 & 891 & 0.227 & 38 & isoprene \\
+	BiMGA & A & methyl glyceric acid (MGA) & 120 & 2.5 & 5.3 & 0.007 & 43 & \\
+	BiNGA & B & nitrate derivative of MGA & 165 & 3.5 & 0.4 & 0.007 & 43 & \\
+	BiNIT3 & B & methyl hydroxy trinitrate butane & 272 & 4.6 & 0.4 & 0.064 & 38 &  \\
+\hline
+	BiA0D & A & pinonaldehyde & 168 & 1.4 & 0.02 & 0.0003 & 50 & \\
+	BiA1D & A & norpinic acid & 170 & 1.5 & 1.12 & 0.428 & 50 & mono- \\
+	BiA2D & A & pinic acid & 186 & 1.7 & 2.7 & 0.650 & 109 & terpenes\\
+	BiA3D & B & 3-methyl-1,2,3-butane tricarboxylic acid & 204 & 2.1  & - & n.v. & - &\\
+	BiNIT & B & Nitrooxy-limonene-ol & 215 & 1.8 & 0.02 & 0.037 & 50 & \\
+	Monomer & C & C$_{10}$H$_{14}$O$_9$ & 278 & 2.3 & - & n. v. & - &\\
+	Dimer & C & C$_{19}$H$_{28}$O$_{11}$ & 432 & 1.9 & - & n. v. & - & \\
+\hline
+	BiBlP & B & C15 hydroxy nitrate aldehyde & 298 & 1.7 & 2.34 & 154.9 & 175 & sesqui- \\
+	BiBmP & B & C15 oxo aldehyde & 236 &1.3 & - & 0.309 & 175 & terpenes \\ 
+\hline
+	AnBlP & B & methyl nitro benzoic acid & 167 & 2 & 2.48 & 1.37 & 50 &     xylenes\\
+	AnBmP & B & methyl hydroxy benzoic acid & 152 & 1.6 & 12.4 & 0.011 & 50 & and\\
+	AnClP & C & No structure & 167 & 2 & - & n. v. & - & toluene\\
+\hline
+	ACIDMAL& A & maleylacetic acid & 158& 2.2 & 8685 & 2.02 & 50 & phenol\\
+	       &   &                   &    &     &                         &      &       & catechol\\
+	       &   &                   &    &     &                         &      &       & benzene\\
+\hline
+	DHMB & A & dihydroxymethyl & 154 & 1.8 & 36.2 & 0.026 & 50 & methyl- \\
+	     &   &  benzoquinone   &     &      &                        &       &       &  catechol \\
+	     &   &     &     &      &                        &       &       &  cresol \\
+\hline
+	PSYR  &A & C$_{8}$H$_{10}$O$_{5}$& 186 & 1.9 & 14.5  & 0.0123  & 50 & syringol \\
+\hline
+	GHDPerox &A &  SOA (hydroperoxide) & 174 &2.1 & 63.3 & 0.171 & 50 & guaiacol \\
+\hline
+	PAHlN & A & dihydroxytere &198& 2.1 & n. v.  & - & - & naphtalene \\
+	      &   & phtalic acid                  &   &      &                           &               &   &  methyl- \\
+	PAHhN & A & phthalic acid & 166 & 1.7 & 14.9 & 0.093 & 50 & naphtalene\\
+\hline
+	POAlP & B & primary OA of low volatility & 280 & 1.3 & - & 1.1 & 106 & -    \\
+	POAmP & B & primary OA of medium volatility & 280 & 1.3 & - & 0.0116 & 91 & -  \\
+	POAhP & B & primary OA of high volatility & 280 & 1.3  & - & 0.00031 & 79 & -  \\
+	SOAlP & C & secondary OA of low volatility & 392 & 1.8 & - &  110 & 106 & POAlP    \\
+	SOAmP & B & secondary OA of medium volatility & 392 & 1.8 & - & 1.16 & 91 & POAmP   \\
+	SOAhP & B & secondary OA of high volatility & 392 & 1.8 & - & 0.031 &79 & POAhP  \\
+
+\end{tabular}
+\label{species}
+\end{table}
+
+
 \subsection{Emissions}
 
 The group {\textit{emissions}} defines options linked to emissions. The variable {\textit{tag\_emis}} defines whether emissions are used ({\textit{tag\_emis = 1}}) or not ({\textit{tag\_emis = 0}}).
