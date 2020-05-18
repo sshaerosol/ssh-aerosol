@@ -305,15 +305,16 @@ aerosol_species_list_file = "./species-list/species-list-aer.dat",
 /
 \end{verbatim}
 
-Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate (PNO3), ammonium (PNH4), chloride (PCL), sodium (PNA) and organics. Characteritics of the surrogates for aerosol organic species are detailed in Table~\ref{species}.
+Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate (PNO3), ammonium (PNH4), chloride (PCL), sodium (PNA) and organics. Characteritics of the surrogates for aerosol organic species are detailed in Table~\ref{species} and Table~\ref{speciesb}.
 
+\begin{footnotesize}
 \begin{table}
 \caption{Characteristic of the surrogates for aerosol organic species: abbreviation of the surrogate, type 	
 	(A: hydrophilic, type B: hydrophobic, type C: hydrophobic non-volatile and not used to compute activity coefficients),
 	Molecular structure, Molecular weight MW (g.mol$^{-1}$), OM/OC ratio r, Henry's law constant H ($\times$ 10$^8$ M/atm), partitioning constant K$_p$
 (m$^3$~$\mu$g$^{-1}$) for an ideal organic phase of molar mass 200 g/mol at 298~K, Enthalpy of vaporization (kJ.mol$^{-1}$), and precursors. The abbreviation n.v. means non volatile.}
 \centering
-\begin{tabular}{|c|c|p{2.8cm}|c|c|c|c|c|c|c}
+\begin{tabular}{|c|c|p{3.8cm}|c|c|c|c|c|c|c}
 \hline
 	Surrogate & Type & Molecular structure& MW & r & H  & K$_p$ & $\Delta$H$_{\mathrm{vap}}$ & Precursor \\
 \hline
@@ -338,6 +339,20 @@ Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate
 	AnBlP & B & methyl nitro benzoic acid & 167 & 2 & 2.48 & 1.37 & 50 &     xylenes\\
 	AnBmP & B & methyl hydroxy benzoic acid & 152 & 1.6 & 12.4 & 0.011 & 50 & and\\
 	AnClP & C & No structure & 167 & 2 & - & n. v. & - & toluene\\
+\end{tabular}
+\label{species}
+\end{table}
+
+
+\begin{table}
+\caption{Characteristic of the surrogates for aerosol organic species: abbreviation of the surrogate, type 	
+	(A: hydrophilic, type B: hydrophobic, type C: hydrophobic non-volatile and not used to compute activity coefficients),
+	Molecular structure, Molecular weight MW (g.mol$^{-1}$), OM/OC ratio r, Henry's law constant H ($\times$ 10$^8$ M/atm), partitioning constant K$_p$
+(m$^3$~$\mu$g$^{-1}$) for an ideal organic phase of molar mass 200 g/mol at 298~K, Enthalpy of vaporization (kJ.mol$^{-1}$), and precursors. The abbreviation n.v. means non volatile.}
+\centering
+\begin{tabular}{|c|c|p{3.8cm}|c|c|c|c|c|c|c}
+\hline
+	Surrogate & Type & Molecular structure& MW & r & H  & K$_p$ & $\Delta$H$_{\mathrm{vap}}$ & Precursor \\
 \hline
 	ACIDMAL& A & maleylacetic acid & 158& 2.2 & 8685 & 2.02 & 50 & phenol\\
 	       &   &                   &    &     &                         &      &       & catechol\\
@@ -361,10 +376,12 @@ Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate
 	SOAlP & C & secondary OA of low volatility & 392 & 1.8 & - &  110 & 106 & POAlP    \\
 	SOAmP & B & secondary OA of medium volatility & 392 & 1.8 & - & 1.16 & 91 & POAmP   \\
 	SOAhP & B & secondary OA of high volatility & 392 & 1.8 & - & 0.031 &79 & POAhP  \\
-
 \end{tabular}
-\label{species}
+\label{speciesb}
 \end{table}
+
+
+\end{footnotesize}
 
 
 \subsection{Emissions}
