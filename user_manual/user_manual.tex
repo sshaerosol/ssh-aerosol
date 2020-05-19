@@ -190,8 +190,27 @@ Relative_Humidity = 0.6	! if 0, compute RH from specific humidity.
 
 \end{verbatim}
 
+To take into account variable meteorological input data, an additional input file can be used. An example file is given in \code{inputs/meteo.dat}. This file name should be added in the group {\textit{setup\_meteo}} as follows: 
 
-\subsection{Time}
+\begin{verbatim}
+Relative_Humidity = 0.6,
+meteo_file = "inputs/meteo.dat"
+/
+\end{verbatim}
+
+\code{meteo.dat} file should include time, temperature, pressure, relative humidity and specific humidity. 
+If you don't have relative humidity but specific humidity, you put zero to relative humidity. And if you put non-zero relative humidity, specific humidity is not used. 
+Please make sure that meteorological data cover the whole simulation period. To do it, the first Time data should be less or equal to \code{initial\_time} and the last Time data should be greater or equal to \code{final\_time} in the group  {\textit{setup\_time}} (see~\ref{sec:time}).
+
+
+\begin{verbatim}
+Time,Temperature,Pressure,RelativeHumidity,SpecificHumidity
+19040400.0,298.00,1.01325e05,0.6,5.33039774746E-3    
+19058400.0,298.00,1.01325e05,0.6,5.33039774746E-3
+\end{verbatim}
+
+
+\subsection{Time}\label{sec:time}
 
 The group {\textit{setup\_time}} lists the initial time of the simulation (in seconds from 1$^{st}$ January), the final time (in seconds from 1$^{st}$ January) and the time step output of the simulation (in seconds). This time step corresponds to the time step when concentrations are written in the output files, but also to the time step used for splitting the resolution of gaseous chemistry, aerosol processes and emissions. Note that gaseous chemistry and aerosol processes are then solved with smaller time steps.
 
