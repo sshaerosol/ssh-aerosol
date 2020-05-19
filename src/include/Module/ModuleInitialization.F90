@@ -83,6 +83,7 @@ module aInitialization
   integer, save :: with_oligomerization!IOLIGO
   integer, save :: output_type
   integer, save :: splitting
+  integer, save :: soap_inorg,soap_inorg_loc
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
@@ -382,7 +383,7 @@ contains
 
     namelist /physic_coagulation/ with_coag, i_compute_repart, i_write_repart, Coefficient_file, Nmc
 
-    namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
+    namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
          dorg, coupled_phases, activity_model, epser, epser_soap
 

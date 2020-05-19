@@ -1371,7 +1371,8 @@ void solve_local_equilibriums_coupled(model_config config, vector<species> &surr
     }
 
   while (error_tot>config.relative_precision/nh and index < config.max_iter) 
-    {                  
+    {
+     
       if (index>2)
         {
           //ensure that the system can converge
@@ -1549,6 +1550,8 @@ void solve_local_equilibriums_coupled(model_config config, vector<species> &surr
 
       ++index;  
     }
+
+  //cout << "niter: " << index << " " << chp(0) << " " << chp_save(0) << endl; 
   
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
@@ -1590,6 +1593,11 @@ void initialisation(model_config &config, vector<species> &surrogate,
   conc_org.resize(config.nbins);
   double MOWloc=1.;
 
+  /*  if (config.compute_inorganic)
+    for (b=0;b<config.nbins;b++)
+      if (chp(b)<=1.e-8)
+      chp(b)=1.e-2;*/
+
   for (i=0;i<n;i++)
     {
       if (surrogate[i].hydrophilic==false)
@@ -1598,6 +1606,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	surrogate[i].Ap_layer_init=0;
       surrogate[i].velocity=pow(2.11714271498563e4*Temperature/surrogate[i].MM,0.5);
       surrogate[i].knui=pow(3.0*surrogate[i].KDiffusion_air/surrogate[i].velocity,2);
+      for (b=0;b<config.nbins;b++)
+	surrogate[i].fac_corr_ph(b)=1.;
     }
 
   for (i=0;i<n;i++)
@@ -1827,8 +1837,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
                     inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
                   }
               chp(b)=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
-	      if (chp(b)==0.0)
-		chp(b)=1.0e-7;
+	      if (chp(b)<1.e-14)
+		chp(b)=1.0e-3;
 	   }
 	 else
 	   chp(b)=1.0e-7;
@@ -1949,8 +1959,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
 		    inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
 		   
 		chp(b)=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
-		if (chp(b)==0.0)
-		  chp(b)=1.0e-7;
+		if (chp(b)<1.e-14)
+		  chp(b)=1.0e-2;
 	      }
 	    else
 	      chp(b)=1.0e-7;
@@ -1994,6 +2004,8 @@ void initialisation(model_config &config, vector<species> &surrogate,
       for (iphase=0;iphase<config.max_number_of_phases;++iphase)
          if(MOW(b,ilayer,iphase)<1)
 		 MOW(b,ilayer,iphase) = 200.;
+
+  //cout << "init " << chp(0) << endl;
 }
 
 void dynamic_system(model_config &config, vector<species> &surrogate,
@@ -2114,7 +2126,8 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
       //Dynamic evolution      
       while (t<deltatmax)
         {	  
-          deltat1=min(deltatmax-t,deltat1);	 
+          deltat1=min(deltatmax-t,deltat1);
+	  // cout << "evol: " << t << " " << deltat1 << " " << chp(0) << " " << surrogate[config.iNO3m].Aaq_bins_init(0) << " " << surrogate[config.iH2O].Aaq_bins_init(0) << endl;
 		  
           //save the old time step in deltat2          
 	  deltat2=deltat1;
@@ -2124,7 +2137,8 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 	    tequilibrium=0.0;
 	  else
 	    tequilibrium=config.tequilibrium;
-	  
+
+	  config.to_be_rejected=false;
 	  if (config.first_evaluation_activity_coefficients==false)
 	    dynamic_tot(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
 			ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
@@ -2138,7 +2152,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
           adapstep(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
                    MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
-          if (deltat1<0.999*deltat2) //if the new time step is inferior to the old one
+          if (deltat1<0.999*deltat2 or config.to_be_rejected) //if the new time step is inferior to the old one
             {   	      
 	      //the old time step is rejected
               for (i=0;i<n;++i)
@@ -2305,8 +2319,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
           if (LWCtot>config.LWClimit)
             characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit); 
         }
-     
-
+      
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
         solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,

@@ -97,6 +97,7 @@ Nmc = 10000                             ! Number of Monte Carlo points if repart
 &physic_condensation
 with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.1,             ! KCUT	ICUT = 0
+soap_inorg=0,
 ISOAPDYN = 0,                !0 = equilibrium, 1 = dynamic
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.

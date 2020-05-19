@@ -67,9 +67,11 @@ contains
       DOUBLE PRECISION ionic, proton, chp
       DOUBLE PRECISION liquid(12)
 
-      INTEGER i,j
+      INTEGER i,j,isoapdyn2
 
       double precision DSD(N_size),csol(N_size), dt2
+
+      isoapdyn2=0
 
       neq = N_size * (1 + N_aerosol) + N_aerosol
 
@@ -86,9 +88,9 @@ contains
       CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, gas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
+           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn2,soap_inorg_loc,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
-           accomodation_coefficient,&
+           accomodation_coefficient,diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 
@@ -103,6 +105,11 @@ contains
             gas(j) = 0.0
          ENDIF
       ENDDO
+
+      if (soap_inorg==1) then
+         proton = chp * lwc / 1.0e3
+      endif
+      
 
     END SUBROUTINE SOAP_EQ
 
@@ -246,14 +253,12 @@ contains
          csol(js) = q_soap(IQ(EMD,js)) + q_soap(IQ(EBC,js))
       enddo
 
-      lwcorg=0.
-
-
+      lwcorg=0.      
       CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qgas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
-           aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient,&
+           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, soap_inorg_loc, &
+           aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient,diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 
@@ -267,7 +272,7 @@ contains
          do js = 1, N_size
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
-              concentration_mass(js, jesp) = q_soap(N_size + i) 
+            concentration_mass(js, jesp) = q_soap(N_size + i) 
          enddo
       enddo
     
@@ -281,5 +286,186 @@ contains
       enddo
 
    END SUBROUTINE SOAP_DYN
-   
+
+   SUBROUTINE SOAP_DYN_ICUT(rh, &
+         ionic, proton, lwc,lwcorg, &
+         temp, deltat, &
+         DSD, neq, liquid)
+
+
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!
+!     This subroutine computes SOA concentration using 
+!     the dynamic approach.
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     PROTON: hydronium ion concentration ([\mu g.m^-3]).
+!     LWC: total liquid water content ([\mu g.m^-3]).7
+!     RH: relative humidity 0< <1 ([]).
+!     TEMP: temperature ([Kelvin]).
+!
+!     -- INPUT/OUTPUT VARIABLES
+!
+!     AERO: aerosol bulk concentration ([\mu g.m^-3]).
+!     GAS: gas concentration ([\mu g.m^-3]).
+!
+!     -- OUTPUT VARIABLES
+!
+!     LWCORG: organic liquid water content ([\mu g.m^-3]).
+!     CHP: hydronium ion concentration in water ([mol.L^-1]).
+!
+!------------------------------------------------------------------------
+!
+!     -- REMARKS
+!
+!------------------------------------------------------------------------
+!
+!     -- MODIFICATIONS
+!     2019: Take into account number of layers of particle - Karine Sartelet 
+!
+!
+!------------------------------------------------------------------------
+!
+!     -- AUTHOR(S)
+!
+!     2018: Youngseob Kim, CEREA.
+!
+!------------------------------------------------------------------------
+
+      IMPLICIT NONE
+    
+      INTEGER neq
+      double precision q_soap((N_size-ICUT)*(1+N_aerosol_layers)+N_aerosol)
+      INTEGER IQ(N_aerosol_layers, (N_size-ICUT))
+      DOUBLE PRECISION lwc, lwcorg, rh, temp
+      DOUBLE PRECISION ionic, proton, chp
+      DOUBLE PRECISION liquid(12)
+
+      INTEGER jj,jesp,js,s,isoapdyn2
+      double precision qaero(N_aerosol), qgas(N_aerosol)
+      double precision deltat
+      double precision DSD(N_size-ICUT)
+      double precision csol(N_size-ICUT) !! Concentration of solid particles (PBC + PMD)
+
+      integer icpt, i
+
+      isoapdyn2=1
+
+      neq = N_size * (1 + N_aerosol_layers) + N_aerosol
+
+      !   Pointer for aerosol concentrations
+      icpt=N_size
+      DO s = 1,N_aerosol_layers
+         DO js=ICUT+1,N_size
+            icpt=icpt+1
+            IQ(s,js-ICUT)=icpt
+         END DO
+      END DO
+     
+
+      q_soap = 0.0
+      qgas = 0.0
+
+      do js = ICUT+1, N_size
+         q_soap(js-ICUT) = concentration_number(js)
+      enddo
+      
+      i = 0 
+      do jesp = 1,N_aerosol_layers
+         do js = ICUT+1, N_size
+            i = i + 1
+            q_soap(N_size - ICUT + i) = concentration_mass(js, jesp)
+         enddo
+      enddo
+      do jesp = 1,N_aerosol
+        if (inon_volatile(jesp).EQ.0) then
+           q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
+        endif
+      enddo
+
+      lwcorg = 0.D0
+
+!     ******compute total aerosol mass
+      DO s=1,N_aerosol
+         qaero(s)=0.D0
+      ENDDO
+      DO s=1,N_aerosol_layers
+        jesp = List_species(s)
+        if(aerosol_species_name(jesp).NE.'PH2O') then
+          DO js=ICUT+1,N_size
+             jj=IQ(s,js-ICUT)
+             qaero(jesp)=qaero(jesp)+q_soap(jj)
+          END DO
+          if (inon_volatile(jesp).EQ.0) then
+             qgas(jesp) = q_soap((N_size-ICUT) * (1 + N_aerosol_layers) + jesp)
+          endif
+        endif
+      enddo
+      qgas(N_aerosol)=0.
+
+      if (lwc.GT.1.d-19) then
+        chp = proton / lwc * 1.0e3
+      else
+        chp = 1.d-19
+        lwc = 1.d-19
+      endif
+
+      do js = 1, N_size
+        if (lwc_Nsize(js).GT.1.d-19) then
+          chp_Nsize(js) = proton_Nsize(js) / lwc_Nsize(js) * 1.0e3
+        else
+          chp_Nsize(js) = 1.d-19
+          lwc_Nsize(js) = 1.d-19
+        endif
+      enddo
+
+      do js=ICUT+1,N_size
+         csol(js-ICUT) = q_soap(IQ(EMD,js-ICUT)) + q_soap(IQ(EBC,js-ICUT))
+      enddo
+
+      lwcorg=0.
+
+
+      CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg,&
+           deltat,DSD,csol,liquid,&
+           N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qgas, &
+           lwc_Nsize(ICUT+1:N_size), ionic_Nsize(ICUT+1:N_size), chp_Nsize(ICUT+1:N_size), &
+           liquid_Nsize(:,ICUT+1:N_size), N_size-ICUT, isoapdyn2, soap_inorg_loc, &
+           aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient,diffusion_coef,&
+           nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
+           coupled_phases, activity_model, epser_soap)
+
+      ! Get the calculated values from SOAP
+      do js = ICUT+1, N_size
+         concentration_number(js) = q_soap(js-ICUT) 
+      enddo
+      i = 0 
+      do jesp = 1,N_aerosol_layers
+         s = List_species(jesp)
+         do js = ICUT+1, N_size
+            i = i + 1
+            ! Need to redistribute the mass even for non volatile particles because layers may have changed
+            concentration_mass(js, jesp) = q_soap(N_size + i - ICUT) 
+         enddo
+      enddo
+    
+      do jesp = 1,N_aerosol
+        if (inon_volatile(jesp).EQ.0) then
+              concentration_gas(jesp) = q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp) 
+        else
+                ! Add initial gas concentration that were not added to soap
+              concentration_gas(jesp) = concentration_gas(jesp) + q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp) 
+        endif
+      enddo
+
+      do js=ICUT+1,N_size
+         proton_Nsize(js) = chp_Nsize(js) * lwc_Nsize(js) / 1.0e3
+      enddo
+
+   END SUBROUTINE SOAP_DYN_ICUT   
 end Module kSOAP

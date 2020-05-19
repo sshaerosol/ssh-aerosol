@@ -97,14 +97,15 @@ Nmc = 10000                             ! Number of Monte Carlo points if repart
 
 &physic_condensation
 with_cond = 1,               !Tag of condensation/evaporation
-Cut_dim = 0.0,             ! KCUT	ICUT = 0
-ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
+Cut_dim = 10.0,             ! KCUT	ICUT = 0
+ISOAPDYN = 0,                !0 = equilibrium, 1 = dynamic
+soap_inorg=1,                !0 = inorganics thermodynamic model is ISORROPIA, 1 = SOAP
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
-tequilibrium = 0.01,                     ! time under which equilibrium is assumed.
+tequilibrium = 1.,                     ! time under which equilibrium is assumed.
 dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
-coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
-activity_model = 2,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
+coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
+activity_model = 3,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 /

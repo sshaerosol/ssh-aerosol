@@ -65,7 +65,7 @@ time_update_photolysis = 100000.        ! if photolysis are read, time in second
 with_heterogeneous = 0,                 !Tag of heterogeneous reaction 
 with_adaptive = 1,                      !Tag of adaptive time step for chemistry 1 if adaptive time step.
 adaptive_time_step_tolerance = 0.001,    !Relative tolerance for deciding if the time step is kept
-min_adaptive_time_step = 0.001,          !Minimum time step
+min_adaptive_time_step = 10,          !Minimum time step
 photolysis_dir = "./photolysis/",  ! Directory where binary files are located.
 photolysis_file = "./photolysis/photolysis-cb05.dat",  ! File for photolysis list
 n_time_angle = 9,
@@ -98,6 +98,7 @@ Nmc = 10000                             ! Number of Monte Carlo points if repart
 &physic_condensation
 with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
+soap_inorg=0,
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.

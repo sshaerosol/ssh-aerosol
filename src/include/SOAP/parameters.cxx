@@ -975,6 +975,11 @@ void param_unifac(model_config &config, vector<species> &surrogate)
                 sum_surf_mol+=config.QG_org(j)*config.groups_org(j,i);  
               }
 
+	  /*
+	  cout << i << " " << sum_surf_mol << endl;
+	  if (sum_surf_mol==0.)
+	    cout << "error sum surf mol" << endl;*/
+
           for (j=0;j<config.nfunc_org;j++)      
             config.surface_fraction_molorg(j,i)/=sum_surf_mol;
         }
@@ -1731,14 +1736,15 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
       surrogate[i].veckaqi.resize(config.nbins);
       surrogate[i].vecfioni1.resize(config.nbins);
       surrogate[i].vecfioni2.resize(config.nbins);
+      surrogate[i].fac_corr_ph.resize(config.nbins);
     }
   config.AQrho.resize(config.nbins);
 }
 
 void parameters(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
-                double molecular_weight_aer[], double accomodation_coefficient[])
+                double molecular_weight_aer[], double accomodation_coefficient[], double diffusion_coef[])
 {
-  config.max_iter=1000;  //maximal number of iterations for the newton raphson method
+  config.max_iter=10000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
 
   if (config.activity_model == "unifac")
@@ -1760,7 +1766,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
     config.rho_aqueous=1000.0; //volumic mass of the aqueous phase kg/m3
 
   config.compute_saturation=false;   //compute saturation
-  config.compute_inorganic=false;
+  //config.compute_inorganic=false;
   if (config.compute_inorganic)
     {
       config.compute_long_and_medium_range_interactions=true; //force to be used when inorganic are computed
@@ -1816,7 +1822,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
       config.kp_low_volatility=0.001;
     }
 
-  config.nh_inorg_init=1;
+  config.nh_inorg_init=2;
   config.nh_aq_init=1;
   config.nh_org_init=1;
   config.nh_max=10;
@@ -1824,7 +1830,7 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
 	  
   //create the vector of species and the various parameters of the model 
   creation_species(surrogate,species_list_aer, molecular_weight_aer,
-                   accomodation_coefficient,config.nlayer); 
+                   accomodation_coefficient,diffusion_coef,config.nlayer,config.compute_inorganic); 
   system_coupling(config, surrogate);
   param_unifac(config, surrogate); 
   system_aiomfac(config, surrogate);

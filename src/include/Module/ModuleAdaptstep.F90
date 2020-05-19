@@ -57,7 +57,6 @@ contains
     double precision :: initial_time_splitting,current_sub_time,final_sub_time
 
     lwcorg_nsize = 0.d0
-
     ! Initialize the density of aerosols
     if (with_fixed_density.ne.1) then
 
@@ -189,11 +188,11 @@ contains
        initial_time_splitting = final_sub_time
 
     enddo
-
+    
     !do C/E equilibrium after each emission
     if (with_cond.gt.0) then
 
-       if(ICUT.ge.1) then
+       if(ICUT.ge.1.and.soap_inorg==0) then
 
           call  bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
@@ -204,17 +203,41 @@ contains
 
        endif
 
-       if ((ISOAPDYN.eq.0).AND.(nlayer.eq.1)) then
+       if (ISOAPDYN.eq.0.or.soap_inorg==1) then !.and.nlayer.eq.1) then
 
+          if (ISOAPDYN.eq.1.and.soap_inorg==1) then
+             soap_inorg_loc=-1               !If ISOAPDYN=1 and soap_inorg=1, I just want to compute inorganics in this part
+          else
+             soap_inorg_loc=soap_inorg
+          endif
+          
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
+          if (ICUT>0) then
 
-          call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
-          call mass_conservation(concentration_mass,concentration_number,&
-                                 concentration_gas, total_mass)
+             call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
+             call mass_conservation(concentration_mass,concentration_number,&
+                  concentration_gas, total_mass)
 
-          call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+             if (soap_inorg==0) then
+                call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+             else
+                call redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
+                call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+             endif
+          endif
 
-       else 
+          if (ICUT+1<=N_size) then
+             call SOAP_DYN_ICUT(Relative_Humidity,&
+                  ionic, proton, lwc,lwcorg,&
+                  Temperature, delta_t,&
+                  cell_diam_av, neq, liquid)
+          endif
+       endif
+       if (ISOAPDYN.eq.1) then
+          if (soap_inorg==1) then
+             soap_inorg_loc=0      !only compute organic
+          endif
+          
           do jesp=1,N_aerosol
              qext(jesp) = 0.d0
              surface_equilibrium_conc_tmp(jesp) = 0.d0
@@ -225,8 +248,10 @@ contains
                 qext(s) = qext(s) + concentration_mass(j,jesp)
              enddo
           enddo
-          call EQINORG(N_aerosol,qext,qinti_tmp,surface_equilibrium_conc_tmp,lwc,ionic,proton,liquid)
-          call redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          if (soap_inorg==0) then
+             call EQINORG(N_aerosol,qext,qinti_tmp,surface_equilibrium_conc_tmp,lwc,ionic,proton,liquid)
+             call redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          endif
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
           !
@@ -278,14 +303,16 @@ contains
     integer:: solver,splitting
     double precision:: time_t,time_step_sulf
     double precision:: final_sub_time,current_sub_time,sub_timestep_splitting
-    integer :: i,j
+    integer :: i,j,tag_cond_save
 
     time_t=final_sub_time-current_sub_time
     !    ******Dynamic time loop
+    tag_cond_save=tag_cond
+    if (soap_inorg==1) then
+       tag_cond=0
+    endif
     do while ( current_sub_time .lt. final_sub_time )
-
        time_step_sulf = 0.0
-
        if (tag_cond.eq.1) then
           !!if (tag_emis .ne. 0) call emission(sub_timestep_splitting)
           !     Compute gas mass conservation.
@@ -330,6 +357,10 @@ contains
              endif     
        endif
     end do
+
+    if (soap_inorg==1) then
+       tag_cond=tag_cond_save
+    endif
 
   end subroutine processaero
 
