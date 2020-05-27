@@ -7,11 +7,11 @@ RM_LIST =	*.a *.o *.e *.mod core
 
 OBJS =		soap.o 
 
-all:	libsoap.a 
+all:	libssh-soap.a 
 
-libsoap.a:	$(OBJS)
-	        $(RM) libsoap.a
-		$(AR) r libsoap.a $(OBJS)
+libssh-soap.a:	$(OBJS)
+	        $(RM) libssh-soap.a
+		$(AR) r libssh-soap.a $(OBJS)
 
 soap.o: soap.cpp
 	$(REALCC) -o soap.o -c soap.cpp -I $(BLITZLIB)

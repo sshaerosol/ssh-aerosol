@@ -15,7 +15,7 @@ Module gCoagulation
 
 contains
 
-  subroutine Gain (distribution, coagulation_rate_gain,c_number)
+  subroutine ssh_Gain (distribution, coagulation_rate_gain,c_number)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -66,9 +66,9 @@ contains
        
       coagulation_rate_gain(k) =gain_term
     enddo
-  end subroutine Gain
+  end subroutine ssh_Gain
   
-  subroutine Loss(distribution, coagulation_rate_loss,c_number)
+  subroutine ssh_Loss(distribution, coagulation_rate_loss,c_number)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -115,9 +115,9 @@ contains
       coagulation_rate_loss(j) =loss_term*distribution(j)
     enddo
      
-  end subroutine loss
+  end subroutine ssh_loss
  
-  subroutine Rate(rate_number,rate_mass,c_number,c_mass)
+  subroutine ssh_Rate(rate_number,rate_mass,c_number,c_mass)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -151,9 +151,9 @@ contains
       do j = 1,N_size! Reassigned distribution by mass of each species
 	distribution(j) = c_mass(j,jesp)
       enddo
-      call  Gain (distribution,coagulation_rate_gain,c_number)
-      call  Loss (distribution,coagulation_rate_loss,c_number)
-      !call  Ratebalance(coagulation_rate_gain,coagulation_rate_loss)
+      call  ssh_Gain (distribution,coagulation_rate_gain,c_number)
+      call  ssh_Loss (distribution,coagulation_rate_loss,c_number)
+      !call  ssh_Ratebalance(coagulation_rate_gain,coagulation_rate_loss)
       do j = 1,N_size
 	  rate_mass(j,jesp) = rate_mass(j,jesp) + coagulation_rate_gain(j) - coagulation_rate_loss(j)!
 	  if(IsNaN(rate_mass(j,jesp)*0.d0)) print*,"infinity/NaN mass",j,jesp,rate_mass(j,jesp)
@@ -164,8 +164,8 @@ contains
       do  j = 1,N_size
 	distribution(j) = c_number(j)
       enddo
-      call  Gain (distribution, coagulation_rate_gain,c_number)
-      call  Loss (distribution, coagulation_rate_loss,c_number)
+      call  ssh_Gain (distribution, coagulation_rate_gain,c_number)
+      call  ssh_Loss (distribution, coagulation_rate_loss,c_number)
 
       do j = 1,N_size
 	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j) - coagulation_rate_loss(j)!
@@ -182,7 +182,7 @@ contains
       !enddo
     !endif    
     
-  end subroutine Rate
+  end subroutine ssh_Rate
   
 !   subroutine Ratebalance(rate_gain,rate_loss)
 !     implicit none

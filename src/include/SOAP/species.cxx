@@ -9,11 +9,11 @@
 
 #include <vector>
 #include "species.h"
-using namespace soap;
+using namespace ssh_soap;
 using namespace std;
 
 
-void add_species( vector<species>& surrogate, species current_species, 
+void add_species_ssh( vector<species>& surrogate, species current_species, 
                   vector<string> species_list_aer,
                   double molecular_weight_aer[],
                   double accomodation_coefficient[],
@@ -44,7 +44,7 @@ void add_species( vector<species>& surrogate, species current_species,
       surrogate.push_back(current_species);
 }
   
-void creation_species( vector<species>& surrogate, vector<string> species_list_aer,
+void creation_species_ssh( vector<species>& surrogate, vector<string> species_list_aer,
                        double molecular_weight_aer[], double accomodation_coefficient[],
                        int nlayer)
 {
@@ -108,7 +108,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
 
@@ -170,7 +170,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiA0D;
@@ -232,7 +232,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);  
   
   species BiMT;
@@ -290,7 +290,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiMT, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiMT, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
 
@@ -349,7 +349,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiPER, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiPER, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiDER;
@@ -407,7 +407,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiDER, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiDER, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
 
@@ -467,7 +467,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species AnBlP;
@@ -525,7 +525,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species AnBmP;
@@ -583,7 +583,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiBlP;
@@ -641,7 +641,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   
@@ -700,7 +700,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   
@@ -754,7 +754,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, AnClP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, AnClP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiNGA;
@@ -813,7 +813,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiNIT3;
@@ -871,7 +871,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species BiNIT;
@@ -929,7 +929,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   
@@ -986,7 +986,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAlP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, POAlP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species POAmP;
@@ -1040,7 +1040,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAmP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, POAmP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species POAhP;
@@ -1094,7 +1094,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, POAhP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, POAhP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species SOAlP;
@@ -1148,7 +1148,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species SOAmP;
@@ -1202,7 +1202,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species SOAhP;
@@ -1256,7 +1256,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species Monomer;
@@ -1314,7 +1314,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, Monomer, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, Monomer, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species Dimer;
@@ -1372,7 +1372,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, Dimer, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, Dimer, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species BiA3D;
@@ -1434,7 +1434,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species ACIDMAL;
@@ -1495,7 +1495,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species DHMB;
@@ -1553,7 +1553,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, DHMB, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, DHMB, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species PAHlN;
@@ -1613,7 +1613,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   species PAHhN;
@@ -1673,7 +1673,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species PSYR;
@@ -1731,7 +1731,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, PSYR, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, PSYR, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   species GHDPerox;
@@ -1789,7 +1789,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
   
   
@@ -1842,7 +1842,7 @@ void creation_species( vector<species>& surrogate, vector<string> species_list_a
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
-  add_species(surrogate, H2O, species_list_aer, molecular_weight_aer,
+  add_species_ssh(surrogate, H2O, species_list_aer, molecular_weight_aer,
               accomodation_coefficient,nlayer);
 
   

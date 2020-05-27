@@ -19,7 +19,7 @@ Module jAdaptstep
   use kSOAP
   implicit none
 contains
-  subroutine aerodyn(start_time,delta_t)
+  subroutine ssh_aerodyn(start_time,delta_t)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -64,23 +64,24 @@ contains
     if (with_fixed_density.ne.1) then
 
        do j1 = 1, N_size
-          call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,&
+          call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,&
                mass_density_layers,j1,rhoaer)
           rho_wet_cell(j1) = rhoaer
           if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
        enddo
     end if
 
-    call update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
+    call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,&
+         wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
-    call mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
+    call ssh_mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
 
     if (with_coag.EQ.1) then
-       call COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,&
+       call ssh_COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,&
             air_free_mean_path,viscosity)
        do j1 = 1, N_size
           do j2 = 1, N_size
-             call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
+             call ssh_compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
                   wet_diameter(j1),wet_diameter(j2),&
                   wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
           enddo
@@ -93,11 +94,11 @@ contains
        do jesp=1,N_aerosol
 	  if (aerosol_species_interact(jesp).GT.0) then
              emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
-             call COMPUTE_GAS_DIFFUSIVITY(Temperature,Pressure,&
+             call ssh_COMPUTE_GAS_DIFFUSIVITY(Temperature,Pressure,&
                   molecular_diameter(jesp),emw_tmp,&
                   collision_factor_aer(jesp),diffusion_coef(jesp) ) ! gas diff coef in air
 
-             call COMPUTE_QUADRATIC_MEAN_VELOCITY(Temperature,&
+             call ssh_COMPUTE_QUADRATIC_MEAN_VELOCITY(Temperature,&
 		  emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
 	  endIF
        enddo
@@ -157,10 +158,10 @@ contains
              tag_cond = 0
              tag_nucl = 0
              solver=1            ! only etr for coagulation
-             call  processaero(solver,current_sub_time,timestep_coag,final_sub_time,splitting)
+             call ssh_processaero(solver,current_sub_time,timestep_coag,final_sub_time,splitting)
           endif
           if(N_fracmax.gt.1) then
-             call redistribution_fraction()!fraction redistribution
+             call ssh_redistribution_fraction()!fraction redistribution
           endif
 
           ! Solve the fastest process (condensation/evaporation and nucleation).
@@ -171,7 +172,7 @@ contains
              tag_cond = with_cond
              tag_nucl = with_nucl
              solver=dynamic_solver
-             call  processaero(solver,current_sub_time,timestep_cond,final_sub_time,splitting)
+             call ssh_processaero(solver,current_sub_time,timestep_cond,final_sub_time,splitting)
           endif
 
        else
@@ -181,7 +182,7 @@ contains
           tag_cond = with_cond
           tag_nucl = with_nucl
           solver = 1            ! only etr for coagulation
-          call  processaero(solver,current_sub_time,sub_timestep_splitting,final_sub_time,splitting)
+          call ssh_processaero(solver,current_sub_time,sub_timestep_splitting,final_sub_time,splitting)
        endif
 
        if (with_cond+with_nucl+with_coag.eq.0) then
@@ -197,12 +198,12 @@ contains
 
        if(ICUT.ge.1) then
 
-          call  bulkequi_inorg(nesp_isorropia,& 
+          call ssh_bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
-          call mass_conservation(concentration_mass,concentration_number,&
+          call ssh_mass_conservation(concentration_mass,concentration_number,&
                                  concentration_gas, total_mass)
 
-          call redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
+          call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
 
        endif
 
@@ -210,11 +211,11 @@ contains
 
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
 
-          call  bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
-          call mass_conservation(concentration_mass,concentration_number,&
+          call ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
+          call ssh_mass_conservation(concentration_mass,concentration_number,&
                                  concentration_gas, total_mass)
 
-          call redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+          call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
        else 
           organion= 0.d0
           watorg = 0.d0
@@ -236,40 +237,40 @@ contains
           qaero(ECl) = 0.d0
           qgas(ECl) = 0.d0
 #endif
-          call isoropia_drv(N_aerosol,&
+          call ssh_isoropia_drv(N_aerosol,&
                qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
                liquid)
-          call redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          call ssh_redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
           !
-          call SOAP_DYN(Relative_Humidity,&
+          call ssh_SOAP_DYN(Relative_Humidity,&
                ionic, proton, lwc,lwcorg,&
                Temperature, delta_t,&
                cell_diam_av, neq, liquid)
        endif
 
-       call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+       call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
        if(N_fracmax.gt.1 ) then !.and. redistribution_method.ne.0) then
-          call redistribution_fraction()!fraction redistribution
+          call ssh_redistribution_fraction()!fraction redistribution
        endif
 
-       if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution
+       if (redistribution_method.ne.0) call ssh_redistribution_size(redistribution_method)!size redistribution
 
     endif
 
-    call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+    call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
          wet_mass,wet_diameter,wet_volume,cell_diam_av) 
 
     ! AVOID mass conservation after redistribution
     ! call mass_conservation(concentration_mass,concentration_number,&
     !   concentration_gas, total_mass)
 
-  end subroutine aerodyn
+  end subroutine ssh_aerodyn
 
-  subroutine processaero(solver,current_sub_time,sub_timestep_splitting,&
+  subroutine ssh_processaero(solver,current_sub_time,sub_timestep_splitting,&
        final_sub_time,splitting)
     !------------------------------------------------------------------------
     !
@@ -299,53 +300,53 @@ contains
        time_step_sulf = 0.0
 
        if (tag_cond.eq.1) then
-          !!if (tag_emis .ne. 0) call emission(sub_timestep_splitting)
+          !!if (tag_emis .ne. 0) call ssh_emission(sub_timestep_splitting)
           !     Compute gas mass conservation.
-          call mass_conservation(concentration_mass,concentration_number,&
+          call ssh_mass_conservation(concentration_mass,concentration_number,&
                concentration_gas, total_mass)
        endif
 
        if (solver.eq.0) then
           ! euler solver used for coagulation
-          call Euler_solver(concentration_mass,concentration_number,concentration_gas,dqdt,&
+          call ssh_Euler_solver(concentration_mass,concentration_number,concentration_gas,dqdt,&
                current_sub_time,sub_timestep_splitting)
 
        elseif (solver.eq.1) then
           ! etr dynamic solver
-          call Etr_solver(concentration_mass_tmp,concentration_mass,&
+          call ssh_Etr_solver(concentration_mass_tmp,concentration_mass,&
                concentration_number_tmp,concentration_number,concentration_gas,dqdt,&
                current_sub_time,sub_timestep_splitting)
        elseif (solver.eq.2) then
           ! ros2 dynamic solver used for condensation/evaporation of inorganics
-          call Ros2_solver(concentration_mass_tmp,concentration_mass,&
+          call ssh_Ros2_solver(concentration_mass_tmp,concentration_mass,&
                concentration_number_tmp,concentration_number,&
                concentration_gas,dqdt,&
                current_sub_time,sub_timestep_splitting)
        endif
        
-       call mass_conservation(concentration_mass,concentration_number,&
+       call ssh_mass_conservation(concentration_mass,concentration_number,&
                   concentration_gas, total_mass)
 
        if (current_sub_time.le.final_sub_time) then
-             call adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
+             call ssh_adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
                   concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
                   final_sub_time)
              if((tag_nucl.EQ.1).OR.((tag_cond.EQ.1).AND.(tag_coag.EQ.1))) then 
              ! Need to redistribute onto fixed grid if nucleation is solved with 
              ! condensation/evaporation or if processes are not splitted
-               call update_wet_diameter_liquid(1,N_size,concentration_mass, &
+               call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, &
                        concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
                if(N_fracmax.gt.1) then
-                    call redistribution_fraction()!fraction redistribution
+                    call ssh_redistribution_fraction()!fraction redistribution
                endif
-               if (redistribution_method.ne.0) call redistribution_size(redistribution_method)!size redistribution    
+               if (redistribution_method.ne.0) call ssh_redistribution_size(redistribution_method)!size redistribution    
              endif     
        endif
     end do
 
-  end subroutine processaero
+  end subroutine ssh_processaero
 
-  subroutine initstep_coupled(c_mass,c_number,c_gas,sub_time_splitting,&
+  subroutine ssh_initstep_coupled(c_mass,c_number,c_gas,sub_time_splitting,&
        initial_time_splitting,time_splitting,t_total)
     !------------------------------------------------------------------------
     !
@@ -390,7 +391,7 @@ contains
     tag_coag = with_coag
     tag_cond = with_cond
     tag_nucl = with_nucl
-    call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
 
     do j=1,N_size
        tmp=c_number(j)*dndt1(j)
@@ -420,14 +421,14 @@ contains
     ! or if processes are solved coupled
     time_splitting = t_total-initial_time_splitting
 
-  end subroutine initstep_coupled
+  end subroutine ssh_initstep_coupled
 
-  subroutine initstep(c_mass,c_number,c_gas,time_coag,time_cond,&
+  subroutine ssh_initstep(c_mass,c_number,c_gas,time_coag,time_cond,&
        initial_time_splitting,time_splitting,t_total)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
-    !     This subroutine performs the initialization of the timestep
+    !     This subroutine ssh_performs the initialization of the timestep
     !     for the integration of the GDE. The criterion is related to
     !     the timescales of the aerosol processes.
     !
@@ -471,7 +472,7 @@ contains
        tag_cond=0
        tag_nucl=0
 
-       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
 
        do j=1,N_size
           tmp=c_number(j)*dndt1(j)
@@ -497,7 +498,7 @@ contains
        tag_coag=0
        tag_cond=with_cond
        tag_nucl=with_nucl
-       call fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
        do j=1,N_size  !Loop from 1 in case of nucleation - if bins at equilibrium then dqdt1 = 0 from fgde
 	  if (DABS(dndt1(j)).gt.0.d0.and.c_number(j).gt.TINYN) then
              tscale=c_number(j)/DABS(dndt1(j))
@@ -543,9 +544,9 @@ contains
 !       time_cond=time_splitting
 !    endif
 
-  end subroutine initstep
+  end subroutine ssh_initstep
 
-  subroutine adaptime(q1,q2,n1,n2,T_dt,time_step_sulf,current_sub_time,&
+  subroutine ssh_adaptime(q1,q2,n1,n2,T_dt,time_step_sulf,current_sub_time,&
        final_sub_time)
     !------------------------------------------------------------------------
     !
@@ -611,9 +612,9 @@ contains
        T_dt = DMIN1( (final_sub_time-current_sub_time), T_dt)
     endif
 
-  end subroutine adaptime
+  end subroutine ssh_adaptime
 
-  subroutine Etr_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
+  subroutine ssh_Etr_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -658,7 +659,7 @@ contains
 
     !for condensation or coagulation
 
-    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)
     !     First step
     do j=1,N_size
        if(n2(j)+dn1dt(j)*sub_timestep_splitting.GE.TINYN) then
@@ -678,9 +679,9 @@ contains
 !       q1(j,N_aerosol_layers) = qH2O(j) ! water is the last species
     enddo
 
-    call mass_conservation(q1,n1,c_gas_t, total_mass)
+    call ssh_mass_conservation(q1,n1,c_gas_t, total_mass)
     !     Second step
-    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
 
     dtetr=sub_timestep_splitting*5.0D-01
     current_sub_time = current_sub_time + sub_timestep_splitting
@@ -705,9 +706,9 @@ contains
 !       q2(j,N_aerosol_layers) = qH2O(j)!water is the last species
     enddo
 
-  end subroutine Etr_solver
+  end subroutine ssh_Etr_solver
 
-  subroutine Euler_solver(c_mass,c_number,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
+  subroutine ssh_Euler_solver(c_mass,c_number,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -742,7 +743,7 @@ contains
     double precision :: ce_kernal_coef(N_size,N_aerosol)
 
     !for condensation
-    call fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
 
     do j=1,N_size
        if(c_number(j)+dndt(j)*sub_timestep_splitting.GE.0.d0) then
@@ -760,9 +761,9 @@ contains
      enddo
 
     current_sub_time = current_sub_time + sub_timestep_splitting
-  end subroutine Euler_solver
+  end subroutine ssh_Euler_solver
 
-  subroutine Ros2_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
+  subroutine ssh_Ros2_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -853,7 +854,7 @@ contains
     parameter ( Gamma= 1.7071D0)
 
     !for condensation
-    call fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)!compute first order derivative
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)!compute first order derivative
 
     !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
@@ -909,7 +910,7 @@ contains
        enddo
     enddo
 
-    call KLIMIT(q2,c_gas,dq1dt,ce_kernal_coef)
+    call ssh_KLIMIT(q2,c_gas,dq1dt,ce_kernal_coef)
 
     do j = 1 , N_size
        n1(j) = DMAX1 ( 1.d-12*n2(j) , (n2(j)+dn1dt(j)) )
@@ -927,7 +928,7 @@ contains
 
     current_sub_time = current_sub_time + sub_timestep_splitting
 
-    call fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
 
     do j = 1 , N_size
        do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
@@ -984,7 +985,7 @@ contains
        enddo
     enddo
 
-    call KLIMIT(q2,c_gas,dq2dt,ce_kernal_coef)
+    call ssh_KLIMIT(q2,c_gas,dq2dt,ce_kernal_coef)
 
     do j = 1 , N_size
        tmp=n2(j)
@@ -1000,6 +1001,6 @@ contains
 !       q2(j,N_aerosol_layers) = qH2O(j)  !water is the last species
 !    enddo
 
-  end subroutine Ros2_solver
+  end subroutine ssh_Ros2_solver
 
 end Module jAdaptstep

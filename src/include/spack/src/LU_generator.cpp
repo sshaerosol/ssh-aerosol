@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 
   OutputDec << header_license;
 
-  OutputDec << align << "SUBROUTINE LU_decompose" << func_suffix << " (ns,M)" \
+  OutputDec << align << "SUBROUTINE SSH_LU_decompose" << func_suffix << " (ns,M)" \
       << endl;
 
   OutputDec << endl;
@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 
   OutputSol << header_license;
 
-  OutputSol << align << "SUBROUTINE LU_solve" << func_suffix << " (ns, M, x)" \
+  OutputSol << align << "SUBROUTINE SSH_LU_solve" << func_suffix << " (ns, M, x)" \
       << endl;
 
   OutputSol << endl;
@@ -409,7 +409,7 @@ int main(int argc, char** argv)
     OutputSolTr << header_license;
 
     OutputSolTr << align \
-        << "SUBROUTINE LU_solve_tr" << func_suffix << " (ns, M, x)" << endl;
+        << "SUBROUTINE SSH_LU_solve_tr" << func_suffix << " (ns, M, x)" << endl;
 
     OutputSolTr << endl;
     OutputSolTr << header;

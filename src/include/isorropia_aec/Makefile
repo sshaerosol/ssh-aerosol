@@ -8,11 +8,11 @@ RM_LIST =	*.a *.o *.e *.mod core
 
 OBJS =		isocom.o isofwd.o isorev.o   
 
-all:		libiso.a
+all:		libssh-iso.a
 
-libiso.a:	$(OBJS)
-	        $(RM) libiso.a
-		$(AR) r libiso.a $(OBJS)
+libssh-iso.a:	$(OBJS)
+	        $(RM) libssh-iso.a
+		$(AR) r libssh-iso.a $(OBJS)
 
 %.o:		%.f
 		$(REALFC) -o $@ $(F77FLAGS) -c $<

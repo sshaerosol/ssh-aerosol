@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE EULER_NUMBER_NORM(ns, nesp, eh2o, dbound, grand, alpha, &
+SUBROUTINE SSH_EULER_NUMBER_NORM(ns, nesp, eh2o, dbound, grand, alpha, &
      fixed_diameter, diameter_before_redist, X, log_fixed_diameter, kloc, LMD, DQLIMIT, rho, Qesp, N)
 
 !!$------------------------------------------------------------------------
@@ -178,7 +178,7 @@ SUBROUTINE EULER_NUMBER_NORM(ns, nesp, eh2o, dbound, grand, alpha, &
      IF (N(k) .LT. TINYN) THEN
         rho(k) = 1.d0
      ELSE
-        CALL COMPUTE_DENSITY(ns,nesp, eh2o, TINYN,N_esp,LMD,k,rho(k))
+        CALL SSH_COMPUTE_DENSITY(ns,nesp, eh2o, TINYN,N_esp,LMD,k,rho(k))
      ENDIF
      DO jesp = 1, nesp
         Qesp(k, jesp) = rho(k) * (PI/6D0) * N_esp(k,jesp) &
@@ -214,14 +214,14 @@ SUBROUTINE EULER_NUMBER_NORM(ns, nesp, eh2o, dbound, grand, alpha, &
      do jesp = 1, nesp-1
         Q(k) = Q(k) +  Qesp(k,jesp)
      enddo
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
      N(k) = Q(k) * 6.D0 / (PI * rho(k) * fixed_diameter(k) * fixed_diameter(k) * fixed_diameter(k))
 
   enddo
 
 
-  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
+  CALL SSH_TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
 
-END SUBROUTINE EULER_NUMBER_NORM
+END SUBROUTINE SSH_EULER_NUMBER_NORM
 
 

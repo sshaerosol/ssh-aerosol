@@ -10,9 +10,9 @@
 #include "properties.hxx"
 #include <fstream>
 
-using namespace soap;
+using namespace ssh_soap;
   
-void system_coupling(model_config &config, vector<species>& surrogate)
+void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 {
   //Check if the system is coupled (at least a species condense on both phases) and give the
   // indexes of water and H+
@@ -139,7 +139,7 @@ void system_coupling(model_config &config, vector<species>& surrogate)
     config.coupled_phases=true;
 }
 
-void system_aiomfac(model_config &config, vector<species>& surrogate)
+void system_aiomfac_ssh(model_config &config, vector<species>& surrogate)
 {
   //Create the matrixes for the aiomfac computation 
   //Parameters for the aiomfac computation of long ranges and medium ranges interactions
@@ -611,7 +611,7 @@ void system_aiomfac(model_config &config, vector<species>& surrogate)
 		
 }
 
-void param_unifac(model_config &config, vector<species> &surrogate)
+void param_unifac_ssh(model_config &config, vector<species> &surrogate)
 {
   //Create the matrixes for the unifac computation 
   //Parameters for the unifac computation of short ranges interactions
@@ -1331,7 +1331,7 @@ void param_unifac(model_config &config, vector<species> &surrogate)
   config.Inter2_tot.resize(config.nfunc_tot,config.nfunc_tot);
 }
 
-void check_config(model_config &config, vector<species>& surrogate)
+void check_config_ssh(model_config &config, vector<species>& surrogate)
 {
   // Chech if there is problem in the used parameters of species.cxx
   int n=surrogate.size();
@@ -1453,7 +1453,7 @@ void check_config(model_config &config, vector<species>& surrogate)
   
 }
 
-void init_transfert_parameters(model_config &config, vector<species>& surrogate)
+void init_transfert_parameters_ssh(model_config &config, vector<species>& surrogate)
 {
   int b,ilayer,iphase;
   int n=surrogate.size();
@@ -1735,7 +1735,7 @@ void init_transfert_parameters(model_config &config, vector<species>& surrogate)
   config.AQrho.resize(config.nbins);
 }
 
-void parameters(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
+void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
                 double molecular_weight_aer[], double accomodation_coefficient[])
 {
   config.max_iter=1000;  //maximal number of iterations for the newton raphson method
@@ -1823,13 +1823,13 @@ void parameters(model_config& config, vector<species>& surrogate, vector<string>
   config.molalmax=70.; //Limit high values of molalities to prevent numerical issues
 	  
   //create the vector of species and the various parameters of the model 
-  creation_species(surrogate,species_list_aer, molecular_weight_aer,
+  creation_species_ssh(surrogate,species_list_aer, molecular_weight_aer,
                    accomodation_coefficient,config.nlayer); 
-  system_coupling(config, surrogate);
-  param_unifac(config, surrogate); 
-  system_aiomfac(config, surrogate);
+  system_coupling_ssh(config, surrogate);
+  param_unifac_ssh(config, surrogate); 
+  system_aiomfac_ssh(config, surrogate);
   if (config.equilibrium==false)
-    init_transfert_parameters(config, surrogate);
+    init_transfert_parameters_ssh(config, surrogate);
 
   if (config.chemistry and config.equilibrium)
     {

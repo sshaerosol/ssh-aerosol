@@ -123,10 +123,10 @@ C     REACTION PROBABILITIES
       DO i=1,4
          ktot(i)=0.D0
          wmol_tmp = Wmol(ispeclost(i)+1)
-         call COMPUTE_GAS_DIFFUSIVITY(TEMP,PRESS,
+         call SSH_COMPUTE_GAS_DIFFUSIVITY(TEMP,PRESS,
      &        sigm_tmp, wmol_tmp, parm_tmp, DIFF)
 
-         call COMPUTE_QUADRATIC_MEAN_VELOCITY(TEMP,
+         call SSH_COMPUTE_QUADRATIC_MEAN_VELOCITY(TEMP,
      &        wmol_tmp,vi)
 
          do js=1,Nbin_aer

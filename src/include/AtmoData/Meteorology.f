@@ -15,7 +15,7 @@ c     pressure - Pressure (Pa).
 c
 c     Returns:
 c     relative_humidity - relative humidity.
-      subroutine compute_relative_humidity(sh,
+      subroutine ssh_compute_relative_humidity(sh,
      $     temp, pres, rh)
 
       double precision sh
@@ -26,7 +26,7 @@ c     relative_humidity - relative humidity.
 
       double precision pressure_sat
 
-      call compute_psat_rh(rh, temp, pres, pressure_sat, rh)
+      call ssh_compute_psat_rh(rh, temp, pres, pressure_sat, rh)
 
       end
 
@@ -40,7 +40,7 @@ c
 c     Returns:
 c     psat - saturation vapor pressure (Pa)
 
-      subroutine compute_psat(temp, psat)
+      subroutine ssh_compute_psat(temp, psat)
 
       double precision temp
 
@@ -64,7 +64,7 @@ c     Returns:
 c     psat - saturation vapor pressure (Pa)
 c     rh - relative humidity.
 
-      subroutine compute_psat_rh(sh, temp, pres, psat, rh)
+      subroutine ssh_compute_psat_rh(sh, temp, pres, psat, rh)
 
       double precision sh
       double precision temp
@@ -73,7 +73,7 @@ c     rh - relative humidity.
       double precision psat
       double precision rh
 
-      call compute_psat(temp, psat)
+      call ssh_compute_psat(temp, psat)
 
       rh = sh * pres
      $   / ( (0.62197d0 * (1.d0 - sh) + sh) * psat )
@@ -93,7 +93,7 @@ c     Returns:
 c     psat - saturation vapor pressure (Pa)
 c     rh - relative humidity.
 
-      subroutine compute_psat_sh(rh, temp, pres, psat, sh)
+      subroutine ssh_compute_psat_sh(rh, temp, pres, psat, sh)
 
       double precision rh
       double precision temp
@@ -102,7 +102,7 @@ c     rh - relative humidity.
       double precision psat
       double precision sh
 
-      call compute_psat(temp, psat)
+      call ssh_compute_psat(temp, psat)
 
       sh = 1.d0 / (   1.d0
      $              + pres / (psat * rh * 0.62197d0)

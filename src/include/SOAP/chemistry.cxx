@@ -3,10 +3,10 @@
 //!!     SSH-aerosol is distributed under the GNU General Public License v3
 //!!-----------------------------------------------------------------------
 
-void kinetic(model_config &config, vector<species>& surrogate,
-             double &MOinit,double &MOW,double &MMaq,
-             double &LWC, double &AQinit, double &ionic, double &chp,
-             double &Temperature, double &RH, double &deltat, int index)
+void kinetic_ssh(model_config &config, vector<species>& surrogate,
+                double &MOinit,double &MOW,double &MMaq,
+                double &LWC, double &AQinit, double &ionic, double &chp,
+                double &Temperature, double &RH, double &deltat, int index)
 {
   int n=surrogate.size();
   int i,j,jion;
@@ -75,7 +75,7 @@ void kinetic(model_config &config, vector<species>& surrogate,
  
                 if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[i].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -120,7 +120,7 @@ void kinetic(model_config &config, vector<species>& surrogate,
 
                 if (surrogate[j].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[j].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[j].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[j].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -265,7 +265,7 @@ void kinetic(model_config &config, vector<species>& surrogate,
 
                 if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[i].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -310,7 +310,7 @@ void kinetic(model_config &config, vector<species>& surrogate,
 
                 if (surrogate[j].hydrophilic and LWC>config.LWClimit) 
                   { 
-                    Kaq=surrogate[j].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[j].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[j].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -395,7 +395,7 @@ void kinetic(model_config &config, vector<species>& surrogate,
 } 
 
 
-void kinetic_sat(model_config &config, vector<species>& surrogate,
+void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                  Array <double, 1> &MOinit, Array <double, 1> &MOW,double &MMaq,
                  double &LWC, double &AQinit, double &ionic, double &chp,
                  double &Temperature, double &RH, double &deltat, int index)
@@ -484,7 +484,7 @@ void kinetic_sat(model_config &config, vector<species>& surrogate,
  
                 if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[i].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -539,7 +539,7 @@ void kinetic_sat(model_config &config, vector<species>& surrogate,
  
                 if (surrogate[j].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[j].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[j].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[j].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -702,7 +702,7 @@ void kinetic_sat(model_config &config, vector<species>& surrogate,
  
                 if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[i].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -757,7 +757,7 @@ void kinetic_sat(model_config &config, vector<species>& surrogate,
  
                 if (surrogate[j].hydrophilic and LWC>config.LWClimit) 
                   {
-                    Kaq=surrogate[j].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                    Kaq=surrogate[j].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                    surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                       /surrogate[j].gamma_aq;
                     sum+=Kaq*AQinit;
@@ -845,7 +845,7 @@ void kinetic_sat(model_config &config, vector<species>& surrogate,
       }
 } 
 
-void integer_chem(model_config &config, vector<species>& surrogate,
+void integer_chem_ssh(model_config &config, vector<species>& surrogate,
                   double &MOinit,double &MOW, double &MMaq,
                   double &LWC, double &AQinit, double &ionic, double &chp,
                   double &Temperature, double &RH, double &deltat, bool &compute_activity_coefficients)
@@ -898,12 +898,12 @@ void integer_chem(model_config &config, vector<species>& surrogate,
     {
       if (config.compute_organic)
         if (LWC>config.LWClimit)
-          activity_coefficients_org(config, surrogate, false, Temperature, MOW);
+          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
         else
-          activity_coefficients_org(config, surrogate, true, Temperature, MOW);          
-      activity_coefficients_aq(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
+          activity_coefficients_org_ssh(config, surrogate, true, Temperature, MOW);          
+      activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
-        activity_coefficients_LR_MR(config, surrogate, Temperature, LWC, ionic);
+        activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
     }
   
   /*
@@ -959,7 +959,7 @@ void integer_chem(model_config &config, vector<species>& surrogate,
       surrogate[i].Ag0=surrogate[i].Ag;
     }
 
-  kinetic(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 0);  
+  kinetic_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 0);  
   //compute the first evaluation of concentrations
   for (i=0;i<n;++i)
     if(surrogate[i].is_organic) 
@@ -994,7 +994,7 @@ void integer_chem(model_config &config, vector<species>& surrogate,
 
             if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
               {
-                Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                   /surrogate[i].gamma_aq;
                 sum+=Kaq*AQinit;
@@ -1038,14 +1038,14 @@ void integer_chem(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_org(config, surrogate, false, Temperature, MOW);
-      activity_coefficients_aq(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
+        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
+      activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
-        activity_coefficients_LR_MR(config, surrogate, Temperature, LWC, ionic);
+        activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
     }
   
   
-  kinetic(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 1);
+  kinetic_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 1);
 
   for (i=0;i<n;++i)
     if(surrogate[i].is_organic) 
@@ -1079,7 +1079,7 @@ void integer_chem(model_config &config, vector<species>& surrogate,
 
             if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
               {
-                Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                   /surrogate[i].gamma_aq;
                 sum+=Kaq*AQinit;
@@ -1104,7 +1104,7 @@ void integer_chem(model_config &config, vector<species>& surrogate,
 }
 
 
-void integer_chem_sat(model_config &config, vector<species>& surrogate,
+void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
                       Array <double, 1> &MOinit, Array <double, 1> &MOW, double &MMaq,
                       double &LWC, double &AQinit, double &ionic, double &chp,
                       double &Temperature, double &RH, double &deltat, bool &compute_activity_coefficients)
@@ -1158,12 +1158,12 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
     {
       if (config.compute_organic)
         if (LWC>config.LWClimit)
-          activity_coefficients_saturation(config, surrogate, false, Temperature, MOW);       
+          activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW);       
         else
-          activity_coefficients_saturation(config, surrogate, true, Temperature, MOW); 
-      activity_coefficients_aq(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
+          activity_coefficients_saturation_ssh(config, surrogate, true, Temperature, MOW); 
+      activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
-        activity_coefficients_LR_MR(config, surrogate, Temperature, LWC, ionic);
+        activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
     }  
 
   //save initial concentrations 
@@ -1174,7 +1174,7 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
       surrogate[i].Ag0=surrogate[i].Ag;
     }
 
-  kinetic_sat(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 0);  
+  kinetic_sat_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 0);  
   //compute the first evaluation of concentrations
   for (i=0;i<n;++i)
     if(surrogate[i].is_organic) 
@@ -1218,7 +1218,7 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
 
             if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
               {
-                Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                   /surrogate[i].gamma_aq;
                 sum+=Kaq*AQinit;
@@ -1265,14 +1265,14 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_saturation(config, surrogate, false, Temperature, MOW);
-      activity_coefficients_aq(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
+        activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW);
+      activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
-        activity_coefficients_LR_MR(config, surrogate, Temperature, LWC, ionic);
+        activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
     }
   
   
-  kinetic_sat(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 1);
+  kinetic_sat_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, deltat, 1);
 
   for (i=0;i<n;++i)
     if(surrogate[i].is_organic) 
@@ -1314,7 +1314,7 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
 
             if (surrogate[i].hydrophilic and LWC>config.LWClimit) 
               {
-                Kaq=surrogate[i].Kp_eff_aqreal(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
+                Kaq=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                                surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                   /surrogate[i].gamma_aq;
                 sum+=Kaq*AQinit;
@@ -1340,7 +1340,7 @@ void integer_chem_sat(model_config &config, vector<species>& surrogate,
 }
 
 
-void adapstep_chem(model_config &config, vector<species>& surrogate, double &deltat1, double &t, double &tend, double &deltatmin)
+void adapstep_chem_ssh(model_config &config, vector<species>& surrogate, double &deltat1, double &t, double &tend, double &deltatmin)
 {
   int n=surrogate.size();
   int i;
@@ -1367,7 +1367,7 @@ void adapstep_chem(model_config &config, vector<species>& surrogate, double &del
 }
 
 
-void solve_chemistry(model_config &config, vector<species>& surrogate,
+void solve_chemistry_ssh(model_config &config, vector<species>& surrogate,
                      double &MOinit,double &MOW,
                      double &LWC, double &AQinit, double &ionic, double &chp,
                      double &Temperature, double &RH, double deltat, bool &compute_activity_coefficients)
@@ -1389,9 +1389,9 @@ void solve_chemistry(model_config &config, vector<species>& surrogate,
         {      
           dt1=min(deltat-t,dt1);	 
           dt2=dt1;            
-          integer_chem_sat(config, surrogate, MOinit_sat, MOW_sat, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+          integer_chem_sat_ssh(config, surrogate, MOinit_sat, MOW_sat, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
           //compute the new time step so that changes are small
-          adapstep_chem(config,surrogate,dt1,t,deltat,config.dtchem_min);      
+          adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
           t+=dt2;     
         }
     }
@@ -1401,9 +1401,9 @@ void solve_chemistry(model_config &config, vector<species>& surrogate,
         {      
           dt1=min(deltat-t,dt1);	 
           dt2=dt1;            
-          integer_chem(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+          integer_chem_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
           //compute the new time step so that changes are small
-          adapstep_chem(config,surrogate,dt1,t,deltat,config.dtchem_min);      
+          adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
           t+=dt2;     
         }
     }

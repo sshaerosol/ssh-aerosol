@@ -7,11 +7,11 @@ RM_LIST =	*.a *.o *.e *.mod core
 
 OBJS =		Talos.o 
 
-all:	libtalos.a 
+all:	libssh-talos.a 
 
-libtalos.a:	$(OBJS)
-	        $(RM) libtalos.a
-		$(AR) r libtalos.a $(OBJS)
+libssh-talos.a:	$(OBJS)
+	        $(RM) libssh-talos.a
+		$(AR) r libssh-talos.a $(OBJS)
 
 Talos.o: Talos.cpp
 	$(REALCC) -o Talos.o -c Talos.cpp -I $(BLITZLIB)

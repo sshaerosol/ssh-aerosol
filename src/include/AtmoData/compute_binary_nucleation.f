@@ -21,7 +21,7 @@ c     jnucl - Nucleation rate (#part/cm^3/s).
 c     ntot - Number of molecules in the critical cluster.
 c     xstar - mol fraction of H2SO4 in the nucleated aerosol (mol).
 c     dpnucl -  Nucleation diameter (nm).
-      subroutine compute_binary_nucleation_kernel(rh,
+      subroutine ssh_compute_binary_nucleation_kernel(rh,
      &     temp, natmp, jnucl,
      &     ntot, xstar, dpnucl)
 
@@ -85,7 +85,7 @@ c     in the critical cluster XSTAR.
 
 c     Compute nucleation rate.
 
-         call veahkamaki_coefficients(temp, t2, t3, xstar, fa)
+         call ssh_veahkamaki_coefficients(temp, t2, t3, xstar, fa)
 
          jnucl = dexp( fa(1)
      &        + fa(2) * lnrh
@@ -101,7 +101,8 @@ c     Compute nucleation rate.
 c     Compute total number of molecules
 c     in the critical cluster ntot
 
-         call veahkamaki_coefficients_number(temp, t2, t3, xstar, fa)
+         call ssh_veahkamaki_coefficients_number(temp, t2, t3, xstar,
+     &        fa)
 
          ntot = dexp( fa(1)
      &        + fa(2) * lnrh
@@ -138,7 +139,7 @@ c     xstar - mole fraction  (mol).
 c
 c     Returns:
 c     fa : nucleation kernel coefficients.
-      subroutine veahkamaki_coefficients(temp, t2, t3, xstar, fa)
+      subroutine ssh_veahkamaki_coefficients(temp, t2, t3, xstar, fa)
 
       double precision xstar, temp, t2, t3, fa(10)
 
@@ -191,7 +192,8 @@ c     xstar - mole fraction  (mol).
 c
 c     Returns:
 c     fa : nucleation kernel coefficients for number.
-      subroutine veahkamaki_coefficients_number(temp, t2, t3, xstar, fa)
+      subroutine ssh_veahkamaki_coefficients_number(temp, t2, t3, xstar,
+     &     fa)
 
       double precision xstar, temp, t2, t3, fa(10)
 
@@ -245,7 +247,7 @@ c     temperature - Temperature (K).
 c
 c     Returns:
 c     nanucl : gas threshold H2SO4 concentration (#molec/cm^3).
-      subroutine na_threshold_veahkamaki(rh, temp, nanucl)
+      subroutine ssh_na_threshold_veahkamaki(rh, temp, nanucl)
 
       double precision rh, temp, nanucl
 

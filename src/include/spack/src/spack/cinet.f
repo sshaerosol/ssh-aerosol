@@ -1,4 +1,4 @@
-      subroutine  creac(mot,imot,nmot)
+      subroutine  ssh_creac(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -90,8 +90,8 @@ c
          endif
       enddo
 C
-      call WW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
-      call DW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
+      call ssh_WW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
+      call ssh_DW90(nr,molec(nr),jer(1,nr),jer(2,nr),jer(3,nr))
 c
 c     Check products
 c
@@ -106,7 +106,7 @@ c
       if (icurseur.lt.nmot) then
          if ((mot(icurseur+1)(1:imot(icurseur+1)).ne.'+').and.
      &        (mot(icurseur+1)(1:imot(icurseur+1)).ne.'-')) then
-            call reel(stoieir,mot(icurseur),imot(icurseur))
+            call ssh_reel(stoieir,mot(icurseur),imot(icurseur))
             icurseur = icurseur+1
          endif
       endif
@@ -152,7 +152,7 @@ c
       end
 
 C------------------------------------------------------------------------
-      subroutine  kinreac(mot,imot,nmot)
+      subroutine  ssh_kinreac(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -203,31 +203,31 @@ c     Gas-phase only
  100  continue
       if (mot(i)(1:4).eq.'ARR1') then
          nb(nr)=1
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call WK190(nr,bp(1,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_WK190(nr,bp(1,nr))
       elseif (mot(i)(1:4).eq.'ARR2') then
          nb(nr)=2
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call WK290(nr,bp(1,nr),bp(2,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_WK290(nr,bp(1,nr),bp(2,nr))
       elseif (mot(i)(1:4).eq.'ARR3') then
          nb(nr)=3
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call WK390(nr,bp(1,nr),bp(2,nr),bp(3,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_WK390(nr,bp(1,nr),bp(2,nr),bp(3,nr))
       elseif (mot(i)(1:5).eq.'ARRC2') then
          nb(nr)=2
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
          iprecalc(nr)=2
       elseif (mot(i)(1:5).eq.'ARRC3') then
          nb(nr)=3
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
          iprecalc(nr)=3
 
 c     PHOT: Photolysis.
@@ -243,110 +243,111 @@ c     PHOT: Photolysis.
 c     Read according increasing or decreasing sequence
          if (ireversetab.eq.0) then
             do j=1,ntabphot
-               call reel(bp(j,nr),mot(i+j),imot(i+j))
+               call ssh_reel(bp(j,nr),mot(i+j),imot(i+j))
                b(j)=bp(j,nr)
             enddo
          else
             do j=1,ntabphot
                jj=ntabphot+1-j
-               call reel(bp(jj,nr),mot(i+j),imot(i+j))
+               call ssh_reel(bp(jj,nr),mot(i+j),imot(i+j))
                b(jj)=bp(jj,nr)
             enddo
          endif
 c
-         call WPHOT90(nr,ntabphot,b,tabphot,0)
+         call ssh_WPHOT90(nr,ntabphot,b,tabphot,0)
 
 c     TROE: TROE/Fall-off for the general case.
       elseif (mot(i)(1:5).eq.'TROE4') then
          nb(nr)=4
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),0.6d0)
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),0.6d0)
 
       elseif (mot(i)(1:5).eq.'TROE5') then
          nb(nr)=4
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_WTROE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr))
 
       elseif (mot(i)(1:5).eq.'TROE7') then
          nb(nr)=4
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call reel(bp(6,nr),mot(i+6),imot(i+6))
-         call reel(bp(7,nr),mot(i+7),imot(i+7))
-         call WTROE790 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
-     &        bp(6,nr),bp(7,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+         call ssh_WTROE790 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr),bp(6,nr),bp(7,nr))
 
 c     TROE12: TROE/Fall-off for MOCA.
       elseif (mot(i)(1:6).eq.'TROE10') then
          nb(nr)=4
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call reel(bp(6,nr),mot(i+6),imot(i+6))
-         call reel(bp(7,nr),mot(i+7),imot(i+7))
-         call reel(bp(8,nr),mot(i+8),imot(i+8))
-         call reel(bp(9,nr),mot(i+9),imot(i+9))
-         call reel(bp(10,nr),mot(i+10),imot(i+10))
-         call WTROE1090 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+         call ssh_reel(bp(8,nr),mot(i+8),imot(i+8))
+         call ssh_reel(bp(9,nr),mot(i+9),imot(i+9))
+         call ssh_reel(bp(10,nr),mot(i+10),imot(i+10))
+         call ssh_WTROE1090 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
      &        bp(5,nr),bp(6,nr),bp(7,nr),bp(8,nr),bp(9,nr),bp(10,nr))
 
 c     CVAR/MOCA: temperature-dependent stoichiometry.
       elseif (mot(i)(1:5).eq.'CVAR') then
          nb(nr)=5
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call reel(bp(6,nr),mot(i+6),imot(i+6))
-         call reel(bp(7,nr),mot(i+7),imot(i+7))
-         call WCV90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+         call ssh_WCV90(nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
      &        bp(6,nr),bp(7,nr))
 
 c     RCFE: Reactions Calculated From Equilibria.
       elseif (mot(i)(1:4).eq.'RCFE') then
          nb(nr)=8
-         call reel(bp(1,nr),mot(i+1),imot(i+1))
-         call reel(bp(2,nr),mot(i+2),imot(i+2))
-         call reel(bp(3,nr),mot(i+3),imot(i+3))
-         call reel(bp(4,nr),mot(i+4),imot(i+4))
-         call reel(bp(5,nr),mot(i+5),imot(i+5))
-         call reel(bp(6,nr),mot(i+6),imot(i+6))
-         call WRCFE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),bp(5,nr),
-     &        bp(6,nr))
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_WRCFE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr),bp(6,nr))
 
 c     SPEC: specific reactions.
       elseif (mot(i)(1:4).eq.'SPEC') then
          nb(nr)=5
-         call entier(ispebp(nr),mot(i+1),imot(i+1))
+         call ssh_entier(ispebp(nr),mot(i+1),imot(i+1))
 
 c modif: YK(2010/02/15)
          write(*,*) 'For some specific reactionconstants',mechanism_name
 c         if (chem_mechanism.eq.1) then
          if (mechanism_name .eq. "racm  ") then
-            call WSPEC_RACM90 (nr,ispebp(nr))
+            call ssh_WSPEC_RACM90 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM mechanism are used'
 c         elseif (chem_mechanism.eq.2) then
          elseif (mechanism_name .eq. "cb05  " .or.
      &           mechanism_name .eq. "cb05en" .or.
      &           mechanism_name .eq. "cb05v0") then
-            call WSPEC_CB0590 (nr,ispebp(nr))
+            call ssh_WSPEC_CB0590 (nr,ispebp(nr))
             write(*,*) '   expressions in CB05 mechanism are used'
 c         elseif (chem_mechanism.eq.3) then
          elseif (mechanism_name .eq. "racm2 ") then
-            call WSPEC_RACM290 (nr,ispebp(nr))
+            call ssh_WSPEC_RACM290 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM2 mechanism are used'
          else
             write(*,*) 'Warning: specific reaction expression
@@ -367,17 +368,17 @@ C     O3 -> 2. OH with corrected photolysis
 c     Read according increasing or decreasing sequence
          if (ireversetab.eq.0) then
             do j=1,ntabphot
-               call reel(bp(j,nr),mot(i+j),imot(i+j))
+               call ssh_reel(bp(j,nr),mot(i+j),imot(i+j))
                b(j)=bp(j,nr)
             enddo
          else
             do j=1,ntabphot
                jj=ntabphot+1-j
-               call reel(bp(jj,nr),mot(i+j),imot(i+j))
+               call ssh_reel(bp(jj,nr),mot(i+j),imot(i+j))
                b(jj)=bp(jj,nr)
             enddo
          endif
-         call WPHOT90(nr,ntabphot,b,tabphot,1)
+         call ssh_WPHOT90(nr,ntabphot,b,tabphot,1)
 
 c     Third body.
       elseif (mot(i)(1:2).eq.'TB') then
@@ -407,13 +408,13 @@ c     Modification BS/KS 21/05/2002
 c     Case of a third body reaction: need for kinetics.
 
       if ((ittb(nr).ne.0).and.(nb(nr).eq.0)) goto 100
-      if (ittb(nr).ne.0) call WTB90(nr,ittb(nr))
+      if (ittb(nr).ne.0) call ssh_WTB90(nr,ittb(nr))
 
 c     Update the chemical production term and the Jacobian matrix.
-      call WFJ90(s,nr,jer)
+      call ssh_WFJ90(s,nr,jer)
 
 c     Update the production and loss terms (P-Lc formulation)
-      call WPL90(s,nr,jer)
+      call ssh_WPL90(s,nr,jer)
 
 c     Conversion mol/l -> molec/cm3.
       if (indaqr(nr).eq.1) then
@@ -424,7 +425,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine  cdis(mot,imot,nmot)
+      subroutine  ssh_cdis(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -515,7 +516,7 @@ c     BS 2003: to be checked !
       if (icurseur.lt.nmot) then
          if ((mot(icurseur+1)(1:imot(icurseur+1)).ne.'+').and.
      &        (mot(icurseur+1)(1:imot(icurseur+1)).ne.'-')) then
-            call reel(stoeq,mot(icurseur),imot(icurseur))
+            call ssh_reel(stoeq,mot(icurseur),imot(icurseur))
             icurseur = icurseur+1
          endif
       endif
@@ -574,7 +575,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine  kindis(mot,imot,nmot)
+      subroutine  ssh_kindis(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -614,8 +615,8 @@ c
       dimension imot(nbmot)
 c
       if (mot(2)(1:5).eq.'ARRC2') then
-         call reel(xk1(nequil),mot(3),imot(3))
-         call reel(xk2(nequil),mot(4),imot(4))
+         call ssh_reel(xk1(nequil),mot(3),imot(3))
+         call ssh_reel(xk2(nequil),mot(4),imot(4))
       else
          write(*,*)nom(2)(1:4),' ','ERROR: syntax.'
          stop 1
@@ -623,7 +624,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine  chenry(mot,imot,nmot,ieq)
+      subroutine  ssh_chenry(mot,imot,nmot,ieq)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -757,7 +758,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine  kinhenry(mot,imot,nmot)
+      subroutine  ssh_kinhenry(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -850,16 +851,16 @@ c
       nr=nr+1
       nb(nr)=7
       if (mot(2)(1:5).eq.'ARRC2') then
-         call reel(bp(1,nr),mot(3),imot(3))
-         call reel(bp(2,nr),mot(4),imot(4))
-         call reel(bp(3,nr),mot(5),imot(5))
+         call ssh_reel(bp(1,nr),mot(3),imot(3))
+         call ssh_reel(bp(2,nr),mot(4),imot(4))
+         call ssh_reel(bp(3,nr),mot(5),imot(5))
          iprecalc(nr)=2
       elseif (mot(2)(1:4).eq.'ARR1') then
-         call reel(bp(1,nr),mot(3),imot(3))
+         call ssh_reel(bp(1,nr),mot(3),imot(3))
          bp(2,nr)=0.D0
       elseif (mot(2)(1:4).eq.'ARR2') then
-         call reel(bp(1,nr),mot(3),imot(3))
-         call reel(bp(2,nr),mot(4),imot(4))
+         call ssh_reel(bp(1,nr),mot(3),imot(3))
+         call ssh_reel(bp(2,nr),mot(4),imot(4))
       else
          write(*,*)'ERROR: syntax kinetics Henry ',nr-1
          stop 1
@@ -868,7 +869,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine initphase
+      subroutine ssh_initphase
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION

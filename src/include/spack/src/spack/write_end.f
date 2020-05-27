@@ -1,4 +1,4 @@
-      subroutine write_end_90
+      subroutine ssh_write_end_90
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -41,7 +41,7 @@ C------------------------------------------------------------------------
 C     Routine dimensions.f90
       nwrite=nficdim90
       write(nwrite,301) function_suffix
- 301  format('subroutine dimensions',a,'( &')
+ 301  format('subroutine ssh_dimensions',a,'( &')
       write(nwrite,3011)
  3011 format(4x,'Ns, Nr, Nr_photolysis)')
       write(nwrite,300)
@@ -57,7 +57,7 @@ C     Routine dimensions.f90
       write(nwrite,305) nrphot
  305  format(2x,'Nr_photolysis = ',i5)
 
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine fexchem.f90
       nwrite=nficf90
@@ -94,7 +94,7 @@ C =============================
  106  format('  endif')
       endif
 C =============================
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine kinetic.f90
       nwrite=nfick90
@@ -145,7 +145,7 @@ C ======================
 C =====================================
 
 
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine jacdchemdc.f
       nwrite=nficj90
@@ -163,23 +163,23 @@ C     Routine jacdchemdc.f
  506  format('  enddo')
       write(nwrite,300)
 
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine fexloss.f90
       nwrite=nficloss90
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine fexprod.f90
       nwrite=nficprod90
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine rates.f90
       nwrite=nficw90
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 C     Routine dratedc.f90
       nwrite=nficdw90
-      call write_end2_90(nwrite)
+      call ssh_write_end2_90(nwrite)
 
 
 
@@ -194,7 +194,7 @@ C     Routine dratedc.f90
 
 C-----------------------------------------------------
 
-      subroutine write_end2_90(nwrite)
+      subroutine ssh_write_end2_90(nwrite)
       integer nwrite
 
       write(nwrite,300)

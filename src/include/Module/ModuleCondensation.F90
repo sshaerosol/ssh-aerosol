@@ -12,7 +12,7 @@
   implicit none
  
 contains
-  subroutine SULFDYN(Q1,Q,N1,N,c_gas,dtx,time_step_sulf)
+  subroutine ssh_SULFDYN(Q1,Q,N1,N,c_gas,dtx,time_step_sulf)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -55,7 +55,7 @@ contains
     n2err = 0.d0
 
     do j = 1,N_size! Reassigned distribution by mass of each species
-      call compute_condensation_transfer_rate(diffusion_coef(jesp), &
+      call ssh_compute_condensation_transfer_rate(diffusion_coef(jesp), &
       quadratic_speed(jesp), accomodation_coefficient(jesp), &
       wet_diameter(j), dqdt(j))
       ce_kernal_coef_tot=ce_kernal_coef_tot+N(j)*dqdt(j)
@@ -89,9 +89,9 @@ contains
     else
       time_step_sulf = 0.0
     endif
-  end subroutine SULFDYN
+  end subroutine ssh_SULFDYN
 
-  subroutine KERCOND(c_mass,c_number,qn,q,c_gas,Wet_diam,wet_mass,Temp,ce_kernel,ce_kernal_coef_i,jj,&
+  subroutine ssh_KERCOND(c_mass,c_number,qn,q,c_gas,Wet_diam,wet_mass,Temp,ce_kernel,ce_kernal_coef_i,jj,&
                      lwc,ionic,proton,liquid,qtot)
 !------------------------------------------------------------------------
 !
@@ -152,11 +152,11 @@ contains
     if(rhop.gt.0.d0) then
 
 !calculate the equilibrium between aerosols and gas-phase
-      call surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
+      call ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
       concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
 !     Compute wet_diam and wet_mass 
       if (with_fixed_density == 0) then
-        call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+        call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
                   mass_density_layers,jj,rhoaer)
       else
         rhoaer = fixed_density 
@@ -184,7 +184,7 @@ contains
       do s=1,nesp_isorropia
 	jesp=isorropia_species(s)
 	if (aerosol_species_interact(jesp).gt.0) then
-	  call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
@@ -204,7 +204,7 @@ contains
 	jesp=isorropia_species(s)
 	if (aerosol_species_interact(jesp).gt.0) then!& .and.rhop.gt.1.d3
 	  emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
-	  call COMPUTE_KELVIN_COEFFICIENT(&
+	  call ssh_COMPUTE_KELVIN_COEFFICIENT(&
 		  Temp,&          ! temperature (Kelvin)
 		  emw_tmp,&       ! ext mol weight (g.mol-1)
 		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
@@ -235,7 +235,7 @@ contains
       enddo
 
       if (qext(EH2O).eq.0.D0.AND.init.eq.1) then ! solid
-	call DRYIN( Temp,&   ! local temperature (Kelvin)
+	call ssh_DRYIN( Temp,&   ! local temperature (Kelvin)
 	    qinti,&         ! int sld inorg conc (µg.m-3)
 	    N_aerosol,&         ! size of vectors following below
 	    init_bulk_gas,&         ! bulk gas conc (µg.m-3)
@@ -246,7 +246,7 @@ contains
 				! liq or mix : H+ limitation flux
       else
 	if (qn.gt.0.d0) qih=qinti(IH)/qn    ! µg ,qn is number (qih is H+ per particl)
-	call HPLFLIM( ALFHP,& ! percentage of H+ allowed to c/e(0.1)
+	call ssh_HPLFLIM( ALFHP,& ! percentage of H+ allowed to c/e(0.1)
 	    qih,&            ! int H+ conc (µg)
 	    N_aerosol,&          ! size of vectors following below
 	    init_bulk_gas,&          ! bulk gas conc (µg.m-3)
@@ -266,9 +266,9 @@ contains
       enddo     
    endif
    
-  end subroutine KERCOND
+  end subroutine ssh_KERCOND
    
-  subroutine surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
+  subroutine ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -311,7 +311,7 @@ contains
       qtinorg=qtinorg+qext(jesp)
     end do
 
-    call EQINORG( N_aerosol,qext,&         ! ext inorg aero conc (µg.m-3)
+    call ssh_EQINORG( N_aerosol,qext,&         ! ext inorg aero conc (µg.m-3)
 		qinti,&         ! int inorg aero conc (µg.m-3)
 		surface_equilibrium_conc,lwc,ionic,proton,liquid)        ! inorg eq gas conc (µg.m-3)
 
@@ -319,6 +319,6 @@ contains
       jesp=isorropia_species(s)
       if(surface_equilibrium_conc(jesp).lt.0.0) surface_equilibrium_conc(jesp)=0.d0
     enddo    
-  end subroutine surface_eq_conc
+  end subroutine ssh_surface_eq_conc
    
 End module fCondensation

@@ -9,11 +9,11 @@ LDFLAGS =       -L${NETCDFLIB} $(CDFLIBS) -L${HDF5LIB}
 
 OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o ModuleAdaptstep.o ModuleEmissions.o ModulePhotolysis.o ModuleAPI.o compute_general.o
 
-all:		libmodules.a
+all:		libssh-modules.a
 
-libmodules.a:	$(OBJS) 
-	        $(RM) libmodules.a
-		$(AR) r libmodules.a $(OBJS)
+libssh-modules.a:	$(OBJS) 
+	        $(RM) libssh-modules.a
+		$(AR) r libssh-modules.a $(OBJS)
 
 init.o:         ModuleInitialization.F90 
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<

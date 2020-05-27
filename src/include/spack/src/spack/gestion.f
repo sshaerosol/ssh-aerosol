@@ -1,4 +1,4 @@
-      subroutine entier(i,ch,ich)
+      subroutine ssh_entier(i,ch,ich)
       implicit double precision (a-h,o-z)
 c
 c     Read an integer in a string
@@ -14,7 +14,7 @@ c     Read an integer in a string
 c
 
 c
-      subroutine part(chdon,mot,imot,nmot)
+      subroutine ssh_part(chdon,mot,imot,nmot)
 c
       implicit double precision (a-h,o-z)
 c     Decomposition of a sequence (CHDON) in NMOT words (MOT)
@@ -54,7 +54,7 @@ c
 c
 c
 c     *****************************
-      subroutine reel(r,ch,ich)
+      subroutine ssh_reel(r,ch,ich)
       implicit double precision (a-h,o-z)
 c
 c     Read a real in a string

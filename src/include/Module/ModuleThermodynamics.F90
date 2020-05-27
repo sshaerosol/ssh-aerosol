@@ -7,7 +7,7 @@ Module cThermodynamics
   use aInitialization
   implicit none
 contains
-  subroutine compute_wet_mass_diameter(start_bin,end_bin,c_mass,c_number,c_inti, &
+  subroutine ssh_compute_wet_mass_diameter(start_bin,end_bin,c_mass,c_number,c_inti, &
        wet_m,wet_d,wet_v)
     !------------------------------------------------------------------------
     !
@@ -73,7 +73,7 @@ contains
                 jesp=isorropia_species(i)
                 aero(i)=qext(jesp)
              enddo
-             call calculatewater(aero,qinti,lwc)
+             call ssh_calculatewater(aero,qinti,lwc)
              qext(EH2O)=lwc
              if(rhoaer.le.0.d0) then
                 rhoaer=density_aer_bin(j)
@@ -109,9 +109,9 @@ contains
        endif
     enddo
 
-  end subroutine compute_wet_mass_diameter
+  end subroutine ssh_compute_wet_mass_diameter
 
-  subroutine calculatewater(aero,qinti,lwc)
+  subroutine ssh_calculatewater(aero,qinti,lwc)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -159,7 +159,7 @@ contains
     end do
 
     !     call isorropia fortran routine
-    call ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
+    call SSH_ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
          liquid, solid, other, organion, watorg)
     !     clipping to tinym
 
@@ -183,9 +183,9 @@ contains
     ! liquid water content
     lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
     if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
-  end subroutine calculatewater
+  end subroutine ssh_calculatewater
 
-  subroutine update_wet_diameter(start_bin,end_bin,c_mass,c_inti,c_number,wet_m,&
+  subroutine ssh_update_wet_diameter(start_bin,end_bin,c_mass,c_inti,c_number,wet_m,&
        wet_d,wet_v,dry_d)
     !------------------------------------------------------------------------
     !
@@ -248,7 +248,7 @@ contains
           do jesp=1,N_inside_aer
              qinti(jesp)=c_inti(j,jesp)
           enddo
-          call VOLAERO(N_aerosol,qext,qinti,rhoaer,rhoaer_dry)
+          call ssh_VOLAERO(N_aerosol,qext,qinti,rhoaer,rhoaer_dry)
 
 	  if(rhoaer.gt.0.d0) then
              rho_wet_cell(j)=rhoaer
@@ -278,9 +278,9 @@ contains
     enddo
     if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
 
-  end subroutine update_wet_diameter
+  end subroutine ssh_update_wet_diameter
 
-  subroutine update_wet_diameter_liquid(start_bin,end_bin,c_mass,c_number,wet_m,&
+  subroutine ssh_update_wet_diameter_liquid(start_bin,end_bin,c_mass,c_number,wet_m,&
        wet_d,wet_v,dry_d)
 
     !------------------------------------------------------------------------
@@ -342,7 +342,7 @@ contains
              qext(s) = qext(s) + c_mass(j,jesp)
           enddo
           if (with_fixed_density == 0) then
-             call compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+             call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
                   mass_density_layers,j,rhoaer)
           else
              rhoaer = fixed_density 
@@ -376,9 +376,9 @@ contains
     enddo
     if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
 
-  end subroutine update_wet_diameter_liquid
+  end subroutine ssh_update_wet_diameter_liquid
 
-  subroutine VOLAERO(nesp_aer,qext,qinti,rhoaer, rhoaer_dry)
+  subroutine ssh_VOLAERO(nesp_aer,qext,qinti,rhoaer, rhoaer_dry)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -507,9 +507,9 @@ contains
        rhoaer=fixed_density
        rhoaer_dry = fixed_density
     endif
-  end subroutine VOLAERO
+  end subroutine ssh_VOLAERO
 
-  subroutine EQINORG(nesp_aer,qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,aerliq)
+  subroutine ssh_EQINORG(nesp_aer,qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,aerliq)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -566,7 +566,7 @@ contains
     wi(1) = 0.D0              !Do not consider sea salt in isoropia
     wi(5) = 0.D0
 #endif
-    call ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
+    call ssh_ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
          aerliq,aersld,other,organion,watorg)
     !     clipping to tinym
     if (gas(1).lt.0.d0) gas(1)=tinym
@@ -606,9 +606,9 @@ contains
        !molecular_weight_solid(jesp)
     end do
 
-  end subroutine EQINORG
+  end subroutine ssh_EQINORG
 
-  subroutine KLIMIT(q,c_gas,k,ce_kernal_coef)
+  subroutine ssh_KLIMIT(q,c_gas,k,ce_kernal_coef)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -723,10 +723,10 @@ contains
        endif
     enddo
 
-  end subroutine KLIMIT
+  end subroutine ssh_KLIMIT
 
 
-  subroutine HPLFLIM(alfa,qih,N_size_loc,init_bulk_gas,&
+  subroutine ssh_HPLFLIM(alfa,qih,N_size_loc,init_bulk_gas,&
        ce_kernal_coef_i,Kelvin_effect,surface_equilibrium_conc,ce_kernel)
     !------------------------------------------------------------------------
     !
@@ -846,9 +846,9 @@ contains
        end do
     endif
 
-  end subroutine HPLFLIM
+  end subroutine ssh_HPLFLIM
 
-  subroutine equi_const(TEMP, XK3, XK4, XK6, XK8, XK9, XK10)
+  subroutine ssh_equi_const(TEMP, XK3, XK4, XK6, XK8, XK9, XK10)
     implicit none
     double precision TEMP, T0, T0T, COEF
     double precision XK3, XK4, XK6, XK8, XK9, XK10
@@ -873,9 +873,9 @@ contains
        XK10= XK10*EXP(-74.38*(T0T-1.0) +  6.120*COEF) ! ISORR
     ENDIF
 
-  end subroutine equi_const
+  end subroutine ssh_equi_const
 
-  subroutine DRYIN(Temp,qinti,N_size_loc,init_bulk_gas,ce_kernal_coef_i,&
+  subroutine ssh_DRYIN(Temp,qinti,N_size_loc,init_bulk_gas,ce_kernal_coef_i,&
        Kelvin_effect,surface_equilibrium_conc,ce_kernel)
     !------------------------------------------------------------------------
     !
@@ -939,7 +939,7 @@ contains
 
     rgas1=ATM/(RGAS*Temp)
 
-    call equi_const(Temp, XK3, XK4, XK6, XK8, XK9, XK10)
+    call ssh_equi_const(Temp, XK3, XK4, XK6, XK8, XK9, XK10)
 
     rk1= XK10*rgas1*rgas1*molecular_weight_aer(ENH4)&
          *molecular_weight_aer(ENO3)*Kelvin_effect(ENH4)*Kelvin_effect(ENO3)
@@ -1154,10 +1154,10 @@ contains
                surface_equilibrium_conc(jesp)*Kelvin_effect(jesp) )
        end do
     endif
-  end subroutine DRYIN
+  end subroutine ssh_DRYIN
 
 
-  subroutine ISOROPIA_DRV(nesp_aer,&
+  subroutine ssh_ISOROPIA_DRV(nesp_aer,&
        aero, gas, organion, watorg, ionic, proton, lwc, rh, Temp, &
        liquid)
 
@@ -1221,7 +1221,7 @@ contains
        wi(i) = wi(i) / molecular_weight_aer(idx) ! microg.m-3 / microg.mol-1 = mol.m-3
     enddo
 
-    call ISOROPIA(wi, rh, Temp, cntrl, w, gas2,&
+    call SSH_ISOROPIA(wi, rh, Temp, cntrl, w, gas2,&
          liquid, solid, other, organion2, watorg2)
 
     !     Aqueous phase total liquid water content and pH (proton) concentration
@@ -1247,6 +1247,6 @@ contains
        endif
     enddo
 
-  end subroutine ISOROPIA_DRV
+  end subroutine ssh_ISOROPIA_DRV
 
 End module cThermodynamics

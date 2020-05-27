@@ -1,5 +1,5 @@
       
-      SUBROUTINE chem (ns,nr,nrphot,nreactphot
+      SUBROUTINE ssh_chem (ns,nr,nrphot,nreactphot
      $     ,nemis,nemisspecies,convers_factor,convers_factor_jac
      $     ,nzemis,LWCmin,Wmol,ts,DLattenuation
      $     ,DLhumid,DLtemp,DLpress,DLCsourc,DLCphotolysis_rates,delta_t
@@ -135,8 +135,8 @@ C------------------------------------------------------------------------
       DOUBLE PRECISION Zangzen,Zangzenf
       DOUBLE PRECISION Zatt,Zattf
 
-      DOUBLE PRECISION muzero,DLmuzero
-      EXTERNAL muzero
+      DOUBLE PRECISION ssh_muzero,DLmuzero
+      EXTERNAL ssh_muzero
 
       integer nreactphot(nrphot)
       integer nemisspecies(nemis)
@@ -200,7 +200,7 @@ C     Compute aerosol density
          rho_dry = RHOA
          IF (IDENS.EQ.1) THEN   ! for varying density
             DO Jb=1,nbin_aer
-               CALL COMPUTE_DENSITY(nbin_aer,ns_aer, ns_aer, TINYM,
+               CALL SSH_COMPUTE_DENSITY(nbin_aer,ns_aer, ns_aer, TINYM,
      &              DLconc_aer,
      &              mass_density_aer,Jb,rho_dry(Jb))
             ENDDO
@@ -314,16 +314,16 @@ C     Integration of chemistry with adaptive time stepping
 
          Do while (tschem.LT.tfchem) 
 ! Compute zenithal angles
-            DLmuzero=muzero(tschem,Dlon,Dlat)
+            DLmuzero=ssh_muzero(tschem,Dlon,Dlat)
             Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
-            DLmuzero=muzero(tfchem_tmp,Dlon,Dlat)
+            DLmuzero=ssh_muzero(tfchem_tmp,Dlon,Dlat)
             Zangzenf=dabs(DACOS(DLmuzero)*180.D0/PI)
 
 C     If option_photolysis is 1,
 C     photolytic reactions are calculated in kinetic.f
 
 ! Compute kinetic rates
-            CALL Kinetic(Ns,Nbin_aer,Nr,
+            CALL SSH_Kinetic(Ns,Nbin_aer,Nr,
      s           IHETER,ICLD,DLRKi,DLtemp,
      s           DLhumid,DLpress,Zangzen,
      s           Zatt,lwca,granulo_aer,
@@ -351,7 +351,7 @@ C     photolytic reactions may be read.
                ENDDO
             ENDIF
             
-            CALL roschem (NS,Nr,nemis,ZC,ZCsourc,ZCsourcf,
+            CALL SSH_roschem (NS,Nr,nemis,ZC,ZCsourc,ZCsourcf,
      s           convers_factor, convers_factor_jac,tschem,
      s           tfchem_tmp,DLRki,DLRkf,ZC_old,DLK1,DLK2)
             

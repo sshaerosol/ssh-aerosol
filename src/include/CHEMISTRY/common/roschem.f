@@ -1,6 +1,6 @@
 
       
-      SUBROUTINE roschem (NS,Nr,nemis,DLconc,ZCsourc,ZCsourcf,
+      SUBROUTINE ssh_roschem (NS,Nr,nemis,DLconc,ZCsourc,ZCsourcf,
      s     convers_factor, convers_factor_jac,
      s     ts,tf,DLRki,DLRkf,DLconc_old,DLk1,DLk2)
 
@@ -90,11 +90,12 @@ C     1 - First step
 
 C     Compute chemical production terms at initial time (DLb1).
 
-      CALL fexchem(NS,Nr,nemis,DLconc,DLRki,ZCsourc,convers_factor,DLb1)
+      CALL ssh_fexchem(NS,Nr,nemis,DLconc,DLRki,ZCsourc,convers_factor,
+     &		DLb1)
 
 C     Compute the Jacobian at initial time (DLRDC).
 
-      CALL jacdchemdc (NS,Nr,DLconc,convers_factor,
+      CALL ssh_jacdchemdc (NS,Nr,DLconc,convers_factor,
      $     convers_factor_jac,DLRKi,DLdrdc)
 
 C     Compute K1 by solving (1-Igamma*dt*DLRDC) DLK1 = DLR
@@ -106,7 +107,7 @@ C     Compute K1 by solving (1-Igamma*dt*DLRDC) DLK1 = DLR
          DLmat(Jj,Jj) = 1.D0 + DLmat(Jj,Jj)
       ENDDO
 
-      CALL solvlin(NS,0,DLmat,DLmatlu,DLk1,DLb1)
+      CALL ssh_solvlin(NS,0,DLmat,DLmatlu,DLk1,DLb1)
 
 C------------------------------------------------------------------------
 C     2 - Second step
@@ -124,7 +125,7 @@ C     Compute first-order approximation (DLCONCBIS).
 C     Compute chemical production terms (DLR) at final time with
 C     the first-order approximation.
 
-      CALL fexchem (NS,Nr,nemis,DLconcbis,DLRkf,
+      CALL ssh_fexchem (NS,Nr,nemis,DLconcbis,DLRkf,
      $     ZCsourcf,convers_factor, DLr)
 
 C     Compute DLK2 by solving (optimized scheme)
@@ -134,7 +135,7 @@ C     (1-Igamma*dt*DLRDC) DLK2 = DLR-2 DLK1
          DLb2(Ji) =  DLr(Ji) - 2.D0*DLk1(Ji)
       ENDDO
 
-      CALL solvlin(NS,1,DLmat,DLmatlu,DLk2,DLb2)
+      CALL ssh_solvlin(NS,1,DLmat,DLmatlu,DLk2,DLb2)
 
 C------------------------------------------------------------------------
 C     3 - Compute concentrations at final time (optimized scheme):

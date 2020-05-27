@@ -14,7 +14,7 @@ MODULE mEmissions
 
 contains
 
-  subroutine emission(emis_dt)
+  subroutine ssh_emission(emis_dt)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -105,7 +105,7 @@ contains
        enddo
     end do
 
-end subroutine emission
+end subroutine ssh_emission
 
 
 end MODULE mEmissions

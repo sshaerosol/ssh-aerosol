@@ -14,7 +14,7 @@ Module eRedistribution
   implicit none
 
 contains
-  subroutine redistribution_size(scheme)
+  subroutine ssh_redistribution_size(scheme)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -66,7 +66,7 @@ contains
 	d_after_cond(k)=cell_diam_av(j)
       enddo
 
-      call redistribution(N_sizebin,N_aerosol_layers,EH2O_layers,diam_bound, d, scheme, &
+      call ssh_redistribution(N_sizebin,N_aerosol_layers,EH2O_layers,diam_bound, d, scheme, &
       section_pass, mass_density_layers, DQLIMIT, Qesp, N, totQ,&
       with_fixed_density, fixed_density,d_after_cond)
 
@@ -84,9 +84,9 @@ contains
     enddo
 
 	  
-  end subroutine redistribution_size
+  end subroutine ssh_redistribution_size
 
-  subroutine redistribution_fraction()
+  subroutine ssh_redistribution_fraction()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -208,9 +208,9 @@ contains
     enddo
     
     
-  end subroutine redistribution_fraction
+  end subroutine ssh_redistribution_fraction
 
-  subroutine redistribution_lwc(lwc,ionic,proton,liquid,iredist,end_bin)
+  subroutine ssh_redistribution_lwc(lwc,ionic,proton,liquid,iredist,end_bin)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -262,9 +262,9 @@ contains
        end if
      endif
     enddo
-  end subroutine redistribution_lwc
+  end subroutine ssh_redistribution_lwc
   
-  subroutine redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+  subroutine ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -303,6 +303,6 @@ contains
        end if
     enddo
 
-  end subroutine redistribution_lwcorg
+  end subroutine ssh_redistribution_lwcorg
   
 end Module eRedistribution

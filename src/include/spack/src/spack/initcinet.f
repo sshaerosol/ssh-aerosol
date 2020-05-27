@@ -1,4 +1,4 @@
-      subroutine  initcinet
+      subroutine  ssh_initcinet
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION

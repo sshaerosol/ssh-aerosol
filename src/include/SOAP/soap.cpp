@@ -19,7 +19,7 @@ using namespace blitz;
 // INCLUDES //
 //////////////
 
-extern "C" void soap_main_(double* LWC, double* RH, double* Temperature, 
+extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, 
                            double* ionic, double* chp, double& LWCorg,
                            double& deltat, double* DSD, double* csol, double* liquid,
                            int* ns_aer, int* ns_aer_layers, int* neq, double* q, double* qaero, 
@@ -32,7 +32,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
                            double* dtaeromin, double* dorg, int* coupled_phases,
                            int* activity_model, double* epser_soap){
 
-  return soap_main(*LWC, *RH, *Temperature, 
+  return soap_main_ssh(*LWC, *RH, *Temperature, 
                    *ionic, *chp, LWCorg, 
                    deltat,DSD,csol, liquid,
                    *ns_aer, *ns_aer_layers, *neq, q, qaero, qgas,
@@ -54,7 +54,7 @@ extern "C" void soap_main_(double* LWC, double* RH, double* Temperature,
   \param chp concentrations of H+ ions
   \param liquid liquid inorganic aerosols
 */
-void soap_main(double LWC, double RH, double Temperature,
+void soap_main_ssh(double LWC, double RH, double Temperature,
                double ionic, double chp, double& LWCorg,
                double& deltat, double DSD[], double csol[], double liquid[],
                int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qgas[],
@@ -147,9 +147,9 @@ void soap_main(double LWC, double RH, double Temperature,
   else
     throw string("Bad option given to the organic thermodynamic model.\n");
     
-  parameters(config, surrogate, species_list_aer, molecular_weight_aer,
+  parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
              accomodation_coefficient);
-  check_config(config, surrogate);
+  check_config_ssh(config, surrogate);
   
   // If Na and Cl are included.
   bool NaCl;
@@ -171,7 +171,7 @@ void soap_main(double LWC, double RH, double Temperature,
   
   // Compute the activity coefficients at infinite dilution 
   // and the Henry's law constant 
-  compute_gamma_infini(config, surrogate);
+  compute_gamma_infini_ssh(config, surrogate);
 
   for (i = 0; i < n; ++i)
     {
@@ -250,7 +250,7 @@ void soap_main(double LWC, double RH, double Temperature,
       for (i = 0; i < n; ++i)      
 	 MOinit += surrogate[i].Ap;
 
-      global_equilibrium(config,surrogate,
+      global_equilibrium_ssh(config,surrogate,
                          MOinit,MOW,
                          LWC, AQinit, ionic, chp,
                          Temperature, RH);
@@ -460,9 +460,9 @@ void soap_main(double LWC, double RH, double Temperature,
 		  MOinit_layer(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
           }
 
-      density_aqueous_phase(config, surrogate, LWC_bins, Temperature);
+      density_aqueous_phase_ssh(config, surrogate, LWC_bins, Temperature);
 
-      dynamic_system(config,surrogate,
+      dynamic_system_ssh(config,surrogate,
                      MOinit_layer, MOW_layer,number,vsol,
                      LWC_bins, AQinit_bins, ionic_bins, chp_bins,
                      Temperature, RH, deltat);     

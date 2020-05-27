@@ -6,7 +6,7 @@
 #ifndef UNIFAC_CXX
 #define UNIFAC_CXX
 
-void unifac(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
+void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
 	    Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
 	    Array<double,1> &RG, Array <double, 1> &QG,
 	    Array<double, 1> &Rparam, Array <double, 1> &Qparam, Array <double,1> &Lparam,
@@ -105,7 +105,7 @@ void unifac(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 1> &
     }
 }
 
-void unifac_aq(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
+void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
                Array<double, 1> &Xions,
                Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
 	       Array<double,1> &RG, Array <double, 1> &QG,

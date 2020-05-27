@@ -123,7 +123,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISOROPIA (WI, RHI, TEMPI,  CNTRL, 
+      SUBROUTINE SSH_ISOROPIA (WI, RHI, TEMPI,  CNTRL, 
      &                     WT, GAS, AERLIQ, AERSLD, OTHER,
      &                     ORGANIONI, WATORGI)
 C
@@ -154,32 +154,32 @@ C *** SOLVE FOREWARD PROBLEM ********************************************
 C
 50    IF (IPROB.EQ.0) THEN
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1F (WI, RHI, TEMPI)
+            CALL SSH_ISRP1F (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2F (WI, RHI, TEMPI)
+            CALL SSH_ISRP2F (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3F (WI, RHI, TEMPI)
+            CALL SSH_ISRP3F (WI, RHI, TEMPI)
          ENDIF
 C
 C *** SOLVE REVERSE PROBLEM *********************************************
 C
       ELSE
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1R (WI, RHI, TEMPI)
+            CALL SSH_ISRP1R (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2R (WI, RHI, TEMPI)
+            CALL SSH_ISRP2R (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3R (WI, RHI, TEMPI)
+            CALL SSH_ISRP3R (WI, RHI, TEMPI)
          ENDIF
       ENDIF
 C
 C *** ADJUST MASS BALANCE ***********************************************
 C
-      IF (NADJ.EQ.1) CALL ADJUST (WI)
+      IF (NADJ.EQ.1) CALL SSH_ADJUST (WI)
 ccC
 ccC *** IF METASTABLE AND NO WATER - RESOLVE AS NORMAL ********************
 ccC
@@ -240,14 +240,14 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISOROPIA ******************************************
+C *** END OF SUBROUTINE SSH_ISOROPIA ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE SETPARM
-C *** THIS SUBROUTINE REDEFINES THE SOLUTION PARAMETERS OF ISORROPIA
+C *** SUBROUTINE SSH_SETPARM
+C *** THIS SUBROUTINE SSH_REDEFINES THE SOLUTION PARAMETERS OF ISORROPIA
 C
 C ======================== ARGUMENTS / USAGE ===========================
 C
@@ -314,7 +314,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE SETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
+      SUBROUTINE SSH_SETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
      &                    EPSACTI, NDIVI, NADJI)
       INCLUDE 'isrpia.inc'
       INTEGER  WFTYPI
@@ -330,7 +330,7 @@ C
       IF (NDIVI  .GT. 0)   NDIV   = NDIVI
       IF (NADJI  .GE. 0)   NADJ   = NADJI
 C
-C *** END OF SUBROUTINE SETPARM *****************************************
+C *** END OF SUBROUTINE SSH_SETPARM *****************************************
 C
       RETURN
       END
@@ -341,13 +341,13 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE GETPARM
-C *** THIS SUBROUTINE OBTAINS THE CURRENT VAULES OF THE SOLUTION 
+C *** SUBROUTINE SSH_GETPARM
+C *** THIS SUBROUTINE SSH_OBTAINS THE CURRENT VAULES OF THE SOLUTION 
 C     PARAMETERS OF ISORROPIA
 C
 C ======================== ARGUMENTS / USAGE ===========================
 C
-C *** THE PARAMETERS ARE THOSE OF SUBROUTINE SETPARM
+C *** THE PARAMETERS ARE THOSE OF SUBROUTINE SSH_SETPARM
 C 
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -356,7 +356,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE GETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
+      SUBROUTINE SSH_GETPARM (WFTYPI,  IACALCI, EPSI, MAXITI, NSWEEPI, 
      &                    EPSACTI, NDIVI, NADJI)
       INCLUDE 'isrpia.inc'
       INTEGER  WFTYPI
@@ -372,7 +372,7 @@ C
       NDIVI   = NDIV
       NADJI   = NADJ
 C
-C *** END OF SUBROUTINE GETPARM *****************************************
+C *** END OF SUBROUTINE SSH_GETPARM *****************************************
 C
       RETURN
       END
@@ -381,7 +381,7 @@ C=======================================================================
 C
 C *** ISORROPIA CODE
 C *** BLOCK DATA BLKISO
-C *** THIS SUBROUTINE PROVIDES INITIAL (DEFAULT) VALUES TO PROGRAM
+C *** THIS SUBROUTINE SSH_PROVIDES INITIAL (DEFAULT) VALUES TO PROGRAM
 C     PARAMETERS VIA DATA STATEMENTS
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -778,9 +778,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE INIT1
-C *** THIS SUBROUTINE INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM     
-C     SULFATE AEROSOL SYSTEMS (SUBROUTINE ISRP1)
+C *** SUBROUTINE SSH_INIT1
+C *** THIS SUBROUTINE SSH_INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM     
+C     SULFATE AEROSOL SYSTEMS (SUBROUTINE SSH_ISRP1)
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -789,7 +789,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE INIT1 (WI, RHI, TEMPI)
+      SUBROUTINE SSH_INIT1 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
       REAL      IC,GII,GI0,XX,LN10
@@ -914,90 +914,90 @@ C
 C      M0(01) = AWSC(IRH)      ! NACl
 C      IF (M0(01) .LT. 100.0) THEN
 C         IC = M0(01)
-C         CALL KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(01) = M0(01)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(02) = AWSS(IRH)      ! (NA)2SO4
 C      IF (M0(02) .LT. 100.0) THEN
 C         IC = 3.0*M0(02)
-C         CALL KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(02) = M0(02)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(03) = AWSN(IRH)      ! NANO3
 C      IF (M0(03) .LT. 100.0) THEN
 C         IC = M0(03)
-C         CALL KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(03) = M0(03)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(04) = AWAS(IRH)      ! (NH4)2SO4
 C      IF (M0(04) .LT. 100.0) THEN
 C         IC = 3.0*M0(04)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(04) = M0(04)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(05) = AWAN(IRH)      ! NH4NO3
 C      IF (M0(05) .LT. 100.0) THEN
 C         IC     = M0(05)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
 C         M0(05) = M0(05)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(06) = AWAC(IRH)      ! NH4CL
 C      IF (M0(06) .LT. 100.0) THEN
 C         IC = M0(06)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
 C         M0(06) = M0(06)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(07) = AWSA(IRH)      ! 2H-SO4
 C      IF (M0(07) .LT. 100.0) THEN
 C         IC = 3.0*M0(07)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
 C         M0(07) = M0(07)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(08) = AWSA(IRH)      ! H-HSO4
 CCC      IF (M0(08) .LT. 100.0) THEN     ! These are redundant, because M0(8) is not used
 CCC         IC = M0(08)
-CCC         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCCCCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCCCCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
 CCC         M0(08) = M0(08)*EXP(LN10*(GI0-GII))
 CCC      ENDIF
 C
       M0(09) = AWAB(IRH)      ! NH4HSO4
 C      IF (M0(09) .LT. 100.0) THEN
 C         IC = M0(09)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
 C         M0(09) = M0(09)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(12) = AWSB(IRH)      ! NAHSO4
 C      IF (M0(12) .LT. 100.0) THEN
 C         IC = M0(12)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
 C         M0(12) = M0(12)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(13) = AWLC(IRH)      ! (NH4)3H(SO4)2
 C      IF (M0(13) .LT. 100.0) THEN
 C         IC     = 4.0*M0(13)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G130   = 0.2*(3.0*GI0+2.0*GII)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G13I   = 0.2*(3.0*GI0+2.0*GII)
 C         M0(13) = M0(13)*EXP(LN10*SNGL(G130-G13I))
 C      ENDIF
@@ -1018,7 +1018,7 @@ C
          ERRMSG(I) = 'MESSAGE N/A'
    60 CONTINUE
 C
-C *** END OF SUBROUTINE INIT1 *******************************************
+C *** END OF SUBROUTINE SSH_INIT1 *******************************************
 C
       END
 
@@ -1027,9 +1027,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE INIT2
-C *** THIS SUBROUTINE INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM,
-C     NITRATE, SULFATE AEROSOL SYSTEMS (SUBROUTINE ISRP2)
+C *** SUBROUTINE SSH_INIT2
+C *** THIS SUBROUTINE SSH_INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM,
+C     NITRATE, SULFATE AEROSOL SYSTEMS (SUBROUTINE SSH_ISRP2)
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -1038,7 +1038,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE INIT2 (WI, RHI, TEMPI)
+      SUBROUTINE SSH_INIT2 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
       REAL      IC,GII,GI0,XX,LN10
@@ -1179,90 +1179,90 @@ C
 C      M0(01) = AWSC(IRH)      ! NACl
 C      IF (M0(01) .LT. 100.0) THEN
 C         IC = M0(01)
-C         CALL KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(01) = M0(01)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(02) = AWSS(IRH)      ! (NA)2SO4
 C      IF (M0(02) .LT. 100.0) THEN
 C         IC = 3.0*M0(02)
-C         CALL KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(02) = M0(02)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(03) = AWSN(IRH)      ! NANO3
 C      IF (M0(03) .LT. 100.0) THEN
 C         IC = M0(03)
-C         CALL KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(03) = M0(03)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(04) = AWAS(IRH)      ! (NH4)2SO4
 C      IF (M0(04) .LT. 100.0) THEN
 C         IC = 3.0*M0(04)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(04) = M0(04)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(05) = AWAN(IRH)      ! NH4NO3
 C      IF (M0(05) .LT. 100.0) THEN
 C         IC     = M0(05)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
 C         M0(05) = M0(05)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(06) = AWAC(IRH)      ! NH4CL
 C      IF (M0(06) .LT. 100.0) THEN
 C         IC = M0(06)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
 C         M0(06) = M0(06)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(07) = AWSA(IRH)      ! 2H-SO4
 C      IF (M0(07) .LT. 100.0) THEN
 C         IC = 3.0*M0(07)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
 C         M0(07) = M0(07)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(08) = AWSA(IRH)      ! H-HSO4
 CCC      IF (M0(08) .LT. 100.0) THEN     ! These are redundant, because M0(8) is not used
 CCC         IC = M0(08)
-CCC         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCCCCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCCCCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
 CCC         M0(08) = M0(08)*EXP(LN10*(GI0-GII))
 CCC      ENDIF
 C
       M0(09) = AWAB(IRH)      ! NH4HSO4
 C      IF (M0(09) .LT. 100.0) THEN
 C         IC = M0(09)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
 C         M0(09) = M0(09)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
 C      M0(12) = AWSB(IRH)      ! NAHSO4
 C      IF (M0(12) .LT. 100.0) THEN
 C         IC = M0(12)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
 C         M0(12) = M0(12)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(13) = AWLC(IRH)      ! (NH4)3H(SO4)2
 C      IF (M0(13) .LT. 100.0) THEN
 C         IC     = 4.0*M0(13)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G130   = 0.2*(3.0*GI0+2.0*GII)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G13I   = 0.2*(3.0*GI0+2.0*GII)
 C         M0(13) = M0(13)*EXP(LN10*SNGL(G130-G13I))
 C      ENDIF
@@ -1283,7 +1283,7 @@ C
          ERRMSG(I) = 'MESSAGE N/A'
    60 CONTINUE
 C
-C *** END OF SUBROUTINE INIT2 *******************************************
+C *** END OF SUBROUTINE SSH_INIT2 *******************************************
 C
       END
 
@@ -1294,9 +1294,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISOINIT3
-C *** THIS SUBROUTINE INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM,
-C     SODIUM, CHLORIDE, NITRATE, SULFATE AEROSOL SYSTEMS (SUBROUTINE 
+C *** SUBROUTINE SSH_ISOINIT3
+C *** THIS SUBROUTINE SSH_INITIALIZES ALL GLOBAL VARIABLES FOR AMMONIUM,
+C     SODIUM, CHLORIDE, NITRATE, SULFATE AEROSOL SYSTEMS (SUBROUTINE SSH_
 C     ISRP3)
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -1306,7 +1306,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISOINIT3 (WI, RHI, TEMPI)
+      SUBROUTINE SSH_ISOINIT3 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
       REAL      IC,GII,GI0,XX,LN10
@@ -1524,90 +1524,90 @@ C
       M0(01) = AWSC(IRH)      ! NACl
 C      IF (M0(01) .LT. 100.0) THEN
 C         IC = M0(01)
-C         CALL KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(01) = M0(01)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(02) = AWSS(IRH)      ! (NA)2SO4
 C      IF (M0(02) .LT. 100.0) THEN
 C         IC = 3.0*M0(02)
-C         CALL KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(02) = M0(02)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(03) = AWSN(IRH)      ! NANO3
 C      IF (M0(03) .LT. 100.0) THEN
 C         IC = M0(03)
-C         CALL KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(03) = M0(03)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(04) = AWAS(IRH)      ! (NH4)2SO4
 C      IF (M0(04) .LT. 100.0) THEN
 C         IC = 3.0*M0(04)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX,XX)
 C         M0(04) = M0(04)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(05) = AWAN(IRH)      ! NH4NO3
 C      IF (M0(05) .LT. 100.0) THEN
 C        IC     = M0(05)
-C        CALL KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
-C        CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
+C        CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX,XX)
+C        CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX,XX)
 C         M0(05) = M0(05)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(06) = AWAC(IRH)      ! NH4CL
 C      IF (M0(06) .LT. 100.0) THEN
 C         IC = M0(06)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX,XX)
 C         M0(06) = M0(06)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(07) = AWSA(IRH)      ! 2H-SO4
 C      IF (M0(07) .LT. 100.0) THEN
 C         IC = 3.0*M0(07)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX,XX)
 C         M0(07) = M0(07)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(08) = AWSA(IRH)      ! H-HSO4
 CCC      IF (M0(08) .LT. 100.0) THEN     ! These are redundant, because M0(8) is not used
 CCC         IC = M0(08)
-CCC         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
-CCCCCC         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX,XX)
+CCCCCC         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX,XX)
 CCC         M0(08) = M0(08)*EXP(LN10*(GI0-GII))
 CCC      ENDIF
 C
       M0(09) = AWAB(IRH)      ! NH4HSO4
 C      IF (M0(09) .LT. 100.0) THEN
 C         IC = M0(09)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,GI0,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,GII,XX,XX,XX)
 C         M0(09) = M0(09)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(12) = AWSB(IRH)      ! NAHSO4
 C      IF (M0(12) .LT. 100.0) THEN
 C         IC = M0(12)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GI0)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,GII)
 C         M0(12) = M0(12)*EXP(LN10*(GI0-GII))
 C      ENDIF
 C
       M0(13) = AWLC(IRH)      ! (NH4)3H(SO4)2
 C      IF (M0(13) .LT. 100.0) THEN
 C         IC     = 4.0*M0(13)
-C         CALL KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,298.0,     XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G130   = 0.2*(3.0*GI0+2.0*GII)
-C         CALL KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
+C         CALL SSH_KMTAB(IC,SNGL(TEMP),XX,XX,XX,GI0,XX,XX,XX,XX,GII,XX,XX,XX)
 C         G13I   = 0.2*(3.0*GI0+2.0*GII)
 C         M0(13) = M0(13)*EXP(LN10*SNGL(G130-G13I))
 C      ENDIF
@@ -1627,14 +1627,14 @@ C
          ERRMSG(I) = 'MESSAGE N/A'
    60 CONTINUE
 C
-C *** END OF SUBROUTINE ISOINIT3 *******************************************
+C *** END OF SUBROUTINE SSH_ISOINIT3 *******************************************
 C
       END
       
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ADJUST
+C *** SUBROUTINE SSH_ADJUST
 C *** ADJUSTS FOR MASS BALANCE BETWEEN VOLATILE SPECIES AND SULFATE
 C     FIRST CALCULATE THE EXCESS OF EACH PRECURSOR, AND IF IT EXISTS, THEN
 C     ADJUST SEQUENTIALY AEROSOL PHASE SPECIES WHICH CONTAIN THE EXCESS
@@ -1647,7 +1647,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ADJUST (WI)
+      SUBROUTINE SSH_ADJUST (WI)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION WI(*)
 C
@@ -1839,7 +1839,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** FUNCTION GETASR
+C *** FUNCTION SSH_GETASR
 C *** CALCULATES THE LIMITING NH4+/SO4 RATIO OF A SULFATE POOR SYSTEM
 C     (i.e. SULFATE RATIO = 2.0) FOR GIVEN SO4 LEVEL AND RH
 C
@@ -1850,7 +1850,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      DOUBLE PRECISION FUNCTION GETASR (SO4I, RHI)
+      DOUBLE PRECISION FUNCTION SSH_GETASR (SO4I, RHI)
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
       COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
       DOUBLE PRECISION SO4I, RHI
@@ -1859,9 +1859,9 @@ CCC *** SOLVE USING FULL COMPUTATIONS, NOT LOOK-UP TABLES **************
 CCC
 CCC         W(2) = WAER(2)
 CCC         W(3) = WAER(2)*2.0001D0
-CCC         CALL CALCA2
+CCC         CALL SSH_CALCA2
 CCC         SULRATW = MOLAL(3)/WAER(2)
-CCC         CALL INIT1 (WI, RHI, TEMPI)   ! Re-initialize COMMON BLOCK
+CCC         CALL SSH_INIT1 (WI, RHI, TEMPI)   ! Re-initialize COMMON BLOCK
 C
 C *** CALCULATE INDICES ************************************************
 C
@@ -1885,9 +1885,9 @@ C
       WF     = (SO4I-ASSO4(INDSL))/(ASSO4(INDSH)-ASSO4(INDSL) + 1e-7)
       WF     = MIN(MAX(WF, 0.0), 1.0)
 C
-      GETASR = WF*ASRAT(IPOSH) + (1.0-WF)*ASRAT(IPOSL)
+      SSH_GETASR = WF*ASRAT(IPOSH) + (1.0-WF)*ASRAT(IPOSL)
 C
-C *** END OF FUNCTION GETASR *******************************************
+C *** END OF FUNCTION SSH_GETASR *******************************************
 C
       RETURN
       END
@@ -1899,7 +1899,7 @@ C
 C *** ISORROPIA CODE
 C *** BLOCK DATA AERSR
 C *** CONTAINS DATA FOR AEROSOL SULFATE RATIO ARRAY NEEDED IN FUNCTION 
-C     GETASR
+C     SSH_GETASR
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -1987,7 +1987,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCHA
+C *** SUBROUTINE SSH_CALCHA
 C *** CALCULATES CHLORIDES SPECIATION
 C
 C     HYDROCHLORIC ACID IN THE LIQUID PHASE IS ASSUMED A MINOR SPECIES,  
@@ -2003,7 +2003,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCHA
+      SUBROUTINE SSH_CALCHA
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KAPA
 CC      CHARACTER ERRINF*40
@@ -2019,7 +2019,7 @@ C
          DELT = 0.5*(-(KAPA+ALFA) + DIAK)
 CC         IF (DELT/KAPA.GT.0.1d0) THEN
 CC            WRITE (ERRINF,'(1PE10.3)') DELT/KAPA*100.0
-CC            CALL PUSHERR (0033, ERRINF)    
+CC            CALL SSH_PUSHERR (0033, ERRINF)    
 CC         ENDIF
       ENDIF
 C
@@ -2034,7 +2034,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCHA ******************************************
+C *** END OF SUBROUTINE SSH_CALCHA ******************************************
 C
       END
 
@@ -2045,7 +2045,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCHAP
+C *** SUBROUTINE SSH_CALCHAP
 C *** CALCULATES CHLORIDES SPECIATION
 C
 C     HYDROCHLORIC ACID IN THE LIQUID PHASE IS ASSUMED A MINOR SPECIES, 
@@ -2063,7 +2063,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCHAP
+      SUBROUTINE SSH_CALCHAP
       INCLUDE 'isrpia.inc'
 C
 C *** IS THERE A LIQUID PHASE? ******************************************
@@ -2072,7 +2072,7 @@ C
 C
 C *** CALCULATE HCL SPECIATION IN THE GAS PHASE *************************
 C
-      CALL CALCCLAQ (MOLAL(4), MOLAL(1), DELT)
+      CALL SSH_CALCCLAQ (MOLAL(4), MOLAL(1), DELT)
       ALFA     = XK3*R*TEMP*(WATER/GAMA(11))**2.0
       GASAQ(3) = DELT
       MOLAL(1) = MOLAL(1) - DELT
@@ -2081,7 +2081,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCHAP *****************************************
+C *** END OF SUBROUTINE SSH_CALCHAP *****************************************
 C
       END
 
@@ -2089,7 +2089,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNA
+C *** SUBROUTINE SSH_CALCNA
 C *** CALCULATES NITRATES SPECIATION
 C
 C     NITRIC ACID IN THE LIQUID PHASE IS ASSUMED A MINOR SPECIES, THAT 
@@ -2104,7 +2104,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNA
+      SUBROUTINE SSH_CALCNA
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION KAPA
 CC      CHARACTER ERRINF*40
@@ -2120,7 +2120,7 @@ C
          DELT = 0.5*(-(KAPA+ALFA) + DIAK)
 CC         IF (DELT/KAPA.GT.0.1d0) THEN
 CC            WRITE (ERRINF,'(1PE10.3)') DELT/KAPA*100.0
-CC            CALL PUSHERR (0019, ERRINF)    ! WARNING ERROR: NO SOLUTION
+CC            CALL SSH_PUSHERR (0019, ERRINF)    ! WARNING ERROR: NO SOLUTION
 CC         ENDIF
       ENDIF
 C
@@ -2135,7 +2135,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCNA ******************************************
+C *** END OF SUBROUTINE SSH_CALCNA ******************************************
 C
       END
 
@@ -2144,7 +2144,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNAP
+C *** SUBROUTINE SSH_CALCNAP
 C *** CALCULATES NITRATES SPECIATION
 C
 C     NITRIC ACID IN THE LIQUID PHASE IS ASSUMED A MINOR SPECIES, THAT 
@@ -2161,7 +2161,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNAP
+      SUBROUTINE SSH_CALCNAP
       INCLUDE 'isrpia.inc'
 C
 C *** IS THERE A LIQUID PHASE? ******************************************
@@ -2170,7 +2170,7 @@ C
 C
 C *** CALCULATE HNO3 SPECIATION IN THE GAS PHASE ************************
 C
-      CALL CALCNIAQ (MOLAL(7), MOLAL(1), DELT)
+      CALL SSH_CALCNIAQ (MOLAL(7), MOLAL(1), DELT)
       ALFA     = XK4*R*TEMP*(WATER/GAMA(10))**2.0
       GASAQ(3) = DELT
       MOLAL(1) = MOLAL(1) - DELT
@@ -2180,14 +2180,14 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCNAP *****************************************
+C *** END OF SUBROUTINE SSH_CALCNAP *****************************************
 C
       END
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNH3
+C *** SUBROUTINE SSH_CALCNH3
 C *** CALCULATES AMMONIA IN GAS PHASE
 C
 C     AMMONIA IN THE GAS PHASE IS ASSUMED A MINOR SPECIES, THAT 
@@ -2204,7 +2204,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNH3
+      SUBROUTINE SSH_CALCNH3
       INCLUDE 'isrpia.inc'
 C
 C *** IS THERE A LIQUID PHASE? ******************************************
@@ -2234,7 +2234,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCNH3 *****************************************
+C *** END OF SUBROUTINE SSH_CALCNH3 *****************************************
 C
       END
 
@@ -2243,7 +2243,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNH3P
+C *** SUBROUTINE SSH_CALCNH3P
 C *** CALCULATES AMMONIA IN GAS PHASE
 C
 C     AMMONIA GAS IS CALCULATED FROM THE NH3(g) + (H+)(l) <==> (NH4+)(l)
@@ -2258,7 +2258,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNH3P
+      SUBROUTINE SSH_CALCNH3P
       INCLUDE 'isrpia.inc'
 C
 C *** IS THERE A LIQUID PHASE? ******************************************
@@ -2272,7 +2272,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCNH3P ****************************************
+C *** END OF SUBROUTINE SSH_CALCNH3P ****************************************
 C
       END
 
@@ -2280,9 +2280,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNHA
+C *** SUBROUTINE SSH_CALCNHA
 C
-C     THIS SUBROUTINE CALCULATES THE DISSOLUTION OF HCL, HNO3 AT
+C     THIS SUBROUTINE SSH_CALCULATES THE DISSOLUTION OF HCL, HNO3 AT
 C     THE PRESENCE OF (H,SO4). HCL, HNO3 ARE CONSIDERED MINOR SPECIES,
 C     THAT DO NOT SIGNIFICANTLY AFFECT THE EQUILIBRIUM POINT.
 C
@@ -2293,7 +2293,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNHA
+      SUBROUTINE SSH_CALCNHA
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION M1, M2, M3
       CHARACTER ERRINF*40     
@@ -2311,13 +2311,13 @@ C
 C *** SPECIAL CASE; HCL=ZERO ********************************************
 C
       ELSE IF (W(5).LE.TINY) THEN
-         CALL CALCNA              ! CALL HNO3 DISSOLUTION ROUTINE
+         CALL SSH_CALCNA              ! CALL SSH_HNO3 DISSOLUTION ROUTINE
          GOTO 60
 C
 C *** SPECIAL CASE; HNO3=ZERO *******************************************
 C
       ELSE IF (W(4).LE.TINY) THEN
-         CALL CALCHA              ! CALL HCL DISSOLUTION ROUTINE
+         CALL SSH_CALCHA              ! CALL SSH_HCL DISSOLUTION ROUTINE
          GOTO 60
       ENDIF
 C
@@ -2345,11 +2345,11 @@ C
 C
 C *** CALCULATE ROOTS ***************************************************
 C
-      CALL POLY3 (M1, M2, M3, DELCL, ISLV) ! HCL DISSOLUTION
+      CALL SSH_POLY3 (M1, M2, M3, DELCL, ISLV) ! HCL DISSOLUTION
       IF (ISLV.NE.0) THEN
          DELCL = TINY       ! TINY AMOUNTS OF HCL ASSUMED WHEN NO ROOT 
          WRITE (ERRINF,'(1PE7.1)') TINY
-         CALL PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
+         CALL SSH_PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
       ENDIF
       DELCL = MIN(DELCL, CHI4)
 C
@@ -2361,14 +2361,14 @@ C
          DELCL = TINY  ! TINY AMOUNTS OF HCL ASSUMED WHEN NO ROOT 
          DELNO = TINY
          WRITE (ERRINF,'(1PE7.1)') TINY
-         CALL PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
+         CALL SSH_PUSHERR (0022, ERRINF)    ! WARNING ERROR: NO SOLUTION
       ENDIF
 CCC
 CCC *** COMPARE DELTA TO TOTAL H+ ; ESTIMATE EFFECT TO HSO4 ***************
 CCC
 CC      IF ((DELCL+DELNO)/MOLAL(1).GT.0.1d0) THEN
 CC         WRITE (ERRINF,'(1PE10.3)') (DELCL+DELNO)/MOLAL(1)*100.0
-CC         CALL PUSHERR (0021, ERRINF)   
+CC         CALL SSH_PUSHERR (0021, ERRINF)   
 CC      ENDIF
 C
 C *** EFFECT ON LIQUID PHASE ********************************************
@@ -2384,7 +2384,7 @@ C
 C
 60    RETURN
 C
-C *** END OF SUBROUTINE CALCNHA *****************************************
+C *** END OF SUBROUTINE SSH_CALCNHA *****************************************
 C
       END
 
@@ -2393,9 +2393,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNHP
+C *** SUBROUTINE SSH_CALCNHP
 C
-C     THIS SUBROUTINE CALCULATES THE GAS PHASE NITRIC AND HYDROCHLORIC
+C     THIS SUBROUTINE SSH_CALCULATES THE GAS PHASE NITRIC AND HYDROCHLORIC
 C     ACID. CONCENTRATIONS ARE CALCULATED FROM THE DISSOLUTION 
 C     EQUILIBRIA, USING (H+), (Cl-), (NO3-) IN THE AEROSOL PHASE.
 C
@@ -2408,7 +2408,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNHP
+      SUBROUTINE SSH_CALCNHP
       INCLUDE 'isrpia.inc'
 C
 C *** IS THERE A LIQUID PHASE? ******************************************
@@ -2424,12 +2424,12 @@ C
 C *** CALCULATE CONCENTRATIONS ******************************************
 C *** ASSUME THAT 'DELT' FROM HNO3 >> 'DELT' FROM HCL
 C
-      CALL CALCNIAQ (WAER(4), MOLAL(1)+MOLAL(7)+MOLAL(4), DELT)
+      CALL SSH_CALCNIAQ (WAER(4), MOLAL(1)+MOLAL(7)+MOLAL(4), DELT)
       MOLAL(1) = MOLAL(1) - DELT 
       MOLAL(7) = WAER(4)  - DELT  ! NO3- = Waer(4) minus any turned into (HNO3aq)
       GASAQ(3) = DELT
 C
-      CALL CALCCLAQ (WAER(5), MOLAL(1)+MOLAL(7)+MOLAL(4), DELT)
+      CALL SSH_CALCCLAQ (WAER(5), MOLAL(1)+MOLAL(7)+MOLAL(4), DELT)
       MOLAL(1) = MOLAL(1) - DELT
       MOLAL(4) = WAER(5)  - DELT  ! Cl- = Waer(4) minus any turned into (HNO3aq)
       GASAQ(2) = DELT
@@ -2439,15 +2439,15 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCNHP *****************************************
+C *** END OF SUBROUTINE SSH_CALCNHP *****************************************
 C
       END
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCAMAQ
-C *** THIS SUBROUTINE CALCULATES THE NH3(aq) GENERATED FROM (H,NH4+).
+C *** SUBROUTINE SSH_CALCAMAQ
+C *** THIS SUBROUTINE SSH_CALCULATES THE NH3(aq) GENERATED FROM (H,NH4+).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2456,7 +2456,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCAMAQ (NH4I, OHI, DELT)
+      SUBROUTINE SSH_CALCAMAQ (NH4I, OHI, DELT)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I
 CC      CHARACTER ERRINF*40
@@ -2497,12 +2497,12 @@ CC *** COMPARE DELTA TO TOTAL NH4+ ; ESTIMATE EFFECT *********************
 CC
 CC      IF (DELTA/HYD.GT.0.1d0) THEN
 CC         WRITE (ERRINF,'(1PE10.3)') DELTA/HYD*100.0
-CC         CALL PUSHERR (0020, ERRINF)
+CC         CALL SSH_PUSHERR (0020, ERRINF)
 CC      ENDIF
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCAMAQ ****************************************
+C *** END OF SUBROUTINE SSH_CALCAMAQ ****************************************
 C
       END
 
@@ -2511,9 +2511,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCAMAQ2
+C *** SUBROUTINE SSH_CALCAMAQ2
 C
-C     THIS SUBROUTINE CALCULATES THE NH3(aq) GENERATED FROM (H,NH4+).
+C     THIS SUBROUTINE SSH_CALCULATES THE NH3(aq) GENERATED FROM (H,NH4+).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2522,7 +2522,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCAMAQ2 (GGNH3, NH4I, OHI, NH3AQ)
+      SUBROUTINE SSH_CALCAMAQ2 (GGNH3, NH4I, OHI, NH3AQ)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NH3AQ
 C
@@ -2548,7 +2548,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCAMAQ2 ****************************************
+C *** END OF SUBROUTINE SSH_CALCAMAQ2 ****************************************
 C
       END
 
@@ -2557,9 +2557,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCCLAQ
+C *** SUBROUTINE SSH_CALCCLAQ
 C
-C     THIS SUBROUTINE CALCULATES THE HCL(aq) GENERATED FROM (H+,CL-).
+C     THIS SUBROUTINE SSH_CALCULATES THE HCL(aq) GENERATED FROM (H+,CL-).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2568,7 +2568,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCCLAQ (CLI, HI, DELT)
+      SUBROUTINE SSH_CALCCLAQ (CLI, HI, DELT)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION CLI
 C
@@ -2605,7 +2605,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCCLAQ ****************************************
+C *** END OF SUBROUTINE SSH_CALCCLAQ ****************************************
 C
       END
 
@@ -2614,9 +2614,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCCLAQ2
+C *** SUBROUTINE SSH_CALCCLAQ2
 C
-C     THIS SUBROUTINE CALCULATES THE HCL(aq) GENERATED FROM (H+,CL-).
+C     THIS SUBROUTINE SSH_CALCULATES THE HCL(aq) GENERATED FROM (H+,CL-).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2625,7 +2625,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCCLAQ2 (GGCL, CLI, HI, CLAQ)
+      SUBROUTINE SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION CLI
 C
@@ -2650,7 +2650,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCCLAQ2 ****************************************
+C *** END OF SUBROUTINE SSH_CALCCLAQ2 ****************************************
 C
       END
 
@@ -2659,9 +2659,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNIAQ
+C *** SUBROUTINE SSH_CALCNIAQ
 C
-C     THIS SUBROUTINE CALCULATES THE HNO3(aq) GENERATED FROM (H,NO3-).
+C     THIS SUBROUTINE SSH_CALCULATES THE HNO3(aq) GENERATED FROM (H,NO3-).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2670,7 +2670,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNIAQ (NO3I, HI, DELT)
+      SUBROUTINE SSH_CALCNIAQ (NO3I, HI, DELT)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NO3I, HI, DELT
 C
@@ -2707,7 +2707,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCNIAQ ****************************************
+C *** END OF SUBROUTINE SSH_CALCNIAQ ****************************************
 C
       END
 
@@ -2716,9 +2716,9 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCNIAQ2
+C *** SUBROUTINE SSH_CALCNIAQ2
 C
-C     THIS SUBROUTINE CALCULATES THE UNDISSOCIATED HNO3(aq)
+C     THIS SUBROUTINE SSH_CALCULATES THE UNDISSOCIATED HNO3(aq)
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2727,7 +2727,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)
+      SUBROUTINE SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NO3I, NO3AQ
 C
@@ -2755,7 +2755,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCNIAQ2 ****************************************
+C *** END OF SUBROUTINE SSH_CALCNIAQ2 ****************************************
 C
       END
 
@@ -2763,8 +2763,8 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCMR
-C *** THIS SUBROUTINE CALCULATES:
+C *** SUBROUTINE SSH_CALCMR
+C *** THIS SUBROUTINE SSH_CALCULATES:
 C     1. ION PAIR CONCENTRATIONS (FROM [MOLAR] ARRAY)
 C     2. WATER CONTENT OF LIQUID AEROSOL PHASE (FROM ZSR CORRELATION)
 C
@@ -2775,7 +2775,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCMR
+      SUBROUTINE SSH_CALCMR
       INCLUDE 'isrpia.inc'
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
@@ -2909,7 +2909,7 @@ C
 C *** UNKNOWN CASE
 C
       ELSE
-         CALL PUSHERR (1001, ' ') ! FATAL ERROR: CASE NOT SUPPORTED 
+         CALL SSH_PUSHERR (1001, ' ') ! FATAL ERROR: CASE NOT SUPPORTED 
       ENDIF
 C
 C *** CALCULATE WATER CONTENT ; ZSR CORRELATION ***********************
@@ -2926,18 +2926,18 @@ C ADD ORGANIC LIQUID WATER CONTENT
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCMR ******************************************
+C *** END OF SUBROUTINE SSH_CALCMR ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCMDRH
+C *** SUBROUTINE SSH_CALCMDRH
 C
 C     THIS IS THE CASE WHERE THE RELATIVE HUMIDITY IS IN THE MUTUAL
 C     DRH REGION. THE SOLUTION IS ASSUMED TO BE THE SUM OF TWO WEIGHTED
-C     SOLUTIONS ; THE 'DRY' SOLUTION (SUBROUTINE DRYCASE) AND THE
-C     'SATURATED LIQUID' SOLUTION (SUBROUTINE LIQCASE).
+C     SOLUTIONS ; THE 'DRY' SOLUTION (SUBROUTINE SSH_DRYCASE) AND THE
+C     'SATURATED LIQUID' SOLUTION (SUBROUTINE SSH_LIQCASE).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -2946,9 +2946,10 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCMDRH (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
+      SUBROUTINE SSH_CALCMDRH (RHI, RHDRY, RHLIQ, SSH_DRYCASE,
+     c     SSH_LIQCASE)
       INCLUDE 'isrpia.inc'
-      EXTERNAL DRYCASE, LIQCASE
+      EXTERNAL SSH_DRYCASE, SSH_LIQCASE
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -2963,7 +2964,7 @@ C
 C
 C *** FIND FIRST SECTION ; DRY ONE ************************************
 C
-      CALL DRYCASE
+      CALL SSH_DRYCASE
       IF (ABS(ONEMWF).LE.1D-5) GOTO 200  ! DRY AEROSOL
 C
       CNH42SO = CNH42S4                  ! FIRST (DRY) SOLUTION
@@ -2993,7 +2994,7 @@ C
       GNH3    = ZERO
       GHNO3   = ZERO
       GHCL    = ZERO
-      CALL LIQCASE                   ! SECOND (LIQUID) SOLUTION
+      CALL SSH_LIQCASE                   ! SECOND (LIQUID) SOLUTION
 C
 C *** ADJUST THINGS FOR THE CASE THAT THE LIQUID SUB PREDICTS DRY AEROSOL
 C
@@ -3074,7 +3075,7 @@ C *** RETURN POINT
 C
 200   RETURN
 C
-C *** END OF SUBROUTINE CALCMDRH ****************************************
+C *** END OF SUBROUTINE SSH_CALCMDRH ****************************************
 C
       END
 
@@ -3086,12 +3087,12 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCMDRP
+C *** SUBROUTINE SSH_CALCMDRP
 C
 C     THIS IS THE CASE WHERE THE RELATIVE HUMIDITY IS IN THE MUTUAL
 C     DRH REGION. THE SOLUTION IS ASSUMED TO BE THE SUM OF TWO WEIGHTED
-C     SOLUTIONS ; THE 'DRY' SOLUTION (SUBROUTINE DRYCASE) AND THE
-C     'SATURATED LIQUID' SOLUTION (SUBROUTINE LIQCASE).
+C     SOLUTIONS ; THE 'DRY' SOLUTION (SUBROUTINE SSH_DRYCASE) AND THE
+C     'SATURATED LIQUID' SOLUTION (SUBROUTINE SSH_LIQCASE).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -3100,9 +3101,10 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCMDRP (RHI, RHDRY, RHLIQ, DRYCASE, LIQCASE)
+      SUBROUTINE SSH_CALCMDRP (RHI, RHDRY, RHLIQ, SSH_DRYCASE,
+     c     SSH_LIQCASE)
       INCLUDE 'isrpia.inc'
-      EXTERNAL DRYCASE, LIQCASE
+      EXTERNAL SSH_DRYCASE, SSH_LIQCASE
 C
 C *** FIND WEIGHT FACTOR **********************************************
 C
@@ -3117,7 +3119,7 @@ C
 C
 C *** FIND FIRST SECTION ; DRY ONE ************************************
 C
-      CALL DRYCASE
+      CALL SSH_DRYCASE
       IF (ABS(ONEMWF).LE.1D-5) GOTO 200  ! DRY AEROSOL
 C
       CNH42SO = CNH42S4              ! FIRST (DRY) SOLUTION
@@ -3144,7 +3146,7 @@ C
       GNH3    = ZERO
       GHNO3   = ZERO
       GHCL    = ZERO
-      CALL LIQCASE                   ! SECOND (LIQUID) SOLUTION
+      CALL SSH_LIQCASE                   ! SECOND (LIQUID) SOLUTION
 C
 C *** ADJUST THINGS FOR THE CASE THAT THE LIQUID SUB PREDICTS DRY AEROSOL
 C
@@ -3153,7 +3155,7 @@ C
          DO 100 I=1,NIONS
             MOLAL(I)= ZERO
  100     CONTINUE
-         CALL DRYCASE
+         CALL SSH_DRYCASE
          GOTO 200
       ENDIF
 C
@@ -3212,14 +3214,14 @@ C
 C
 200   RETURN
 C
-C *** END OF SUBROUTINE CALCMDRP ****************************************
+C *** END OF SUBROUTINE SSH_CALCMDRP ****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCHS4
-C *** THIS SUBROUTINE CALCULATES THE HSO4 GENERATED FROM (H,SO4).
+C *** SUBROUTINE SSH_CALCHS4
+C *** THIS SUBROUTINE SSH_CALCULATES THE HSO4 GENERATED FROM (H,SO4).
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -3228,7 +3230,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCHS4 (HI, SO4I, HSO4I, DELTA)
+      SUBROUTINE SSH_CALCHS4 (HI, SO4I, HSO4I, DELTA)
       INCLUDE 'isrpia.inc'
 CC      CHARACTER ERRINF*40
 C
@@ -3270,13 +3272,13 @@ CC      HYD = MAX(HI, MOLAL(1))
 CC      IF (HYD.GT.TINY) THEN
 CC         IF (DELTA/HYD.GT.0.1d0) THEN
 CC            WRITE (ERRINF,'(1PE10.3)') DELTA/HYD*100.0
-CC            CALL PUSHERR (0020, ERRINF)
+CC            CALL SSH_PUSHERR (0020, ERRINF)
 CC         ENDIF
 CC      ENDIF
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCHS4 *****************************************
+C *** END OF SUBROUTINE SSH_CALCHS4 *****************************************
 C
       END
 
@@ -3284,7 +3286,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCPH
+C *** SUBROUTINE SSH_CALCPH
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -3293,7 +3295,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCPH (GG, HI, OHI)
+      SUBROUTINE SSH_CALCPH (GG, HI, OHI)
       INCLUDE 'isrpia.inc'
 C
       AKW  = XKW *RH*WATER*WATER
@@ -3317,17 +3319,17 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCPH ******************************************
+C *** END OF SUBROUTINE SSH_CALCPH ******************************************
 C
       END
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCACT
+C *** SUBROUTINE SSH_CALCACT
 C *** CALCULATES MULTI-COMPONENET ACTIVITY COEFFICIENTS FROM BROMLEYS
 C     METHOD. THE BINARY ACTIVITY COEFFICIENTS ARE CALCULATED BY 
-C     KUSIK-MEISNER RELATION (SUBROUTINE KMTAB or SUBROUTINE KMFUL). 
+C     KUSIK-MEISNER RELATION (SUBROUTINE SSH_KMTAB or SUBROUTINE SSH_KMFUL). 
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -3336,7 +3338,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE CALCACT
+      SUBROUTINE SSH_CALCACT
       INCLUDE 'isrpia.inc'
 C
       REAL EX10, URF
@@ -3376,11 +3378,11 @@ C  G0(1,1)=G11;G0(1,2)=G07;G0(1,3)=G08;G0(1,4)=G10;G0(2,1)=G01;G0(2,2)=G02
 C  G0(2,3)=G12;G0(2,4)=G03;G0(3,1)=G06;G0(3,2)=G04;G0(3,3)=G09;G0(3,4)=G05
 C
       IF (IACALC.EQ.0) THEN              ! K.M.; FULL
-         CALL KMFUL (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
+         CALL SSH_KMFUL (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
      &               G0(3,2),G0(3,4),G0(3,1),G0(1,2),G0(1,3),G0(3,3),
      &               G0(1,4),G0(1,1),G0(2,3))
       ELSE                               ! K.M.; TABULATED
-         CALL KMTAB (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
+         CALL SSH_KMTAB (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
      &               G0(3,2),G0(3,4),G0(3,1),G0(1,2),G0(1,3),G0(3,3),
      &               G0(1,4),G0(1,1),G0(2,3))
       ENDIF
@@ -3460,7 +3462,7 @@ C
 C
       ICLACT = ICLACT + 1                ! Increment ACTIVITY call counter
 C
-C *** END OF SUBROUTINE ACTIVITY ****************************************
+C *** END OF SUBROUTINE SSH_ACTIVITY ****************************************
 C
       RETURN
       END
@@ -3469,7 +3471,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE RSTGAM
+C *** SUBROUTINE SSH_RSTGAM
 C *** RESETS ACTIVITY COEFFICIENT ARRAYS TO DEFAULT VALUE OF 0.1
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -3479,21 +3481,21 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE RSTGAM
+      SUBROUTINE SSH_RSTGAM
       INCLUDE 'isrpia.inc'
 C
       DO 10 I=1, NPAIR
          GAMA(I) = 0.1
 10    CONTINUE
 C
-C *** END OF SUBROUTINE RSTGAM ******************************************
+C *** END OF SUBROUTINE SSH_RSTGAM ******************************************
 C
       RETURN
       END      
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KMFUL
+C *** SUBROUTINE SSH_KMFUL
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD. 
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -3503,8 +3505,8 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KMFUL (IONIC,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,G09,
-     &                  G10,G11,G12)
+      SUBROUTINE SSH_KMFUL (IONIC,TEMP,G01,G02,G03,G04,G05,G06,G07,
+     &		        G08,G09,G10,G11,G12)
       REAL Ionic, TEMP
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
      &    /1,  2,  1,  2,  1,  1,  2,  1,  1,  1/
@@ -3513,16 +3515,16 @@ C
 C
 C *** Coefficients at 25 oC
 C
-      CALL MKBI(2.230, IONIC, SION, Z01, G01)
-      CALL MKBI(-0.19, IONIC, SION, Z02, G02)
-      CALL MKBI(-0.39, IONIC, SION, Z03, G03)
-      CALL MKBI(-0.25, IONIC, SION, Z04, G04)
-      CALL MKBI(-1.15, IONIC, SION, Z05, G05)
-      CALL MKBI(0.820, IONIC, SION, Z06, G06)
-      CALL MKBI(-.100, IONIC, SION, Z07, G07)
-      CALL MKBI(8.000, IONIC, SION, Z08, G08)
-      CALL MKBI(2.600, IONIC, SION, Z10, G10)
-      CALL MKBI(6.000, IONIC, SION, Z11, G11)
+      CALL SSH_MKBI(2.230, IONIC, SION, Z01, G01)
+      CALL SSH_MKBI(-0.19, IONIC, SION, Z02, G02)
+      CALL SSH_MKBI(-0.39, IONIC, SION, Z03, G03)
+      CALL SSH_MKBI(-0.25, IONIC, SION, Z04, G04)
+      CALL SSH_MKBI(-1.15, IONIC, SION, Z05, G05)
+      CALL SSH_MKBI(0.820, IONIC, SION, Z06, G06)
+      CALL SSH_MKBI(-.100, IONIC, SION, Z07, G07)
+      CALL SSH_MKBI(8.000, IONIC, SION, Z08, G08)
+      CALL SSH_MKBI(2.600, IONIC, SION, Z10, G10)
+      CALL SSH_MKBI(6.000, IONIC, SION, Z11, G11)
 C
 C *** Correct for T other than 298 K
 C
@@ -3555,7 +3557,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE MKBI
+C *** SUBROUTINE SSH_MKBI
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD. 
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -3565,7 +3567,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE MKBI(Q,IONIC,SION,ZIP,BI)
+      SUBROUTINE SSH_MKBI(Q,IONIC,SION,ZIP,BI)
 C
       REAL IONIC
 C
@@ -3581,7 +3583,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KMTAB
+C *** SUBROUTINE SSH_KMTAB
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IONIC' IS INPUT, AND THE ARRAY
@@ -3594,8 +3596,8 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KMTAB (IN,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
-     &                          G11,G12)
+      SUBROUTINE SSH_KMTAB (IN,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,
+     &                          G09,G10,G11,G12)
       REAL IN, Temp
 C
 C *** Find temperature range
@@ -3606,17 +3608,23 @@ C
 C *** Call appropriate routine
 C
       IF (IND.EQ.1) THEN
-         CALL KM198 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM198 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ELSEIF (IND.EQ.2) THEN
-         CALL KM223 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM223 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ELSEIF (IND.EQ.3) THEN
-         CALL KM248 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM248 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ELSEIF (IND.EQ.4) THEN
-         CALL KM273 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM273 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ELSEIF (IND.EQ.5) THEN
-         CALL KM298 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM298 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ELSE
-         CALL KM323 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,G11,G12)
+         CALL SSH_KM323 (IN,G01,G02,G03,G04,G05,G06,G07,G08,
+     &		G09,G10,G11,G12)
       ENDIF
 C
 C *** Return point; End of subroutine
@@ -3625,7 +3633,7 @@ C
       END
 
 
-      INTEGER FUNCTION IBACPOS(IN)
+      INTEGER FUNCTION SSH_IBACPOS(IN)
 C
 C     Compute the index in the binary activity coefficient array
 C     based on the input ionic strength.
@@ -3635,18 +3643,18 @@ C
       implicit none
       real IN
       IF (IN .LE. 0.300000E+02) THEN
-         ibacpos = MIN(NINT( 0.200000E+02*IN) + 1, 600)
+         ssh_ibacpos = MIN(NINT( 0.200000E+02*IN) + 1, 600)
       ELSE
-         ibacpos =   600+NINT( 0.200000E+01*IN- 0.600000E+02)
+         ssh_ibacpos =   600+NINT( 0.200000E+01*IN- 0.600000E+02)
       ENDIF
-      ibacpos = min(ibacpos, 741)
+      ssh_ibacpos = min(ssh_ibacpos, 741)
       return
       end
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM198
+C *** SUBROUTINE SSH_KM198
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3661,7 +3669,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM198 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM198 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3673,10 +3681,12 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER ipos
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -3702,7 +3712,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM223
+C *** SUBROUTINE SSH_KM223
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3717,7 +3727,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM223 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM223 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3729,10 +3739,11 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -3759,7 +3770,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM248
+C *** SUBROUTINE SSH_KM248
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3774,7 +3785,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM248 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM248 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3786,10 +3797,11 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -3815,7 +3827,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM273
+C *** SUBROUTINE SSH_KM273
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3830,7 +3842,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM273 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM273 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3842,10 +3854,11 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -3871,7 +3884,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM298
+C *** SUBROUTINE SSH_KM298
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3886,7 +3899,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM298 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM298 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3898,10 +3911,11 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -3927,7 +3941,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE KM323
+C *** SUBROUTINE SSH_KM323
 C *** CALCULATES BINARY ACTIVITY COEFFICIENTS BY KUSIK-MEISSNER METHOD.
 C     THE COMPUTATIONS HAVE BEEN PERFORMED AND THE RESULTS ARE STORED IN
 C     LOOKUP TABLES. THE IONIC ACTIVITY 'IN' IS INPUT, AND THE ARRAY
@@ -3942,7 +3956,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE KM323 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
+      SUBROUTINE SSH_KM323 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
 C
 C *** Common block definition
@@ -3954,10 +3968,11 @@ C
      &BNC13M(  741)
 
       REAL IN
+      INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
 C
-      ipos = ibacpos(IN)
+      ipos = ssh_ibacpos(IN)
 C
 C *** Assign values to return array
 C
@@ -17179,7 +17194,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE CHRBLN
+CC  Program unit   : SUBROUTINE SSH_CHRBLN
 CC  Purpose        : Position of last non-blank character in a string
 CC  Author         : Athanasios Nenes
 CC
@@ -17192,14 +17207,14 @@ CC             the value returned is 1.
 CC
 CC  EXAMPLE:
 CC             STR = 'TEST1.DAT     '
-CC             CALL CHRBLN (STR, IBLK)
+CC             CALL SSH_CHRBLN (STR, IBLK)
 CC
 CC  after execution of this code segment, "IBLK" has the value "9", which
 CC  is the position of the last non-blank character of "STR".
 CC
 CC***********************************************************************
 CC
-      SUBROUTINE CHRBLN (STR, IBLK)
+      SUBROUTINE SSH_CHRBLN (STR, IBLK)
 CC
 CC***********************************************************************
       CHARACTER*(*) STR
@@ -17221,7 +17236,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE SHFTRGHT
+CC  Program unit   : SUBROUTINE SSH_SHFTRGHT
 CC  Purpose        : RIGHT-JUSTIFICATION FUNCTION ON A STRING
 CC  Author         : Athanasios Nenes
 CC
@@ -17231,20 +17246,20 @@ CC  STRING     is the CHARACTER variable with the string to be justified
 CC
 CC  EXAMPLE:
 CC             STRING    = 'AAAA    '
-CC             CALL SHFTRGHT (STRING)
+CC             CALL SSH_SHFTRGHT (STRING)
 CC          
 CC  after execution of this code segment, STRING contains the value
 CC  '    AAAA'.
 CC
 CC*************************************************************************
 CC
-      SUBROUTINE SHFTRGHT (CHR)
+      SUBROUTINE SSH_SHFTRGHT (CHR)
 CC
 CC***********************************************************************
       CHARACTER CHR*(*)
 C
       I1  = LEN(CHR)             ! Total length of string
-      CALL CHRBLN(CHR,I2)        ! Position of last non-blank character
+      CALL SSH_CHRBLN(CHR,I2)        ! Position of last non-blank character
       IF (I2.EQ.I1) RETURN
 C
       DO 10 I=I2,1,-1            ! Shift characters
@@ -17262,7 +17277,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE RPLSTR
+CC  Program unit   : SUBROUTINE SSH_RPLSTR
 CC  Purpose        : REPLACE CHARACTERS OCCURING IN A STRING
 CC  Author         : Athanasios Nenes
 CC
@@ -17278,14 +17293,14 @@ CC  EXAMPLE:
 CC             STRING    = 'AAAA'
 CC             OLD       = 'A'
 CC             NEW       = 'B' 
-CC             CALL RPLSTR (STRING, OLD, NEW)
+CC             CALL SSH_RPLSTR (STRING, OLD, NEW)
 CC          
 CC  after execution of this code segment, STRING contains the value
 CC  'BBBB'.
 CC
 CC*************************************************************************
 CC
-      SUBROUTINE RPLSTR (STRING, OLD, NEW, IERR)
+      SUBROUTINE SSH_RPLSTR (STRING, OLD, NEW, IERR)
 CC
 CC***********************************************************************
       CHARACTER STRING*(*), OLD*(*), NEW*(*)
@@ -17318,7 +17333,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE INPTD
+CC  Program unit   : SUBROUTINE SSH_INPTD
 CC  Purpose        : Prompts user for a value (DOUBLE). A default value
 CC                   is provided, so if user presses <Enter>, the default
 CC                   is used. 
@@ -17337,7 +17352,7 @@ CC             1 - Invalid FORMAT and/or Invalid default value.
 CC             2 - Bad value specified by user
 CC
 CC  EXAMPLE:
-CC             CALL INPTD (VAR, 1.0D0, 'Give value for A ', '*', Ierr)
+CC             CALL SSH_INPTD (VAR, 1.0D0, 'Give value for A ', '*', Ierr)
 CC          
 CC  after execution of this code segment, the user is prompted for the
 CC  value of variable VAR. If <Enter> is pressed (ie no value is specified)
@@ -17346,7 +17361,7 @@ CC  format. The error status is specified by variable Ierr
 CC
 CC***********************************************************************
 CC
-      SUBROUTINE INPTD (VAR, DEF, PROMPT, PRFMT, IERR)
+      SUBROUTINE SSH_INPTD (VAR, DEF, PROMPT, PRFMT, IERR)
 CC
 CC***********************************************************************
       CHARACTER PROMPT*(*), PRFMT*(*), BUFFER*128
@@ -17358,13 +17373,13 @@ C
 C *** WRITE DEFAULT VALUE TO WORK BUFFER *******************************
 C
       WRITE (BUFFER, FMT=PRFMT, ERR=10) DEF
-      CALL CHRBLN (BUFFER, IEND)
+      CALL SSH_CHRBLN (BUFFER, IEND)
 C
 C *** PROMPT USER FOR INPUT AND READ IT ********************************
 C
       WRITE (*,*) PROMPT,' [',BUFFER(1:IEND),']: '
       READ  (*, '(A)', ERR=20, END=20) BUFFER
-      CALL CHRBLN (BUFFER,IEND)
+      CALL SSH_CHRBLN (BUFFER,IEND)
 C
 C *** READ DATA OR SET DEFAULT ? ****************************************
 C
@@ -17393,7 +17408,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE Pushend 
+CC  Program unit   : SUBROUTINE SSH_Pushend 
 CC  Purpose        : Positions the pointer of a sequential file at its end
 CC                   Simulates the ACCESS='APPEND' clause of a F77L OPEN
 CC                   statement with Standard Fortran commands.
@@ -17404,14 +17419,14 @@ CC  Iunit      is a INTEGER variable, the file unit which the file is
 CC             connected to.
 CC
 CC  EXAMPLE:
-CC             CALL PUSHEND (10)
+CC             CALL SSH_PUSHEND (10)
 CC          
 CC  after execution of this code segment, the pointer of unit 10 is 
 CC  pushed to its end.
 CC
 CC***********************************************************************
 CC
-      SUBROUTINE Pushend (Iunit)
+      SUBROUTINE SSH_Pushend (Iunit)
 CC
 CC***********************************************************************
 C
@@ -17439,7 +17454,7 @@ CC*************************************************************************
 CC
 CC  TOOLBOX LIBRARY v.1.0 (May 1995)
 CC
-CC  Program unit   : SUBROUTINE APPENDEXT
+CC  Program unit   : SUBROUTINE SSH_APPENDEXT
 CC  Purpose        : Fix extension in file name string
 CC
 CC  ======================= ARGUMENTS / USAGE =============================
@@ -17454,21 +17469,21 @@ CC
 CC  EXAMPLE:
 CC             FILENAME1 = 'TEST.DAT'
 CC             FILENAME2 = 'TEST.DAT'
-CC             CALL APPENDEXT (FILENAME1, '.TXT', .FALSE.)
-CC             CALL APPENDEXT (FILENAME2, '.TXT', .TRUE. )
+CC             CALL SSH_APPENDEXT (FILENAME1, '.TXT', .FALSE.)
+CC             CALL SSH_APPENDEXT (FILENAME2, '.TXT', .TRUE. )
 CC          
 CC  after execution of this code segment, "FILENAME1" has the value 
 CC  'TEST.DAT', while "FILENAME2" has the value 'TEST.TXT'
 CC
 CC***********************************************************************
 CC
-      SUBROUTINE Appendext (Filename, Defext, Overwrite)
+      SUBROUTINE SSH_Appendext (Filename, Defext, Overwrite)
 CC
 CC***********************************************************************
       CHARACTER*(*) Filename, Defext
       LOGICAL       Overwrite
 C
-      CALL CHRBLN (Filename, Iend)
+      CALL SSH_CHRBLN (Filename, Iend)
       IF (Filename(1:1).EQ.' ' .AND. Iend.EQ.1) RETURN  ! Filename empty
       Idot = INDEX (Filename, '.')                      ! Append extension ?
       IF (Idot.EQ.0) Filename = Filename(1:Iend)//Defext
@@ -17484,7 +17499,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE POLY3
+C *** SUBROUTINE SSH_POLY3
 C *** FINDS THE REAL ROOTS OF THE THIRD ORDER ALGEBRAIC EQUATION:
 C     X**3 + A1*X**2 + A2*X + A3 = 0.0
 C     THE EQUATION IS SOLVED ANALYTICALLY.
@@ -17513,7 +17528,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE POLY3 (A1, A2, A3, ROOT, ISLV)
+      SUBROUTINE SSH_POLY3 (A1, A2, A3, ROOT, ISLV)
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       PARAMETER (EXPON=1.D0/3.D0,     ZERO=0.D0, THET1=120.D0/180.D0, 
@@ -17588,7 +17603,7 @@ C
          ENDIF
 10    CONTINUE
 C
-C *** END OF SUBROUTINE POLY3 *****************************************
+C *** END OF SUBROUTINE SSH_POLY3 *****************************************
 C
       RETURN
       END
@@ -17599,7 +17614,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE POLY3B
+C *** SUBROUTINE SSH_POLY3B
 C *** FINDS A REAL ROOT OF THE THIRD ORDER ALGEBRAIC EQUATION:
 C     X**3 + A1*X**2 + A2*X + A3 = 0.0
 C     THE EQUATION IS SOLVED NUMERICALLY (BISECTION).
@@ -17613,7 +17628,7 @@ C     RTLW, RTHI DEFINE THE INTERVAL WHICH THE ROOT IS LOOKED FOR.
 C
 C=======================================================================
 C
-      SUBROUTINE POLY3B (A1, A2, A3, RTLW, RTHI, ROOT, ISLV)
+      SUBROUTINE SSH_POLY3B (A1, A2, A3, RTLW, RTHI, ROOT, ISLV)
 C
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
       PARAMETER (ZERO=0.D0, EPS=1D-15, MAXIT=100, NDIV=5)
@@ -17674,7 +17689,7 @@ C
 C
 50    RETURN
 C
-C *** END OF SUBROUTINE POLY3B *****************************************
+C *** END OF SUBROUTINE SSH_POLY3B *****************************************
 C
       END
       
@@ -17683,11 +17698,11 @@ C
 ccc      PROGRAM DRIVER
 ccc      DOUBLE PRECISION ROOT
 cccC
-ccc      CALL POLY3 (-1.d0, 1.d0, -1.d0, ROOT, ISLV)
+ccc      CALL SSH_POLY3 (-1.d0, 1.d0, -1.d0, ROOT, ISLV)
 ccc      IF (ISLV.NE.0) STOP 'Error in POLY3'
 ccc      WRITE (*,*) 'Root=', ROOT
 cccC
-ccc      CALL POLY3B (-1.d0, 1.d0, -1.d0, -10.d0, 10.d0, ROOT, ISLV)
+ccc      CALL SSH_POLY3B (-1.d0, 1.d0, -1.d0, -10.d0, 10.d0, ROOT, ISLV)
 ccc      IF (ISLV.NE.0) STOP 'Error in POLY3B'
 ccc      WRITE (*,*) 'Root=', ROOT
 cccC
@@ -17717,8 +17732,8 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      FUNCTION EX10(X,K)
-      REAL    X, EX10, Y, AINT10, ADEC10, K
+      FUNCTION SSH_EX10(X,K)
+      REAL    X, SSH_EX10, Y, AINT10, ADEC10, K
       INTEGER K1, K2
       COMMON /EXPNC/ AINT10(20), ADEC10(200)
 
@@ -17735,7 +17750,7 @@ C
 C
 C *** CALCULATE EXP FUNCTION *******************************************
 C
-      EX10 = AINT10(K1+10)*ADEC10(K2+100)
+      SSH_EX10 = AINT10(K1+10)*ADEC10(K2+100)
 C
 C *** END OF EXP FUNCTION **********************************************
 C
@@ -17827,12 +17842,12 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISOPLUS
-C *** THIS SUBROUTINE IS THE MASTER ROUTINE FOR THE ISORROPIA-PLUS
+C *** SUBROUTINE SSH_ISOPLUS
+C *** THIS SUBROUTINE SSH_IS THE MASTER ROUTINE FOR THE ISORROPIA-PLUS
 C     THERMODYNAMIC EQUILIBRIUM AEROSOL MODEL (VERSION 1.0)
 C    
-C *** NOTE: THIS SUBROUTINE IS INCLUDED FOR BACKWARD COMPATABILITY ONLY.
-C     A PROGRAMMER SHOULD USE THE MORE COMPLETE SUBROUTINE ISOROPIA INSTEAD
+C *** NOTE: THIS SUBROUTINE SSH_IS INCLUDED FOR BACKWARD COMPATABILITY ONLY.
+C     A PROGRAMMER SHOULD USE THE MORE COMPLETE SUBROUTINE SSH_ISOROPIA INSTEAD
 C
 C ======================== ARGUMENTS / USAGE ===========================
 C
@@ -17913,7 +17928,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISOPLUS (WI,  RHI,    TEMPI,  IPROBI, 
+      SUBROUTINE SSH_ISOPLUS (WI,  RHI,    TEMPI,  IPROBI, 
      &                    GAS, AERLIQ, AERSLD, DRYI   )
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP), GAS(NGASAQ), AERLIQ(NIONS+NGASAQ+1),
@@ -17928,26 +17943,26 @@ C *** SOLVE FOREWARD PROBLEM ********************************************
 C
       IF (IPROB.EQ.0) THEN
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1F (WI, RHI, TEMPI)
+            CALL SSH_ISRP1F (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2F (WI, RHI, TEMPI)
+            CALL SSH_ISRP2F (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3F (WI, RHI, TEMPI)
+            CALL SSH_ISRP3F (WI, RHI, TEMPI)
          ENDIF
 C
 C *** SOLVE REVERSE PROBLEM *********************************************
 C
       ELSE
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1R (WI, RHI, TEMPI)
+            CALL SSH_ISRP1R (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2R (WI, RHI, TEMPI)
+            CALL SSH_ISRP2R (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3R (WI, RHI, TEMPI)
+            CALL SSH_ISRP3R (WI, RHI, TEMPI)
          ENDIF
       ENDIF
 C
@@ -17979,7 +17994,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISOPLUS ******************************************
+C *** END OF SUBROUTINE SSH_ISOPLUS ******************************************
 C
       END
 
@@ -17989,30 +18004,30 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISRPIA 
-C *** THIS SUBROUTINE IS THE MASTER ROUTINE FOR THE ISORROPIA-PLUS
+C *** SUBROUTINE SSH_ISRPIA 
+C *** THIS SUBROUTINE SSH_IS THE MASTER ROUTINE FOR THE ISORROPIA-PLUS
 C     THERMODYNAMIC EQUILIBRIUM AEROSOL MODEL (VERSIONS 0.x)
 C    
-C *** NOTE: THIS SUBROUTINE IS INCLUDED FOR BACKWARD COMPATABILITY ONLY.
-C     A PROGRAMMER SHOULD USE THE MORE COMPLETE SUBROUTINE ISOROPIA INSTEAD
+C *** NOTE: THIS SUBROUTINE SSH_IS INCLUDED FOR BACKWARD COMPATABILITY ONLY.
+C     A PROGRAMMER SHOULD USE THE MORE COMPLETE SUBROUTINE SSH_ISOROPIA INSTEAD
 C
 C
 C     DEPENDING ON THE INPUT VALUES PROVIDED, THE FOLLOWING MODEL
 C     SUBVERSIONS ARE CALLED:
 C
 C     FOREWARD PROBLEM (IPROB=0):
-C     Na      SO4      NH4       NO3      CL       SUBROUTINE CALLED 
+C     Na      SO4      NH4       NO3      CL       SUBROUTINE SSH_CALLED 
 C     ----    ----     ----      ----     ----     -----------------
-C     0.0     >0.0     >0.0       0.0      0.0     SUBROUTINE ISRP1F
-C     0.0     >0.0     >0.0      >0.0      0.0     SUBROUTINE ISRP2F
-C     >0.0    >0.0     >0.0      >0.0     >0.0     SUBROUTINE ISRP3F
+C     0.0     >0.0     >0.0       0.0      0.0     SUBROUTINE SSH_ISRP1F
+C     0.0     >0.0     >0.0      >0.0      0.0     SUBROUTINE SSH_ISRP2F
+C     >0.0    >0.0     >0.0      >0.0     >0.0     SUBROUTINE SSH_ISRP3F
 C
 C     REVERSE PROBLEM (IPROB=1):
-C     Na      SO4      NH4       NO3      CL       SUBROUTINE CALLED 
+C     Na      SO4      NH4       NO3      CL       SUBROUTINE SSH_CALLED 
 C     ----    ----     ----      ----     ----     -----------------
-C     0.0     >0.0     >0.0       0.0      0.0     SUBROUTINE ISRP1R
-C     0.0     >0.0     >0.0      >0.0      0.0     SUBROUTINE ISRP2R
-C     >0.0    >0.0     >0.0      >0.0     >0.0     SUBROUTINE ISRP3R
+C     0.0     >0.0     >0.0       0.0      0.0     SUBROUTINE SSH_ISRP1R
+C     0.0     >0.0     >0.0      >0.0      0.0     SUBROUTINE SSH_ISRP2R
+C     >0.0    >0.0     >0.0      >0.0     >0.0     SUBROUTINE SSH_ISRP3R
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -18021,7 +18036,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISRPIA (WI, RHI, TEMPI, IPROBI)
+      SUBROUTINE SSH_ISRPIA (WI, RHI, TEMPI, IPROBI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
 C
@@ -18033,26 +18048,26 @@ C *** SOLVE FOREWARD PROBLEM ********************************************
 C
       IF (IPROB.EQ.0) THEN
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1F (WI, RHI, TEMPI)
+            CALL SSH_ISRP1F (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2F (WI, RHI, TEMPI)
+            CALL SSH_ISRP2F (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3F (WI, RHI, TEMPI)
+            CALL SSH_ISRP3F (WI, RHI, TEMPI)
          ENDIF
 C
 C *** SOLVE REVERSE PROBLEM *********************************************
 C
       ELSE
          IF (WI(1)+WI(2)+WI(3)+WI(4)+WI(5) .LE. TINY) THEN ! Everything=0
-            CALL INIT1 (WI, RHI, TEMPI)
+            CALL SSH_INIT1 (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(4)+WI(5) .LE. TINY) THEN        ! Na,Cl,NO3=0
-            CALL ISRP1R (WI, RHI, TEMPI)
+            CALL SSH_ISRP1R (WI, RHI, TEMPI)
          ELSE IF (WI(1)+WI(5) .LE. TINY) THEN              ! Na,Cl=0
-            CALL ISRP2R (WI, RHI, TEMPI)
+            CALL SSH_ISRP2R (WI, RHI, TEMPI)
          ELSE
-            CALL ISRP3R (WI, RHI, TEMPI)
+            CALL SSH_ISRP3R (WI, RHI, TEMPI)
          ENDIF
       ENDIF
 C
@@ -18080,14 +18095,14 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISRPIA *******************************************
+C *** END OF SUBROUTINE SSH_ISRPIA *******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE PUSHERR
-C *** THIS SUBROUTINE SAVES AN ERROR MESSAGE IN THE ERROR STACK
+C *** SUBROUTINE SSH_PUSHERR
+C *** THIS SUBROUTINE SSH_SAVES AN ERROR MESSAGE IN THE ERROR STACK
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -18096,7 +18111,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE PUSHERR (IERR,ERRINF)
+      SUBROUTINE SSH_PUSHERR (IERR,ERRINF)
       INCLUDE 'isrpia.inc'
       CHARACTER ERRINF*(*) 
 C
@@ -18111,7 +18126,7 @@ C
          STKOFL        =.TRUE.      ! STACK OVERFLOW
       ENDIF
 C
-C *** END OF SUBROUTINE PUSHERR ****************************************
+C *** END OF SUBROUTINE SSH_PUSHERR ****************************************
 C
       END
       
@@ -18120,8 +18135,8 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISERRINF
-C *** THIS SUBROUTINE OBTAINS A COPY OF THE ERROR STACK (& MESSAGES) 
+C *** SUBROUTINE SSH_ISERRINF
+C *** THIS SUBROUTINE SSH_OBTAINS A COPY OF THE ERROR STACK (& MESSAGES) 
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -18130,7 +18145,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISERRINF (ERRSTKI, ERRMSGI, NOFERI, STKOFLI)
+      SUBROUTINE SSH_ISERRINF (ERRSTKI, ERRMSGI, NOFERI, STKOFLI)
       INCLUDE 'isrpia.inc'
       CHARACTER ERRMSGI*40
       INTEGER   ERRSTKI
@@ -18149,7 +18164,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISERRINF ***************************************
+C *** END OF SUBROUTINE SSH_ISERRINF ***************************************
 C
       END
       
@@ -18158,8 +18173,8 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ERRSTAT
-C *** THIS SUBROUTINE REPORTS ERROR MESSAGES TO UNIT 'IO'
+C *** SUBROUTINE SSH_ERRSTAT
+C *** THIS SUBROUTINE SSH_REPORTS ERROR MESSAGES TO UNIT 'IO'
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
@@ -18168,7 +18183,7 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ERRSTAT (IO,IERR,ERRINF)
+      SUBROUTINE SSH_ERRSTAT (IO,IERR,ERRINF)
       INCLUDE 'isrpia.inc'
       CHARACTER CER*4, NCIS*29, NCIF*27, NSIS*26, NSIF*24, ERRINF*(*)
       DATA NCIS /'NO CONVERGENCE IN SUBROUTINE '/,
@@ -18179,8 +18194,8 @@ C
 C *** WRITE ERROR IN CHARACTER *****************************************
 C
       WRITE (CER,'(I4)') IERR
-      CALL RPLSTR (CER, ' ', '0',IOK)   ! REPLACE BLANKS WITH ZEROS
-      CALL CHRBLN (ERRINF, IEND)        ! LAST POSITION OF ERRINF CHAR
+      CALL SSH_RPLSTR (CER, ' ', '0',IOK)   ! REPLACE BLANKS WITH ZEROS
+      CALL SSH_CHRBLN (ERRINF, IEND)        ! LAST POSITION OF ERRINF CHAR
 C
 C *** WRITE ERROR TYPE (FATAL, WARNING ) *******************************
 C
@@ -18204,12 +18219,12 @@ C
 C FATAL MESSAGES
 C
       IF (IERR.EQ.1001) THEN 
-         CALL CHRBLN (SCASE, IEND)
+         CALL SSH_CHRBLN (SCASE, IEND)
          WRITE (IO,1000) 'CASE NOT SUPPORTED IN CALCMR ['//SCASE(1:IEND)
      &                   //']'
 C
       ELSEIF (IERR.EQ.1002) THEN 
-         CALL CHRBLN (SCASE, IEND)
+         CALL SSH_CHRBLN (SCASE, IEND)
          WRITE (IO,1000) 'CASE NOT SUPPORTED ['//SCASE(1:IEND)//']'
 C
 C WARNING MESSAGES
@@ -18273,14 +18288,14 @@ C
 1000  FORMAT (1X,A:A:A:A:A)
 1100  FORMAT (1X,A,' ERROR [',A4,']:')
 C
-C *** END OF SUBROUTINE ERRSTAT *****************************
+C *** END OF SUBROUTINE SSH_ERRSTAT *****************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISORINF
-C *** THIS SUBROUTINE PROVIDES INFORMATION ABOUT ISORROPIA
+C *** SUBROUTINE SSH_ISORINF
+C *** THIS SUBROUTINE SSH_PROVIDES INFORMATION ABOUT ISORROPIA
 C
 C ======================== ARGUMENTS / USAGE ===========================
 C
@@ -18327,8 +18342,8 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      SUBROUTINE ISORINF (VERSI, NCMP, NION, NAQGAS, NSOL, NERR, TIN,
-     &                    GRT)
+      SUBROUTINE SSH_ISORINF (VERSI, NCMP, NION, NAQGAS, NSOL, NERR, 
+     &                    TIN, GRT)
       INCLUDE 'isrpia.inc'
       CHARACTER VERSI*(*)
 C
@@ -18345,6 +18360,6 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISORINF *******************************************
+C *** END OF SUBROUTINE SSH_ISORINF *******************************************
 C
       END

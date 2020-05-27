@@ -10,9 +10,9 @@ OBJS =		Aerosol.o  compute_bidisperse_coagulation.o  compute_binary_nucleation.o
 
 all:		libatmo.a
 
-libatmo.a:	$(OBJS)
-	        $(RM) latmo.a
-		$(AR) r libatmo.a $(OBJS)
+libssh-atmo.a:	$(OBJS)
+	        $(RM) lssh-atmo.a
+		$(AR) r libssh-atmo.a $(OBJS)
 
 %.o:		%.f
 		$(REALFC) -o $@ $(F77FLAGS) -c $<

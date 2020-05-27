@@ -7,9 +7,9 @@
 #include "equilibrium.cxx"
 #include "dynamic.cxx"
 #include "chemistry.cxx"
-using namespace soap;
+using namespace ssh_soap;
 
-void solve_equilibrium(model_config &config, vector<species>& surrogate,
+void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                        double &MOinit,double &MOW,
                        double &LWC, double &AQinit, double &ionic, double &chp,
                        double &Temperature, double &RH)
@@ -174,7 +174,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
                   error_spec_old=error_spec;
                   ionic_old=ionic;
                   
-                  error_coupled_inorg(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
+                  error_coupled_inorg_ssh(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
                                       chp, organion,
                                       Temperature,RH,
                                       error1,deriv_error1_MO,deriv_error1_AQ,
@@ -331,13 +331,13 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 		  else
 		    compute_activity_coefficients=false;
                 
-		  error_coupled(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
+		  error_coupled_ssh(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
 				chp, organion,
 				Temperature,RH,
 				error1,deriv_error1_MO,deriv_error1_AQ,
 				error2,deriv_error2_MO,deriv_error2_AQ,1.0, compute_activity_coefficients);
 		  //solve the system with a method of newton raphson
-		  newton_raphson_coupled(MO,AQ,error1,deriv_error1_MO,deriv_error1_AQ,
+		  newton_raphson_coupled_ssh(MO,AQ,error1,deriv_error1_MO,deriv_error1_AQ,
 					 error2,deriv_error2_MO,deriv_error2_AQ); 
 		  ++index_iter;
 		}
@@ -439,7 +439,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 		      error_spec_old=error_spec;
 		      ionic_old=ionic;
 
-                      error_coupled(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
+                      error_coupled_ssh(config,surrogate,MO,MOW,MMaq,AQ,LWC,conc_inorganic,ionic,ionic_organic,
                                     chp, organion,
                                     Temperature,RH,
                                     error1,deriv_error1_MO,deriv_error1_AQ,
@@ -552,7 +552,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 	    }                         
 
           if (config.compute_saturation and MO > 0.0 and config.compute_organic)
-            saturation(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
+            saturation_ssh(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
                        chp,organion,Temperature,RH);
         }
       else
@@ -573,7 +573,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
               else
                 compute_activity_coefficients=false;
               
-              error_org(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,
+              error_org_ssh(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,
                         all_hydrophobic, compute_activity_coefficients);
               //solve the system with a method of newton raphson
               if (derivative != 0.0 and MO-error3/derivative >= 0.0)
@@ -589,7 +589,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 	      surrogate[i].Aaq=0.0;
 
           if (config.compute_saturation and MO > 0.0 and config.compute_organic)
-            saturation(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
+            saturation_ssh(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
                        chp,organion,Temperature,RH);
         }
     }
@@ -617,7 +617,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
               else
                 compute_activity_coefficients=false;
 
-              error_org(config,surrogate,MO,MOW,Temperature,error,derivative,RH,
+              error_org_ssh(config,surrogate,MO,MOW,Temperature,error,derivative,RH,
                         all_hydrophobic, compute_activity_coefficients);
               //solve the system with a method of newton raphson
               if (derivative != 0.0 and MO-error/derivative >= 0.0)
@@ -748,7 +748,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
                     error_spec_old=error_spec;
                     ionic_old=ionic;
 
-                    error_inorg_aq(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
+                    error_inorg_aq_ssh(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
                                    Temperature,error2,derivative,RH,
                                    organion,ionic_organic,factor, compute_activity_coefficients);  
                                             
@@ -876,7 +876,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
                 else
                   compute_activity_coefficients=false;
 
-                error_aq(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
+                error_aq_ssh(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
                          Temperature,error2,derivative,RH,
                          organion,ionic_organic,1.0,compute_activity_coefficients);
                 //solve the system with a method of newton raphson
@@ -905,7 +905,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
               else
                 compute_activity_coefficients=false;
               
-              error_org(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,
+              error_org_ssh(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,
                         all_hydrophobic, compute_activity_coefficients);
               if (derivative != 0.0 and MO-error3/derivative >= 0.0)
                 MO=MO-error3/derivative;
@@ -929,7 +929,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
         }
 	  
       if (config.compute_saturation and MO > 0.0 and config.compute_organic)
-        saturation(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
+        saturation_ssh(config,surrogate,all_hydrophobic,LWC,ionic,conc_inorganic,ionic_organic,
                    chp,organion,Temperature,RH);
     }
 
@@ -940,7 +940,7 @@ void solve_equilibrium(model_config &config, vector<species>& surrogate,
 }
 
 
-void solve_system(model_config &config, vector<species>& surrogate,
+void solve_system_ssh(model_config &config, vector<species>& surrogate,
                   double &MOinit,double &MOW,
                   double &LWC, double &AQinit, double &ionic, double &chp,
                   double &Temperature, double &RH)
@@ -959,24 +959,24 @@ void solve_system(model_config &config, vector<species>& surrogate,
   bool compute_activity_coefficients=true;
    
   if (LWC>config.LWClimit)
-    initialisation_eq(config,surrogate,Temperature,RH,ionic, chp, AQinit,false);
+    initialisation_eq_ssh(config,surrogate,Temperature,RH,ionic, chp, AQinit,false);
   else
-    initialisation_eq(config,surrogate,Temperature,RH,ionic,chp,AQinit,true);   
+    initialisation_eq_ssh(config,surrogate,Temperature,RH,ionic,chp,AQinit,true);   
   
   if (config.chemistry)
     for (it=0;it<config.nt;it++)
       { 
-        solve_equilibrium(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
+        solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                           Temperature, RH);
-        solve_chemistry(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
+        solve_chemistry_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                         Temperature, RH, deltat/config.nt, compute_activity_coefficients);
       }
  
-  solve_equilibrium(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
+  solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                     Temperature, RH);
 }
 
-void global_equilibrium(model_config &config, vector<species>& surrogate,
+void global_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                         double &MOinit,double &MOW,
                         double &LWC, double &AQinit, double &ionic, double &chp,
                         double &Temperature, double &RH)
@@ -999,30 +999,30 @@ void global_equilibrium(model_config &config, vector<species>& surrogate,
     {
 
       //config.solids=false;
-      /*solve_system(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
+      /*solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
         chp, Temperature, RH);*/
       //config.solids=true;
       //config.compute_organic=false;
-      solve_system(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
+      solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
                    chp, Temperature, RH);   
     }
   else
     for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
       {
         config.compute_organic=false;
-        solve_system(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
+        solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
                      chp, Temperature, RH);
         config.compute_inorganic=false;
 	
 
         config.compute_organic=true;
-        solve_system(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
+        solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
                      chp, Temperature, RH);
         config.compute_inorganic=true;
       }
 }
 
-void solve_local_equilibriums_uncoupled(model_config config, vector<species> &surrogate,
+void solve_local_equilibriums_uncoupled_ssh(model_config config, vector<species> &surrogate,
                                         Array<double, 3> &MOinit, Array<double, 3> &MOW, Array<double, 1> &number,
                                         Array<double, 1> &Vsol,
                                         Array<double, 1> &LWC, Array<double, 1> &AQinit, Array<double, 1> &ionic,
@@ -1177,44 +1177,44 @@ void solve_local_equilibriums_uncoupled(model_config config, vector<species> &su
           //if (config.first_evaluation_activity_coefficients==false)
           if (config.first_evaluation_activity_coefficients==false)
             {
-              equilibrium_org(config, surrogate, config.tequilibrium, MOinit,MO,
+              equilibrium_org_ssh(config, surrogate, config.tequilibrium, MOinit,MO,
                               Temperature, MOW, true,1.0/nh_org);
               if (config.compute_saturation and config.compute_organic)
-                phase_repartition(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh_org);
+                phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh_org);
             }
           else
             {
-              equilibrium_org(config, surrogate, config.tequilibrium, MOinit,MO,
+              equilibrium_org_ssh(config, surrogate, config.tequilibrium, MOinit,MO,
                               Temperature, MOW, false,1.0/nh_org);
               if (config.compute_saturation and config.compute_organic)
-                phase_repartition(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh_org);
+                phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh_org);
             }
 
           //redistribute concentrations to ensure that the volume of layers are constant
-          redistribution(config, surrogate,MOinit,MO);
+          redistribution_ssh(config, surrogate,MOinit,MO);
         }
 
       if (error_aq>1.0/nh_aq*config.relative_precision and LWCtot>config.LWClimit)
-        density_aqueous_phase(config, surrogate, LWC, Temperature);
+        density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
 		  
       //if the system has not converged for aqueous concentrations
 
       if (error_aq>1.0/nh_aq*config.relative_precision and LWCtot>config.LWClimit)
         if (config.first_evaluation_activity_coefficients==false)
-          equilibrium_aq(config, surrogate, config.tequilibrium, AQinit, AQ,
+          equilibrium_aq_ssh(config, surrogate, config.tequilibrium, AQinit, AQ,
                          MOinit,conc_inorganic, ionic, ionic_organic, organion,
                          chp, LWC, Temperature, RH, MMaq, true,1.0/nh_aq);
         else
-          equilibrium_aq(config, surrogate, config.tequilibrium, AQinit, AQ,
+          equilibrium_aq_ssh(config, surrogate, config.tequilibrium, AQinit, AQ,
                          MOinit,conc_inorganic, ionic, ionic_organic, organion,
                          chp, LWC, Temperature, RH, MMaq, false,1.0/nh_aq);
 
-      water_concentration(config, surrogate, Temperature, RH);
+      water_concentration_ssh(config, surrogate, Temperature, RH);
 
       //compute the new diameters of particles
-      compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);		  		  
+      compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);		  		  
       if (config.explicit_representation)
-	compute_morphology(config, Vsol, number);
+	compute_morphology_ssh(config, Vsol, number);
       //Computation of error_aq and error_tot
       error_aq=0.0;
       error_org=0.0;
@@ -1260,14 +1260,14 @@ void solve_local_equilibriums_uncoupled(model_config config, vector<species> &su
       vec_error_aq(index)=error_aq;
 		  
       //Computation of characteristic times to reach equilibrium
-      tau_dif(config, surrogate, number, Vsol);
-      tau_kmt(config, surrogate, Temperature, number);
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
       /*      if (config.explicit_representation)
-	compute_morphology(config, Vsol);*/
+	compute_morphology_ssh(config, Vsol);*/
 
-      characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
-        characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);  
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);  
 
       ++index;
     }
@@ -1275,13 +1275,13 @@ void solve_local_equilibriums_uncoupled(model_config config, vector<species> &su
 
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
-      number_org_phases(config,surrogate,Temperature,MOinit,MOW);
-      tau_dif(config, surrogate, number, Vsol);
-      tau_kmt(config, surrogate, Temperature, number);
-      compute_kp_org(config, surrogate, MOinit, Temperature, MOW);     
-      characteristic_time(config, surrogate, MOinit, AQinit, LWCtot);
+      number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
+      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);     
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
       if (LWCtot>config.LWClimit)
-        characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
     }
 
   if (error_org>config.relative_precision/nh_org or error_aq>config.relative_precision/nh_aq)
@@ -1298,7 +1298,7 @@ void solve_local_equilibriums_uncoupled(model_config config, vector<species> &su
     }
 }
 
-void solve_local_equilibriums_coupled(model_config config, vector<species> &surrogate,
+void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &surrogate,
                                       Array<double, 3> &MOinit, Array<double, 3> &MOW, Array<double, 1> &number,
                                       Array<double, 1> &Vsol,
                                       Array<double, 1> &LWC, Array<double, 1> &AQinit, Array<double, 1> &ionic,
@@ -1467,37 +1467,37 @@ void solve_local_equilibriums_coupled(model_config config, vector<species> &surr
 
       iiter++;   
       if (LWCtot>config.LWClimit)
-        density_aqueous_phase(config, surrogate, LWC, Temperature);
+        density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
           
       for (b=0;b<config.nbins;b++)
 	chp_save(b)=chp(b);
       
       if (config.first_evaluation_activity_coefficients==false)
         {	  
-          equilibrium_tot(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
+          equilibrium_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
                           ionic, ionic_organic, organion, chp, LWC, MOinit, MO,
                           MOW, Temperature, RH, MMaq, true, 1.0/nh);       
           if (config.compute_saturation and config.compute_organic)
-            phase_repartition(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh);	  
+            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh);	  
         }
       else
         {
-          equilibrium_tot(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
+          equilibrium_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
                           ionic, ionic_organic, organion, chp, LWC, MOinit, MO,
                           MOW, Temperature, RH, MMaq, false, 1.0/nh);
           if (config.compute_saturation and config.compute_organic)
-            phase_repartition(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh);
+            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,1.0/nh);
 	}      
 
       //redistribute concentrations to ensure that the volume of layers are constant      
-      redistribution(config, surrogate,MOinit,MO);
+      redistribution_ssh(config, surrogate,MOinit,MO);
 
-      water_concentration(config, surrogate, Temperature, RH);
+      water_concentration_ssh(config, surrogate, Temperature, RH);
 
       //compute the new diameters of particle due to the growth of particles by condensation
-      compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);
+      compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
       if (config.explicit_representation)
-	compute_morphology(config, Vsol, number);
+	compute_morphology_ssh(config, Vsol, number);
 		  
       //Computation of error_tot
       vec_error_org(index)=0.0;
@@ -1543,24 +1543,24 @@ void solve_local_equilibriums_coupled(model_config config, vector<species> &surr
       error_tot=max(vec_error_org(index),vec_error_aq(index));
 
       //Computation of characteristic times to reach equilibrium
-      tau_dif(config, surrogate, number, Vsol);
-      tau_kmt(config, surrogate, Temperature, number);
-      characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
-        characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);      
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);      
 
       ++index;  
     }
   
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
-      number_org_phases(config,surrogate,Temperature,MOinit,MOW);
-      tau_dif(config, surrogate, number, Vsol);
-      tau_kmt(config, surrogate, Temperature, number);
-      compute_kp_org(config, surrogate, MOinit, Temperature, MOW);
-      characteristic_time(config, surrogate, MOinit, AQinit, LWCtot);
+      number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
+      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
       if (LWCtot>config.LWClimit)
-        characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
     }
 
   if (error_tot>config.relative_precision/nh)
@@ -1579,7 +1579,7 @@ void solve_local_equilibriums_coupled(model_config config, vector<species> &surr
     }
 }
 
-void initialisation(model_config &config, vector<species> &surrogate,
+void initialisation_ssh(model_config &config, vector<species> &surrogate,
 		    Array<double,3> &MOinit, Array<double, 3> &MO, Array<double, 3> &MOW,
 		    Array<double,1> &AQinit,Array<double,1> &AQ, Array<double,1> &MMaq,
 		    double &LWCtot, Array<double,1> &LWC, Array<double, 1> &chp, Array<double, 1> &ionic,
@@ -1609,26 +1609,26 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	  if(surrogate[i].hydrophobic or i==config.iH2O)
 	    {        
 	      if (surrogate[i].kp_from_experiment)
-		surrogate[i].kpi=surrogate[i].Kp_exp_org(Temperature);
+		surrogate[i].kpi=surrogate[i].Kp_exp_org_ssh(Temperature);
 	      else if (surrogate[i].kp_from_experiment==false)
-		surrogate[i].kpi=surrogate[i].Kp_eff_org(Temperature, MOWloc);
+		surrogate[i].kpi=surrogate[i].Kp_eff_org_ssh(Temperature, MOWloc);
 	    }
 
 
 	if (i==config.iH2O)
-	  surrogate[i].kaqi=760.0*8.202e-5*Temperature/(MOWloc*1.0e6*surrogate[i].Psat(Temperature));
+	  surrogate[i].kaqi=760.0*8.202e-5*Temperature/(MOWloc*1.0e6*surrogate[i].Psat_ssh(Temperature));
 	else
 	  if (surrogate[i].hydrophilic)
 	    for (b=0;b<config.nbins;b++)
 	      {
 		double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic(b),0.5)/(1.0+pow(ionic(b),0.5)));
 		if (config.compute_aqueous_phase_properties or chp(b)==0.)
-		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);              
+		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);              
 		else
 		  {
 		    if (surrogate[i].aqt==2) //diacid
 		      {
-			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*
 			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
 			   (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
 			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
@@ -1638,18 +1638,18 @@ void initialisation(model_config &config, vector<species> &surrogate,
 		      }
 		    else if (surrogate[i].aqt==1) //monoacid
 		      {
-			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
 			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
 		      }
 		    else if (surrogate[i].aqt==3) //aldehyde
-		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
 		    else
-		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq(Temperature,MOWloc);
+		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);
 		  }
 	      }
       }
 
-  double Pwater=surrogate[config.iH2O].Psat(Temperature)*RH;
+  double Pwater=surrogate[config.iH2O].Psat_ssh(Temperature)*RH;
   surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
     (8.314*Temperature);
 
@@ -1809,7 +1809,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
     }
  
  if (LWCtot>config.LWClimit)
-   density_aqueous_phase(config, surrogate, LWC, Temperature);
+   density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
  
  for (b=0;b<config.nbins;++b)
    {
@@ -1865,7 +1865,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	      {
                 if (config.hygroscopicity)
                   {   
-                    activity_coefficients_dyn_sat(config, surrogate, Temperature, MOW, b, ilayer);
+                    activity_coefficients_dyn_sat_ssh(config, surrogate, Temperature, MOW, b, ilayer);
                     temp=surrogate[config.iH2O].MM/MOW(b,ilayer,iphase)*MOinit(b,ilayer,iphase)*RH
                       /surrogate[config.iH2O].gamma_org_layer(b,ilayer,iphase);
                     if (surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase) > 1.e-20) // YK
@@ -1897,7 +1897,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	surrogate[i].time_aq(b)=2.0*config.tequilibrium;
 
   //Computation of Ag for water
-  water_concentration(config, surrogate, Temperature, RH);
+  water_concentration_ssh(config, surrogate, Temperature, RH);
 
   if (config.compute_inorganic)
     for (b=0;b<config.nbins;++b)
@@ -1909,7 +1909,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
 	double XH2O=0.0;
 	while (error>config.relative_precision and index<10)
 	  {
-	    density_aqueous_phase(config, surrogate, LWC, Temperature);
+	    density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
 	    config.rho_aqueous=config.AQrho(b);
 
             for (i=0;i<n;++i)
@@ -1921,18 +1921,18 @@ void initialisation(model_config &config, vector<species> &surrogate,
                 conc_org(b)+=surrogate[i].Aaq_bins_init(b);
             conc_org(b)=max(conc_org(b),config.MOmin);
 
-	    compute_ionic_strenght2(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
+	    compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
 				    organion(b), ionic_organic(b), conc_org(b), factor);
 		  
-	    activity_coefficients_aq(config,surrogate,Temperature,0.0,MMaq(b),XH2O,conc_org(b));
+	    activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaq(b),XH2O,conc_org(b));
 	    if (config.compute_long_and_medium_range_interactions)
-	      activity_coefficients_LR_MR(config, surrogate, Temperature, 0.0, ionic(b));
+	      activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, 0.0, ionic(b));
             if (index==0)
               surrogate[config.iH2O].gamma_aq_bins(b)=1.0;
             else
               surrogate[config.iH2O].gamma_aq_bins(b)=surrogate[config.iH2O].gamma_aq;
             
-            compute_kp_aq(config, surrogate, Temperature, ionic, chp, MMaq);
+            compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
 	    
 	    temp=surrogate[config.iH2O].Aaq_bins_init(b);
             surrogate[config.iH2O].Aaq_bins_init(b)=surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*AQinit(b)/(1.0+surrogate[config.iH2O].Kaq(b)*AQinit(b));
@@ -1974,7 +1974,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
       }
   else
     if (LWCtot>config.LWClimit)
-      activity_coefficients_dyn_aq(config, surrogate, Temperature,AQinit,MOinit,
+      activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,MOinit,
 				   conc_inorganic, ionic, ionic_organic,
 				   organion,chp,LWC,MMaq,1.0);
   for (i=0;i<n;i++)
@@ -1998,7 +1998,7 @@ void initialisation(model_config &config, vector<species> &surrogate,
 		 MOW(b,ilayer,iphase) = 200.;
 }
 
-void dynamic_system(model_config &config, vector<species> &surrogate,
+void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
                     Array<double, 3> &MOinit, Array<double, 3> &MOW, Array<double, 1> &number,
                     Array<double, 1> &Vsol,
                     Array<double, 1> &LWC, Array<double, 1> &AQinit, Array<double, 1> &ionic,
@@ -2055,23 +2055,23 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
   for (b=0;b<config.nbins;++b)
     LWCtot+=LWC(b);
   
-  initialisation(config, surrogate, MOinit, MO, MOW, AQinit, AQ, MMaq, LWCtot, LWC, chp, ionic, ionic_organic,
+  initialisation_ssh(config, surrogate, MOinit, MO, MOW, AQinit, AQ, MMaq, LWCtot, LWC, chp, ionic, ionic_organic,
 		 organion, conc_inorganic, Temperature, RH);
 
-  compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);
+  compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
   if (config.explicit_representation)
-    compute_morphology(config, Vsol, number);
+    compute_morphology_ssh(config, Vsol, number);
 
   //Computation of characteristic times to reach equilibrium
-  tau_dif(config, surrogate, number, Vsol);
-  tau_kmt(config, surrogate, Temperature, number);
-  compute_kp_org(config, surrogate, MOinit, Temperature, MOW);
+  tau_dif_ssh(config, surrogate, number, Vsol);
+  tau_kmt_ssh(config, surrogate, Temperature, number);
+  compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
   if (LWCtot>config.LWClimit)
-    compute_kp_aq(config, surrogate, Temperature, ionic, chp, MMaq);
+    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
 
-  characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
   if (LWCtot>config.LWClimit)
-    characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
   
   if (config.coupled_phases or 
       (RH>=config.RHcoupling and surrogate[config.iH2O].hydrophilic and surrogate[config.iH2O].hydrophobic))
@@ -2083,35 +2083,35 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
       //Initialisation of equibrium      
       if (config.compute_saturation and config.compute_organic)
         {
-          number_org_phases(config,surrogate,Temperature,MOinit,MOW);
-          tau_dif(config, surrogate, number, Vsol);
-          tau_kmt(config, surrogate, Temperature, number);
-          compute_kp_org(config, surrogate, MOinit, Temperature, MOW);
-          characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+          number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+          tau_dif_ssh(config, surrogate, number, Vsol);
+          tau_kmt_ssh(config, surrogate, Temperature, number);
+          compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+          characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
           if (LWCtot>config.LWClimit)
-            characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+            characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
         }
    
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
-        solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+        solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                          conc_inorganic, ionic_organic, organion, MMaq);
       else
         for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
           {
             config.compute_organic=false;
-            solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+            solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                              conc_inorganic, ionic_organic, organion, MMaq);
             config.compute_inorganic=false; 
             config.compute_organic=true;
-            solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+            solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                              conc_inorganic, ionic_organic, organion, MMaq);
             config.compute_inorganic=true;
           }
 
-      characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
-        characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
    
       //Dynamic evolution      
       while (t<deltatmax)
@@ -2128,16 +2128,16 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 	    tequilibrium=config.tequilibrium;
 	  
 	  if (config.first_evaluation_activity_coefficients==false)
-	    dynamic_tot(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
+	    dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
 			ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
 			deltat1,tequilibrium,true);
 	  else
-	    dynamic_tot(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
+	    dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
 			ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
 			deltat1,tequilibrium,false); 
 
           //compute the new time step so that changes are small
-          adapstep(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
+          adapstep_ssh(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
                    MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
           if (deltat1<0.999*deltat2) //if the new time step is inferior to the old one
@@ -2234,7 +2234,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
                 }
 
               //redistribute concentrations to ensure that the volume of layers are constant
-              redistribution(config, surrogate,MOinit,MO);
+              redistribution_ssh(config, surrogate,MOinit,MO);
 
               for (b=0;b<config.nbins;++b)
                 {
@@ -2245,19 +2245,19 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
                 }
 
               if (LWCtot>config.LWClimit)
-                density_aqueous_phase(config, surrogate, LWC, Temperature);
+                density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
 
               //compute the new diameters of particles
-              compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);
+              compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
 	      if (config.explicit_representation)
-		compute_morphology(config, Vsol,number);
+		compute_morphology_ssh(config, Vsol,number);
 
               //Computation of characteristic times to reach equilibrium
-              tau_dif(config, surrogate, number, Vsol);
-              tau_kmt(config, surrogate, Temperature, number);
-              characteristic_time(config, surrogate, MOinit, AQinit, LWCtot);
+              tau_dif_ssh(config, surrogate, number, Vsol);
+              tau_kmt_ssh(config, surrogate, Temperature, number);
+              characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
               if (LWCtot>config.LWClimit)
-                characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+                characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
 			  
               for (b=0;b<config.nbins;++b)
                 {
@@ -2271,17 +2271,17 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 	      
               if (config.coupling_organic_inorganic or config.compute_organic==false 
                   or config.compute_inorganic==false)
-                solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                  conc_inorganic, ionic_organic, organion, MMaq);
               else
                 for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
                   {
                     config.compute_organic=false;
-                    solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                    solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                      conc_inorganic, ionic_organic, organion, MMaq);
                     config.compute_inorganic=false;
                     config.compute_organic=true;
-                    solve_local_equilibriums_coupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                    solve_local_equilibriums_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                      conc_inorganic, ionic_organic, organion, MMaq);
                     config.compute_inorganic=true;
 		  }
@@ -2299,29 +2299,29 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
       //compute phase separation
       if (config.compute_saturation and config.compute_organic)
         {
-          number_org_phases(config,surrogate,Temperature,MOinit,MOW);
-          tau_dif(config, surrogate, number, Vsol);
-          tau_kmt(config, surrogate, Temperature, number);
-          compute_kp_org(config, surrogate, MOinit, Temperature, MOW);
-          characteristic_time(config, surrogate, MOinit, AQinit, LWCtot); 
+          number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+          tau_dif_ssh(config, surrogate, number, Vsol);
+          tau_kmt_ssh(config, surrogate, Temperature, number);
+          compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+          characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
           if (LWCtot>config.LWClimit)
-            characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit); 
+            characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit); 
         }
      
 
       if (config.coupling_organic_inorganic or config.compute_organic==false 
           or config.compute_inorganic==false)
-        solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+        solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                          conc_inorganic, ionic_organic, organion, MMaq);
       else
         for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
           {
             config.compute_organic=false;
-            solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+            solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                conc_inorganic, ionic_organic, organion, MMaq);
             config.compute_inorganic=false;
             config.compute_organic=true;
-            solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+            solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                conc_inorganic, ionic_organic, organion, MMaq);
             config.compute_inorganic=true;
           }
@@ -2335,24 +2335,24 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
           //compute the dynamic evolution for dt=deltat1
           if (config.first_evaluation_activity_coefficients==false)
             {
-              dynamic_org(config,surrogate,MOinit,MO,AQinit,
+              dynamic_org_ssh(config,surrogate,MOinit,MO,AQinit,
                           MOW,Temperature,deltat1,config.tequilibrium, true);             
               if (LWCtot>config.LWClimit)
-                dynamic_aq(config,surrogate,AQinit,AQ,MOinit,conc_inorganic,ionic,ionic_organic,
+                dynamic_aq_ssh(config,surrogate,AQinit,AQ,MOinit,conc_inorganic,ionic,ionic_organic,
                            organion,chp,chp1,chp0,LWC,MMaq,MOW,Temperature,deltat1,config.tequilibrium, true);
             }
           else
             {
-              dynamic_org(config,surrogate,MOinit,MO,AQinit,
+              dynamic_org_ssh(config,surrogate,MOinit,MO,AQinit,
                           MOW,Temperature,deltat1,config.tequilibrium, false);
               if (LWCtot>config.LWClimit)
-                dynamic_aq(config,surrogate,AQinit,AQ,MOinit,conc_inorganic,ionic,ionic_organic,
+                dynamic_aq_ssh(config,surrogate,AQinit,AQ,MOinit,conc_inorganic,ionic,ionic_organic,
                            organion,chp,chp1,chp0,LWC,MMaq,MOW,Temperature,deltat1,config.tequilibrium, false);
             }
           
 		  
           //compute the new time step so that changes are small
-          adapstep(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
+          adapstep_ssh(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
                    MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
           if (deltat1<0.95*deltat2) //if the new time step is inferior to the old one
@@ -2447,7 +2447,7 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
                 }
 
               //redistribute concentrations to ensure that the volume of layers are constant
-              redistribution(config, surrogate,MOinit,MO);
+              redistribution_ssh(config, surrogate,MOinit,MO);
               for (b=0;b<config.nbins;++b)
                 {
                   for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -2459,34 +2459,34 @@ void dynamic_system(model_config &config, vector<species> &surrogate,
 
               //compute the new diameters of particles
               if (LWCtot>config.LWClimit)
-                density_aqueous_phase(config, surrogate, LWC, Temperature);
+                density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
 
-              compute_diameters(config, surrogate, Vsol, number, LWC, LWCtot);
+              compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
 	      if (config.explicit_representation)
-		compute_morphology(config, Vsol, number);
+		compute_morphology_ssh(config, Vsol, number);
 
               //Computation of characteristic times to reach equilibrium
-              tau_dif(config, surrogate, number, Vsol);
-              tau_kmt(config, surrogate, Temperature, number);
-              characteristic_time(config, surrogate, MOinit, AQinit, LWCtot);
+              tau_dif_ssh(config, surrogate, number, Vsol);
+              tau_kmt_ssh(config, surrogate, Temperature, number);
+              characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
               if (LWCtot>config.LWClimit)
-                characteristic_time_aq(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+                characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
               
               
               //computation of concentrations at equilibrium	      
               if (config.coupling_organic_inorganic or config.compute_organic==false 
                   or config.compute_inorganic==false)
-                solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                    conc_inorganic, ionic_organic, organion, MMaq);
               else
                 for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
                   {
                     config.compute_organic=false;
-                    solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                    solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                        conc_inorganic, ionic_organic, organion, MMaq);
                     config.compute_inorganic=false;
                     config.compute_organic=true;
-                    solve_local_equilibriums_uncoupled(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+                    solve_local_equilibriums_uncoupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                                        conc_inorganic, ionic_organic, organion, MMaq);
                     config.compute_inorganic=true;
                   }              

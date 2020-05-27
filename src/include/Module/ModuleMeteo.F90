@@ -15,7 +15,7 @@ module mod_meteo
 
 contains
 
-  subroutine read_meteo()
+  subroutine ssh_read_meteo()
 
     implicit none
 
@@ -56,7 +56,7 @@ contains
           if (nt_meteo == 1) then
              temperature_array(i) = temperature_in(1)
              pressure_array(i) = pressure_in(1)
-             call compute_sh(rh_in(1), temperature_in(1), &
+             call ssh_compute_sh(rh_in(1), temperature_in(1), &
                   pressure_in(1), sh_in(1))
              humidity_array(i) = sh_in(1)
           else
@@ -90,7 +90,7 @@ contains
                   (1 - ratio) * rh_in(ind_t)
              sh_tmp = ratio * sh_in(ind_t + 1) + &
                   (1 - ratio) * sh_in(ind_t)
-             call compute_sh(rh_tmp, temperature_array(i), &
+             call ssh_compute_sh(rh_tmp, temperature_array(i), &
                   pressure_array(i), sh_tmp)
              humidity_array(i) = sh_tmp
              
@@ -99,7 +99,7 @@ contains
        
     else
        ! Use constant values given in namelist.input
-       call compute_sh(relative_humidity, temperature, pressure, humidity)
+       call ssh_compute_sh(relative_humidity, temperature, pressure, humidity)
        do i = 1, nt
           temperature_array(i) = temperature
           pressure_array(i) = Pressure
@@ -107,10 +107,10 @@ contains
        enddo
     endif
     
-  end subroutine read_meteo
+  end subroutine ssh_read_meteo
 
   ! 
-  subroutine compute_sh(rh, temp, pres, sh)
+  subroutine ssh_compute_sh(rh, temp, pres, sh)
 
     implicit none
 
@@ -123,18 +123,18 @@ contains
           if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
           rh = DMIN1(DMAX1(rh, Threshold_RH_inf), Threshold_RH_sup)
        endif
-       call compute_psat_sh(rh, temp, pres, pressure_sat, sh)
+       call ssh_compute_psat_sh(rh, temp, pres, pressure_sat, sh)
     else
-       call compute_psat_rh(sh, temp, pres, pressure_sat, rh)
+       call ssh_compute_psat_rh(sh, temp, pres, pressure_sat, rh)
        if (      rh.lt.Threshold_RH_inf &
             .or. rh.gt.Threshold_RH_sup) then
           if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
           if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
           rh = DMIN1(DMAX1(rh, Threshold_RH_inf), Threshold_RH_sup)
-          call compute_psat_sh(rh, temp, pres, pressure_sat, sh)
+          call ssh_compute_psat_sh(rh, temp, pres, pressure_sat, sh)
        endif
     end if
     
-  end subroutine compute_sh
+  end subroutine ssh_compute_sh
   
 end module mod_meteo

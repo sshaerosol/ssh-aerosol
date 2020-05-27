@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD, Q_esp, N)
+SUBROUTINE SSH_EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD, Q_esp, N)
 
 !!$------------------------------------------------------------------------
 !!$     
@@ -434,6 +434,6 @@ SUBROUTINE EULER_COUPLED(ns, nesp, eh2o,dbound, grand, d, diam, kloc, alpha, LMD
      Q_nouveau = Q_nouveau + Q(k)
   ENDDO
 
-END SUBROUTINE EULER_COUPLED
+END SUBROUTINE SSH_EULER_COUPLED
 
 

@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
+SUBROUTINE SSH_TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
 
   IMPLICIT NONE
 
@@ -44,4 +44,4 @@ SUBROUTINE TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
 !     ENDIF
   ENDDO
 
-END SUBROUTINE TEST_MASS_NB
+END SUBROUTINE SSH_TEST_MASS_NB

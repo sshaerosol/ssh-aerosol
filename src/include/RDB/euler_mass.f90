@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE EULER_MASS(ns, nesp, EH2O,dbound, grand, X, diameter_before_redist, fixed_diameter, log_fixed_diameter, &
+SUBROUTINE SSH_EULER_MASS(ns, nesp, EH2O,dbound, grand, X, diameter_before_redist, fixed_diameter, log_fixed_diameter, &
      kloc, LMD, Qesp, N)
 
 !!$------------------------------------------------------------------------
@@ -157,16 +157,16 @@ SUBROUTINE EULER_MASS(ns, nesp, EH2O,dbound, grand, X, diameter_before_redist, f
         endif
      ENDDO
      
-     CALL COMPUTE_DENSITY(ns,nesp,EH2O,TINYM,Qesp,LMD,k,rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns,nesp,EH2O,TINYM,Qesp,LMD,k,rho(k))
 
      N(k) = (Q(k) * 6.D0)/(PI * rho(k) * &
           (fixed_diameter(k)*fixed_diameter(k)*fixed_diameter(k)))
      
   ENDDO  
  
-  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
+  CALL SSH_TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
 
-END SUBROUTINE EULER_MASS
+END SUBROUTINE SSH_EULER_MASS
 
 
 

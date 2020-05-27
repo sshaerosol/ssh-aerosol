@@ -6,11 +6,11 @@ include		../Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
-LDFLAGS =	-L. -lmodules -liso -latmo -lchem -lrdb -lsoap -ltalos -lnetcdff \
+LDFLAGS =	-L. -lssh-modules -lssh-iso -lssh-atmo -lssh-chem -lssh-rdb -lssh-soap -lssh-talos -lnetcdff \
 			-L${NETCDFLIB} $(CDFLIBS) -L${HDF5LIB} -I $(BLITZINC)
 
 
-.PHONY:		all libmodules main libiso libatmo libchem librdb libsoap libtalos
+.PHONY:		all libssh-modules main libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos
 
 all:		ssh-aerosol libssh-aerosol.a
 
@@ -18,43 +18,43 @@ libssh-aerosol.a:	ModuleSSH-aerosol.o
 	        $(RM) libssh-aerosol.a
 		$(AR) r libssh-aerosol.a ModuleSSH-aerosol.o
 
-libmodules:		
+libssh-modules:		
 		( $(CD) include/Module/ && $(MAKE) )
-		$(LN) include/Module/libmodules.a .
+		$(LN) include/Module/libssh-modules.a .
 
-libiso:		
+libssh-iso:		
 		( $(CD) include/isorropia_aec/ && $(MAKE) )
-		$(LN) include/isorropia_aec/libiso.a .
+		$(LN) include/isorropia_aec/libssh-iso.a .
 
-libatmo:		
+libssh-atmo:		
 		( $(CD) include/AtmoData/ && $(MAKE) )
-		$(LN) include/AtmoData/libatmo.a .
+		$(LN) include/AtmoData/libssh-atmo.a .
 
-libchem:		
+libssh-chem:		
 		( $(CD) include/CHEMISTRY/common/ && $(MAKE) )
-		$(LN) include/CHEMISTRY/common/libchem.a .
+		$(LN) include/CHEMISTRY/common/libssh-chem.a .
 
-librdb:		
+libssh-rdb:		
 		( $(CD) include/RDB/ && $(MAKE) )
-		$(LN) include/RDB/librdb.a .
+		$(LN) include/RDB/libssh-rdb.a .
 
-libsoap:		
+libssh-soap:		
 		( $(CD) include/SOAP && $(MAKE) )
-		$(LN) include/SOAP/libsoap.a .
+		$(LN) include/SOAP/libssh-soap.a .
 
-libtalos:		
+libssh-talos:		
 		( $(CD) include/Talos && $(MAKE) )
-		$(LN) include/Talos/libtalos.a .
+		$(LN) include/Talos/libssh-talos.a .
 
 ssh-aerosol.o:	ssh-aerosol.f90 
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -Iinclude/Module/ -c $<
 
 
-ssh-aerosol:	libmodules libiso libatmo libchem librdb libsoap libtalos main ssh-aerosol.o
+ssh-aerosol:	libssh-modules libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos main ssh-aerosol.o
 		$(MPIFC) -o ssh-aerosol $(FFLAGS) \
 		ssh-aerosol.o $(LDFLAGS)
 
-ModuleSSH-aerosol.o:	ModuleSSH-aerosol.f90 libmodules libiso libatmo libchem librdb libsoap libtalos main 
+ModuleSSH-aerosol.o:	ModuleSSH-aerosol.f90 libssh-modules libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos main 
 		$(MPIFC) -Iinclude/Module/ -o ModuleSSH-aerosol.o $(FFLAGS) \
 		-c ModuleSSH-aerosol.f90 $(LDFLAGS)
 

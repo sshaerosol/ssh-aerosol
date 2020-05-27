@@ -10,7 +10,7 @@ Module kSOAP
 
 contains
 
-  SUBROUTINE SOAP_EQ(lwcorg, lwc, rh, ionic, proton, &
+  SUBROUTINE SSH_SOAP_EQ(lwcorg, lwc, rh, ionic, proton, &
        temp, aero, gas, liquid)
 
 !------------------------------------------------------------------------
@@ -83,7 +83,7 @@ contains
 !     = mol/kg = mol/L (Water density: 1 kg/L) 
       chp = proton / lwc * 1.0e3
 
-      CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg, &
+      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
@@ -104,10 +104,10 @@ contains
          ENDIF
       ENDDO
 
-    END SUBROUTINE SOAP_EQ
+    END SUBROUTINE SSH_SOAP_EQ
 
 
-    SUBROUTINE SOAP_DYN(rh, &
+    SUBROUTINE SSH_SOAP_DYN(rh, &
          ionic, proton, lwc,lwcorg, &
          temp, deltat, &
          DSD, neq, liquid)
@@ -249,7 +249,7 @@ contains
       lwcorg=0.
 
 
-      CALL soap_main(lwc, rh, temp, ionic, chp, lwcorg,&
+      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
@@ -280,6 +280,6 @@ contains
         endif
       enddo
 
-   END SUBROUTINE SOAP_DYN
+   END SUBROUTINE SSH_SOAP_DYN
    
 end Module kSOAP

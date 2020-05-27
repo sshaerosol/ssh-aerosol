@@ -5,17 +5,17 @@
 
 #include <math.h>
 
-void aiomfac(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
-             Array<double, 1> &gamma_MR_solvents, Array<double,1> &molar_mass_solvents,
-             Array<double, 1> &molar_mass_groups,
-             Array<double, 1> &molality_ions, Array<double, 1> &gamma_LR_ions,
-             Array<double, 1> &gamma_MR_ions, Array<double, 1> &charges_ions, 
-             double &Temperature, double &ionic, int &ngroups,
-             Array<double, 2> &groups_solvents,
-             Array<double, 2> &b1ki, Array<double, 2> &b2ki, Array<double, 2> &b1ca,
-             Array<double, 2> &b2ca, Array<double, 2> &b3ca, Array<double, 2> &c1ca,
-             Array<double, 2> &c2ca, Array<double, 2> &Rcc, Array<double, 3> &Qcca,
-             int &jH2O, bool compute_organic)
+void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solvents,
+		 Array<double, 1> &gamma_MR_solvents, Array<double,1> &molar_mass_solvents,
+		 Array<double, 1> &molar_mass_groups,
+		 Array<double, 1> &molality_ions, Array<double, 1> &gamma_LR_ions,
+		 Array<double, 1> &gamma_MR_ions, Array<double, 1> &charges_ions, 
+		 double &Temperature, double &ionic, int &ngroups,
+		 Array<double, 2> &groups_solvents,
+		 Array<double, 2> &b1ki, Array<double, 2> &b2ki, Array<double, 2> &b1ca,
+		 Array<double, 2> &b2ca, Array<double, 2> &b3ca, Array<double, 2> &c1ca,
+		 Array<double, 2> &c2ca, Array<double, 2> &Rcc, Array<double, 3> &Qcca,
+		 int &jH2O, bool compute_organic)
 {
   int nsolvents=X_solvents.size();
   int nions=molality_ions.size();

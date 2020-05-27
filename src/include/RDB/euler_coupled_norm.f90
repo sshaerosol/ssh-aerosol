@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE EULER_COUPLED_NORM(ns, nesp,eh2o, dbound, grand, d, diam, kloc, alpha, LMD,DQLIMIT, Q_esp, N)
+SUBROUTINE SSH_EULER_COUPLED_NORM(ns, nesp,eh2o, dbound, grand, d, diam, kloc, alpha, LMD,DQLIMIT, Q_esp, N)
 
 !!$------------------------------------------------------------------------
 !!$     
@@ -484,11 +484,11 @@ SUBROUTINE EULER_COUPLED_NORM(ns, nesp,eh2o, dbound, grand, d, diam, kloc, alpha
  !tests de limite minimum pour le nombre et le volume
   
   DO k=1, ns
-     CALL COMPUTE_DENSITY(ns,nesp,eh2o, TINYM, Q_esp,LMD,k,rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns,nesp,eh2o, TINYM, Q_esp,LMD,k,rho(k))
   ENDDO
-  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Q_esp)
+  CALL SSH_TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Q_esp)
 
 
-END SUBROUTINE EULER_COUPLED_NORM
+END SUBROUTINE SSH_EULER_COUPLED_NORM
 
 

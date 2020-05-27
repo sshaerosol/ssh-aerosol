@@ -18,7 +18,7 @@ c     m2 - mass of the second coagulating particle (µg).
 c
 c     Returns:
 c     kercg - coagulation kernel (m^3/s).
-      subroutine compute_bidisperse_coagulation_kernel(temp, airfmp,
+      subroutine ssh_compute_bidisperse_coagulation_kernel(temp, airfmp,
      $     d1, d2, m1, m2, kercg)
 
       double precision temp, airfmp
@@ -120,11 +120,11 @@ c     average values
       endif
       if (knp.le.knmin) then
 
-         call compute_coagulation_continuous(dp, cdifp, kercg)
+         call ssh_compute_coagulation_continuous(dp, cdifp, kercg)
 
       elseif(knp.ge.knmax) then
 
-         call compute_coagulation_free_molecular(dp, vmp, stick,
+         call ssh_compute_coagulation_free_molecular(dp, vmp, stick,
      $        kercg)
 
       else
@@ -170,7 +170,7 @@ c     average values
          deltap = dsqrt( delta1 * delta1
      $        + delta2 * delta2 )
 
-         call compute_coagulation_free_transition(dp, cdifp, deltap,
+         call ssh_compute_coagulation_free_transition(dp, cdifp, deltap,
      $        vmp, stick, kercg)
 
       endif

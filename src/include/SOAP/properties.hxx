@@ -5,12 +5,12 @@
 
 #ifndef PROPERTIES_HXX
 
-#define _isoropia isoropia_
+#define _isoropia_ssh isoropia_ssh_
 
   extern "C"
   {
  
-    void _isoropia(double*,double*,double*,double*,double*,double*,
+    void _isoropia_ssh(double*,double*,double*,double*,double*,double*,
                    double*,double*, double*,double*, double*);     
 
   }

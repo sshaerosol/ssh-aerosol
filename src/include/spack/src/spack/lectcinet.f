@@ -1,4 +1,4 @@
-      subroutine lectcinet(ifdth,indicaq)
+      subroutine ssh_lectcinet(ifdth,indicaq)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -55,7 +55,7 @@ c
 c     Loop for reading the file.
 c     Write the first lines of the output routines
 
-      call write_header_90
+      call ssh_write_header_90
 C
  100  read(ifdth,'(a)')chdon
 c      write(imp,'(a)')chdon
@@ -65,7 +65,7 @@ c     Build the sequence and decompose in words.
 
 c
       nblanc=nbmot
-      call part(chdon,mot,imot,nmot)
+      call ssh_part(chdon,mot,imot,nmot)
 c
 c     Case of long sequences (two lines).
 c
@@ -77,7 +77,7 @@ c         write(imp,'(a)')chdon
 c     YK
          nblanc=nbmot-nchold+1
 c
-         call part(chdon,mot(nchold),imot(nchold),nchplus)
+         call ssh_part(chdon,mot(nchold),imot(nchold),nchplus)
          nmot=nchold-1+nchplus
       endif
 c
@@ -90,21 +90,21 @@ c
             write(*,*)'ERROR: kinetics before reaction ',nr
             stop 1
          elseif (iattente.eq.1) then
-            call kinreac(mot,imot,nmot)
+            call ssh_kinreac(mot,imot,nmot)
          elseif (iattente.eq.2) then
-            call kindis(mot,imot,nmot)
+            call ssh_kindis(mot,imot,nmot)
          elseif (iattente.eq.3) then
-            call kinhenry(mot,imot,nmot)
+            call ssh_kinhenry(mot,imot,nmot)
          endif
          iattente=0
 c
       elseif (mot(1)(1:3).eq.'SET') then
 c
          if (mot(2)(1:4).eq.'UNIT')then
-            call lectunit(mot,imot,nmot)
+            call ssh_lectunit(mot,imot,nmot)
 c
          elseif (mot(2)(1:10).eq.'TABULATION') then
-            call lect_tabulation(mot,imot,nmot)
+            call ssh_lect_tabulation(mot,imot,nmot)
 c
          else
             write(*,*)'ERROR: UNKNOWN SET FUNCTIONS'
@@ -121,16 +121,16 @@ c     END.
          write(*,*)'ERROR: I wait for kinetics'
          stop 1
       else
-         call reaction(mot,imot,nmot,iattente)
+         call ssh_reaction(mot,imot,nmot,iattente)
       endif
 c
       if (iarret.eq.0) go to 100
 c
-      CALL write_end_90
+      CALL ssh_write_end_90
 c
 c     Write file non_zero.dat
 c
-      call WNONZERO90(s,nr,jer)
+      call ssh_WNONZERO90(s,nr,jer)
 C
       write(*,*)'########################################'
       write(*,*)'########################################'
@@ -147,13 +147,13 @@ c
          write(*,*)'Multiphase (gas-phase and aqueous-phase) chemistry'
       endif
 c
-      call initphase
+      call ssh_initphase
 c
       return
       end
 c
 c---------------------------------------------------
-      subroutine lectunit(mot,imot,nmot)
+      subroutine ssh_lectunit(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -212,7 +212,7 @@ c
       return
       end
 c---------------------------------------------------
-      subroutine lect_tabulation(mot,imot,nmot)
+      subroutine ssh_lect_tabulation(mot,imot,nmot)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -255,10 +255,10 @@ c
 c
       ireversetab=0
 c
-      call entier(ntabphot,mot(3),imot(3))
+      call ssh_entier(ntabphot,mot(3),imot(3))
       if (ntabphot.eq.0) then
          write(*,*)'ERROR: number of tabulated angles to be checked in'
-         write(*,*)'subroutine lect-tabulation'
+         write(*,*)'subroutine ssh_lect-tabulation'
          stop 1
       endif
       if (ntabphot.gt.ntabphotmax) then
@@ -267,7 +267,7 @@ c
       endif
 
       do i=1,ntabphot
-         call reel(t(i),mot(i+4),imot(i+4))
+         call ssh_reel(t(i),mot(i+4),imot(i+4))
       enddo
 c     Check increasing order
       if (t(1).gt.t(2)) then
@@ -291,7 +291,7 @@ c
       return
       end
 c---------------------------------------------------
-      subroutine reaction(mot,imot,nmot,iattente)
+      subroutine ssh_reaction(mot,imot,nmot,iattente)
 C
 C     -- DESCRIPTION
 C
@@ -369,13 +369,13 @@ c
          write(*,*)'ERROR: lack of symbol for reaction'
          stop 1
       elseif (iattente.eq.1) then
-         call creac(mot,imot,nmot)
+         call ssh_creac(mot,imot,nmot)
       elseif (iattente.eq.2) then
-         call cdis(mot,imot,nmot)
+         call ssh_cdis(mot,imot,nmot)
       elseif (iattente.eq.3) then
-         call chenry(mot,imot,nmot,0)
+         call ssh_chenry(mot,imot,nmot,0)
       elseif (iattente.eq.4) then
-         call chenry(mot,imot,nmot,1)
+         call ssh_chenry(mot,imot,nmot,1)
          iattente=3
       endif
 c

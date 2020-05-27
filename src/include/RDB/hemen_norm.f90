@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
+SUBROUTINE SSH_HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
      X,diameter_before_redist, fixed_diameter ,kloc, alpha, LMD, DQLIMIT,rho, Qesp, N)
 
 !!$------------------------------------------------------------------------
@@ -105,7 +105,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
         Q(k) = Q(k) + Qesp(k, jesp)
         endif
      ENDDO
-     CALL COMPUTE_DENSITY(ns, nesp,eh2o, TINYN, N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp,eh2o, TINYN, N_esp, LMD, k, rho(k))
   ENDDO
 
    !***** Calcul total mass per species
@@ -413,7 +413,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
   ENDIF
 
   DO k = 1,section_pass-1
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o,TINYN, N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o,TINYN, N_esp, LMD, k, rho(k))
      DO jesp = 1, nesp
         Qesp(k, jesp) = (PI/6D0) * rho(k) * N_esp(k, jesp) &
              * fixed_diameter(k) * fixed_diameter(k) * fixed_diameter(k)
@@ -424,7 +424,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
   ENDDO
 
   DO k = section_pass+1 , ns
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
      N(k) = Q(k) * 6.D0 / (PI * rho(k) * fixed_diameter(k) * &
                            fixed_diameter(k) * fixed_diameter(k))
   ENDDO
@@ -432,7 +432,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
   k = section_pass
   IF (fixed_diameter(section_pass).LE.diam_pass) then 
      ! ~~~~ Euler number
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o, TINYN, N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o, TINYN, N_esp, LMD, k, rho(k))
      DO jesp = 1, nesp
         Qesp(k, jesp) = (PI/6D0) * rho(k) * fixed_diameter(k) * &
                         fixed_diameter(k) * fixed_diameter(k) * N_esp(k, jesp)
@@ -442,7 +442,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
      ENDDO
   ELSE 
      ! ~~~~ Euler mass
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o,  TINYM,Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o,  TINYM,Qesp, LMD, k, rho(k))
      N(k) = Q(k) * 6.D0 / (PI * rho(k) * fixed_diameter(k) * &
                           fixed_diameter(k) * fixed_diameter(k))
   ENDIF
@@ -457,7 +457,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
   ! test
   do k =1, ns
      if (Q(k) .GT. TINYM .and. N(k) .GT. TINYN) then
-        CALL COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
+        CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
         dnew(k) = (Q(k) * 6.D0 /(PI * rho(k) * N(k)))**(1./3.)
         dnew0(k) = dnew(k)
         if (dnew(k) < dbound(k) .or. dnew(k) > dbound(k+1)) then
@@ -486,7 +486,7 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
         Q(k) = Q(k) +  Qesp(k,jesp)
         endif
      enddo
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o, TINYM, Qesp, LMD, k, rho(k))
         N(k) = Q(k) * 6.D0 / (PI * rho(k) * fixed_diameter(k) * &
                  fixed_diameter(k) * fixed_diameter(k))
         if (isNaN(N(k))) then
@@ -496,6 +496,6 @@ SUBROUTINE HEMEN_NORM(ns, nesp, EH2O, grand, section_pass, dbound, &
 
   enddo
 
-  CALL TEST_MASS_NB(ns,nesp-1,rho,dbound,Q,N,Qesp)
+  CALL SSH_TEST_MASS_NB(ns,nesp-1,rho,dbound,Q,N,Qesp)
 
-END SUBROUTINE HEMEN_NORM
+END SUBROUTINE SSH_HEMEN_NORM

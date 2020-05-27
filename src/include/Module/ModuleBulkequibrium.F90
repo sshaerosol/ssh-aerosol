@@ -14,7 +14,7 @@ Module iBulkequibrium
   implicit none
 contains
 
-  subroutine bulkequi_org(nesp_eq, &
+  subroutine ssh_bulkequi_org(nesp_eq, &
        lwc, watorg, ionic, proton, liquid)
 !------------------------------------------------------------------------
 !
@@ -74,14 +74,14 @@ contains
 	do j = 1,N_size	!FOR OGANIC
  	 wet_diam=wet_diameter(j)
 	 rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
- 	 call COMPUTE_KELVIN_COEFFICIENT(&
+ 	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
 		  Temperature,&          ! temperature (Kelvin)
 		  emw_tmp,&       ! ext mol weight (g.mol-1)
 		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
 		  wet_diam,&         ! wet aero diameter (µm)
 		  rhop_tmp,&      ! aerosol density (kg.m-3)
 		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
-	  call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
@@ -128,12 +128,12 @@ contains
     qgas(ECl) = 0.D0
 #endif
 
-    call isoropia_drv(N_aerosol,&
+    call ssh_isoropia_drv(N_aerosol,&
          qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
          liquid)
 
     if (ISOAPDYN.eq.0) then
-       call soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
+       call ssh_soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
             Temperature, qaero, qgas, liquid)
     endif
 
@@ -163,13 +163,13 @@ contains
 !     ******redistribute on each cell according to Rates
     !call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
    ! nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
-    call bulkequi_redistribution(concentration_number,concentration_mass,&
+    call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
     nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot)
 
-  end subroutine bulkequi_org
+  end subroutine ssh_bulkequi_org
 
   ! subroutine bulkequi_inorg(nesp_eq, lwc, ionic, proton, liquid, lwc_nsize)
-  subroutine bulkequi_inorg(nesp_eq, lwc, ionic, proton, liquid)
+  subroutine ssh_bulkequi_inorg(nesp_eq, lwc, ionic, proton, liquid)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -236,14 +236,14 @@ contains
         ! if (wet_diam .lt. 1.d-3) then
         !   write(*,*) "bulkequi_inorg: too small wet_diameter",wet_diam
          ! endif 
-	      call COMPUTE_KELVIN_COEFFICIENT(&
+	      call ssh_COMPUTE_KELVIN_COEFFICIENT(&
 		    Temperature,&          ! temperature (Kelvin)
 		    emw_tmp,&       ! ext mol weight (g.mol-1)
 		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
 		    wet_diam,&         ! wet aero diameter (µm)
 		    rhop_tmp,&      ! aerosol density (kg.m-3)
 		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
-	      call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+	      call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
@@ -312,7 +312,7 @@ contains
     lwc= 0.0
 
   !eqilibirum for inorganic
-    call isoropia_drv(N_aerosol,&
+    call ssh_isoropia_drv(N_aerosol,&
          qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
          liquid)
 
@@ -345,17 +345,17 @@ contains
    jesp=isorropia_species(2)
    concentration_gas(jesp)=qgasi-qgasa
 
-!    call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
+!    call ssh_bulkequi_redistribution_anck(concentration_number,concentration_mass,&
 !    nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
 
-    call bulkequi_redistribution(concentration_number,concentration_mass,&
+    call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
       nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
 
-  end subroutine bulkequi_inorg
+  end subroutine ssh_bulkequi_inorg
 
 
   
-  subroutine bulkequi_redistribution(c_number,c_mass,nesp_eq,eq_species,end_bin,dq,AAi,ce_kernal_coef_tot)
+  subroutine ssh_bulkequi_redistribution(c_number,c_mass,nesp_eq,eq_species,end_bin,dq,AAi,ce_kernal_coef_tot)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -455,9 +455,9 @@ contains
     endif
    enddo
 
-  end subroutine bulkequi_redistribution
+  end subroutine ssh_bulkequi_redistribution
 
-  subroutine bulkequi_redistribution_anck(c_number,c_mass,nesp_eq,eq_species,end_bin,dq,AAi,ce_kernal_coef_tot,ck_ef)
+  subroutine ssh_bulkequi_redistribution_anck(c_number,c_mass,nesp_eq,eq_species,end_bin,dq,AAi,ce_kernal_coef_tot,ck_ef)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -557,7 +557,7 @@ contains
       endif
     enddo
 
-  end subroutine bulkequi_redistribution_anck
+  end subroutine ssh_bulkequi_redistribution_anck
 
 end Module iBulkequibrium
   

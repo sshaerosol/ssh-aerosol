@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
+SUBROUTINE SSH_REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
      section_pass, LMD, &
      DQLIMIT, Qesp, N, Q, with_fixed_density,fixed_density,d_after_cond) 
 
@@ -86,28 +86,28 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   !! Reestimate d(k) from number and mass concentration BEFORE condensation/evaporation
 
   if(scheme.EQ.11) then
-    call REDIST(ns,naer,N,Qesp,fixed_density,dbound,d_after_cond)
+    call SSH_REDIST(ns,naer,N,Qesp,fixed_density,dbound,d_after_cond)
   else 
   if(scheme.EQ.12) then
     DO k = 1, ns
        if (with_fixed_density .eq. 0) then
-          CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
+          CALL ssh_compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
        else
           rho(k) = fixed_density  
        endif
        d_after_cond(k) = fixed_diameter(k)
     ENDDO
-    call REDIST_EULERCOUPLE(ns,naer,N,Qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
+    call SSH_REDIST_EULERCOUPLE(ns,naer,N,Qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
   else
   if(scheme.EQ.13) then
     DO k = 1, ns
        if (with_fixed_density .eq. 0) then
-          CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
+          CALL ssh_compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
        else
           rho(k) = fixed_density 
        endif
     ENDDO
-    call REDIST_MOVINGDIAM(ns,naer,N,Qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
+    call SSH_REDIST_MOVINGDIAM(ns,naer,N,Qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
   else
   !***** Calcul dry total mass per bin
   Q=0.D0
@@ -139,7 +139,7 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
      endif
      
      if (with_fixed_density .eq. 0) then
-        CALL compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
+        CALL ssh_compute_density(ns,naer, EH2O,TINYM,Qesp,LMD,k,rho(k))
      else
 	rho(k) = fixed_density
      endif
@@ -184,37 +184,37 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   !****** Select the redistribution method
   SELECT CASE (scheme)
   CASE (3)
-     CALL EULER_MASS(ns, naer, eh2o,dbound, grand, &
+     CALL SSH_EULER_MASS(ns, naer, eh2o,dbound, grand, &
           X, d_after_cond, fixed_diameter, logfixed_diameter, kloc, LMD, Qesp, N)
 
   CASE (4)
-     CALL EULER_NUMBER(ns, naer,eh2o, dbound, grand, alpha, &
+     CALL SSH_EULER_NUMBER(ns, naer,eh2o, dbound, grand, alpha, &
           fixed_diameter, d_after_cond, X, logfixed_diameter, kloc, LMD, rho, Qesp, N)
  
   CASE (5)
-     CALL HEMEN(ns, naer, eh2o,grand, section_pass, fixed_diameter, &
+     CALL SSH_HEMEN(ns, naer, eh2o,grand, section_pass, fixed_diameter, &
           dbound, X, d_after_cond, logfixed_diameter, kloc, alpha, LMD, &
           rho, Qesp, N)
 
   CASE (6)
-     CALL EULER_COUPLED(ns, naer,eh2o,dbound, grand, fixed_diameter, d_after_cond, &
+     CALL SSH_EULER_COUPLED(ns, naer,eh2o,dbound, grand, fixed_diameter, d_after_cond, &
            kloc, alpha, LMD, Qesp, N)
 
   CASE (7)
-     CALL EULER_NUMBER_NORM(ns, naer, eh2o,dbound, grand, alpha, &
+     CALL SSH_EULER_NUMBER_NORM(ns, naer, eh2o,dbound, grand, alpha, &
           fixed_diameter, d_after_cond, X, logfixed_diameter, kloc, LMD,DQLIMIT, rho, Qesp, N)
  
   CASE (8)
-     CALL HEMEN_NORM(ns, naer,  EH2O, grand, section_pass, &
+     CALL SSH_HEMEN_NORM(ns, naer,  EH2O, grand, section_pass, &
           dbound, X, d_after_cond, fixed_diameter, kloc, alpha, LMD, &
           DQLIMIT, rho, Qesp, N)
 
   CASE (9)
-     CALL EULER_COUPLED_NORM(ns, naer, eh2o,dbound, grand, fixed_diameter, d_after_cond, &
+     CALL SSH_EULER_COUPLED_NORM(ns, naer, eh2o,dbound, grand, fixed_diameter, d_after_cond, &
            kloc, alpha, LMD, DQLIMIT, Qesp, N)
 
   CASE (10)
-     CALL MOVING_DIAM(ns, naer, eh2o, dbound,kloc,Qesp, N)  
+     CALL SSH_MOVING_DIAM(ns, naer, eh2o, dbound,kloc,Qesp, N)  
   
   CASE DEFAULT
      PRINT*, "Please choose from the following redistribution methods : ", &
@@ -226,7 +226,7 @@ SUBROUTINE REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
  endif
  endif
 
-END SUBROUTINE REDISTRIBUTION
+END SUBROUTINE SSH_REDISTRIBUTION
 
 !**************************************************
 !*     *
@@ -234,7 +234,7 @@ END SUBROUTINE REDISTRIBUTION
 !*     MASS CONCENTRATIONS ON THE FIXED GRID SIZE *
 !*     *
 !**************************************************
-      SUBROUTINE REDIST(ns,naer,n,q,fixed_density,dbound,diam)
+      SUBROUTINE SSH_REDIST(ns,naer,n,q,fixed_density,dbound,diam)
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
@@ -282,16 +282,16 @@ END SUBROUTINE REDISTRIBUTION
          endif
       ENDDO
 
-      call SIZEBND(ns,XSD,XSF,XBF,HSD,XBD)
+      call SSH_SIZEBND(ns,XSD,XSF,XBF,HSD,XBD)
 
 !******compute redistribution
       x2lo=XBD(1)
       
-      CALL LOCATE(NB,XBF,x2lo,j1lo)
+      CALL SSH_LOCATE(NB,XBF,x2lo,j1lo)
       
       DO js2=1,NS
          x2hi=XBD(js2+1)
-         CALL LOCATE(NB,XBF,x2hi,j1hi)
+         CALL SSH_LOCATE(NB,XBF,x2hi,j1hi)
          IF (N(js2).GT.TINYN) THEN
                                 ! redistribute over fixed sections
             DO js1=MAX0(j1lo,1),MIN0(j1hi,NS)
@@ -369,7 +369,7 @@ END SUBROUTINE REDISTRIBUTION
       END DO
 
 !**************************************************
-      END SUBROUTINE REDIST
+      END SUBROUTINE SSH_REDIST
 !**************************************************
 
 !**************************************************
@@ -377,7 +377,7 @@ END SUBROUTINE REDISTRIBUTION
 !*     ROUTINE COMPUTING SIZE BOUNDS VARIABLES    *
 !*                                                *
 !**************************************************
-      SUBROUTINE SIZEBND(ns2,XSD,XSF,XBF,HSD,XBD)
+      SUBROUTINE SSH_SIZEBND(ns2,XSD,XSF,XBF,HSD,XBD)
 !**************************************************
       IMPLICIT NONE
 
@@ -400,10 +400,10 @@ END SUBROUTINE REDISTRIBUTION
          dx(js)=XSD(js)-XSF(js)
       END DO
 
-      CALL SPLINE(NS2,XSF,dx,d2x)
+      CALL SSH_SPLINE(NS2,XSF,dx,d2x)
 
       DO jb=1,NB2
-         CALL SPLINT(NS2,XSF,dx,d2x,XBF(jb),dxb)
+         CALL SSH_SPLINT(NS2,XSF,dx,d2x,XBF(jb),dxb)
          XBD(jb)=XBF(jb)+dxb
       END DO
 
@@ -416,7 +416,7 @@ END SUBROUTINE REDISTRIBUTION
       ! coefficients should be re-computed
 
 !****** check bound order
-      CALL ASCORDER(NB2,XBD,ixbd)
+      CALL SSH_ASCORDER(NB2,XBD,ixbd)
 
       itest=0
       DO jb=1,NB2
@@ -471,7 +471,7 @@ END SUBROUTINE REDISTRIBUTION
   !       DBD(jb)=(MBD(jb)/RHOA/CST)**FRAC3
   !    END DO
 !**************************************************
-      END SUBROUTINE SIZEBND
+      END SUBROUTINE SSH_SIZEBND
 !**************************************************
 !*************************************************
 !*                                               *
@@ -479,7 +479,7 @@ END SUBROUTINE REDISTRIBUTION
 !*     AT x(*) POINTS FOR NATURAL CUBIC SPLINES  *
 !*                                               *
 !*************************************************
-      SUBROUTINE SPLINE(n,x,y,y2)
+      SUBROUTINE SSH_SPLINE(n,x,y,y2)
 !*************************************************
 !*                                               *
 !*     n     (IN)  number of points              *
@@ -516,14 +516,14 @@ END SUBROUTINE REDISTRIBUTION
          y2(k)=y2(k)*y2(k+1)+u(k)
       END DO
 !*************************************************
-      END SUBROUTINE SPLINE
+      END SUBROUTINE SSH_SPLINE
 !*************************************************
 !**************************************************
 !*                                                *
 !*     ROUTINE PERFORMING CUBIC SPLINE EVALUATION *
 !*                                                *
 !**************************************************
-      SUBROUTINE SPLINT(n,xa,ya,y2a,x,y)
+      SUBROUTINE SSH_SPLINT(n,xa,ya,y2a,x,y)
 !**************************************************
 !*                                                *
 !*     n       (IN)   integer array size          *
@@ -565,7 +565,7 @@ END SUBROUTINE REDISTRIBUTION
       y= a*ya(klo)+b*ya(khi)  +( a*(a*a-1.D0)*y2a(klo)&
          +b*(b*b-1.D0)*y2a(khi) ) *(h*h)/6.D0
 !**************************************************
-      END SUBROUTINE SPLINT
+      END SUBROUTINE SSH_SPLINT
 !**************************************************
 !**************************************************
 !*                                                *
@@ -573,7 +573,7 @@ END SUBROUTINE REDISTRIBUTION
 !*     ORDER OF A GIVEN ARRAY                     *
 !*                                                *
 !**************************************************
-      SUBROUTINE ASCORDER(n,x,ix)
+      SUBROUTINE SSH_ASCORDER(n,x,ix)
 !**************************************************
 !*                                                *
 !*     n      (IN)    array size                  *
@@ -626,10 +626,10 @@ END SUBROUTINE REDISTRIBUTION
          xx(kmin)=txx
       END DO
 !**************************************************
-      END SUBROUTINE ASCORDER
+      END SUBROUTINE SSH_ASCORDER
 !**************************************************
 !**************************************************
-      SUBROUTINE REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,diam,EH2O)
+      SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,diam,EH2O)
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
@@ -692,7 +692,7 @@ END SUBROUTINE REDISTRIBUTION
       DO js2=1,NS
          iredist = 0
          x2hi=(MSD(js2)/(rho(js2)*CST))**(1.d0/3.D0) ! lagrangian diameter
-         CALL LOCATE(NS,DSF,x2hi,j1hi)
+         CALL SSH_LOCATE(NS,DSF,x2hi,j1hi)
          if(j1hi.GE.1.AND.j1hi.LT.NS) then
            if(x2hi.LT.DSF(j1hi).OR.(x2hi.GT.DSF(j1hi+1)))then
                write(*,*) 'problem in locate',x2hi,DSF(j1hi),DSF(j1hi+1)
@@ -732,7 +732,7 @@ END SUBROUTINE REDISTRIBUTION
                jesp = naer
                qnew(NS,jesp) = qnew(NS,jesp)+qesp(js2,jesp)
                if (with_fixed_density .eq. 0) then
-                  CALL compute_density(ns,naer, EH2O,TINYM,qnew,LMD,NS,rho(NS))
+                  CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,NS,rho(NS))
                endif
                Nnew(NS) =  Qtotal/CST/rho(NS)/fixed_diameter(NS)**3
             ELSE
@@ -774,7 +774,7 @@ END SUBROUTINE REDISTRIBUTION
              aam = aam + qesp(js1,jj)
          Enddo
           if (with_fixed_density .eq. 0) then
-             CALL compute_density(ns,naer, EH2O,TINYM,qesp,LMD,js1,rho(js1))
+             CALL ssh_compute_density(ns,naer, EH2O,TINYM,qesp,LMD,js1,rho(js1))
           endif
           if(aam.GT.TINYM.AND.N(js1).GT.TINYN) then
              diam(js1) = (aam/CST /rho(js1)/N(js1))**(1.D0/3.D0)
@@ -788,9 +788,9 @@ END SUBROUTINE REDISTRIBUTION
           !   write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1)
           !endif
       ENDDO
-  END SUBROUTINE REDIST_EULERCOUPLE
+  END SUBROUTINE SSH_REDIST_EULERCOUPLE
 !**************************************************
-  SUBROUTINE REDIST_MOVINGDIAM(ns,naer,n,q,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,diam,EH2O)
+  SUBROUTINE SSH_REDIST_MOVINGDIAM(ns,naer,n,q,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,diam,EH2O)
 !**************************************************
 !*     *
 !*     ns   (IN)    running number of eqs.       *
@@ -848,7 +848,7 @@ END SUBROUTINE REDISTRIBUTION
          x2hi=(MSD(js2)/(rho(js2)*CST))**(1.d0/3.D0) ! lagrangian diameter
          !x2hi=XSD(js2) ! lagrangian diameter
          !CALL LOCATE(NS,XBF,x2hi,j1hi)
-         CALL LOCATE(NS,DSF,x2hi,j1hi)
+         CALL SSH_LOCATE(NS,DSF,x2hi,j1hi)
 
          IF (N(js2).GT.TINYN) THEN
                                 ! redistribute over fixed sections
@@ -873,7 +873,7 @@ END SUBROUTINE REDISTRIBUTION
                jesp = naer
                qnew(NS,jesp) = qnew(NS,jesp)+q(js2,jesp)
                if (with_fixed_density .eq. 0) then
-                  CALL compute_density(ns,naer, EH2O,TINYM,qnew,LMD,NS,rho(NS))
+                  CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,NS,rho(NS))
                endif
                Nnew(NS) =  Qtotal/CST/rho(NS)/fixed_diameter(NS)**3
             ELSE
@@ -896,5 +896,5 @@ END SUBROUTINE REDISTRIBUTION
          N(js1) = Nnew(js1)
       END DO
 
-  END SUBROUTINE REDIST_MOVINGDIAM
+  END SUBROUTINE SSH_REDIST_MOVINGDIAM
 !**************************************************

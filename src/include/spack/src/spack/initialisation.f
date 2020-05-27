@@ -1,4 +1,4 @@
-      subroutine initconst
+      subroutine ssh_initconst
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -37,7 +37,7 @@ c
       end
 c
 C------------------------------------------------------------------------
-      subroutine lectdata(y0,neq,indicaq)
+      subroutine ssh_lectdata(y0,neq,indicaq)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -86,15 +86,15 @@ c
       nmaster=ipiste
       ipiste=ipiste+1
 C     Initialization of constants and main arrays.
-      call initconst
-      call initcinet
+      call ssh_initconst
+      call ssh_initcinet
 
       nalg=0
       iunit = 0
 
 c
-      call openfic(ipiste,ifdth,filemeca,0)
-      call openfic(ipiste,ifdin,filespecies,0)
+      call ssh_openfic(ipiste,ifdth,filemeca,0)
+      call ssh_openfic(ipiste,ifdin,filespecies,0)
 c
 c     Modif BS multiphase: units molec. cm-3 (ippb=0) ou ppb (1)
 
@@ -119,10 +119,10 @@ c
       write(6,*)'Max number of reactions (nrmax): ',nrmax
       if (nesp(1).gt.nespmax) then
          write(*,*)'ERROR: dimension, nesp>nespmax'
-         call halte
+         call ssh_halte
       endif
 
-      call lectci(ifdin)
+      call ssh_lectci(ifdin)
 c
 C     ..v.7..x....v....x....v....x....v....x....v....x....v....x....v....x.I
 C     PP 12 02 2002
@@ -137,9 +137,9 @@ c     Read chemical mechanism
 c      write(*,*)
 c      write(*,*)'-----------Chemical mechanism---------'
 c      write(*,*)
-      call lectcinet(ifdth,indicaq)
+      call ssh_lectcinet(ifdth,indicaq)
 C     Modif BS for gas-phase only
-C     call convcinet(iunit,indicaq)
+C     call ssh_convcinet(iunit,indicaq)
 
 C
 C     Modif BS for gas-phase only
@@ -157,7 +157,7 @@ c
       return
       end
 
-      subroutine openfic(ipiste,ifd,fd,inew)
+      subroutine ssh_openfic(ipiste,ifd,fd,inew)
 c
       character *256 fd
       IFD =ipiste
@@ -167,7 +167,7 @@ c
       return
       end
 
-      subroutine convcinet(iunit,indicaq)
+      subroutine ssh_convcinet(iunit,indicaq)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -242,7 +242,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine convci(ippb,iunit,nn,y0)
+      subroutine ssh_convci(ippb,iunit,nn,y0)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -329,13 +329,13 @@ c
       return
       end
 c--------------------------------------
-      subroutine halte
+      subroutine ssh_halte
       implicit double precision (a-h,o-z)
       stop 1
       return
       end
 c--------------------------------------
-C     subroutine precalcul
+C     subroutine ssh_precalcul
 ccccccccccccccccccccccCCCcccccccccccccc
 c     routine de precalcul des parametres
 c     a partir des donnees d'entree

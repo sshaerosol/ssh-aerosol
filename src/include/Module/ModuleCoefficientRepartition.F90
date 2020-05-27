@@ -40,7 +40,7 @@ Module bCoefficientRepartition
 
 contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CHANGE!!!!!!!!!!
-  SUBROUTINE ComputeCoefficientRepartition()
+  SUBROUTINE ssh_ComputeCoefficientRepartition()
     
     implicit none
 
@@ -169,13 +169,13 @@ contains
 
     enddo
 
-  end SUBROUTINE  ComputeCoefficientRepartition
+  end SUBROUTINE  ssh_ComputeCoefficientRepartition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Read repartition coefficients and their indexes from file.
   ! Size and composition discretization must correspond.
-  subroutine ReadCoefficientRepartition(file, tag_file)
+  subroutine ssh_ReadCoefficientRepartition(file, tag_file)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -214,7 +214,7 @@ contains
        if (ssh_standalone) write(*,*) " Read repartition coefficients and their indexes from NetCDF file."
        if (ssh_logger) write(logfile,*) " Read repartition coefficients and their indexes from NetCDF file."
        ! Open the file.
-       call check( nf90_open(file, NF90_NOWRITE, ncid) )
+       call ssh_check( nf90_open(file, NF90_NOWRITE, ncid) )
        ! Allocate memory.
        allocate(index1_repartition_coefficient(N_size))
        allocate(index2_repartition_coefficient(N_size))
@@ -225,9 +225,9 @@ contains
              Temp=trim(adjustl(cTemp ))
              DIM_NAME = 'Ncoef_'//Temp
               ! Get the varid of the data variable, based on its name.
-              call check( nf90_inq_dimid(ncid, DIM_NAME, dimid) )
+              call ssh_check( nf90_inq_dimid(ncid, DIM_NAME, dimid) )
               ! Read the data.
-              call check( nf90_inquire_dimension(ncid, dimid, len= Ncoef) )
+              call ssh_check( nf90_inquire_dimension(ncid, dimid, len= Ncoef) )
 
 	      ! Print the variables.
 	      index1_repartition_coefficient_nc(i)%n = Ncoef
@@ -238,20 +238,20 @@ contains
               allocate(repartition_coefficient_nc(i)%arr(Ncoef))
                   VAR_NAME= 'index1_'//Temp
 		  ! Get the varid of the data variable, based on its name.
-		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  call ssh_check( nf90_inq_varid(ncid, VAR_NAME, varid) )
 		  ! Read the data.
-		  call check( nf90_get_var(ncid, varid, index1_repartition_coefficient_nc(i)%arr))
+		  call ssh_check( nf90_get_var(ncid, varid, index1_repartition_coefficient_nc(i)%arr))
 
                   VAR_NAME= 'index2_'//Temp
 		  ! Get the varid of the data variable, based on its name.
-		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  call ssh_check( nf90_inq_varid(ncid, VAR_NAME, varid) )
 		  ! Read the data.
-		  call check( nf90_get_var(ncid, varid, index2_repartition_coefficient_nc(i)%arr) )
+		  call ssh_check( nf90_get_var(ncid, varid, index2_repartition_coefficient_nc(i)%arr) )
                   VAR_NAME= 'coef_'//Temp
 		  ! Get the varid of the data variable, based on its name.
-		  call check( nf90_inq_varid(ncid, VAR_NAME, varid) )
+		  call ssh_check( nf90_inq_varid(ncid, VAR_NAME, varid) )
 		  ! Read the data.
-		  call check( nf90_get_var(ncid, varid, repartition_coefficient_nc(i)%arr) )
+		  call ssh_check( nf90_get_var(ncid, varid, repartition_coefficient_nc(i)%arr) )
 		  !Problem: In NetCDF index of grid start from 0; However, in bin and fortran index of grid start from 1
                   Ncfix=0
                   do l=1,repartition_coefficient_nc(i)%n
@@ -408,13 +408,13 @@ contains
     close(11)
     endif
     
-  end subroutine ReadCoefficientRepartition
+  end subroutine ssh_ReadCoefficientRepartition
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Write repartition coefficients and their indexes from file.
   ! Size and composition discretization must correspond.
-  recursive subroutine WriteCoefficientRepartition(file, tag_file)
+  recursive subroutine ssh_WriteCoefficientRepartition(file, tag_file)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -450,30 +450,30 @@ contains
 
        ! Create the netCDF file. The nf90_clobber parameter tells netCDF to
        ! overwrite this file, if it already exists.
-       call check( nf90_create(file, NF90_CLOBBER, ncid) )
+       call ssh_check( nf90_create(file, NF90_CLOBBER, ncid) )
 
        ! Define the dimensions. NetCDF will hand back an ID for each. 
-       call check( nf90_def_dim(ncid, "Nmc", Nmc, dimid) )
-       call check( nf90_def_dim(ncid, "Nsize", N_size, dimid) )
-       call check( nf90_def_dim(ncid, "Nb", N_sizebin, dimid) )
-       call check( nf90_def_dim(ncid, "Nc", N_fracmax, dimid) )
+       call ssh_check( nf90_def_dim(ncid, "Nmc", Nmc, dimid) )
+       call ssh_check( nf90_def_dim(ncid, "Nsize", N_size, dimid) )
+       call ssh_check( nf90_def_dim(ncid, "Nb", N_sizebin, dimid) )
+       call ssh_check( nf90_def_dim(ncid, "Nc", N_fracmax, dimid) )
        do j = 1, N_size
           write(ctemp, '(i4)') (j-1)
           temp = trim(adjustl(ctemp))
           dim_name = 'Ncoef_'//temp
 
-          call check( nf90_def_dim(ncid, dim_name, repartition_coefficient(j)%n, dimid) )
+          call ssh_check( nf90_def_dim(ncid, dim_name, repartition_coefficient(j)%n, dimid) )
 
           ! Define the variables
           var_name = 'index1_'//temp
-          call check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index1_varid) )
+          call ssh_check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index1_varid) )
           var_name = 'index2_'//temp
-          call check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index2_varid) )
+          call ssh_check( nf90_def_var(ncid, var_name, NF90_INT, dimid, index2_varid) )
           var_name = 'coef_'//temp
-          call check( nf90_def_var(ncid, var_name, NF90_DOUBLE, dimid, coef_varid) )
+          call ssh_check( nf90_def_var(ncid, var_name, NF90_DOUBLE, dimid, coef_varid) )
 
           ! End define mode. This tells netCDF we are done defining metadata.
-          call check( nf90_enddef(ncid) )
+          call ssh_check( nf90_enddef(ncid) )
 
           ! Index must decrease by 1 because it increases by 1 in 
           ! ReadCoefficientRepartition()
@@ -487,13 +487,13 @@ contains
           enddo
 
           ! Write 'index1' data
-          call check( nf90_put_var(ncid, index1_varid, index1_repartition_coefficient(j)%arr) )
+          call ssh_check( nf90_put_var(ncid, index1_varid, index1_repartition_coefficient(j)%arr) )
           ! Write 'index2' data
-          call check( nf90_put_var(ncid, index2_varid, index2_repartition_coefficient(j)%arr) )
+          call ssh_check( nf90_put_var(ncid, index2_varid, index2_repartition_coefficient(j)%arr) )
           ! Write 'coefficient' data
-          call check( nf90_put_var(ncid, coef_varid, repartition_coefficient(j)%arr) )
+          call ssh_check( nf90_put_var(ncid, coef_varid, repartition_coefficient(j)%arr) )
           ! Change into define mode
-          call check( nf90_redef(ncid) )
+          call ssh_check( nf90_redef(ncid) )
 
           ! Index must increase again by 1 after writing to the file.
           do l = 1, repartition_coefficient(j)%n
@@ -506,7 +506,7 @@ contains
        enddo
        
        ! Close the file.
-       call check( nf90_close(ncid) )
+       call ssh_check( nf90_close(ncid) )
 
        ! If we got this far, everything worked as expected. 
       if (ssh_standalone) write(*,*) "*** SUCCESS writing file "//file
@@ -571,13 +571,13 @@ contains
 
       if (ssh_standalone) write(*,*) "Warning: Unknown writer format. Fallback to TXT."
       if (ssh_logger) write(logfile,*) "Warning: Unknown writer format. Fallback to TXT."
-      call WriteCoefficientRepartition(file, 2)
+      call ssh_WriteCoefficientRepartition(file, 2)
 
     endif
 
-  end subroutine WriteCoefficientRepartition
+  end subroutine ssh_WriteCoefficientRepartition
 
-  subroutine check(status)
+  subroutine ssh_check(status)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -596,9 +596,9 @@ contains
       print *, trim(nf90_strerror(status))
       stop 2
     end if
-  end subroutine check
+  end subroutine ssh_check
 
-  subroutine check_repart_coeff()
+  subroutine ssh_check_repart_coeff()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -643,7 +643,7 @@ contains
     enddo    
   end subroutine
 
-  subroutine DeallocateCoefficientRepartition
+  subroutine ssh_DeallocateCoefficientRepartition
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -667,6 +667,6 @@ contains
     deallocate (repartition_coefficient)
     deallocate (index1_repartition_coefficient)
     deallocate (index2_repartition_coefficient)
-  end subroutine DeallocateCoefficientRepartition
+  end subroutine ssh_DeallocateCoefficientRepartition
 
 end module bCoefficientRepartition

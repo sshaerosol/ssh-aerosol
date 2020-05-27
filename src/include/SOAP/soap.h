@@ -9,9 +9,9 @@
 #include <vector>
 #include "species.h"
 #include "solving.cxx"
-using namespace soap;
+using namespace ssh_soap;
 
-void soap_main(double LWC, double RH, double Temperature, 
+void soap_main_ssh(double LWC, double RH, double Temperature, 
                double ionic, double chp, double& LWCorg,
                double& deltat,
                double DSD[], double csol[], double liquid[],

@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
+SUBROUTINE SSH_HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
      X,diam , logdiam,kloc, alpha, LMD, rho, Qesp, N)
 
 !!$------------------------------------------------------------------------
@@ -96,7 +96,7 @@ SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
         Q(k) = Q(k) + Qesp(k, jesp)
     endif   
      ENDDO
-     CALL COMPUTE_DENSITY(ns, nesp,eh2o, TINYN, N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp,eh2o, TINYN, N_esp, LMD, k, rho(k))
   ENDDO
 
 !!! ~~~~~~ initialization transfert vector
@@ -342,7 +342,7 @@ SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
   ENDIF
 
   DO k = 1,section_pass-1
-     CALL COMPUTE_DENSITY(ns, nesp,eh2o,TINYN, N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp,eh2o,TINYN, N_esp, LMD, k, rho(k))
      DO jesp = 1, nesp
         Qesp(k, jesp) = (PI/6D0) * rho(k) * d(k) * d(k) * d(k) * N_esp(k, jesp)
         if (jesp .ne. eh2o) then
@@ -352,14 +352,14 @@ SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
   ENDDO
 
   DO k = section_pass+1 , ns
-     CALL COMPUTE_DENSITY(ns, nesp,eh2o,TINYM, Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp,eh2o,TINYM, Qesp, LMD, k, rho(k))
      N(k) = Q(k) * 6.D0 / (PI * rho(k) * d(k) * d(k) * d(k))
   ENDDO
 
   k = section_pass
   IF (d(section_pass).LE.diam_pass) then 
      ! ~~~~ Euler number
-     CALL COMPUTE_DENSITY(ns, nesp, eh2o,TINYN,N_esp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp, eh2o,TINYN,N_esp, LMD, k, rho(k))
      DO jesp = 1, nesp
         Qesp(k, jesp) = (PI/6D0) * rho(k) * d(k) * d(k) * d(k) * N_esp(k, jesp)
         if (jesp .ne. eh2o) then
@@ -368,10 +368,10 @@ SUBROUTINE HEMEN(ns, nesp,eh2o, grand, section_pass, d, dbound, &
      ENDDO
   ELSE 
      ! ~~~~ Euler mass
-     CALL COMPUTE_DENSITY(ns, nesp,eh2o,TINYM, Qesp, LMD, k, rho(k))
+     CALL SSH_COMPUTE_DENSITY(ns, nesp,eh2o,TINYM, Qesp, LMD, k, rho(k))
      N(k) = Q(k) * 6.D0 / (PI * rho(k) * d(k) * d(k) * d(k))
   ENDIF
 
-  CALL TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
+  CALL SSH_TEST_MASS_NB(ns,nesp,rho,dbound,Q,N,Qesp)
 
-END SUBROUTINE HEMEN
+END SUBROUTINE SSH_HEMEN

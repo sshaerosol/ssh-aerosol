@@ -337,7 +337,7 @@ module aInitialization
 contains
 
 
-  subroutine read_namelist(namelist_file)
+  subroutine ssh_read_namelist(namelist_file)
 
 
     ! =============================================================
@@ -1163,7 +1163,7 @@ contains
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
 
 
-  end subroutine read_namelist
+  end subroutine ssh_read_namelist
 
 
 
@@ -1175,7 +1175,7 @@ contains
   ! ============================================================= 
 
 
-  subroutine read_inputs()
+  subroutine ssh_read_inputs()
 
 
     implicit none
@@ -1709,7 +1709,7 @@ contains
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
 
     if (allocated(tmp_aero))  deallocate(tmp_aero)
-  end subroutine read_inputs
+  end subroutine ssh_read_inputs
 
 
   ! ============================================================
@@ -1718,7 +1718,7 @@ contains
   !
   ! ============================================================
 
-  subroutine free_allocated_memory()
+  subroutine ssh_free_allocated_memory()
 
     integer :: ierr = 0
 
@@ -1858,7 +1858,7 @@ contains
     
 
 
-  END subroutine free_allocated_memory
+  END subroutine ssh_free_allocated_memory
 
   ! =============================================================
   !
@@ -1869,7 +1869,7 @@ contains
   ! input : true if logging to a file, false (default) otherwise
   ! =============================================================
 
-  subroutine set_logger(flag)
+  subroutine ssh_set_logger(flag)
 
     implicit none
 
@@ -1900,7 +1900,7 @@ contains
        endif
     endif
 
-  end subroutine set_logger
+  end subroutine ssh_set_logger
 
   ! =============================================================
   !
@@ -1908,7 +1908,7 @@ contains
   !
   ! =============================================================
 
-  subroutine close_logger()
+  subroutine ssh_close_logger()
 
     implicit none
 
@@ -1924,6 +1924,6 @@ contains
     endif
 
 
-  end subroutine close_logger
+  end subroutine ssh_close_logger
 
 end module aInitialization

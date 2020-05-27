@@ -18,8 +18,8 @@ c     deltap - particle Knudsen number (µm).
 c
 c     Returns:
 c     kercg - coagulation kernel (m^3/s).
-      subroutine compute_coagulation_free_transition(dp, cdifp, deltap,
-     $     vmp, stick, kercg)
+      subroutine ssh_compute_coagulation_free_transition(dp, cdifp, 
+     $     deltap, vmp, stick, kercg)
 
       double precision pi
       parameter(pi = 3.141592653589d0)
@@ -59,7 +59,7 @@ c     stick - sticking probability 0< <1 ().
 c
 c     Returns:
 c     kercg - coagulation kernel (m^3/s).
-      subroutine compute_coagulation_free_molecular(dp, vmp, stick,
+      subroutine ssh_compute_coagulation_free_molecular(dp, vmp, stick,
      $     kercg)
 
       double precision pi
@@ -91,7 +91,7 @@ c     cdifp - diffusion coefficient (m^2/s).
 c
 c     Returns:
 c     kercg - coagulation kernel (m^3/s).
-      subroutine compute_coagulation_continuous(dp, cdifp, kercg)
+      subroutine ssh_compute_coagulation_continuous(dp, cdifp, kercg)
 
       double precision pi
       parameter(pi = 3.141592653589d0)

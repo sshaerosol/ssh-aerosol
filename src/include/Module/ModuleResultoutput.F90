@@ -15,7 +15,7 @@ Module Resultoutput
 
 contains
 
-   subroutine save_report()
+   subroutine ssh_save_report()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -125,10 +125,10 @@ contains
 
    CLOSE(10)
 
-   end subroutine save_report
+   end subroutine ssh_save_report
 
 
-  subroutine save_concentration()
+  subroutine ssh_save_concentration()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -293,11 +293,11 @@ contains
         close(100)
     end do
 
-  end subroutine save_concentration
+  end subroutine ssh_save_concentration
 
 
 
-  subroutine init_output_conc()
+  subroutine ssh_init_output_conc()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -445,10 +445,10 @@ contains
    end do
 
 
-  end subroutine init_output_conc
+  end subroutine ssh_init_output_conc
 
 
-  subroutine delete_empty_file()
+  subroutine ssh_delete_empty_file()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -531,7 +531,7 @@ contains
        if (conc_value .ne. 0.0) close(100)
     enddo
 
-  end subroutine delete_empty_file
+  end subroutine ssh_delete_empty_file
 
   character(len=20) function str(k)
     !   "Convert an integer to string."

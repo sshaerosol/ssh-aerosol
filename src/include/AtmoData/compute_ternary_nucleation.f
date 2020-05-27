@@ -20,7 +20,7 @@ c     jnucl - Nucleation rate (#part/cm^3/s).
 c     ntoth2so4 - Number of molecules of H2SO4 in the critical cluster.
 c     ntotnh3 - Number of molecules of NH3 in the critical cluster.
 c     dpnucl -  Nucleation diameter (nm).
-      subroutine compute_ternary_nucleation(rh, temp, natmp, mrtmp,
+      subroutine ssh_compute_ternary_nucleation(rh, temp, natmp, mrtmp,
      $     jnucl, ntoth2so4, ntotnh3, dpnucl)
 
       double precision a0(20), a1(20), a2(20), a3(20)
@@ -57,8 +57,8 @@ c     dpnucl -  Nucleation diameter (nm).
       double precision rh, temp, natmp, na, mrtmp, mr
       double precision jnucl, ntoth2so4, ntotnh3, dpnucl
 
-      double precision fa
-      external fa
+      double precision ssh_fa
+      external ssh_fa
       double precision lnrh, lnmr2, lnmr, lnj, lnj2
       double precision t2, t3, lnna, lnna2
 
@@ -95,26 +95,26 @@ c     test if parameterization is valid.
          t3 = t2 * temp
 
          lnj = ( - 84.7551d0
-     $        + fa(1, temp, t2, t3, a0, a1, a2, a3) / lnna +
-     $        fa(2, temp, t2, t3, a0, a1, a2, a3) * lnna +
-     $        fa(3, temp, t2, t3, a0, a1, a2, a3) * lnna2 +
-     $        fa(4, temp, t2, t3, a0, a1, a2, a3) * lnmr +
-     $        fa(5, temp, t2, t3, a0, a1, a2, a3) * lnmr2 +
-     $        fa(6, temp, t2, t3, a0, a1, a2, a3) * rh +
-     $        fa(7, temp, t2, t3, a0, a1, a2, a3) * lnrh +
-     $        fa(8, temp, t2, t3, a0, a1, a2, a3) * lnmr / lnna +
-     $        fa(9, temp, t2, t3, a0, a1, a2, a3) * lnna * lnmr +
-     $        fa(10, temp, t2, t3, a0, a1, a2, a3) * rh * lnna +
-     $        fa(11, temp, t2, t3, a0, a1, a2, a3) * rh / lnna +
-     $        fa(12, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr +
-     $        fa(13, temp, t2, t3, a0, a1, a2, a3) * lnrh / lnna +
-     $        fa(14, temp, t2, t3, a0, a1, a2, a3) * lnrh * lnmr +
-     $        fa(15, temp, t2, t3, a0, a1, a2, a3) * lnmr2 / lnna +
-     $        fa(16, temp, t2, t3, a0, a1, a2, a3) * lnna * lnmr2 +
-     $        fa(17, temp, t2, t3, a0, a1, a2, a3) * lnna2 * lnmr +
-     $        fa(18, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr2 +
-     $        fa(19, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr / lnna +
-     $        fa(20, temp, t2, t3, a0, a1, a2, a3) * lnna2 * lnmr2)
+     $        + ssh_fa(1, temp, t2, t3, a0, a1, a2, a3) / lnna +
+     $        ssh_fa(2, temp, t2, t3, a0, a1, a2, a3) * lnna +
+     $        ssh_fa(3, temp, t2, t3, a0, a1, a2, a3) * lnna2 +
+     $        ssh_fa(4, temp, t2, t3, a0, a1, a2, a3) * lnmr +
+     $        ssh_fa(5, temp, t2, t3, a0, a1, a2, a3) * lnmr2 +
+     $        ssh_fa(6, temp, t2, t3, a0, a1, a2, a3) * rh +
+     $        ssh_fa(7, temp, t2, t3, a0, a1, a2, a3) * lnrh +
+     $        ssh_fa(8, temp, t2, t3, a0, a1, a2, a3) * lnmr / lnna +
+     $        ssh_fa(9, temp, t2, t3, a0, a1, a2, a3) * lnna * lnmr +
+     $        ssh_fa(10, temp, t2, t3, a0, a1, a2, a3) * rh * lnna +
+     $        ssh_fa(11, temp, t2, t3, a0, a1, a2, a3) * rh / lnna +
+     $        ssh_fa(12, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr +
+     $        ssh_fa(13, temp, t2, t3, a0, a1, a2, a3) * lnrh / lnna +
+     $        ssh_fa(14, temp, t2, t3, a0, a1, a2, a3) * lnrh * lnmr +
+     $        ssh_fa(15, temp, t2, t3, a0, a1, a2, a3) * lnmr2 / lnna +
+     $        ssh_fa(16, temp, t2, t3, a0, a1, a2, a3) * lnna * lnmr2 +
+     $        ssh_fa(17, temp, t2, t3, a0, a1, a2, a3) * lnna2 * lnmr +
+     $        ssh_fa(18, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr2 +
+     $        ssh_fa(19, temp, t2, t3, a0, a1, a2, a3) * rh * lnmr/lnna+
+     $        ssh_fa(20, temp, t2, t3, a0, a1, a2, a3) * lnna2 * lnmr2)
 
          jnucl = dexp(lnj)
 
@@ -154,11 +154,11 @@ c     compute cluster diameter in nm.
 
 c-------------------------------------------------
 
-      function fa(i, temp, t2, t3, a0, a1, a2, a3)
+      function ssh_fa(i, temp, t2, t3, a0, a1, a2, a3)
 
-      double precision fa, temp, t2, t3
+      double precision ssh_fa, temp, t2, t3
       double precision a0(20), a1(20), a2(20), a3(20)
 
-      fa = a0(i) + a1(i) * temp + a2(i) * t2 + a3(i) * t3
+      ssh_fa = a0(i) + a1(i) * temp + a2(i) * t2 + a3(i) * t3
 
       end

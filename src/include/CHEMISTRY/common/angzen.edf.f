@@ -1,7 +1,7 @@
       
 C     **********************************************************************
 C
-      DOUBLE PRECISION function tsolv(tu,long)
+      DOUBLE PRECISION function ssh_tsolv(tu,long)
 C
 C     Routine DIFEUL    DE D.Wendum /EDF
 C     **********************************************************************
@@ -17,28 +17,28 @@ C
 C
       DOUBLE PRECISION tu,long
       DOUBLE PRECISION t
-      DOUBLE PRECISION aent,DLaent,amodp
-      DOUBLE PRECISION corheu,DLcorheu
+      DOUBLE PRECISION ssh_aent,DLaent,ssh_amodp
+      DOUBLE PRECISION ssh_corheu,DLcorheu
       DOUBLE PRECISION pi
       parameter(pi=3.141592653589793238462D0)
-      external aent,amodp,corheu
+      external ssh_aent,ssh_amodp,ssh_corheu
 C
       t=(tu/86400.D0)
-      DLaent=aent(t)
+      DLaent=ssh_aent(t)
       t=t-DLaent
       t=t*24.D0
-      DLcorheu=corheu(tu)
-      tsolv=t+long/15.D0+DLcorheu
-      tsolv=amodp(tsolv,24.D0)
-      tsolv=tsolv-12.D0
-      tsolv=tsolv*pi/12.D0
+      DLcorheu=ssh_corheu(tu)
+      ssh_tsolv=t+long/15.D0+DLcorheu
+      ssh_tsolv=ssh_amodp(ssh_tsolv,24.D0)
+      ssh_tsolv=ssh_tsolv-12.D0
+      ssh_tsolv=ssh_tsolv*pi/12.D0
 C
       end
 
 C
 C     **********************************************************************
 C
-      DOUBLE PRECISION function declin(tsec)
+      DOUBLE PRECISION function ssh_declin(tsec)
 
 C     Routine DIFEUL    DE D.Wendum /EDF
 C     **********************************************************************
@@ -55,16 +55,18 @@ C
       t=1.D0+(tsec/86400.D0)
       t=t+0.1D0
       t=2*pi*t/365.D0
-      declin=0.006918D0
-      declin=declin-0.399912D0*dcos(t)+0.070257D0*dsin(t)
-      declin=declin-0.006758D0*dcos(2.D0*t)+0.000907D0*dsin(2.D0*t)
-      declin=declin-0.002697D0*dcos(3.D0*t)+0.001480D0*dsin(3.D0*t)
+      ssh_declin=0.006918D0
+      ssh_declin=ssh_declin-0.399912D0*dcos(t)+0.070257D0*dsin(t)
+      ssh_declin=ssh_declin-0.006758D0*dcos(2.D0*t)+
+     &     0.000907D0*dsin(2.D0*t)
+      ssh_declin=ssh_declin-0.002697D0*dcos(3.D0*t)+
+     &     0.001480D0*dsin(3.D0*t)
 C
       end
 
 C     **********************************************************************
 C
-      DOUBLE PRECISION function muzero(tu,long,lat)
+      DOUBLE PRECISION function ssh_muzero(tu,long,lat)
 C
 C     Routine DIFEUL    DE D.Wendum /EDF
 C     **********************************************************************
@@ -76,28 +78,28 @@ C     et de la longitude,latitude en degres
 C
       implicit none
 C
-      DOUBLE PRECISION tu,tul,long,hr,tsolv
-      DOUBLE PRECISION decl,declin
+      DOUBLE PRECISION tu,tul,long,hr,ssh_tsolv
+      DOUBLE PRECISION decl,ssh_declin
       DOUBLE PRECISION lat,flat
       DOUBLE PRECISION pi
       parameter(pi=3.141592653589793238462D0)
-      external declin,tsolv
+      external ssh_declin,ssh_tsolv
 C
       tul=tu
       if (tu.gt.31536000.d0) then
          tul=mod(tu,31536000.d0)
       endif
 
-      hr=tsolv(tul,long)
-      decl=declin(tul)
+      hr=ssh_tsolv(tul,long)
+      decl=ssh_declin(tul)
       flat=lat*pi/180.D0
-      muzero=dsin(decl)*dsin(flat)+dcos(decl)*dcos(flat)*dcos(hr)
+      ssh_muzero=dsin(decl)*dsin(flat)+dcos(decl)*dcos(flat)*dcos(hr)
 C
       end
 C
 C     **********************************************************************
 C
-      DOUBLE PRECISION function corheu(tsec)
+      DOUBLE PRECISION function ssh_corheu(tsec)
 C
 C     Routine DIFEUL    DE D.Wendum /EDF
 C     **********************************************************************
@@ -116,16 +118,17 @@ C
       t=t+.1D0
       t=2.D0*pi*t/365.D0
 C
-      corheu=0.000075D0
-      corheu=corheu+0.001868D0*dcos(t)-0.032077D0*dsin(t)
-      corheu=corheu-0.014615D0*dcos(2.D0*t)-0.040849D0*dsin(2.D0*t)
-      corheu=corheu*12.D0/pi
+      ssh_corheu=0.000075D0
+      ssh_corheu=ssh_corheu+0.001868D0*dcos(t)-0.032077D0*dsin(t)
+      ssh_corheu=ssh_corheu-0.014615D0*dcos(2.D0*t)-
+     &     0.040849D0*dsin(2.D0*t)
+      ssh_corheu=ssh_corheu*12.D0/pi
 C
       end
 
 C     **********************************************************************
 C
-      DOUBLE PRECISION FUNCTION AENT(X)
+      DOUBLE PRECISION FUNCTION SSH_AENT(X)
 C
 C     PARTIE ENTIERE "USUELLE" : UNIQUE ENTIER K TEL QUE K =<X < K+1
 C
@@ -133,30 +136,30 @@ C
       DOUBLE PRECISION X
 C
       IF(X.GE.0.D0)THEN
-         AENT=DINT(X)
+         SSH_AENT=DINT(X)
       ELSE
-         AENT=DINT(X)-1.D0
+         SSH_AENT=DINT(X)-1.D0
       ENDIF
 C
       END
 C
 C     **********************************************************************
 C
-      DOUBLE PRECISION FUNCTION AMODP(X,Y)
+      DOUBLE PRECISION FUNCTION SSH_AMODP(X,Y)
 C
 C     L'UNIQUE REEL F TEL QUE X= N*|Y| +F, 0<= F < |Y|
 C
       IMPLICIT NONE
       DOUBLE PRECISION X,Y,Z
-      DOUBLE PRECISION AENT,DLAENT
-      EXTERNAL AENT
+      DOUBLE PRECISION SSH_AENT,DLAENT
+      EXTERNAL SSH_AENT
 C
       Z=DMAX1(Y,-Y)
       IF(Z.GT.0)THEN
-         DLAENT=AENT(X/Z)
-         AMODP=X-Z*DLAENT
+         DLAENT=SSH_AENT(X/Z)
+         SSH_AMODP=X-Z*DLAENT
       ELSE
-         STOP 'APPEL DE AMODP(X,Y) AVEC Y=0'
+         STOP 'APPEL DE SSH_AMODP(X,Y) AVEC Y=0'
       ENDIF
 C
       END

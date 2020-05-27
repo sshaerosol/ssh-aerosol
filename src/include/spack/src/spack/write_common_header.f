@@ -1,5 +1,5 @@
 
-      subroutine write_common_header_90(nwrite)
+      subroutine ssh_write_common_header_90(nwrite)
       integer nwrite
 
       write(nwrite,200)

@@ -12,7 +12,7 @@ MODULE dPhysicalbalance
   implicit none
 
 contains
-  subroutine compute_average_diameter()
+  subroutine ssh_compute_average_diameter()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -62,9 +62,9 @@ contains
 	endif
     enddo
 
-  end  subroutine compute_average_diameter
+  end  subroutine ssh_compute_average_diameter
 
-  subroutine compute_number()
+  subroutine ssh_compute_number()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -97,9 +97,9 @@ contains
 	  print*,"Wrong size_diam_av",k,size_diam_av(k)
       endif
     enddo
-  end  subroutine compute_number
+  end  subroutine ssh_compute_number
 
-  subroutine compute_all_density()
+  subroutine ssh_compute_all_density()
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -152,9 +152,9 @@ contains
       endif
     enddo
 
-  end  subroutine compute_all_density
+  end  subroutine ssh_compute_all_density
 
-  subroutine mass_conservation(c_mass,c_number,c_gas, t_mass)
+  subroutine ssh_mass_conservation(c_mass,c_number,c_gas, t_mass)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -282,6 +282,6 @@ contains
        endif
     enddo
 
-  end subroutine mass_conservation
+  end subroutine ssh_mass_conservation
 
 end MODULE dPhysicalbalance

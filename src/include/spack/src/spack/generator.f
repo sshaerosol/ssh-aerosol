@@ -4,7 +4,7 @@ C     needed for integration of gas-phase chemistry.
 C     Authors: Bruno Sportisse and Pierre Plion, CEREA/ENPC
 C     Date: February 2003.
 C------------------------------------------------------------------------
-      subroutine WK190(nr,k)
+      subroutine ssh_WK190(nr,k)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -31,7 +31,7 @@ C------------------------------------------------------------------------
       return
       end
 C------------------------------------------------------------------------
-      subroutine WK290(nr,k,Tact)
+      subroutine ssh_WK290(nr,k,Tact)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -52,7 +52,7 @@ C------------------------------------------------------------------------
       include 'nficfort'
 
       if(abs(Tact).lt.petit)then
-         call WK190(nr,k)
+         call ssh_WK190(nr,k)
       else
          logk = log(k)
          write(nficK90,10)nr,logk,Tact
@@ -64,7 +64,7 @@ C------------------------------------------------------------------------
       return
       end
 C------------------------------------------------------------------------
-      subroutine WK390(nr,k,expT,Tact)
+      subroutine ssh_WK390(nr,k,expT,Tact)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -85,7 +85,7 @@ C------------------------------------------------------------------------
       include 'nficfort'
 
       if(abs(expT).lt.petit) then
-         call WK290(nr,k,Tact)
+         call ssh_WK290(nr,k,Tact)
       else
          logk = log(k)
          if(Tact.gt.petit)then
@@ -109,7 +109,7 @@ C------------------------------------------------------------------------
       return
       end
 C------------------------------------------------------------------------
-      subroutine WTROE90(nr,b1,b2,b3,b4,b5)
+      subroutine ssh_WTROE90(nr,b1,b2,b3,b4,b5)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -149,7 +149,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine WTROE790(nr,b1,b2,b3,b4,b5,b6,b7)
+      subroutine ssh_WTROE790(nr,b1,b2,b3,b4,b5,b6,b7)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -190,7 +190,7 @@ c
       return
       end
 C------------------------------------------------------------------------
-      subroutine WTROE1090(nr,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10)
+      subroutine ssh_WTROE1090(nr,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -282,7 +282,7 @@ C     &   6x,'if(Rapk.gt.0.d0) facteur = 1.d0/(1.d0+log10(Rapk)**2)')
       return
       end
 C------------------------------------------------------------------------
-      subroutine WSPEC_RACM90 (nr,ispebp)
+      subroutine ssh_WSPEC_RACM90 (nr,ispebp)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -339,7 +339,7 @@ C     MODIF BS 06/06/2003 on the basis of CMAQ
       end
 
 C------------------------------------------------------------------------
-      subroutine WSPEC_CB0590 (nr,ispebp)
+      subroutine ssh_WSPEC_CB0590 (nr,ispebp)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -399,7 +399,7 @@ C     YS 26/11/2008 value given by IUPAC 2005
       end
 
 C------------------------------------------------------------------------
-      subroutine WSPEC_RACM290 (nr,ispebp)
+      subroutine ssh_WSPEC_RACM290 (nr,ispebp)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -463,7 +463,7 @@ C     YK 30/08/2010
       return
       end
 C------------------------------------------------------------------------
-      subroutine WTB90(nr,ittb)
+      subroutine ssh_WTB90(nr,ittb)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -502,7 +502,7 @@ C     Seinfeld pp 22: N2 0.78; O2 0.21
       return
       end
 C------------------------------------------------------------------------
-      subroutine WCV90(nr,b1,b2,b3,b4,b5,b6,b7)
+      subroutine ssh_WCV90(nr,b1,b2,b3,b4,b5,b6,b7)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -522,9 +522,9 @@ C------------------------------------------------------------------------
       double precision d54,d65,d76
 
 c      if(abs(b2).lt.petit)then
-c         call WK290(nr,b1,b3)
+c         call ssh_WK290(nr,b1,b3)
 c      else
-c         call WK390(nr,b1,b2,b3)
+c         call ssh_WK390(nr,b1,b2,b3)
 c      endif
 c     write(nficK90,10)nr,b4,b5,b6,b7
       d54 = (b5-b4)*.05D0
@@ -576,7 +576,7 @@ c     write(nficK90,10)nr,b4,b5,b6,b7
       return
       end
 C------------------------------------------------------------------------
-      subroutine WRCFE90(nr,b1,b2,b3,b4,b5,b6)
+      subroutine ssh_WRCFE90(nr,b1,b2,b3,b4,b5,b6)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -604,7 +604,7 @@ C------------------------------------------------------------------------
       double precision b1,b2,b3,b4,b5,b6
 
 C
-      call WK290(nr,b5,b6)
+      call ssh_WK290(nr,b5,b6)
 C
       write(nficK90,10)b1,b2
       write(nficK90,11)b3,b4
@@ -626,7 +626,7 @@ C     &       5x,'&      exp((',D23.16,')/temp)')
       return
       end
 C------------------------------------------------------------------------
-      subroutine WPHOT90(nr,ntabphot,b,tabphot,it)
+      subroutine ssh_WPHOT90(nr,ntabphot,b,tabphot,it)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -660,7 +660,7 @@ C------------------------------------------------------------------------
          a(i)=tabphot(i)
       enddo
 C
-      call SPL3(ntabphot,a,b,c)
+      call ssh_SPL3(ntabphot,a,b,c)
 C
 c      do i = 1,ntabphot-1
 c         write(6,100)b(i),(c(j,i),j=1,4),b(i+1)
@@ -715,7 +715,7 @@ C
       return
       end
 C------------------------------------------------------------------------
-      subroutine WW90(nr,ne,ie1,ie2,ie3)
+      subroutine ssh_WW90(nr,ne,ie1,ie2,ie3)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -754,7 +754,7 @@ C     write(nficFF,120)nr,ie1,ie2,ie3
       return
       end
 C------------------------------------------------------------------------
-      subroutine DW90(nr,ne,ie1,ie2,ie3)
+      subroutine ssh_DW90(nr,ne,ie1,ie2,ie3)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -797,7 +797,7 @@ C     write(nficJJ,122)nr,ie1,ie2
       return
       end
 C------------------------------------------------------------------------
-      subroutine WFJ90(s,nr,jer)
+      subroutine ssh_WFJ90(s,nr,jer)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -880,7 +880,7 @@ C     Reactants with stochiometry = 1
       RETURN
       END
 C------------------------------------------------------------------------
-      subroutine WPL90(s,nr,jer)
+      subroutine ssh_WPL90(s,nr,jer)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -942,7 +942,7 @@ C     if (nm.gt.1) write(nficloss90,50)ie,ie,nm*1.
       RETURN
       END
 C------------------------------------------------------------------------
-      subroutine WNONZERO90(s,nrtot,jer)
+      subroutine ssh_WNONZERO90(s,nrtot,jer)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -1009,7 +1009,7 @@ C
       RETURN
       END
 C------------------------------------------------------------------------
-      subroutine SPL3(n1,a,b,c)
+      subroutine ssh_SPL3(n1,a,b,c)
 C------------------------------------------------------------------------
 C     Determination des coefficients des arcs de cubiques permettant
 C     d'interpoler b(a) en respectant la condition de derivee premiere

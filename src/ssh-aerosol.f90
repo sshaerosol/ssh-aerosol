@@ -31,31 +31,31 @@ PROGRAM SSHaerosol
   call getarg(1, namelist_ssh)
 
   ! Read the number of gas-phase species and chemical reactions
-  call dimensions(N_gas, n_reaction, n_photolysis)
+  call ssh_dimensions(N_gas, n_reaction, n_photolysis)
 
-  call read_namelist(namelist_ssh)
+  call ssh_read_namelist(namelist_ssh)
 
-  call read_inputs()                                
+  call ssh_read_inputs()                                
 
-  call read_meteo()
+  call ssh_read_meteo()
   
-  call init_parameters()  
+  call ssh_init_parameters()  
  
-  call init_distributions()  
+  call ssh_init_distributions()  
 
-  call init_output_conc() 
+  call ssh_init_output_conc() 
 
-  call save_report()
+  call ssh_save_report()
 
-  call save_concentration() 
+  call ssh_save_concentration() 
 
   if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
     ! Allocate arrays for photolysis
-    call allocate_photolysis()    
+    call ssh_allocate_photolysis()    
     ! Read photolysis rate for current day
     current_time = initial_time
-    call init_photolysis() 
-    call interpol_photolysis()
+    call ssh_init_photolysis() 
+    call ssh_interpol_photolysis()
   endif
   ! **** simulation starts 
   t_since_update_photolysis = 0.d0
@@ -77,13 +77,13 @@ PROGRAM SSHaerosol
      ! Read the photolysis rates.
      if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
        if (t_since_update_photolysis >= time_update_photolysis) then
-        call interpol_photolysis()
+        call ssh_interpol_photolysis()
         t_since_update_photolysis = 0.d0
        endif
      endif
 
      ! Emissions
-     if (tag_emis .ne. 0) call emission(delta_t)
+     if (tag_emis .ne. 0) call ssh_emission(delta_t)
 
      ! Read the meteorological data.
      temperature = temperature_array(t)
@@ -98,7 +98,7 @@ PROGRAM SSHaerosol
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
 
      if (tag_chem .ne. 0) then
-       call chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+       call ssh_chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
           ns_source, source_index, conversionfactor, conversionfactorjacobian,&
           0, lwc_cloud_threshold, molecular_weight, &
           current_time, attenuation, &
@@ -140,7 +140,7 @@ PROGRAM SSHaerosol
     end do
 
     ! Aerosol dynamic
-    CALL AERODYN(current_time,delta_t)
+    CALL SSH_AERODYN(current_time,delta_t)
 
 	! update mass conc. of aerosol precursors
 	! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
@@ -150,7 +150,7 @@ PROGRAM SSHaerosol
        end if
     end do
 
-    call save_concentration()         ! Text or Binary format outout
+    call ssh_save_concentration()         ! Text or Binary format outout
 
     ! Time step is finished
     call cpu_time(t0)
@@ -161,12 +161,12 @@ PROGRAM SSHaerosol
 
   !call delete_empty_file() ! delete empty output files
 
-  call free_allocated_memory()
-  IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
+  call ssh_free_allocated_memory()
+  IF (with_coag.EQ.1) call ssh_DeallocateCoefficientRepartition()
  
     ! Desallocate arrays for photolysis
   if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
-    call deallocate_photolysis()    
+    call ssh_deallocate_photolysis()    
   endif
 
   if (ssh_standalone) write(*,*) "============================================"

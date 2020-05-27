@@ -1,5 +1,5 @@
 
-      SUBROUTINE solvlin (NS,Kindlu,DLa,DLalu,DLx,DLb)
+      SUBROUTINE ssh_solvlin (NS,Kindlu,DLa,DLalu,DLx,DLb)
 
 C------------------------------------------------------------------------
 C
@@ -76,12 +76,12 @@ C     1 - Solve DLa * Dlx = Dlb
             ENDDO
          ENDDO
 
-         CALL LU_decompose(NS,DLalu)
-         CALL LU_solve(NS,DLalu,DLx)
+         CALL ssh_LU_decompose(NS,DLalu)
+         CALL ssh_LU_solve(NS,DLalu,DLx)
 
       ELSE                      ! DLalu is an LU factorization of DLa.
 
-         CALL LU_solve(NS,DLalu,DLx)
+         CALL ssh_LU_solve(NS,DLalu,DLx)
 
       ENDIF
 

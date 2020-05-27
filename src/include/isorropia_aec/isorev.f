@@ -13,18 +13,18 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE ISRP1R (WI, RHI, TEMPI)
+      SUBROUTINE SSH_ISRP1R (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
 C
 C *** INITIALIZE COMMON BLOCK VARIABLES *********************************
 C
-      CALL INIT1 (WI, RHI, TEMPI)
+      CALL SSH_INIT1 (WI, RHI, TEMPI)
 C
 C *** CALCULATE SULFATE RATIO *******************************************
 C
       IF (RH.GE.DRNH42S4) THEN         ! WET AEROSOL, NEED NH4 AT SRATIO=2.0
-         SULRATW = GETASR(WAER(2), RHI)     ! AEROSOL SULFATE RATIO
+         SULRATW = SSH_GETASR(WAER(2), RHI)     ! AEROSOL SULFATE RATIO
       ELSE
          SULRATW = 2.0D0                    ! DRY AEROSOL SULFATE RATIO
       ENDIF
@@ -38,16 +38,16 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'K2'
-         CALL CALCK2                 ! Only liquid (metastable)
+         CALL SSH_CALCK2                 ! Only liquid (metastable)
       ELSE
 C
          IF (RH.LT.DRNH42S4) THEN    
             SCASE = 'K1'
-            CALL CALCK1              ! NH42SO4              ; case K1
+            CALL SSH_CALCK1              ! NH42SO4              ; case K1
 C
          ELSEIF (DRNH42S4.LE.RH) THEN
             SCASE = 'K2'
-            CALL CALCK2              ! Only liquid          ; case K2
+            CALL SSH_CALCK2              ! Only liquid          ; case K2
          ENDIF
       ENDIF
 C
@@ -59,33 +59,33 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'B4'
-         CALL CALCB4                 ! Only liquid (metastable)
+         CALL SSH_CALCB4                 ! Only liquid (metastable)
          SCASE = 'L4'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'B1'
-            CALL CALCB1              ! NH4HSO4,LC,NH42SO4   ; case B1
+            CALL SSH_CALCB1              ! NH4HSO4,LC,NH42SO4   ; case B1
             SCASE = 'L1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'B2'
-            CALL CALCB2              ! LC,NH42S4            ; case B2
+            CALL SSH_CALCB2              ! LC,NH42S4            ; case B2
             SCASE = 'L2'
 C
          ELSEIF (DRLC.LE.RH .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'B3'
-            CALL CALCB3              ! NH42S4               ; case B3
+            CALL SSH_CALCB3              ! NH42S4               ; case B3
             SCASE = 'L3'
 C
          ELSEIF (DRNH42S4.LE.RH) THEN         
             SCASE = 'B4'
-            CALL CALCB4              ! Only liquid          ; case B4
+            CALL SSH_CALCB4              ! Only liquid          ; case B4
             SCASE = 'L4'
          ENDIF
       ENDIF
 C
-      CALL CALCNH3P          ! Compute NH3(g)
+      CALL SSH_CALCNH3P          ! Compute NH3(g)
 C
 C *** SULFATE RICH (FREE ACID)
 C
@@ -95,36 +95,36 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'C2'
-         CALL CALCC2                 ! Only liquid (metastable)
+         CALL SSH_CALCC2                 ! Only liquid (metastable)
          SCASE = 'M2'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'C1'
-            CALL CALCC1              ! NH4HSO4              ; case C1
+            CALL SSH_CALCC1              ! NH4HSO4              ; case C1
             SCASE = 'M1'
 C
          ELSEIF (DRNH4HS4.LE.RH) THEN         
             SCASE = 'C2'
-            CALL CALCC2              ! Only liquid          ; case C2
+            CALL SSH_CALCC2              ! Only liquid          ; case C2
             SCASE = 'M2'
          ENDIF
       ENDIF
 C 
-      CALL CALCNH3P
+      CALL SSH_CALCNH3P
 C
       ENDIF
       RETURN
 C
-C *** END OF SUBROUTINE ISRP1R *****************************************
+C *** END OF SUBROUTINE SSH_ISRP1R *****************************************
 C
       END
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISRP2R
-C *** THIS SUBROUTINE IS THE DRIVER ROUTINE FOR THE REVERSE PROBLEM OF 
+C *** SUBROUTINE SSH_ISRP2R
+C *** THIS SUBROUTINE SSH_IS THE DRIVER ROUTINE FOR THE REVERSE PROBLEM OF 
 C     AN AMMONIUM-SULFATE-NITRATE AEROSOL SYSTEM. 
 C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE RATIO AND BY
 C     THE AMBIENT RELATIVE HUMIDITY.
@@ -135,7 +135,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE ISRP2R (WI, RHI, TEMPI)
+      SUBROUTINE SSH_ISRP2R (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
       LOGICAL   TRYLIQ
@@ -144,12 +144,12 @@ C *** INITIALIZE ALL VARIABLES IN COMMON BLOCK **************************
 C
       TRYLIQ = .TRUE.             ! Assume liquid phase, sulfate poor limit 
 C
-10    CALL INIT2 (WI, RHI, TEMPI)
+10    CALL SSH_INIT2 (WI, RHI, TEMPI)
 C
 C *** CALCULATE SULFATE RATIO *******************************************
 C
       IF (TRYLIQ .AND. RH.GE.DRNH4NO3) THEN ! *** WET AEROSOL
-         SULRATW = GETASR(WAER(2), RHI)     ! LIMITING SULFATE RATIO
+         SULRATW = SSH_GETASR(WAER(2), RHI)     ! LIMITING SULFATE RATIO
       ELSE
          SULRATW = 2.0D0                    ! *** DRY AEROSOL
       ENDIF
@@ -163,20 +163,20 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'N3'
-         CALL CALCN3                 ! Only liquid (metastable)
+         CALL SSH_CALCN3                 ! Only liquid (metastable)
       ELSE
 C
          IF (RH.LT.DRNH4NO3) THEN    
             SCASE = 'N1'
-            CALL CALCN1              ! NH42SO4,NH4NO3       ; case N1
+            CALL SSH_CALCN1              ! NH42SO4,NH4NO3       ; case N1
 C
          ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'N2'
-            CALL CALCN2              ! NH42S4               ; case N2
+            CALL SSH_CALCN2              ! NH42S4               ; case N2
 C
          ELSEIF (DRNH42S4.LE.RH) THEN
             SCASE = 'N3'
-            CALL CALCN3              ! Only liquid          ; case N3
+            CALL SSH_CALCN3              ! Only liquid          ; case N3
          ENDIF
       ENDIF
 C
@@ -193,28 +193,28 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'B4'
-         CALL CALCB4                 ! Only liquid (metastable)
+         CALL SSH_CALCB4                 ! Only liquid (metastable)
          SCASE = 'O4'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'B1'
-            CALL CALCB1              ! NH4HSO4,LC,NH42SO4   ; case O1
+            CALL SSH_CALCB1              ! NH4HSO4,LC,NH42SO4   ; case O1
             SCASE = 'O1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'B2'
-            CALL CALCB2              ! LC,NH42S4            ; case O2
+            CALL SSH_CALCB2              ! LC,NH42S4            ; case O2
             SCASE = 'O2'
 C
          ELSEIF (DRLC.LE.RH .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'B3'
-            CALL CALCB3              ! NH42S4               ; case O3
+            CALL SSH_CALCB3              ! NH42S4               ; case O3
             SCASE = 'O3'
 C
          ELSEIF (DRNH42S4.LE.RH) THEN         
             SCASE = 'B4'
-            CALL CALCB4              ! Only liquid          ; case O4
+            CALL SSH_CALCB4              ! Only liquid          ; case O4
             SCASE = 'O4'
          ENDIF
       ENDIF
@@ -223,8 +223,8 @@ C *** Add the NO3 to the solution now and calculate partitioning.
 C
       MOLAL(7) = WAER(4)             ! There is always water, so NO3(aer) is NO3-
       MOLAL(1) = MOLAL(1) + WAER(4)  ! Add H+ to balance out
-      CALL CALCNAP            ! HNO3, NH3 dissolved
-      CALL CALCNH3P
+      CALL SSH_CALCNAP            ! HNO3, NH3 dissolved
+      CALL SSH_CALCNH3P
 C
 C *** SULFATE RICH (FREE ACID)
 C
@@ -239,18 +239,18 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'C2'
-         CALL CALCC2                 ! Only liquid (metastable)
+         CALL SSH_CALCC2                 ! Only liquid (metastable)
          SCASE = 'P2'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'C1'
-            CALL CALCC1              ! NH4HSO4              ; case P1
+            CALL SSH_CALCC1              ! NH4HSO4              ; case P1
             SCASE = 'P1'
 C
          ELSEIF (DRNH4HS4.LE.RH) THEN         
             SCASE = 'C2'
-            CALL CALCC2              ! Only liquid          ; case P2
+            CALL SSH_CALCC2              ! Only liquid          ; case P2
             SCASE = 'P2'
          ENDIF
       ENDIF
@@ -260,8 +260,8 @@ C
       MOLAL(7) = WAER(4)             ! There is always water, so NO3(aer) is NO3-
       MOLAL(1) = MOLAL(1) + WAER(4)  ! Add H+ to balance out
 C
-      CALL CALCNAP                   ! HNO3, NH3 dissolved
-      CALL CALCNH3P
+      CALL SSH_CALCNAP                   ! HNO3, NH3 dissolved
+      CALL SSH_CALCNH3P
       ENDIF
 C
 C *** IF SULRATW < SULRAT < 2.0 and WATER = 0 => SULFATE RICH CASE.
@@ -274,14 +274,14 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISRP2R *****************************************
+C *** END OF SUBROUTINE SSH_ISRP2R *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE ISRP3R
-C *** THIS SUBROUTINE IS THE DRIVER ROUTINE FOR THE REVERSE PROBLEM OF
+C *** SUBROUTINE SSH_ISRP3R
+C *** THIS SUBROUTINE SSH_IS THE DRIVER ROUTINE FOR THE REVERSE PROBLEM OF
 C     AN AMMONIUM-SULFATE-NITRATE-CHLORIDE-SODIUM AEROSOL SYSTEM. 
 C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE & SODIUM 
 C     RATIOS AND BY THE AMBIENT RELATIVE HUMIDITY.
@@ -292,7 +292,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE ISRP3R (WI, RHI, TEMPI)
+      SUBROUTINE SSH_ISRP3R (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
       LOGICAL   TRYLIQ
@@ -306,14 +306,14 @@ C *** INITIALIZE ALL VARIABLES ******************************************
 C
       TRYLIQ = .TRUE.             ! Use liquid phase sulfate poor limit 
 C
-10    CALL ISOINIT3 (WI, RHI, TEMPI) ! COMMON block variables
+10    CALL SSH_ISOINIT3 (WI, RHI, TEMPI) ! COMMON block variables
 ccC
 ccC *** CHECK IF TOO MUCH SODIUM ; ADJUST AND ISSUE ERROR MESSAGE *********
 ccC
 cc      REST = 2.D0*WAER(2) + WAER(4) + WAER(5) 
 cc      IF (WAER(1).GT.REST) THEN            ! NA > 2*SO4+CL+NO3 ?
 cc         WAER(1) = (ONE-1D-6)*REST         ! Adjust Na amount
-cc         CALL PUSHERR (0050, 'ISRP3R')     ! Warning error: Na adjusted
+cc         CALL SSH_PUSHERR (0050, 'ISRP3R')     ! Warning error: Na adjusted
 cc      ENDIF
 C
 C *** CALCULATE SULFATE & SODIUM RATIOS *********************************
@@ -321,7 +321,7 @@ C
       IF (TRYLIQ .AND. RH.GE.DRNH4NO3) THEN  ! ** WET AEROSOL
          FRSO4   = WAER(2) - WAER(1)/2.0D0     ! SULFATE UNBOUND BY SODIUM
          FRSO4   = MAX(FRSO4, TINY)
-         SRI     = GETASR(FRSO4, RHI)          ! SULFATE RATIO FOR NH4+
+         SRI     = SSH_GETASR(FRSO4, RHI)          ! SULFATE RATIO FOR NH4+
          SULRATW = (WAER(1)+FRSO4*SRI)/WAER(2) ! LIMITING SULFATE RATIO
          SULRATW = MIN (SULRATW, 2.0D0)
       ELSE
@@ -338,30 +338,30 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'Q5'
-         CALL CALCQ5                 ! Only liquid (metastable)
+         CALL SSH_CALCQ5                 ! Only liquid (metastable)
          SCASE = 'Q5'
       ELSE
 C
          IF (RH.LT.DRNH4NO3) THEN    
             SCASE = 'Q1'
-            CALL CALCQ1              ! NH42SO4,NH4NO3,NH4CL,NA2SO4
+            CALL SSH_CALCQ1              ! NH42SO4,NH4NO3,NH4CL,NA2SO4
 C
          ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNH4CL) THEN         
             SCASE = 'Q2'
-            CALL CALCQ2              ! NH42SO4,NH4CL,NA2SO4
+            CALL SSH_CALCQ2              ! NH42SO4,NH4CL,NA2SO4
 C
          ELSEIF (DRNH4CL.LE.RH  .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'Q3'
-            CALL CALCQ3              ! NH42SO4,NA2SO4
+            CALL SSH_CALCQ3              ! NH42SO4,NA2SO4
 C 
         ELSEIF (DRNH42S4.LE.RH  .AND. RH.LT.DRNA2SO4) THEN         
             SCASE = 'Q4'
-            CALL CALCQ4              ! NA2SO4
+            CALL SSH_CALCQ4              ! NA2SO4
             SCASE = 'Q4'
 C
          ELSEIF (DRNA2SO4.LE.RH) THEN         
             SCASE = 'Q5'
-            CALL CALCQ5              ! Only liquid
+            CALL SSH_CALCQ5              ! Only liquid
             SCASE = 'Q5'
          ENDIF
       ENDIF
@@ -372,34 +372,34 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'R6'
-         CALL CALCR6                 ! Only liquid (metastable)
+         CALL SSH_CALCR6                 ! Only liquid (metastable)
          SCASE = 'R6'
       ELSE
 C
          IF (RH.LT.DRNH4NO3) THEN    
             SCASE = 'R1'
-            CALL CALCR1              ! NH4NO3,NH4CL,NA2SO4,NACL,NANO3
+            CALL SSH_CALCR1              ! NH4NO3,NH4CL,NA2SO4,NACL,NANO3
 C
          ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNANO3) THEN         
             SCASE = 'R2'
-            CALL CALCR2              ! NH4CL,NA2SO4,NACL,NANO3
+            CALL SSH_CALCR2              ! NH4CL,NA2SO4,NACL,NANO3
 C
          ELSEIF (DRNANO3.LE.RH  .AND. RH.LT.DRNACL) THEN         
             SCASE = 'R3'
-            CALL CALCR3              ! NH4CL,NA2SO4,NACL
+            CALL SSH_CALCR3              ! NH4CL,NA2SO4,NACL
 C
          ELSEIF (DRNACL.LE.RH   .AND. RH.LT.DRNH4CL) THEN         
             SCASE = 'R4'
-            CALL CALCR4              ! NH4CL,NA2SO4
+            CALL SSH_CALCR4              ! NH4CL,NA2SO4
 C
          ELSEIF (DRNH4CL.LE.RH .AND. RH.LT.DRNA2SO4) THEN         
             SCASE = 'R5'
-            CALL CALCR5              ! NA2SO4
+            CALL SSH_CALCR5              ! NA2SO4
             SCASE = 'R5'
 C
          ELSEIF (DRNA2SO4.LE.RH) THEN         
             SCASE = 'R6'
-            CALL CALCR6              ! NO SOLID
+            CALL SSH_CALCR6              ! NO SOLID
             SCASE = 'R6'
          ENDIF
       ENDIF
@@ -413,44 +413,44 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'I6'
-         CALL CALCI6                 ! Only liquid (metastable)
+         CALL SSH_CALCI6                 ! Only liquid (metastable)
          SCASE = 'S6'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'I1'
-            CALL CALCI1              ! NA2SO4,(NH4)2SO4,NAHSO4,NH4HSO4,LC
+            CALL SSH_CALCI1              ! NA2SO4,(NH4)2SO4,NAHSO4,NH4HSO4,LC
             SCASE = 'S1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN         
             SCASE = 'I2'
-            CALL CALCI2              ! NA2SO4,(NH4)2SO4,NAHSO4,LC
+            CALL SSH_CALCI2              ! NA2SO4,(NH4)2SO4,NAHSO4,LC
             SCASE = 'S2'
 C
          ELSEIF (DRNAHSO4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'I3'
-            CALL CALCI3              ! NA2SO4,(NH4)2SO4,LC
+            CALL SSH_CALCI3              ! NA2SO4,(NH4)2SO4,LC
             SCASE = 'S3'
 C
          ELSEIF (DRLC.LE.RH     .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'I4'
-            CALL CALCI4              ! NA2SO4,(NH4)2SO4
+            CALL SSH_CALCI4              ! NA2SO4,(NH4)2SO4
             SCASE = 'S4'
 C
          ELSEIF (DRNH42S4.LE.RH .AND. RH.LT.DRNA2SO4) THEN         
             SCASE = 'I5'
-            CALL CALCI5              ! NA2SO4
+            CALL SSH_CALCI5              ! NA2SO4
             SCASE = 'S5'
 C
          ELSEIF (DRNA2SO4.LE.RH) THEN         
             SCASE = 'I6'
-            CALL CALCI6              ! NO SOLIDS
+            CALL SSH_CALCI6              ! NO SOLIDS
             SCASE = 'S6'
          ENDIF
       ENDIF
 C
-      CALL CALCNHP                ! HNO3, NH3, HCL in gas phase
-      CALL CALCNH3P
+      CALL SSH_CALCNHP                ! HNO3, NH3, HCL in gas phase
+      CALL SSH_CALCNH3P
 C
 C *** SULFATE RICH (FREE ACID)
 C
@@ -461,29 +461,29 @@ C
 C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'J3'
-         CALL CALCJ3                 ! Only liquid (metastable)
+         CALL SSH_CALCJ3                 ! Only liquid (metastable)
          SCASE = 'T3'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'J1'
-            CALL CALCJ1              ! NH4HSO4,NAHSO4
+            CALL SSH_CALCJ1              ! NH4HSO4,NAHSO4
             SCASE = 'T1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN         
             SCASE = 'J2'
-            CALL CALCJ2              ! NAHSO4
+            CALL SSH_CALCJ2              ! NAHSO4
             SCASE = 'T2'
 C
          ELSEIF (DRNAHSO4.LE.RH) THEN         
             SCASE = 'J3'
-            CALL CALCJ3              
+            CALL SSH_CALCJ3              
             SCASE = 'T3'
          ENDIF
       ENDIF
 C
-      CALL CALCNHP                ! HNO3, NH3, HCL in gas phase
-      CALL CALCNH3P
+      CALL SSH_CALCNHP                ! HNO3, NH3, HCL in gas phase
+      CALL SSH_CALCNH3P
 C
       ENDIF
 C
@@ -498,13 +498,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE ISRP3R *****************************************
+C *** END OF SUBROUTINE SSH_ISRP3R *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCK2
+C *** SUBROUTINE SSH_CALCK2
 C *** CASE K2 
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -517,7 +517,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCK2
+      SUBROUTINE SSH_CALCK2
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NH3GI, NH3AQ
 C
@@ -543,18 +543,18 @@ C
          SO4I = WAER(2)
          HSO4I= ZERO
 C
-         CALL CALCPH (2.D0*SO4I - NH4I, HI, OHI)    ! Get pH
+         CALL SSH_CALCPH (2.D0*SO4I - NH4I, HI, OHI)    ! Get pH
 C
          NH3AQ = ZERO                               ! AMMONIA EQUILIBRIUM
          IF (HI.LT.OHI) THEN
-            CALL CALCAMAQ (NH4I, OHI, DEL)
+            CALL SSH_CALCAMAQ (NH4I, OHI, DEL)
             NH4I  = MAX (NH4I-DEL, ZERO) 
             OHI   = MAX (OHI -DEL, TINY)
             NH3AQ = DEL
             HI    = AKW/OHI
          ENDIF
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)         ! SULFATE EQUILIBRIUM
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)         ! SULFATE EQUILIBRIUM
 c         SO4I  = SO4I - DEL
          SO4I  = MAX (SO4I - DEL,ZERO) ! YK
 c         HI    = HI   - DEL
@@ -576,7 +576,7 @@ C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
          IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-            CALL CALCACT     
+            CALL SSH_CALCACT     
          ELSE
             GOTO 20
          ENDIF
@@ -584,13 +584,13 @@ C
 C
 20    RETURN
 C
-C *** END OF SUBROUTINE CALCK2 ****************************************
+C *** END OF SUBROUTINE SSH_CALCK2 ****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCK1
+C *** SUBROUTINE SSH_CALCK1
 C *** CASE K1 
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -608,7 +608,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCK1
+      SUBROUTINE SSH_CALCK1
       INCLUDE 'isrpia.inc'
 C
       CNH42S4 = MIN(WAER(2),0.5d0*WAER(3))  ! For bad input problems
@@ -619,7 +619,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCK1 ******************************************
+C *** END OF SUBROUTINE SSH_CALCK1 ******************************************
 C
       END
 
@@ -627,7 +627,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCN3
+C *** SUBROUTINE SSH_CALCN3
 C *** CASE N3
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -640,7 +640,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCN3
+      SUBROUTINE SSH_CALCN3
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -679,7 +679,7 @@ C
          SO4I  = WAER(2)
          HSO4I = ZERO
 C
-         CALL CALCPH (2.D0*SO4I + NO3I - NH4I, HI, OHI)
+         CALL SSH_CALCPH (2.D0*SO4I + NO3I - NH4I, HI, OHI)
 C
 C AMMONIA ASSOCIATION EQUILIBRIUM
 C
@@ -687,15 +687,15 @@ C
          NO3AQ = ZERO
          GG    = 2.D0*SO4I + NO3I - NH4I
          IF (HI.LT.OHI) THEN
-            CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+            CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
             HI    = AKW/OHI
          ELSE
             HI    = ZERO
-            CALL CALCNIAQ2 (GG, NO3I, HI, NO3AQ) ! HNO3
+            CALL SSH_CALCNIAQ2 (GG, NO3I, HI, NO3AQ) ! HNO3
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-            CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+            CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c            write(*,*) "isorev.f: after calchs4 ",HI,DEL
 c            SO4I  = SO4I  - DEL
             SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
@@ -726,7 +726,7 @@ C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP ******************
 C
          IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-            CALL CALCACT     
+            CALL SSH_CALCACT     
          ELSE
             GOTO 20
          ENDIF
@@ -736,13 +736,13 @@ C *** RETURN ***********************************************************
 C
 20    RETURN
 C
-C *** END OF SUBROUTINE CALCN3 *****************************************
+C *** END OF SUBROUTINE SSH_CALCN3 *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCN2
+C *** SUBROUTINE SSH_CALCN2
 C *** CASE N2
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -756,7 +756,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCN2
+      SUBROUTINE SSH_CALCN2
       INCLUDE 'isrpia.inc'
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
@@ -780,7 +780,7 @@ C
 C *** INITIAL VALUES FOR BISECTION ************************************
 C
       X1 = PSI1HI
-      Y1 = FUNCN2 (X1)
+      Y1 = SSH_FUNCN2 (X1)
       IF (Y1.LE.EPS) RETURN   ! IF (ABS(Y1).LE.EPS .OR. Y1.LE.ZERO) RETURN
       YHI= Y1                 ! Save Y-value at HI position
 C
@@ -789,7 +789,7 @@ C
       DX = (PSI1HI-PSI1LO)/FLOAT(NDIV)
       DO 10 I=1,NDIV
          X2 = MAX(X1-DX, ZERO)
-         Y2 = FUNCN2 (X2)
+         Y2 = SSH_FUNCN2 (X2)
          IF (SIGN(1.d0,Y1)*SIGN(1.d0,Y2).LT.ZERO) GOTO 20  ! (Y1*Y2.LT.ZERO)
          X1 = X2
          Y1 = Y2
@@ -805,17 +805,17 @@ C *** { YLO, YHI } < 0.0 THE SOLUTION IS ALWAYS UNDERSATURATED WITH NH3
 C
       ELSE IF (YLO.LT.ZERO .AND. YHI.LT.ZERO) THEN
          P4 = CHI4
-         YY = FUNCN2(P4)
+         YY = SSH_FUNCN2(P4)
          GOTO 50
 C
 C *** { YLO, YHI } > 0.0 THE SOLUTION IS ALWAYS SUPERSATURATED WITH NH3
 C
       ELSE IF (YLO.GT.ZERO .AND. YHI.GT.ZERO) THEN
          P4 = TINY
-         YY = FUNCN2(P4)
+         YY = SSH_FUNCN2(P4)
          GOTO 50
       ELSE
-         CALL PUSHERR (0001, 'CALCN2')    ! WARNING ERROR: NO SOLUTION
+         CALL SSH_PUSHERR (0001, 'CALCN2')    ! WARNING ERROR: NO SOLUTION
          RETURN
       ENDIF
 C
@@ -823,7 +823,7 @@ C *** PERFORM BISECTION ***********************************************
 C
 20    DO 30 I=1,MAXIT
          X3 = 0.5*(X1+X2)
-         Y3 = FUNCN2 (X3)
+         Y3 = SSH_FUNCN2 (X3)
          IF (SIGN(1.d0,Y1)*SIGN(1.d0,Y3) .LE. ZERO) THEN  ! (Y1*Y3 .LE. ZERO)
             Y2    = Y3
             X2    = X3
@@ -833,16 +833,16 @@ C
          ENDIF
          IF (ABS(X2-X1) .LE. EPS*X1) GOTO 40
 30    CONTINUE
-      CALL PUSHERR (0002, 'CALCN2')    ! WARNING ERROR: NO CONVERGENCE
+      CALL SSH_PUSHERR (0002, 'CALCN2')    ! WARNING ERROR: NO CONVERGENCE
 C
 C *** CONVERGED ; RETURN **********************************************
 C
 40    X3 = 0.5*(X1+X2)
-      Y3 = FUNCN2 (X3)
+      Y3 = SSH_FUNCN2 (X3)
 50    CONTINUE
       RETURN
 C
-C *** END OF SUBROUTINE CALCN2 ******************************************
+C *** END OF SUBROUTINE SSH_CALCN2 ******************************************
 C
       END
 
@@ -851,14 +851,14 @@ C
 C======================================================================
 C
 C *** ISORROPIA CODE
-C *** FUNCTION FUNCN2
+C *** FUNCTION SSH_FUNCN2
 C *** CASE D2 
 C     FUNCTION THAT SOLVES THE SYSTEM OF EQUATIONS FOR CASE D2 ; 
-C     AND RETURNS THE VALUE OF THE ZEROED FUNCTION IN FUNCN2.
+C     AND RETURNS THE VALUE OF THE ZEROED FUNCTION IN SSH_FUNCN2.
 C
 C=======================================================================
 C
-      DOUBLE PRECISION FUNCTION FUNCN2 (P1)
+      DOUBLE PRECISION FUNCTION SSH_FUNCN2 (P1)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
@@ -889,7 +889,7 @@ C
          SO4I  = PSI1 
          HSO4I = ZERO
 C
-         CALL CALCPH (2.D0*SO4I + NO3I - NH4I, HI, OHI)
+         CALL SSH_CALCPH (2.D0*SO4I + NO3I - NH4I, HI, OHI)
 C
 C AMMONIA ASSOCIATION EQUILIBRIUM
 C
@@ -897,15 +897,15 @@ C
          NO3AQ = ZERO
          GG    = 2.D0*SO4I + NO3I - NH4I
          IF (HI.LT.OHI) THEN
-            CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+            CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
             HI    = AKW/OHI
          ELSE
             HI    = ZERO
-            CALL CALCNIAQ2 (GG, NO3I, HI, NO3AQ) ! HNO3
+            CALL SSH_CALCNIAQ2 (GG, NO3I, HI, NO3AQ) ! HNO3
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-            CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+            CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c            SO4I  = SO4I  - DEL
             SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c            HI    = HI    - DEL
@@ -934,12 +934,12 @@ C
 C
 C *** CALCULATE MOLALR ARRAY, WATER AND ACTIVITIES **********************
 C
-         CALL CALCMR
+         CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
          IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-            CALL CALCACT     
+            CALL SSH_CALCACT     
          ELSE
             GOTO 20
          ENDIF
@@ -947,16 +947,16 @@ C
 C
 C *** CALCULATE OBJECTIVE FUNCTION ************************************
 C
-20    FUNCN2= NH4I*NH4I*SO4I/A4 - ONE 
+20    SSH_FUNCN2= NH4I*NH4I*SO4I/A4 - ONE 
       RETURN
 C
-C *** END OF FUNCTION FUNCN2 ********************************************
+C *** END OF FUNCTION SSH_FUNCN2 ********************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCN1
+C *** SUBROUTINE SSH_CALCN1
 C *** CASE N1 
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -965,7 +965,7 @@ C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : (NH4)2SO4, NH4NO3
 C
 C     THERE ARE TWO REGIMES DEFINED BY RELATIVE HUMIDITY:
-C     1. RH < MDRH  ; ONLY SOLID PHASE POSSIBLE (SUBROUTINE CALCN1A)
+C     1. RH < MDRH  ; ONLY SOLID PHASE POSSIBLE (SUBROUTINE SSH_CALCN1A)
 C     2. RH >= MDRH ; LIQUID PHASE POSSIBLE (MDRH REGION)
 C
 C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
@@ -974,25 +974,26 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCN1
+      SUBROUTINE SSH_CALCN1
       INCLUDE 'isrpia.inc'
-      EXTERNAL CALCN1A, CALCN2
+      EXTERNAL SSH_CALCN1A, SSH_CALCN2
 C
 C *** REGIME DEPENDS UPON THE AMBIENT RELATIVE HUMIDITY *****************
 C
       IF (RH.LT.DRMASAN) THEN    
          SCASE = 'N1 ; SUBCASE 1'  
-         CALL CALCN1A              ! SOLID PHASE ONLY POSSIBLE
+         CALL SSH_CALCN1A              ! SOLID PHASE ONLY POSSIBLE
          SCASE = 'N1 ; SUBCASE 1'
       ELSE
          SCASE = 'N1 ; SUBCASE 2'  
-         CALL CALCMDRP (RH, DRMASAN, DRNH4NO3, CALCN1A, CALCN2)
+         CALL SSH_CALCMDRP (RH, DRMASAN, DRNH4NO3, SSH_CALCN1A,
+     c        SSH_CALCN2)
          SCASE = 'N1 ; SUBCASE 2'
       ENDIF
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCN1 ******************************************
+C *** END OF SUBROUTINE SSH_CALCN1 ******************************************
 C
       END
 
@@ -1001,7 +1002,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCN1A
+C *** SUBROUTINE SSH_CALCN1A
 C *** CASE N1 ; SUBCASE 1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1015,7 +1016,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCN1A
+      SUBROUTINE SSH_CALCN1A
       INCLUDE 'isrpia.inc'
 C
 C *** SETUP PARAMETERS *************************************************
@@ -1046,14 +1047,14 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCN1A *****************************************
+C *** END OF SUBROUTINE SSH_CALCN1A *****************************************
 C
       END
 
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ5
+C *** SUBROUTINE SSH_CALCQ5
 C *** CASE Q5
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1066,7 +1067,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ5
+      SUBROUTINE SSH_CALCQ5
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -1084,14 +1085,14 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCQ1A
+      CALL SSH_CALCQ1A
 C
       PSI1   = CNA2SO4      ! SALTS DISSOLVED
       PSI4   = CNH4CL
       PSI5   = CNH4NO3
       PSI6   = CNH42S4
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NH3AQ  = ZERO
       NO3AQ  = ZERO
@@ -1139,21 +1140,21 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
          HSO4I = ZERO
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -1175,12 +1176,12 @@ C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCQ5')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCQ5')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -1205,13 +1206,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ5 ******************************************
+C *** END OF SUBROUTINE SSH_CALCQ5 ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ4
+C *** SUBROUTINE SSH_CALCQ4
 C *** CASE Q4
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1224,7 +1225,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ4
+      SUBROUTINE SSH_CALCQ4
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1
@@ -1247,7 +1248,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCQ1A
+      CALL SSH_CALCQ1A
 C
       CHI1   = CNA2SO4      ! SALTS
 C
@@ -1256,7 +1257,7 @@ C
       PSI5   = CNH4NO3
       PSI6   = CNH42S4
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -1280,7 +1281,7 @@ C
          BB =-(WAER(2) + WAER(1))
          CC = WAER(1)*WAER(2) + 0.25*WAER(1)*WAER(1)
          DD =-0.25*(WAER(1)*WAER(1)*WAER(2) - A5)
-         CALL POLY3(BB, CC, DD, ROOT3, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT3, ISLV)
          IF (ISLV.NE.0) ROOT3 = TINY
          ROOT3 = MIN (ROOT3, WAER(1)/2.0, WAER(2), CHI1)
          ROOT3 = MAX (ROOT3, ZERO)
@@ -1326,21 +1327,21 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
          HSO4I = ZERO
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -1361,17 +1362,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1) GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCQ4')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCQ4')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -1396,13 +1397,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ4 ******************************************
+C *** END OF SUBROUTINE SSH_CALCQ4 ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ3
+C *** SUBROUTINE SSH_CALCQ3
 C *** CASE Q3
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1416,10 +1417,10 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ3
+      SUBROUTINE SSH_CALCQ3
       INCLUDE 'isrpia.inc'
       LOGICAL EXNO, EXCL
-      EXTERNAL CALCQ1A, CALCQ4
+      EXTERNAL SSH_CALCQ1A, SSH_CALCQ4
 C
 C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
 C
@@ -1428,24 +1429,25 @@ C
 C
       IF (EXNO .OR. EXCL) THEN             ! *** NITRATE OR CHLORIDE EXISTS
          SCASE = 'Q3 ; SUBCASE 1'  
-         CALL CALCQ3A                                   
+         CALL SSH_CALCQ3A                                   
          SCASE = 'Q3 ; SUBCASE 1' 
 C
       ELSE                                 ! *** NO CHLORIDE AND NITRATE
          IF (RH.LT.DRMG3) THEN    
             SCASE = 'Q3 ; SUBCASE 2'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q3 ; SUBCASE 2'
          ELSE
             SCASE = 'Q3 ; SUBCASE 3' ! MDRH (NH4)2SO4, NA2SO4
-            CALL CALCMDRP (RH, DRMG3, DRNH42S4, CALCQ1A, CALCQ4)
+            CALL SSH_CALCMDRP (RH, DRMG3, DRNH42S4, SSH_CALCQ1A,
+     c           SSH_CALCQ4)
             SCASE = 'Q3 ; SUBCASE 3'
          ENDIF
       ENDIF
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ3 ******************************************
+C *** END OF SUBROUTINE SSH_CALCQ3 ******************************************
 C
       END
 
@@ -1454,7 +1456,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ3A
+C *** SUBROUTINE SSH_CALCQ3A
 C *** CASE Q3 ; SUBCASE A
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1467,7 +1469,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ3A
+      SUBROUTINE SSH_CALCQ3A
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1, PSCONV6
@@ -1495,7 +1497,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCQ1A
+      CALL SSH_CALCQ1A
 C
       CHI1   = CNA2SO4      ! SALTS
       CHI4   = CNH4CL
@@ -1506,7 +1508,7 @@ C
       PSI5   = CNH4NO3
       PSI6   = CNH42S4
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -1531,7 +1533,7 @@ C
          BB =-(WAER(2) + WAER(1) - ROOT1)
          CC = WAER(1)*(WAER(2) - ROOT1) + 0.25*WAER(1)*WAER(1)
          DD =-0.25*(WAER(1)*WAER(1)*(WAER(2) - ROOT1) - A5)
-         CALL POLY3(BB, CC, DD, ROOT3, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT3, ISLV)
          IF (ISLV.NE.0) ROOT3 = TINY
          ROOT3 = MIN (ROOT3, WAER(1)/2.0, WAER(2) - ROOT1, CHI1)
          ROOT3 = MAX (ROOT3, ZERO)
@@ -1546,7 +1548,7 @@ C
          BB =-(WAER(2)+WAER(3)-ROOT3)
          CC =  WAER(3)*(WAER(2)-ROOT3+0.5D0*WAER(3))
          DD =-((WAER(2)-ROOT3)*WAER(3)**2.D0 + A4)/4.D0
-         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN(ROOT1, WAER(3), WAER(2)-ROOT3, CHI6)
          ROOT1 = MAX(ROOT1, ZERO)
@@ -1592,21 +1594,21 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
          HSO4I = ZERO
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -1627,17 +1629,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1 .AND. PSCONV6) GOTO 20      
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCQ3A')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCQ3A')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -1662,13 +1664,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ3A *****************************************
+C *** END OF SUBROUTINE SSH_CALCQ3A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ2
+C *** SUBROUTINE SSH_CALCQ2
 C *** CASE Q2
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1682,10 +1684,10 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ2
+      SUBROUTINE SSH_CALCQ2
       INCLUDE 'isrpia.inc'
       LOGICAL EXNO, EXCL
-      EXTERNAL CALCQ1A, CALCQ3A, CALCQ4
+      EXTERNAL SSH_CALCQ1A, SSH_CALCQ3A, SSH_CALCQ4
 C
 C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
 C
@@ -1694,35 +1696,37 @@ C
 C
       IF (EXNO) THEN                       ! *** NITRATE EXISTS
          SCASE = 'Q2 ; SUBCASE 1'  
-         CALL CALCQ2A                                   
+         CALL SSH_CALCQ2A                                   
          SCASE = 'Q2 ; SUBCASE 1' 
 C 
       ELSEIF (.NOT.EXNO .AND. EXCL) THEN   ! *** ONLY CHLORIDE EXISTS
          IF (RH.LT.DRMG2) THEN    
             SCASE = 'Q2 ; SUBCASE 2'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q2 ; SUBCASE 2'
          ELSE
             SCASE = 'Q2 ; SUBCASE 3' ! MDRH (NH4)2SO4, NA2SO4, NH4CL
-            CALL CALCMDRP (RH, DRMG2, DRNH4CL, CALCQ1A, CALCQ3A)
+            CALL SSH_CALCMDRP (RH, DRMG2, DRNH4CL, SSH_CALCQ1A,
+     c           SSH_CALCQ3A)
             SCASE = 'Q2 ; SUBCASE 3'
          ENDIF
 C
       ELSE                                 ! *** NO CHLORIDE AND NITRATE
          IF (RH.LT.DRMG3) THEN    
             SCASE = 'Q2 ; SUBCASE 2'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q2 ; SUBCASE 2'
          ELSE
             SCASE = 'Q2 ; SUBCASE 4' ! MDRH (NH4)2SO4, NA2SO4
-            CALL CALCMDRP (RH, DRMG3, DRNH42S4, CALCQ1A, CALCQ4)
+            CALL SSH_CALCMDRP (RH, DRMG3, DRNH42S4, SSH_CALCQ1A,
+     c           SSH_CALCQ4)
             SCASE = 'Q2 ; SUBCASE 4'
          ENDIF
       ENDIF
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ2 ******************************************
+C *** END OF SUBROUTINE SSH_CALCQ2 ******************************************
 C
       END
 
@@ -1730,7 +1734,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ2A
+C *** SUBROUTINE SSH_CALCQ2A
 C *** CASE Q2 ; SUBCASE A
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1743,7 +1747,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ2A
+      SUBROUTINE SSH_CALCQ2A
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1, PSCONV4, PSCONV6
@@ -1774,7 +1778,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCQ1A
+      CALL SSH_CALCQ1A
 C
       CHI1   = CNA2SO4      ! SALTS
       CHI4   = CNH4CL
@@ -1785,7 +1789,7 @@ C
       PSI5   = CNH4NO3
       PSI6   = CNH42S4
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -1836,7 +1840,7 @@ C
          BB =-(WAER(2) + WAER(1) - ROOT1)
          CC = WAER(1)*(WAER(2) - ROOT1) + 0.25*WAER(1)*WAER(1)
          DD =-0.25*(WAER(1)*WAER(1)*(WAER(2) - ROOT1) - A5)
-         CALL POLY3(BB, CC, DD, ROOT3, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT3, ISLV)
          IF (ISLV.NE.0) ROOT3 = TINY
          ROOT3 = MIN (ROOT3, WAER(1)/2.0, WAER(2) - ROOT1, CHI1)
          ROOT3 = MAX (ROOT3, ZERO)
@@ -1851,7 +1855,7 @@ C
          BB =-(WAER(2)+WAER(3)-ROOT2-ROOT3)
          CC = (WAER(3)-ROOT2)*(WAER(2)-ROOT3+0.5D0*(WAER(3)-ROOT2))
          DD =-((WAER(2)-ROOT3)*(WAER(3)-ROOT2)**2.D0 + A4)/4.D0
-         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN(ROOT1, WAER(3)-ROOT2, WAER(2)-ROOT3, CHI6)
          ROOT1 = MAX(ROOT1, ZERO)
@@ -1897,21 +1901,21 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
          HSO4I = ZERO
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -1932,17 +1936,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1 .AND. PSCONV4 .AND. PSCONV6) GOTO 20
       ENDIF      
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCQ2A')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCQ2A')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -1967,13 +1971,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ2A *****************************************
+C *** END OF SUBROUTINE SSH_CALCQ2A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ1
+C *** SUBROUTINE SSH_CALCQ1
 C *** CASE Q1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -1987,10 +1991,10 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ1
+      SUBROUTINE SSH_CALCQ1
       INCLUDE 'isrpia.inc'
       LOGICAL EXNO, EXCL
-      EXTERNAL CALCQ1A, CALCQ2A, CALCQ3A, CALCQ4
+      EXTERNAL SSH_CALCQ1A, SSH_CALCQ2A, SSH_CALCQ3A, SSH_CALCQ4
 C
 C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
 C
@@ -2000,51 +2004,55 @@ C
       IF (EXNO .AND. EXCL) THEN           ! *** NITRATE & CHLORIDE EXIST
          IF (RH.LT.DRMG1) THEN    
             SCASE = 'Q1 ; SUBCASE 1'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q1 ; SUBCASE 1'
          ELSE
             SCASE = 'Q1 ; SUBCASE 2' ! MDRH (NH4)2SO4, NA2SO4, NH4CL, NH4NO3
-            CALL CALCMDRP (RH, DRMG1, DRNH4NO3, CALCQ1A, CALCQ2A)
+            CALL SSH_CALCMDRP (RH, DRMG1, DRNH4NO3, SSH_CALCQ1A,
+     c           SSH_CALCQ2A)
             SCASE = 'Q1 ; SUBCASE 2'
          ENDIF
 C
       ELSE IF (EXNO .AND. .NOT.EXCL) THEN ! *** ONLY NITRATE EXISTS
          IF (RH.LT.DRMQ1) THEN    
             SCASE = 'Q1 ; SUBCASE 1'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q1 ; SUBCASE 1'
          ELSE
             SCASE = 'Q1 ; SUBCASE 3' ! MDRH (NH4)2SO4, NA2SO4, NH4NO3
-            CALL CALCMDRP (RH, DRMQ1, DRNH4NO3, CALCQ1A, CALCQ2A)
+            CALL SSH_CALCMDRP (RH, DRMQ1, DRNH4NO3, SSH_CALCQ1A,
+     c           SSH_CALCQ2A)
             SCASE = 'Q1 ; SUBCASE 3'
          ENDIF
 C
       ELSE IF (.NOT.EXNO .AND. EXCL) THEN ! *** ONLY CHLORIDE EXISTS
          IF (RH.LT.DRMG2) THEN    
             SCASE = 'Q1 ; SUBCASE 1'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q1 ; SUBCASE 1'
          ELSE
             SCASE = 'Q1 ; SUBCASE 4' ! MDRH (NH4)2SO4, NA2SO4, NH4CL
-            CALL CALCMDRP (RH, DRMG2, DRNH4CL, CALCQ1A, CALCQ3A)
+            CALL SSH_CALCMDRP (RH, DRMG2, DRNH4CL, SSH_CALCQ1A,
+     c           SSH_CALCQ3A)
             SCASE = 'Q1 ; SUBCASE 4'
          ENDIF
 C
       ELSE                                ! *** NO CHLORIDE AND NITRATE
          IF (RH.LT.DRMG3) THEN    
             SCASE = 'Q1 ; SUBCASE 1'  
-            CALL CALCQ1A             ! SOLID
+            CALL SSH_CALCQ1A             ! SOLID
             SCASE = 'Q1 ; SUBCASE 1'
          ELSE
             SCASE = 'Q1 ; SUBCASE 5' ! MDRH (NH4)2SO4, NA2SO4
-            CALL CALCMDRP (RH, DRMG3, DRNH42S4, CALCQ1A, CALCQ4)
+            CALL SSH_CALCMDRP (RH, DRMG3, DRNH42S4, SSH_CALCQ1A,
+     c           SSH_CALCQ4)
             SCASE = 'Q1 ; SUBCASE 5'
          ENDIF
       ENDIF
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ1 ******************************************
+C *** END OF SUBROUTINE SSH_CALCQ1 ******************************************
 C
       END
 
@@ -2052,7 +2060,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCQ1A
+C *** SUBROUTINE SSH_CALCQ1A
 C *** CASE Q1 ; SUBCASE 1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2066,7 +2074,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCQ1A
+      SUBROUTINE SSH_CALCQ1A
       INCLUDE 'isrpia.inc'
 C
 C *** CALCULATE SOLIDS **************************************************
@@ -2095,13 +2103,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCQ1A *****************************************
+C *** END OF SUBROUTINE SSH_CALCQ1A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR6
+C *** SUBROUTINE SSH_CALCR6
 C *** CASE R6
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2114,7 +2122,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR6
+      SUBROUTINE SSH_CALCR6
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
@@ -2126,7 +2134,7 @@ C
 C
 C *** SETUP PARAMETERS ************************************************
 C
-      CALL CALCR1A
+      CALL SSH_CALCR1A
 C
       PSI1   = CNA2SO4
       PSI2   = CNANO3
@@ -2140,7 +2148,7 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** SETUP LIQUID CONCENTRATIONS **************************************
 C
@@ -2189,20 +2197,20 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -2224,12 +2232,12 @@ C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCR6')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCR6')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -2254,13 +2262,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR6 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR6 ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR5
+C *** SUBROUTINE SSH_CALCR5
 C *** CASE R5
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2273,7 +2281,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR5
+      SUBROUTINE SSH_CALCR5
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV
@@ -2288,7 +2296,7 @@ C
 C
 C *** SETUP PARAMETERS ************************************************
 C
-      CALL CALCR1A                             ! DRY SOLUTION
+      CALL SSH_CALCR1A                             ! DRY SOLUTION
 C
       NEAN = CNH4NO3.LE.TINY    ! NH4NO3       ! Water exists?
       NEAC = CNH4CL .LE.TINY    ! NH4CL
@@ -2308,7 +2316,7 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
       FRST   = .TRUE.
       CALAIN = .TRUE. 
@@ -2340,7 +2348,7 @@ C
          BB =-3.D0*CHI1
          CC = 3.D0*CHI1**2.0
          DD =-CHI1**3.0 + 0.25D0*A5 
-         CALL POLY3(BB, CC, DD, ROOT, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT, ISLV)
          IF (ISLV.NE.0) ROOT = TINY
          ROOT = MIN (MAX(ROOT,ZERO), CHI1)
          PSI1 = CHI1-ROOT
@@ -2385,20 +2393,20 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -2419,17 +2427,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV) GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCR5')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCR5')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -2455,13 +2463,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR5 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR5 ******************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR4
+C *** SUBROUTINE SSH_CALCR4
 C *** CASE R4
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2475,15 +2483,15 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR4
+      SUBROUTINE SSH_CALCR4
       INCLUDE 'isrpia.inc'
       LOGICAL  EXAN, EXAC, EXSN, EXSC
-      EXTERNAL CALCR1A, CALCR5
+      EXTERNAL SSH_CALCR1A, SSH_CALCR5
 C
 C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
 C
       SCASE = 'R4 ; SUBCASE 2'  
-      CALL CALCR1A              ! SOLID
+      CALL SSH_CALCR1A              ! SOLID
       SCASE = 'R4 ; SUBCASE 2'
 C     
       EXAN = CNH4NO3.GT.TINY    ! NH4NO3
@@ -2496,21 +2504,22 @@ C
       IF (EXAN .OR. EXSN .OR. EXSC) THEN   ! *** NH4NO3,NANO3 EXIST
          IF (RH.GE.DRMH1) THEN    
             SCASE = 'R4 ; SUBCASE 1' 
-            CALL CALCR4A
+            CALL SSH_CALCR4A
             SCASE = 'R4 ; SUBCASE 1'
          ENDIF
 C
       ELSE IF (EXAC) THEN                  ! *** NH4CL EXISTS ONLY
          IF (RH.GE.DRMR5) THEN    
             SCASE = 'R4 ; SUBCASE 3'  
-            CALL CALCMDRP (RH, DRMR5, DRNH4CL, CALCR1A, CALCR5)
+            CALL SSH_CALCMDRP (RH, DRMR5, DRNH4CL, SSH_CALCR1A,
+     c           SSH_CALCR5)
             SCASE = 'R4 ; SUBCASE 3'
          ENDIF
       ENDIF
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCR4 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR4 ******************************************
 C
       END
 
@@ -2519,7 +2528,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR4A
+C *** SUBROUTINE SSH_CALCR4A
 C *** CASE R4A
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2532,7 +2541,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR4A
+      SUBROUTINE SSH_CALCR4A
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1, PSCONV4
@@ -2555,7 +2564,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCR1A
+      CALL SSH_CALCR1A
 C
       CHI1   = CNA2SO4      ! SALTS
       CHI4   = CNH4CL
@@ -2566,7 +2575,7 @@ C
       PSI4   = CNH4CL
       PSI5   = CNH4NO3
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -2592,7 +2601,7 @@ C
          BB =-3.D0*CHI1
          CC = 3.D0*CHI1**2.0
          DD =-CHI1**3.0 + 0.25D0*A5 
-         CALL POLY3(BB, CC, DD, ROOT, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT, ISLV)
          IF (ISLV.NE.0) ROOT = TINY
          ROOT = MIN (MAX(ROOT,ZERO), CHI1)
          PSI1 = CHI1-ROOT
@@ -2651,20 +2660,20 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -2685,17 +2694,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1 .AND. PSCONV4) GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCR4A')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCR4A')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -2720,13 +2729,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR4A *****************************************
+C *** END OF SUBROUTINE SSH_CALCR4A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR3
+C *** SUBROUTINE SSH_CALCR3
 C *** CASE R3
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2740,15 +2749,15 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR3
+      SUBROUTINE SSH_CALCR3
       INCLUDE 'isrpia.inc'
       LOGICAL  EXAN, EXAC, EXSN, EXSC
-      EXTERNAL CALCR1A, CALCR4A, CALCR5
+      EXTERNAL SSH_CALCR1A, SSH_CALCR4A, SSH_CALCR5
 C
 C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
 C
       SCASE = 'R3 ; SUBCASE 2'  
-      CALL CALCR1A              ! SOLID
+      CALL SSH_CALCR1A              ! SOLID
       SCASE = 'R3 ; SUBCASE 2'
 C     
       EXAN = CNH4NO3.GT.TINY    ! NH4NO3
@@ -2761,7 +2770,7 @@ C
       IF (EXAN .OR. EXSN) THEN                   ! *** NH4NO3,NANO3 EXIST
          IF (RH.GE.DRMH1) THEN    
             SCASE = 'R3 ; SUBCASE 1' 
-            CALL CALCR3A
+            CALL SSH_CALCR3A
             SCASE = 'R3 ; SUBCASE 1'
          ENDIF
 C
@@ -2769,21 +2778,24 @@ C
          IF      (     EXAC .AND.      EXSC) THEN
             IF (RH.GE.DRMR4) THEN    
                SCASE = 'R3 ; SUBCASE 3'  
-               CALL CALCMDRP (RH, DRMR4, DRNACL, CALCR1A, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR4, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR4A)
                SCASE = 'R3 ; SUBCASE 3'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND.      EXSC) THEN
             IF (RH.GE.DRMR2) THEN    
                SCASE = 'R3 ; SUBCASE 4'  
-               CALL CALCMDRP (RH, DRMR2, DRNACL, CALCR1A, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR2, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR4A)
                SCASE = 'R3 ; SUBCASE 4'
             ENDIF
 
          ELSE IF (     EXAC .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR5) THEN    
                SCASE = 'R3 ; SUBCASE 5'  
-               CALL CALCMDRP (RH, DRMR5, DRNACL, CALCR1A, CALCR5)
+               CALL SSH_CALCMDRP (RH, DRMR5, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR5)
                SCASE = 'R3 ; SUBCASE 5'
             ENDIF
          ENDIF
@@ -2792,7 +2804,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCR3 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR3 ******************************************
 C
       END
 
@@ -2800,7 +2812,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR3A
+C *** SUBROUTINE SSH_CALCR3A
 C *** CASE R3A
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -2813,7 +2825,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR3A
+      SUBROUTINE SSH_CALCR3A
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1, PSCONV3, PSCONV4
@@ -2841,7 +2853,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCR1A
+      CALL SSH_CALCR1A
 C
       CHI1   = CNA2SO4      ! SALTS
       CHI4   = CNH4CL
@@ -2853,7 +2865,7 @@ C
       PSI4   = CNH4CL
       PSI5   = CNH4NO3
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -2873,7 +2885,7 @@ C
       MOLAL(6) = HSO4I
       MOLAL(7) = NO3I
 C
-      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+      CALL SSH_CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
 C
 C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
 C
@@ -2909,7 +2921,7 @@ C
          BB =-(CHI1 + WAER(1) - ROOT3)
          CC = 0.25D0*(WAER(1) - ROOT3)*(4.D0*CHI1+WAER(1)-ROOT3)
          DD =-0.25D0*(CHI1*(WAER(1)-ROOT3)**2.D0 - A5) 
-         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN (MAX(ROOT1,ZERO), MAX(WAER(1)-ROOT3,ZERO), 
      &                CHI1, WAER(2))
@@ -2974,20 +2986,20 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) ! YK
 c         HI    = HI    - DEL
@@ -3008,17 +3020,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1.AND.PSCONV3.AND.PSCONV4) GOTO 20
       ENDIF
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCR3A')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCR3A')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -3029,7 +3041,7 @@ C
          DO 40 I=1,NGASAQ
             GASAQ(I) = ZERO
 40       CONTINUE
-         CALL CALCR1A
+         CALL SSH_CALCR1A
       ELSE
          A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
          A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
@@ -3053,13 +3065,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR3A *****************************************
+C *** END OF SUBROUTINE SSH_CALCR3A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR2
+C *** SUBROUTINE SSH_CALCR2
 C *** CASE R2
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -3073,15 +3085,15 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR2
+      SUBROUTINE SSH_CALCR2
       INCLUDE 'isrpia.inc'
       LOGICAL  EXAN, EXAC, EXSN, EXSC
-      EXTERNAL CALCR1A, CALCR3A, CALCR4A, CALCR5
+      EXTERNAL SSH_CALCR1A, SSH_CALCR3A, SSH_CALCR4A, SSH_CALCR5
 C
 C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
 C
       SCASE = 'R2 ; SUBCASE 2'  
-      CALL CALCR1A              ! SOLID
+      CALL SSH_CALCR1A              ! SOLID
       SCASE = 'R2 ; SUBCASE 2'
 C     
       EXAN = CNH4NO3.GT.TINY    ! NH4NO3
@@ -3094,7 +3106,7 @@ C
       IF (EXAN) THEN                             ! *** NH4NO3 EXISTS
          IF (RH.GE.DRMH1) THEN    
             SCASE = 'R2 ; SUBCASE 1' 
-            CALL CALCR2A
+            CALL SSH_CALCR2A
             SCASE = 'R2 ; SUBCASE 1'
          ENDIF
 C
@@ -3102,49 +3114,56 @@ C
          IF      (     EXAC .AND.      EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMH2) THEN    
                SCASE = 'R2 ; SUBCASE 3'  
-               CALL CALCMDRP (RH, DRMH2, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMH2, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R2 ; SUBCASE 3'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND.      EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR1) THEN    
                SCASE = 'R2 ; SUBCASE 4'  
-               CALL CALCMDRP (RH, DRMR1, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR1, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R2 ; SUBCASE 4'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR2) THEN    
                SCASE = 'R2 ; SUBCASE 5'  
-               CALL CALCMDRP (RH, DRMR2, DRNACL, CALCR1A, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR2, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR4A)
                SCASE = 'R2 ; SUBCASE 5'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR3) THEN    
                SCASE = 'R2 ; SUBCASE 6'  
-               CALL CALCMDRP (RH, DRMR3, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR3, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R2 ; SUBCASE 6'
             ENDIF
 
          ELSE IF (     EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR4) THEN    
                SCASE = 'R2 ; SUBCASE 7'  
-               CALL CALCMDRP (RH, DRMR4, DRNACL, CALCR1A, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR4, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR4A)
                SCASE = 'R2 ; SUBCASE 7'
             ENDIF
 
          ELSE IF (     EXAC .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR5) THEN    
                SCASE = 'R2 ; SUBCASE 8'  
-               CALL CALCMDRP (RH, DRMR5, DRNH4CL, CALCR1A, CALCR5)
+               CALL SSH_CALCMDRP (RH, DRMR5, DRNH4CL, SSH_CALCR1A,
+     c              SSH_CALCR5)
                SCASE = 'R2 ; SUBCASE 8'
             ENDIF
 
          ELSE IF (     EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR6) THEN    
                SCASE = 'R2 ; SUBCASE 9'  
-               CALL CALCMDRP (RH, DRMR6, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR6, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R2 ; SUBCASE 9'
             ENDIF
          ENDIF
@@ -3153,7 +3172,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCR2 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR2 ******************************************
 C
       END
 
@@ -3161,7 +3180,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR2A
+C *** SUBROUTINE SSH_CALCR2A
 C *** CASE R2A
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -3174,7 +3193,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR2A
+      SUBROUTINE SSH_CALCR2A
       INCLUDE 'isrpia.inc'
 C
       LOGICAL PSCONV1, PSCONV2, PSCONV3, PSCONV4
@@ -3208,7 +3227,7 @@ C
 C
 C *** CALCULATE INITIAL SOLUTION ***************************************
 C
-      CALL CALCR1A
+      CALL SSH_CALCR1A
 C
       CHI1   = CNA2SO4      ! SALTS
       CHI2   = CNANO3
@@ -3221,7 +3240,7 @@ C
       PSI4   = CNH4CL
       PSI5   = CNH4NO3
 C
-      CALL CALCMR           ! WATER
+      CALL SSH_CALCMR           ! WATER
 C
       NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
       SO4I   = WAER(2)
@@ -3241,7 +3260,7 @@ C
       MOLAL(6) = HSO4I
       MOLAL(7) = NO3I
 C
-      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+      CALL SSH_CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
 C
 C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
 C
@@ -3282,7 +3301,7 @@ C
          DD = WAER(1)*WAER(2)*(ONE - 2.D0*ROOT3 - 2.D0*ROOT4) +
      &        WAER(2)*(ROOT3 + ROOT4)**2.0 - A5
          DD =-0.25*DD
-         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         CALL SSH_POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN (MAX(ROOT1,ZERO), CHI1)
          PSI1  = CHI1-ROOT1
@@ -3365,20 +3384,20 @@ C
 C UNDISSOCIATED SPECIES EQUILIBRIA
 C
       IF (HI.LT.OHI) THEN
-         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+         CALL SSH_CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
          HI    = AKW/OHI
       ELSE
          GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I, ZERO)
          GGCL  = MAX(GG-GGNO3, ZERO)
-         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+         IF (GGCL .GT.TINY) CALL SSH_CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
          IF (GGNO3.GT.TINY) THEN
             IF (GGCL.LE.TINY) HI = ZERO
-            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+            CALL SSH_CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
          ENDIF
 C
 C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
 C
-         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+         CALL SSH_CALCHS4 (HI, SO4I, ZERO, DEL)
 c         SO4I  = SO4I  - DEL
          SO4I  = MAX (SO4I  - DEL, ZERO) !YK
 c         HI    = HI    - DEL
@@ -3399,17 +3418,17 @@ C
 C
 C *** CALCULATE WATER **************************************************
 C
-      CALL CALCMR
+      CALL SSH_CALCMR
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
 C
       IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
-         CALL CALCACT
+         CALL SSH_CALCACT
       ELSE
          IF (PSCONV1.AND.PSCONV2.AND.PSCONV3.AND.PSCONV4) GOTO 20
       ENDIF      
 10    CONTINUE
-ccc      CALL PUSHERR (0002, 'CALCR2A')    ! WARNING ERROR: NO CONVERGENCE
+ccc      CALL SSH_PUSHERR (0002, 'CALCR2A')    ! WARNING ERROR: NO CONVERGENCE
 C 
 C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
 C
@@ -3420,7 +3439,7 @@ C
          DO 40 I=1,NGASAQ
             GASAQ(I) = ZERO
 40       CONTINUE
-         CALL CALCR1A
+         CALL SSH_CALCR1A
       ELSE                                     ! OK, aqueous phase present
          A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
          A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
@@ -3444,13 +3463,13 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR2A *****************************************
+C *** END OF SUBROUTINE SSH_CALCR2A *****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR1
+C *** SUBROUTINE SSH_CALCR1
 C *** CASE R1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -3464,15 +3483,16 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR1
+      SUBROUTINE SSH_CALCR1
       INCLUDE 'isrpia.inc'
       LOGICAL  EXAN, EXAC, EXSN, EXSC
-      EXTERNAL CALCR1A, CALCR2A, CALCR3A, CALCR4A, CALCR5
+      EXTERNAL SSH_CALCR1A, SSH_CALCR2A, SSH_CALCR3A, SSH_CALCR4A,
+     c     SSH_CALCR5
 C
 C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
 C
       SCASE = 'R1 ; SUBCASE 1'  
-      CALL CALCR1A              ! SOLID
+      CALL SSH_CALCR1A              ! SOLID
       SCASE = 'R1 ; SUBCASE 1'
 C     
       EXAN = CNH4NO3.GT.TINY    ! NH4NO3
@@ -3485,7 +3505,8 @@ C
       IF (EXAN.AND.EXAC.AND.EXSC.AND.EXSN) THEN  ! *** ALL EXIST
          IF (RH.GE.DRMH1) THEN    
             SCASE = 'R1 ; SUBCASE 2'  ! MDRH
-            CALL CALCMDRP (RH, DRMH1, DRNH4NO3, CALCR1A, CALCR2A)
+            CALL SSH_CALCMDRP (RH, DRMH1, DRNH4NO3, SSH_CALCR1A,
+     c           SSH_CALCR2A)
             SCASE = 'R1 ; SUBCASE 2'
          ENDIF
 C
@@ -3493,49 +3514,56 @@ C
          IF      (     EXAC .AND.      EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMH2) THEN    
                SCASE = 'R1 ; SUBCASE 3'  
-               CALL CALCMDRP (RH, DRMH2, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMH2, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R1 ; SUBCASE 3'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND.      EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR1) THEN    
                SCASE = 'R1 ; SUBCASE 4'  
-               CALL CALCMDRP (RH, DRMR1, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR1, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R1 ; SUBCASE 4'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR2) THEN    
                SCASE = 'R1 ; SUBCASE 5'  
-               CALL CALCMDRP (RH, DRMR2, DRNACL, CALCR1A, CALCR3A) !, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR2, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR3A) !, CALCR4A)
                SCASE = 'R1 ; SUBCASE 5'
             ENDIF
 
          ELSE IF (.NOT.EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR3) THEN    
                SCASE = 'R1 ; SUBCASE 6'  
-               CALL CALCMDRP (RH, DRMR3, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR3, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R1 ; SUBCASE 6'
             ENDIF
 
          ELSE IF (     EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR4) THEN    
                SCASE = 'R1 ; SUBCASE 7'  
-               CALL CALCMDRP (RH, DRMR4, DRNACL, CALCR1A, CALCR3A) !, CALCR4A)
+               CALL SSH_CALCMDRP (RH, DRMR4, DRNACL, SSH_CALCR1A,
+     c              SSH_CALCR3A) !, CALCR4A)
                SCASE = 'R1 ; SUBCASE 7'
             ENDIF
 
          ELSE IF (     EXAC .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR5) THEN    
                SCASE = 'R1 ; SUBCASE 8'  
-               CALL CALCMDRP (RH, DRMR5, DRNH4CL, CALCR1A, CALCR3A) !, CALCR5)
+               CALL SSH_CALCMDRP (RH, DRMR5, DRNH4CL, SSH_CALCR1A,
+     c              SSH_CALCR3A) !, CALCR5)
                SCASE = 'R1 ; SUBCASE 8'
             ENDIF
 
          ELSE IF (     EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR6) THEN    
                SCASE = 'R1 ; SUBCASE 9'  
-               CALL CALCMDRP (RH, DRMR6, DRNANO3, CALCR1A, CALCR3A)
+               CALL SSH_CALCMDRP (RH, DRMR6, DRNANO3, SSH_CALCR1A,
+     c              SSH_CALCR3A)
                SCASE = 'R1 ; SUBCASE 9'
             ENDIF
          ENDIF
@@ -3544,28 +3572,32 @@ C
          IF      (     EXAN .AND.      EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR7) THEN    
                SCASE = 'R1 ; SUBCASE 10'  
-               CALL CALCMDRP (RH, DRMR7, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR7, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 10'
             ENDIF
 
          ELSE IF (     EXAN .AND. .NOT.EXSN .AND.      EXSC) THEN
             IF (RH.GE.DRMR8) THEN    
                SCASE = 'R1 ; SUBCASE 11'  
-               CALL CALCMDRP (RH, DRMR8, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR8, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 11'
             ENDIF
 
          ELSE IF (     EXAN .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR9) THEN    
                SCASE = 'R1 ; SUBCASE 12'  
-               CALL CALCMDRP (RH, DRMR9, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR9, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 12'
             ENDIF
 
          ELSE IF (     EXAN .AND.      EXSN .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR10) THEN    
                SCASE = 'R1 ; SUBCASE 13'  
-               CALL CALCMDRP (RH, DRMR10, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR10, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 13'
             ENDIF
          ENDIF
@@ -3574,14 +3606,16 @@ C
          IF      (     EXAN .AND.      EXAC .AND.      EXSC) THEN
             IF (RH.GE.DRMR11) THEN    
                SCASE = 'R1 ; SUBCASE 14'  
-               CALL CALCMDRP (RH, DRMR11, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR11, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 14'
             ENDIF
 
          ELSE IF (     EXAN .AND.      EXAC .AND. .NOT.EXSC) THEN
             IF (RH.GE.DRMR12) THEN    
                SCASE = 'R1 ; SUBCASE 15'  
-               CALL CALCMDRP (RH, DRMR12, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR12, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 15'
             ENDIF
          ENDIF
@@ -3590,7 +3624,8 @@ C
          IF      (     EXAN .AND.      EXAC .AND.      EXSN) THEN
             IF (RH.GE.DRMR13) THEN    
                SCASE = 'R1 ; SUBCASE 16'  
-               CALL CALCMDRP (RH, DRMR13, DRNH4NO3, CALCR1A, CALCR2A)
+               CALL SSH_CALCMDRP (RH, DRMR13, DRNH4NO3, SSH_CALCR1A,
+     c              SSH_CALCR2A)
                SCASE = 'R1 ; SUBCASE 16'
             ENDIF
          ENDIF
@@ -3598,7 +3633,7 @@ C
 C 
       RETURN
 C
-C *** END OF SUBROUTINE CALCR1 ******************************************
+C *** END OF SUBROUTINE SSH_CALCR1 ******************************************
 C
       END
 
@@ -3606,7 +3641,7 @@ C
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCR1A
+C *** SUBROUTINE SSH_CALCR1A
 C *** CASE R1 ; SUBCASE 1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
@@ -3620,7 +3655,7 @@ C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCR1A
+      SUBROUTINE SSH_CALCR1A
       INCLUDE 'isrpia.inc'
 C
 C *** CALCULATE SOLIDS **************************************************
@@ -3656,6 +3691,6 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCR1A *****************************************
+C *** END OF SUBROUTINE SSH_CALCR1A *****************************************
 C
       END

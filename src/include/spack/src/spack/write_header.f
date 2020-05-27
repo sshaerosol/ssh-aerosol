@@ -1,4 +1,4 @@
-      subroutine write_header_90
+      subroutine ssh_write_header_90
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -96,7 +96,7 @@ C     Routine dimensions.f90
       open(nficdim90,file='dimensions.f90',status='new')
       nwrite=nficdim90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
 C     Routine kinetic.f90
       nfick90=ipiste
@@ -104,7 +104,7 @@ C     Routine kinetic.f90
       open(nfick90,file='kinetic.f90',status='new')
       nwrite=nfick90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       if (aerosol_formation) then
       write(*,*)
@@ -118,7 +118,7 @@ C   in the gas-phase reactions
 C===========
 
       write(nwrite,401) function_suffix
- 401  format('subroutine kinetic',a,'( &')
+ 401  format('subroutine ssh_kinetic',a,'( &')
       write(nwrite,4011)
  4011 format(4x,'Ns,Nbin_aer,nr,IHETER,ICLD,rk,temp,xlw, &')
       write(nwrite,4012)
@@ -132,7 +132,7 @@ C     Only gas-phase reactions
 C==========
       else
       write(nwrite,4014) function_suffix
- 4014 format('subroutine kinetic',a,'( &')
+ 4014 format('subroutine ssh_kinetic',a,'( &')
       write(nwrite,4015)
  4015 format(4x,'nr,rk,temp,xlw,Press,azi,att, &')
       write(nwrite,4016)
@@ -283,16 +283,16 @@ C     Routine fexchem.f90
       open(nficf90,file='fexchem.f90',status='new')
       nwrite=nficf90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 C     aerosol formation =====================
       if (aerosol_formation) then
       write(nwrite,501) function_suffix
- 501  format('subroutine fexchem',a,'( &')
+ 501  format('subroutine ssh_fexchem',a,'( &')
       write(nwrite,5011)
  5011 format(4x,'NS,Nr,nemis,y,rk,ZCsourc,convers_factor,chem)')
       else
       write(nwrite,5012) function_suffix
- 5012 format('subroutine fexchem',a,'( &')
+ 5012 format('subroutine ssh_fexchem',a,'( &')
       write(nwrite,5013)
  5013 format(4x,'ns,nr,y,rk,ZCsourc,convers_factor,chem)')
       endif
@@ -393,7 +393,7 @@ C ===================================
  545  format('!     Compute reaction rates.')
       write(nwrite,300)
       write(nwrite,546) function_suffix
- 546  format('  call rates',a,'( &')
+ 546  format('  call ssh_rates',a,'( &')
       write(nwrite,5461)
  5461 format('    ns,nr,rk,conc,w)')
       write(nwrite,300)
@@ -407,10 +407,10 @@ C     Routine jacdchemdc.f90
       open(nficj90,file='jacdchemdc.f90',status='new')
       nwrite=nficj90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       write(nwrite,601) function_suffix
- 601  format('subroutine jacdchemdc',a,'( &')
+ 601  format('subroutine ssh_jacdchemdc',a,'( &')
       write(nwrite,6011)
  6011 format(4x,
      2       'ns,nr,y,convers_factor,convers_factor_jac,rk,JacC)')
@@ -518,7 +518,7 @@ c 543 format('     conc(i) = y(i) * convers_factor(i)')
 c 544 format('  enddo')
       write(nwrite,300)
       write(nwrite,640) function_suffix
- 640  format('  call dratedc',a,'( &')
+ 640  format('  call ssh_dratedc',a,'( &')
       write(nwrite,6401)
  6401 format('    ns,nr,rk,conc,dw)')
       write(nwrite,300)
@@ -530,10 +530,10 @@ C     Routine fexloss.f90
       open(nficloss90,file='fexloss.f90',status='new')
       nwrite=nficloss90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       write(nwrite,701) function_suffix
- 701  format('subroutine fexloss',a,'( &')
+ 701  format('subroutine ssh_fexloss',a,'( &')
       write(nwrite,7011)
  7011 format(4x,'NS,dw,loss)')
       write(nwrite,300)
@@ -613,10 +613,10 @@ C     Routine fexprod.f90
       open(nficprod90,file='fexprod.f90',status='new')
       nwrite=nficprod90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       write(nwrite,801) function_suffix
- 801  format('subroutine fexprod',a,'( &')
+ 801  format('subroutine ssh_fexprod',a,'( &')
       write(nwrite,8011)
  8011 format(4x,'NS,w,prod)')
       write(nwrite,300)
@@ -696,10 +696,10 @@ C     Routine rates.f90
       open(nficw90,file='rates.f90',status='new')
       nwrite=nficw90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       write(nwrite,901) function_suffix
- 901  format('subroutine rates',a,'( &')
+ 901  format('subroutine ssh_rates',a,'( &')
       write(nwrite,9011)
  9011 format(4x,'ns,nr,rk,y,w)')
       write(nwrite,300)
@@ -775,10 +775,10 @@ C     Routine dratedc.f90
       open(nficdw90,file='dratedc.f90',status='new')
       nwrite=nficdw90
 
-      call write_common_header_90(nwrite)
+      call ssh_write_common_header_90(nwrite)
 
       write(nwrite,910) function_suffix
- 910  format('subroutine dratedc',a,'( &')
+ 910  format('subroutine ssh_dratedc',a,'( &')
       write(nwrite,9101)
  9101 format(4x,'ns,nr,rk,y,dw)')
       write(nwrite,300)

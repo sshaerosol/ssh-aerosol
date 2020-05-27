@@ -3,7 +3,8 @@ C!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 C!!     SSH-aerosol is distributed under the GNU General Public License v3
 C!!-----------------------------------------------------------------------
 
-      SUBROUTINE COMPUTE_DYNAMIC_VISCOSITY(Temperature,dyn_viscosity)
+      SUBROUTINE SSH_COMPUTE_DYNAMIC_VISCOSITY(Temperature,
+     c     dyn_viscosity)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -36,7 +37,7 @@ C------------------------------------------------------------------------
 
 
 C------------------------------------------------------------------------
-      subroutine compute_CC(LAMBDA,DP,CC)
+      subroutine ssh_compute_CC(LAMBDA,DP,CC)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -69,7 +70,7 @@ C------------------------------------------------------------------------
       END
 
 C------------------------------------------------------------------------
-      subroutine compute_VSTOKES(DP,RHOP,CC,DLMUAIR,VSTOKES)
+      subroutine ssh_compute_VSTOKES(DP,RHOP,CC,DLMUAIR,VSTOKES)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -110,7 +111,7 @@ C     Gravity acceleration. ([m/s^2])
 
 
 C------------------------------------------------------------------------
-      subroutine compute_CD(Re,CD)
+      subroutine ssh_compute_CD(Re,CD)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -149,7 +150,7 @@ C------------------------------------------------------------------------
       END
 
 
-      SUBROUTINE COMPUTE_AIR_FREE_MEAN_PATH(Temp,
+      SUBROUTINE SSH_COMPUTE_AIR_FREE_MEAN_PATH(Temp,
      &     Pres, mean_path, DLmuair)
 
 C------------------------------------------------------------------------
@@ -193,7 +194,7 @@ C     Molar mass of air. ([kg.mol-1])
       PI=3.14159265358979323846D0
       MMair = 2.897D-02
 
-      call COMPUTE_DYNAMIC_VISCOSITY(Temp,DLMUAIR)
+      call SSH_COMPUTE_DYNAMIC_VISCOSITY(Temp,DLMUAIR)
       MEAN_PATH = DSQRT(PI*RGAS*Temp/(2.d0*MMAIR))
      &     * DLMUAIR * 1.D6 / Pres
 

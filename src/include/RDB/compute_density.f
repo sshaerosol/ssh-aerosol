@@ -3,7 +3,7 @@ C!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 C!     SSH-aerosol is distributed under the GNU General Public License v3
 C!-----------------------------------------------------------------------
 
-      SUBROUTINE COMPUTE_DENSITY(nbin_aer, nesp_aer, EH2O, tinyc,
+      SUBROUTINE SSH_COMPUTE_DENSITY(nbin_aer, nesp_aer, EH2O, tinyc,
      &     Cesp, rho_esp, k, rho)
 
 C------------------------------------------------------------------------

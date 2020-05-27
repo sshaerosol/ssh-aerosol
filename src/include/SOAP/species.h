@@ -10,7 +10,7 @@
 using namespace blitz;
 using namespace std;
 
-namespace soap
+namespace ssh_soap
 {  
   class model_config
   {
@@ -134,16 +134,16 @@ namespace soap
 	
 	//local equilibrium values
 	double Kaq_inorg;
-	double Psat(double&);  
-	double Kpart_org(double&, double&);
-	double Kpart_aq(double&, double&);
-	double Kp_eff_org(double&, double&);
-	double Kp_exp_org(double&);
-	double knudsen_function(double&, double, double);
-	double Kp_eff_aq(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
-        double Kp_eff_aqreal(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
-        double Kp_eff_aqrealdyn(model_config&, double&, double&, double&, double&, double&, double&, double&, double&, int&);
-	double Kequilibrium(double &);
+	double Psat_ssh(double&);  
+	double Kpart_org_ssh(double&, double&);
+	double Kpart_aq_ssh(double&, double&);
+	double Kp_eff_org_ssh(double&, double&);
+	double Kp_exp_org_ssh(double&);
+	double knudsen_function_ssh(double&, double, double);
+	double Kp_eff_aq_ssh(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
+        double Kp_eff_aqreal_ssh(model_config&, double&, double&, double&, double&, double&, double&, double&, double&);
+        double Kp_eff_aqrealdyn_ssh(model_config&, double&, double&, double&, double&, double&, double&, double&, double&, int&);
+	double Kequilibrium_ssh(double &);
 	//Ap: concentrations in the organic phase
 	//Ag: concentrations in the gas phase
 	//Aaq: concentrations in the aqueous phase

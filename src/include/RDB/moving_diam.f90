@@ -3,7 +3,7 @@
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 
-SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
+SUBROUTINE SSH_MOVING_DIAM(ns, nesp, eh2o, dbound, &
                        kloc, Qesp, N)
 
 !!$------------------------------------------------------------------------
@@ -92,4 +92,4 @@ SUBROUTINE MOVING_DIAM(ns, nesp, eh2o, dbound, &
      ENDDO
   ENDDO        
     
-END SUBROUTINE MOVING_DIAM
+END SUBROUTINE SSH_MOVING_DIAM

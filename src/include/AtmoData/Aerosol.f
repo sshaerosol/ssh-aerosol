@@ -18,7 +18,7 @@ c     collision - Collision factor.
 c
 c     Returns:
 c     diffusivity - Gas-phase diffusivity (m^2/s).
-      subroutine compute_gas_diffusivity(temperature, pressure,
+      subroutine ssh_compute_gas_diffusivity(temperature, pressure,
      $     diameter, weight,collision, diffusivity)
 
       double precision temperature
@@ -34,7 +34,7 @@ c     diffusivity - Gas-phase diffusivity (m^2/s).
       double precision sigma
 
       x = temperature / dsqrt(collision * 9.7d1)
-      call compute_collision_integral(x, collision_integral)
+      call ssh_compute_collision_integral(x, collision_integral)
 
       sigma = .5d0 * (diameter + 3.617d0)
 
@@ -57,7 +57,7 @@ c     dry_diameter - Aerosol dry diameter (micrometer).
 c
 c     Returns:
 c     wet_diameter - Aerosol wet diameter (micrometer).
-      subroutine gerber_wet_diameter(relative_humidity, temperature,
+      subroutine ssh_gerber_wet_diameter(relative_humidity, temperature,
      $     dry_diameter, wet_diameter)
 
       double precision relative_humidity
@@ -102,7 +102,7 @@ c     interaction parameter.
 c
 c     Returns:
 c     omega - The collision integral.
-      subroutine compute_collision_integral(x, omega)
+      subroutine ssh_compute_collision_integral(x, omega)
 
       double precision x
 
@@ -174,7 +174,7 @@ c     rate - Condensation/evaporation transfer rate (m^3/s). The
 c     condensation growth rate is then given by "rate * (c^g -- c^s)"
 c     where c^g is the gaseous concentration and c^s is the
 c     concentration at the aerosol surface.
-      subroutine compute_condensation_transfer_rate(diffusivity,
+      subroutine ssh_compute_condensation_transfer_rate(diffusivity,
      $     velocity, accomodation, wet_diam, rate)
 
       double precision diffusivity
@@ -223,8 +223,8 @@ c     weight - Molecular weight (g/mol).
 c
 c     Returns:
 c     velocity - Quadratic mean molecular velocity (m/s).
-      subroutine compute_quadratic_mean_velocity(temperature, weight,
-     $     velocity)
+      subroutine ssh_compute_quadratic_mean_velocity(temperature, 
+     $     weight, velocity)
 
       double precision temperature
       double precision weight
@@ -249,8 +249,8 @@ c     saturation_pressure - Saturation vapor pressure (Pa).
 c
 c     Returns:
 c     concentration - Saturation concentration (microgram/m^3).
-      subroutine compute_saturation_concentration(temperature, weight,
-     $     enthalpy, saturation_pressure, concentration)
+      subroutine ssh_compute_saturation_concentration(temperature, 
+     $     weight,enthalpy, saturation_pressure, concentration)
 
       double precision temperature
       double precision weight
@@ -287,7 +287,7 @@ c     density - Aerosol mass density (kg/m^3).
 c
 c     Returns:
 c     coefficient - Kelvin effect coefficient.
-      subroutine compute_kelvin_coefficient(temp, weight,
+      subroutine ssh_compute_kelvin_coefficient(temp, weight,
      $     surf_tension, wet_diam, density, coefficient)
 
       double precision temp

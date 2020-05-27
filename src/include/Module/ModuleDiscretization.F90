@@ -22,7 +22,7 @@ contains
   !  ! simulation
   !
   ! =================================================================== 
-  subroutine init_parameters()
+  subroutine ssh_init_parameters()
 
     integer i,b,j,f,k,s
     double precision :: totv,tmp
@@ -44,7 +44,7 @@ contains
     ! discretization
     if(.not.allocated(N_fracbin)) allocate(N_fracbin(N_sizebin))
     if(N_frac.eq.1)  N_fracbin = 1
-    if (.not.allocated(discretization_composition)) call discretization()
+    if (.not.allocated(discretization_composition)) call ssh_discretization()
     if (ssh_standalone) write(*,*) "N_size :", N_size
     if (ssh_logger) write(logfile,*) "N_size :", N_size
     if(.not.allocated(concentration_index)) allocate(concentration_index(N_size, 2))
@@ -104,7 +104,7 @@ contains
 
     ! relative_humidity
     if (relative_humidity .eq. 0) then
-       call compute_relative_humidity(humidity, Temperature, &
+       call ssh_compute_relative_humidity(humidity, Temperature, &
             Pressure, relative_humidity) 
        Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
     end if
@@ -228,14 +228,14 @@ contains
 
     if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
     if (ssh_logger) write(logfile,*) "=====================finish initialising parameters==================="
-  end subroutine init_parameters
+  end subroutine ssh_init_parameters
 
 
-  subroutine discretization()
+  subroutine ssh_discretization()
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
-    !     This subroutine automatically computes particle compositions.
+    !     This subroutine ssh_automatically computes particle compositions.
     !     Information of particle compositions is saved under "INIT/fractions.txt"
     !
     !------------------------------------------------------------------------
@@ -326,15 +326,15 @@ contains
 
     CLOSE(11)
     deallocate(counter)
-  end subroutine  discretization
+  end subroutine ssh_discretization
 
 
 
-  subroutine Init_distributions()
+  subroutine ssh_Init_distributions()
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
-    !     This subroutine initialize mass and number concentration based
+    !     This subroutine ssh_initialize mass and number concentration based
     !     on initialization methods indicate within configuration files.
     !
     !------------------------------------------------------------------------
@@ -513,7 +513,7 @@ contains
 
     if(tag_external.ne.0) then!incase of internal mixed initial condition
        if(N_frac.gt.1) then
-          call redistribution_fraction()!fraction redistribution
+          call ssh_redistribution_fraction()!fraction redistribution
        endif
     endif
 
@@ -557,7 +557,7 @@ contains
        density_aer_size=fixed_density
        rho_wet_cell = fixed_density
     else
-       call compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
+       call ssh_compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
        if (ssh_standalone) write(*,*)"Density is auto-generated."
        if (ssh_logger) write(logfile,*)"Density is auto-generated."
     end if
@@ -581,23 +581,23 @@ contains
           size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
        end do
        ! need size_diam_av and conc._mass
-       call compute_number()  ! only for initialisation
+       call ssh_compute_number()  ! only for initialisation
        if (ssh_standalone) write(*,*)"Initial PM number concentration is auto-generated."
        if (ssh_logger) write(logfile,*)"Initial PM number concentration is auto-generated."
     end if
 
-    call compute_average_diameter()
+    call ssh_compute_average_diameter()
 
     ! wet_diameter is initialized 
     if(wet_diam_estimation.eq.0) then !with isorropia
       ! Compute wet_mass using isorropia, only if it is updated in the computation of derivatives
-      call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+      call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
            concentration_inti,wet_mass,wet_diameter,wet_volume)
     else
       do j=1,N_size
          concentration_mass(j,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
       enddo
-      call update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+      call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
            wet_mass,wet_diameter,wet_volume,cell_diam_av)
     endif
 
@@ -628,26 +628,26 @@ contains
 
        ! Subroutines are defined in ModuleCoefficientRepartition
        if (i_compute_repart == 0) then
-          call ReadCoefficientRepartition(Coefficient_file, tag_file)
+          call ssh_ReadCoefficientRepartition(Coefficient_file, tag_file)
        else if (i_compute_repart == 1) then
-          if (.not. allocated(repartition_coefficient)) call ComputeCoefficientRepartition()
+          if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition()
        else
           if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
           if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
           stop
        endif
-       if (i_write_repart == 1) call WriteCoefficientRepartition(Coefficient_file, tag_file)
+       if (i_write_repart == 1) call ssh_WriteCoefficientRepartition(Coefficient_file, tag_file)
 
        ! Check the quality of coagulation repartition coefficients
-       call check_repart_coeff() !! YK
+       call ssh_check_repart_coeff() !! YK
 
-       call COMPUTE_AIR_FREE_MEAN_PATH(Temperature, Pressure, air_free_mean_path, viscosity)
+       call ssh_COMPUTE_AIR_FREE_MEAN_PATH(Temperature, Pressure, air_free_mean_path, viscosity)
 
-       call compute_average_diameter()  !!?
+       call ssh_compute_average_diameter()  !!?
 
        do j1 = 1, N_size
           do j2 = 1, j1
-             call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
+             call ssh_compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
                   wet_diameter(j1),wet_diameter(j2),&
                   wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
              ! symmetric kernels
@@ -670,11 +670,11 @@ contains
 
           if (aerosol_species_interact(i) .gt. 0) then    
              ! gas diffusivity
-             call compute_gas_diffusivity(temperature, pressure, &
+             call ssh_compute_gas_diffusivity(temperature, pressure, &
                   molecular_diameter(i), tmp,collision_factor_aer(i), &
                   diffusion_coef(i))  
              ! quadratic mean velocity
-             call compute_quadratic_mean_velocity(temperature, tmp,quadratic_speed(i)) 
+             call ssh_compute_quadratic_mean_velocity(temperature, tmp,quadratic_speed(i)) 
           endif
        end do
     end if
@@ -682,7 +682,7 @@ contains
     if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
     if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
-  end subroutine Init_distributions
+  end subroutine ssh_Init_distributions
 
 
 end MODULE lDiscretization

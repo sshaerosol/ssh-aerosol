@@ -1,4 +1,4 @@
-      subroutine lectci(ifdin)
+      subroutine ssh_lectci(ifdin)
 C------------------------------------------------------------------------
 C
 C     -- DESCRIPTION
@@ -54,7 +54,7 @@ c
       do ie=1,nesp(2)
          read(ifdin,'(a)')chdon
          nblanc=nbmot
-         call part(chdon,mot,imot,nmot)
+         call ssh_part(chdon,mot,imot,nmot)
          indaq(ie)=0
          nom(ie)(1:imot(1))=mot(1)(1:imot(1))
          inom(ie)=imot(1)
@@ -73,7 +73,7 @@ c
          read(ifdin,'(a)')chdon
 c     write(imp,'(a)')chdon
          nblanc=nbmot
-         call part(chdon,mot,imot,nmot)
+         call ssh_part(chdon,mot,imot,nmot)
          indaq(ie)=1
          nom(ie)(1:imot(1))=mot(1)(1:imot(1))
          inom(ie)=imot(1)

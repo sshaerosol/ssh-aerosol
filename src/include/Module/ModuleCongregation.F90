@@ -17,7 +17,7 @@ Module hCongregation
   implicit none
 
 contains
-  subroutine fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+  subroutine ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -57,7 +57,7 @@ contains
     ! For dynamic sections, the wet_mass_diameter is computed in fgde_cond
 
     if((wet_diam_estimation.eq.0).OR.((splitting.eq.0).AND.(tag_coag.eq.1))) then !with isorropia
-        call compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+        call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
                                    concentration_inti,wet_mass,wet_diam,wet_vol)
     else
         Do j=1,N_size
@@ -65,26 +65,26 @@ contains
               c_mass(j,N_aerosol_layers) = 0.d0
            endif
         Enddo
-        call update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
+        call ssh_update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
                                       wet_mass,wet_diam,wet_vol,cell_diam)
     endif
-    call mass_conservation(c_mass,c_number,c_gas,total_mass)
+    call ssh_mass_conservation(c_mass,c_number,c_gas,total_mass)
 
     if (tag_nucl.eq.1) then
-       call fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
+       call ssh_fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
     endif
 
     if (tag_cond.eq.1) then
-       call fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
+       call ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
     endif
 
     if (tag_coag.eq.1) then
-       call fgde_coag (c_mass,c_number,dqdt,dndt,wet_diam,wet_mass)
+       call ssh_fgde_coag (c_mass,c_number,dqdt,dndt,wet_diam,wet_mass)
     endif
 
-  end subroutine fgde
+  end subroutine ssh_fgde
 
-  subroutine fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
+  subroutine ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
 
     !------------------------------------------------------------------------
     !
@@ -141,7 +141,7 @@ contains
         !   q(s) = 0.0
         !   ce_kernal_coef_i(s) = 0.0
         ! enddo
-         call KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
+         call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
                lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot)
          qH2O(j) = q(EH2O)
          do s=1,12
@@ -173,7 +173,7 @@ contains
           jesp = List_species(s)
           if((inon_volatile(jesp).EQ.1).OR.  &
               ((inon_volatile(jesp).EQ.0).AND.(concentration_index(j,1)>ICUT).AND.(jesp.EQ.ESO4))) then
-             call COMPUTE_CONDENSATION_TRANSFER_RATE(&
+             call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
                 diffusion_coef(jesp), &! diffusion coef (m2.s-1)
                 quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
                 accomodation_coefficient(jesp),& ! accomadation coef (adim)
@@ -195,9 +195,9 @@ contains
        enddo
     enddo
 
-  end subroutine fgde_cond
+  end subroutine ssh_fgde_cond
 
-  subroutine fgde_coag (c_mass,c_number,rate_mass,rate_number,wet_diam,wet_mass)
+  subroutine ssh_fgde_coag (c_mass,c_number,rate_mass,rate_number,wet_diam,wet_mass)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -238,22 +238,22 @@ contains
 
        do j1 = 1, N_size
           do j2 = 1, N_size
-             call compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
+             call ssh_compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
                   wet_diam(j1),wet_diam(j2),&
                   wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
           enddo
        enddo
 
-       call  Rate(rate_number,rate_mass,c_number,c_mass)
+       call ssh_Rate(rate_number,rate_mass,c_number,c_mass)
 
     endif
 
     !check rate diameter
-    !call check_diam_fraction(rate_mass,rate_number)
+    !call ssh_check_diam_fraction(rate_mass,rate_number)
 
-  end subroutine fgde_coag
+  end subroutine ssh_fgde_coag
 
-  subroutine fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
+  subroutine ssh_fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -297,7 +297,7 @@ contains
             *Navog            ! to #molec.cm-3      
 
        if(nucl_model.eq.1) then            ! Napari
-          call COMPUTE_TERNARY_NUCLEATION(Relative_Humidity,&     ! relative humidity 
+          call ssh_COMPUTE_TERNARY_NUCLEATION(Relative_Humidity,&     ! relative humidity 
                Temperature,&             ! temperature (Kelvin)
                na,&               ! gas h2so4 conc (#molec.cm-3)
                mr,&		      !Mixing ratio of NH3 (ppt).
@@ -306,7 +306,7 @@ contains
                ntotnh3,&          ! number of molec of nh3 in nucleus 
                dpnucl )          ! nucleation diameter (nm)    
        else ! Merikanto
-          call COMPUTE_TERNARY_NUCLEATION_MERIKANTO(Relative_Humidity,&     ! relative humidity 
+          call ssh_COMPUTE_TERNARY_NUCLEATION_MERIKANTO(Relative_Humidity,&     ! relative humidity 
                Temperature,&             ! temperature (Kelvin)
                na,&               ! gas h2so4 conc (#molec.cm-3)
                mr,&		      !Mixing ratio of NH3 (ppt).
@@ -362,7 +362,7 @@ contains
        if(nucl_model.eq.0) then   !sulfuric-acid-water nucl'n   
           !     Compute H2SO4 threshold concentration
 
-          call NA_THRESHOLD_VEAHKAMAKI(Relative_Humidity,Temperature,nanucl) !#molec.cm-3
+          call ssh_NA_THRESHOLD_VEAHKAMAKI(Relative_Humidity,Temperature,nanucl) !#molec.cm-3
 
           qanucl= nanucl*1.D06&   ! convert to #molec.m-3
                /Navog&            ! to mol.m-3
@@ -376,7 +376,7 @@ contains
                   /molecular_weight_aer(ESO4)&     ! to mol.m-3
                   *Navog         ! to #molec.m-3
 
-             call COMPUTE_BINARY_NUCLEATION_KERNEL( Relative_Humidity,& ! relative humidity 
+             call ssh_COMPUTE_BINARY_NUCLEATION_KERNEL( Relative_Humidity,& ! relative humidity 
                   Temperature,&          ! temperature (Kelvin)
                   na,&            ! gas h2so4 conc (#molec.cm-3)
                   jnucl,&         ! nucleation rate (#part.cm-3.s-1)
@@ -410,6 +410,6 @@ contains
        endif
 
     endif
-  end subroutine fgde_nucl
+  end subroutine ssh_fgde_nucl
 
 end module hCongregation

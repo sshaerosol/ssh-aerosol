@@ -78,7 +78,7 @@ C------------------------------------------------------------------------
      &                            config_file(1:LEN_TRIM(config_file))
 
       ! Parse Config file
-      call read_config_file(config_file)
+      call ssh_read_config_file(config_file)
       if (LEN_TRIM(mechanism_name).eq.0) then
          print *, 'ERROR: A mechanism name must be specified.'
          print *, 'Please specify the mechanism name in ', config_file
@@ -87,7 +87,7 @@ C------------------------------------------------------------------------
 
       ! Initialization of data
       ! NEQ has the right dimension.
-      call lectdata(y0,neq,indicaq)
+      call ssh_lectdata(y0,neq,indicaq)
 
       do i=1,nrmax
          bpsave(1,i) =bp(1,i)
@@ -97,7 +97,7 @@ C------------------------------------------------------------------------
 
       ! This function was taken and adapted from:
       ! http://jblevins.org/log/control-file
-      subroutine read_config_file(config_file)
+      subroutine ssh_read_config_file(config_file)
           implicit none
 
           character(len=256) :: config_file

@@ -24,7 +24,7 @@ MODULE mod_photolysis
   
 contains
   
-  subroutine init_photolysis()
+  subroutine ssh_init_photolysis()
 
     integer :: day,mypos
     character (len=80) :: dir_photolysis 
@@ -60,9 +60,9 @@ contains
        end do
     end do
 
-  end subroutine init_photolysis
+  end subroutine ssh_init_photolysis
 
-  subroutine interpol_photolysis()
+  subroutine ssh_interpol_photolysis()
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -87,7 +87,7 @@ contains
     day = (current_time - photolysis_date_min) / 86400. / &
          photolysis_delta_t + 1
     if(day.NE.day0_photolysis) then
-       call init_photolysis()   
+       call ssh_init_photolysis()   
     endif
     ! Interpolation
     ! Along z
@@ -142,9 +142,9 @@ contains
        end if
     end do
     
-  end subroutine interpol_photolysis
+  end subroutine ssh_interpol_photolysis
 
-  subroutine allocate_photolysis()
+  subroutine ssh_allocate_photolysis()
 
     implicit none
 
@@ -177,9 +177,9 @@ contains
     allocate(file_rates(n_photolysis, n_time_angle, n_latitude, n_altitude))
     allocate(file_rates_real(n_time_angle, n_latitude, n_altitude))
     
-  end subroutine allocate_photolysis
+  end subroutine ssh_allocate_photolysis
 
-  subroutine deallocate_photolysis()
+  subroutine ssh_deallocate_photolysis()
 
     if (allocated(time_angle_photolysis)) deallocate(time_angle_photolysis)
     if (allocated(latitude_photolysis)) deallocate(latitude_photolysis)
@@ -187,7 +187,7 @@ contains
     if (allocated(file_rates))  deallocate(file_rates)
     if (allocated(file_rates_real))  deallocate(file_rates_real)
     
-  end subroutine deallocate_photolysis
+  end subroutine ssh_deallocate_photolysis
   
   
 end MODULE mod_photolysis
