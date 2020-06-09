@@ -8,7 +8,7 @@ RM_LIST =	*.a *.o *.e *.mod core
 
 OBJS =		Aerosol.o  compute_bidisperse_coagulation.o  compute_binary_nucleation.o  compute_monodisperse_coagulation.o  compute_ternary_nucleation.o  compute_ternary_nucleation_merikanto.o  Meteorology.o
 
-all:		libatmo.a
+all:		libssh-atmo.a
 
 libssh-atmo.a:	$(OBJS)
 	        $(RM) lssh-atmo.a

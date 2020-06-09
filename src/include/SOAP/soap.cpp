@@ -67,6 +67,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                int activity_model, double epser_soap)
 {
 
+  //cout << "ok in" << endl;
+
   /*** General parameters and options ***/
   // before calling SOAP: if organics are dynamic, then the arrays
   // lwc_Nsize[], ionic_Nsize[], chp_Nsize[], liquid_Nsize need to be specified
@@ -75,10 +77,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   int i, b;
 
   // Make a reference with 'model_config' type to the pointer of SOAP configuration.
-  model_config config;
+  static model_config config;
 
   // Make a reference with 'surrogate' type to the pointer of SOAP species.
-  vector<species> surrogate;
+  static vector<species> surrogate;  
 
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
@@ -146,9 +148,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
     }
   else
     throw string("Bad option given to the organic thermodynamic model.\n");
-    
-  parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
-             accomodation_coefficient);
+
+  if (surrogate.size()==0)
+    parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
+                   accomodation_coefficient);
   check_config_ssh(config, surrogate);
   
   // If Na and Cl are included.
@@ -264,7 +267,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
               if (surrogate[i].is_organic)
                 {
                   qgas[iq] = surrogate[i].Ag;
-                  qaero[iq] = surrogate[i].Ap + surrogate[i].Aaq; 
+                  qaero[iq] = surrogate[i].Ap + surrogate[i].Aaq;
+                  //cout << surrogate[i].name << " " <<  surrogate[i].Ap/(surrogate[i].Ap + surrogate[i].Aaq) << endl;
                 }
               if (i == config.iH2O)
                 {
@@ -512,6 +516,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
         }
     }
 
+  //cout << "ok out " << endl;
   return;
 
 }

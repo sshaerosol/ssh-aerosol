@@ -1675,7 +1675,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCD3
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -1816,7 +1816,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCD3 (P4)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -1903,7 +1903,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCD2
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -2048,7 +2048,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCD2 (P4)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -2248,7 +2248,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -2360,7 +2360,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -2468,7 +2468,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -2579,7 +2579,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA, NAI, NH4I, NO3I
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -2768,7 +2768,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -2898,7 +2898,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -3085,7 +3085,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -3218,7 +3218,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA
-      COMMON /CASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
+      COMMON /SSHCASEG/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, LAMDA,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7
 
@@ -3540,7 +3540,7 @@ C
       SUBROUTINE SSH_CALCH6
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -3648,7 +3648,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCH6A (X)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -3760,7 +3760,7 @@ C
       SUBROUTINE SSH_CALCH5
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -3877,7 +3877,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCH5A (X)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4001,7 +4001,7 @@ C
       SUBROUTINE SSH_CALCH4
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4118,7 +4118,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCH4A (X)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4267,7 +4267,7 @@ C
       SUBROUTINE SSH_CALCH3
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4384,7 +4384,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCH3A (X)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4599,7 +4599,7 @@ C
       SUBROUTINE SSH_CALCH2A
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -4707,7 +4707,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCH2A (X)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5057,7 +5057,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCI6
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5149,7 +5149,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCI5
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5268,7 +5268,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCI5A (P4)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5349,7 +5349,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCI4
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5468,7 +5468,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCI4A (P4)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5619,7 +5619,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCI3A
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5720,7 +5720,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCI3A (P2)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5819,7 +5819,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCI3B (P4)
       INCLUDE 'isrpia.inc'
 C
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -5973,7 +5973,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCI2A
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -6077,7 +6077,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_FUNCI2A (P2)
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
 
@@ -6385,7 +6385,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA, KAPA
-      COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
+      COMMON /SSHCASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
 
 
@@ -6484,7 +6484,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA, KAPA
-      COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
+      COMMON /SSHCASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
 
 
@@ -6568,7 +6568,7 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION LAMDA, KAPA
-      COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
+      COMMON /SSHCASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
 
 
@@ -6667,7 +6667,7 @@ C
       DOUBLE PRECISION FUNCTION SSH_FUNCJ1 (P1)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION LAMDA, KAPA
-      COMMON /CASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
+      COMMON /SSHCASEJ/ CHI1, CHI2, CHI3, LAMDA, KAPA, PSI1, PSI2, PSI3, 
      &               A1,   A2,   A3
 
 

@@ -74,13 +74,13 @@ contains
 	do j = 1,N_size	!FOR OGANIC
  	 wet_diam=wet_diameter(j)
 	 rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
- 	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
-		  Temperature,&          ! temperature (Kelvin)
-		  emw_tmp,&       ! ext mol weight (g.mol-1)
-		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
-		  wet_diam,&         ! wet aero diameter (µm)
-		  rhop_tmp,&      ! aerosol density (kg.m-3)
-		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+! 	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+!		  Temperature,&          ! temperature (Kelvin)
+!		  emw_tmp,&       ! ext mol weight (g.mol-1)
+!		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
+!		  wet_diam,&         ! wet aero diameter (µm)
+!		  rhop_tmp,&      ! aerosol density (kg.m-3)
+!		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
 	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
@@ -236,13 +236,13 @@ contains
         ! if (wet_diam .lt. 1.d-3) then
         !   write(*,*) "bulkequi_inorg: too small wet_diameter",wet_diam
          ! endif 
-	      call ssh_COMPUTE_KELVIN_COEFFICIENT(&
-		    Temperature,&          ! temperature (Kelvin)
-		    emw_tmp,&       ! ext mol weight (g.mol-1)
-		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
-		    wet_diam,&         ! wet aero diameter (µm)
-		    rhop_tmp,&      ! aerosol density (kg.m-3)
-		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+	      !call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+!		    Temperature,&          ! temperature (Kelvin)
+!		    emw_tmp,&       ! ext mol weight (g.mol-1)
+!		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
+!		    wet_diam,&         ! wet aero diameter (µm)
+!		    rhop_tmp,&      ! aerosol density (kg.m-3)
+!		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
 	      call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)

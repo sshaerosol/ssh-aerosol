@@ -124,7 +124,7 @@ contains
     do k=1, N_size
        do s = 1, N_aerosol_layers
           jesp=List_species(s)
-          if(aerosol_species_name(jesp).NE.'PH2O') then
+          if(s.NE.EH2O_layers) then
              if(mass_density(jesp).gt.0.d0) then
                 subrho(k) = subrho(k) + concentration_mass(k,s)/mass_density(jesp)
              endif
@@ -201,7 +201,7 @@ contains
       bin_number(k)=bin_number(k)+c_number(j)
       do s=1,N_aerosol_layers-1
          jesp=List_species(s)
-         if(aerosol_species_name(jesp).NE.'PH2O') then
+         if(s.NE.EH2O_layers) then
             total_mass_t=total_mass_t+c_mass(j,s)
             tmp_cell=tmp_cell+c_mass(j,s)
             bin_mass(k)=bin_mass(k)+c_mass(j,s)

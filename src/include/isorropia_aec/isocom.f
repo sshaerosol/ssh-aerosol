@@ -395,7 +395,7 @@ C *** BASED ON AIM MODEL III (http://mae.ucdavis.edu/wexler/aim)
 C
 C=======================================================================
 C
-      BLOCK DATA BLKISO
+      BLOCK DATA SSHBLKISO
       INCLUDE 'isrpia.inc'
 C
 C *** DEFAULT VALUES *************************************************
@@ -1852,7 +1852,7 @@ C=======================================================================
 C
       DOUBLE PRECISION FUNCTION SSH_GETASR (SO4I, RHI)
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
-      COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
+      COMMON /SSHASRC/ ASRAT(NASRD), ASSO4(NSO4S)
       DOUBLE PRECISION SO4I, RHI
 CCC
 CCC *** SOLVE USING FULL COMPUTATIONS, NOT LOOK-UP TABLES **************
@@ -1908,9 +1908,9 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      BLOCK DATA AERSR
+      BLOCK DATA SSHAERSR
       PARAMETER (NSO4S=14, NRHS=20, NASRD=NSO4S*NRHS)
-      COMMON /ASRC/ ASRAT(NASRD), ASSO4(NSO4S)
+      COMMON /SSHASRC/ ASRAT(NASRD), ASSO4(NSO4S)
 
 C
       DATA ASSO4/1.0E-9, 2.5E-9, 5.0E-9, 7.5E-9, 1.0E-8,
@@ -2777,7 +2777,7 @@ C=======================================================================
 C
       SUBROUTINE SSH_CALCMR
       INCLUDE 'isrpia.inc'
-      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+      COMMON /SSHSOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
      &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
      &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
       CHARACTER SC*1
@@ -3674,7 +3674,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC198/
+      COMMON /SSHKMC198/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3732,7 +3732,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC223/
+      COMMON /SSHKMC223/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3790,7 +3790,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC248/
+      COMMON /SSHKMC248/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3847,7 +3847,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC273/
+      COMMON /SSHKMC273/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3904,7 +3904,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC298/
+      COMMON /SSHKMC298/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3961,7 +3961,7 @@ C
 C
 C *** Common block definition
 C
-      COMMON /KMC323/
+      COMMON /SSHKMC323/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -3998,11 +3998,11 @@ C
 
 C  *** TEMP = 198.0
 
-      BLOCK DATA KMCF198
+      BLOCK DATA SSHKMCF198
 C
 C  *** Common block definition
 C
-      COMMON /KMC198/
+      COMMON /SSHKMC198/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -6197,11 +6197,11 @@ C
 
 C  *** TEMP = 223.0
 
-      BLOCK DATA KMCF223
+      BLOCK DATA SSHKMCF223
 C
 C  *** Common block definition
 C
-      COMMON /KMC223/
+      COMMON /SSHKMC223/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -8396,11 +8396,11 @@ C
 
 C  *** TEMP = 248.0
 
-      BLOCK DATA KMCF248
+      BLOCK DATA SSHKMCF248
 C
 C  *** Common block definition
 C
-      COMMON /KMC248/
+      COMMON /SSHKMC248/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -10595,11 +10595,11 @@ C
 
 C  *** TEMP = 273.0
 
-      BLOCK DATA KMCF273
+      BLOCK DATA SSHKMCF273
 C
 C  *** Common block definition
 C
-      COMMON /KMC273/
+      COMMON /SSHKMC273/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -12794,11 +12794,11 @@ C
 
 C  *** TEMP = 298.0
 
-      BLOCK DATA KMCF298
+      BLOCK DATA SSHKMCF298
 C
 C  *** Common block definition
 C
-      COMMON /KMC298/
+      COMMON /SSHKMC298/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -14993,11 +14993,11 @@ C
 
 C  *** TEMP = 323.0
 
-      BLOCK DATA KMCF323
+      BLOCK DATA SSHKMCF323
 C
 C  *** Common block definition
 C
-      COMMON /KMC323/
+      COMMON /SSHKMC323/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
@@ -17735,7 +17735,7 @@ C
       FUNCTION SSH_EX10(X,K)
       REAL    X, SSH_EX10, Y, AINT10, ADEC10, K
       INTEGER K1, K2
-      COMMON /EXPNC/ AINT10(20), ADEC10(200)
+      COMMON /SSHEXPNC/ AINT10(20), ADEC10(200)
 
 
 C
@@ -17771,12 +17771,12 @@ C *** UPDATED BY CHRISTOS FOUNTOUKIS
 C
 C=======================================================================
 C
-      BLOCK DATA EXPON
+      BLOCK DATA SSHEXPON
 C
 C *** Common block definition
 C
       REAL AINT10, ADEC10
-      COMMON /EXPNC/ AINT10(20), ADEC10(200)
+      COMMON /SSHEXPNC/ AINT10(20), ADEC10(200)
 
 
 C

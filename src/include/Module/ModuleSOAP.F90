@@ -243,7 +243,8 @@ contains
       enddo
 
       do js=1,N_size
-         csol(js) = q_soap(IQ(EMD,js)) + q_soap(IQ(EBC,js))
+         csol(js) = q_soap(IQ(EMD,js))
+         if (EBC>0) csol(js) = csol(js) + q_soap(IQ(EBC,js))
       enddo
 
       lwcorg=0.

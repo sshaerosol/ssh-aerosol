@@ -15,7 +15,7 @@ namespace ssh_soap
   class model_config
   {
   public:
-	bool equilibrium;        //True: system at equilibrium, False: Dynamic approach
+    bool equilibrium;        //True: system at equilibrium, False: Dynamic approach
 	
 	//common parameters:
 	bool coupled_phases; //Is the system coupled (at least one compound condense on both phase)?

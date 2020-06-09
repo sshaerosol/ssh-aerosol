@@ -300,5 +300,6 @@ c     coefficient - Kelvin effect coefficient.
 
       coefficient = dexp(4.d3 * surf_tension * weight
      $     / (8.314d0 * temp * density * wet_diam))
+      
 
       end

@@ -7,7 +7,7 @@ RM_LIST =	*.a *.o *.e *.mod core
 
 LDFLAGS =       -L${NETCDFLIB} $(CDFLIBS) -L${HDF5LIB}
 
-OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o ModuleAdaptstep.o ModuleEmissions.o ModulePhotolysis.o ModuleAPI.o compute_general.o
+OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o ModuleAdaptstep.o ModuleEmissions.o ModulePhotolysis.o ModuleAPI.o compute_general.o ModuleMeteo.o
 
 all:		libssh-modules.a
 

@@ -8,7 +8,7 @@ module SSHaerosol
 
 contains
 
-  subroutine initialisation_modssh(namelist_ssh,iemis,naero,nspecies,nbins,nlayers,Vlayers)
+  subroutine initialisation_modssh(namelist_ssh,iemis,naero,nspecies,nbins,diam_bins,nlayers,Vlayers)
 
     use aInitialization
     use jAdaptstep
@@ -22,25 +22,39 @@ contains
 
     implicit none
 
-    character (len=40) :: namelist_ssh  ! Configuration file
+    character (len=400) :: namelist_ssh  ! Configuration file
     integer naero,nspecies,nbins,iemis,nlayers
     double precision,allocatable,dimension(:) :: Vlayers
+    double precision,dimension(nbins+1) :: diam_bins
     
     ssh_standalone = .false.
 
-    call dimensions(N_gas, n_reaction, n_photolysis)  
+    call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
-    call read_namelist(namelist_ssh)                  
+    call ssh_read_namelist(namelist_ssh)
 
+    if (nbins>0) then
+       deallocate(init_bin_number)
+       deallocate(diam_input)
+       deallocate(emis_bin_number)
+       N_sizebin=nbins
+       allocate(init_bin_number(N_sizebin))
+       init_bin_number = 0.d0
+       allocate(diam_input(N_sizebin+1))
+       allocate(emis_bin_number(N_sizebin))
+       emis_bin_number(:)=0.d0
+       diam_input(:)=diam_bins(:)
+    endif
+    
     tag_emis=iemis
     i_compute_repart = 1
     i_write_repart = 0
 
-    call read_inputs()
+    call ssh_read_inputs()
 
-    call init_parameters()
+    call ssh_init_parameters()
 
-    call init_distributions()
+    call ssh_init_distributions()
 
     naero=N_aerosol_layers
     nspecies=N_aerosol
@@ -52,6 +66,73 @@ contains
     !call free_allocated_memory()
     !IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
   end subroutine initialisation_modssh
+  
+  subroutine initialisation_modssh_spec(namelist_ssh,iemis,naero,nspecies,nbins,diam_bins,nlayers,Vlayers,name_input_species,index_species_ssh)
+
+    use aInitialization
+    use jAdaptstep
+    use bCoefficientRepartition
+    use mEmissions
+    use netcdf
+    use lDiscretization
+    use Resultoutput
+    use gCoagulation
+    use mod_photolysis   
+
+    implicit none
+
+    character (len=400) :: namelist_ssh  ! Configuration file
+    integer naero,nspecies,nbins,iemis,nlayers
+    double precision,allocatable,dimension(:) :: Vlayers
+    double precision,dimension(nbins+1) :: diam_bins
+    character(len=40),dimension(nspecies) :: name_input_species
+    integer,dimension(nspecies) :: index_species_ssh
+
+    if (.not.allocated(init_bin_number)) then
+
+       ssh_standalone = .false.
+
+       call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
+
+       call ssh_read_namelist(namelist_ssh)
+
+       if (nbins>0) then
+          deallocate(init_bin_number)
+          deallocate(diam_input)
+          deallocate(emis_bin_number)
+          N_sizebin=nbins
+          allocate(init_bin_number(N_sizebin))
+          init_bin_number = 0.d0
+          allocate(diam_input(N_sizebin+1))
+          allocate(emis_bin_number(N_sizebin))
+          emis_bin_number(:)=0.d0
+          diam_input(:)=diam_bins(:)
+          !print*,diam_bins
+       endif
+
+       tag_emis=iemis
+       i_compute_repart = 1
+       i_write_repart = 0
+
+       call ssh_read_inputs_spec(nspecies,name_input_species,index_species_ssh)
+
+       call ssh_init_parameters()
+
+       call ssh_init_distributions()
+
+       naero=N_aerosol_layers
+       nspecies=N_aerosol
+       nbins=N_sizebin
+       nlayers=nlayer
+       allocate(Vlayers(nlayer))
+       Vlayers=Vlayer
+
+    endif
+
+    !call free_allocated_memory()
+    !IF (with_coag.EQ.1) call DeallocateCoefficientRepartition()
+  end subroutine initialisation_modssh_spec
+  
 
 !!$  subroutine launch_ssh_chemonly(namelist_ssh,ngas,nbins,lat,lon,duration,temp,pres,relh,atte,gas,gas_conc,aero_conc,number)
 !!$    use aInitialization
@@ -209,7 +290,7 @@ contains
     implicit none
 
     integer :: t, j, k, s, js,jesp,day,nbins,nspecies,iemis,naero
-    character (len=40) :: namelist_ssh  ! Configuration file
+    character (len=400) :: namelist_ssh  ! Configuration file
     double precision :: duration,temp,pres,relh
     double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
     double precision,dimension(nbins) :: number
@@ -224,15 +305,15 @@ contains
     ssh_standalone = .false.
 
     ! Read the number of gas-phase species and chemical reactions    
-    call dimensions(N_gas, n_reaction, n_photolysis)    
+    call ssh_dimensions(N_gas, n_reaction, n_photolysis)    
 
-    if (.not.allocated(init_bin_number)) call read_namelist(namelist_ssh)    
+    if (.not.allocated(init_bin_number)) call ssh_read_namelist(namelist_ssh)
 
     tag_emis=iemis
     i_compute_repart = 1
     i_write_repart = 0
 
-    if (.not.allocated(molecular_weight)) call read_inputs()    
+    if (.not.allocated(molecular_weight)) call ssh_read_inputs()    
 
     if (N_aerosol_layers.ne.naero) then
        print*,"Number of aerosol species (including layers) should be equal to : ",N_aerosol_layers
@@ -254,9 +335,10 @@ contains
     Relative_Humidity=relh
     initial_time=0.d0
     final_time=duration
-    nt = int((final_time-initial_time) / delta_t)
+    delta_t=duration
+    nt = 1 !int((final_time-initial_time) / delta_t)
     Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-    call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
+    call ssh_compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
     concentration_gas_all=0.d0
     init_bin_mass=0.d0
     init_mass=0.d0
@@ -272,7 +354,7 @@ contains
        jesp = List_species(s)
        do j=1,N_size
           init_bin_mass(j,jesp) = init_bin_mass(j,jesp) + concentration_mass(j,s)
-          init_mass(jesp)=init_mass(jesp) + aero_conc(j,js)
+          init_mass(jesp)=init_mass(jesp) + aero_conc(j,s)
        enddo
     enddo
     aero_total_mass=sum(aero_conc(:,1:N_aerosol_layers))
@@ -281,9 +363,9 @@ contains
        init_bin_number(k)=number(k)
     enddo
    
-    call init_parameters()
+    call ssh_init_parameters()
         
-    call init_distributions()   
+    call ssh_init_distributions()   
 
     do s = 1, N_aerosol_layers
        jesp = List_species(s)
@@ -293,10 +375,9 @@ contains
     enddo
     
     do t = 1, nt
-       print*,t,sum(concentration_mass(1,93:97))
        
        ! Emissions
-       if (tag_emis .ne. 0) call emission(delta_t)
+       if (tag_emis .ne. 0) call ssh_emission(delta_t)
        
        total_aero_mass = 0.d0
        total_mass = 0.d0
@@ -316,7 +397,7 @@ contains
        end do
 
        ! Aerosol dynamic       
-       CALL AERODYN(current_time,delta_t)
+       CALL SSH_AERODYN(current_time,delta_t)
 
        ! update mass conc. of aerosol precursors
        ! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)

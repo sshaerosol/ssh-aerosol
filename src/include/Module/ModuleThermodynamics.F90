@@ -276,7 +276,6 @@ contains
           wet_m(j)=size_mass_av(k)
        endif
     enddo
-    if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
 
   end subroutine ssh_update_wet_diameter
 
@@ -323,6 +322,7 @@ contains
     double precision :: qti,vad,rhoaer
 
     total_water=0.d0
+    !total_IH=0.d0
     do j=start_bin,end_bin
        rho_wet_cell(j)=fixed_density
        qti=0.D0
@@ -333,6 +333,7 @@ contains
              total_water=total_water+c_mass(j,s)
           endif
        end do
+       
        if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
           do jesp=1,N_aerosol
              qext(jesp)=0.d0
@@ -374,7 +375,7 @@ contains
           dry_d(j)=size_diam_av(k) 
        endif
     enddo
-    if(total_IH*total_water.gt.0.d0) total_PH=-log10((total_IH/1.D6)/ (total_water/1.d9))
+    !print*,total_IH,total_water
 
   end subroutine ssh_update_wet_diameter_liquid
 
@@ -419,9 +420,10 @@ contains
     sumint = sumint + qext(EMD)
 
     !!     Black Carbon
-    vis = vis + qext(EBC)/mass_density(EBC)
-    sumint = sumint + qext(EBC)
-
+    if (EBC>0) then
+       vis = vis + qext(EBC)/mass_density(EBC)
+       sumint = sumint + qext(EBC)
+    endif
     !!     Inorganic
     ! compute solid aerosol volume
     do jesp=SNaNO3,SLC

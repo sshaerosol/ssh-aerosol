@@ -18,11 +18,10 @@
 # In most Linux distributions, netCDF has been compiled using gfortran.
 # This may not be compatible with the f90 compilers required for CHIMERE.
 #
-NETCDFDIR	=       $(my_netcdfdir)
-NETCDFLIB	=       $(my_netcdflib)
-PNETCDFLIB	=       $(my_pnetcdflib)
-NETCDFINC	=       $(my_netcdfinc)
-PNETCDFINC	=       $(my_pnetcdfinc)
+NETCDFBIN_F	=       $(my_netcdfF90bin)
+NETCDFBIN_C	=       $(my_netcdfCbin)
+NETCDFLIB	=       $(my_netcdfF90lib)
+NETCDFINC	=       $(my_netcdfF90inc)
 HDF5LIB		=       $(my_hdflib)
 HDF5INC		=       $(my_hdfinc)
 
@@ -35,9 +34,9 @@ BLITZLIB	=	$(my_blitzinc)
 
 ### Where is your compiler located
 ### You can get it by issuing the command "which ifort"
-REALFC	=	${my_ifort}
+REALFC	=	${my_compilerF90}
 
-REALCC	=	${my_icc}
+REALCC	=	${my_compilerCpp}
 
 ### Where is your mpif77 wrapper located
 ### You can get it by issuing the command "which mpif77"
@@ -45,7 +44,7 @@ MF90	=	${my_mpif90}
 
 ### Choose your execution mode { PROD | DEVEL }
 ### PROD is fast, DEVEL allows for more checking and error tracking
-MODE	=	${my_mode}
+MODE	=	PROD
 
 ### If you work with a high resolution grid and many levels, the size of
 #   your data segment may be higher than 2 GB. In this case, CHIMERE shall
@@ -66,12 +65,12 @@ BIGARRAY = ${my_bigarray}
 #########################################################################
 ### In principle, you should not have to modify too many things below ...
 # NetCDF config for various possible cases (nc-config/nf-config, hdf5, etc.)
-INFCONFIG		=	$(shell [ -e $(NETCDFDIR)/bin/nf-config ]&& echo yes)
-INCCONFIG		=	$(shell [ -e $(NETCDFDIR)/bin/nc-config ]&& echo yes)
+INFCONFIG		=	$(shell [ -e $(NETCDFBIN_F)/nf-config ]&& echo yes)
+INCCONFIG		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& echo yes)
 ifeq ($(INFCONFIG),yes)
-	NCCONFIG          =       $(NETCDFDIR)/bin/nf-config
+	NCCONFIG          =       $(NETCDFBIN_F)/nf-config
 else ifeq ($(INCCONFIG),yes)
-	NCCONFIG          =       $(NETCDFDIR)/bin/nc-config
+	NCCONFIG          =       $(NETCDFBIN_C)/nc-config
 else
 	NCCONFIG          =       none
 endif
@@ -79,7 +78,7 @@ endif
 ifeq ($(NCCONFIG),none)
 	NCFLIB		=	$(shell [ -e $(NETCDFLIB)/libnetcdff.a ]&& echo twolibs)
 	CULIB		=	$(shell nm $(NETCDFLIB)/libnetcdf.a | grep -q curl && echo need_curl)
-	HDLIB		=	$(shell [ -e $(NETCDFDIR)/bin/nc-config ]&& $(NETCDFDIR)/bin/nc-config --has-hdf5)
+	HDLIB		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& $(NETCDFBIN_C)/nc-config --has-hdf5)
 	ifeq ($(NCFLIB),twolibs)
 	CDFLIB          =       -lnetcdff -lnetcdf
 	else
@@ -99,7 +98,6 @@ ifeq ($(NCCONFIG),none)
 else
 	NETCDFLIBS		=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')
 endif
-PNETCDFLIBS		=	-L${PNETCDFLIB} -lpnetcdf
 
 # End netcdf config
 
@@ -112,35 +110,38 @@ COMPILO	=	FINE
 F77=$(FC)
 ifeq	($(MODE),DEVEL)
 # For debug/development
-F77FLAGS1 = -I${NETCDFINC} -fpe0 -ip -mp1 -prec_div -fpp -ftrapuv -g  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
-F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -ip -mp1 -prec_div -fpp -ftrapuv -g  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -ip -mp1 -prec_div -fpp -ftrapuv -pg  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
+F77FLAGG2 =  -I${NETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -traceback # -real-size 64
+CCFALGS= -g -traceback -debug all
+endif
+ifeq	($(MODE),DEBUG)
+# For debug/development
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp -O0 -fpe-all=0 -ftrapuv -g -debug extended -p -g  -check bounds  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -warn unused # -real-size 64
+F77FLAGS2 = $F77FLAGS1
 CCFALGS= -g -traceback -debug all
 endif
 ifeq	($(MODE),PROD)
 # for production
-F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 # -real-size 64
-F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 # -real-size 64
+F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp -O2  -ip -mp1 -prec_div -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -traceback # -real-size 64
+F77FLAGS2 = $F77FLAGS1
 CCFLAGS= -lifcore -O3 -fp-model fast=2
 endif
 ifeq	($(MODE),PROF)
 # for profiling
 F77FLAGS1 = -I${NETCDFINC} -fpe0 -fpp  -traceback -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -g -p # -real-size 64
-F77FLAGS1_PNETCDF = -I${PNETCDFINC} -fpe0 -fpp  -traceback  -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8 -g -p # -real-size 64
+F77FLAGS2 = $F77FLAGS1
 CCFALGS= -g -traceback -debug all
 endif
 
 ifeq	($(BIGARRAY),YES)
 # For data segment > 2GB
 F77FLAGS = $(F77FLAGS1) -mcmodel=medium -i-dynamic
-F77FLAGS_PNETCDF = $(F77FLAGS1_PNETCDF) -mcmodel=medium -i-dynamic
+F77FLAGS2 = $(F77FLAGS2) -mcmodel=medium -i-dynamic
 else
 F77FLAGS = $(F77FLAGS1)
-F77FLAGS_PNETCDF = $(F77FLAGS1_PNETCDF)
 endif
 FFLAGS_BIG = $(F77FLAGS) -free -lstdc++ 
-FFLAGS = -I${GRIBINC} -I${PNETCDFINC} $(F77FLAGS) -free -lstdc++ -no-wrap-margin
-FFLAGS_PNETCDF = -I${GRIBINC} -I${NETCDFINC} $(F77FLAGS_PNETCDF) -free -lstdc++
-
+FFLAGS = -I${GRIBINC} -I${NETCDF_INCLUDE1}  $(F77FLAGS) -free -lstdc++ -no-wrap-margin
 
 # For OASIS compilation
 export CHAN=MPI1
@@ -150,9 +151,9 @@ export f90=$(F90)
 export f=$(F90)
 export CC=$(my_mpicc) -I${my_mpiinc}
 export LD=$(my_mpif90) -L${my_mpilib}
-export NETCDF_INCLUDE1=$(my_netcdfinc)
+export NETCDF_INCLUDE1=$(my_netcdfF90inc)
 export NETCDF_INCLUDE2=/usr/lib64/gfortran/modules
-export NETCDF_LIBRARY=-L/usr/lib64 $(CDFLIB) $(my_hdfdir)/lib
+export NETCDF_LIBRARY=-L/usr/lib64 $(CDFLIB) $(my_hdflib)
 export FLIBS=$(NETCDF_LIBRARY)
 export CPPDEF=-Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 export F90FLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCLUDE1} -I${NETCDF_INCLUDE2}
@@ -160,6 +161,7 @@ export f90FLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCL
 export fFLAGS=-g -ffree-line-length-0 -fbounds-check $(CPPDEF) -I${NETCDF_INCLUDE1} -I${NETCDF_INCLUDE2}
 export CCFLAGS=$(CPPDEF) -I${NETCDF_INCLUDE} -I${GFORTRAN_INC_MOD}
 
+export SSHPATH=$(my_ssh)
 
 # Misc. commands
 RM	=	/bin/rm -f

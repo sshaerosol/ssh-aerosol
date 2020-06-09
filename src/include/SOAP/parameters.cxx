@@ -950,7 +950,7 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
         {
           config.Rparam_org(i)=0.0;
           config.Qparam_org(i)=0.0;
-          //config.Lparam_org(i)=0.0;
+          config.Lparam_org(i)=0.0;
           for (j=0;j<config.nfunc_org;++j)
             {
               config.Rparam_org(i)+=config.groups_org(j,i)*config.RG_org(j);
@@ -1283,7 +1283,7 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
         {
           config.Rparam_tot(i)=0.0;
           config.Qparam_tot(i)=0.0;
-          //config.Lparam_tot(i)=0.0;
+          config.Lparam_tot(i)=0.0;
           for (j=0;j<config.nfunc_tot;j++)
             {
               config.Rparam_tot(i)+=config.groups_tot(j,i)*config.RG_tot(j);
@@ -1775,7 +1775,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   if (config.coupling_organic_inorganic==false)
     config.number_of_org_inorg_cycles=1;
 
-  config.MOmin=1.0e-30;
+  config.MOmin=1.0e-3;
 
   config.RHcoupling=0.98;
 
@@ -1819,8 +1819,8 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   config.nh_inorg_init=1;
   config.nh_aq_init=1;
   config.nh_org_init=1;
-  config.nh_max=10;
-  config.molalmax=70.; //Limit high values of molalities to prevent numerical issues
+  config.nh_max=5;
+  config.molalmax=70.e6; //Limit high values of molalities to prevent numerical issues
 	  
   //create the vector of species and the various parameters of the model 
   creation_species_ssh(surrogate,species_list_aer, molecular_weight_aer,

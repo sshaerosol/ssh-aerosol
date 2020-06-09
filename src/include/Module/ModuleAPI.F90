@@ -19,7 +19,7 @@ module SSHaerosolAPI
 ! External code can use a simplified initialization for SSH
 !
 ! input : namelist.ssh file
-!   maximum length of input set to 40 chars (cf read_namelist)
+!   maximum length of input set to 400 chars (cf read_namelist)
 ! =============================================================
 
     subroutine ssh_api_simple_initialize(input_namelist_file, ngas, nlayer, nsize) bind(c, name='api_sshaerosol_simple_initialize_')
@@ -28,7 +28,7 @@ module SSHaerosolAPI
 
       implicit none
 
-      integer, parameter :: size_namelist_file = 40
+      integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       integer(kind=c_int), intent(out) :: ngas, nlayer, nsize
       logical(kind=c_bool), parameter :: ok=.true.
@@ -89,7 +89,7 @@ module SSHaerosolAPI
 !   call initialize functions
 !
 ! input : namelist.ssh file
-!   maximum length of input set to 40 chars (cf read_namelist)
+!   maximum length of input set to 400 chars (cf read_namelist)
 ! =============================================================
 
     subroutine ssh_api_initialize(input_namelist_file) bind(c, name='api_sshaerosol_initialize_')
@@ -100,7 +100,7 @@ module SSHaerosolAPI
 
       implicit none
 
-      integer, parameter :: size_namelist_file = 40
+      integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       character(len=size_namelist_file) :: namelist_file
 

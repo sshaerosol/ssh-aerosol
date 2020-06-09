@@ -27,7 +27,7 @@ contains
   subroutine ssh_init_photolysis()
 
     integer :: day,mypos
-    character (len=80) :: dir_photolysis 
+    character (len=800) :: dir_photolysis 
     integer :: j, k, r, t
 
     ! Get time record to read binary fiels.

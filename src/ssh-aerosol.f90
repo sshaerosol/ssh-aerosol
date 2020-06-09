@@ -19,7 +19,7 @@ PROGRAM SSHaerosol
   implicit none
 
   integer :: t, j, s,jesp,day
-  character (len=40) :: namelist_ssh  ! Configuration file
+  character (len=400) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
 
   double precision :: t_since_update_photolysis, t0

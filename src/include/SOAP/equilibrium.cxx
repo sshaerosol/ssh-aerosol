@@ -3312,7 +3312,7 @@ void stability_ssh(model_config &config, vector<species>& surrogate, double &Tem
 }
 
 
-void mineur(int &n, int &i, int &j, Array<double, 2> &Jacobian, Array<double, 2> &com_Jacobian)
+void mineur_ssh(int &n, int &i, int &j, Array<double, 2> &Jacobian, Array<double, 2> &com_Jacobian)
 {
   com_Jacobian.resize(n-1,n-1);
   int index1,index2;
@@ -3335,7 +3335,7 @@ void mineur(int &n, int &i, int &j, Array<double, 2> &Jacobian, Array<double, 2>
 }
 
 
-double determinant(int n, Array<double, 2> &Jacobian)
+double determinant_ssh(int n, Array<double, 2> &Jacobian)
 {
   double value=0.0;
   int i,j,l,i2,j2;
@@ -3377,7 +3377,7 @@ double determinant(int n, Array<double, 2> &Jacobian)
               i=0;
               for (j=0;j<m;++j)
                 {
-                  mineur(m, i,j, com_Jacobian_old, com_Jacobian);
+                  mineur_ssh(m, i,j, com_Jacobian_old, com_Jacobian);
                   Factor(iter)=Factor_old(l)*pow(-1.0,i+j)*com_Jacobian_old(i,j);
                   for (i2=0;i2<m-1;++i2)
                     for (j2=0;j2<m-1;++j2)
@@ -3410,7 +3410,7 @@ double determinant(int n, Array<double, 2> &Jacobian)
   
 }
 
-void compute_comatrice(int &n, Array<double, 2> &Jacobian, Array<double, 2> &comatrice)
+void compute_comatrice_ssh(int &n, Array<double, 2> &Jacobian, Array<double, 2> &comatrice)
 {
   int i,j;
   Array<double, 2> com_Jacobian;
@@ -3418,17 +3418,17 @@ void compute_comatrice(int &n, Array<double, 2> &Jacobian, Array<double, 2> &com
   for (i=0;i<n;++i)
     for (j=0 ; j<n; ++j)
       {
-        mineur(n,i,j,Jacobian,com_Jacobian);
-        comatrice(i,j)=pow(-1.0,i+j)*determinant(n-1,com_Jacobian);
+        mineur_ssh(n,i,j,Jacobian,com_Jacobian);
+        comatrice(i,j)=pow(-1.0,i+j)*determinant_ssh(n-1,com_Jacobian);
       }
 }
 
-void inversion_matrice(int &n, Array<double, 2> &Jacobian, Array<double, 2> &inverse)
+void inversion_matrice_ssh(int &n, Array<double, 2> &Jacobian, Array<double, 2> &inverse)
 {
   int i,j;
   Array<double, 2> comatrice;
-  compute_comatrice(n,Jacobian,comatrice);
-  double det=determinant(n,Jacobian);
+  compute_comatrice_ssh(n,Jacobian,comatrice);
+  double det=determinant_ssh(n,Jacobian);
   inverse.resize(n,n);
   
   for (i=0;i<n;++i)
@@ -3462,9 +3462,9 @@ void newton_raphson_sat_ssh(model_config &config, Array<double, 1> &MO_sat, doub
   for (j=0;j<n-1;++j)
     MO_sat_old(j)=MO_sat(j);
   
-  if (determinant(n,Jacobian)!=0.0 and point_fixe==false)
+  if (determinant_ssh(n,Jacobian)!=0.0 and point_fixe==false)
     {
-      inversion_matrice(n, Jacobian, inverse);
+      inversion_matrice_ssh(n, Jacobian, inverse);
       for (i=0;i<n-1;++i)
         {
           for (j=0;j<n;++j)

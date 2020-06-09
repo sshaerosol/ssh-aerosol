@@ -59,6 +59,7 @@ contains
     double precision :: watorg,organion,qgas(N_aerosol)
 
     lwcorg_nsize = 0.d0
+    start_time= 0.d0
 
     ! Initialize the density of aerosols
     if (with_fixed_density.ne.1) then
@@ -103,7 +104,7 @@ contains
 	  endIF
        enddo
     endif
-
+    
     initial_time_splitting = 0.D0
     end_time = start_time + delta_t
     timestep_splitting=0.D0

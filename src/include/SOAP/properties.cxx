@@ -2009,9 +2009,9 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
         
         if (surrogate[i].gamma_aq<=1.0e-10)
           {            
-            surrogate[i].gamma_LR=1.; //e-8/surrogate[i].gamma_aq;
-            surrogate[i].gamma_SRMR=1.; //0e-8/surrogate[i].gamma_aq;
-            surrogate[i].gamma_aq=1.; //0e-6;
+            surrogate[i].gamma_LR*=1.e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_SRMR*=1.0e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_aq=1.0e-6;
 	  } 
         
       }  
