@@ -1284,7 +1284,8 @@ contains
           if (name_input_species(j)=="NH3") name_input_species(j)="NH4"
           if (name_input_species(j)=="HNO3") name_input_species(j)="NO3"
           if (name_input_species(j)=="WATER") name_input_species(j)="H2O"
-          if (trim(aerosol_species_name_tmp)==trim(name_input_species(j)).or.trim(aerosol_species_name_tmp)=="P"//trim(name_input_species(j))) then
+          if (trim(aerosol_species_name_tmp)==trim(name_input_species(j)) &
+               .or.trim(aerosol_species_name_tmp)=="P"//trim(name_input_species(j))) then
              found_spec=1
              index_species_ssh(j)=s+1
           endif

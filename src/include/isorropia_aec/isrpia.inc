@@ -71,8 +71,10 @@ C
 C
 C *** EQUILIBRIUM CONSTANTS ********************************************
 C
-      COMMON /SSHEQUK/ XK1, XK2, XK3, XK4, XK5, XK6, XK7, XK8, XK9, XK10,
-     &              XK11,XK12,XK13,XK14,XKW, XK21,XK22,XK31,XK32,XK41,
+      COMMON /SSHEQUK/ XK1, XK2, XK3, XK4, XK5, XK6, 
+     &              XK7, XK8, XK9, XK10,
+     &              XK11,XK12,XK13,XK14,XKW, 
+     &              XK21,XK22,XK31,XK32,XK41,
      &              XK42
 
 C

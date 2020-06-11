@@ -107,7 +107,8 @@ SUBROUTINE SSH_REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
                  rho(k) = fixed_density 
               endif
            ENDDO
-           call SSH_REDIST_MOVINGDIAM(ns,naer,N,Qesp,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
+           call SSH_REDIST_MOVINGDIAM(ns,naer,N,Qesp,with_fixed_density,fixed_density, &
+		rho,LMD,dbound,fixed_diameter,d_after_cond,EH2O)
         else
            !***** Calcul dry total mass per bin
            Q=0.D0
