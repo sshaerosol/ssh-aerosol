@@ -5418,8 +5418,9 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
 	sum2=max(sum2,config.Vlayer(ilayer)*config.MOmin);
 
 	if (sum1 > tinym)
-          if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
-             n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
+           if (Number(b) > tinym)
+              if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
+                 n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
       }
 
   if (LWCtot>config.LWClimit) 
