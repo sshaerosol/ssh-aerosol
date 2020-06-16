@@ -290,7 +290,7 @@ module aInitialization
   double precision, save :: altitude_photolysis_input(30)
 
   ! meteo
-  character (len=400) :: meteo_file
+  character (len=400) , save:: meteo_file
   logical, save :: imeteo 
   
   !!part 6: used in ssh-aerosol.f90 chem()
@@ -416,7 +416,8 @@ contains
     read(10, nml = setup_meteo, iostat = ierr)
 
     if (meteo_file == "") then
-       write(*,*) "File for meteorological data is not given."
+       if (ssh_standalone) write(*,*) "File for meteorological data is not given."
+       if (ssh_logger) write(logfile,*) "File for meteorological data is not given."
        imeteo = .false.
     else
        imeteo = .true.

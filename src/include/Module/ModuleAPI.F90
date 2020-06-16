@@ -97,6 +97,7 @@ module SSHaerosolAPI
       use iso_c_binding
       use aInitialization, only : ssh_read_namelist, ssh_read_inputs, N_gas, n_reaction, n_photolysis
       use lDiscretization, only : ssh_init_parameters, ssh_init_distributions
+      use mod_meteo, only : ssh_read_meteo
 
       implicit none
 
@@ -114,6 +115,9 @@ module SSHaerosolAPI
 
       ! Read inputs
       call ssh_read_inputs()
+
+      ! Read meteo
+      call ssh_read_meteo()
 
       ! Initialize parameters
       call ssh_init_parameters()
