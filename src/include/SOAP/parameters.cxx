@@ -1775,7 +1775,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   if (config.coupling_organic_inorganic==false)
     config.number_of_org_inorg_cycles=1;
 
-  config.MOmin=1.0e-3;
+  config.MOmin=1.0e-30;
 
   config.RHcoupling=0.98;
 
