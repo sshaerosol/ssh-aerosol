@@ -191,7 +191,7 @@ module SSHaerosolAPI
         do i=1,N_size
           concentration_mass(i,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
         enddo
-        call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+        call ssh_update_wet_diameter_liquid(N_size,concentration_mass,concentration_number,&
              wet_mass,wet_diameter,wet_volume,cell_diam_av)
       endif
 

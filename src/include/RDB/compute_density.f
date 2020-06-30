@@ -72,8 +72,4 @@ C------------------------------------------------------------------------
          print *, "conctot", conctot
          stop
       endif
-      if (isnan(rho)) then
-         print *, "rho is nan dans compute_density.f", 
-     &        "rho =", rho, "volume = ", subrho, "conctot =", conctot
-      endif
       END

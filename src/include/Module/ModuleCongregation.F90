@@ -52,21 +52,21 @@ contains
 
     dqdt = 0.d0
     dndt = 0.d0
-    ! Compute wet_mass_diameter using isorropia if wet_diam_estimation == 0, 
-    ! or from previously estimated water content else.
+    ! Compute wet_mass_diameter using isorropia if wet_diam_estimation == 0 but condensation is not called, 
+    ! or if coagulation is splitted (that means that condensation and coagulation are not solved simultaneously
     ! For dynamic sections, the wet_mass_diameter is computed in fgde_cond
 
-    if((wet_diam_estimation.eq.0).OR.((splitting.eq.0).AND.(tag_coag.eq.1))) then !with isorropia
+    Do j=1,N_size
+       if(concentration_index(j, 1) <= ICUT) then
+          c_mass(j,N_aerosol_layers) = 0.d0
+       endif
+    Enddo
+    call ssh_update_wet_diameter_liquid(ICUT,c_mass,c_number, &
+                                      wet_mass,wet_diam,wet_vol,cell_diam)
+    if(((wet_diam_estimation.eq.0).AND.(tag_cond.eq.0)).OR. &
+            ((splitting.eq.0).AND.(tag_coag.eq.1))) then !with isorropia
         call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
                                    concentration_inti,wet_mass,wet_diam,wet_vol)
-    else
-        Do j=1,N_size
-           if(concentration_index(j, 1) <= ICUT) then
-              c_mass(j,N_aerosol_layers) = 0.d0
-           endif
-        Enddo
-        call ssh_update_wet_diameter_liquid(1,N_size,c_mass,c_number, &
-                                      wet_mass,wet_diam,wet_vol,cell_diam)
     endif
     call ssh_mass_conservation(c_mass,c_number,c_gas,total_mass)
 

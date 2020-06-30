@@ -185,7 +185,7 @@ contains
     if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
   end subroutine ssh_calculatewater
 
-  subroutine ssh_update_wet_diameter(start_bin,end_bin,c_mass,c_inti,c_number,wet_m,&
+  subroutine ssh_update_wet_diameter(end_bin,c_mass,c_inti,c_number,wet_m,&
        wet_d,wet_v,dry_d)
     !------------------------------------------------------------------------
     !
@@ -198,7 +198,6 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     start_bin: index of the first bin need the computation
     !     end_bin: index of the last bin need the computation
     !     c_number: aerosol number concentration(#/m^3)
     !     c_mass: aerosol mass concentration(µg/m^3)
@@ -227,15 +226,14 @@ contains
 
     total_water=0.d0
     total_IH=0.d0
-    do j=start_bin,end_bin
+    Do j=1,N_size
+     if(concentration_index(j, 1) <= end_bin) then
        rho_wet_cell(j)=fixed_density
        total_water=total_water+c_mass(j,EH2O)
        total_IH=total_IH+c_inti(j,IH)
        qti=0.D0
-       do s=1,N_aerosol_layers
-          if(aerosol_species_name(List_species(s)).NE.'PH2O') then
+       do s=1,N_aerosol_layers-1
              qti=qti+c_mass(j,s)     ! µg.m-3
-          endif
        end do
        do s=1,N_aerosol
           qext(s) = 0.d0
@@ -275,11 +273,12 @@ contains
           wet_d(j)=size_diam_av(k)
           wet_m(j)=size_mass_av(k)
        endif
+     endif
     enddo
 
   end subroutine ssh_update_wet_diameter
 
-  subroutine ssh_update_wet_diameter_liquid(start_bin,end_bin,c_mass,c_number,wet_m,&
+  subroutine ssh_update_wet_diameter_liquid(end_bin,c_mass,c_number,wet_m,&
        wet_d,wet_v,dry_d)
 
     !------------------------------------------------------------------------
@@ -293,7 +292,6 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     start_bin: index of the first bin need the computation
     !     end_bin: index of the last bin need the computation
     !     c_number: aerosol number concentration(#/m^3)
     !     c_mass: aerosol mass concentration(µg/m^3)
@@ -308,7 +306,7 @@ contains
     !     dry_d: particle dry diameter
     !------------------------------------------------------------------------
     implicit none
-    integer :: jesp,s,j,k,start_bin,end_bin
+    integer :: jesp,s,j,k,end_bin
 
     double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::c_number(N_size)
@@ -323,16 +321,14 @@ contains
 
     total_water=0.d0
     !total_IH=0.d0
-    do j=start_bin,end_bin
+    Do j=1,N_size
+     if(concentration_index(j, 1) <= end_bin) then
        rho_wet_cell(j)=fixed_density
        qti=0.D0
-       do s=1,N_aerosol_layers
-          if(aerosol_species_name(List_species(s)).NE.'PH2O') then
-             qti=qti+c_mass(j,s)     ! µg.m-3
-          else
-             total_water=total_water+c_mass(j,s)
-          endif
+       do s=1,N_aerosol_layers-1
+           qti=qti+c_mass(j,s)     ! µg.m-3
        end do
+       total_water=total_water+c_mass(j,N_aerosol_layers)
        
        if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
           do jesp=1,N_aerosol
@@ -374,8 +370,8 @@ contains
           wet_m(j)=size_mass_av(k)
           dry_d(j)=size_diam_av(k) 
        endif
+     endif
     enddo
-    !print*,total_IH,total_water
 
   end subroutine ssh_update_wet_diameter_liquid
 

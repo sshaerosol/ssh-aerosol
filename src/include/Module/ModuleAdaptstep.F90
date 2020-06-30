@@ -72,7 +72,7 @@ contains
        enddo
     end if
 
-    call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, concentration_number,&
+    call ssh_update_wet_diameter_liquid(N_size,concentration_mass, concentration_number,&
          wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
     call ssh_mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
@@ -251,7 +251,7 @@ contains
                cell_diam_av, neq, liquid)
        endif
 
-       call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, &
+       call ssh_update_wet_diameter_liquid(N_size,concentration_mass, &
             concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
        if(N_fracmax.gt.1 ) then !.and. redistribution_method.ne.0) then
@@ -262,7 +262,7 @@ contains
 
     endif
 
-    call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass,concentration_number,&
+    call ssh_update_wet_diameter_liquid(N_size,concentration_mass,concentration_number,&
          wet_mass,wet_diameter,wet_volume,cell_diam_av) 
 
     ! AVOID mass conservation after redistribution
@@ -335,7 +335,7 @@ contains
              if((tag_nucl.EQ.1).OR.((tag_cond.EQ.1).AND.(tag_coag.EQ.1))) then 
              ! Need to redistribute onto fixed grid if nucleation is solved with 
              ! condensation/evaporation or if processes are not splitted
-               call ssh_update_wet_diameter_liquid(1,N_size,concentration_mass, &
+               call ssh_update_wet_diameter_liquid(N_size,concentration_mass, &
                        concentration_number,wet_mass,wet_diameter,wet_volume,cell_diam_av)
                if(N_fracmax.gt.1) then
                     call ssh_redistribution_fraction()!fraction redistribution
