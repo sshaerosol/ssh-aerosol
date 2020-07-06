@@ -1635,13 +1635,16 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
   //compute the activity coefficients of the aqueous phase
   //LWC: liquid water content due only to inorganic compounds
   //MMaq: mean molar mass of the aqueous phase
-  Array<double, 1> X_unifac, gamma_unifac,Xions,gamma_ions;
+  static Array<double, 1> X_unifac, gamma_unifac,Xions,gamma_ions;
   int n=surrogate.size();
   int i,iion;
-  X_unifac.resize(config.nmol_aq);
-  Xions.resize(config.nion_unifac);
-  gamma_unifac.resize(config.nmol_aq);
-  gamma_ions.resize(config.nion_unifac);
+  if (X_unifac.size()!=config.nmol_aq)
+    {
+      X_unifac.resize(config.nmol_aq);
+      Xions.resize(config.nion_unifac);
+      gamma_unifac.resize(config.nmol_aq);
+      gamma_ions.resize(config.nion_unifac);
+    }
   double sumX_unifac=0.0;
   double sum=0.0;
 
@@ -1717,6 +1720,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
     XH2O=surrogate[config.iH2O].Xaq;
 
   //Call of unifac
+  int iHp=-1;
   if (sumX_unifac>0.0 and config.activity_model=="unifac")
     {
       if (config.SR_ions)
@@ -1727,6 +1731,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
               {
                 sumX_unifac+=surrogate[i].Xaq;
                 Xions(iion)=surrogate[i].Xaq;
+                if (config.compute_inorganic and i==config.iHp) iHp=iion;
                 iion++;
               }
 
@@ -1750,7 +1755,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
 		    config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
 		    config.group_activity_molaq,
 		    config.RGions,config.QGions, config.Lions,config.gamma_ions_inf,
-		    config.Z,Temperature,gamma_unifac,gamma_ions,config.temperature_dependancy);
+                        config.Z,Temperature,gamma_unifac,gamma_ions,config.temperature_dependancy,iHp);
         
 	  iion=0;
           for (i=0;i<n;++i)
@@ -1758,9 +1763,8 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
               if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
                 {
                   surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
-		    
-		  if (i==config.iHp)
-		    surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
+		  //if (i==config.iHp)
+		  //  surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
                   iion++;
                 }
               else
@@ -1772,7 +1776,8 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
                     surrogate[i].gamma_aq=1.0;
                 }
             }
-        
+
+          /*
           for (i=0;i<n;++i)
             {
               if (surrogate[i].index_gamma_aq >=0)
@@ -1780,7 +1785,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
                   /surrogate[i].GAMMAinf;
               else
                 surrogate[i].gamma_aq=1.0;
-            }
+            }*/
         }
       else
 	{
@@ -1789,7 +1794,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
 		 config.RG_aq,
                  config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
 		 config.group_activity_molaq,
-                 config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);
+                 config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);          
 
 	  for (i=0;i<n;++i)
 	    {
@@ -1813,7 +1818,7 @@ void hygroscopicity_aq_ssh(model_config &config, vector<species>& surrogate,
                        double &AQ, double &derivative, double factor)
 {
   //LWC liquid water content due to inorganic coumpounds (ug/m3)
-  //Compute the absorption of water by the organic compounds in the aqueous phase
+  //Compute the absorption of water by the organic compounds in the aqueous phase  
 
   if (config.activity_model=="unifac")
     {
@@ -1897,22 +1902,25 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   double Xtot=0.0;
   int n=surrogate.size();
   int i,j;
- 
+  int iH;
   for (i=0;i<n;++i) //molality (mol/kg) and charge of inorganic ions
-    if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+    if (surrogate[i].is_ion)
       {
-        config.molality(surrogate[i].index_ion)=surrogate[i].molality;	
+        config.molality(surrogate[i].index_ion)=surrogate[i].molality;
         //charges_ions(surrogate[i].index_ion)=surrogate[i].charge;      
         //molality(0)=0.0;
         //cout << surrogate[i].name << " " << surrogate[i].index_ion << endl;
       }
+  if (config.compute_inorganic)
+    iH=-1;
+  else
+    iH=surrogate[config.iHp].index_ion;
     
   //cout << "molal:" << molality << endl;
   //compute the molar fraction of solvent species used in aiomfac
   // and their molar masses (in kg/mol)
   for (i=0;i<n;++i)
-    if ((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic
-        and surrogate[i].index_gamma_aiomfac>=0)
+    if (surrogate[i].is_solvent)
       {
         surrogate[i].Xaq=surrogate[i].Aaq/surrogate[i].MM;
         if (i==config.iH2O)
@@ -1927,8 +1935,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
     }
  
   for (i=0;i<n;++i)
-    if ((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic
-        and surrogate[i].index_gamma_aiomfac>=0)
+    if (surrogate[i].is_solvent)
       {
         surrogate[i].Xaq/=Xtot;
         config.X_aiomfac(surrogate[i].index_gamma_aiomfac)=surrogate[i].Xaq;
@@ -1939,6 +1946,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   //   the number of aiomfac groups in the molecule (config.groups_aiomfac)
   //   and the molar mass (in kg/mol) of the group in the molecule (config.Mgroups_aiomfac)
   int jH2O;
+  
   for (j=0;j<config.ngroup_aiomfac;++j)
     {
       Xtot=0.0;
@@ -1948,15 +1956,14 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
 
       if (Xtot>0.0)
         for (i=0;i<config.nmol_aiomfac;++i)
-          config.molar_mass_groups(j)+=config.Mgroups_aiomfac(i,j)*
-            config.groups_aiomfac(i,j)*config.X_aiomfac(i)/Xtot*0.001; 
+          config.molar_mass_groups(j)+=config.gMg_aiomfac(i,j)*config.X_aiomfac(i)/Xtot; 
       else
 	{
 	  //cout << "dans ce cas" << endl;
 	  for (i=0;i<config.nmol_aiomfac;++i)
 	    if (config.groups_aiomfac(i,j)>0.0)
 	      {
-		config.molar_mass_groups(j)+=config.groups_aiomfac(i,j)*config.Mgroups_aiomfac(i,j)*0.001;
+		config.molar_mass_groups(j)+=config.gMg_aiomfac(i,j);
 		//cout << j << " " << i << " " << config.groups_aiomfac(i,j) << " " << config.Mgroups_aiomfac(i,j) << endl;
 		Xtot+=config.groups_aiomfac(i,j);
 	      }	  	  
@@ -1977,8 +1984,8 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
           Temperature,ionic,config.ngroup_aiomfac,config.groups_aiomfac,
           config.b1ki_aq,config.b2ki_aq,config.b1ca_aq,
           config.b2ca_aq, config.b3ca_aq, config.c1ca_aq,
-          config.c2ca_aq, config.Rcc_aq, config.Qcca_aq,jH2O,config.compute_organic);
-   
+              config.c2ca_aq, config.Rcc_aq, config.Qcca_aq,jH2O,iH,config.compute_organic);
+  
   //cout << gamma_MR_solvents << endl;
   for (i=0;i<n;++i)
     if (surrogate[i].index_gamma_aiomfac>=0)
@@ -1993,19 +2000,11 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
 
   
   for (i=0;i<n;++i)
-    if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+    if (surrogate[i].is_ion)
       {
         surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
         surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_ions(surrogate[i].index_ion);        
         surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;
-
-        
-        if (i==config.iClm)
-          {
-            //cout << "result: " << i << " " << surrogate[i].gamma_aq << " " << config.gamma_MR_ions(surrogate[i].index_ion) << endl;
-            //if (surrogate[i].gamma_aq<=1.0e-10)
-            //  exit(0);
-          }
         
         if (surrogate[i].gamma_aq<=1.0e-10)
           {            

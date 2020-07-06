@@ -15,7 +15,7 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
 		 Array<double, 2> &b1ki, Array<double, 2> &b2ki, Array<double, 2> &b1ca,
 		 Array<double, 2> &b2ca, Array<double, 2> &b3ca, Array<double, 2> &c1ca,
 		 Array<double, 2> &c2ca, Array<double, 2> &Rcc, Array<double, 3> &Qcca,
-		 int &jH2O, bool compute_organic)
+		 int &jH2O, int &iH, bool compute_organic)
 {
   int nsolvents=X_solvents.size();
   int nions=molality_ions.size();
@@ -51,35 +51,74 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
       // LONG - RANGE computation           //
       ////////////////////////////////////////
 
-      double sqrt_ionic=pow(ionic,0.5); 
-      double A=1.327757e5*pow(rho,0.5)/(pow(permittivity*Temperature,3.0/2));
-      double b=6.369696*pow(rho,0.5)/(pow(permittivity*Temperature,0.5));      
+      double sqrt_ionic=pow(ionic,0.5);
+      double sqrt_rho=pow(rho,0.5);
+      double A=1.327757e5*sqrt_rho/(pow(permittivity*Temperature,3.0/2));
+      double b=6.369696*sqrt_rho/(pow(permittivity*Temperature,0.5));      
       double A2=A*(1+b*sqrt_ionic-1.0/(1+b*sqrt_ionic)
-                   -2.0*log(1.0+b*sqrt_ionic));
+                   -2.0*log(1.0+b*sqrt_ionic))/pow(b,3);
       double A3=A*sqrt_ionic/(1+b*sqrt_ionic);
 
+      static Array<double, 2> Bki,IBki_deriv;
+      static Array<double, 2> Bca,IBca_deriv;
+      static Array<double, 2> Cca,ICca_deriv;
+      static Array<double, 1> Afaci,sumIBkXk;
+      static Array<double, 1> Xk;
+      static Array<double, 1> log_gammak;
+      static int iRcc,jRcc,jQcc;
+      //cout << Afaci << " " << Afaci.size() << endl;
+      if (Afaci.size()!=nions)
+        {
+          Afaci.resize(nions);
+          sumIBkXk.resize(nions);
+          Bki.resize(ngroups,nions);
+          IBki_deriv.resize(ngroups,nions);
+          Bca.resize(nions,nions);
+          IBca_deriv.resize(nions,nions);
+          Cca.resize(nions,nions);
+          ICca_deriv.resize(nions,nions);
+          log_gammak.resize(ngroups);
+          Xk.resize(ngroups);
+          for (i=0;i<nions;++i)
+            if(charges_ions(i)>0.0)
+              {   
+                for (j=i;j<nions;++j)
+                  if(charges_ions(j)>0.0)
+                    {
+                      if (Rcc(i,j)!=0)
+                        {
+                          //cout << Rcc(i,j) << " " << i << " " << j << endl;
+                          iRcc=i;
+                          jRcc=j;
+                          for (l=0;l<nions;++l)
+                            if(charges_ions(l)<0.0)
+                              if (Qcca(i,j,l)>0.0)
+                                jQcc=l;
+                        }
+                    }           
+              }
+
+          
+        }
+
+      //cout << Rcc(iRcc,jRcc) << " " << Qcca(iRcc,jRcc,jQcc) << endl;
+      
       for (k=0;k<nsolvents;++k)
-        gamma_LR_solvents(k)=exp(2*molar_mass_solvents(k)/pow(b,3)*A2); 
-	  
-      for (i=0;i<nions;++i)
-        gamma_LR_ions(i)=exp(-pow(charges_ions(i),2)*A3);
+        gamma_LR_solvents(k)=exp(2.*molar_mass_solvents(k)*A2);
+
+      gamma_MR_ions=1.;
+      gamma_LR_ions=1.;
+      if (iH<0)
+        for (i=0;i<nions;++i)
+          gamma_LR_ions(i)=exp(-pow(charges_ions(i),2)*A3);
+      else
+        gamma_LR_ions(iH)=exp(-pow(charges_ions(iH),2)*A3);
 
       //////////////////////////////////////////
       // MEDIUM - RANGE computation           //
       //////////////////////////////////////////
 	  
-      Array<double, 2> Bki,IBki_deriv;
-      Array<double, 2> Bca,IBca_deriv;
-      Array<double, 2> Cca,ICca_deriv;
-      Array<double, 1> Afaci,sumIBkXk;
-      Afaci.resize(nions);
-      sumIBkXk.resize(nions);
-      Bki.resize(ngroups,nions);
-      IBki_deriv.resize(ngroups,nions);
-      Bca.resize(nions,nions);
-      IBca_deriv.resize(nions,nions);
-      Cca.resize(nions,nions);
-      ICca_deriv.resize(nions,nions);
+      
       Bki=0.;
       Bca=0.;      
       double I1=exp(-1.2*sqrt_ionic);
@@ -95,14 +134,15 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
           }
 
       
-      
+      //Cca=c1ca*exp(-c2ca*sqrt_ionic);
       for (i=0;i<nions;++i)
         for (j=0;j<nions;++j)
           if(charges_ions(i)*charges_ions(j)<0.0)
             {
-              Bca(i,j)=b1ca(i,j)+b2ca(i,j)*exp(-b3ca(i,j)*sqrt_ionic);
+              double expb3ca=exp(-b3ca(i,j)*sqrt_ionic);
+              Bca(i,j)=b1ca(i,j)+b2ca(i,j)*expb3ca;
               IBca_deriv(i,j)=-0.5*b3ca(i,j)*b2ca(i,j)*
-                exp(-b3ca(i,j)*sqrt_ionic)/sqrt_ionic;
+                expb3ca/sqrt_ionic;
               Cca(i,j)=c1ca(i,j)*exp(-c2ca(i,j)*sqrt_ionic);
               ICca_deriv(i,j)=-0.5*c2ca(i,j)*Cca(i,j)/sqrt_ionic;
             }
@@ -113,11 +153,6 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
               Cca(i,j)=0.0;
 	      ICca_deriv(i,j)=0.0;
             }
-
-      Array<double, 1> Xk;
-      Array<double, 1> log_gammak;
-      log_gammak.resize(ngroups);
-      Xk.resize(ngroups);
 	  
       double sumXk=0.0;
       for (k=0;k<ngroups;++k)
@@ -165,21 +200,22 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
       for (i=0;i<nions;++i)
         {
           if(charges_ions(i)>0.0)
-                {
+            {
                                  
-                  for (j=0;j<nions;++j)
-                    if(charges_ions(j)<0.0)
-                      Afaci(i)+=(Bca(i,j)+IBca_deriv(i,j)*ionic+mi_zi*(2*Cca(i,j)+ICca_deriv(i,j)*ionic))*molality_ions(j);                      
-                  
-                  for (j=i;j<nions;++j)
-                    if(charges_ions(j)>0.0)
-                      {
-                        Afaci(i)+=Rcc(i,j)*molality_ions(j);
-                        for (l=0;l<nions;++l)
-                          if(charges_ions(l)<0.0)
-                            Afaci(i)+=2.0*Qcca(i,j,l)*molality_ions(j)*molality_ions(l);
-                      }           
-                }
+              for (j=0;j<nions;++j)
+                if(charges_ions(j)<0.0)
+                  {
+                    //cout << Bca(i,j) << " " << IBca_deriv(i,j) << " " << 2*Cca(i,j)+ICca_deriv(i,j)*ionic << endl;
+                    Afaci(i)+=(Bca(i,j)+IBca_deriv(i,j)*ionic+mi_zi*(2*Cca(i,j)+ICca_deriv(i,j)*ionic))*molality_ions(j);
+                  }
+
+              if (i==iRcc)
+                {
+                  j=jRcc;
+                  l=jQcc;
+                  Afaci(i)+=Rcc(i,j)*molality_ions(j)+2.0*Qcca(i,j,l)*molality_ions(j)*molality_ions(l);  
+                }           
+            }
         }
 
 
@@ -232,7 +268,7 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
 
       double loggamma;
       for (i=0;i<nions;++i)
-        if(charges_ions(i)>0.0)
+        if(charges_ions(i)>0.0 and (iH<0 or i==iH))
           {
             loggamma=0;
             for (k=0;k<ngroups;++k)
@@ -266,7 +302,7 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
             if (loggamma<-logmax) loggamma=-logmax; 
             gamma_MR_ions(i)=exp(loggamma);
           }
-        else
+        else if (charges_ions(i)<0.0 and iH<0)
           {
             //cout << i << " " << charges_ions(i) << endl;
             loggamma=0;
@@ -324,7 +360,7 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
             if (i==6)
             cout << charges_ions(i) << " " << i << " " << loggamma << endl;*/
             if (loggamma>logmax) loggamma=logmax;
-            if (loggamma<-logmax) loggamma=-logmax;            
+            if (loggamma<-logmax) loggamma=-logmax;
             gamma_MR_ions(i)=exp(loggamma);
           }
       //cout << molality_ions << endl;

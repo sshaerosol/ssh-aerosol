@@ -30,9 +30,19 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
       for (i=0;i<nmols;i++)
         Xmol(i)/=xtot;
   
-      Array <double, 1> theta,phi;
-      theta.resize(nmols);
-      phi.resize(nmols);
+      static Array <double, 1> theta,phi;
+      static Array <double, 1> surface_fraction;
+      static Array <double, 1> group_activity;
+      static Array <double, 1> sum2;    
+      if (phi.size()!=nmols)
+        {
+          theta.resize(nmols);
+          phi.resize(nmols);
+          surface_fraction.resize(nfunc);
+          group_activity.resize(nfunc);
+          sum2.resize(nfunc);
+        }
+      surface_fraction=0.0; 
       double Lmean=0.0;
       double sumtheta=0.0;
       double sumphi=0.0;
@@ -51,13 +61,10 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
         {
           theta(i)/=sumtheta;
           phi(i)/=sumphi;           
-          gamma(i)=exp(log(phi(i)/Xmol(i))+Z/2*Qparam(i)*log(theta(i)/phi(i))+Lparam(i)-phi(i)/Xmol(i)*Lmean); 
+          gamma(i)=log(phi(i)/Xmol(i))+Z/2*Qparam(i)*log(theta(i)/phi(i))+Lparam(i)-phi(i)/Xmol(i)*Lmean; 
         }      
       
-      //Compute surface fraction
-      Array <double, 1> surface_fraction;    
-      surface_fraction.resize(nfunc);    
-      surface_fraction=0.0;      
+      //Compute surface fraction  
       double sum_surf=0.0;
       for (i=0;i<nmols;i++)
         {          
@@ -71,12 +78,7 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
     
       for (j=0;j<nfunc;j++)      
         surface_fraction(j)/=sum_surf;
-
-      Array <double, 1> group_activity;
-      group_activity.resize(nfunc);
-      
-      Array <double, 1> sum2;
-      sum2.resize(nfunc);      
+     
       for (j=0;j<nfunc;j++)
         {
           sum2(j)=0.0;
@@ -96,25 +98,25 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
           double sum1=0.0;         
           for (j=0;j<nfunc;j++)
             if (groups(j,i)>0.0)
-	      {
-		sum1+=groups(j,i)*QG(j)*(group_activity(j)-group_activity_mol(j,i));                	      
-	      }
+              sum1+=groups(j,i)*QG(j)*(group_activity(j)-group_activity_mol(j,i));                	      
 	  
-          gamma(i)*=exp(sum1);	  
+          gamma(i)+=sum1;	  
         }
+      gamma=exp(gamma);
+      
     }
 }
 
 void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
-               Array<double, 1> &Xions,
-               Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
-	       Array<double,1> &RG, Array <double, 1> &QG,
-               Array<double, 1> &Rparam, Array <double, 1> &Qparam, Array <double,1> &Lparam,
-	       Array <double, 2> &group_activity_mol,
-               Array <double, 1> & RGions, Array <double, 1> & QGions, Array <double, 1> & Lions,
-	       Array <double, 1> &gamma_ions_inf,
-               double &Z, double &Temperature, Array<double,1> &gamma, Array<double,1> &gamma_ions,
-	       bool temperature_dependancy)
+                   Array<double, 1> &Xions,
+                   Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
+                   Array<double,1> &RG, Array <double, 1> &QG,
+                   Array<double, 1> &Rparam, Array <double, 1> &Qparam, Array <double,1> &Lparam,
+                   Array <double, 2> &group_activity_mol,
+                   Array <double, 1> & RGions, Array <double, 1> & QGions, Array <double, 1> & Lions,
+                   Array <double, 1> &gamma_ions_inf,
+                   double &Z, double &Temperature, Array<double,1> &gamma, Array<double,1> &gamma_ions,
+                   bool temperature_dependancy, int &iHp)
 { 
   double xmin=1.0e-11;
   double xtot=0.0;
@@ -143,11 +145,28 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
 
       //cout << Xmol << Xions << endl;
   
-      Array <double, 1> theta,theta_ions,phi,phi_ions;
-      theta.resize(nmols);
-      phi.resize(nmols);
-      theta_ions.resize(nions);
-      phi_ions.resize(nions);
+      static Array <double, 1> theta,theta_ions,phi,phi_ions;
+      static Array <double, 1> surface_fraction,surface_fraction_ions;
+      static Array <double, 1> group_activity;
+      
+      //Array <double, 2> group_activity_mol,sum2mol;
+      //group_activity_mol.resize(nfunc,nmols);
+      //sum2mol.resize(nfunc,nmols);
+      
+      static Array <double, 1> sum2;
+         
+      if (phi.size()!=nmols)
+        {
+          theta.resize(nmols);
+          phi.resize(nmols);
+          theta_ions.resize(nions);
+          phi_ions.resize(nions);
+          //Array <double, 2> surface_fraction_mol;
+          surface_fraction.resize(nfunc);
+          surface_fraction_ions.resize(nions);
+          group_activity.resize(nfunc);
+          sum2.resize(nfunc);
+        }
       double Lmean=0.0;
       double sumtheta=0.0;
       double sumphi=0.0;
@@ -177,28 +196,28 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
         {
           theta(i)/=sumtheta;
           phi(i)/=sumphi;
-          gamma(i)=exp(log(phi(i)/Xmol(i))+Z/2*Qparam(i)*log(theta(i)/phi(i))+Lparam(i)-phi(i)/Xmol(i)*Lmean);         
+          gamma(i)=log(phi(i)/Xmol(i))+Z/2*Qparam(i)*log(theta(i)/phi(i))+Lparam(i)-phi(i)/Xmol(i)*Lmean;         
         }
 
       for (i=0;i<nions;i++)
-        {
-          theta_ions(i)/=sumtheta;
-          phi_ions(i)/=sumphi;
-          gamma_ions(i)=exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean)/
-	    gamma_ions_inf(i);
-	  /*cout << i << " gamma " << gamma_ions(i) << " " << exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean) << " "
-	       << exp(log(RGions(i)/Rparam(nmols-1))+1.0-RGions(i)/Rparam(nmols-1)+Z/2*QGions(i)*(log(Rparam(nmols-1)*QGions(i)/RGions(i)/Qparam(nmols-1))
-												  -1.0+RGions(i)*Qparam(nmols-1)/Rparam(nmols-1)/QGions(i))) 
-												  << " " << Rparam(nmols-1) << endl;*/
-        }
+        if (iHp<0 or i==iHp)
+          {
+            theta_ions(i)/=sumtheta;
+            phi_ions(i)/=sumphi;
+            gamma_ions(i)=exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean)/
+              gamma_ions_inf(i);
+            /*cout << i << " gamma " << gamma_ions(i) << " " << exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean) << " "
+              << exp(log(RGions(i)/Rparam(nmols-1))+1.0-RGions(i)/Rparam(nmols-1)+Z/2*QGions(i)*(log(Rparam(nmols-1)*QGions(i)/RGions(i)/Qparam(nmols-1))
+              -1.0+RGions(i)*Qparam(nmols-1)/Rparam(nmols-1)/QGions(i))) 
+              << " " << Rparam(nmols-1) << endl;*/
+          }
+        else
+          gamma_ions(i)=1.;
+      
       //cout << Xions << endl;
       //cout << Xmol << endl;
       
       //Compute surface fraction
-      Array <double, 1> surface_fraction,surface_fraction_ions;
-      //Array <double, 2> surface_fraction_mol;
-      surface_fraction.resize(nfunc);
-      surface_fraction_ions.resize(nions);
       //surface_fraction_mol.resize(nfunc,nmols);      
       surface_fraction=0.0;
       //surface_fraction_mol=0.0;
@@ -243,15 +262,7 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
 	for (j=0;j<nfunc;j++)
 	  for (k=0;k<nfunc;k++)          
 	  Inter2(j,k)=exp(-Inter(j,k)/Temperature);       */
-      
-      Array <double, 1> group_activity;
-      group_activity.resize(nfunc);
-      //Array <double, 2> group_activity_mol,sum2mol;
-      //group_activity_mol.resize(nfunc,nmols);
-      //sum2mol.resize(nfunc,nmols);
-      
-      Array <double, 1> sum2;
-      sum2.resize(nfunc);            
+               
       for (j=0;j<nfunc;j++)
         {
           sum2(j)=0.0;
@@ -300,8 +311,10 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
             if (groups(j,i)>0.0)           
               sum1+=groups(j,i)*QG(j)*(group_activity(j)-group_activity_mol(j,i));                
 
-          gamma(i)*=exp(sum1);
+          gamma(i)+=sum1;
         }
+
+      gamma=exp(gamma);
     } 
 }
 

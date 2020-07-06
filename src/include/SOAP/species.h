@@ -83,7 +83,7 @@ namespace ssh_soap
 	Array<double, 2> InterB_org, InterB_aq, InterB_tot;
 	Array<double, 2> InterC_org, InterC_aq, InterC_tot;
 	Array<double, 1> RG_org, QG_org, RG_aq, QG_aq, RG_tot, QG_tot, RGions, QGions,Lions;
-	Array<double, 2> groups_aiomfac,Mgroups_aiomfac;
+	Array<double, 2> groups_aiomfac,Mgroups_aiomfac,gMg_aiomfac;
 	Array<double, 2> b1ki_aq,b2ki_aq,b1ca_aq,b2ca_aq,b3ca_aq,c1ca_aq,c2ca_aq,Rcc_aq;
 	Array<double, 3> Qcca_aq;
 	Array<double,2> dbound,Radius;
@@ -189,6 +189,7 @@ namespace ssh_soap
 	double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
 	double moligo;
         bool is_monomer;
+        bool is_ion,is_solvent;
         string name_oligomer;
         int ioligo;
         bool rion;           

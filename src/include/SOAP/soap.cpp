@@ -150,8 +150,13 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
     throw string("Bad option given to the organic thermodynamic model.\n");
 
   if (surrogate.size()==0)
-    parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
-                   accomodation_coefficient);
+    {
+      parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
+                     accomodation_coefficient);
+        // Compute the activity coefficients at infinite dilution 
+      // and the Henry's law constant 
+      compute_gamma_infini_ssh(config, surrogate);
+    }
   check_config_ssh(config, surrogate);
   
   // If Na and Cl are included.
@@ -171,10 +176,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   double MOinit = 0.0;
   double AQinit = 0.0;
   int n = surrogate.size();
-  
-  // Compute the activity coefficients at infinite dilution 
-  // and the Henry's law constant 
-  compute_gamma_infini_ssh(config, surrogate);
 
   for (i = 0; i < n; ++i)
     {
