@@ -124,7 +124,7 @@ contains
 !      Compute fraction of each species in the grid point before redistribution      
       do s=1,N_aerosol_layers-1
          jesp= List_species(s)
-         if(aerosol_species_name(jesp).NE.'PH2O') then
+         if(s.NE.EH2O_layers) then
             g=index_groups(jesp)
             mass_groups(j,g)=mass_groups(j,g)+concentration_mass(j,s)
             mass_total_grid (j)=mass_total_grid (j) + concentration_mass(j,s)
