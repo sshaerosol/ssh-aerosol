@@ -84,15 +84,16 @@ contains
       volum_cell=0.d0
       k=concentration_index(j, 1)!size bins
       do s= 1, N_aerosol_layers
-         if(aerosol_species_name(List_species(s)).NE.'PH2O') then
+         if(s.NE.EH2O_layers) then !aerosol_species_name(List_species(s)).NE.'PH2O') then
   	    volum_cell=volum_cell+concentration_mass(j,s)
          endif
       enddo
+      
       if(density_aer_size(k).gt.0.d0) then
        volum_cell=volum_cell/density_aer_size(k)
       endif
       if(size_diam_av(k).gt.0.d0) then
-	concentration_number(j)= volum_cell /((size_diam_av(k)**3.d0)*cst_PI6)
+         concentration_number(j)= volum_cell /((size_diam_av(k)**3.d0)*cst_PI6)
       else
 	  print*,"Wrong size_diam_av",k,size_diam_av(k)
       endif
@@ -228,7 +229,7 @@ contains
     do j=1,N_size
       do s=1,N_aerosol_layers-1
          jesp = List_species(s)
-         if(aerosol_species_name(jesp).NE.'PH2O') then
+         if(s.NE.EH2O_layers) then
 	    total_aero_mass(jesp)=total_aero_mass(jesp)+c_mass(j,s)
          endif
       enddo
