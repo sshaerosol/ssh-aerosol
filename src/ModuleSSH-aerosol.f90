@@ -353,6 +353,13 @@ contains
     do s = 1, N_aerosol_layers
        jesp = List_species(s)
        do j=1,N_size
+          concentration_mass(j,s)=aero_conc(j,s)
+       enddo
+    enddo
+
+    do s = 1, N_aerosol_layers
+       jesp = List_species(s)
+       do j=1,N_size
           init_bin_mass(j,jesp) = init_bin_mass(j,jesp) + concentration_mass(j,s)
           init_mass(jesp)=init_mass(jesp) + aero_conc(j,s)
        enddo
@@ -365,14 +372,13 @@ contains
    
     call ssh_init_parameters()
         
-    call ssh_init_distributions()   
+    call ssh_init_distributions()
+    !print*,"numb: ",sum(concentration_number_tmp)
 
-    do s = 1, N_aerosol_layers
-       jesp = List_species(s)
-       do j=1,N_size
-          concentration_mass(j,s)=aero_conc(j,s)
-       enddo
-    enddo
+
+    !do j=1,N_sizebin
+    !   concentration_number(j)=number(j)
+    !enddo
     
     do t = 1, nt
        
@@ -396,7 +402,7 @@ contains
           total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
        end do
 
-       ! Aerosol dynamic       
+       ! Aerosol dynamic
        CALL SSH_AERODYN(current_time,delta_t)
 
        ! update mass conc. of aerosol precursors
