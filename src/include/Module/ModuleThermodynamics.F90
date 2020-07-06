@@ -1092,6 +1092,9 @@ contains
           STOP
        endif
        surface_equilibrium_conc(ENO3)= (cfb+DSQRT(cfb*cfb+4.D0*cfa*cfc))/(2.D0*cfa)
+       if (surface_equilibrium_conc(ENO3)==0.0.and.cfb<0) then       
+          surface_equilibrium_conc(ENO3)=-cfc/cfb          
+       endif
        surface_equilibrium_conc(ENH4)=rk1/surface_equilibrium_conc(ENO3)
        surface_equilibrium_conc(ECl)=init_bulk_gas(ECl)/Kelvin_effect(ECl)
     elseif (icase.eq.5) then
