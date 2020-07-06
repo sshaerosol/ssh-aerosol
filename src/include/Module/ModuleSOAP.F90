@@ -214,7 +214,7 @@ contains
       ENDDO
       DO s=1,N_aerosol_layers
         jesp = List_species(s)
-        if(aerosol_species_name(jesp).NE.'PH2O') then
+        if(s.NE.EH2O_layers) then
           DO js=1,N_size
              jj=IQ(s,js)
              qaero(jesp)=qaero(jesp)+q_soap(jj)
