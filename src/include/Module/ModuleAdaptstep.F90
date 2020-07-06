@@ -401,7 +401,7 @@ contains
           sub_time_splitting = DMIN1(sub_time_splitting,tscale)
        endif
        do jesp= 1, N_aerosol_layers
-          if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+          if(jesp.NE.EH2O_layers) then
              tmp=c_mass(j,jesp)*dqdt1(j,jesp)
              if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
                 tscale = 0.1d0 * c_mass(j,jesp)/DABS(dqdt1(j,jesp))
@@ -482,7 +482,7 @@ contains
              time_coag=DMIN1(time_coag,tscale)
           endif
           do jesp = 1,N_aerosol_layers
-             if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+             if(jesp.NE.EH2O_layers) then
                 tmp=c_mass(j,jesp)*dqdt1(j,jesp)
                 if (tmp.ne.0.D0.and.c_mass(j,jesp).gt.TINYM) then
                    tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
@@ -506,7 +506,7 @@ contains
              time_cond=DMIN1(time_cond,tscale)
 	  endif
           do jesp = 1,N_aerosol_layers
-             if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+             if(jesp.NE.EH2O_layers) then
                 tmp=c_mass(j,jesp)*dqdt1(j,jesp)
                 if (DABS(dqdt1(j,jesp)).gt.0.d0.and.c_mass(j,jesp).gt.TINYM) then
                    tscale=c_mass(j,jesp)/DABS(dqdt1(j,jesp))
@@ -590,7 +590,7 @@ contains
     end do
     do j=1,N_size
        do jesp= 1,N_aerosol_layers ! Do not consider water for time step
-          if(aerosol_species_name(List_species(jesp)).NE.'PH2O') then
+          if(jesp.NE.EH2O_layers) then
             if(q2(j,jesp).gt.TINYM) then
                tmp=(q2(j,jesp)-q1(j,jesp))/(q2(j,jesp))
                n2err=n2err+tmp*tmp
