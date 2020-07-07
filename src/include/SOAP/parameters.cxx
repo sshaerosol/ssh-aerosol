@@ -8,6 +8,7 @@
 
 #include "species.cxx"
 #include "properties.hxx"
+#include "smiles.cxx"
 #include <fstream>
 
 using namespace ssh_soap;
@@ -151,6 +152,8 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
       else
         surrogate[i].is_solvent=false;
     }
+
+  get_smiles(config, surrogate);
 }
 
 void system_aiomfac_ssh(model_config &config, vector<species>& surrogate)
