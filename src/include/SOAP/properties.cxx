@@ -1638,7 +1638,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
   static Array<double, 1> X_unifac, gamma_unifac,Xions,gamma_ions;
   int n=surrogate.size();
   int i,iion;
-  if (X_unifac.size()!=config.nmol_aq)
+  if (int(X_unifac.size())!=config.nmol_aq)
     {
       X_unifac.resize(config.nmol_aq);
       Xions.resize(config.nion_unifac);

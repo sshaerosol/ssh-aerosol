@@ -67,7 +67,7 @@ void aiomfac_ssh(Array<double, 1> &X_solvents, Array<double, 1> &gamma_LR_solven
       static Array<double, 1> log_gammak;
       static int iRcc,jRcc,jQcc;
       //cout << Afaci << " " << Afaci.size() << endl;
-      if (Afaci.size()!=nions)
+      if (int(Afaci.size())!=nions)
         {
           Afaci.resize(nions);
           sumIBkXk.resize(nions);

@@ -34,7 +34,7 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
       static Array <double, 1> surface_fraction;
       static Array <double, 1> group_activity;
       static Array <double, 1> sum2;    
-      if (phi.size()!=nmols)
+      if (int(phi.size())!=nmols)
         {
           theta.resize(nmols);
           phi.resize(nmols);
@@ -155,7 +155,7 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
       
       static Array <double, 1> sum2;
          
-      if (phi.size()!=nmols)
+      if (int(phi.size())!=nmols)
         {
           theta.resize(nmols);
           phi.resize(nmols);
