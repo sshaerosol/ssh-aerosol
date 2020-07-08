@@ -14,10 +14,10 @@ using namespace std;
 
 
 void add_species_ssh( vector<species>& surrogate, species current_species, 
-                  vector<string> species_list_aer,
-                  double molecular_weight_aer[],
-                  double accomodation_coefficient[],
-                  int nlayer)
+		      vector<string> species_list_aer,
+		      double molecular_weight_aer[],
+		      double accomodation_coefficient[],
+		      int nlayer)
 {
 
   int nsp = species_list_aer.size();
@@ -41,12 +41,12 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
   //   surrogate.push_back(current_species);
 
   if (current_species.soap_ind != -1)
-      surrogate.push_back(current_species);
+    surrogate.push_back(current_species);
 }
   
 void creation_species_ssh( vector<species>& surrogate, vector<string> species_list_aer,
-                       double molecular_weight_aer[], double accomodation_coefficient[],
-                       int nlayer)
+			   double molecular_weight_aer[], double accomodation_coefficient[],
+			   int nlayer)
 {
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
@@ -81,35 +81,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bia2d [] = {2.0,2.0,2.0,1.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   2.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       2.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
   
   int size = sizeof(group_tmp_bia2d)/sizeof(double);
-  assert(size = 45);
+  assert(size = 55);
 	
   for(int i = 0; i < size; ++i)
-	BiA2D.groups[i] = group_tmp_bia2d[i];
+    BiA2D.groups[i] = group_tmp_bia2d[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
 
   /* ==== BiA1D ==== */ 
@@ -143,35 +145,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bia1d [] = {2.0,1.0,2.0,1.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   1.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   1.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       1.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
   
   size = sizeof(group_tmp_bia1d)/sizeof(double);
-  assert(size = 45);
+  assert(size = 55);
 	
   for(int i = 0; i < size; ++i)
-	BiA1D.groups[i] = group_tmp_bia1d[i];
+    BiA1D.groups[i] = group_tmp_bia1d[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiA0D;
   BiA0D.name="BiA0D";
@@ -205,35 +209,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bia0d [] = {2.0,2.0,2.0,1.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   1.0,0.0, //group ketone
-							   1.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       1.0,0.0, //group ketone
+			       1.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_bia0d)/sizeof(double);
-  assert(size = 45);
+  assert(size = 55);
 	
   for(int i = 0; i < size; ++i)
-	BiA0D.groups[i] = group_tmp_bia0d[i];
+    BiA0D.groups[i] = group_tmp_bia0d[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);  
+		  accomodation_coefficient,nlayer);  
   
   species BiMT;
   BiMT.name="BiMT";
@@ -263,35 +269,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bimt [] = {0.0,0.0,0.0,0.0, // group C
-							  0.0,2.0,1.0,1.0, //group C[OH]
-							  1.0,0.0,0.0,0.0, //group Calcohol
-							  0.0,0.0,0.0,0.0, //group Calcohol-tail
-							  0.0,0.0,0.0,0.0,0.0, //group C=C
-							  0.0,0.0, //group aromatic carbon (AC)
-							  0.0,0.0,0.0, // group //AC-C
-							  4.0,  //group OH
-							  0.0, //group H2O
-							  0.0, //group ACOH
-							  0.0,0.0, //group ketone
-							  0.0,   //group aldehyde  
-							  0.0,0.0, //group ester
-							  0.0,0.0,0.0, //group ether 
-							  0.0,  //group acid
-							  0.0,   //group ACNO2
-							  0.0,0.0,0.0, //group NO3
-							  0.0,0.0,0.0}; //group CO-OH
+			      0.0,2.0,1.0,1.0, //group C[OH]
+			      1.0,0.0,0.0,0.0, //group Calcohol
+			      0.0,0.0,0.0,0.0, //group Calcohol-tail
+			      0.0,0.0,0.0,0.0,0.0, //group C=C
+			      0.0,0.0, //group aromatic carbon (AC)
+			      0.0,0.0,0.0, // group //AC-C
+			      4.0,  //group OH
+			      0.0, //group H2O
+			      0.0, //group ACOH
+			      0.0,0.0, //group ketone
+			      0.0,   //group aldehyde  
+			      0.0,0.0, //group ester
+			      0.0,0.0,0.0, //group ether 
+			      0.0,  //group acid
+			      0.0,   //group ACNO2
+			      0.0,0.0,0.0, //group NO3
+			      0.0,0.0,0.0, //group CO-OH
+			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			      0.0};  //group PAN
 
   size = sizeof(group_tmp_bimt)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiMT.groups[i] = group_tmp_bimt[i];
+    BiMT.groups[i] = group_tmp_bimt[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiMT, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
 
   species BiPER;
@@ -322,35 +330,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_biper [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,1.0,1.0, //group C[OH]
-							   1.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   2.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,2.0,0.0}; //group CO-OH
+			       0.0,0.0,1.0,1.0, //group C[OH]
+			       1.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       2.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,2.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_biper)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiPER.groups[i] = group_tmp_biper[i];
+    BiPER.groups[i] = group_tmp_biper[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiPER, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiDER;
   BiDER.name="BiDER";
@@ -380,35 +390,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bider [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,2.0,1.0,1.0, //group C[OH]
-							   1.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   4.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,2.0,1.0,1.0, //group C[OH]
+			       1.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       4.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_bider)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiDER.groups[i] = group_tmp_bider[i];
+    BiDER.groups[i] = group_tmp_bider[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiDER, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
 
   species BiMGA;
@@ -440,35 +452,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bimga [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,1.0,1.0, //group C[OH]
-							   1.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   2.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   1.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,1.0,1.0, //group C[OH]
+			       1.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       2.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_bimga)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiMGA.groups[i] = group_tmp_bimga[i];
+    BiMGA.groups[i] = group_tmp_bimga[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species AnBlP;
   AnBlP.name="AnBlP";
@@ -498,35 +512,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_anblp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   3.0,1.0, //group aromatic carbon (AC)
-							   1.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   1.0,  //group acid
-							   1.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       3.0,1.0, //group aromatic carbon (AC)
+			       1.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       1.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_anblp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	AnBlP.groups[i] = group_tmp_anblp[i];
+    AnBlP.groups[i] = group_tmp_anblp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species AnBmP;
   AnBmP.name="AnBmP";
@@ -556,35 +572,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_anbmp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   3.0,1.0, //group aromatic carbon (AC)
-							   1.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   1.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   1.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       3.0,1.0, //group aromatic carbon (AC)
+			       1.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       1.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_anbmp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	AnBmP.groups[i] = group_tmp_anbmp[i];
+    AnBmP.groups[i] = group_tmp_anbmp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiBlP;
   BiBlP.name="BiBlP";
@@ -614,35 +632,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_biblp [] = {3.0,4.0,0.0,1.0, // group C
-							   0.0,0.0,1.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,1.0,0.0,1.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   1.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   1.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,1.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,1.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,1.0,0.0,1.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       1.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       1.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,1.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_biblp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiBlP.groups[i] = group_tmp_biblp[i];
+    BiBlP.groups[i] = group_tmp_biblp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   
   species BiBmP;
@@ -673,35 +693,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_bibmp [] = {3.0,4.0,0.0,1.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,1.0,0.0,1.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,1.0, //group ketone
-							   1.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,1.0,0.0,1.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,1.0, //group ketone
+			       1.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_bibmp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiBmP.groups[i] = group_tmp_bibmp[i];
+    BiBmP.groups[i] = group_tmp_bibmp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   
   species AnClP;
@@ -727,35 +749,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   double group_tmp_anclp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
   
   size = sizeof(group_tmp_anclp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   
   for(int i = 0; i < size; ++i)
-	AnClP.groups[i] = group_tmp_anclp[i];
+    AnClP.groups[i] = group_tmp_anclp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnClP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiNGA;
   BiNGA.name="BiNGA";
@@ -786,35 +810,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_binga [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,1.0, //group C[OH]
-							   1.0,0.0,1.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   1.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   1.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,1.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,1.0, //group C[OH]
+			       1.0,0.0,1.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       1.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,1.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_binga)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiNGA.groups[i] = group_tmp_binga[i];
+    BiNGA.groups[i] = group_tmp_binga[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiNIT3;
   BiNIT3.name="BiNIT3"; 
@@ -844,35 +870,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_binit3 [] = {0.0,0.0,0.0,0.0, // group C
-								0.0,1.0,0.0,0.0, //group C[OH]
-								1.0,0.0,0.0,0.0, //group Calcohol
-	        					   0.0,0.0,0.0,0.0, //group Calcohol-tail
-								0.0,0.0,0.0,0.0,0.0, //group C=C
-								0.0,0.0, //group aromatic carbon (AC)
-								0.0,0.0,0.0, // group //AC-C
-								1.0,  //group OH
-								0.0, //group H2O
-								0.0, //group ACOH
-								0.0,0.0, //group ketone
-								0.0,   //group aldehyde  
-								0.0,0.0, //group ester
-								0.0,0.0,0.0, //group ether 
-								0.0,  //group acid
-								0.0,   //group ACNO2
-								1.0,2.0,0.0, //group NO3
-								0.0,0.0,0.0}; //group CO-OH
+				0.0,1.0,0.0,0.0, //group C[OH]
+				1.0,0.0,0.0,0.0, //group Calcohol
+				0.0,0.0,0.0,0.0, //group Calcohol-tail
+				0.0,0.0,0.0,0.0,0.0, //group C=C
+				0.0,0.0, //group aromatic carbon (AC)
+				0.0,0.0,0.0, // group //AC-C
+				1.0,  //group OH
+				0.0, //group H2O
+				0.0, //group ACOH
+				0.0,0.0, //group ketone
+				0.0,   //group aldehyde  
+				0.0,0.0, //group ester
+				0.0,0.0,0.0, //group ether 
+				0.0,  //group acid
+				0.0,   //group ACNO2
+				1.0,2.0,0.0, //group NO3
+				0.0,0.0,0.0, //group CO-OH
+				0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				0.0};  //group PAN
 
   size = sizeof(group_tmp_binit3)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiNIT3.groups[i] = group_tmp_binit3[i];
+    BiNIT3.groups[i] = group_tmp_binit3[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species BiNIT;
   BiNIT.name="BiNIT";
@@ -902,35 +930,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_binit [] = {3.0,1.0,2.0,2.0, // group C
-							   0.0,0.0,1.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail   
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   1.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether 
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,1.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,1.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail   
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       1.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,1.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_binit)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-	BiNIT.groups[i] = group_tmp_binit[i];
+    BiNIT.groups[i] = group_tmp_binit[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   
   species POAlP;
@@ -960,34 +990,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_poalp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
-
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH			       
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
+  
   size = sizeof(group_tmp_poalp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	POAlP.groups[i] = group_tmp_poalp[i];
+    POAlP.groups[i] = group_tmp_poalp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species POAmP;
   POAmP.name="POAmP";
@@ -1014,34 +1046,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_poamp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_poamp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	POAmP.groups[i] = group_tmp_poamp[i];
+    POAmP.groups[i] = group_tmp_poamp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species POAhP;
   POAhP.name="POAhP";
@@ -1068,34 +1102,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_poahp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_poahp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	POAhP.groups[i] = group_tmp_poahp[i];
+    POAhP.groups[i] = group_tmp_poahp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAhP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species SOAlP;
   SOAlP.name="SOAlP";
@@ -1122,34 +1158,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_soalp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_soalp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	SOAlP.groups[i] = group_tmp_soalp[i];
+    SOAlP.groups[i] = group_tmp_soalp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species SOAmP;
   SOAmP.name="SOAmP";
@@ -1176,34 +1214,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_soamp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_soamp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	SOAmP.groups[i] = group_tmp_soamp[i];
+    SOAmP.groups[i] = group_tmp_soamp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species SOAhP;
   SOAhP.name="SOAhP";
@@ -1230,34 +1270,36 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients 
   
   double group_tmp_soahp [] = {0.0,0.0,0.0,0.0, // group C
-							   0.0,0.0,0.0,0.0, //group C[OH]
-							   0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							   0.0,0.0,0.0,0.0,0.0, //group C=C
-							   0.0,0.0, //group aromatic carbon (AC)
-							   0.0,0.0,0.0, // group //AC-C
-							   0.0,  //group OH
-							   0.0, //group H2O
-							   0.0, //group ACOH
-							   0.0,0.0, //group ketone
-							   0.0,   //group aldehyde  
-							   0.0,0.0, //group ester
-							   0.0,0.0,0.0, //group ether  
-							   0.0,  //group acid
-							   0.0,   //group ACNO2
-							   0.0,0.0,0.0, //group NO3
-							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether  
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_soahp)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	SOAhP.groups[i] = group_tmp_soahp[i];
+    SOAhP.groups[i] = group_tmp_soahp[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species Monomer;
   Monomer.name="Monomer";
@@ -1287,35 +1329,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_Monomer [] = {0.0,0.0,0.0,0.0, // group C
-  							   0.0,0.0,0.0,0.0, //group C[OH]
-  							   0.0,0.0,0.0,0.0, //group Calcohol
-  							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-  							   0.0,0.0,0.0,0.0,0.0, //group C=C
-  							   3.0,1.0, //group aromatic carbon (AC)
-  							   1.0,0.0,0.0, // group //AC-C
-  							   0.0,  //group OH
-  							   0.0, //group H2O
-  							   0.0, //group ACOH
-  							   0.0,0.0, //group ketone
-  							   0.0,   //group aldehyde  
-  							   0.0,0.0, //group ester
-  							   0.0,0.0,0.0, //group ether 
-  							   1.0,  //group acid
-  							   1.0,   //group ACNO2
-  							   0.0,0.0,0.0, //group NO3
-  							   0.0,0.0,0.0}; //group CO-OH
+				 0.0,0.0,0.0,0.0, //group C[OH]
+				 0.0,0.0,0.0,0.0, //group Calcohol
+				 0.0,0.0,0.0,0.0, //group Calcohol-tail
+				 0.0,0.0,0.0,0.0,0.0, //group C=C
+				 3.0,1.0, //group aromatic carbon (AC)
+				 1.0,0.0,0.0, // group //AC-C
+				 0.0,  //group OH
+				 0.0, //group H2O
+				 0.0, //group ACOH
+				 0.0,0.0, //group ketone
+				 0.0,   //group aldehyde  
+				 0.0,0.0, //group ester
+				 0.0,0.0,0.0, //group ether 
+				 1.0,  //group acid
+				 1.0,   //group ACNO2
+				 0.0,0.0,0.0, //group NO3
+				 0.0,0.0,0.0, //group CO-OH
+				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				 0.0};  //group PAN
 
   size = sizeof(group_tmp_Monomer)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-  	Monomer.groups[i] = group_tmp_Monomer[i];
+    Monomer.groups[i] = group_tmp_Monomer[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Monomer, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species Dimer;
   Dimer.name="Dimer";
@@ -1345,35 +1389,37 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //for the computation of activity coefficients
   //
   double group_tmp_dimer [] = {0.0,0.0,0.0,0.0, // group C
-  							   0.0,0.0,0.0,0.0, //group C[OH]
-  							   0.0,0.0,0.0,0.0, //group Calcohol
-  							   0.0,0.0,0.0,0.0, //group Calcohol-tail
-  							   0.0,0.0,0.0,0.0,0.0, //group C=C
-  							   3.0,1.0, //group aromatic carbon (AC)
-  							   1.0,0.0,0.0, // group //AC-C
-  							   0.0,  //group OH
-  							   0.0, //group H2O
-  							   0.0, //group ACOH
-  							   0.0,0.0, //group ketone
-  							   0.0,   //group aldehyde  
-  							   0.0,0.0, //group ester
-  							   0.0,0.0,0.0, //group ether 
-  							   1.0,  //group acid
-  							   1.0,   //group ACNO2
-  							   0.0,0.0,0.0, //group NO3
-  							   0.0,0.0,0.0}; //group CO-OH
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       3.0,1.0, //group aromatic carbon (AC)
+			       1.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       1.0,  //group acid
+			       1.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_dimer)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
 	
   for(int i = 0; i < size; ++i)
-  	Dimer.groups[i] = group_tmp_dimer[i];
+    Dimer.groups[i] = group_tmp_dimer[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Dimer, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species BiA3D;
   BiA3D.name="BiA3D";
@@ -1421,21 +1467,21 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                                3.0,  //group acid
                                0.0,   //group ACNO2
                                0.0,0.0,0.0, //group NO3
-                               0.0,0.0,0.0}; //group CO-OH
-  
-
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN  
 
   size = sizeof(group_tmp_bia3d)/sizeof(double);
-  assert(size = 45);
+  assert(size = 55);
 	
   for(int i = 0; i < size; ++i)
-	BiA3D.groups[i] = group_tmp_bia3d[i];
+    BiA3D.groups[i] = group_tmp_bia3d[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species ACIDMAL;
   ACIDMAL.name="ACIDMAL";
@@ -1485,10 +1531,12 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                                  1.0,  //group acid
                                  0.0,   //group ACNO2
                                  0.0,0.0,0.0, //group NO3
-                                 0.0,0.0,0.0}; //group CO-OH
+                                 0.0,0.0,0.0, //group CO-OH
+				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				 0.0};  //group PAN
 
   size = sizeof(group_tmp_acidmal)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
     ACIDMAL.groups[i] = group_tmp_acidmal[i];
 
@@ -1496,7 +1544,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species DHMB;
   DHMB.name="DHMB";
@@ -1543,10 +1591,12 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                               0.0,  //group acid
                               0.0,   //group ACNO2
                               0.0,0.0,0.0, //group NO3
-                              0.0,0.0,0.0}; //group CO-OH
+                              0.0,0.0,0.0, //group CO-OH
+			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			      0.0};  //group PAN
 
   size = sizeof(group_tmp_dhmb)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
     DHMB.groups[i] = group_tmp_dhmb[i];
 
@@ -1554,7 +1604,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DHMB, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species PAHlN;
   PAHlN.name="PAHlN";
@@ -1603,18 +1653,20 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                                2.0,  //group acid
                                0.0,   //group ACNO2
                                0.0,0.0,0.0, //group NO3
-                               0.0,0.0,0.0}; //group CO-OH
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_pahln)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	PAHlN.groups[i] = group_tmp_pahln[i];
+    PAHlN.groups[i] = group_tmp_pahln[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   species PAHhN;
   PAHhN.name="PAHhN";
@@ -1663,18 +1715,20 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                                2.0,  //group acid
                                0.0,   //group ACNO2
                                0.0,0.0,0.0, //group NO3
-                               0.0,0.0,0.0}; //group CO-OH
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0};  //group PAN
 
   size = sizeof(group_tmp_pahhn)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	PAHhN.groups[i] = group_tmp_pahhn[i];
+    PAHhN.groups[i] = group_tmp_pahhn[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species PSYR;
   PSYR.name="PSYR";
@@ -1721,10 +1775,12 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                               0.0,  //group acid
                               0.0,   //group ACNO2
                               0.0,0.0,0.0, //group NO3
-                              0.0,0.0,0.0}; //group CO-OH
+                              0.0,0.0,0.0, //group CO-OH
+			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			      0.0};  //group PAN
 
   size = sizeof(group_tmp_psyr)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
     PSYR.groups[i] = group_tmp_psyr[i];
 
@@ -1732,7 +1788,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PSYR, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   species GHDPerox;
   GHDPerox.name="GHDPerox";
@@ -1779,18 +1835,20 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
                                   0.0,  //group acid
                                   0.0,   //group ACNO2
                                   0.0,0.0,0.0, //group NO3
-                                  0.0,1.0,0.0}; //group CO-OH
+                                  0.0,1.0,0.0, //group CO-OH
+				  0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				  0.0};  //group PAN
 
   size = sizeof(group_tmp_ghdperox)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   for(int i = 0; i < size; ++i)
-	GHDPerox.groups[i] = group_tmp_ghdperox[i];
+    GHDPerox.groups[i] = group_tmp_ghdperox[i];
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
   
   
   species H2O;
@@ -1815,26 +1873,28 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   double group_tmp_h2o [] = {0.0,0.0,0.0,0.0, // group C
-							 0.0,0.0,0.0,0.0, //group C[OH]
-							 0.0,0.0,0.0,0.0, //group Calcohol
-							   0.0,0.0,0.0,0.0, //group Calcohol-tail  
-							 0.0,0.0,0.0,0.0,0.0, //group C=C
-							 0.0,0.0, //group aromatic carbon (AC)
-							 0.0,0.0,0.0, // group //AC-C
-							 0.0,  //group OH
-							 1.0, //group H2O
-							 0.0, //group ACOH
-							 0.0,0.0, //group ketone
-							 0.0,   //group aldehyde  
-							 0.0,0.0, //group ester
-							 0.0,0.0,0.0, //group ether 
-							 0.0,  //group acid
-							 0.0,   //group ACNO2
-							 0.0,0.0,0.0, //group NO3
-							 0.0,0.0,0.0}; //group CO-OH
+			     0.0,0.0,0.0,0.0, //group C[OH]
+			     0.0,0.0,0.0,0.0, //group Calcohol
+			     0.0,0.0,0.0,0.0, //group Calcohol-tail  
+			     0.0,0.0,0.0,0.0,0.0, //group C=C
+			     0.0,0.0, //group aromatic carbon (AC)
+			     0.0,0.0,0.0, // group //AC-C
+			     0.0,  //group OH
+			     1.0, //group H2O
+			     0.0, //group ACOH
+			     0.0,0.0, //group ketone
+			     0.0,   //group aldehyde  
+			     0.0,0.0, //group ester
+			     0.0,0.0,0.0, //group ether 
+			     0.0,  //group acid
+			     0.0,   //group ACNO2
+			     0.0,0.0,0.0, //group NO3
+			     0.0,0.0,0.0, //group CO-OH
+			     0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			     0.0};  //group PAN
 
   size = sizeof(group_tmp_h2o)/sizeof(double);
-  assert(size == 45);
+  assert(size == 55);
   
   for(int i = 0; i < size; ++i)
     H2O.groups[i] = group_tmp_h2o[i];
@@ -1843,7 +1903,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, H2O, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,nlayer);
+		  accomodation_coefficient,nlayer);
 
   
   species SO4;
