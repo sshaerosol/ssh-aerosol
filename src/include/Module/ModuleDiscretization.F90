@@ -161,6 +161,8 @@ contains
     chp_nsize = 0.d0
     if(.not.allocated(liquid_nsize)) allocate(liquid_nsize(12,n_size))   ! SOAP !
     liquid_nsize = 0.d0
+    if(.not.allocated(surface_equilibrium_conc_nsize)) allocate(surface_equilibrium_conc_nsize(N_size,N_aerosol)) 
+    surface_equilibrium_conc_nsize = 0.d0
 
     if(.not.allocated(concentration_inti)) allocate(concentration_inti(N_size,N_inside_aer)) ! ModuleCondensation !
     concentration_inti=0.d0
@@ -215,10 +217,6 @@ contains
     bin_mass = 0.d0
     if(.not.allocated(bin_number)) allocate(bin_number(N_sizebin)) ! ModulePhysicalbalance
     bin_number = 0.d0
-
-    ! ModuleBulkequibrium ModuleAdaptstep ModuleCondensation ModuleCongregation ModuleThermodynamics
-    if(.not.allocated(ce_kernal_coef)) allocate(ce_kernal_coef(N_size,N_aerosol)) 
-    ce_kernal_coef = 0.d0
 
     if(.not.allocated(frac_grid)) allocate(frac_grid(N_size,N_groups)) ! ModulePhysicalbalance ModuleRedistribution
     frac_grid = 0.d0

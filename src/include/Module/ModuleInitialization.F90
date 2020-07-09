@@ -259,6 +259,7 @@ module aInitialization
   double precision, dimension(:), allocatable, save :: lwc_nsize, &
        ionic_nsize, proton_nsize, chp_nsize
   double precision, dimension(:,:), allocatable, save :: liquid_nsize
+  double precision, dimension(:,:), allocatable, save :: surface_equilibrium_conc_nsize 
 
   !! part 8: divers parameters (species, I/O)
   character (len=800), save :: Coefficient_file ! repartition coefficient file
@@ -2412,6 +2413,7 @@ contains
     if (allocated(proton_nsize))  deallocate(proton_nsize, stat=ierr)
     if (allocated(chp_nsize))  deallocate(chp_nsize, stat=ierr)
     if (allocated(liquid_nsize))  deallocate(liquid_nsize, stat=ierr)
+    if (allocated(surface_equilibrium_conc_nsize))  deallocate(surface_equilibrium_conc_nsize, stat=ierr)
     if (allocated(concentration_inti))  deallocate(concentration_inti, stat=ierr)
 
     if (allocated(total_mass))  deallocate(total_mass, stat=ierr)

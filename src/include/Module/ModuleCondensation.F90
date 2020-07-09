@@ -92,7 +92,7 @@ contains
   end subroutine ssh_SULFDYN
 
   subroutine ssh_KERCOND(c_mass,c_number,qn,q,c_gas,Wet_diam,wet_mass,Temp,ce_kernel,ce_kernal_coef_i,jj,&
-                     lwc,ionic,proton,liquid,qtot)
+                     lwc,ionic,proton,liquid,qtot,iker)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -116,7 +116,7 @@ contains
 !
 !------------------------------------------------------------------------
     implicit none
-    integer:: jesp,init,jj,s
+    integer:: jesp,init,jj,s,iker
     double precision:: c_mass(N_size,N_aerosol_layers)
     double precision:: c_number(N_size)
     double precision:: qn,qext(N_aerosol),init_bulk_gas(N_aerosol)
@@ -152,8 +152,18 @@ contains
     if(rhop.gt.0.d0) then
 
 !calculate the equilibrium between aerosols and gas-phase
-      call ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
-      concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
+      if(iker.EQ.0) then
+        call ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
+        concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
+        Do jesp=1,N_aerosol
+          surface_equilibrium_conc_nsize(jj,jesp) = surface_equilibrium_conc(jesp)
+        Enddo 
+      else
+        qext(EH2O) = concentration_mass(jj,EH2O_layers)
+        Do jesp=1,N_aerosol
+          surface_equilibrium_conc(jesp) = surface_equilibrium_conc_nsize(jj,jesp) 
+        Enddo 
+      endif
 !     Compute wet_diam and wet_mass 
       if (with_fixed_density == 0) then
         call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
@@ -226,16 +236,17 @@ contains
 	endif
       enddo
 
-      init=0
-      do s=1,nesp_isorropia
+      if(iker.EQ.0) then
+        init=0
+        do s=1,nesp_isorropia
 	  jesp=isorropia_species(s)
 	  if (qext(jesp).gt.TINYM) then
 	    init=1
 	  endif
-      enddo
+        enddo
 
-      if (qext(EH2O).eq.0.D0.AND.init.eq.1) then ! solid
-	call ssh_DRYIN( Temp,&   ! local temperature (Kelvin)
+        if (qext(EH2O).eq.0.D0.AND.init.eq.1) then ! solid
+	  call ssh_DRYIN( Temp,&   ! local temperature (Kelvin)
 	    qinti,&         ! int sld inorg conc (µg.m-3)
 	    N_aerosol,&         ! size of vectors following below
 	    init_bulk_gas,&         ! bulk gas conc (µg.m-3)
@@ -244,9 +255,9 @@ contains
 	    surface_equilibrium_conc,&         ! equi gas conc (µg.m-3)
 	    ce_kernel )       ! modified c/e kernel
 				! liq or mix : H+ limitation flux
-      else
-	if (qn.gt.0.d0) qih=qinti(IH)/qn    ! µg ,qn is number (qih is H+ per particl)
-	call ssh_HPLFLIM( ALFHP,& ! percentage of H+ allowed to c/e(0.1)
+        else
+  	  if (qn.gt.0.d0) qih=qinti(IH)/qn    ! µg ,qn is number (qih is H+ per particl)
+	   call ssh_HPLFLIM( ALFHP,& ! percentage of H+ allowed to c/e(0.1)
 	    qih,&            ! int H+ conc (µg)
 	    N_aerosol,&          ! size of vectors following below
 	    init_bulk_gas,&          ! bulk gas conc (µg.m-3)
@@ -254,17 +265,21 @@ contains
 	    Kelvin_effect,&           ! kelvin coef (adim)
 	    surface_equilibrium_conc,&          ! equi gas conc (µg.m-3)
 	    ce_kernel )        ! modified c/e kernel
+        endif
+        do jesp=1,N_inside_aer
+  	  concentration_inti(JJ,jesp)=qinti(jesp)
+        enddo
+        Do jesp=1,N_aerosol
+          surface_equilibrium_conc_nsize(jj,jesp) = surface_equilibrium_conc(jesp)
+        Enddo 
       endif
-      do jesp=1,N_inside_aer
-	concentration_inti(JJ,jesp)=qinti(jesp)
-      enddo
-   else
-!!     concentration_number(jj)=0.d0
-     concentration_mass(jj,EH2O_layers)=0.d0
-      do jesp=1,N_inside_aer
-	concentration_inti(JJ,jesp)=0.d0
-      enddo     
-   endif
+    else
+!!       concentration_number(jj)=0.d0
+        concentration_mass(jj,EH2O_layers)=0.d0
+        do jesp=1,N_inside_aer
+  	  concentration_inti(JJ,jesp)=0.d0
+        enddo     
+    endif
    
   end subroutine ssh_KERCOND
    

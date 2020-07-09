@@ -17,7 +17,7 @@ Module hCongregation
   implicit none
 
 contains
-  subroutine ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+  subroutine ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,iker)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -48,7 +48,7 @@ contains
     double precision ::ce_kernal_coef(N_size,N_aerosol)
     double precision:: wet_diam(N_size),wet_mass(N_size)
     double precision:: wet_vol(N_size),cell_diam(N_size)
-    integer :: j
+    integer :: j,iker
 
     dqdt = 0.d0
     dndt = 0.d0
@@ -75,7 +75,7 @@ contains
     endif
 
     if (tag_cond.eq.1) then
-       call ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
+       call ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,iker)
     endif
 
     if (tag_coag.eq.1) then
@@ -84,7 +84,7 @@ contains
 
   end subroutine ssh_fgde
 
-  subroutine ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass)
+  subroutine ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,iker)
 
     !------------------------------------------------------------------------
     !
@@ -108,7 +108,7 @@ contains
     !
     !------------------------------------------------------------------------
     implicit none
-    integer::j,jesp,s
+    integer:: iker,j,jesp,s
     double precision:: dqdt(N_size,N_aerosol_layers),qH2O(N_size)
     double precision:: dndt(N_size)
     double precision :: ce_kernel(N_aerosol)
@@ -141,17 +141,20 @@ contains
         !   q(s) = 0.0
         !   ce_kernal_coef_i(s) = 0.0
         ! enddo
-         call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature,ce_kernel,ce_kernal_coef_i,j, &
-               lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot)
+         call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature, &
+                    ce_kernel,ce_kernal_coef_i,j, &
+                    lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot,iker)
          qH2O(j) = q(EH2O)
-         do s=1,12
-            liquid_Nsize(s,j) = liquid(s)
-         enddo
+         if(iker.EQ.0) then
+            do s=1,12
+               liquid_Nsize(s,j) = liquid(s)
+            enddo
+         endif
          !calculate the C/E kernal
          do s=1, nesp_isorropia
-	    jesp = isorropia_species(s)
+	   jesp = isorropia_species(s)
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-            IF (jesp.NE.ECl) THEN
+           IF (jesp.NE.ECl) THEN
 #endif
                ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
                if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
@@ -159,7 +162,7 @@ contains
                endif   
 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-            ENDIF
+           ENDIF
 #endif
          enddo
        endif

@@ -392,7 +392,7 @@ contains
     tag_coag = with_coag
     tag_cond = with_cond
     tag_nucl = with_nucl
-    call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
 
     do j=1,N_size
        tmp=c_number(j)*dndt1(j)
@@ -473,7 +473,7 @@ contains
        tag_cond=0
        tag_nucl=0
 
-       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
 
        do j=1,N_size
           tmp=c_number(j)*dndt1(j)
@@ -499,7 +499,7 @@ contains
        tag_coag=0
        tag_cond=with_cond
        tag_nucl=with_nucl
-       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
        do j=1,N_size  !Loop from 1 in case of nucleation - if bins at equilibrium then dqdt1 = 0 from fgde
 	  if (DABS(dndt1(j)).gt.0.d0.and.c_number(j).gt.TINYN) then
              tscale=c_number(j)/DABS(dndt1(j))
@@ -660,7 +660,7 @@ contains
 
     !for condensation or coagulation
 
-    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,0)
     !     First step
     do j=1,N_size
        if(n2(j)+dn1dt(j)*sub_timestep_splitting.GE.TINYN) then
@@ -682,7 +682,10 @@ contains
 
     call ssh_mass_conservation(q1,n1,c_gas_t, total_mass)
     !     Second step
-    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,0)
+    ! KS: call fgde with the last argument = 1 if surface equilibrium concentrations
+    ! are not recomputed save CPU time 
+    !call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,1)
 
     dtetr=sub_timestep_splitting*5.0D-01
     current_sub_time = current_sub_time + sub_timestep_splitting
@@ -744,7 +747,7 @@ contains
     double precision :: ce_kernal_coef(N_size,N_aerosol)
 
     !for condensation
-    call ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,0)
 
     do j=1,N_size
        if(c_number(j)+dndt(j)*sub_timestep_splitting.GE.0.d0) then
@@ -855,7 +858,7 @@ contains
     parameter ( Gamma= 1.7071D0)
 
     !for condensation
-    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O)!compute first order derivative
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,0)!compute first order derivative
 
     !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
@@ -929,7 +932,7 @@ contains
 
     current_sub_time = current_sub_time + sub_timestep_splitting
 
-    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,1)
 
     do j = 1 , N_size
        do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)
