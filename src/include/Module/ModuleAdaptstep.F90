@@ -38,7 +38,7 @@ contains
     implicit none
     Integer jesp,j,i,j1,j2
     Integer solver
-    Double precision emw_tmp,tmp
+    Double precision emw_tmp
     doUBLE PRECISION start_time,end_time
     double precision :: timestep_coag,timestep_cond    
 
@@ -119,6 +119,13 @@ contains
     !!     **************************************************
 
     nb_iter = 0
+
+    ! set cut-off diameter if cond/evap is considered and tag_ciut >= 1
+    if (with_cond.eq.1.and.tag_icut.ge.1) then
+	set_icut = 0 !set tag to recompute icut each time when enter aerodyn()
+	icut = 0     !initialise icut to aero
+    endif
+
     do while (initial_time_splitting.lt.delta_t)
        if(splitting == 0) then ! Initial time step when processes are splitted
           if(nb_iter == 0) then
@@ -197,7 +204,7 @@ contains
     !do C/E equilibrium after each emission
     if (with_cond.gt.0) then
 
-       if(ICUT.ge.1) then
+       if(ICUT.ge.1) then ! use bulk equilibrium method for inorganics in section <= ICUT
 
           call ssh_bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
@@ -292,7 +299,16 @@ contains
     integer:: solver,splitting
     double precision:: time_t,time_step_sulf
     double precision:: final_sub_time,current_sub_time,sub_timestep_splitting
-    integer :: i,j
+
+    ! update ICUT
+    integer:: j,s,jesp,icut_tmp
+    double precision:: tau(N_size),cond_time(N_size,3),tmp,tmp1
+
+    ! set icut=0 in case of processing coagulation under split numerical scheme
+    if (splitting.eq.0.and.tag_coag.eq.1.and.tag_cond.eq.0) then
+	icut_tmp = icut
+	icut = 0 !set icut to zero when solve coagulation splitted
+    endif
 
     time_t=final_sub_time-current_sub_time
     !    ******Dynamic time loop
@@ -316,7 +332,7 @@ contains
           ! etr dynamic solver
           call ssh_Etr_solver(concentration_mass_tmp,concentration_mass,&
                concentration_number_tmp,concentration_number,concentration_gas,dqdt,&
-               current_sub_time,sub_timestep_splitting)
+               current_sub_time,sub_timestep_splitting,cond_time)
        elseif (solver.eq.2) then
           ! ros2 dynamic solver used for condensation/evaporation of inorganics
           call ssh_Ros2_solver(concentration_mass_tmp,concentration_mass,&
@@ -329,9 +345,49 @@ contains
                   concentration_gas, total_mass)
 
        if (current_sub_time.le.final_sub_time) then
+
+	  ! compute criteria for icut computation if need
+	  if ((tag_cond .eq. 1).and.(set_icut.eq.0)) then
+
+	     ! c/e characteristic timescale criteria
+	     if (tag_icut.eq.1) then
+		!init tau to a huge value
+	        tau = 1d99
+		! compute tau
+		do j=1,N_size
+		   do s=1,3 ! only for inorganics ENH4, ENO3, ECL
+                      if(cond_time(j,s).gt.TINYM) tau(j) = dmin1(tau(j),cond_time(j,s)) !sectional c/e characteriatic timescales
+		   enddo
+		enddo
+		! set sections with no timescale back to 0
+	        do j=1,N_size
+		  if (tau(j) .eq. 1d99) tau(j)=0.d0
+	        enddo
+
+	      !weighted QSSA criteria
+	      elseif (tag_icut.eq.3) then
+		!init tau
+	        tau = 0.d0
+		do j=1,N_size
+                   tmp = 0.d0 !weighted QSSA
+                   tmp1 =0.d0 !total mass
+	           do s=1,3
+		  	jesp=cond_time_index(s)
+                        if(cond_time(j,s).gt.TINYM.and.concentration_mass(j,jesp).GT.TINYM) then
+			   tmp = tmp + cond_time(j,s)*concentration_mass(j,jesp)
+			   tmp1  = tmp1 + concentration_mass(j,jesp)
+                        endif
+		   enddo
+                  if (tmp1.GT.TINYM) tau(j) = tmp/tmp1
+		enddo
+	     endif
+
+	  endif
+
+
              call ssh_adaptime(concentration_mass_tmp,concentration_mass,concentration_number_tmp,&
                   concentration_number,sub_timestep_splitting,time_step_sulf,current_sub_time,&
-                  final_sub_time)
+                  final_sub_time,tau)
              if((tag_nucl.EQ.1).OR.((tag_cond.EQ.1).AND.(tag_coag.EQ.1))) then 
              ! Need to redistribute onto fixed grid if nucleation is solved with 
              ! condensation/evaporation or if processes are not splitted
@@ -344,6 +400,9 @@ contains
              endif     
        endif
     end do
+
+    ! restore icut in case of processing coagulation under split numerical scheme
+    if (tag_coag.eq.1.and.tag_cond.eq.0.and.splitting.eq.0) icut = icut_tmp
 
   end subroutine ssh_processaero
 
@@ -378,7 +437,7 @@ contains
     double precision:: dqdt1(N_size,N_aerosol_layers)
     double precision:: c_number(N_size),qH2O(N_size)
     double precision:: dndt1(N_size)
-    double precision:: c_gas(N_aerosol)
+    double precision:: c_gas(N_aerosol),cond_time(N_size,3)
     double precision:: sub_time_splitting
     double precision:: time_splitting,initial_time_splitting
     double precision:: tmp,tscale
@@ -392,7 +451,7 @@ contains
     tag_coag = with_coag
     tag_cond = with_cond
     tag_nucl = with_nucl
-    call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,cond_time,0)
 
     do j=1,N_size
        tmp=c_number(j)*dndt1(j)
@@ -456,7 +515,7 @@ contains
     double precision:: c_number(N_size),qH2O(N_size)
     double precision:: dndt1(N_size)
     double precision:: c_gas(N_aerosol)
-    double precision:: time_coag
+    double precision:: time_coag,cond_time(N_size,3)
     double precision:: time_cond
     double precision:: time_splitting,initial_time_splitting
     double precision:: tmp,tscale
@@ -473,7 +532,7 @@ contains
        tag_cond=0
        tag_nucl=0
 
-       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,cond_time,0)
 
        do j=1,N_size
           tmp=c_number(j)*dndt1(j)
@@ -499,7 +558,7 @@ contains
        tag_coag=0
        tag_cond=with_cond
        tag_nucl=with_nucl
-       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,0)
+       call ssh_fgde(c_mass,c_number,c_gas,dqdt1,dndt1,ce_kernal_coef,qH2O,cond_time,0)
        do j=1,N_size  !Loop from 1 in case of nucleation - if bins at equilibrium then dqdt1 = 0 from fgde
 	  if (DABS(dndt1(j)).gt.0.d0.and.c_number(j).gt.TINYN) then
              tscale=c_number(j)/DABS(dndt1(j))
@@ -548,7 +607,7 @@ contains
   end subroutine ssh_initstep
 
   subroutine ssh_adaptime(q1,q2,n1,n2,T_dt,time_step_sulf,current_sub_time,&
-       final_sub_time)
+       final_sub_time,tau)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -579,16 +638,116 @@ contains
     double precision :: tmp,n2err,R
     double precision :: T_dt,time_step_sulf
     double precision ::  current_sub_time,final_sub_time
+
+    ! update ICUT
+    integer k,f,ind,l,icut_tmp
+    double precision :: tau(N_size),criteria
+    double precision :: n2errg,c_gas1(N_aerosol),c_gas2(N_aerosol)
+
+    ! ICUT computation 
+    if (set_icut.eq.0.and.tag_cond.eq.1) then
+	!init icut
+	icut = 0
+	!init criteria
+	criteria = Cut_dim
+
+	! characteristic timescale or weighted QSSA criteria
+	if (tag_icut.eq.1.or.tag_icut.eq.3) then
+		do k=1, N_size
+			if (tau(k).lt.criteria.and.(k-1).eq.icut) icut = k
+		enddo
+
+	! ETR solver efficientcy criteria
+	elseif (tag_icut .eq. 2) then 
+	      tau = 0d0 !initialization
+	      ! compute the error from large aerosol section to small aerosol section
+  	      do j=1,N_size
+	   	 ind = N_size - j + 1 ! section index
+		 tmp = 0.0
+		 do s= 1,N_aerosol_layers
+			if(s.NE.EH2O_layers) then! Do not consider water for time step
+			    if(q2(ind,s).ne.q1(ind,s).and.q2(ind,s).gt.TINYM) then
+    			        tmp = tmp + ((q2(ind,s)-q1(ind,s))/q2(ind,s))**2
+			    endif
+			endif
+		 enddo
+		 ! sum errors
+		 if (ind .ne. N_size) then
+			tau(ind) = tau(ind+1)+tmp
+		 else
+			tau(ind) = tmp
+		 endif
+	      enddo
+
+	      ! in case no mass in the last few bins
+	      ind = N_size
+	      do j = 1, N_size
+		 k = N_size - j + 1
+		 if (tau(k).eq.0.d0.and.ind.eq.k) ind = k-1
+	      enddo
+
+	      !compute ICUT
+	      do k=1,N_size
+		 tmp = (tau(k)/tau(ind))**0.25 !ETR criteria
+		 !tmp = T_dt*DSQRT(EPSER)/(tau(k)**0.25) This is the time scale
+		 if (tmp.gt.criteria.and.icut.eq.(k-1)) icut = k
+	      enddo
+
+	endif
+
+	!error checking to see if the new icut can be accepted
+	if (icut.gt.0) then
+
+		! get gas-phase conc.
+		call ssh_mass_conservation(q1,n1,c_gas1, total_mass)
+		call ssh_mass_conservation(q2,n2,c_gas2, total_mass)
+		! error for gas-phase NH3, HCL and HNO3
+		n2errg=0.d0
+		do jesp=1,3
+		   s=cond_time_index(jesp)
+		   if(c_gas2(s).gt.TINYM) then
+		      	tmp=(c_gas2(s)-c_gas1(s))/c_gas2(s)
+		      	n2errg=n2errg+tmp*tmp
+		   endif
+		end do
+
+		! error for particle ENH4, ENO3 and ECL in bin<=ICUT
+		n2err = 0.d0
+		do j=1,N_size
+		   if(concentration_index(j, 1) <= ICUT) then
+			do s=1,3
+		   		jesp=cond_time_index(s)
+				if(q2(j,jesp).gt.TINYM) then
+		                	tmp=(q2(j,jesp)-q1(j,jesp))/q2(j,jesp)
+		                	n2err=n2err+tmp*tmp
+				endif
+		        enddo
+		   endif
+		 enddo
+
+		! Do not accept icut if it leads to lower time step, that means larger variations, than those of the gas phase
+		if(n2err.ge.n2errg) then
+			icut = 0
+		else
+			set_icut=1 !set tag so in this time step do not compute icut again
+		endif
+	endif
+	! set_icut=1 !do not recompute icut even icut=0
+    endif
+
     !     ******zero init
     n2err=0.d0
     !     ******local error estimation
     do j=1,N_size
+     !if(concentration_index(j, 1) > ICUT) then
        if(n2(j).gt.TINYN) then
           tmp=(n2(j)-n1(j))/(n2(j)+TINYN)
           n2err=n2err+tmp*tmp
        endif
+     !endif
     end do
     do j=1,N_size
+     !if(concentration_index(j, 1) > ICUT) then
        do jesp= 1,N_aerosol_layers ! Do not consider water for time step
           if(jesp.NE.EH2O_layers) then
             if(q2(j,jesp).gt.TINYM) then
@@ -597,6 +756,7 @@ contains
             endif
           endif
        enddo
+     !endif
     enddo
     n2err=DSQRT(n2err)
 
@@ -615,7 +775,7 @@ contains
 
   end subroutine ssh_adaptime
 
-  subroutine ssh_Etr_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
+  subroutine ssh_Etr_solver(q1,q2,n1,n2,c_gas,dqdt,current_sub_time,sub_timestep_splitting,cond_time)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -650,7 +810,7 @@ contains
     double precision:: dn1dt(N_size)
     double precision:: dn2dt(N_size),qH2O(N_size)
     double precision:: c_gas(N_aerosol)
-    double precision:: c_gas_t(N_aerosol)
+    double precision:: c_gas_t(N_aerosol),cond_time(N_size,3)
     double precision:: t_mass(N_aerosol)
     double precision:: dtetr,tmp,current_sub_time,sub_timestep_splitting
     double precision:: n1(N_size)!1th order number concentration
@@ -660,7 +820,7 @@ contains
 
     !for condensation or coagulation
 
-    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,0)
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,cond_time,0)
     !     First step
     do j=1,N_size
        if(n2(j)+dn1dt(j)*sub_timestep_splitting.GE.TINYN) then
@@ -682,10 +842,10 @@ contains
 
     call ssh_mass_conservation(q1,n1,c_gas_t, total_mass)
     !     Second step
-    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,0)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,cond_time,0)
     ! KS: call fgde with the last argument = 1 if surface equilibrium concentrations
     ! are not recomputed save CPU time 
-    !call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,1)
+    !call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,cond_time,1)
 
     dtetr=sub_timestep_splitting*5.0D-01
     current_sub_time = current_sub_time + sub_timestep_splitting
@@ -739,7 +899,7 @@ contains
 
     integer::s,j,jesp
     double precision:: dqdt(N_size,N_aerosol_layers)
-    double precision:: dndt(N_size),qH2O(N_size)
+    double precision:: dndt(N_size),qH2O(N_size),cond_time(N_size,3)
     double precision:: c_number(N_size)!number concentration
     double precision:: c_mass(N_size,N_aerosol_layers)!micg/m^-3
     double precision:: c_gas(N_aerosol)!micg/m^-3
@@ -747,7 +907,7 @@ contains
     double precision :: ce_kernal_coef(N_size,N_aerosol)
 
     !for condensation
-    call ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,0)
+    call ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,cond_time,0)
 
     do j=1,N_size
        if(c_number(j)+dndt(j)*sub_timestep_splitting.GE.0.d0) then
@@ -848,7 +1008,7 @@ contains
     double precision:: Jdn2(N_size),qH2O(N_size)
     double precision:: c_gas(N_aerosol)
     double precision:: c_gas_t(N_aerosol)
-    double precision:: tmp
+    double precision:: tmp,cond_time(N_size,3)
     double precision:: q1(N_size,N_aerosol_layers)!1th order mass concentration
     double precision:: q2(N_size,N_aerosol_layers)!2d order mass concentration
     double precision:: n1(N_size)!1th order number concentration
@@ -858,7 +1018,7 @@ contains
     parameter ( Gamma= 1.7071D0)
 
     !for condensation
-    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,0)!compute first order derivative
+    call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,cond_time,0)!compute first order derivative
 
     !     Every dynamical variable protected against vanishing
     do j = 1 , N_size
@@ -932,7 +1092,7 @@ contains
 
     current_sub_time = current_sub_time + sub_timestep_splitting
 
-    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,1)
+    call ssh_fgde(q1,n1,c_gas_t,dq2dt,dn2dt,ce_kernal_coef,qH2O,cond_time,1)
 
     do j = 1 , N_size
        do jesp= 1, N_aerosol_layers !! nesp_isorropia!(N_aerosol-1)

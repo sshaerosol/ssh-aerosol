@@ -63,20 +63,22 @@ contains
        k = concentration_index(j, 1) ! number for sizebin
        do s = 1, N_aerosol_layers
           jesp = List_species(s)   
-          qemis = emission_rate(j,s)
+	if (emission_rate(j,jesp) .gt. 0d0) then  
+          qemis = emission_rate(j,jesp) * emis_dt
+	  !print*,'emission_mass',j,jesp,qemis
           ! add conc. mass
-          concentration_mass(k,s)=concentration_mass(k,s)+qemis*emis_dt
-          total_mass(jesp) = total_mass(jesp) + qemis*emis_dt
+          concentration_mass(j,jesp)= concentration_mass(j,jesp) + qemis
+          total_mass(jesp) = total_mass(jesp) + qemis
 
           m_emis = m_emis + qemis ! total emission mass
-          subrho = subrho +  emission_rate(j,s) / mass_density(jesp)   ! emission density
-
+          subrho = subrho +  qemis / mass_density(jesp)   ! emission density
+	end if
        end do
 
        if(m_emis.gt.0.d0) then
           if (with_emis_num == 0 ) then
 
-             if(subrho.gt.0.d0) then
+             if(subrho.gt.0.d0 .and. with_fixed_density .ne. 1) then
                 rho_emis = m_emis / subrho
              else  
                 rho_emis = fixed_density

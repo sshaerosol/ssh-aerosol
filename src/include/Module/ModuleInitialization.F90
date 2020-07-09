@@ -77,12 +77,17 @@ module aInitialization
   integer, save :: with_cond   !Tag fCondensation
   integer, save :: with_nucl   !Tag nucleation
   Integer, save :: nucl_model  !ITERN !1= Ternary, 0= binary
-  integer, save :: ICUT        !ICUT
-  double precision, save :: Cut_dim  !cuting diameter between equi/dynamic inorganic
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: with_oligomerization!IOLIGO
   integer, save :: output_type
   integer, save :: splitting
+
+  ! cut-off diameter
+  integer, save :: ICUT      ! section index
+  Integer, save :: set_icut  ! 0 = need to update ICUT, 1 = keep ICUT unchanged after initialization
+  Integer, save :: tag_icut  ! 0 = fixed ICUT, icut is computed in the program using 1 = c/e timescale criteria, 2 = ETR criteria, 3 = QSSA criteria
+  integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
+  double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.   
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
@@ -395,7 +400,7 @@ contains
 
     namelist /physic_coagulation/ with_coag, i_compute_repart, i_write_repart, Coefficient_file, Nmc
 
-    namelist /physic_condensation/ with_cond, Cut_dim, ISOAPDYN, nlayer,&
+    namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, nlayer,&
          with_kelvin_effect, tequilibrium,&
          dorg, coupled_phases, activity_model, epser, epser_soap
 
@@ -992,6 +997,9 @@ contains
     coupled_phases = -999
     epser = -999.d0
     epser_soap = -999.d0
+    ICUT=0 !default in case no input of ICUT in namelist
+    tag_icut=0 !default in case no input of tag_icut in namelist
+    set_icut = 1 !default fix ICUT in the simulation
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
@@ -1037,17 +1045,42 @@ contains
        if (with_cond == 1)  then ! defalut
           if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
-          if (Cut_dim .le. diam_input(1)) then
-             if (ssh_standalone) write(*,*) 'inorganic compounds are at dynamic.'
-             if (ssh_logger) write(logfile,*) 'inorganic compounds are at dynamic.'
-          else if (Cut_dim .ge. diam_input(size(diam_input))) then
-             if (ssh_standalone) write(*,*) 'inorganic compounds are at equilibrium.'
-             if (ssh_logger) write(logfile,*) 'inorganic compounds are at equilibrium.'
-          else 
-             if (ssh_standalone) write(*,*) 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
-             if (ssh_logger) write(logfile,*) 'Cutting diameter for equilibrium for inorganic compounds :', Cut_dim
 
-          end if
+	  ! initialise parameters regarding ICUT
+	  if (tag_icut .ne. 0) then
+		set_icut = 0
+		if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
+             	if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
+		if (ssh_standalone) write(*,*) 'Criteria for the computation of cut-off diameter: '
+             	if (ssh_logger) write(logfile,*) 'Criteria for the computation of cut-off diameter: '
+		if (tag_icut .eq. 1) then ! c/e timescale criteria
+			if (ssh_standalone) write(*,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
+	             	if (ssh_logger) write(logfile,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
+		elseif (tag_icut .eq. 2) then ! solver efficientcy criteria
+			if (ssh_standalone) write(*,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
+	             	if (ssh_logger) write(logfile,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
+		elseif (tag_icut .eq. 3) then ! modified QSSA criteria
+			if (ssh_standalone) write(*,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
+	             	if (ssh_logger) write(logfile,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
+		else
+			print*,'tag_icut is not recognize.',tag_icut
+			stop
+		endif
+	  else ! fix ICUT, tag_icut = 0
+		set_icut = 1
+		if (Cut_dim .lt. diam_input(1)) then !dynamic
+	        	if (ssh_standalone) write(*,*) 'inorganics are at dynamic.'
+     			if (ssh_logger) write(logfile,*) 'inorganics are at dynamic.'
+		elseif (Cut_dim .ge. diam_input(size(diam_input))) then !equilibrium
+			if (ssh_standalone) write(*,*) 'inorganic compounds are at equilibrium.'
+     			if (ssh_logger) write(logfile,*) 'inorganic compounds are at equilibrium.'
+		else ! hybrid method with fixed cut-off diameter
+			if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
+             		if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
+			if (ssh_standalone) write(*,*) 'The cut-off diameter is fixed at ',Cut_dim
+             		if (ssh_logger) write(logfile,*) 'The cut-off diameter is fixed at ',Cut_dim
+		endif
+	  endif
 
           if (ISOAPDYN == 1) then
              if (ssh_standalone) write(*,*) 'Dynamic SOA computation are at dynamic.'

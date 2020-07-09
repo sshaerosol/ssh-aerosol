@@ -17,7 +17,7 @@ Module hCongregation
   implicit none
 
 contains
-  subroutine ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,iker)
+  subroutine ssh_fgde(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,cond_time,iker)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -37,6 +37,8 @@ contains
     !     dqdt: particle mass derivation(µg/m^3/s)
     !     dndt: particle number derivation(µg/m^3/s)
     !     qH2O: mass of water absorbed by inorganics
+    !     cond_time: the condensation/evaporation characteristic 
+    !			timescales or the QSSA values for inorganic species
     !
     !------------------------------------------------------------------------
     implicit none
@@ -44,7 +46,7 @@ contains
     double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::dqdt(N_size,N_aerosol_layers)
     double precision ::dndt(N_size)
-    double precision ::c_gas(N_aerosol)
+    double precision ::c_gas(N_aerosol),cond_time(N_size,3)
     double precision ::ce_kernal_coef(N_size,N_aerosol)
     double precision:: wet_diam(N_size),wet_mass(N_size)
     double precision:: wet_vol(N_size),cell_diam(N_size)
@@ -75,7 +77,7 @@ contains
     endif
 
     if (tag_cond.eq.1) then
-       call ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,iker)
+       call ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,cond_time,iker)
     endif
 
     if (tag_coag.eq.1) then
@@ -84,7 +86,7 @@ contains
 
   end subroutine ssh_fgde
 
-  subroutine ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,iker)
+  subroutine ssh_fgde_cond(c_mass,c_number,c_gas,dqdt,dndt,ce_kernal_coef,qH2O,wet_diam,wet_mass,cond_time,iker)
 
     !------------------------------------------------------------------------
     !
@@ -105,6 +107,8 @@ contains
     !     dqdt: particle mass derivation(µg/m^3/s)
     !     dndt: particle number derivation(µg/m^3/s)
     !     qH2O: mass of water absorbed by inorganics
+    !     cond_time: the condensation/evaporation characteristic 
+    !			timescales or the QSSA values for inorganic species
     !
     !------------------------------------------------------------------------
     implicit none
@@ -120,8 +124,11 @@ contains
     double precision:: c_mass(N_size,N_aerosol_layers)
     double precision:: c_number(N_size),wet_mass(N_size)
     double precision:: wet_diam(N_size),wet_vol(N_size),cell_diam(N_size)
-
+    double precision:: cond_time_char(3),cond_time(N_size,3)
     double precision:: liquid(12),qtot
+
+    !init cond_time for c/e timescale and QSSA
+    if (tag_icut.eq.1.or.tag_icut.eq.3) cond_time=0.d0
 
     do j =1, N_size
       if(concentration_index(j, 1) > ICUT) then! k : index of size bins
@@ -143,7 +150,15 @@ contains
         ! enddo
          call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature, &
                     ce_kernel,ce_kernal_coef_i,j, &
-                    lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot,iker)
+                    lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot,cond_time_char,iker)
+
+	! store condensation/evaporation characteristic timescales or modified QSSA
+	 if (tag_icut.eq.1 .or. tag_icut.eq.3) then
+		 do s=1,3
+		    cond_time(j,s) = cond_time_char(s)
+		 enddo
+	 endif
+
          qH2O(j) = q(EH2O)
          if(iker.EQ.0) then
             do s=1,12

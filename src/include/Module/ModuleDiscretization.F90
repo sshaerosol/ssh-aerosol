@@ -34,6 +34,11 @@ contains
     E1=EMD
     E2=EH2O-1
 
+    ! pointer for cond_time
+    cond_time_index(1)=ENH4
+    cond_time_index(2)=ENO3
+    cond_time_index(3)=ECL
+
     pH = 4.d5
     n_emis=0.d0
     m_emis=0.d0
@@ -71,25 +76,30 @@ contains
        diam_bound = diam_input
     end if
 
-    !calculate ICUT the corresponding cell index of the cuting diameter
-    if(Cut_dim.gt.diam_bound(1)) then
+    !calculate ICUT the corresponding cell index of the cutting diameter if tag_icut = 0
+   if (tag_icut .eq. 0) then
+     if(Cut_dim.gt.diam_bound(1)) then
        if (cut_dim .gt. diam_bound(N_sizebin + 1)) cut_dim = diam_bound(N_sizebin + 1)
        do k= 1,N_sizebin
           if(diam_bound(k).lt.Cut_dim.and.diam_bound(k+1).ge.Cut_dim) then
              ICUT=concentration_index_iv(k,N_fracbin(k))
           endif
        enddo
-    else
+     else
        ICUT=0
-    endif
+     endif
+     if (ssh_standalone) write(*,*)'Cut_dim :',Cut_dim, 'ICUT :', ICUT
+     if (ssh_logger) write(logfile,*)'Cut_dim :',Cut_dim, 'ICUT :', ICUT
+   else
+     if (ssh_standalone) write(*,*)'tag_icut :',tag_icut,'Cut_dim :',Cut_dim
+     if (ssh_logger) write(logfile,*)'tag_icut :',tag_icut,'Cut_dim :',Cut_dim
+   endif
 
     IF(ICUT.GT.0.D0) THEN
        section_pass=concentration_index(ICUT,1)
     ELSE
        section_pass=1
     ENDIF
-    if (ssh_standalone) write(*,*) 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
-    if (ssh_logger) write(logfile,*) 'Cut_dim :',Cut_dim, 'ICUT :', ICUT
 
     ! diameter !
     if(.not.allocated(size_diam_av)) allocate(size_diam_av(N_sizebin))
@@ -217,6 +227,10 @@ contains
     bin_mass = 0.d0
     if(.not.allocated(bin_number)) allocate(bin_number(N_sizebin)) ! ModulePhysicalbalance
     bin_number = 0.d0
+
+    ! ModuleBulkequibrium ModuleAdaptstep ModuleCondensation ModuleCongregation ModuleThermodynamics
+    if(.not.allocated(ce_kernal_coef)) allocate(ce_kernal_coef(N_size,N_aerosol)) 
+    ce_kernal_coef = 0.d0
 
     if(.not.allocated(frac_grid)) allocate(frac_grid(N_size,N_groups)) ! ModulePhysicalbalance ModuleRedistribution
     frac_grid = 0.d0

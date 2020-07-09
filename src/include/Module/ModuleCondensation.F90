@@ -92,7 +92,7 @@ contains
   end subroutine ssh_SULFDYN
 
   subroutine ssh_KERCOND(c_mass,c_number,qn,q,c_gas,Wet_diam,wet_mass,Temp,ce_kernel,ce_kernal_coef_i,jj,&
-                     lwc,ionic,proton,liquid,qtot,iker)
+                     lwc,ionic,proton,liquid,qtot,cond_time,iker)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -113,6 +113,9 @@ contains
 !     -- OUTPUT VARIABLES
 !
 !     ce_kernel: particle condensation kernels (µg/m^3/s)
+!     cond_time: for the computation of cut-off diameter
+!		 if tag_icut=1 return the c/e timescales (s)
+!		 if tag_icut=3 return the QSSA value for ENH4, EHNO3, and EHCL 
 !
 !------------------------------------------------------------------------
     implicit none
@@ -128,7 +131,9 @@ contains
     double precision:: q(N_aerosol)!mass concentration in current grid point
     double precision:: qih,emw_tmp,rhop_tmp,Temp,dry_diam
     double precision:: lwc,ionic,proton, liquid(12),qtot
-    double precision:: vad,rhoaer
+    double precision:: vad,rhoaer,cond_time(3)
+    double precision:: pplusl,pminusl
+
 
 !!     ******Initialization to zero
     do jesp=1,N_aerosol
@@ -280,7 +285,33 @@ contains
   	  concentration_inti(JJ,jesp)=0.d0
         enddo     
     endif
-   
+
+   ! compute c/e timescales (tag_icut=1) or QSSA factors (tag_icut=3) for cut-off diameter
+   if (tag_icut.eq.1 .or. tag_icut.eq.3) then
+      do s=1,3
+	   ! get index of ENH4, ENO3, ECL
+	   jesp=cond_time_index(s)
+	   ! c/e timescales ! unit: seconds
+            if (tag_icut.eq.1) then
+		pminusl=concentration_mass(jj,jesp)
+		pplusl=kelvin_effect(jesp)*surface_equilibrium_conc(jesp)*&
+			       ce_kernal_coef_i(jesp)*concentration_number(jj)
+	   ! modified QSSA criteria
+            elseif (tag_icut.eq.3) then
+	        pminusl = dabs(init_bulk_gas(jesp)-kelvin_effect(jesp)*&
+				surface_equilibrium_conc(jesp))
+	        pplusl = init_bulk_gas(jesp)+kelvin_effect(jesp)*&
+				surface_equilibrium_conc(jesp)
+	    endif
+	   ! compute cond_time
+           if ((pminusl.gt.TINYM).and.(pplusl.gt.TINYM)) then
+	    	cond_time(s) = pminusl/pplusl
+           else
+	    	cond_time(s) = 0.0
+           endif
+      enddo
+   endif
+
   end subroutine ssh_KERCOND
    
   subroutine ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
