@@ -33,38 +33,28 @@ contains
 !     coagulation_rate_gain: the gain rate of coagulation(~/m^3/s)
 !------------------------------------------------------------------------   
     implicit none
-    integer::k,i,j,l
-    double precision::distribution(N_size)
-    double precision::coagulation_rate_gain(N_size)
+    integer::k,i,j,l,jesp
+    double precision::distribution(N_size,N_aerosol+1)
+    double precision::coagulation_rate_gain(N_size,N_aerosol+1)
     double precision ::c_number(N_size)
     double precision :: gain_term
     
     coagulation_rate_gain = 0.d0
     
-
     do k=1,N_size 
-      gain_term=0.d0
       do l=1,repartition_coefficient(k)%n
 	!check all possible repartition_coefficient combination of grid 1 and grid 2 into grid k
 	i=index1_repartition_coefficient(k)%arr(l)! index of grid 1
 	j=index2_repartition_coefficient(k)%arr(l)! index of grid 2
-! 	if(IsNaN(kernel_coagulation(i,j)) ) then
-! 	  print*, "kernel_coagulation(",i,j,")=",kernel_coagulation(i,j)!The problem is here NaN
-! 	  kernel_coagulation(i,j)=0.d0
-! 	endif
 	if(c_number(i).gt.0.d0) then
-	  gain_term=gain_term+kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
-	      *c_number(i)*distribution(j)
-! 	    if(IsNaN(gain_term*0.d0)) then
-! 	      print*,'Error! IsNaN(gain_term)',k,i,j,gain_term
-! 	      print*,kernel_coagulation(j,i),repartition_coefficient(k)%arr(l),&
-! 	      c_number(i),distribution(j)
-! 	      stop
-! 	    endif
+	  gain_term=kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
+	      *c_number(i)
 	endif
+        do jesp=1,N_aerosol+1
+          coagulation_rate_gain(k,jesp) = coagulation_rate_gain(k,jesp) + gain_term*distribution(j,jesp)
+        enddo
       enddo
        
-      coagulation_rate_gain(k) =gain_term
     enddo
   end subroutine ssh_Gain
   
@@ -86,9 +76,9 @@ contains
 !     coagulation_rate_loss: the loss rate of coagulation(~/m^3/s)
 !------------------------------------------------------------------------   
     implicit none 
-    integer::j,i
-    double precision:: distribution(N_size)
-    double precision:: coagulation_rate_loss(N_size)
+    integer::j,i,jesp
+    double precision:: distribution(N_size,N_aerosol+1)
+    double precision:: coagulation_rate_loss(N_size,N_aerosol+1)
     double precision :: loss_term
     double precision ::c_number(N_size)
     
@@ -98,21 +88,14 @@ contains
       loss_term=0.d0
       do i=1,N_size
 	if(c_number(i).gt.0.d0) then
-! 	if(IsNaN(kernel_coagulation(j,i)) ) then
-! 	  print*, "kernel_coagulation(",j,i,")=",kernel_coagulation(j,i)
-! 	  kernel_coagulation(j,i)=0.d0
-! 	endif
 	!loss by coagulation between grid k and i
 	  loss_term= loss_term + kernel_coagulation(j,i) &
 		* c_number(i)
 	endif
       enddo
-!       if(IsNaN(loss_term*0.d0)) then
-! 	print*,'Error! IsNaN(gain_term)',i,j
-! 	loss_term=0.d0
-! 	stop
-!       endif
-      coagulation_rate_loss(j) =loss_term*distribution(j)
+      do jesp=1,N_aerosol+1
+          coagulation_rate_loss(j,jesp) =loss_term*distribution(j,jesp)
+      enddo
     enddo
      
   end subroutine ssh_loss
@@ -137,68 +120,37 @@ contains
 !------------------------------------------------------------------------   
     implicit none
     integer :: j,i,jesp
-    double precision::distribution(N_size)
-    double precision::coagulation_rate_loss(N_size)
-    double precision::coagulation_rate_gain(N_size)
+    double precision::coagulation_rate_loss(N_size,N_aerosol+1)
+    double precision::coagulation_rate_gain(N_size,N_aerosol+1)
     double precision ::c_number(N_size)
     double precision ::c_mass(N_size,N_aerosol)
+    double precision ::distribution(N_size,N_aerosol+1)
     double precision ::rate_number(N_size)
     double precision ::rate_mass(N_size,N_aerosol)
     double precision ::total_mass_tmp
-	
-    do i=1,(N_aerosol-1)!loop by species
-      jesp=List_species(i)
-      do j = 1,N_size! Reassigned distribution by mass of each species
-	distribution(j) = c_mass(j,jesp)
-      enddo
-      call  ssh_Gain (distribution,coagulation_rate_gain,c_number)
-      call  ssh_Loss (distribution,coagulation_rate_loss,c_number)
-      !call  ssh_Ratebalance(coagulation_rate_gain,coagulation_rate_loss)
+
+    distribution = 0.0
+    do jesp=1,N_aerosol-1 !loop by species
       do j = 1,N_size
-	  rate_mass(j,jesp) = rate_mass(j,jesp) + coagulation_rate_gain(j) - coagulation_rate_loss(j)!
-	  if(IsNaN(rate_mass(j,jesp)*0.d0)) print*,"infinity/NaN mass",j,jesp,rate_mass(j,jesp)
+         distribution(j,jesp) = c_mass(j,jesp)
+      enddo
+    enddo
+    do  j = 1,N_size
+	distribution(j,N_aerosol+1) = c_number(j)
+    enddo
+    call  ssh_Gain (distribution,coagulation_rate_gain,c_number)
+    call  ssh_Loss (distribution,coagulation_rate_loss,c_number)
+    do jesp=1,N_aerosol!loop by species
+      do j = 1,N_size
+	  rate_mass(j,jesp) = rate_mass(j,jesp) + coagulation_rate_gain(j,jesp) - coagulation_rate_loss(j,jesp)
       enddo
     enddo
 
-    !if(with_number.eq.1) then
-      do  j = 1,N_size
-	distribution(j) = c_number(j)
-      enddo
-      call  ssh_Gain (distribution, coagulation_rate_gain,c_number)
-      call  ssh_Loss (distribution, coagulation_rate_loss,c_number)
+    do j = 1,N_size
+	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j,N_aerosol+1) - coagulation_rate_loss(j,N_aerosol+1)
+    enddo
 
-      do j = 1,N_size
-	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j) - coagulation_rate_loss(j)!
-	if(IsNaN(rate_number(j)*0.d0)) print*,"infinity/NaN numb",j,rate_number(j)
-      enddo
-
-    !else
-    !  do  j = 1,N_size
-	!total_mass_tmp=0.d0
-	!do i=1,(N_aerosol-1)
-	 ! total_mass_tmp=total_mass_tmp+rate_mass(j,jesp)
-	!enddo
-	!rate_number(j) = total_mass_tmp/cell_diam_av(j)
-      !enddo
-    !endif    
     
   end subroutine ssh_Rate
   
-!   subroutine Ratebalance(rate_gain,rate_loss)
-!     implicit none
-!     integer :: j,jesp
-!     double precision::rate_loss(N_size)
-!     double precision::rate_gain(N_size)
-!     double precision ::total_g,total_l,d_rate
-!       total_g=0.d0
-!       total_l=0.d0
-!       do j = 1,N_size
-! 	  total_g=total_g+rate_gain(j)
-! 	  total_l=total_l+rate_loss(j)
-!       enddo
-!       d_rate=total_g-total_l
-!       if(d_rate.ne.0.d0) rate_gain(N_size)=rate_gain(N_size)-d_rate
-! 
-!   end subroutine Ratebalance
- 
 end module gCoagulation
