@@ -20,29 +20,32 @@ using namespace blitz;
 //////////////
 
 extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, 
-                           double* ionic, double* chp, double& LWCorg,
-                           double& deltat, double* DSD, double* csol, double* liquid,
-                           int* ns_aer, int* ns_aer_layers, int* neq, double* q, double* qaero, 
-                           double* qgas, double* lwc_Nsize,
-                           double* ionic_Nsize, double* chp_Nsize,
-                           double* liquid_Nsize, int* nbin,int* isoapdyn,
-                           char* species_name, int* name_len, double* molecular_weight_aer,
-                           double* accomodation_coefficient, int* nlayer,
-                           int* with_kelvin_effect, double* tequilibrium,
-                           double* dtaeromin, double* dorg, int* coupled_phases,
-                           int* activity_model, double* epser_soap){
+			       double* ionic, double* chp, double& LWCorg,
+			       double& deltat, double* DSD, double* csol, double* liquid,
+			       int* ns_aer, int* ns_aer_layers, int* neq, double* q, double* qaero, 
+			       double* qgas, double* lwc_Nsize,
+			       double* ionic_Nsize, double* chp_Nsize,
+			       double* liquid_Nsize, int* nbin,int* isoapdyn,
+			       char* species_name, int* name_len, double* molecular_weight_aer,
+			       double* accomodation_coefficient, int* aerosol_type, 
+			       char* smiles, double* saturation_vapor_pressure, int* nlayer,
+			       int* with_kelvin_effect, double* tequilibrium,
+			       double* dtaeromin, double* dorg, int* coupled_phases,
+			       int* activity_model, double* epser_soap){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, 
-                   *ionic, *chp, LWCorg, 
-                   deltat,DSD,csol, liquid,
-                   *ns_aer, *ns_aer_layers, *neq, q, qaero, qgas,
-                   lwc_Nsize,ionic_Nsize,chp_Nsize,
-                   liquid_Nsize, *nbin, *isoapdyn,
-                   species_name, *name_len, molecular_weight_aer,
-                   accomodation_coefficient, *nlayer,
-                   *with_kelvin_effect, *tequilibrium,
-                   *dtaeromin, *dorg, *coupled_phases,
-                   *activity_model, *epser_soap);
+		       *ionic, *chp, LWCorg, 
+		       deltat,DSD,csol, liquid,
+		       *ns_aer, *ns_aer_layers, *neq, q, qaero, qgas,
+		       lwc_Nsize,ionic_Nsize,chp_Nsize,
+		       liquid_Nsize, *nbin, *isoapdyn,
+		       species_name, *name_len, molecular_weight_aer,
+		       accomodation_coefficient, aerosol_type,
+		       smiles, saturation_vapor_pressure,
+		       *nlayer,
+		       *with_kelvin_effect, *tequilibrium,
+		       *dtaeromin, *dorg, *coupled_phases,
+		       *activity_model, *epser_soap);
 
 }
 
@@ -55,16 +58,17 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
   \param liquid liquid inorganic aerosols
 */
 void soap_main_ssh(double LWC, double RH, double Temperature,
-               double ionic, double chp, double& LWCorg,
-               double& deltat, double DSD[], double csol[], double liquid[],
-               int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qgas[],
-               double lwc_Nsize[], double ionic_Nsize[], double chp_Nsize[],
-               double liquid_Nsize[], int nbin,int isoapdyn,
-               char species_name[], int name_len, double molecular_weight_aer[],
-               double accomodation_coefficient[], int nlayer,
-               int with_kelvin_effect, double tequilibrium, double dtaeromin,
-               double dorg, int coupled_phases,
-               int activity_model, double epser_soap)
+		   double ionic, double chp, double& LWCorg,
+		   double& deltat, double DSD[], double csol[], double liquid[],
+		   int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qgas[],
+		   double lwc_Nsize[], double ionic_Nsize[], double chp_Nsize[],
+		   double liquid_Nsize[], int nbin,int isoapdyn,
+		   char species_name[], int name_len, double molecular_weight_aer[],
+		   double accomodation_coefficient[], int aerosol_type[], 
+		   char smiles[], double saturation_vapor_pressure[], int nlayer,
+		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
+		   double dorg, int coupled_phases,
+		   int activity_model, double epser_soap)
 {
 
   //cout << "ok in" << endl;
@@ -84,7 +88,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
-
+  vector<string> species_smiles;
   // Get aerosol species names.
   // conversion char to string
   string tmp2; 
@@ -100,6 +104,21 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
             tmp3.erase(j, 1);
         }
       species_list_aer.push_back(tmp3);
+    }
+
+  string tmp2b;
+  for (i = 0; i < ns_aer * name_len; i++)
+    tmp2b.push_back(smiles[i]);
+  
+  for (i = 0; i < ns_aer; i++)
+    {
+      string tmp3(tmp2b.substr(i * name_len, name_len));
+      for (int j = name_len - 1; j >= 0; --j)
+        {
+          if(tmp3[j] == ' ')
+            tmp3.erase(j, 1);
+        }
+      species_smiles.push_back(tmp3);
     }
   
   config.nbins = nbin;
@@ -152,7 +171,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   if (surrogate.size()==0)
     {
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
-                     accomodation_coefficient);
+                     accomodation_coefficient, aerosol_type, species_smiles, saturation_vapor_pressure);
         // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 
       compute_gamma_infini_ssh(config, surrogate);

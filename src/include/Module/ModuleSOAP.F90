@@ -82,13 +82,15 @@ contains
 !     = micromol/microg * 1000 
 !     = mol/kg = mol/L (Water density: 1 kg/L) 
       chp = proton / lwc * 1.0e3
-
+      
+      !print*,smiles
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
-           accomodation_coefficient,&
+           accomodation_coefficient, aerosol_type, &
+           smiles, saturation_vapor_pressure, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 
@@ -250,11 +252,14 @@ contains
       lwcorg=0.
 
 
+      !print*,smiles
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
-           aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient,&
+           aerosol_species_name, spec_name_len, molecular_weight_aer, &
+           accomodation_coefficient, aerosol_type, &
+           smiles, saturation_vapor_pressure, &      
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap)
 

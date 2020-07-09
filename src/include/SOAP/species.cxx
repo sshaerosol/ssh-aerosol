@@ -32,6 +32,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
         current_species.soap_ind_aero = (i-7) * (nlayer-1) + i;
         current_species.MM =  molecular_weight_aer[i] / 1.e6;
         current_species.accomodation_coefficient = accomodation_coefficient[i];
+	current_species.is_generic=false;
       }
 
   // if (current_species.soap_ind == -1)
@@ -43,9 +44,73 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
   if (current_species.soap_ind != -1)
     surrogate.push_back(current_species);
 }
+
+void add_generic_species_ssh( vector<species>& surrogate, 
+			      vector<string> species_list_aer,
+			      double molecular_weight_aer[],
+			      double accomodation_coefficient[],
+			      int aerosol_type[],
+			      vector<string> species_smiles,
+			      double saturation_vapor_pressure[],
+			      int nlayer)
+{
+
+  int j,n,found;
+  n=surrogate.size();
+  int nsp = species_list_aer.size();
+  
+  // Find the number in the aerosol species list  
+  for (int i = 0; i < nsp; ++i)
+    if (aerosol_type[i]==4 and saturation_vapor_pressure[i]>0. and species_smiles[i]!="-")
+      {
+	found=0;
+	for (j=0;j<n;j++)
+	  if (species_list_aer[i].substr(1,-1) == surrogate[j].name)
+	    {
+	      found=1;
+	    }      
+      
+	if (found==0)
+	  {	  
+	    species X;
+	    X.name=species_list_aer[i].substr(1,-1);
+	    X.smile=species_smiles[i];
+	    X.is_inorganic_precursor=false;
+	    X.Psat_ref=saturation_vapor_pressure[i]; // Saturation vapor pressure at Tref (torr)
+	    X.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+	    X.Tref=298;         // Temperature of reference (K)
+	    X.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
+	    X.Henry=0.;     // Henry's law constant at Tref (M/atm)
+	    X.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
+	    X.hydrophilic=true;   // Does the species condense on the aqueous phase?
+	    X.hydrophobic=false;  // Does the species condense on the organic phase?
+	    X.nonvolatile=false; // Is the compound nonvolatile?
+	    X.is_organic=true;  // Is the compound organic?
+	    X.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+	    X.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+	    X.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+	    X.rho=1300.0;
+	    X.is_monomer=false;
+	    X.rion=false;
+	    X.KDiffusion_air=1.0e-5;
+	    // BiA2D.accomodation_coefficient=alpha;
+	    X.viscosity=1.68e12;
+	    X.is_solid=false;	  
+	    X.MM =  molecular_weight_aer[i] / 1.e6;
+	    X.accomodation_coefficient = accomodation_coefficient[i];
+	    X.soap_ind = i;
+	    X.soap_ind_aero = (i-7) * (nlayer-1) + i;
+	    X.is_generic=true;
+	    surrogate.push_back(X);	  
+	  }
+      }
+}
+
   
 void creation_species_ssh( vector<species>& surrogate, vector<string> species_list_aer,
 			   double molecular_weight_aer[], double accomodation_coefficient[],
+			   int aerosol_type[],
+			   vector<string> species_smiles, double saturation_vapor_pressure[],
 			   int nlayer)
 {
   int nsp = species_list_aer.size();
@@ -1849,7 +1914,10 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // the given list.
   add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,nlayer);
-  
+
+
+  add_generic_species_ssh(surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
+			  aerosol_type, species_smiles, saturation_vapor_pressure, nlayer);
   
   species H2O;
   H2O.name="H2O";

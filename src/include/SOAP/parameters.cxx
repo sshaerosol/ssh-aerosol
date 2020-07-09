@@ -36,7 +36,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   config.iNH3=-1;
   config.iH2SO4=-1;
   for (i=0;i<n;++i)
-    {  
+    {
       if (surrogate[i].is_inorganic_precursor==false)
          surrogate[i].is_solid=false;
       else
@@ -1807,7 +1807,8 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 }
 
 void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
-                double molecular_weight_aer[], double accomodation_coefficient[])
+		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
+		    vector<string> species_smiles, double saturation_vapor_pressure[])
 {
   config.max_iter=1000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
@@ -1893,9 +1894,10 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   config.nh_max=5;
   config.molalmax=70.e6; //Limit high values of molalities to prevent numerical issues
 	  
-  //create the vector of species and the various parameters of the model 
+  //create the vector of species and the various parameters of the model
   creation_species_ssh(surrogate,species_list_aer, molecular_weight_aer,
-                   accomodation_coefficient,config.nlayer); 
+		       accomodation_coefficient, aerosol_type,
+		       species_smiles, saturation_vapor_pressure,config.nlayer); 
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 
   system_aiomfac_ssh(config, surrogate);

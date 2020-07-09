@@ -313,9 +313,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		smile2+="A";	      
 		last_pos=igr+6;		
 	      }
-	    else if (surrogate[i].smile.substr(igr)=="OC" and igr==0)
+	    else if (surrogate[i].smile.substr(igr,2)=="OC" and igr==0)
 	      {
-		//cout << "found" << endl;
 		//carbon_alcool(1)=1;
 		smile2+="C(O)";
 		last_pos=igr+2;
@@ -351,7 +350,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	//cout << "apres " << smile2 << endl;
 	//cout << carbon_cycle << endl;
 	
-	ngr=smile2.length();
+	ngr=smile2.length();	
 	//if (smile2.substr(0,2)=="OC
 	//cout << smile2 << endl;
 	/*
@@ -382,10 +381,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    //cout << "found" << endl;
 	    carbon_alcool(ngr-2)=1;
 	  }
-	
-
-	//cout << carbon_alcool << endl;
-
+		
 	/*
 	  if (sum(carbon_alcool)>0)	  
 	  carbon_tail=1;			*/
@@ -1924,6 +1920,19 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	for (j=0;j<55;j++)
 	  if (surrogate[i].groups[j]>0)
 	    cout << name_group(j) << " " << surrogate[i].groups[j] << endl;
+
+        if (surrogate[i].is_generic)
+	  if (surrogate[i].groups[37]>=2)
+	    {
+	      surrogate[i].aq_type="diacid";
+	      surrogate[i].Kacidity1=3.95e-4;    // First acidity constant
+	      surrogate[i].Kacidity2=7.70e-6;    // Second acidity constant
+	    }
+	  else if (surrogate[i].groups[37]>=1)
+	    {
+	      surrogate[i].aq_type="monoacid";	      
+	      surrogate[i].Kacidity1=6.52e-4;    // First acidity constant
+	    }
 	
       }
 }

@@ -238,6 +238,9 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: soa_sat_conc! (\B5g.m-3)
   double precision ,dimension(:), allocatable, save :: soa_part_coef!(m3/microg)
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
+  double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (\B5g/mol) gas=phase
+  character(len=40),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -272,7 +275,7 @@ module aInitialization
   character (len=80), dimension(:), allocatable, save :: aec_species_name
   character (len=10), save :: precursor
   character (len=10), dimension(:), allocatable, save :: species_name
-  character (len=20), dimension(:), allocatable, save :: aerosol_species_name
+  character (len=40), dimension(:), allocatable, save :: aerosol_species_name
   integer, save :: spec_name_len
   character (len=10), dimension(:), allocatable, save :: emis_gas_species_name
   character (len=10), dimension(:), allocatable, save :: emis_aer_species_name
@@ -1186,9 +1189,11 @@ contains
     character (len=40) :: ic_name, sname, tmp_name
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
-    double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp 
+    double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
+    double precision :: saturation_vapor_pressure_tmp
     character (len=40),dimension(nspecies) :: name_input_species
-    character (len=20) :: aerosol_species_name_tmp
+    character (len=40) :: smiles_tmp
+    character (len=40) :: aerosol_species_name_tmp
     character (len=10) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh
 
@@ -1249,7 +1254,10 @@ contains
     allocate(accomodation_coefficient(N_aerosol))
     allocate(mass_density(N_aerosol))
     allocate(inon_volatile(N_aerosol))
-    allocate(Vlayer(nlayer))
+    allocate(smiles(N_aerosol))
+    allocate(saturation_vapor_pressure(N_aerosol))
+    
+    allocate(Vlayer(nlayer))    
     ! relation between Aerosol and GAS
     allocate(aerosol_species_interact(N_aerosol))      
     aerosol_species_interact = 0
@@ -1260,7 +1268,7 @@ contains
     count = 0
     s = 0
     read(12, *) ! Read a header line (#)
-    do icoun = 1, N_count
+    do icoun = 1, N_count     
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
@@ -1275,7 +1283,8 @@ contains
             precursor_tmp, &
             collision_factor_aer_tmp, molecular_diameter_tmp, &
             surface_tension_tmp, accomodation_coefficient_tmp, &
-            mass_density_tmp, inon_volatile_tmp
+            mass_density_tmp, inon_volatile_tmp, smiles_tmp, &
+            saturation_vapor_pressure_tmp       
 
        found_spec=0
        do j=1,nspecies
@@ -1307,6 +1316,8 @@ contains
           accomodation_coefficient(s)=accomodation_coefficient_tmp
           mass_density(s)=mass_density_tmp
           inon_volatile(s)=inon_volatile_tmp
+          smiles(s)=smiles_tmp
+          saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
 
           if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
              write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
@@ -1834,7 +1845,9 @@ contains
     allocate(inon_volatile(N_aerosol))
     allocate(Vlayer(nlayer))
     ! relation between Aerosol and GAS
-    allocate(aerosol_species_interact(N_aerosol))      
+    allocate(aerosol_species_interact(N_aerosol))
+    allocate(smiles(N_aerosol))
+    allocate(saturation_vapor_pressure(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
 
@@ -1851,7 +1864,7 @@ contains
             precursor, &
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s), inon_volatile(s)
+            mass_density(s), inon_volatile(s), smiles(s), saturation_vapor_pressure(s)
         if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
             stop
@@ -2347,6 +2360,8 @@ contains
     if (allocated(molecular_diameter))  deallocate(molecular_diameter, stat=ierr)
     if (allocated(surface_tension))  deallocate(surface_tension, stat=ierr)
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
+    if (allocated(smiles)) deallocate(smiles, stat=ierr)
+    if (allocated(saturation_vapor_pressure))  deallocate(saturation_vapor_pressure, stat=ierr)
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
     if (allocated(mass_density_layers))  deallocate(mass_density_layers, stat=ierr)
     if (allocated(inon_volatile))  deallocate(inon_volatile, stat=ierr)

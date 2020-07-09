@@ -206,6 +206,7 @@ namespace ssh_soap
         int soap_ind_aero; // Number in the aerosol species list including layers
 
         string smile;
+        bool is_generic;
   };
   
 }
