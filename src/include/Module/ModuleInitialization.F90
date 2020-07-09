@@ -238,7 +238,8 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: soa_sat_conc! (\B5g.m-3)
   double precision ,dimension(:), allocatable, save :: soa_part_coef!(m3/microg)
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
-  double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (\B5g/mol) gas=phase
+  double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
+  double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
   character(len=40),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
@@ -1190,7 +1191,7 @@ contains
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
-    double precision :: saturation_vapor_pressure_tmp
+    double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp    
     character (len=40),dimension(nspecies) :: name_input_species
     character (len=40) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp
@@ -1256,6 +1257,7 @@ contains
     allocate(inon_volatile(N_aerosol))
     allocate(smiles(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
+    allocate(enthalpy_vaporization(N_aerosol))    
     
     allocate(Vlayer(nlayer))    
     ! relation between Aerosol and GAS
@@ -1284,7 +1286,7 @@ contains
             collision_factor_aer_tmp, molecular_diameter_tmp, &
             surface_tension_tmp, accomodation_coefficient_tmp, &
             mass_density_tmp, inon_volatile_tmp, smiles_tmp, &
-            saturation_vapor_pressure_tmp       
+            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp       
 
        found_spec=0
        do j=1,nspecies
@@ -1318,6 +1320,7 @@ contains
           inon_volatile(s)=inon_volatile_tmp
           smiles(s)=smiles_tmp
           saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
+          enthalpy_vaporization(s)=enthalpy_vaporization_tmp
 
           if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
              write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
@@ -1848,6 +1851,7 @@ contains
     allocate(aerosol_species_interact(N_aerosol))
     allocate(smiles(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
+    allocate(enthalpy_vaporization(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
 
@@ -1864,7 +1868,8 @@ contains
             precursor, &
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s), inon_volatile(s), smiles(s), saturation_vapor_pressure(s)
+            mass_density(s), inon_volatile(s), smiles(s), &
+            saturation_vapor_pressure(s),enthalpy_vaporization(s)
         if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
             stop
@@ -2362,6 +2367,7 @@ contains
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
     if (allocated(smiles)) deallocate(smiles, stat=ierr)
     if (allocated(saturation_vapor_pressure))  deallocate(saturation_vapor_pressure, stat=ierr)
+    if (allocated(enthalpy_vaporization))  deallocate(enthalpy_vaporization, stat=ierr)    
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
     if (allocated(mass_density_layers))  deallocate(mass_density_layers, stat=ierr)
     if (allocated(inon_volatile))  deallocate(inon_volatile, stat=ierr)

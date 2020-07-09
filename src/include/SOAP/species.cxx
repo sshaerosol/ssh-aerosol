@@ -52,6 +52,7 @@ void add_generic_species_ssh( vector<species>& surrogate,
 			      int aerosol_type[],
 			      vector<string> species_smiles,
 			      double saturation_vapor_pressure[],
+			      double enthalpy_vaporization[],
 			      int nlayer)
 {
 
@@ -79,7 +80,7 @@ void add_generic_species_ssh( vector<species>& surrogate,
 	    X.Psat_ref=saturation_vapor_pressure[i]; // Saturation vapor pressure at Tref (torr)
 	    X.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
 	    X.Tref=298;         // Temperature of reference (K)
-	    X.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
+	    X.deltaH=enthalpy_vaporization[i];     // Enthalpy of vaporization (kJ/mol)
 	    X.Henry=0.;     // Henry's law constant at Tref (M/atm)
 	    X.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
 	    X.hydrophilic=true;   // Does the species condense on the aqueous phase?
@@ -111,6 +112,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
 			   double molecular_weight_aer[], double accomodation_coefficient[],
 			   int aerosol_type[],
 			   vector<string> species_smiles, double saturation_vapor_pressure[],
+			   double enthalpy_vaporization[],
 			   int nlayer)
 {
   int nsp = species_list_aer.size();
@@ -1917,7 +1919,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
 
 
   add_generic_species_ssh(surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
-			  aerosol_type, species_smiles, saturation_vapor_pressure, nlayer);
+			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, nlayer);
   
   species H2O;
   H2O.name="H2O";

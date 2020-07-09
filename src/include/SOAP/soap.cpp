@@ -28,7 +28,8 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 			       double* liquid_Nsize, int* nbin,int* isoapdyn,
 			       char* species_name, int* name_len, double* molecular_weight_aer,
 			       double* accomodation_coefficient, int* aerosol_type, 
-			       char* smiles, double* saturation_vapor_pressure, int* nlayer,
+			       char* smiles, double* saturation_vapor_pressure,
+			       double* enthalpy_vaporization, int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap){
@@ -42,7 +43,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 		       species_name, *name_len, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       smiles, saturation_vapor_pressure,
-		       *nlayer,
+		       enthalpy_vaporization, *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap);
@@ -65,7 +66,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		   double liquid_Nsize[], int nbin,int isoapdyn,
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
-		   char smiles[], double saturation_vapor_pressure[], int nlayer,
+		   char smiles[], double saturation_vapor_pressure[],
+		   double enthalpy_vaporization[], int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap)
@@ -171,7 +173,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   if (surrogate.size()==0)
     {
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
-                     accomodation_coefficient, aerosol_type, species_smiles, saturation_vapor_pressure);
+                     accomodation_coefficient, aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization);
         // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 
       compute_gamma_infini_ssh(config, surrogate);
