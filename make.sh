@@ -19,7 +19,7 @@ if [ -z $chemistry ]; then
 fi
 
 cd src/include/spack/src/
-make
+make clean ; make
 
 cp ../../CHEMISTRY/${chemistry}/spack_config ./
 cp ../../CHEMISTRY/${chemistry}/*.species ./species
