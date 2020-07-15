@@ -34,8 +34,8 @@ contains
 !------------------------------------------------------------------------   
     implicit none
     integer::k,i,j,l,jesp
-    double precision::distribution(N_size,N_aerosol+1)
-    double precision::coagulation_rate_gain(N_size,N_aerosol+1)
+    double precision::distribution(N_size,N_aerosol_layers+1)
+    double precision::coagulation_rate_gain(N_size,N_aerosol_layers+1)
     double precision ::c_number(N_size)
     double precision :: gain_term
     
@@ -50,7 +50,7 @@ contains
 	  gain_term=kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
 	      *c_number(i)
 	endif
-        do jesp=1,N_aerosol+1
+        do jesp=1,N_aerosol_layers+1
           coagulation_rate_gain(k,jesp) = coagulation_rate_gain(k,jesp) + gain_term*distribution(j,jesp)
         enddo
       enddo
@@ -77,8 +77,8 @@ contains
 !------------------------------------------------------------------------   
     implicit none 
     integer::j,i,jesp
-    double precision:: distribution(N_size,N_aerosol+1)
-    double precision:: coagulation_rate_loss(N_size,N_aerosol+1)
+    double precision:: distribution(N_size,N_aerosol_layers+1)
+    double precision:: coagulation_rate_loss(N_size,N_aerosol_layers+1)
     double precision :: loss_term
     double precision ::c_number(N_size)
     
@@ -93,7 +93,7 @@ contains
 		* c_number(i)
 	endif
       enddo
-      do jesp=1,N_aerosol+1
+      do jesp=1,N_aerosol_layers+1
           coagulation_rate_loss(j,jesp) =loss_term*distribution(j,jesp)
       enddo
     enddo
@@ -120,34 +120,35 @@ contains
 !------------------------------------------------------------------------   
     implicit none
     integer :: j,i,jesp
-    double precision::coagulation_rate_loss(N_size,N_aerosol+1)
-    double precision::coagulation_rate_gain(N_size,N_aerosol+1)
+    double precision::coagulation_rate_loss(N_size,N_aerosol_layers+1)
+    double precision::coagulation_rate_gain(N_size,N_aerosol_layers+1)
     double precision ::c_number(N_size)
-    double precision ::c_mass(N_size,N_aerosol)
-    double precision ::distribution(N_size,N_aerosol+1)
+    double precision ::c_mass(N_size,N_aerosol_layers)
+    double precision ::distribution(N_size,N_aerosol_layers+1)
     double precision ::rate_number(N_size)
-    double precision ::rate_mass(N_size,N_aerosol)
+    double precision ::rate_mass(N_size,N_aerosol_layers)
     double precision ::total_mass_tmp
 
     distribution = 0.0
-    do jesp=1,N_aerosol-1 !loop by species
+    do jesp=1,N_aerosol_layers !loop by species
       do j = 1,N_size
          distribution(j,jesp) = c_mass(j,jesp)
       enddo
     enddo
     do  j = 1,N_size
-	distribution(j,N_aerosol+1) = c_number(j)
+	distribution(j,N_aerosol_layers+1) = c_number(j)
     enddo
     call  ssh_Gain (distribution,coagulation_rate_gain,c_number)
     call  ssh_Loss (distribution,coagulation_rate_loss,c_number)
-    do jesp=1,N_aerosol!loop by species
+    do jesp=1,N_aerosol_layers!loop by species
       do j = 1,N_size
 	  rate_mass(j,jesp) = rate_mass(j,jesp) + coagulation_rate_gain(j,jesp) - coagulation_rate_loss(j,jesp)
       enddo
     enddo
 
     do j = 1,N_size
-	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j,N_aerosol+1) - coagulation_rate_loss(j,N_aerosol+1)
+	rate_number(j) = rate_number(j) + 0.5d0*coagulation_rate_gain(j,N_aerosol_layers+1) - &
+                                          coagulation_rate_loss(j,N_aerosol_layers+1)
     enddo
 
     
