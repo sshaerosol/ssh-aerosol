@@ -61,6 +61,8 @@ contains
     lwcorg_nsize = 0.d0
     start_time= 0.d0
 
+    frac_oligo=0.d0
+
     ! Initialize the density of aerosols
     if (with_fixed_density.ne.1) then
 
@@ -219,7 +221,9 @@ contains
 
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
 
-          call ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid)!equilibrium for organic
+          
+
+          call ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid, delta_t)!equilibrium for organic
           call ssh_mass_conservation(concentration_mass,concentration_number,&
                                  concentration_gas, total_mass)
 

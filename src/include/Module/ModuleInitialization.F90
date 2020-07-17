@@ -148,6 +148,7 @@ module aInitialization
   integer, dimension(:,:), allocatable, save :: index_species	!index of species if viscosity is taken into account
   Integer, dimension(:), allocatable, save :: aerosol_species_interact
   integer, dimension(:), allocatable, save :: N_fracbin	!vector of number of composition sections for each section
+  integer, dimension(:), allocatable, save :: oligo_index
 
   Double precision,dimension(:), allocatable, save :: photolysis_rate
   integer, dimension(:), allocatable, save :: photolysis_reaction_index
@@ -175,6 +176,7 @@ module aInitialization
   integer, dimension(:,:), allocatable, save :: concentration_index_iv !matrix from size and composition to grid index
   Double precision,dimension(:), allocatable, save :: concentration_number	!number concentration of each grid cell
   double precision , dimension(:,:), allocatable, save :: concentration_mass
+  double precision, dimension(:),allocatable,save :: frac_oligo
 
   double precision, dimension(:), allocatable, save :: gas_emis !storing Gas consentration (emission) micm^3cm^-3 
   double precision,dimension(:,:), allocatable, save :: init_bin_mass
@@ -1218,7 +1220,7 @@ contains
 
     implicit none
     integer:: nspecies
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun
+    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
     character (len=40) :: ic_name, sname, tmp_name
@@ -1228,7 +1230,7 @@ contains
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp    
     character (len=40),dimension(nspecies) :: name_input_species
     character (len=40) :: smiles_tmp
-    character (len=40) :: aerosol_species_name_tmp
+    character (len=40) :: aerosol_species_name_tmp, char1,char2
     character (len=10) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh
 
@@ -1383,6 +1385,21 @@ contains
     do s=1,nspecies
        if (index_species_ssh(s)<0) print*,trim(name_input_species(s))," not found"
     enddo
+
+    
+
+    allocate(oligo_index(N_aerosol))
+    allocate(frac_oligo(N_aerosol))
+    oligo_index=0
+    do s=1,N_aerosol
+       char1=aerosol_species_name(s)       
+       do s2=1,N_aerosol
+          char2=aerosol_species_name(s2)
+          if (trim(char2(2:))=="Oligo"//trim(char1(2:))) then
+             oligo_index(s)=s2
+          endif
+       enddo
+    enddo       
     
     ! Safety check if index_groups is used
     if (tag_external.eq.1) then
@@ -1820,10 +1837,10 @@ contains
 
 
     implicit none
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline
+    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, s2
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
-    character (len=40) :: ic_name, sname, tmp_name
+    character (len=40) :: ic_name, sname, tmp_name, char1, char2
 
     ! read gas-phase species namelist ! unit = 11
     allocate(molecular_weight(N_gas))
@@ -2043,6 +2060,19 @@ contains
              layer_number(N_aerosol_layers) = 1
           endif
        endif
+    enddo
+
+    allocate(oligo_index(N_aerosol))
+    allocate(frac_oligo(N_aerosol))
+    oligo_index=0
+    do s=1,N_aerosol
+       char1=aerosol_species_name(s)       
+       do s2=1,N_aerosol
+          char2=aerosol_species_name(s2)
+          if (trim(char2(2:))=="Oligo"//trim(char1(2:))) then
+             oligo_index(s)=s2
+          endif
+       enddo
     enddo
 
     if(with_nucl.EQ.1) then
@@ -2415,7 +2445,9 @@ contains
     if (allocated(aec_species))  deallocate(aec_species, stat=ierr)
     if (allocated(aec_species_name))  deallocate(aec_species_name, stat=ierr)
     if (allocated(aerosol_species_interact))  deallocate(aerosol_species_interact, stat=ierr)
-
+    if (allocated(oligo_index))  deallocate(oligo_index, stat=ierr)
+    if (allocated(frac_oligo))  deallocate(frac_oligo, stat=ierr)
+    
     if (allocated(concentration_gas_all))  deallocate(concentration_gas_all, stat=ierr)
     if (ierr .ne. 0) then
        write(*,*) "Deallocation error"

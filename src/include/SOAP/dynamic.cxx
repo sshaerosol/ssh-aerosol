@@ -709,6 +709,12 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                       surrogate[i].flux_chem_gas(index)+=-(1.0-fac)*flux;
                       surrogate[j].flux_chem_aq(b,index)+=fac2*flux;		
                       surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;
+		      /*
+		      if (surrogate[i].name=="BiDER")
+			{
+			  //cout << surrogate[i].name << " " << b << " " << flux << " " << config.koligo << " " << surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf << " " << Xmonoaq <<  " " << config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq << " " << deltat << " " << config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2*deltat << endl;                          
+			}*/
+			
                     }
 
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
@@ -944,10 +950,14 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                         if (surrogate[j].Ag+surrogate[j].Aaq_bins_init(b)>0.0)
                           fac2=surrogate[j].Aaq_bins_init(b)/(surrogate[j].Ag+surrogate[j].Aaq_bins_init(b));
 
+		      /*
                       if (flux>0.0)                        
                         flux=flux/(1.0-gamma*surrogate[i].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[i].Jdn_tot*deltat);                                                  
                       else
-                        flux=flux/(1.0-gamma*surrogate[j].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[j].Jdn_tot*deltat);
+			{
+			  cout << 
+			  flux=flux/(1.0-gamma*surrogate[j].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[j].Jdn_tot*deltat);
+			  }*/
 
                       if (flux>0.0)                        
                         flux=flux/(1.0-gamma*surrogate[i].Jdn_aq(b,index)*deltat-gamma*surrogate[i].Jdn_tot*deltat);                                                  
@@ -4401,6 +4411,11 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
   double sumt;
   double sumconc,sumconc2;
 
+  /*
+  for (i=0;i<n;i++)
+    if (surrogate[i].name=="BiDER")
+    cout << surrogate[i].Atot+surrogate[surrogate[i].ioligo].Atot << " " << surrogate[surrogate[i].ioligo].Atot << " " << surrogate[surrogate[i].ioligo].Ag << " " << sum(surrogate[surrogate[i].ioligo].Aaq_bins_init) << endl;*/
+
   while (iter<50 and error_chp>1.0e-3)
     {
       error_chp=0.0;
@@ -4450,7 +4465,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
       surrogate[i].Ag1=surrogate[i].Ag;
       surrogate[i].Atot0=surrogate[i].Atot;
       surrogate[i].Ap_layer_init0=surrogate[i].Ap_layer_init;
-      surrogate[i].Aaq_bins_init0=surrogate[i].Aaq_bins_init;
+      surrogate[i].Aaq_bins_init0=surrogate[i].Aaq_bins_init;      
     }
 
   //compute kinetic rates
@@ -4543,7 +4558,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
               surrogate[i].ktot1+=surrogate[i].flux_chem_aq(b,0); 
             }                      
 
-        surrogate[i].Atot=max(redmax*surrogate[i].Atot,surrogate[i].Atot+surrogate[i].ktot1);
+        surrogate[i].Atot=max(redmax*surrogate[i].Atot,surrogate[i].Atot0+surrogate[i].ktot1);	
 	
 	surrogate[i].Ag=surrogate[i].Atot;
 	if (config.compute_organic)

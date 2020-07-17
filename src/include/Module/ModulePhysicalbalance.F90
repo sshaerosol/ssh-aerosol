@@ -1,4 +1,4 @@
-!!-----------------------------------------------------------------------
+ !!-----------------------------------------------------------------------
 !!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
@@ -187,14 +187,19 @@ contains
     double precision:: total_number,total_mass_t
 
     do jesp=1,N_aerosol
-      total_aero_mass(jesp)=0.d0
+       total_aero_mass(jesp)=0.d0
+       if (frac_oligo(jesp)>0.) then
+          t_mass(jesp)=t_mass(jesp)+t_mass(oligo_index(jesp))
+          t_mass(oligo_index(jesp))=0.d0
+       endif
     enddo
     bin_mass=0.d0
     cell_mass=0.d0
     bin_number=0.d0
     total_number=0.d0
     total_mass_t=0.d0
-	  !check all not negtive value is allowed
+    !check all not negtive value is allowed   
+    
     do j=1,N_size
       tmp_cell=0.d0
       k=concentration_index(j, 1)
@@ -282,6 +287,21 @@ contains
           enddo
        endif
     enddo
+    
+    do s=N_nonorganics+1, N_aerosol_layers-1
+       jesp = List_species(s)
+       if (frac_oligo(jesp)>0.) then          
+          do j=1,N_size             
+             c_mass(j,oligo_index(jesp))=frac_oligo(jesp)*c_mass(j,s)
+             c_mass(j,s)=(1.d0-frac_oligo(jesp))*c_mass(j,s)
+             t_mass(oligo_index(jesp))=t_mass(oligo_index(jesp))+c_mass(j,oligo_index(jesp))
+             t_mass(jesp)=t_mass(jesp)-c_mass(j,oligo_index(jesp))           
+          enddo
+       endif                     
+    enddo
+
+    
+    
 
   end subroutine ssh_mass_conservation
 

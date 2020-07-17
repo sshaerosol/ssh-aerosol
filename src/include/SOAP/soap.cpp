@@ -276,9 +276,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	 MOinit += surrogate[i].Ap;
 
       global_equilibrium_ssh(config,surrogate,
-                         MOinit,MOW,
-                         LWC, AQinit, ionic, chp,
-                         Temperature, RH);
+			     MOinit,MOW,
+			     LWC, AQinit, ionic, chp,
+			     Temperature, RH, deltat);
 
       // Give back the concentrations
       for (i = 0; i < n; ++i)
@@ -496,6 +496,24 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       // Give back the concentrations
       for (i = 0; i < n; ++i)
         {
+	  if (surrogate[i].name.substr(0,5)=="Oligo")
+	    {
+	      double total=0.0;
+	      total=sum(surrogate[i].Aaq_bins)+sum(surrogate[i].Ap_layer);
+	      if (total>0.)
+		{
+		  for (b = 0; b < config.nbins; ++b)                      
+		    surrogate[i].Aaq_bins(b)*=surrogate[i].Atot/total;
+                      
+                  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                     for (b = 0; b < config.nbins; ++b)
+                        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                          surrogate[i].Ap_layer(b,ilayer,iphase)*=surrogate[i].Atot/total;                         
+		}
+	      
+	    }
+
+	  
           int iq = surrogate[i].soap_ind;
           if (iq != -1)
             {

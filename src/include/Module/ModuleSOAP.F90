@@ -11,7 +11,7 @@ Module kSOAP
 contains
 
   SUBROUTINE SSH_SOAP_EQ(lwcorg, lwc, rh, ionic, proton, &
-       temp, aero, gas, liquid)
+       temp, aero, gas, liquid, delta_t)
 
 !------------------------------------------------------------------------
 !
@@ -66,6 +66,7 @@ contains
       DOUBLE PRECISION lwc, lwcorg, rh, temp
       DOUBLE PRECISION ionic, proton, chp
       DOUBLE PRECISION liquid(12)
+      DOUBLE PRECISION delta_t
 
       INTEGER i,j
 
@@ -75,7 +76,7 @@ contains
 
       csol = 0.D0
       DSD = 0.D0    
-      dt2 = 0.0
+      dt2 = delta_t
 
 !    Calculate the concentration of hydronium ion in water
 !    microg/m3(=micromol/m3) / microg/m3 (H+ molar mass: 1 g/mol) 
@@ -97,14 +98,24 @@ contains
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
 !     If gaseoues species don't exist, gas(j) can't be a gas-phase
-!     concentration of the species and it must be set to zero.
+      !     concentration of the species and it must be set to zero.
+      frac_oligo(:)=0.d0
       DO i = 1,nesp_aec
-         j = aec_species(i)
+         j = aec_species(i)        
          IF (aerosol_species_interact(j).LT.0) THEN
             aero(j) = aero(j) + gas(j)
             gas(j) = 0.0
          ENDIF
-      ENDDO
+
+         IF (oligo_index(j)>0) THEN
+             
+            if (aero(oligo_index(j))+aero(j)>0.d0) then
+               frac_oligo(j)=aero(oligo_index(j))/(aero(oligo_index(j))+aero(j))
+               aero(j)=aero(j)+aero(oligo_index(j))
+               aero(oligo_index(j))=0.               
+            endif
+         ENDIF      
+      ENDDO      
 
     END SUBROUTINE SSH_SOAP_EQ
 
@@ -203,7 +214,7 @@ contains
          enddo
       enddo
       do jesp = 1,N_aerosol
-        if (inon_volatile(jesp).EQ.0) then
+        if (inon_volatile(jesp).EQ.0..and. aerosol_species_interact(jesp).GT.0) then
            q_soap(N_size*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
         endif
       enddo
@@ -221,7 +232,7 @@ contains
              jj=IQ(s,js)
              qaero(jesp)=qaero(jesp)+q_soap(jj)
           END DO
-          if (inon_volatile(jesp).EQ.0) then
+          if (inon_volatile(jesp).EQ.0.and. aerosol_species_interact(jesp).GT.0) then
              qgas(jesp) = q_soap(N_size * (1 + N_aerosol_layers) + jesp)
           endif
         endif
@@ -280,9 +291,11 @@ contains
       do jesp = 1,N_aerosol
         if (inon_volatile(jesp).EQ.0) then
               concentration_gas(jesp) = q_soap(N_size*(1+N_aerosol_layers) + jesp) 
-        else
-                ! Add initial gas concentration that were not added to soap
-              concentration_gas(jesp) = concentration_gas(jesp) + q_soap(N_size*(1+N_aerosol_layers) + jesp) 
+           else
+              if ( aerosol_species_interact(jesp).GT.0) then
+                 ! Add initial gas concentration that were not added to soap
+                 concentration_gas(jesp) = concentration_gas(jesp) + q_soap(N_size*(1+N_aerosol_layers) + jesp)
+              endif
         endif
       enddo
 

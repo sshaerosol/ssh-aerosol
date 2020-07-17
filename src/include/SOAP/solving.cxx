@@ -1,3 +1,4 @@
+
 //!!-----------------------------------------------------------------------
 //!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 //!!     SSH-aerosol is distributed under the GNU General Public License v3
@@ -35,7 +36,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
     {      
       // If the syst is coupled particulate hydrophilic compounds concentrations
       //must be computed simultaneously with the particulate hydrophobic compounds concentrations
-      cout << "The system is coupled." << endl;
+      //cout << "The system is coupled." << endl;
       if (LWC>config.LWClimit)
         {       
           bool all_hydrophobic=false;
@@ -1146,13 +1147,12 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 void solve_system_ssh(model_config &config, vector<species>& surrogate,
                       double &MOinit,double &MOW,
                       double &LWC, double &AQinit, double &ionic, double &chp,
-                      double &Temperature, double &RH)
+                      double &Temperature, double &RH, double &deltat)
 {
   //double organion=0.0;
   double conc_inorganic=0.0;
   //double ionic_organic=0.0;
-  //double MMaq;
-  double deltat=3600.0;
+  //double MMaq;  
   int i,it;
   
   int n=surrogate.size();
@@ -1182,7 +1182,7 @@ void solve_system_ssh(model_config &config, vector<species>& surrogate,
 void global_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                             double &MOinit,double &MOW,
                             double &LWC, double &AQinit, double &ionic, double &chp,
-                            double &Temperature, double &RH)
+                            double &Temperature, double &RH, double &deltat)
 {
   int icycle;
   if (config.compute_inorganic)
@@ -1207,20 +1207,20 @@ void global_equilibrium_ssh(model_config &config, vector<species>& surrogate,
       //config.solids=true;
       //config.compute_organic=false;
       solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
-                       chp, Temperature, RH);   
+                       chp, Temperature, RH, deltat);   
     }
   else
     for (icycle=0;icycle<config.number_of_org_inorg_cycles;icycle++)
       {
         config.compute_organic=false;
         solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
-                         chp, Temperature, RH);
+                         chp, Temperature, RH, deltat);
         config.compute_inorganic=false;
 	
 
         config.compute_organic=true;
         solve_system_ssh(config, surrogate, MOinit, MOW, LWC, AQinit, ionic, 
-                         chp, Temperature, RH);
+                         chp, Temperature, RH, deltat);
         config.compute_inorganic=true;
       }
 }
@@ -1828,27 +1828,30 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 		if (config.compute_aqueous_phase_properties or chp(b)==0.)
 		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);              
 		else
-		  {
-		    if (surrogate[i].aqt==2) //diacid
-		      {
-			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*
-			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
-			   (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
-			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
-			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
-			surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp(b)))/
-			  (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
-		      }
-		    else if (surrogate[i].aqt==1) //monoacid
-		      {
-			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
-			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
-		      }
-		    else if (surrogate[i].aqt==3) //aldehyde
-		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
-		    else
-		      surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);
-		  }
+		  if (surrogate[i].nonvolatile)
+		    surrogate[i].veckaqi(b)=1000.;
+		  else
+		    {
+		      if (surrogate[i].aqt==2) //diacid
+			{
+			  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*
+			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
+			     (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			  surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			}
+		      else if (surrogate[i].aqt==1) //monoacid
+			{
+			  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+			}
+		      else if (surrogate[i].aqt==3) //aldehyde
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+		      else
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);
+		    }
 	      }
       }
 
@@ -2344,7 +2347,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
                        MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
 		  
           if (deltat1<0.999*deltat2) //if the new time step is inferior to the old one
-            {   	      
+            {	     
 	      //the old time step is rejected
               for (i=0;i<n;++i)
                 {
@@ -2368,6 +2371,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 			  surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init0(b);		  
 			  surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b);	
 			}
+		  surrogate[i].Atot=surrogate[i].Atot0;
                 }
 
               for (b=0;b<config.nbins;++b)

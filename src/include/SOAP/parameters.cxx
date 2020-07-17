@@ -1893,9 +1893,14 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   config.nh_org_init=1;
   config.nh_max=5;
   config.molalmax=70.e6; //Limit high values of molalities to prevent numerical issues
+
+  //parameters for oligomerization
+  config.moligo=2.;
+  config.koligo=2.2e-4; //s-1
+  config.Keq_oligo=2.94;
 	  
   //create the vector of species and the various parameters of the model
-  creation_species_ssh(surrogate,species_list_aer, molecular_weight_aer,
+  creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization, config.nlayer); 
   system_coupling_ssh(config, surrogate);

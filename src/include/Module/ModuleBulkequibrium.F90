@@ -1,4 +1,4 @@
-!!-----------------------------------------------------------------------
+ !!-----------------------------------------------------------------------
 !!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
@@ -15,7 +15,7 @@ Module iBulkequibrium
 contains
 
   subroutine ssh_bulkequi_org(nesp_eq, &
-       lwc, watorg, ionic, proton, liquid)
+       lwc, watorg, ionic, proton, liquid, delta_t)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -40,6 +40,7 @@ contains
     double precision rhop_tmp,emw_tmp,wet_diam
     integer :: eq_species(nesp_eq)! species compute with equilibrium
     double precision:: total_ms(N_aerosol)
+    double precision:: delta_t
 
     !**** SOAP ****
     double precision :: liquid(12), ionic
@@ -102,7 +103,7 @@ contains
       do j=1,N_size
 	qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
       enddo
-      if (inon_volatile(jesp).EQ.0) then
+      if (inon_volatile(jesp).EQ.0 .and. aerosol_species_interact(jesp).GT.0) then
          qgas(jesp)=concentration_gas(jesp)
       else
          qgas(jesp) = 0.d0
@@ -134,7 +135,7 @@ contains
 
     if (ISOAPDYN.eq.0) then
        call ssh_soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
-            Temperature, qaero, qgas, liquid)
+            Temperature, qaero, qgas, liquid, delta_t)
     endif
 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
@@ -148,16 +149,16 @@ contains
       !for organic
     do s=1,nesp_eq
       jesp=eq_species(s)
-      if(aerosol_species_interact(jesp).GT.0) then
-	qext(jesp)=qaero(jesp)
-        if (inon_volatile(jesp).EQ.0) &
-	    concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
-	if(qext(jesp).gt.0.d0) then
-	  dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
-	else
-	  dq(jesp)=-qextold(jesp)
-	endif
+      !if(aerosol_species_interact(jesp).GT.0) then
+      qext(jesp)=qaero(jesp)
+      if (inon_volatile(jesp).EQ.0.or.aerosol_species_interact(jesp).EQ.0) &
+           concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
+      if(qext(jesp).gt.0.d0) then
+         dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
+      else
+         dq(jesp)=-qextold(jesp)
       endif
+      !endif            
     enddo
 
 !     ******redistribute on each cell according to Rates

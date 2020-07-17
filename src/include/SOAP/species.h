@@ -44,7 +44,7 @@ namespace ssh_soap
         int iHCl,iHNO3,iNH3,iH2SO4;
 
 	double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
-	double Ke;
+	double Ke, moligo;
 
 	//equilibrium parameters:
 	double precision; //absolute precision under which the system has been solved 

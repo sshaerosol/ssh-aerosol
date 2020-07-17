@@ -45,21 +45,23 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
     surrogate.push_back(current_species);
 }
 
-void add_generic_species_ssh( vector<species>& surrogate, 
-			      vector<string> species_list_aer,
-			      double molecular_weight_aer[],
-			      double accomodation_coefficient[],
-			      int aerosol_type[],
-			      vector<string> species_smiles,
-			      double saturation_vapor_pressure[],
-			      double enthalpy_vaporization[],
-			      int nlayer)
+void add_generic_species_ssh(model_config &config, 
+			     vector<species>& surrogate, 
+			     vector<string> species_list_aer,
+			     double molecular_weight_aer[],
+			     double accomodation_coefficient[],
+			     int aerosol_type[],
+			     vector<string> species_smiles,
+			     double saturation_vapor_pressure[],
+			     double enthalpy_vaporization[],
+			     int nlayer)
 {
 
   int j,n,found;
   n=surrogate.size();
   int nsp = species_list_aer.size();
   
+  config.chemistry=false;
   // Find the number in the aerosol species list  
   for (int i = 0; i < nsp; ++i)
     if (aerosol_type[i]==4 and saturation_vapor_pressure[i]>0. and species_smiles[i]!="-")
@@ -84,7 +86,7 @@ void add_generic_species_ssh( vector<species>& surrogate,
 	    X.Henry=0.;     // Henry's law constant at Tref (M/atm)
 	    X.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
 	    X.hydrophilic=true;   // Does the species condense on the aqueous phase?
-	    X.hydrophobic=false;  // Does the species condense on the organic phase?
+	    X.hydrophobic=true;  // Does the species condense on the organic phase?
 	    X.nonvolatile=false; // Is the compound nonvolatile?
 	    X.is_organic=true;  // Is the compound organic?
 	    X.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
@@ -105,10 +107,56 @@ void add_generic_species_ssh( vector<species>& surrogate,
 	    surrogate.push_back(X);	  
 	  }
       }
+    else if (species_list_aer[i].substr(1,5) == "Oligo")
+      {
+	int ij=-1;
+	for (j=0;j<n;j++)
+	  if (species_list_aer[i].substr(1,-1) == "Oligo"+surrogate[j].name)
+	    {
+	      ij=j;
+	    }
+
+	if (ij>0)
+	  {
+	    config.chemistry=true;
+	    
+	    surrogate[ij].is_monomer=true;
+	    surrogate[ij].name_oligomer=species_list_aer[i].substr(1,-1);
+	    surrogate[ij].moligo=config.moligo;
+	    
+	    species X;
+	    X.name=species_list_aer[i].substr(1,-1);
+	    X.is_inorganic_precursor=false;
+	    X.smile="";
+	    X.aq_type="none";
+	    X.hydrophilic=surrogate[ij].hydrophilic;   // Does the species condense on the aqueous phase?
+	    X.hydrophobic=surrogate[ij].hydrophobic;  // Does the species condense on the organic phase?
+	    X.nonvolatile=true; // Is the compound nonvolatile?
+	    X.kp_from_experiment=false;
+	    X.is_organic=true;  // Is the compound organic?
+	    X.compute_gamma_org=surrogate[ij].compute_gamma_org;  // Compute the activity coefficients of the organic phase for this compound?
+	    X.compute_gamma_aq=surrogate[ij].compute_gamma_aq;  // Compute the activity coefficients of the aqueous phase for this compound?
+	    X.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+	    X.rho=1300.0;
+	    X.is_monomer=false;
+	    X.rion=false;
+	    X.KDiffusion_air=1.0e-5;
+	    // BiA2D.accomodation_coefficient=alpha;
+	    X.viscosity=1.68e12;
+	    X.is_solid=false;	  
+	    X.MM =  molecular_weight_aer[i] / 1.e6;
+	    X.accomodation_coefficient = accomodation_coefficient[i];
+	    X.soap_ind = i;
+	    X.soap_ind_aero = (i-7) * (nlayer-1) + i;
+	    X.is_generic=false;
+	    surrogate.push_back(X);	    
+
+	  }
+      }
 }
 
   
-void creation_species_ssh( vector<species>& surrogate, vector<string> species_list_aer,
+void creation_species_ssh( model_config &config, vector<species>& surrogate, vector<string> species_list_aer,
 			   double molecular_weight_aer[], double accomodation_coefficient[],
 			   int aerosol_type[],
 			   vector<string> species_smiles, double saturation_vapor_pressure[],
@@ -143,6 +191,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   // BiA2D.accomodation_coefficient=alpha;
   BiA2D.viscosity=1.68e12;
   BiA2D.is_solid=false;
+  BiA2D.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -207,6 +256,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiA1D.accomodation_coefficient=alpha;
   BiA1D.viscosity=1.68e12;
   BiA1D.is_solid=false;
+  BiA1D.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -271,6 +321,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiA0D.accomodation_coefficient=alpha;
   BiA0D.viscosity=1.68e12;
   BiA0D.is_solid=false;
+  BiA0D.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -331,6 +382,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiMT.accomodation_coefficient=alpha;
   BiMT.viscosity=1.68e12;
   BiMT.is_solid=false;
+  BiMT.is_generic=false;
  
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -392,6 +444,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiPER.accomodation_coefficient=alpha;
   BiPER.viscosity=1.68e12;
   BiPER.is_solid=false;
+  BiPER.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -452,6 +505,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiDER.accomodation_coefficient=alpha;
   BiDER.viscosity=1.68e12;
   BiDER.is_solid=false;
+  BiDER.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -514,6 +568,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiMGA.accomodation_coefficient=alpha;
   BiMGA.viscosity=1.68e12;
   BiMGA.is_solid=false;
+  BiMGA.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -574,6 +629,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  AnBlP.accomodation_coefficient=alpha;
   AnBlP.viscosity=1.68e12;
   AnBlP.is_solid=false;
+  AnBlP.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -634,6 +690,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  AnBmP.accomodation_coefficient=alpha;
   AnBmP.viscosity=1.68e12;
   AnBmP.is_solid=false;
+  AnBmP.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -694,6 +751,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiBlP.accomodation_coefficient=alpha;
   BiBlP.viscosity=1.68e12;  
   BiBlP.is_solid=false;
+  BiBlP.is_generic=false;  
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -755,6 +813,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiBmP.accomodation_coefficient=alpha;
   BiBmP.viscosity=1.68e12;  
   BiBmP.is_solid=false;
+  BiBmP.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -812,6 +871,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  AnClP.accomodation_coefficient=alpha;
   AnClP.viscosity=1.68e12;  
   AnClP.is_solid=false;
+  AnClP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -872,6 +932,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiNGA.accomodation_coefficient=alpha;
   BiNGA.viscosity=1.68e12;
   BiNGA.is_solid=false;
+  BiNGA.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -932,6 +993,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiNIT3.accomodation_coefficient=alpha;
   BiNIT3.viscosity=1.68e12;  
   BiNIT3.is_solid=false;
+  BiNIT3.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -992,6 +1054,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  BiNIT.accomodation_coefficient=alpha;
   BiNIT.viscosity=1.68e12;  
   BiNIT.is_solid=false;
+  BiNIT.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1052,6 +1115,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  POAlP.accomodation_coefficient=alpha;
   POAlP.viscosity=1.68e12;  
   POAlP.is_solid=false;
+  POAlP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1108,6 +1172,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  POAmP.accomodation_coefficient=alpha;
   POAmP.viscosity=1.68e12;  
   POAmP.is_solid=false;
+  POAmP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1164,6 +1229,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  POAhP.accomodation_coefficient=alpha;
   POAhP.viscosity=1.68e12;  
   POAhP.is_solid=false;
+  POAhP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1220,7 +1286,8 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  SOAlP.accomodation_coefficient=alpha;
   SOAlP.viscosity=1.68e12;  
   SOAlP.is_solid=false;
-
+  SOAlP.is_generic=false;
+ 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
@@ -1275,7 +1342,8 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   SOAmP.KDiffusion_air=1.0e-5;
   //  SOAmP.accomodation_coefficient=alpha;
   SOAmP.viscosity=1.68e12;
-  SOAmP.is_solid=false;  
+  SOAmP.is_solid=false;
+  SOAmP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1332,6 +1400,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  SOAhP.accomodation_coefficient=alpha;
   SOAhP.viscosity=1.68e12;  
   SOAhP.is_solid=false;
+  SOAhP.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1391,6 +1460,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  Monomer.accomodation_coefficient=alpha;
   Monomer.viscosity=1.68e12;
   Monomer.is_solid=false;
+  Monomer.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1451,6 +1521,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   //  Dimer.accomodation_coefficient=alpha;
   Dimer.viscosity=1.68e12;
   Dimer.is_solid=false;
+  Dimer.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1513,6 +1584,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   BiA3D.KDiffusion_air=1.0e-5;
   BiA3D.viscosity=1.68e12;
   BiA3D.is_solid=false;
+  BiA3D.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
@@ -1577,6 +1649,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   ACIDMAL.KDiffusion_air=1.0e-5;
   ACIDMAL.viscosity=1.68e12;
   ACIDMAL.is_solid = false;
+  ACIDMAL.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1637,6 +1710,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   DHMB.KDiffusion_air=1.0e-5;
   DHMB.viscosity=1.68e12;  
   DHMB.is_solid=false;
+  DHMB.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1699,6 +1773,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   PAHlN.KDiffusion_air=1.0e-5;
   PAHlN.viscosity=1.68e12;  
   PAHlN.is_solid=false;
+  PAHlN.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1761,7 +1836,8 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   PAHhN.KDiffusion_air=1.0e-5;
   PAHhN.viscosity=1.68e12;  
   PAHhN.is_solid=false;
-  
+  PAHhN.is_generic=false;
+   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
   
@@ -1821,6 +1897,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   PSYR.KDiffusion_air=1.0e-5;
   PSYR.viscosity=1.68e12; 
   PSYR.is_solid=false;
+  PSYR.is_generic=false;
 
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1881,6 +1958,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
   GHDPerox.KDiffusion_air=1.0e-5;
   GHDPerox.viscosity=1.68e12; 
   GHDPerox.is_solid=false;
+  GHDPerox.is_generic=false;
   
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients 
@@ -1918,7 +1996,7 @@ void creation_species_ssh( vector<species>& surrogate, vector<string> species_li
 		  accomodation_coefficient,nlayer);
 
 
-  add_generic_species_ssh(surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
+  add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
 			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, nlayer);
   
   species H2O;
