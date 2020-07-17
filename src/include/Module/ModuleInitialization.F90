@@ -101,7 +101,7 @@ module aInitialization
   ! Number of different species group
   Integer, dimension(:), allocatable, save :: isorropia_species
   Integer, dimension(:), allocatable, save :: aec_species
-  Integer, save :: nesp, nesp_isorropia, nesp_aec, nesp_eq_org
+  Integer, save :: nesp, nesp_isorropia, nesp_aec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
@@ -1438,7 +1438,6 @@ contains
     end do
     N_inorganic = nesp_isorropia
     N_organics = nesp_aec
-    nesp_eq_org = N_organics
     
     if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
     if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert
@@ -1980,7 +1979,6 @@ contains
     end do
     N_inorganic = nesp_isorropia
     N_organics = nesp_aec
-    nesp_eq_org = N_organics
     
     if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
     if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert

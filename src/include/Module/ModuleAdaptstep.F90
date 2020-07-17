@@ -223,7 +223,7 @@ contains
 
           
 
-          call ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid, delta_t)!equilibrium for organic
+          call ssh_bulkequi_org(nesp_aec,lwc,lwcorg,ionic,proton,liquid, delta_t)!equilibrium for organic
           call ssh_mass_conservation(concentration_mass,concentration_number,&
                                  concentration_gas, total_mass)
 
