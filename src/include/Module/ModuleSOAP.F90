@@ -11,7 +11,7 @@ Module kSOAP
 contains
 
   SUBROUTINE SSH_SOAP_EQ(lwcorg, lwc, rh, ionic, proton, &
-       temp, aero, gas, liquid, delta_t)
+       temp, aero, gas, liquid, delta_t, qaq)
 
 !------------------------------------------------------------------------
 !
@@ -33,6 +33,7 @@ contains
 !
 !     AERO: aerosol bulk concentration ([\mu g.m^-3]).
 !     GAS: gas concentration ([\mu g.m^-3]).
+!     QAQ: aerosol bulk concentration in the aqueous phase
 !
 !     -- OUTPUT VARIABLES
 !
@@ -67,6 +68,7 @@ contains
       DOUBLE PRECISION ionic, proton, chp
       DOUBLE PRECISION liquid(12)
       DOUBLE PRECISION delta_t
+      DOUBLE PRECISION qaq(N_aerosol)
 
       INTEGER i,j
 
@@ -87,13 +89,13 @@ contains
       !print*,smiles
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
-           N_aerosol, N_aerosol_layers, neq, q, aero, gas, &
+           N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap)
+           coupled_phases, activity_model, epser_soap, i_hydrophilic)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -184,6 +186,7 @@ contains
       double precision deltat
       double precision DSD(N_size)
       double precision csol(N_size) !! Concentration of solid particles (PBC + PMD)
+      DOUBLE PRECISION qaq(N_aerosol)
 
       integer icpt, i
 
@@ -262,17 +265,15 @@ contains
 
       lwcorg=0.
 
-
-      !print*,smiles
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
-           N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qgas, &
+           N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, &      
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap)
+           coupled_phases, activity_model, epser_soap, i_hydrophilic)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size

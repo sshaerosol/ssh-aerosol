@@ -364,6 +364,8 @@ contains
 
 
     speciesfrac=1.d0  !adjust mass distribution for different species
+    concentration_mass = 0.d0
+    concentration_number = 0.d0
 
     ! calculate the referenced initial mass and number distribution of each bin
     if(tag_init.eq.0) then 
@@ -429,6 +431,10 @@ contains
                          jesp = index_species(s,lay)
                          concentration_mass(j,jesp) = init_bin_mass(k,s) * Vlayer(lay)
                       enddo
+                      if(i_hydrophilic==1) then
+                        jesp = index_species(s,nlayer+i_hydrophilic)
+                        concentration_mass(j,jesp) = 0.d0 ! Initialise the aqueous phase to zero
+                      endif
                    endif
                    !                  endif
                    if(tag_emis .ne. 0 .and. with_emis_num.eq.1) then !!in case of external mixed initial condition
@@ -467,6 +473,10 @@ contains
                          jesp = index_species(s,lay)
                          concentration_mass(j,jesp) = init_bin_mass(k,s)* Vlayer(lay)
                       enddo
+                      if(i_hydrophilic==1) then
+                        jesp = index_species(s,nlayer+i_hydrophilic)
+                        concentration_mass(j,jesp) = 0.d0 ! Initialise the aqueous phase to 0
+                      endif
                    endif
                    !                   endif
                    if(tag_emis .ne. 0 .and.with_emis_num.eq.1) then !!in case of external mixed initial condition
@@ -497,6 +507,10 @@ contains
                    endif
                    concentration_mass(k,jesp) = init_bin_mass(k,s)* Vlayer(lay)
                 enddo
+                if(i_hydrophilic==1) then
+                  jesp = index_species(s,nlayer+i_hydrophilic)
+                  concentration_mass(k,jesp) = 0.d0 ! Initialise the aqueous phase to 0
+                endif
              endif
           enddo
           ! number
