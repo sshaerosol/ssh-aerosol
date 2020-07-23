@@ -102,7 +102,7 @@ module aInitialization
   ! Number of different species group
   Integer, dimension(:), allocatable, save :: isorropia_species
   Integer, dimension(:), allocatable, save :: aec_species
-  Integer, save :: nesp, nesp_isorropia, nesp_aec, nesp_eq_org
+  Integer, save :: nesp, nesp_isorropia, nesp_aec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
@@ -248,7 +248,7 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
   double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
   double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
-  character(len=40),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  character(len=100),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
@@ -259,7 +259,7 @@ module aInitialization
   double precision, save :: surface_tension_inorg, surface_tension_aq, surface_tension_org
 
   double precision, save :: dorg
-  integer, save :: coupled_phases
+  integer, save :: coupled_phases,i_hydrophilic
   integer, save :: nlayer
   integer ,dimension(:), allocatable, save :: layer_number ! Number of the layer
   double precision, dimension(:), allocatable, save :: Vlayer
@@ -1098,6 +1098,11 @@ contains
           if (ssh_standalone) write(*,*) 'without condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) 'without condensation/ evaporation.'
        end if
+       if(coupled_phases == 1) then
+          i_hydrophilic = 1 
+       else 
+          i_hydrophilic = 0 
+       endif
     end if
 
     ! nucleation
@@ -1230,7 +1235,7 @@ contains
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp    
     character (len=40),dimension(nspecies) :: name_input_species
-    character (len=40) :: smiles_tmp
+    character (len=100) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp, char1,char2
     character (len=10) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh
@@ -1439,7 +1444,6 @@ contains
     end do
     N_inorganic = nesp_isorropia
     N_organics = nesp_aec
-    nesp_eq_org = N_organics
     
     if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
     if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert
@@ -1452,7 +1456,7 @@ contains
 
     ! Allocate aerosol arrays
     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
+    N_aerosol_layers = N_organics * ((nlayer-1)+i_hydrophilic) + N_aerosol
     EH2O_layers = N_aerosol_layers
     allocate(mass_density_layers(N_aerosol_layers))
     allocate(List_species(N_aerosol_layers))
@@ -1493,7 +1497,7 @@ contains
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
 
-          do ilayer=1,nlayer
+          do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
           enddo
           layer_number(s) = 1
@@ -1501,8 +1505,8 @@ contains
        else
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
           if(s.NE.N_aerosol) then !avoid water
-             do ilayer = 0,nlayer-1
-                esp_layer = (s-N_nonorganics-1) *(nlayer-1) + s + ilayer
+             do ilayer = 0,(nlayer-1 + i_hydrophilic)
+                esp_layer = (s-N_nonorganics-1) *(nlayer-1+i_hydrophilic) + s + ilayer
                 index_species(s,ilayer+1) = esp_layer
                 mass_density_layers(esp_layer) = mass_density(s)
                 List_species(esp_layer) = s
@@ -1514,7 +1518,7 @@ contains
              enddo
           else
              List_species(N_aerosol_layers) = s
-             do ilayer=1,nlayer
+             do ilayer=1,(nlayer + i_hydrophilic)
                 index_species(N_aerosol,ilayer) = N_aerosol_layers 
              enddo
              layer_number(N_aerosol_layers) = 1
@@ -1889,7 +1893,7 @@ contains
     spec_name_len = len(aerosol_species_name(1))
     allocate(Index_groups(N_aerosol))
     allocate(aerosol_type(N_aerosol))
-    allocate(index_species(N_aerosol,nlayer))
+    allocate(index_species(N_aerosol,nlayer+i_hydrophilic))
     ! initialize basic physical and chemical parameters
     allocate(molecular_weight_aer(N_aerosol))
     allocate(collision_factor_aer(N_aerosol))
@@ -1981,7 +1985,6 @@ contains
     end do
     N_inorganic = nesp_isorropia
     N_organics = nesp_aec
-    nesp_eq_org = N_organics
     
     if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
     if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert
@@ -1994,7 +1997,7 @@ contains
 
     ! Allocate aerosol arrays
     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    N_aerosol_layers = N_organics * (nlayer-1) + N_aerosol
+    N_aerosol_layers = N_organics * (nlayer-1 + i_hydrophilic) + N_aerosol
     EH2O_layers = N_aerosol_layers
     allocate(mass_density_layers(N_aerosol_layers))
     allocate(List_species(N_aerosol_layers))
@@ -2034,7 +2037,7 @@ contains
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
 
-          do ilayer=1,nlayer
+          do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
           enddo
           layer_number(s) = 1
@@ -2042,8 +2045,8 @@ contains
        else
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
           if(s.NE.N_aerosol) then !avoid water
-             do ilayer = 0,nlayer-1
-                esp_layer = (s-N_nonorganics-1) *(nlayer-1) + s + ilayer
+             do ilayer = 0,(nlayer-1 + i_hydrophilic)
+                esp_layer = (s-N_nonorganics-1) *(nlayer-1+i_hydrophilic) + s + ilayer
                 index_species(s,ilayer+1) = esp_layer
                 mass_density_layers(esp_layer) = mass_density(s)
                 List_species(esp_layer) = s
@@ -2055,7 +2058,7 @@ contains
              enddo
           else
              List_species(N_aerosol_layers) = s
-             do ilayer=1,nlayer
+             do ilayer=1,(nlayer + i_hydrophilic)
                 index_species(N_aerosol,ilayer) = N_aerosol_layers 
              enddo
              layer_number(N_aerosol_layers) = 1

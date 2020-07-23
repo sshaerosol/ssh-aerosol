@@ -2384,7 +2384,7 @@ void compute_ph_dyn_ssh(model_config &config, vector<species> &surrogate, double
 		      chp2(b)=chp2(b)+error_h;		  
 		}	
 	      error_tot=max(error_tot,abs(error_h)/chp2(b));
-	      chp(b)=factor*min(chp2(b),10.)+(1.0-factor)*chp(b);	      
+	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
             }	  
           surrogate[config.iHp].Aaq_bins_init(b)=chp(b)*conc_org(b)/1000.0;
         }
@@ -2559,7 +2559,7 @@ void compute_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, doubl
 		      chp2(b)=chp2(b)+error_h;		  
 		}	
 	      error_tot=max(error_tot,abs(error_h)/chp2(b));
-	      chp(b)=factor*min(chp2(b),10.)+(1.0-factor)*chp(b);	      
+	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
             }	  
           surrogate[config.iHp].Aaq_bins(b)=chp(b)*conc_org(b)/1000.;
         }
@@ -2783,7 +2783,7 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
 		  
 		  //cout << chp2(b) << endl;
 		}
-	      chp(b)=factor*min(chp2(b),10.)+(1.0-factor)*chp(b);
+	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);
 
               conc_org=LWC(b);	  
               for (i=0;i<n;i++)

@@ -1992,7 +1992,8 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   //cout << "ions: " << config.gamma_MR_ions << endl;  
   //cout << "MR: " << config.gamma_MR_ions << " " << ionic << " " << config.molality << endl;
   //cout << "solv: " << config.gamma_MR_solvents << endl;
-
+  if (max(config.gamma_MR_ions)<exp(-11.5) or min(config.gamma_MR_ions)>exp(11.5))
+    config.gamma_MR_solvents=1.;
   for (i=0;i<n;++i)
     if (surrogate[i].is_ion)
       {
@@ -2002,7 +2003,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
 	    //cout << "error " << endl;
 	    //cout << config.gamma_MR_ions(surrogate[i].index_ion) << " " << gamma_mr_old(surrogate[i].index_ion) << endl;
 	    config.gamma_MR_ions(surrogate[i].index_ion)=gamma_mr_old(surrogate[i].index_ion);
-	    config.gamma_MR_solvents=1.0;
+	    //config.gamma_MR_solvents=1.0;
 	    
 	  }
         surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
