@@ -110,14 +110,15 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       species_list_aer.push_back(tmp3);
     }
 
+  int smile_len=100;
   string tmp2b;
-  for (i = 0; i < ns_aer * name_len; i++)
+  for (i = 0; i < ns_aer * smile_len; i++)
     tmp2b.push_back(smiles[i]);
   
   for (i = 0; i < ns_aer; i++)
     {
-      string tmp3(tmp2b.substr(i * name_len, name_len));
-      for (int j = name_len - 1; j >= 0; --j)
+      string tmp3(tmp2b.substr(i * smile_len, smile_len));
+      for (int j = smile_len - 1; j >= 0; --j)
         {
           if(tmp3[j] == ' ')
             tmp3.erase(j, 1);

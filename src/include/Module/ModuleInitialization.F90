@@ -247,7 +247,7 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
   double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
   double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
-  character(len=40),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  character(len=100),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
@@ -1234,7 +1234,7 @@ contains
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp    
     character (len=40),dimension(nspecies) :: name_input_species
-    character (len=40) :: smiles_tmp
+    character (len=100) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp, char1,char2
     character (len=10) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh

@@ -215,10 +215,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //greoup peroxyacetyl acid
   
   int size = sizeof(group_tmp_bia2d)/sizeof(double);
-  assert(size = 55);
+  assert(size = 56);
 	
   for(int i = 0; i < size; ++i)
     BiA2D.groups[i] = group_tmp_bia2d[i];
@@ -280,10 +281,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,    //group PAN
+			       0.0};  //group OOOH
   
   size = sizeof(group_tmp_bia1d)/sizeof(double);
-  assert(size = 55);
+  assert(size = 56);
 	
   for(int i = 0; i < size; ++i)
     BiA1D.groups[i] = group_tmp_bia1d[i];
@@ -345,10 +347,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group OOOH
 
   size = sizeof(group_tmp_bia0d)/sizeof(double);
-  assert(size = 55);
+  assert(size = 56);
 	
   for(int i = 0; i < size; ++i)
     BiA0D.groups[i] = group_tmp_bia0d[i];
@@ -406,10 +409,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			      0.0,0.0,0.0, //group NO3
 			      0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			      0.0};  //group PAN
+			      0.0,  //group PAN
+			      0.0}; //group OOOH
 
   size = sizeof(group_tmp_bimt)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiMT.groups[i] = group_tmp_bimt[i];
@@ -468,10 +472,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,2.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; // group COOOH
 
   size = sizeof(group_tmp_biper)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiPER.groups[i] = group_tmp_biper[i];
@@ -529,10 +534,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_bider)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiDER.groups[i] = group_tmp_bider[i];
@@ -592,10 +598,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_bimga)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiMGA.groups[i] = group_tmp_bimga[i];
@@ -653,10 +660,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_anblp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     AnBlP.groups[i] = group_tmp_anblp[i];
@@ -714,10 +722,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_anbmp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     AnBmP.groups[i] = group_tmp_anbmp[i];
@@ -775,10 +784,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,1.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0};
 
   size = sizeof(group_tmp_biblp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiBlP.groups[i] = group_tmp_biblp[i];
@@ -837,10 +847,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0};  
 
   size = sizeof(group_tmp_bibmp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiBmP.groups[i] = group_tmp_bibmp[i];
@@ -894,10 +905,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
   
   size = sizeof(group_tmp_anclp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   
   for(int i = 0; i < size; ++i)
     AnClP.groups[i] = group_tmp_anclp[i];
@@ -956,10 +968,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,1.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_binga)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiNGA.groups[i] = group_tmp_binga[i];
@@ -1017,10 +1030,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 				1.0,2.0,0.0, //group NO3
 				0.0,0.0,0.0, //group CO-OH
 				0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-				0.0};  //group PAN
+				0.0,  //group PAN
+				0.0}; //group COOOH  
 
   size = sizeof(group_tmp_binit3)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiNIT3.groups[i] = group_tmp_binit3[i];
@@ -1078,10 +1092,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,1.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_binit)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     BiNIT.groups[i] = group_tmp_binit[i];
@@ -1139,10 +1154,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH			       
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
   
   size = sizeof(group_tmp_poalp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     POAlP.groups[i] = group_tmp_poalp[i];
 
@@ -1196,10 +1212,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_poamp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     POAmP.groups[i] = group_tmp_poamp[i];
 
@@ -1253,10 +1270,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_poahp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     POAhP.groups[i] = group_tmp_poahp[i];
 
@@ -1310,10 +1328,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_soalp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     SOAlP.groups[i] = group_tmp_soalp[i];
 
@@ -1367,10 +1386,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_soamp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     SOAmP.groups[i] = group_tmp_soamp[i];
 
@@ -1424,10 +1444,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_soahp)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     SOAhP.groups[i] = group_tmp_soahp[i];
 
@@ -1484,10 +1505,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 				 0.0,0.0,0.0, //group NO3
 				 0.0,0.0,0.0, //group CO-OH
 				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-				 0.0};  //group PAN
+				 0.0,  //group PAN
+				 0.0}; //group COOOH
 
   size = sizeof(group_tmp_Monomer)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     Monomer.groups[i] = group_tmp_Monomer[i];
@@ -1545,10 +1567,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group NO3
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_dimer)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
 	
   for(int i = 0; i < size; ++i)
     Dimer.groups[i] = group_tmp_dimer[i];
@@ -1608,10 +1631,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group NO3
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN  
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_bia3d)/sizeof(double);
-  assert(size = 55);
+  assert(size = 56);
 	
   for(int i = 0; i < size; ++i)
     BiA3D.groups[i] = group_tmp_bia3d[i];
@@ -1673,10 +1697,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                  0.0,0.0,0.0, //group NO3
                                  0.0,0.0,0.0, //group CO-OH
 				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-				 0.0};  //group PAN
+				 0.0,  //group PAN
+				 0.0}; //group COOOH
 
   size = sizeof(group_tmp_acidmal)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     ACIDMAL.groups[i] = group_tmp_acidmal[i];
 
@@ -1734,10 +1759,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                               0.0,0.0,0.0, //group NO3
                               0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			      0.0};  //group PAN
+			      0.0,  //group PAN
+			      0.0}; //group COOOH
 
   size = sizeof(group_tmp_dhmb)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     DHMB.groups[i] = group_tmp_dhmb[i];
 
@@ -1797,10 +1823,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group NO3
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_pahln)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     PAHlN.groups[i] = group_tmp_pahln[i];
 
@@ -1860,10 +1887,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group NO3
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			       0.0};  //group PAN
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
 
   size = sizeof(group_tmp_pahhn)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     PAHhN.groups[i] = group_tmp_pahhn[i];
 
@@ -1921,10 +1949,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                               0.0,0.0,0.0, //group NO3
                               0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			      0.0};  //group PAN
+			      0.0,  //group PAN
+			      0.0}; //group COOOH
 
   size = sizeof(group_tmp_psyr)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     PSYR.groups[i] = group_tmp_psyr[i];
 
@@ -1982,10 +2011,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                   0.0,0.0,0.0, //group NO3
                                   0.0,1.0,0.0, //group CO-OH
 				  0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-				  0.0};  //group PAN
+				  0.0,  //group PAN
+				  0.0}; //group COOOH
 
   size = sizeof(group_tmp_ghdperox)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   for(int i = 0; i < size; ++i)
     GHDPerox.groups[i] = group_tmp_ghdperox[i];
 
@@ -2040,10 +2070,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			     0.0,0.0,0.0, //group NO3
 			     0.0,0.0,0.0, //group CO-OH
 			     0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
-			     0.0};  //group PAN
+			     0.0,  //group PAN
+			     0.0}; //group COOOH
 
   size = sizeof(group_tmp_h2o)/sizeof(double);
-  assert(size == 55);
+  assert(size == 56);
   
   for(int i = 0; i < size; ++i)
     H2O.groups[i] = group_tmp_h2o[i];
