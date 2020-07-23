@@ -21,7 +21,7 @@ tag_init = 0,                     ! initial method for aerosol species (0 intern
 wet_diam_estimation = 1       	  ! 0 = isorropia
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 1,                    ! Number of size bin
-init_gas_conc_file = "./inputs/inputs-platt/init_gas.dat",                     ! Initial data for gas
+init_gas_conc_file = "./inputs/inputs-platt/init_gas_nh3_iso.dat",                     ! Initial data for gas
 init_aero_conc_mass_file = "./inputs/inputs-platt/init_aero.dat",        !  Initial data for aero mass  
 init_aero_conc_num_file = "./inputs/inputs-platt/init_num.dat",     !  Initial data for aero number  
 /
@@ -105,7 +105,7 @@ with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into accou
 tequilibrium = 1.e-15,                     ! time under which equilibrium is assumed.
 dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
-activity_model = 3,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
+activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 /
@@ -121,7 +121,7 @@ with_oligomerization = 1
 /
 
 &output
-output_directory = "results/aerosol-platt/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/aerosol-platt-nh3-iso/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "INIT/fractions.txt"
 /

@@ -1046,6 +1046,11 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
                 sum_surf_mol+=config.QG_org(j)*config.groups_org(j,i);  
               }
 
+	  /*
+	  cout << i << " " << sum_surf_mol << endl;
+	  if (sum_surf_mol==0.)
+	    cout << "error sum surf mol" << endl;*/
+
           for (j=0;j<config.nfunc_org;j++)      
             config.surface_fraction_molorg(j,i)/=sum_surf_mol;
         }
@@ -1802,15 +1807,17 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
       surrogate[i].veckaqi.resize(config.nbins);
       surrogate[i].vecfioni1.resize(config.nbins);
       surrogate[i].vecfioni2.resize(config.nbins);
+      surrogate[i].fac_corr_ph.resize(config.nbins);
     }
   config.AQrho.resize(config.nbins);
 }
 
 void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
-		    vector<string> species_smiles, double saturation_vapor_pressure[], double enthalpy_vaporization[])
+		    vector<string> species_smiles, double saturation_vapor_pressure[],
+		    double enthalpy_vaporization[], double diffusion_coef[])
 {
-  config.max_iter=1000;  //maximal number of iterations for the newton raphson method
+  config.max_iter=10000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
 
   if (config.activity_model == "unifac")
@@ -1832,7 +1839,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
     config.rho_aqueous=1000.0; //volumic mass of the aqueous phase kg/m3
 
   config.compute_saturation=false;   //compute saturation
-  config.compute_inorganic=false;
+  //config.compute_inorganic=false;
   if (config.compute_inorganic)
     {
       config.compute_long_and_medium_range_interactions=true; //force to be used when inorganic are computed
@@ -1866,9 +1873,10 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
       config.precision=1e-4; //absolute precision under which the system has been solved
       config.initialized_saturation=false;
     }
-   
+
+  /*
   if (config.equilibrium==false)
-    {
+    {*/
       config.relative_precision=0.001; //absolute precision under which the system has been solved
       config.first_evaluation_of_saturation=true; //Use initial concentrations to compute
       //phase separation?
@@ -1884,15 +1892,18 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 	
       config.surface_tension_aq=72.0;  //surface tension of the aqueous phase
       config.surface_tension_org=24.0; //surface tension of the organic phase
-      config.diameters.resize(config.nbins); //diameters of particles for each bin
+      //config.diameters.resize(config.nbins); //diameters of particles for each bin
       config.kp_low_volatility=0.001;
-    }
+      //  }
 
-  config.nh_inorg_init=1;
+      if (config.equilibrium==false)
+	config.diameters.resize(config.nbins);
+
+  config.nh_inorg_init=2;
   config.nh_aq_init=1;
   config.nh_org_init=1;
   config.nh_max=5;
-  config.molalmax=70.e6; //Limit high values of molalities to prevent numerical issues
+  config.molalmax=70.; //Limit high values of molalities to prevent numerical issues
 
   //parameters for oligomerization
   config.moligo=2.;
@@ -1902,10 +1913,12 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   //create the vector of species and the various parameters of the model
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
-		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization, config.nlayer); 
+		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
+		       diffusion_coef, config.nlayer, config.compute_inorganic); 
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 
   system_aiomfac_ssh(config, surrogate);
+  
   if (config.equilibrium==false)
     init_transfert_parameters_ssh(config, surrogate);
 

@@ -130,59 +130,61 @@ contains
     !init cond_time for c/e timescale and QSSA
     if (tag_icut.eq.1.or.tag_icut.eq.3) cond_time=0.d0
 
-    do j =1, N_size
-      if(concentration_index(j, 1) > ICUT) then! k : index of size bins
-       qn=c_number(j)!initial number and mass
-       if(qn.GT.TINYN) then
-         do s=1,N_aerosol
-            q(s) = 0.d0
-         enddo
-         qtot = 0.0
-         do s=1,N_aerosol_layers
-            jesp=List_species(s)
-            q(jesp)=q(jesp)+ c_mass(j,s)
-            qtot =qtot + c_mass(j,s)
-            ce_kernal_coef_i(jesp) = 0.d0 !ce_kernal_coef(j,jesp)
-         enddo
-        ! do s=N_nonorganics+1,N_aerosol
-        !   q(s) = 0.0
-        !   ce_kernal_coef_i(s) = 0.0
-        ! enddo
-         call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature, &
-                    ce_kernel,ce_kernal_coef_i,j, &
-                    lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot,cond_time_char,iker)
+    if (soap_inorg.eq.0) then
+       do j =1, N_size
+          if(concentration_index(j, 1) > ICUT) then! k : index of size bins
+             qn=c_number(j)!initial number and mass
+             if(qn.GT.TINYN) then
+                do s=1,N_aerosol
+                   q(s) = 0.d0
+                enddo
+                qtot = 0.0
+                do s=1,N_aerosol_layers
+                   jesp=List_species(s)
+                   q(jesp)=q(jesp)+ c_mass(j,s)
+                   qtot =qtot + c_mass(j,s)
+                   ce_kernal_coef_i(jesp) = 0.d0 !ce_kernal_coef(j,jesp)
+                enddo
+                ! do s=N_nonorganics+1,N_aerosol
+                !   q(s) = 0.0
+                !   ce_kernal_coef_i(s) = 0.0
+                ! enddo
+                call ssh_KERCOND(c_mass,c_number,qn,q,c_gas,wet_diam(j),wet_mass(j),temperature, &
+                     ce_kernel,ce_kernal_coef_i,j, &
+                     lwc_Nsize(j),ionic_Nsize(j),proton_Nsize(j),liquid,qtot,cond_time_char,iker)
 
-	! store condensation/evaporation characteristic timescales or modified QSSA
-	 if (tag_icut.eq.1 .or. tag_icut.eq.3) then
-		 do s=1,3
-		    cond_time(j,s) = cond_time_char(s)
-		 enddo
-	 endif
+                ! store condensation/evaporation characteristic timescales or modified QSSA
+                if (tag_icut.eq.1 .or. tag_icut.eq.3) then
+                   do s=1,3
+                      cond_time(j,s) = cond_time_char(s)
+                   enddo
+                endif
 
-         qH2O(j) = q(EH2O)
-         if(iker.EQ.0) then
-            do s=1,12
-               liquid_Nsize(s,j) = liquid(s)
-            enddo
-         endif
-         !calculate the C/E kernal
-         do s=1, nesp_isorropia
-	   jesp = isorropia_species(s)
+                qH2O(j) = q(EH2O)
+                if(iker.EQ.0) then
+                   do s=1,12
+                      liquid_Nsize(s,j) = liquid(s)
+                   enddo
+                endif
+                !calculate the C/E kernal
+                do s=1, nesp_isorropia
+                   jesp = isorropia_species(s)
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-           IF (jesp.NE.ECl) THEN
+                   IF (jesp.NE.ECl) THEN
 #endif
-               ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
-               if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
-                  dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
-               endif   
+                      ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
+                      if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
+                         dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
+                      endif
 
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-           ENDIF
+                   ENDIF
 #endif
-         enddo
-       endif
-     endif
-    enddo
+                enddo
+             endif
+          endif
+       enddo
+    endif
 
    ! Compute dynamically low-volatility organics
     do j=1,N_size

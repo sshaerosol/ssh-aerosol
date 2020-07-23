@@ -202,11 +202,10 @@ contains
        initial_time_splitting = final_sub_time
 
     enddo
-
+    
     !do C/E equilibrium after each emission
     if (with_cond.gt.0) then
-
-       if(ICUT.ge.1) then ! use bulk equilibrium method for inorganics in section <= ICUT
+       if(ICUT.ge.1.and.soap_inorg==0) then ! use bulk equilibrium method for inorganics in section <= ICUT
 
           call ssh_bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
@@ -217,30 +216,55 @@ contains
 
        endif
 
-       if ((ISOAPDYN.eq.0).AND.(nlayer.eq.1)) then
+       if (ISOAPDYN.eq.0.or.soap_inorg==1) then !.and.nlayer.eq.1) then
 
-          ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
-
+          if (ISOAPDYN.eq.1.and.soap_inorg==1) then
+             soap_inorg_loc=-1               !If ISOAPDYN=1 and soap_inorg=1, I just want to compute inorganics in this part
+          else
+             soap_inorg_loc=soap_inorg
+          endif
           
+          ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
+          if (ICUT>0) then
 
-          call ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid, delta_t)!equilibrium for organic
-          call ssh_mass_conservation(concentration_mass,concentration_number,&
-                                 concentration_gas, total_mass)
+             call  ssh_bulkequi_org(nesp_eq_org,lwc,lwcorg,ionic,proton,liquid,delta_t)!equilibrium for organic
+             call ssh_mass_conservation(concentration_mass,concentration_number,&
+                  concentration_gas, total_mass)
 
-          call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
-       else 
-          organion= 0.d0
-          watorg = 0.d0
-          proton= 0.d0
-          ionic = 0.d0
-          lwc= 0.d0
-          qaero = 0.d0
+             if (soap_inorg==0) then
+                call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+             else
+                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
+                call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+             endif
+          endif
+
+          if (ICUT+1<=N_size) then
+             call SSH_SOAP_DYN_ICUT(Relative_Humidity,&
+                  ionic, proton, lwc,lwcorg,&
+                  Temperature, delta_t,&
+                  cell_diam_av, neq, liquid)
+          endif
+       endif
+       
+       if (ISOAPDYN.eq.1) then
+          if (soap_inorg==1) then
+             soap_inorg_loc=0      !only compute organic
+          endif
+
+          organion=0.d0
+          watorg=0.d0
+          proton=0.d0
+          ionic=0.d0
+          lwc=0.d0
+          qaero=0.d0
           do jesp=1,N_aerosol
              do j=1,N_size
                 qaero(jesp) = qaero(jesp) + concentration_mass(j,jesp)
              enddo
              qgas(jesp)=concentration_gas(jesp)
           enddo
+          
           jesp=isorropia_species(2)
           qgas(jesp)=0.d0
           qgas(EH2O)=0.0
@@ -303,10 +327,10 @@ contains
     integer:: solver,splitting
     double precision:: time_t,time_step_sulf
     double precision:: final_sub_time,current_sub_time,sub_timestep_splitting
-
     ! update ICUT
     integer:: j,s,jesp,icut_tmp
     double precision:: tau(N_size),cond_time(N_size,3),tmp,tmp1
+    !integer :: tag_cond_save
 
     ! set icut=0 in case of processing coagulation under split numerical scheme
     if (splitting.eq.0.and.tag_coag.eq.1.and.tag_cond.eq.0) then
@@ -316,10 +340,12 @@ contains
 
     time_t=final_sub_time-current_sub_time
     !    ******Dynamic time loop
+    !tag_cond_save=tag_cond
+    !if (soap_inorg==1) then
+    !   tag_cond=0
+    !endif
     do while ( current_sub_time .lt. final_sub_time )
-
        time_step_sulf = 0.0
-
        if (tag_cond.eq.1) then
           !!if (tag_emis .ne. 0) call ssh_emission(sub_timestep_splitting)
           !     Compute gas mass conservation.
@@ -407,7 +433,10 @@ contains
 
     ! restore icut in case of processing coagulation under split numerical scheme
     if (tag_coag.eq.1.and.tag_cond.eq.0.and.splitting.eq.0) icut = icut_tmp
-
+    !if (soap_inorg==1) then
+    !   tag_cond=tag_cond_save
+    !endif
+    
   end subroutine ssh_processaero
 
   subroutine ssh_initstep_coupled(c_mass,c_number,c_gas,sub_time_splitting,&

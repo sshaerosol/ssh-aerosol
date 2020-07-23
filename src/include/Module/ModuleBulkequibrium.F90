@@ -37,8 +37,9 @@ contains
     double precision:: Kelvin_effect(N_size,N_aerosol)
     double precision::ce_kernal_coef_tot(N_aerosol)
     double precision organion, watorg, proton, lwc, d_ms
-    double precision rhop_tmp,emw_tmp,wet_diam
+    double precision rhop_tmp,emw_tmp,wet_diam,aatoteq,qgasa,qgasi
     integer :: eq_species(nesp_eq)! species compute with equilibrium
+    integer :: eq_species2(nesp_eq+nesp_isorropia)
     double precision:: total_ms(N_aerosol)
     double precision:: delta_t
 
@@ -64,6 +65,16 @@ contains
     do s=1,nesp_aec
       eq_species(s)=aec_species(s)
     enddo
+
+    if (soap_inorg==1) then
+       !do s=1,nesp_eq
+       !   eq_species2(s)=aec_species(s)
+       !enddo
+       do s=1,nesp_isorropia
+          eq_species2(s)=isorropia_species(s)
+       enddo
+    endif
+
 
   !compute local equi
 
@@ -101,7 +112,9 @@ contains
     do s=1,(N_aerosol_layers-1)
       jesp=List_species(s)
       do j=1,N_size
-	qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
+        if(concentration_index(j, 1) <= ICUT) then
+           qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
+        endif
       enddo
       if (inon_volatile(jesp).EQ.0 .and. aerosol_species_interact(jesp).GT.0) then
          qgas(jesp)=concentration_gas(jesp)
@@ -111,9 +124,46 @@ contains
       total_ms(jesp)=qaero(jesp)+qgas(jesp)
       qextold(jesp)=qaero(jesp)
     end do
-    jesp=isorropia_species(2)
+
+    if (soap_inorg==1) then
+       jesp=isorropia_species(2)
+       qaero(jesp)=0.d0
+       do j=1,N_size
+          if(concentration_index(j, 1) <= ICUT) then
+             qaero(jesp)=qaero(jesp)+concentration_mass(j,jesp)
+          endif
+       enddo
+       qgasi = concentration_gas(jesp)
+       if (inon_volatile(jesp).EQ.0) then
+          !compute apparent gas concentration of sulfate
+          !     i.e. the SO4 gas conc actually
+          !     seen by equilibrium aerosols
+          aatoteq = 0.d0
+          ce_kernal_coef_tot(jesp) = 0.d0
+          do j =1, N_size
+             if(concentration_index(j, 1) <= ICUT) then
+                ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&
+                     +ce_kernal_coef(j,jesp)*concentration_number(j)
+                aatoteq=aatoteq+ce_kernal_coef(j,jesp)*concentration_number(j)
+             endif
+          enddo
+          if(ce_kernal_coef_tot(jesp).gt.0.d0) then ! gas concentration to be condensed
+             qgas(jesp)=concentration_gas(jesp)*aatoteq/ce_kernal_coef_tot(jesp)
+          endif
+          qgasa=qgas(jesp)
+       else
+          qgas(jesp)=0.d0
+          qgasa = 0.d0
+       endif
+    endif
+
     qgas(jesp)=0.d0
     qgas(EH2O)=0.0
+    do j=1,N_size
+       if(concentration_index(j, 1) <= ICUT) then
+          qaero(EH2O)=qaero(EH2O)+concentration_mass(j,EH2O)
+       endif
+    enddo
     organion = 0.D0
     watorg = 0.D0
     proton = 0.D0
@@ -129,11 +179,13 @@ contains
     qgas(ECl) = 0.D0
 #endif
 
-    call ssh_isoropia_drv(N_aerosol,&
-         qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
-         liquid)
+    if (soap_inorg==0) then
+       call ssh_isoropia_drv(N_aerosol,&
+            qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
+            liquid)
+    endif
 
-    if (ISOAPDYN.eq.0) then
+    if (ISOAPDYN.eq.0.or.soap_inorg==1) then
        call ssh_soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
             Temperature, qaero, qgas, liquid, delta_t)
     endif
@@ -161,11 +213,48 @@ contains
       !endif            
     enddo
 
+    if (soap_inorg==1) then
+       
+       do s=1, nesp_isorropia
+          jesp=isorropia_species(s)
+          if(aerosol_species_interact(jesp).GT.0) then      
+             qext(jesp)=qaero(jesp)
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+             if(jesp.ne.ECl) then
+#endif
+                concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
+                if(qext(jesp).gt.0.d0) then
+                   dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
+                else
+                   dq(jesp)=-qextold(jesp)! compute delta aero conc
+                endif
+#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
+             endif
+#endif	
+          endif
+       enddo
+   
+       ! give back initial SO4 gas conc
+       ! minus that consumed by equi bins
+       jesp=isorropia_species(2)
+       concentration_gas(jesp)=qgasi-qgasa
+
+    endif
+
 !     ******redistribute on each cell according to Rates
     !call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
    ! nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
-    call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-    nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot)
+    if (soap_inorg==0) then
+       call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
+            nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot)
+    else
+       call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
+            nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot)
+       call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
+            nesp_isorropia,eq_species2,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
+       !call bulkequi_redistribution(concentration_number,concentration_mass,&
+       !     nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
+    endif
 
   end subroutine ssh_bulkequi_org
 

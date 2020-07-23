@@ -113,6 +113,7 @@ namespace ssh_soap
 
     double chpinit,ionicinit,initAQ;
     double molalmax;
+    bool to_be_rejected;
 
   };
 
@@ -204,9 +205,9 @@ namespace ssh_soap
        
         int soap_ind; // Number in the aerosol species list
         int soap_ind_aero; // Number in the aerosol species list including layers
-
         string smile;
         bool is_generic;
+	Array <double, 1> fac_corr_ph;
   };
   
 }

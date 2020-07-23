@@ -17,6 +17,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
 		      vector<string> species_list_aer,
 		      double molecular_weight_aer[],
 		      double accomodation_coefficient[],
+		      double diffusion_coef[],
 		      int nlayer)
 {
 
@@ -33,6 +34,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
         current_species.MM =  molecular_weight_aer[i] / 1.e6;
         current_species.accomodation_coefficient = accomodation_coefficient[i];
 	current_species.is_generic=false;
+	current_species.KDiffusion_air = 1.0e-5; //diffusion_coef[i];
       }
 
   // if (current_species.soap_ind == -1)
@@ -154,14 +156,14 @@ void add_generic_species_ssh(model_config &config,
 	  }
       }
 }
-
   
 void creation_species_ssh( model_config &config, vector<species>& surrogate, vector<string> species_list_aer,
 			   double molecular_weight_aer[], double accomodation_coefficient[],
 			   int aerosol_type[],
 			   vector<string> species_smiles, double saturation_vapor_pressure[],
-			   double enthalpy_vaporization[],
-			   int nlayer)
+			   double enthalpy_vaporization[], 
+			   double diffusion_coef[],
+			   int nlayer, bool compute_inorganic)
 {
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
@@ -187,7 +189,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA2D.rho=1300.0;
   BiA2D.is_monomer=false;
   BiA2D.rion=false;
-  BiA2D.KDiffusion_air=1.0e-5;
+  //BiA2D.KDiffusion_air=1.0e-5;
   // BiA2D.accomodation_coefficient=alpha;
   BiA2D.viscosity=1.68e12;
   BiA2D.is_solid=false;
@@ -226,9 +228,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
   // the given list.
+ 
   add_species_ssh(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   /* ==== BiA1D ==== */ 
 
@@ -252,7 +254,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA1D.rho=1300.0;  
   BiA1D.is_monomer=false;
   BiA1D.rion=false;
-  BiA1D.KDiffusion_air=1.0e-5;
+  //BiA1D.KDiffusion_air=1.0e-5;
   //  BiA1D.accomodation_coefficient=alpha;
   BiA1D.viscosity=1.68e12;
   BiA1D.is_solid=false;
@@ -292,7 +294,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiA0D;
   BiA0D.name="BiA0D";
@@ -317,7 +319,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA0D.rho=1300.0;
   BiA0D.is_monomer=false;
   BiA0D.rion=false;
-  BiA0D.KDiffusion_air=1.0e-5;
+  //BiA0D.KDiffusion_air=1.0e-5;
   //  BiA0D.accomodation_coefficient=alpha;
   BiA0D.viscosity=1.68e12;
   BiA0D.is_solid=false;
@@ -357,7 +359,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);  
+              accomodation_coefficient,diffusion_coef,nlayer);  
   
   species BiMT;
   BiMT.name="BiMT";
@@ -378,7 +380,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiMT.rho=1300.0;
   BiMT.is_monomer=false;
   BiMT.rion=false;
-  BiMT.KDiffusion_air=1.0e-5;
+  //BiMT.KDiffusion_air=1.0e-5;
   //  BiMT.accomodation_coefficient=alpha;
   BiMT.viscosity=1.68e12;
   BiMT.is_solid=false;
@@ -416,10 +418,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 
   // Search the species name in the aerosol species list 
   // and add the species if its name matches with
-  // the given list.
+  // the given list.  
   add_species_ssh(surrogate, BiMT, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiPER;
   BiPER.name="BiPER";
@@ -440,7 +441,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiPER.rho=1300.0;
   BiPER.is_monomer=false;
   BiPER.rion=false;
-  BiPER.KDiffusion_air=1.0e-5;
+  //BiPER.KDiffusion_air=1.0e-5;
   //  BiPER.accomodation_coefficient=alpha;
   BiPER.viscosity=1.68e12;
   BiPER.is_solid=false;
@@ -480,7 +481,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiPER, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiDER;
   BiDER.name="BiDER";
@@ -501,7 +502,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiDER.rho=1300.0;
   BiDER.is_monomer=false;
   BiDER.rion=false;
-  BiDER.KDiffusion_air=1.0e-5;
+  //BiDER.KDiffusion_air=1.0e-5;
   //  BiDER.accomodation_coefficient=alpha;
   BiDER.viscosity=1.68e12;
   BiDER.is_solid=false;
@@ -541,8 +542,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiDER, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-  
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiMGA;
   BiMGA.name="BiMGA";
@@ -564,7 +564,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiMGA.rho=1300.0;
   BiMGA.is_monomer=false;
   BiMGA.rion=false;
-  BiMGA.KDiffusion_air=1.0e-5;
+  //BiMGA.KDiffusion_air=1.0e-5;
   //  BiMGA.accomodation_coefficient=alpha;
   BiMGA.viscosity=1.68e12;
   BiMGA.is_solid=false;
@@ -604,7 +604,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species AnBlP;
   AnBlP.name="AnBlP";
@@ -625,7 +625,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   AnBlP.rho=1300.0;
   AnBlP.is_monomer=false;
   AnBlP.rion=false;
-  AnBlP.KDiffusion_air=1.0e-5;
+  //AnBlP.KDiffusion_air=1.0e-5;
   //  AnBlP.accomodation_coefficient=alpha;
   AnBlP.viscosity=1.68e12;
   AnBlP.is_solid=false;
@@ -665,7 +665,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species AnBmP;
   AnBmP.name="AnBmP";
@@ -686,7 +686,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   AnBmP.rho=1300.0;
   AnBmP.is_monomer=false;
   AnBmP.rion=false;
-  AnBmP.KDiffusion_air=1.0e-5;
+  //AnBmP.KDiffusion_air=1.0e-5;
   //  AnBmP.accomodation_coefficient=alpha;
   AnBmP.viscosity=1.68e12;
   AnBmP.is_solid=false;
@@ -726,7 +726,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiBlP;
   BiBlP.name="BiBlP";
@@ -747,7 +747,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiBlP.rho=1300.0;
   BiBlP.is_monomer=false;
   BiBlP.rion=false;
-  BiBlP.KDiffusion_air=1.0e-5;
+  //BiBlP.KDiffusion_air=1.0e-5;
   //  BiBlP.accomodation_coefficient=alpha;
   BiBlP.viscosity=1.68e12;  
   BiBlP.is_solid=false;
@@ -787,8 +787,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species BiBmP;
   BiBmP.name="BiBmP";
@@ -809,7 +808,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiBmP.rho=1300.0;
   BiBmP.is_monomer=false;
   BiBmP.rion=false;
-  BiBmP.KDiffusion_air=1.0e-5;
+  //BiBmP.KDiffusion_air=1.0e-5;
   //  BiBmP.accomodation_coefficient=alpha;
   BiBmP.viscosity=1.68e12;  
   BiBmP.is_solid=false;
@@ -849,8 +848,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species AnClP;
   AnClP.name="AnClP";
@@ -867,7 +865,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   AnClP.rho=1300.0;
   AnClP.is_monomer=false;
   AnClP.rion=false;
-  AnClP.KDiffusion_air=1.0e-5;
+  //AnClP.KDiffusion_air=1.0e-5;
   //  AnClP.accomodation_coefficient=alpha;
   AnClP.viscosity=1.68e12;  
   AnClP.is_solid=false;
@@ -906,7 +904,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnClP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiNGA;
   BiNGA.name="BiNGA";
@@ -928,7 +926,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiNGA.rho=1300.0;
   BiNGA.is_monomer=false;
   BiNGA.rion=false;
-  BiNGA.KDiffusion_air=1.0e-5;
+  // BiNGA.KDiffusion_air=1.0e-5;
   //  BiNGA.accomodation_coefficient=alpha;
   BiNGA.viscosity=1.68e12;
   BiNGA.is_solid=false;
@@ -968,7 +966,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiNIT3;
   BiNIT3.name="BiNIT3"; 
@@ -989,7 +987,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiNIT3.rho=1300.0;
   BiNIT3.is_monomer=false;
   BiNIT3.rion=false;
-  BiNIT3.KDiffusion_air=1.0e-5;
+  // BiNIT3.KDiffusion_air=1.0e-5;
   //  BiNIT3.accomodation_coefficient=alpha;
   BiNIT3.viscosity=1.68e12;  
   BiNIT3.is_solid=false;
@@ -1029,7 +1027,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
   
   species BiNIT;
   BiNIT.name="BiNIT";
@@ -1050,7 +1048,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiNIT.rho=1300.0;
   BiNIT.is_monomer=false;
   BiNIT.rion=false;
-  BiNIT.KDiffusion_air=1.0e-5;
+  // BiNIT.KDiffusion_air=1.0e-5;
   //  BiNIT.accomodation_coefficient=alpha;
   BiNIT.viscosity=1.68e12;  
   BiNIT.is_solid=false;
@@ -1090,8 +1088,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+		  accomodation_coefficient,diffusion_coef,nlayer);
   
   species POAlP;
   POAlP.name="POAlP";
@@ -1111,7 +1108,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAlP.rho=1300.0;
   POAlP.is_monomer=false;
   POAlP.rion=false;
-  POAlP.KDiffusion_air=1.0e-5;
+  // POAlP.KDiffusion_air=1.0e-5;
   //  POAlP.accomodation_coefficient=alpha;
   POAlP.viscosity=1.68e12;  
   POAlP.is_solid=false;
@@ -1150,7 +1147,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species POAmP;
   POAmP.name="POAmP";
@@ -1168,7 +1165,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAmP.rho=1300.0;
   POAmP.is_monomer=false;
   POAmP.rion=false;
-  POAmP.KDiffusion_air=1.0e-5;
+  //POAmP.KDiffusion_air=1.0e-5;
   //  POAmP.accomodation_coefficient=alpha;
   POAmP.viscosity=1.68e12;  
   POAmP.is_solid=false;
@@ -1207,7 +1204,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species POAhP;
   POAhP.name="POAhP";
@@ -1225,7 +1222,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAhP.rho=1300.0;
   POAhP.is_monomer=false;
   POAhP.rion=false;
-  POAhP.KDiffusion_air=1.0e-5;
+  //POAhP.KDiffusion_air=1.0e-5;
   //  POAhP.accomodation_coefficient=alpha;
   POAhP.viscosity=1.68e12;  
   POAhP.is_solid=false;
@@ -1264,7 +1261,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAhP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species SOAlP;
   SOAlP.name="SOAlP";
@@ -1282,7 +1279,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAlP.rho=1300.0;
   SOAlP.is_monomer=false;
   SOAlP.rion=false;
-  SOAlP.KDiffusion_air=1.0e-5;
+  //SOAlP.KDiffusion_air=1.0e-5;
   //  SOAlP.accomodation_coefficient=alpha;
   SOAlP.viscosity=1.68e12;  
   SOAlP.is_solid=false;
@@ -1321,7 +1318,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species SOAmP;
   SOAmP.name="SOAmP";
@@ -1339,7 +1336,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAmP.rho=1300.0;
   SOAmP.is_monomer=false;
   SOAmP.rion=false;
-  SOAmP.KDiffusion_air=1.0e-5;
+  //SOAmP.KDiffusion_air=1.0e-5;
   //  SOAmP.accomodation_coefficient=alpha;
   SOAmP.viscosity=1.68e12;
   SOAmP.is_solid=false;
@@ -1378,7 +1375,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species SOAhP;
   SOAhP.name="SOAhP";
@@ -1396,7 +1393,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAhP.rho=1300.0;
   SOAhP.is_monomer=false;
   SOAhP.rion=false;
-  SOAhP.KDiffusion_air=1.0e-5;
+  //SOAhP.KDiffusion_air=1.0e-5;
   //  SOAhP.accomodation_coefficient=alpha;
   SOAhP.viscosity=1.68e12;  
   SOAhP.is_solid=false;
@@ -1435,7 +1432,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
   
   species Monomer;
   Monomer.name="Monomer";
@@ -1456,7 +1453,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Monomer.rho=1840.0;
   Monomer.is_monomer=false;
   Monomer.rion=false;
-  Monomer.KDiffusion_air=1.0e-5;
+  //Monomer.KDiffusion_air=1.0e-5;
   //  Monomer.accomodation_coefficient=alpha;
   Monomer.viscosity=1.68e12;
   Monomer.is_solid=false;
@@ -1496,7 +1493,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Monomer, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
   
   species Dimer;
   Dimer.name="Dimer";
@@ -1517,7 +1514,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Dimer.rho=1300.0;
   Dimer.is_monomer=false;
   Dimer.rion=false;
-  Dimer.KDiffusion_air=1.0e-5;
+  // Dimer.KDiffusion_air=1.0e-5;
   //  Dimer.accomodation_coefficient=alpha;
   Dimer.viscosity=1.68e12;
   Dimer.is_solid=false;
@@ -1557,7 +1554,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Dimer, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
 
   species BiA3D;
   BiA3D.name="BiA3D";
@@ -1581,7 +1578,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA3D.is_monomer=false;
   BiA3D.rion=false;
   //  BiA3D.accomodation_coefficient=0.5;
-  BiA3D.KDiffusion_air=1.0e-5;
+  // BiA3D.KDiffusion_air=1.0e-5;
   BiA3D.viscosity=1.68e12;
   BiA3D.is_solid=false;
   BiA3D.is_generic=false;
@@ -1620,7 +1617,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species ACIDMAL;
   ACIDMAL.name="ACIDMAL";
@@ -1646,7 +1643,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   ACIDMAL.rho=1300.0;
   ACIDMAL.is_monomer=false;
   ACIDMAL.rion=false;
-  ACIDMAL.KDiffusion_air=1.0e-5;
+  //ACIDMAL.KDiffusion_air=1.0e-5;
   ACIDMAL.viscosity=1.68e12;
   ACIDMAL.is_solid = false;
   ACIDMAL.is_generic=false;
@@ -1684,7 +1681,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
 
   species DHMB;
   DHMB.name="DHMB";
@@ -1707,7 +1704,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   DHMB.rho=1300.0;
   DHMB.is_monomer=false;
   DHMB.rion=false;
-  DHMB.KDiffusion_air=1.0e-5;
+  //DHMB.KDiffusion_air=1.0e-5;
   DHMB.viscosity=1.68e12;  
   DHMB.is_solid=false;
   DHMB.is_generic=false;
@@ -1745,7 +1742,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DHMB, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
 
   species PAHlN;
   PAHlN.name="PAHlN";
@@ -1770,7 +1767,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   PAHlN.rho=1300.0;
   PAHlN.is_monomer=false;
   PAHlN.rion=false;
-  PAHlN.KDiffusion_air=1.0e-5;
+  //PAHlN.KDiffusion_air=1.0e-5;
   PAHlN.viscosity=1.68e12;  
   PAHlN.is_solid=false;
   PAHlN.is_generic=false;
@@ -1808,7 +1805,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
   
   species PAHhN;
   PAHhN.name="PAHhN";
@@ -1833,7 +1830,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   PAHhN.rho=1300.0;
   PAHhN.is_monomer=false;
   PAHhN.rion=false;
-  PAHhN.KDiffusion_air=1.0e-5;
+  //PAHhN.KDiffusion_air=1.0e-5;
   PAHhN.viscosity=1.68e12;  
   PAHhN.is_solid=false;
   PAHhN.is_generic=false;
@@ -1871,7 +1868,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species PSYR;
   PSYR.name="PSYR";
@@ -1894,7 +1891,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   PSYR.rho=1300.0;
   PSYR.is_monomer=false;
   PSYR.rion=false;
-  PSYR.KDiffusion_air=1.0e-5;
+  //PSYR.KDiffusion_air=1.0e-5;
   PSYR.viscosity=1.68e12; 
   PSYR.is_solid=false;
   PSYR.is_generic=false;
@@ -1932,7 +1929,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PSYR, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+              accomodation_coefficient,diffusion_coef,nlayer);
 
   species GHDPerox;
   GHDPerox.name="GHDPerox";
@@ -1955,7 +1952,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   GHDPerox.rho=1300.0;
   GHDPerox.is_monomer=false;
   GHDPerox.rion=false;
-  GHDPerox.KDiffusion_air=1.0e-5;
+  //GHDPerox.KDiffusion_air=1.0e-5;
   GHDPerox.viscosity=1.68e12; 
   GHDPerox.is_solid=false;
   GHDPerox.is_generic=false;
@@ -1993,7 +1990,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
+		  accomodation_coefficient,diffusion_coef,nlayer);
 
 
   add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
@@ -2011,7 +2008,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   H2O.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   H2O.Koligo_org=0.0;
   H2O.rho=1000.0;
-  H2O.KDiffusion_air=1.0e-5;
+  //H2O.KDiffusion_air=1.0e-5;
   //  H2O.accomodation_coefficient=alpha;
   H2O.viscosity=1.0;  
   H2O.is_solid=false;
@@ -2051,8 +2048,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, H2O, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,nlayer);
-
+		  accomodation_coefficient,diffusion_coef,nlayer);
   
   species SO4;
   SO4.name="SO4";
@@ -2076,7 +2072,17 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SO4.is_solid=false;
   SO4.is_monomer=false;
   SO4.rion=false;
+  if (compute_inorganic)
+    for (int i = 0; i < nsp; ++i)
+      if (species_list_aer[i].substr(1,-1) == "SO4")
+	{
+	  SO4.soap_ind = i;
+	  SO4.soap_ind_aero = i;
+	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
+	}
   surrogate.push_back(SO4);
+
 
   species HSO4;
   HSO4.name="HSO4";
@@ -2123,6 +2129,15 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NO3.is_solid=false;
   NO3.is_monomer=false;
   NO3.rion=false;
+  if (compute_inorganic)
+    for (int i = 0; i < nsp; ++i)
+      if (species_list_aer[i].substr(1,-1) == "NO3")
+	{
+	  NO3.soap_ind = i;
+	  NO3.soap_ind_aero = i;
+	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
+	}
   surrogate.push_back(NO3);
 
   species NH4;
@@ -2147,6 +2162,15 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NH4.is_solid=false;
   NH4.is_monomer=false;
   NH4.rion=false;
+  if (compute_inorganic)
+    for (int i = 0; i < nsp; ++i)
+      if (species_list_aer[i].substr(1,-1) == "NH4")
+	{
+	  NH4.soap_ind = i;
+	  NH4.soap_ind_aero = i;
+	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
+	}
   surrogate.push_back(NH4);
 
   species H;
@@ -2227,137 +2251,140 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Cl.is_solid=false;
   Cl.is_monomer=false;
   Cl.rion=false;
+  if (compute_inorganic)
+    for (int i = 0; i < nsp; ++i)
+      if (species_list_aer[i].substr(1,-1) == "HCL")
+	{
+	  Cl.soap_ind = i;
+	  Cl.soap_ind_aero = i;
+	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
+	}
+  surrogate.push_back(Cl);
 
-  species H2SO4;
-  H2SO4.name="H2SO4";
-  H2SO4.nonvolatile=true;
-  H2SO4.is_organic=false;
-  H2SO4.is_inorganic_precursor=true;
-  H2SO4.Henry=1.0e13;     // Enthalpy of vaporization (kJ/mol)
-  H2SO4.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-  H2SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
-  H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
-  H2SO4.kp_from_experiment=false;
-  H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  H2SO4.KDiffusion_air=1.07e-5;
-  H2SO4.viscosity=1.0;
-  H2SO4.is_solid=false;
-  H2SO4.is_monomer=false;
-  H2SO4.rion=false;
+      species H2SO4;
+      H2SO4.name="H2SO4";
+      H2SO4.nonvolatile=true;
+      H2SO4.is_organic=false;
+      H2SO4.is_inorganic_precursor=true;
+      H2SO4.Henry=1.0e13;     // Enthalpy of vaporization (kJ/mol)
+      H2SO4.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+      H2SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
+      H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
+      H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+      H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+      //H2SO4.KDiffusion_air=1.07e-5;
+      H2SO4.viscosity=1.0;
+      H2SO4.is_solid=false;
   
-  // Find the number in the aerosol species list
-  H2SO4.soap_ind = -1;
-  H2SO4.soap_ind_aero = -1;
-  for (int i = 0; i < nsp; ++i)
-    if (species_list_aer[i].substr(1,-1) == "SO4")
-      {
-        H2SO4.soap_ind = i;
-        H2SO4.soap_ind_aero = i;
-        H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
-        H2SO4.accomodation_coefficient = accomodation_coefficient[i];
-      }
-  surrogate.push_back(H2SO4);
+      // Find the number in the aerosol species list
+      H2SO4.soap_ind = -1;
+      H2SO4.soap_ind_aero = -1;
+      for (int i = 0; i < nsp; ++i)
+	if (species_list_aer[i].substr(1,-1) == "SO4")
+	  {
+	    H2SO4.soap_ind = i;
+	    H2SO4.soap_ind_aero = i;
+	    H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	    H2SO4.accomodation_coefficient = accomodation_coefficient[i];
+	    H2SO4.KDiffusion_air = diffusion_coef[i];
+	  }
+      surrogate.push_back(H2SO4);
 
-  species NH3;
-  NH3.name="NH3";
-  //  NH3.MM=17.0;
-  NH3.is_organic=false;
-  NH3.nonvolatile=false;
-  NH3.is_inorganic_precursor=true;
-  NH3.Henry=57.64;     // Enthalpy of vaporization (kJ/mol)
-  NH3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-  NH3.hydrophilic=true; // Does the species condense on the aqueous phase?
-  NH3.hydrophobic=false;  // Does the species condense on the organic phase?
-  NH3.kp_from_experiment=false;
-  NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  //  NH3.accomodation_coefficient=0.5;
-  NH3.KDiffusion_air=2.17e-5;
-  NH3.viscosity=1.0;
-  NH3.is_solid=false;
-  NH3.is_monomer=false;
-  NH3.rion=false;
+      species NH3;
+      NH3.name="NH3";
+      //  NH3.MM=17.0;
+      NH3.is_organic=false;
+      NH3.nonvolatile=false;
+      NH3.is_inorganic_precursor=true;
+      NH3.Henry=57.64;     // Enthalpy of vaporization (kJ/mol)
+      NH3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+      NH3.hydrophilic=true; // Does the species condense on the aqueous phase?
+      NH3.hydrophobic=false;  // Does the species condense on the organic phase?
+      NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+      NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+      //  NH3.accomodation_coefficient=0.5;
+      NH3.KDiffusion_air=2.17e-5;
+      NH3.viscosity=1.0;
+      NH3.is_solid=false;
   
-  // Find the number in the aerosol species list
-  NH3.soap_ind = -1;
-  NH3.soap_ind_aero = -1;
-  for (int i = 0; i < nsp; ++i)
-    if (species_list_aer[i].substr(1,-1) == "NH4")
-      {
-        NH3.soap_ind = i;
-        NH3.soap_ind_aero = i;
-        NH3.MM =  molecular_weight_aer[i] / 1.e6;
-        NH3.accomodation_coefficient = accomodation_coefficient[i];
-      }
-  surrogate.push_back(NH3);
+      // Find the number in the aerosol species list
+      NH3.soap_ind = -1;
+      NH3.soap_ind_aero = -1;
+      for (int i = 0; i < nsp; ++i)
+	if (species_list_aer[i].substr(1,-1) == "NH4")
+	  {
+	    NH3.soap_ind = i;
+	    NH3.soap_ind_aero = i;
+	    NH3.MM =  molecular_weight_aer[i] / 1.e6;
+	    NH3.accomodation_coefficient = accomodation_coefficient[i];
+	    NH3.KDiffusion_air = diffusion_coef[i];
+	  }
+      surrogate.push_back(NH3);
 
-  species HNO3;
-  HNO3.name="HNO3";
-  //  HNO3.MM=63.0;
-  HNO3.nonvolatile=false;
-  HNO3.is_organic=false;
-  HNO3.is_inorganic_precursor=true;
-  HNO3.Henry=2.1e5;     // Enthalpy of vaporization (kJ/mol)
-  HNO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-  HNO3.hydrophilic=true; // Does the species condense on the aqueous phase?
-  HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
-  HNO3.kp_from_experiment=false;
-  HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  //  HNO3.accomodation_coefficient=0.5;
-  HNO3.KDiffusion_air=1.47e-5;
-  HNO3.viscosity=1.0;
-  HNO3.is_solid=false;
-  HNO3.is_monomer=false;
-  HNO3.rion=false;
+      species HNO3;
+      HNO3.name="HNO3";
+      //  HNO3.MM=63.0;
+      HNO3.nonvolatile=false;
+      HNO3.is_organic=false;
+      HNO3.is_inorganic_precursor=true;
+      HNO3.Henry=2.1e5;     // Enthalpy of vaporization (kJ/mol)
+      HNO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+      HNO3.hydrophilic=true; // Does the species condense on the aqueous phase?
+      HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
+      HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+      HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+      //  HNO3.accomodation_coefficient=0.5;
+      HNO3.KDiffusion_air=1.47e-5;
+      HNO3.viscosity=1.0;
+      HNO3.is_solid=false;
   
-  // Find the number in the aerosol species list
-  HNO3.soap_ind = -1;
-  HNO3.soap_ind_aero = -1;
-  for (int i = 0; i < nsp; ++i)
-    if (species_list_aer[i].substr(1,-1) == "NO3")
-      {
-        HNO3.soap_ind = i;
-        HNO3.soap_ind_aero = i;
-        HNO3.MM =  molecular_weight_aer[i] / 1.e6;
-        HNO3.accomodation_coefficient = accomodation_coefficient[i];
-      }
-  surrogate.push_back(HNO3);
+      // Find the number in the aerosol species list
+      HNO3.soap_ind = -1;
+      HNO3.soap_ind_aero = -1;
+      for (int i = 0; i < nsp; ++i)
+	if (species_list_aer[i].substr(1,-1) == "NO3")
+	  {
+	    HNO3.soap_ind = i;
+	    HNO3.soap_ind_aero = i;
+	    HNO3.MM =  molecular_weight_aer[i] / 1.e6;
+	    HNO3.accomodation_coefficient = accomodation_coefficient[i];
+	    HNO3.KDiffusion_air = diffusion_coef[i];
+	  }
+      surrogate.push_back(HNO3);
 
-  species HCl;
-  HCl.name="HCl";
-  //  HCl.MM=36.5;
-  HCl.nonvolatile=false;
-  HCl.is_organic=false;
-  HCl.is_inorganic_precursor=true;
-  HCl.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
-  HCl.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-  HCl.hydrophilic=true; // Does the species condense on the aqueous phase?
-  HCl.hydrophobic=false;  // Does the species condense on the organic phase?
-  HCl.kp_from_experiment=false;
-  HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-  //  HCl.accomodation_coefficient=0.5;
-  HCl.KDiffusion_air=1.72e-5;
-  HCl.viscosity=1.0;
-  HCl.is_solid=false;
-  HCl.is_monomer=false;
-  HCl.rion=false;
+      species HCl;
+      HCl.name="HCl";
+      //  HCl.MM=36.5;
+      HCl.nonvolatile=false;
+      HCl.is_organic=false;
+      HCl.is_inorganic_precursor=true;
+      HCl.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
+      HCl.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+      HCl.hydrophilic=true; // Does the species condense on the aqueous phase?
+      HCl.hydrophobic=false;  // Does the species condense on the organic phase?
+      HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+      HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+      //  HCl.accomodation_coefficient=0.5;
+      HCl.KDiffusion_air=1.72e-5;
+      HCl.viscosity=1.0;
+      HCl.is_solid=false;
   
-  // Find the number in the aerosol species list
-  HCl.soap_ind = -1;
-  HCl.soap_ind_aero = -1;
-  for (int i = 0; i < nsp; ++i)
-    if (species_list_aer[i].substr(1,-1) == "HCL")
-      {
-        HCl.soap_ind = i;
-        HCl.soap_ind_aero = i;
-        HCl.MM =  molecular_weight_aer[i] / 1.e6;
-        HCl.accomodation_coefficient = accomodation_coefficient[i];
-      }
+      // Find the number in the aerosol species list
+      HCl.soap_ind = -1;
+      HCl.soap_ind_aero = -1;
+      for (int i = 0; i < nsp; ++i)
+	if (species_list_aer[i].substr(1,-1) == "HCL")
+	  {
+	    HCl.soap_ind = i;
+	    HCl.soap_ind_aero = i;
+	    HCl.MM =  molecular_weight_aer[i] / 1.e6;
+	    HCl.accomodation_coefficient = accomodation_coefficient[i];
+	    HCl.KDiffusion_air = diffusion_coef[i];
+	  }
   
-  surrogate.push_back(HCl);
+      surrogate.push_back(HCl);
+    
 }
 
 #endif

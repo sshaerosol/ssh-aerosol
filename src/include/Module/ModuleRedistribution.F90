@@ -237,7 +237,7 @@ contains
 
     inorg_total = 0.D0
     inorg_bin = 0.D0
-    
+ 
     do jesp=ENa,ECl
       do js=1,N_size
         if(concentration_index(js, 1) <= end_bin) then

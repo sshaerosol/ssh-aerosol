@@ -741,7 +741,7 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
           //gamma_LR(A2-)=pow(gamma_LR(H+),2)
           double ratio_gamma1=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
           double ratio_gamma2=pow(gammaH_LR,2.0)*gammaH_SRMR;
-          value=veckaqi(b)/MMaq*
+	  value=veckaqi(b)/MMaq*
             (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
           fion1=(Kacidity1/(ratio_gamma1*chp))/
             (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
@@ -1903,6 +1903,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   int n=surrogate.size();
   int i,j;
   int iH;
+  Array<double, 1> gamma_mr_old;
   for (i=0;i<n;++i) //molality (mol/kg) and charge of inorganic ions
     if (surrogate[i].is_ion)
       {
@@ -1914,7 +1915,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   if (config.compute_inorganic)
     iH=-1;
   else
-    iH=surrogate[config.iHp].index_ion;
+    iH=surrogate[config.iHp].index_ion;  
     
   //cout << "molal:" << molality << endl;
   //compute the molar fraction of solvent species used in aiomfac
@@ -1978,7 +1979,9 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   //cout << molar_mass_groups << endl;
   //cout << jH2O << endl;
 
-  //Call of aiomfac    
+  //Call of aiomfac
+  gamma_mr_old.resize(config.nion_aiomfac);
+  gamma_mr_old=config.gamma_MR_ions; 
   aiomfac_ssh(config.X_aiomfac, config.gamma_LR_solvents,config.gamma_MR_solvents,config.molar_mass_solvents,config.molar_mass_groups,
           config.molality,config.gamma_LR_ions,config.gamma_MR_ions,config.charges_ions,
           Temperature,ionic,config.ngroup_aiomfac,config.groups_aiomfac,
@@ -1986,7 +1989,38 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
           config.b2ca_aq, config.b3ca_aq, config.c1ca_aq,
               config.c2ca_aq, config.Rcc_aq, config.Qcca_aq,jH2O,iH,config.compute_organic);
   
-  //cout << gamma_MR_solvents << endl;
+  //cout << "ions: " << config.gamma_MR_ions << endl;  
+  //cout << "MR: " << config.gamma_MR_ions << " " << ionic << " " << config.molality << endl;
+  //cout << "solv: " << config.gamma_MR_solvents << endl;
+
+  for (i=0;i<n;++i)
+    if (surrogate[i].is_ion)
+      {
+	if ((config.gamma_MR_ions(surrogate[i].index_ion)<exp(-11.5) and gamma_mr_old(surrogate[i].index_ion)>exp(11.5)))
+	  //or (config.gamma_MR_ions(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)<exp(-11.5)))
+	  {
+	    //cout << "error " << endl;
+	    //cout << config.gamma_MR_ions(surrogate[i].index_ion) << " " << gamma_mr_old(surrogate[i].index_ion) << endl;
+	    config.gamma_MR_ions(surrogate[i].index_ion)=gamma_mr_old(surrogate[i].index_ion);
+	    config.gamma_MR_solvents=1.0;
+	    
+	  }
+        surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
+        surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_ions(surrogate[i].index_ion);
+	
+        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;
+	
+	  
+	
+        /*
+        if (surrogate[i].gamma_aq<=1.0e-10)
+          {            
+            surrogate[i].gamma_LR*=1.e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_SRMR*=1.0e-8/surrogate[i].gamma_aq;
+            surrogate[i].gamma_aq=1.0e-6;
+	  }       */
+      }  
+  
   for (i=0;i<n;++i)
     if (surrogate[i].index_gamma_aiomfac>=0)
       {    
@@ -1996,24 +2030,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
           config.gamma_MR_solvents(surrogate[i].index_gamma_aiomfac);
         //if (i==config.iH2O)
         //  cout << "G2: " << gamma_LR_solvents(surrogate[i].index_gamma_aiomfac) << " " << gamma_MR_solvents(surrogate[i].index_gamma_aiomfac) << endl;
-      }
-
-  
-  for (i=0;i<n;++i)
-    if (surrogate[i].is_ion)
-      {
-        surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
-        surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_ions(surrogate[i].index_ion);        
-        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;
-        
-        if (surrogate[i].gamma_aq<=1.0e-10)
-          {            
-            surrogate[i].gamma_LR*=1.e-8/surrogate[i].gamma_aq;
-            surrogate[i].gamma_SRMR*=1.0e-8/surrogate[i].gamma_aq;
-            surrogate[i].gamma_aq=1.0e-6;
-	  } 
-        
-      }  
+      } 
 
 }
 
