@@ -124,7 +124,7 @@ contains
            qaero(s)=qaero(s)+concentration_mass(j,jesp)
         endif
       enddo
-      if (inon_volatile(jesp).EQ.0 .and. aerosol_species_interact(jesp).GT.0) then
+      if (inon_volatile(s).EQ.0 .and. aerosol_species_interact(s).GT.0) then
          qgas(s)=concentration_gas(s)
       else
          qgas(s) = 0.d0
@@ -279,13 +279,17 @@ contains
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,&
             i_hydrophilic,dqaq)
-    else
+    else       
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,&
             i_hydrophilic,dqaq)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_isorropia,eq_species2,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            i_hydrophilic,dqaq)
+            0,dqaq)
+       !do jesp=1,N_aerosol
+       !   print*,aerosol_species_name(jesp),concentration_mass(1,jesp)          
+       !enddo
+       
        !call bulkequi_redistribution(concentration_number,concentration_mass,&
        !     nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
     endif

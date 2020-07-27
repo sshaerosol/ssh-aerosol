@@ -2277,6 +2277,12 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   chp1.resize(config.nbins);
   chp0.resize(config.nbins);
   int icycle;
+  /*
+  cout << "SO4: " << surrogate[config.iH2SO4].Ag+(sum(surrogate[config.iSO4mm].Aaq_bins_init)/surrogate[config.iSO4mm].MM+sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM)*surrogate[config.iH2SO4].MM << endl;
+  cout << "NO3: " << surrogate[config.iHNO3].Ag+sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
+  cout << "NH4: " << surrogate[config.iNH3].Ag+sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;
+  cout << "PNO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
+  cout << "PNH4: " << sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;*/
 
   for (b=0;b<config.nbins;++b)		  
     for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -2383,10 +2389,11 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 
           //compute the new time step so that changes are small
           adapstep_ssh(config,surrogate,Temperature,config.tequilibrium,deltat1,t,deltatmax,config.deltatmin,
-                       MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);
+                       MOinit,MO,LWCtot,AQinit,AQ,LWC,conc_inorganic,chp,chp1,chp0,number);	  
 		  
           if (deltat1<0.999*deltat2 or config.to_be_rejected) //if the new time step is inferior to the old one
-            {   	      
+            {
+	      //cout << "rejected " << t << " " << deltat2 << " " << config.to_be_rejected << endl;
 	      //the old time step is rejected
               for (i=0;i<n;++i)
                 {
@@ -2749,6 +2756,13 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
      if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)>0.)
        cout << surrogate[i].name << " out " << surrogate[i].Ag << " " << sum(surrogate[i].Aaq_bins_init) << " " << sum(surrogate[i].gamma_aq_bins) << endl;
    cout << config.gamma_MR_ions << endl;*/
+  /*
+  cout << "out: " << endl;
+  cout << "SO4: " << surrogate[config.iH2SO4].Ag+(sum(surrogate[config.iSO4mm].Aaq_bins_init)/surrogate[config.iSO4mm].MM+sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM)*surrogate[config.iH2SO4].MM << endl;
+  cout << "NO3: " << surrogate[config.iHNO3].Ag+sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
+  cout << "NH4: " << surrogate[config.iNH3].Ag+sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;
+  cout << "PNO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
+  cout << "PNH4: " << sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;*/
   
 }
 

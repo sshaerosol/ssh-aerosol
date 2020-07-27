@@ -85,10 +85,13 @@ contains
 !    Calculate the concentration of hydronium ion in water
 !    microg/m3(=micromol/m3) / microg/m3 (H+ molar mass: 1 g/mol) 
 !     = micromol/microg * 1000 
-!     = mol/kg = mol/L (Water density: 1 kg/L) 
-      chp = proton / lwc * 1.0e3
+      !     = mol/kg = mol/L (Water density: 1 kg/L)
+      if (lwc>0.d0) then
+         chp = proton / lwc * 1.0e3
+      else
+         chp= 1.0e-7
+      endif           
       
-      !print*,smiles
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
@@ -118,10 +121,12 @@ contains
                aero(j)=aero(j)+aero(oligo_index(j))
                aero(oligo_index(j))=0.               
             endif
-         ENDIF      
+         ENDIF
+         !print*,aerosol_species_name(j),gas(j),aero(j)
       ENDDO
-      
+     
       if (soap_inorg==1) then
+         lwc=aero(EH2O)
          proton = chp * lwc / 1.0e3
       endif
       
@@ -292,7 +297,7 @@ contains
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
             if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
-                 (aerosol_type(s)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+                 ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_mass(js, jesp) = q_soap(N_size + i)
             endif
             !print*,aerosol_species_name(jesp),js,concentration_mass(js,jesp)
@@ -388,10 +393,10 @@ contains
 
       isoapdyn2=1
 
-      neq = N_size * (1 + N_aerosol_layers) + N_aerosol
+      neq = (N_size-ICUT) * (1 + N_aerosol_layers) + N_aerosol
 
       !   Pointer for aerosol concentrations
-      icpt=N_size
+      icpt=N_size-ICUT
       DO s = 1,N_aerosol_layers
          DO js=ICUT+1,N_size
             icpt=icpt+1
@@ -485,7 +490,7 @@ contains
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
             if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
-                 (aerosol_type(s)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+                 ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_mass(js, jesp) = q_soap(N_size + i - ICUT)
                !print*,aerosol_species_name(jesp),N_size+i-ICUT,js,concentration_mass(js,jesp)
             endif           

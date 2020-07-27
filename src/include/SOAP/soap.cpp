@@ -182,8 +182,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
         // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 
       compute_gamma_infini_ssh(config, surrogate);
-    }
-
+    }  
   
   if (soap_inorg==0)
     {
@@ -267,7 +266,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	      // Inorganic gas concentrations
 	      if (surrogate[i].is_inorganic_precursor)
 		{
-		  //cout << surrogate[i].name << " " << qgas[iq] << endl;
+		  //cout << surrogate[i].name << " la " << qgas[iq] << " " << qaero[iq] << " " << i << " " << config.iHNO3 << endl;
 		  surrogate[i].Ag = qgas[iq];
 		  surrogate[i].Ap = 0.0;
 		  surrogate[i].Aaq = 0.0;
@@ -278,9 +277,14 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		      surrogate[config.iHSO4m].Aaq=0.0;
 		    }
 		  if (i==config.iHNO3)
-		    surrogate[config.iNO3m].Aaq=qaero[iq]/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		    {
+		      surrogate[config.iNO3m].Aaq=qaero[iq]/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		      //cout << qaero[iq] << " " << config.iNO3m << " " << surrogate[config.iNO3m].Aaq << " " << surrogate[config.iNO3m].MM << " " << surrogate[config.iHNO3].MM << endl;
+		    }
 		  if (i==config.iNH3)
 		    surrogate[config.iNH4p].Aaq=qaero[iq]/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
+		  if (i==config.iHCl)
+		    surrogate[config.iClm].Aaq=qaero[iq]/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
 		}
 	      /*
 	      else if (config.compute_inorganic)
@@ -321,12 +325,12 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	}
       else
 	{
-	  surrogate[config.iHSO4m].Aaq=0.;
+	  //surrogate[config.iHSO4m].Aaq=0.;
 	  LWC=0.;
 	}
 
       // Set the total values in each phase. 
-      if(LWC<config.LWClimit)
+      if(LWC<config.LWClimit and config.compute_inorganic==false)
 	{
 	  LWC=0.0;
 	  for(i=0;i<n;++i)
@@ -346,7 +350,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       global_equilibrium_ssh(config,surrogate,
                          MOinit,MOW,
                          LWC, AQinit, ionic, chp,
-                         Temperature, RH, deltat);
+                         Temperature, RH, deltat);  
 
       if (config.compute_inorganic)
 	{
@@ -402,6 +406,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 			qaero[iq]=surrogate[config.iNO3m].Aaq*surrogate[config.iHNO3].MM/surrogate[config.iNO3m].MM;
 		      if (i==config.iNH3)
 			qaero[iq]=surrogate[config.iNH4p].Aaq*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
+		      if (i==config.iHCl)
+			qaero[iq]=surrogate[config.iClm].Aaq*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
 		      //cout << "out: " << surrogate[i].name << " " << qgas[iq] << endl;
 		    }
 		  /*
@@ -614,6 +620,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		      int iq_aero = (ind + 1) * config.nbins; 
 		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iNH4p].MM/surrogate[config.iNH3].MM;			
 		    }
+		  else if (surrogate[i].name == "Cl")
+		    {
+		      ind = 6;
+		      int iq_aero = (ind + 1) * config.nbins; 
+		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iClm].MM/surrogate[config.iHCl].MM;			
+		    }
+		  else if (surrogate[i].name=="Na")
+		    {
+		      ind = 2;
+		      int iq_aero = (ind + 1) * config.nbins; 
+		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];			
+		    }
 		  else
 		    surrogate[i].Aaq_bins_init = 0.0;
 		}
@@ -793,7 +811,13 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		      ind = 4;
 		      int iq_aero = (ind + 1) * config.nbins; 		      
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
-		    }		  
+		    }
+		  else if (surrogate[i].name == "Cl")
+		    {
+		      ind = 6;
+		      int iq_aero = (ind + 1) * config.nbins; 		      
+		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
+		    }
 		}
 	    }
 	  

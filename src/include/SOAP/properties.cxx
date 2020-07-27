@@ -738,7 +738,7 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
           //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
           //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
           //gamma_LR(HA-)=gamma_LR(H+)
-          //gamma_LR(A2-)=pow(gamma_LR(H+),2)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)	  
           double ratio_gamma1=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
           double ratio_gamma2=pow(gammaH_LR,2.0)*gammaH_SRMR;
 	  value=veckaqi(b)/MMaq*
