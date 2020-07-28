@@ -1,0 +1,12 @@
+
+
+env = Environment()
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+    env.Append(CCFLAGS = '-g')
+
+#SharedLibrary('dl')
+env.Program('simple_cpp.cpp', LIBS=['dl', "ssh-aerosol"], LIBPATH=['/usr/lib/x86_64-linux-gnu/', "../src/"])
+   
+# RUN
+# LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH simple_cpp
