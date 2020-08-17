@@ -110,6 +110,7 @@ namespace ssh_soap
 	Array<double,1> gamma_ions_inf;
 
         int iiter;
+	int imethod;
 
     double chpinit,ionicinit,initAQ;
     double molalmax;
@@ -186,7 +187,10 @@ namespace ssh_soap
         Array<double, 4> flux_chem;
 	Array<double, 2> flux_chem_aq;
         Array<double, 1> flux_chem_gas;
-	Array<double, 1> veckaqi,vecfioni1,vecfioni2;	
+	Array<double, 1> veckaqi,vecfioni1,vecfioni2;
+	Array<double, 3> kprod,kloss,kloc;
+	Array<double, 1> kprod_aq,kloss_aq,k1_gas;
+	double kprod_gas,kloss_gas;
 	double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
 	double moligo;
         bool is_monomer;
@@ -202,6 +206,7 @@ namespace ssh_soap
 	double velocity,knui;
 
 	double Aginit,Aaqinit,Apinit;
+        double deltat_exp;
        
         int soap_ind; // Number in the aerosol species list
         int soap_ind_aero; // Number in the aerosol species list including layers

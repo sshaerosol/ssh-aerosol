@@ -6,7 +6,7 @@
 using namespace ssh_soap;
 
 void compute_kp_org_ssh(model_config &config, vector<species>& surrogate,
-                    Array <double, 3> &MOinit, double &Temperature, Array<double, 3> &MOW)
+			Array <double, 3> &MOinit, double &Temperature, Array<double, 3> &MOW)
 {
   //compute partitioning constant of the organic phase by taking into account activity
   //coefficients and the kelvin effect
@@ -28,7 +28,7 @@ void compute_kp_org_ssh(model_config &config, vector<species>& surrogate,
 	    {
 	      temp1+=MOinit(b,config.nlayer-1,iphase);
 	      if(MOW(b,config.nlayer-1,iphase) <= 1.) 
-				MOW(b,config.nlayer-1,iphase) = 200.0;
+		MOW(b,config.nlayer-1,iphase) = 200.0;
 	      temp2+=MOinit(b,config.nlayer-1,iphase)/MOW(b,config.nlayer-1,iphase);
 	    }
 	  if (temp1>0.0)
@@ -68,12 +68,12 @@ void compute_kp_org_ssh(model_config &config, vector<species>& surrogate,
 			  surrogate[i].Kp(b,ilayer,iphase)=0.0;
 		      else
 			{
-			if(MOW(b,ilayer,iphase) <= 1.) 
-				MOW(b,ilayer,iphase) = 200.0;
-			if(surrogate[i].gamma_org_layer(b,ilayer,iphase) <=1.e-20)   //KS Why 0 there?
-				surrogate[i].gamma_org_layer(b,ilayer,iphase) = 1.0;
-			surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].kpi/MOW(b,ilayer,iphase)/
-			  surrogate[i].gamma_org_layer(b,ilayer,iphase);
+			  if(MOW(b,ilayer,iphase) <= 1.) 
+			    MOW(b,ilayer,iphase) = 200.0;
+			  if(surrogate[i].gamma_org_layer(b,ilayer,iphase) <=1.e-20)   //KS Why 0 there?
+			    surrogate[i].gamma_org_layer(b,ilayer,iphase) = 1.0;
+			  surrogate[i].Kp(b,ilayer,iphase)=surrogate[i].kpi/MOW(b,ilayer,iphase)/
+			    surrogate[i].gamma_org_layer(b,ilayer,iphase);
 			}		
 		      surrogate[i].Kp(b,ilayer,iphase)/=kelvin_effect;                        
 		    }
@@ -89,8 +89,8 @@ void compute_kp_org_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
-                   double &Temperature, Array <double, 1> &ionic,
-                   Array <double, 1> &chp,Array<double, 1> &MMaq)
+		       double &Temperature, Array <double, 1> &ionic,
+		       Array <double, 1> &chp,Array<double, 1> &MMaq)
 {
   //compute partitioning constant of the aqueous phase by taking into account activity
   //coefficients and the kelvin effect
@@ -124,7 +124,7 @@ void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
 		{
 		  surrogate[i].Kaq(b)=
 		    surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(b), chp(b),surrogate[config.iHp].LR(b),
-						  surrogate[config.iHp].SRMR(b),MMaq(b),fion1,fion2,b)
+						      surrogate[config.iHp].SRMR(b),MMaq(b),fion1,fion2,b)
 		    /surrogate[i].gamma_aq_bins(b);
 		
 		  surrogate[i].fion1=fion1;
@@ -196,8 +196,8 @@ void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void characteristic_time_ssh(model_config &config, vector<species>& surrogate,
-                         Array <double, 3> &MOinit, Array <double, 1> &AQinit,
-                         double LWCtot)
+			     Array <double, 3> &MOinit, Array <double, 1> &AQinit,
+			     double LWCtot)
 {
   //compute characteristic time for each compound to reach an equilibrium between the gas phase and
   //the organic phase for each bin and each layer
@@ -325,9 +325,9 @@ void characteristic_time_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate, double &Temperature,
-                            Array <double, 1> &chp,
-                            Array <double, 1> &LWC, Array <double, 1> &AQinit,
-                            Array<double, 3> &MOinit)
+				Array <double, 1> &chp,
+				Array <double, 1> &LWC, Array <double, 1> &AQinit,
+				Array<double, 3> &MOinit)
 {
   //compute characteristic time for each compound to reach an equilibrium between the gas phase and
   //the aqueous phase in a bin
@@ -467,115 +467,115 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
           surrogate[i].time_aq(b)=0.0;
 
   /*  
-  if (config.compute_inorganic)
-    {
+      if (config.compute_inorganic)
+      {
       double sensicl=0.;
       double sensino3=0.;
       double sensinh4=0.;      
       for (b=0;b<config.nbins;++b)
-        {
-          double Jhp=0.0;
-          double asulf=0.;
-          double a1=0.;
-          double b1=0.;
-          double c1=0.;
-          double conc_org=LWC(b);
-          double faq=0.;
-          double conc_aq;
-          double organion=0.;
-          double organion2=0.;
-          for (i=0;i<n;++i)
-            if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
-              conc_org+=surrogate[i].Aaq_bins_init(b);
+      {
+      double Jhp=0.0;
+      double asulf=0.;
+      double a1=0.;
+      double b1=0.;
+      double c1=0.;
+      double conc_org=LWC(b);
+      double faq=0.;
+      double conc_aq;
+      double organion=0.;
+      double organion2=0.;
+      for (i=0;i<n;++i)
+      if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+      conc_org+=surrogate[i].Aaq_bins_init(b);
       
-          double sum_mass=AQinit(b);
-          for (ilayer=0;ilayer<config.nlayer;ilayer++)
-            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-              sum_mass+=MOinit(b,ilayer,iphase);
+      double sum_mass=AQinit(b);
+      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+      sum_mass+=MOinit(b,ilayer,iphase);
 
-          if (sum_mass>0.0)
-            faq=AQinit(b)/sum_mass;
-          else
-            faq=0.0;
+      if (sum_mass>0.0)
+      faq=AQinit(b)/sum_mass;
+      else
+      faq=0.0;
           
-          i=config.iH2SO4;          
-          if (i>=0)
-            {
-              double K=surrogate[i].Kequilibrium_ssh(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(b)
-                /(surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));
+      i=config.iH2SO4;          
+      if (i>=0)
+      {
+      double K=surrogate[i].Kequilibrium_ssh(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(b)
+      /(surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));
               
-              a1+=(2.0-1.0/(1.0+K/chp(b)))*surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM; 		
+      a1+=(2.0-1.0/(1.0+K/chp(b)))*surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM; 		
 		      
-              double total=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+
-                surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM;	       		     
-              asulf=config.AQrho(b)*total/AQinit(b)*1.0/pow(1.0+K/chp(b),2.0)*K/(chp(b)*chp(b));
+      double total=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+
+      surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM;	       		     
+      asulf=config.AQrho(b)*total/AQinit(b)*1.0/pow(1.0+K/chp(b),2.0)*K/(chp(b)*chp(b));
               
-            }
-          i=config.iNH3;
-          if (i>=0)
-            {		
-              Kaq=surrogate[i].Kaq(b)/chp(b);	       
-              conc_aq=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM;
-              c1+=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
-              a1-=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
-            }
-          i=config.iHNO3;
-          if (i>=0)
-            {
-              Kaq=surrogate[i].Kaq(b)*chp(b);	       
-              conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM;
-              b1-=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
-              a1+=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
-            }
-          i=config.iHCl;
-          if (i>=0)            
-            {
-              Kaq=surrogate[i].Kaq(b)*chp(b);	       
-              conc_aq=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM;
-              b1-=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
-              a1+=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
-            }
+      }
+      i=config.iNH3;
+      if (i>=0)
+      {		
+      Kaq=surrogate[i].Kaq(b)/chp(b);	       
+      conc_aq=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM;
+      c1+=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
+      a1-=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
+      }
+      i=config.iHNO3;
+      if (i>=0)
+      {
+      Kaq=surrogate[i].Kaq(b)*chp(b);	       
+      conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM;
+      b1-=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
+      a1+=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
+      }
+      i=config.iHCl;
+      if (i>=0)            
+      {
+      Kaq=surrogate[i].Kaq(b)*chp(b);	       
+      conc_aq=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM;
+      b1-=conc_aq/(Kaq*AQinit(b)*surrogate[i].tau_air(b))*faq;
+      a1+=surrogate[i].Ag/surrogate[i].tau_air(b)/surrogate[i].MM*faq;
+      }
 
-          a1=a1/conc_org*1000.0;
-          b1=b1/conc_org*1000.0;
-          c1=c1/conc_org*1000.0;
+      a1=a1/conc_org*1000.0;
+      b1=b1/conc_org*1000.0;
+      c1=c1/conc_org*1000.0;
           
-          Jhp=(a1*chp(b)+b1*pow(chp(b),2)+c1+organion*chp(b))/(config.Ke/chp(b)+chp(b)+organion2*chp(b)+chp(b)*asulf);         
-          double clconc=(surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM);
-          double nh4conc=(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM);
-          double no3conc=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM);
-          double sensimax=0.;
-          if (config.iHCl>=0)
-            sensicl=(surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM)*
-              (surrogate[config.iHCl].dKaq(b)*AQinit(b)/(1+surrogate[config.iHCl].Kaq(b)*AQinit(b))-surrogate[config.iHCl].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHCl].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHCl].dKaq(b));
-          if (config.iHNO3>=0)
-            sensino3=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM)*
-              (surrogate[config.iHNO3].dKaq(b)*AQinit(b)/(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b))-surrogate[config.iHNO3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHNO3].dKaq(b));
-          if (config.iNH3>=0)
-            sensinh4=(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM)*
-              (surrogate[config.iNH3].dKaq(b)*AQinit(b)/(1+surrogate[config.iNH3].Kaq(b)*AQinit(b))-surrogate[config.iNH3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iNH3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iNH3].dKaq(b)); 
+      Jhp=(a1*chp(b)+b1*pow(chp(b),2)+c1+organion*chp(b))/(config.Ke/chp(b)+chp(b)+organion2*chp(b)+chp(b)*asulf);         
+      double clconc=(surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM);
+      double nh4conc=(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM);
+      double no3conc=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM);
+      double sensimax=0.;
+      if (config.iHCl>=0)
+      sensicl=(surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM)*
+      (surrogate[config.iHCl].dKaq(b)*AQinit(b)/(1+surrogate[config.iHCl].Kaq(b)*AQinit(b))-surrogate[config.iHCl].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHCl].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHCl].dKaq(b));
+      if (config.iHNO3>=0)
+      sensino3=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM)*
+      (surrogate[config.iHNO3].dKaq(b)*AQinit(b)/(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b))-surrogate[config.iHNO3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHNO3].dKaq(b));
+      if (config.iNH3>=0)
+      sensinh4=(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM)*
+      (surrogate[config.iNH3].dKaq(b)*AQinit(b)/(1+surrogate[config.iNH3].Kaq(b)*AQinit(b))-surrogate[config.iNH3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iNH3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iNH3].dKaq(b)); 
           
-          int isensi=config.iHCl;
-          sensimax=abs(sensicl);
+      int isensi=config.iHCl;
+      sensimax=abs(sensicl);
           
             
-          if (abs(sensino3)>sensimax)
-            {
-              isensi=config.iHNO3;
-              sensimax=abs(sensino3);
+      if (abs(sensino3)>sensimax)
+      {
+      isensi=config.iHNO3;
+      sensimax=abs(sensino3);
               
-            }
+      }
           
-          if (abs(sensinh4)>sensimax)
-            {
-              isensi=config.iNH3;
-              sensimax=abs(sensinh4);             
-            }
+      if (abs(sensinh4)>sensimax)
+      {
+      isensi=config.iNH3;
+      sensimax=abs(sensinh4);             
+      }
 
-          // The species the more sensitive to pH is forced at equilibrium
-          surrogate[isensi].time_aq(b)=0.;
-        }
-	}*/
+      // The species the more sensitive to pH is forced at equilibrium
+      surrogate[isensi].time_aq(b)=0.;
+      }
+      }*/
   
   for (i=0;i<n;i++)
     if (surrogate[i].aq_type=="monoacid" or surrogate[i].aq_type=="diacid")
@@ -583,7 +583,7 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 	max_time_inorg(b)=max(max_time_inorg(b),(surrogate[i].fion1+surrogate[i].fion2)*surrogate[i].time_aq(b));       
 
   for (b=0;b<config.nbins;++b)
-    surrogate[config.iH2O].time_aq(b)=0.0; //H2O is forced to be at equilibrium
+    surrogate[config.iH2O].time_aq(b)=-10.0; //H2O is forced to be at equilibrium
     
   for (i=0;i<n;i++)
     if (surrogate[i].aq_type=="monoacid" or surrogate[i].aq_type=="diacid")
@@ -594,23 +594,23 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 	}
 
 
-/*
-for (b=0;b<config.nbins;++b)
-{
-surrogate[config.iNH3].time_aq(b)=min(surrogate[config.iNH3].time_aq(b),surrogate[config.iHNO3].time_aq(b));
-surrogate[config.iHNO3].time_aq(b)=surrogate[config.iNH3].time_aq(b);
-}
+  /*
+    for (b=0;b<config.nbins;++b)
+    {
+    surrogate[config.iNH3].time_aq(b)=min(surrogate[config.iNH3].time_aq(b),surrogate[config.iHNO3].time_aq(b));
+    surrogate[config.iHNO3].time_aq(b)=surrogate[config.iNH3].time_aq(b);
+    }
 
-surrogate[config.iNH3].time_aq=surrogate[config.iHNO3].time_aq;*/
-/*
-  surrogate[config.iNH3].time_aq=2.*config.tequilibrium;
-  surrogate[config.iHNO3].time_aq=2.*config.tequilibrium;*/
+    surrogate[config.iNH3].time_aq=surrogate[config.iHNO3].time_aq;*/
+  /*
+    surrogate[config.iNH3].time_aq=2.*config.tequilibrium;
+    surrogate[config.iHNO3].time_aq=2.*config.tequilibrium;*/
 }
 
 void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
-                       Array<double, 3> &MOinit, Array<double, 3> &MOW, 
-                       Array<double, 1> &AQinit, Array<double, 1> &MMaq, 
-                       Array<double, 1> &chp, double &deltat, double &tiny,int index)
+			   Array<double, 3> &MOinit, Array<double, 3> &MOW, 
+			   Array<double, 1> &AQinit, Array<double, 1> &MMaq, 
+			   Array<double, 1> &chp, double &deltat, double &tiny,int index)
 {    
   int n=surrogate.size();
   int i,j,b,ilayer,iphase,jion;
@@ -721,9 +721,9 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                       surrogate[j].flux_chem_aq(b,index)+=fac2*flux;		
                       surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;
 		      /*
-		      if (surrogate[i].name=="BiDER")
+			if (surrogate[i].name=="BiDER")
 			{
-			  //cout << surrogate[i].name << " " << b << " " << flux << " " << config.koligo << " " << surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf << " " << Xmonoaq <<  " " << config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq << " " << deltat << " " << config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2*deltat << endl;                          
+			//cout << surrogate[i].name << " " << b << " " << flux << " " << config.koligo << " " << surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf << " " << Xmonoaq <<  " " << config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq << " " << deltat << " " << config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2*deltat << endl;                          
 			}*/
 			
                     }
@@ -962,13 +962,13 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                           fac2=surrogate[j].Aaq_bins_init(b)/(surrogate[j].Ag+surrogate[j].Aaq_bins_init(b));
 
 		      /*
-                      if (flux>0.0)                        
+			if (flux>0.0)                        
                         flux=flux/(1.0-gamma*surrogate[i].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[i].Jdn_tot*deltat);                                                  
-                      else
+			else
 			{
-			  cout << 
-			  flux=flux/(1.0-gamma*surrogate[j].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[j].Jdn_tot*deltat);
-			  }*/
+			cout << 
+			flux=flux/(1.0-gamma*surrogate[j].Jdn(b,ilayer,iphase,index)*deltat-gamma*surrogate[j].Jdn_tot*deltat);
+			}*/
 
                       if (flux>0.0)                        
                         flux=flux/(1.0-gamma*surrogate[i].Jdn_aq(b,index)*deltat-gamma*surrogate[i].Jdn_tot*deltat);                                                  
@@ -1084,6 +1084,276 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
         } 
     }    
 }
+
+void prodloss_aq_ssh(model_config &config, vector<species>& surrogate, Array<double, 1> &AQinit,  Array<double, 1> &LWC, Array<double, 3> &MOinit, int index, double deltat)
+{
+  //compute kinetic rates for the absorption of a compound in the aqueous phase in a bin
+  //index = 0 : first evaluation of rates
+  //index = 1 : second evaluation of rates
+  double Kaq;
+  int n=surrogate.size();
+  int i,b,ilayer,iphase;
+  double sum_mass;  
+  double conc_aq;
+  double conc_org;
+  double sumkpositive=0.0;
+  double sumknegative=0.0;
+
+  for (i=0;i<n;++i)
+    {
+      surrogate[i].deltat_exp=0.;
+      surrogate[i].k1_gas(index)=0.0;
+      surrogate[i].kloss_gas=0.0;
+      surrogate[i].kprod_gas=0.0;
+      for (b=0;b<config.nbins;b++)
+	{
+	  surrogate[i].k1_aq(b,index)=0.0;
+	  surrogate[i].Jdn_aq(b,index)=0.0;
+	  surrogate[i].kprod_aq(b)=0.0;
+	  surrogate[i].kloss_aq(b)=0.0;
+	}
+      
+      for (b=0;b<config.nbins;++b)		  
+	for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	    {
+	      surrogate[i].kloss(b,ilayer,iphase)=0.0;
+	      surrogate[i].kprod(b,ilayer,iphase)=0.0;
+	      surrogate[i].k1(b,ilayer,iphase,index)=0.0;	      
+	    }
+	
+    }
+      
+
+  if (sum(LWC)>config.LWClimit)
+  for (b=0;b<config.nbins;++b)
+    {
+      conc_org=LWC(b);
+      for (i=0;i<n;++i)
+        if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+          conc_org+=surrogate[i].Aaq_bins_init(b);
+      conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+      //conc_org=max(conc_org,config.MOmin);
+
+      for (i=0;i<n;++i)
+        if(surrogate[i].is_organic and surrogate[i].hydrophilic and config.compute_organic)
+          {
+            sum_mass=AQinit(b);
+            for (ilayer=0;ilayer<config.nlayer;ilayer++)
+              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                sum_mass+=MOinit(b,ilayer,iphase);
+          
+            Kaq=surrogate[i].Kaq(b);          
+	    if (Kaq > 1.e-20 and AQinit(b)> 1e-20 and sum_mass > 1e-20 and surrogate[i].tau_air(b) > 0.)
+	      {
+		if (index==0)
+		  {
+		    surrogate[i].k1_aq(b,index)=AQinit(b)/sum_mass*
+		      (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
+		      (Kaq*AQinit(b)*surrogate[i].tau_air(b));
+		    surrogate[i].k1_gas(index)-=AQinit(b)/sum_mass*
+		      (surrogate[i].Ag*Kaq*AQinit(b)-surrogate[i].Aaq_bins_init(b))/
+		      (Kaq*AQinit(b)*surrogate[i].tau_air(b));
+		  }
+
+		surrogate[i].kprod_aq(b)=surrogate[i].Ag*AQinit(b)/sum_mass/surrogate[i].tau_air(b);
+		//cout << surrogate[i].tau_air << endl;
+		//cout << surrogate[i].name << " " << AQinit(b) << " " << sum_mass << " " << Kaq << " " << AQinit(b) << " " << surrogate[i].tau_air(b) << endl;
+		surrogate[i].kloss_aq(b)=AQinit(b)/sum_mass/(Kaq*AQinit(b)*surrogate[i].tau_air(b));
+		surrogate[i].kprod_gas+=AQinit(b)/sum_mass*surrogate[i].Aaq_bins_init(b)/(Kaq*AQinit(b)*surrogate[i].tau_air(b));
+		surrogate[i].kloss_gas+=AQinit(b)/sum_mass/surrogate[i].tau_air(b);
+	      }
+          }
+        else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic and surrogate[i].is_solid==false) //for inorganic compounds      
+          {
+            sum_mass=AQinit(b);
+            for (ilayer=0;ilayer<config.nlayer;ilayer++)
+              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		sum_mass+=MOinit(b,ilayer,iphase);       
+
+            conc_aq;
+            if (i==config.iH2SO4)
+              {
+		if (index==0)
+		  {
+		    surrogate[i].k1_gas(index)-=surrogate[i].Ag/surrogate[i].tau_air(b);
+		    surrogate[i].k1_aq(b,index)=surrogate[i].Ag/surrogate[i].tau_air(b)*surrogate[config.iSO4mm].MM/surrogate[i].MM;
+		  }
+		
+		surrogate[config.iSO4mm].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*surrogate[config.iSO4mm].MM/surrogate[i].MM;
+		surrogate[config.iSO4mm].kloss_aq(b)=0.0;
+		surrogate[i].kprod_gas+=0.0;
+		surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b);		
+              }
+            else if (i==config.iNH3)
+              {
+                Kaq=surrogate[i].Kaq(b);
+                //compute kinetic rate of absorption
+                conc_aq=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM*surrogate[i].MM;
+
+		if (index==0)
+		  {
+		    surrogate[i].k1_gas(index)-=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		    surrogate[config.iNH4p].k1_aq(b,index)=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)
+		      *surrogate[config.iNH4p].MM/surrogate[i].MM;
+		  }
+
+		surrogate[config.iNH4p].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)*surrogate[config.iNH4p].MM/surrogate[i].MM;
+		surrogate[config.iNH4p].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+
+              }
+            else if (i==config.iHNO3)
+              {
+                Kaq=surrogate[i].Kaq(b);
+                //compute kinetic rate of absorption
+                conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM*surrogate[i].MM;
+		if (index==0)
+		  {
+		    surrogate[i].k1_gas(index)-=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		    surrogate[config.iNO3m].k1_aq(b,index)=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)
+		      *surrogate[config.iNO3m].MM/surrogate[i].MM;
+		  }
+
+		surrogate[config.iNO3m].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)*surrogate[config.iNO3m].MM/surrogate[i].MM;
+		surrogate[config.iNO3m].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+
+
+              }
+            else if (i==config.iHCl)
+              {
+                Kaq=surrogate[i].Kaq(b);
+                //compute kinetic rate of absorption
+                conc_aq=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM*surrogate[i].MM;
+		if (index==0)
+		  {
+		    surrogate[i].k1_gas(index)-=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		    surrogate[config.iClm].k1_aq(b,index)=(surrogate[i].Ag*Kaq*conc_org-conc_aq)/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)
+		      *surrogate[config.iClm].MM/surrogate[i].MM;
+		  }
+
+		surrogate[config.iClm].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)*surrogate[config.iClm].MM/surrogate[i].MM;
+		surrogate[config.iClm].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);
+		surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b);		
+              }
+
+
+          
+          }
+    }
+
+  /*
+  double redmax=0.0;
+  double incmax=0.0;
+  if (index==0)
+    for (i=0;i<n;i++)
+      if (surrogate[i].is_organic)
+	{
+	  surrogate[i].deltat_exp=0.5*deltat;
+	  if (surrogate[i].k1_gas(index)<0.)
+	    {
+	      double time=redmax*surrogate[i].Ag/(-surrogate[i].k1_gas(index));
+	      surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+	    }
+
+	  if (surrogate[i].hydrophobic)
+	    for (b=0;b<config.nbins;b++)
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  if (surrogate[i].k1(b,ilayer,iphase,index)<0.)
+		    {
+		      double time=redmax*surrogate[i].Ap_layer_init(b,ilayer,iphase)/(-surrogate[i].k1(b,ilayer,iphase,index));
+		      surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		    }
+
+	  if (surrogate[i].hydrophilic)
+	    for (b=0;b<config.nbins;b++)
+	      if (surrogate[i].k1_aq(b)<0.)
+		{
+		  double time=redmax*surrogate[i].Aaq_bins_init(b)/(-surrogate[i].k1_aq(b));
+		  surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		}  
+	  
+	}
+      else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic and surrogate[i].is_solid==false)
+	{
+	  surrogate[i].deltat_exp=0.5*deltat;
+	  if (surrogate[i].k1_gas(index)<0.)
+	    {
+	      double time=redmax*surrogate[i].Ag/(-surrogate[i].k1_gas(index));
+	      surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+	    }
+	  else if (surrogate[i].k1_gas(index)>0.)
+	    {
+	      double time=incmax*surrogate[i].Ag/(surrogate[i].k1_gas(index));
+	      surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+	    }
+ 
+	  if (i==config.iHNO3)
+	    {
+	      for (b=0;b<config.nbins;b++)
+		if (surrogate[config.iNO3m].k1_aq(b)<0.)
+		  {
+		    double time=redmax*surrogate[config.iNO3m].Aaq_bins_init(b)/(-surrogate[config.iNO3m].k1_aq(b));
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+		else if (surrogate[config.iNO3m].k1_aq(b)>0.)
+		  {
+		    double time=incmax*surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].k1_aq(b);
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+	      surrogate[config.iNO3m].deltat_exp=surrogate[i].deltat_exp;
+	      
+	    }
+	  else if (i==config.iNH3)
+	    {
+	      for (b=0;b<config.nbins;b++)
+		if (surrogate[config.iNH4p].k1_aq(b)<0.)
+		  {
+		    double time=redmax*surrogate[config.iNH4p].Aaq_bins_init(b)/(-surrogate[config.iNH4p].k1_aq(b));
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+		else if (surrogate[config.iNH4p].k1_aq(b)>0.)
+		  {
+		    double time=incmax*surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].k1_aq(b);
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+	      surrogate[config.iNH4p].deltat_exp=surrogate[i].deltat_exp;
+	    }
+	  else if (i==config.iHCl)
+	    {
+	      for (b=0;b<config.nbins;b++)
+		if (surrogate[config.iClm].k1_aq(b)<0.)
+		  {
+		    double time=redmax*surrogate[config.iClm].Aaq_bins_init(b)/(-surrogate[config.iClm].k1_aq(b));
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+		else if (surrogate[config.iClm].k1_aq(b)>0.)
+		  {
+		    double time=incmax*surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].k1_aq(b);
+		    surrogate[i].deltat_exp=min(time,surrogate[i].deltat_exp);
+		  }
+	      surrogate[config.iClm].deltat_exp=surrogate[i].deltat_exp;
+	    }
+	  else if (i==config.iH2SO4)
+	    {
+	      //surrogate[i].deltat_exp=0.;
+	      surrogate[config.iHSO4m].deltat_exp=surrogate[i].deltat_exp;
+	      surrogate[config.iSO4mm].deltat_exp=surrogate[i].deltat_exp;
+	    }
+	  //cout << surrogate[i].name << " " << surrogate[i].deltat_exp << endl;
+	  
+	}
+  */
+  //exit(0);
+ 
+}
+
+
 
 void flux_aq_ssh(model_config &config, vector<species>& surrogate, Array<double, 1> &AQinit,  Array<double, 1> &LWC, Array<double, 3> &MOinit, double &tiny, int index)
 {
@@ -1232,8 +1502,8 @@ void flux_aq_ssh(model_config &config, vector<species>& surrogate, Array<double,
 
 
 void correct_flux_ph_ssh(model_config &config, vector<species>& surrogate, double &Temperature, Array<double, 1> &AQinit, Array <double, 3> &MOinit, 
-                     Array<double, 1> &chp, 		     
-                     Array<double, 1> &chpout, Array<double, 1> &MMaq, Array<double, 1> &ionic, Array<double, 1> &LWC, double tiny, double deltat, int index)
+			 Array<double, 1> &chp, 		     
+			 Array<double, 1> &chpout, Array<double, 1> &MMaq, Array<double, 1> &ionic, Array<double, 1> &LWC, double tiny, double deltat, int index)
 {
   int i,b;
   int n=surrogate.size();
@@ -1359,13 +1629,13 @@ void correct_flux_ph_ssh(model_config &config, vector<species>& surrogate, doubl
 	  (surrogate[config.iHCl].dKaq(b)*AQinit(b)/(1+surrogate[config.iHCl].Kaq(b)*AQinit(b))-surrogate[config.iHCl].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHCl].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHCl].dKaq(b));
       if (config.iHNO3>=0)
 	/*
-	sensino3=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM)*
-	(surrogate[config.iHNO3].dKaq(b)*AQinit(b)/(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b))-surrogate[config.iHNO3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHNO3].dKaq(b));*/
+	  sensino3=(surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM)*
+	  (surrogate[config.iHNO3].dKaq(b)*AQinit(b)/(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b))-surrogate[config.iHNO3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iHNO3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iHNO3].dKaq(b));*/
 	sensino3=-(surrogate[config.iHNO3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iHNO3].Jdn_aq(b,0)*deltat) -surrogate[config.iHNO3].k1_aq(b,0))/surrogate[config.iHNO3].k1_aq(b,0);
       if (config.iNH3>=0)
 	sensinh4=-(surrogate[config.iNH3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iNH3].Jdn_aq(b,0)*deltat) -surrogate[config.iNH3].k1_aq(b,0))/surrogate[config.iNH3].k1_aq(b,0);
-	  /*(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM)*
-	    (surrogate[config.iNH3].dKaq(b)*AQinit(b)/(1+surrogate[config.iNH3].Kaq(b)*AQinit(b))-surrogate[config.iNH3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iNH3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iNH3].dKaq(b)); */
+      /*(surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM)*
+	(surrogate[config.iNH3].dKaq(b)*AQinit(b)/(1+surrogate[config.iNH3].Kaq(b)*AQinit(b))-surrogate[config.iNH3].Kaq(b)*AQinit(b)/(pow(1+surrogate[config.iNH3].Kaq(b)*AQinit(b),2))*AQinit(b)*surrogate[config.iNH3].dKaq(b)); */
       
       int isensi=config.iHCl;
       sensimax=abs(sensicl);
@@ -1391,72 +1661,72 @@ void correct_flux_ph_ssh(model_config &config, vector<species>& surrogate, doubl
       surrogate[config.iNH3].k1_aq(b,index)*=0.1;*/
 
       /*
-      i=config.iHNO3;
-      if (index==1 and surrogate[i].fac_corr_ph(b)>0.2)
+	i=config.iHNO3;
+	if (index==1 and surrogate[i].fac_corr_ph(b)>0.2)
 	{
-	  surrogate[i].fac_corr_ph(b)=0.1;
-	  config.to_be_rejected=true;
-	  cout << "corr HNO3 " << surrogate[i].fac_corr_ph(b) << " " << surrogate[i].time_aq(b) << endl;
+	surrogate[i].fac_corr_ph(b)=0.1;
+	config.to_be_rejected=true;
+	cout << "corr HNO3 " << surrogate[i].fac_corr_ph(b) << " " << surrogate[i].time_aq(b) << endl;
 	}
 
-      i=config.iNH3;
-      if (index==1 and surrogate[i].fac_corr_ph(b)>0.2) // and surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0 and surrogate[i].fac_corr_ph(b)>0.2)
+	i=config.iNH3;
+	if (index==1 and surrogate[i].fac_corr_ph(b)>0.2) // and surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0 and surrogate[i].fac_corr_ph(b)>0.2)
 	{
-	  surrogate[i].fac_corr_ph(b)=0.1;
-	  config.to_be_rejected=true;
-	  cout << "corr NH3 " << surrogate[i].fac_corr_ph(b) << " " << surrogate[i].time_aq(b) << endl;
+	surrogate[i].fac_corr_ph(b)=0.1;
+	config.to_be_rejected=true;
+	cout << "corr NH3 " << surrogate[i].fac_corr_ph(b) << " " << surrogate[i].time_aq(b) << endl;
 	}
 
-      i=config.iHCl;
-      if (index==10 and surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0 and surrogate[i].fac_corr_ph(b)>0.2)
+	i=config.iHCl;
+	if (index==10 and surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0 and surrogate[i].fac_corr_ph(b)>0.2)
 	{
-	  surrogate[i].fac_corr_ph(b)=0.1;
-	  config.to_be_rejected=true;
-	  cout << "corr HCl " << surrogate[i].fac_corr_ph(b) << endl;
+	surrogate[i].fac_corr_ph(b)=0.1;
+	config.to_be_rejected=true;
+	cout << "corr HCl " << surrogate[i].fac_corr_ph(b) << endl;
 	}*/
       	
       if (index==1) // and surrogate[config.iHp].k1_aq(b,index)+ surrogate[config.iHp].k1_aq(b,0)<= 0.1*surrogate[config.iHp].k1_aq(b,0))
-      //if (index==1 and surrogate[config.iHp].k1_aq(b,index)<0.2*surrogate[config.iHp].k1_aq(b,0))
+	//if (index==1 and surrogate[config.iHp].k1_aq(b,index)<0.2*surrogate[config.iHp].k1_aq(b,0))
 	{
 	  //cout << index << " " << surrogate[config.iHp].k1_aq(b,0) << " " << surrogate[config.iHp].k1_aq(b,index) << endl;
 	  //surrogate[config.iHNO3].fac_corr_ph(b)*=0.9;
 	  //surrogate[config.iNH3].fac_corr_ph(b)*=0.9; //-=surrogate[config.iHp].k1_aq(b,index)/2*surrogate[config.iHNO3].MM;
 
 	  /*
-	  if (surrogate[config.iHNO3].fac_corr_ph(b)>0.2 and surrogate[config.iNH3].fac_corr_ph(b)>0.2 and surrogate[config.iHCl].fac_corr_ph(b)>0.2)
+	    if (surrogate[config.iHNO3].fac_corr_ph(b)>0.2 and surrogate[config.iNH3].fac_corr_ph(b)>0.2 and surrogate[config.iHCl].fac_corr_ph(b)>0.2)
 	    {*/
 	  //cout << surrogate[isensi].name << endl;
 
 	  /*
-	      surrogate[config.iHNO3].fac_corr_ph(b)=min(max(0.1,(surrogate[config.iHNO3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iHNO3].Jdn_aq(b,0)*deltat)+surrogate[config.iHNO3].k1_aq(b,0))/2/surrogate[config.iHNO3].k1_aq(b,0))*surrogate[config.iHNO3].fac_corr_ph(b),1.);
-	      surrogate[config.iNH3].fac_corr_ph(b)=min(max(0.1,(surrogate[config.iNH3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iNH3].Jdn_aq(b,0)*deltat)+surrogate[config.iNH3].k1_aq(b,0))/2/surrogate[config.iNH3].k1_aq(b,0))*surrogate[config.iNH3].fac_corr_ph(b),1.);
+	    surrogate[config.iHNO3].fac_corr_ph(b)=min(max(0.1,(surrogate[config.iHNO3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iHNO3].Jdn_aq(b,0)*deltat)+surrogate[config.iHNO3].k1_aq(b,0))/2/surrogate[config.iHNO3].k1_aq(b,0))*surrogate[config.iHNO3].fac_corr_ph(b),1.);
+	    surrogate[config.iNH3].fac_corr_ph(b)=min(max(0.1,(surrogate[config.iNH3].k1_aq(b,index)*deltat/(1.0-gamma*surrogate[config.iNH3].Jdn_aq(b,0)*deltat)+surrogate[config.iNH3].k1_aq(b,0))/2/surrogate[config.iNH3].k1_aq(b,0))*surrogate[config.iNH3].fac_corr_ph(b),1.);
 	  */
 
-	      //  }
+	  //  }
 	  /*i=config.iHNO3;
 	  
-	  if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
+	    if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
 	    {
-	      cout << "corr HNO3 " << surrogate[i].fac_corr_ph(b) << endl;
+	    cout << "corr HNO3 " << surrogate[i].fac_corr_ph(b) << endl;
 	      
-	      if (surrogate[i].fac_corr_ph(b)>0.2)
-		{
-		  surrogate[i].fac_corr_ph(b)=0.1;
-		  config.to_be_rejected=true;
-		}
+	    if (surrogate[i].fac_corr_ph(b)>0.2)
+	    {
+	    surrogate[i].fac_corr_ph(b)=0.1;
+	    config.to_be_rejected=true;
+	    }
 	      
 	    }
-	  //surrogate[i].fac_corr_ph(b)
+	    //surrogate[i].fac_corr_ph(b)
 	  
-	  i=config.iHCl;
-	  if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
+	    i=config.iHCl;
+	    if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
 	    surrogate[i].fac_corr_ph(b)=0.1;
 
-	  i=config.iNH3;
-	  if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
+	    i=config.iNH3;
+	    if (surrogate[i].k1_aq(b,index)*surrogate[i].k1_aq(b,0)<0)
 	    {
-	      cout << "corr NH3 " << surrogate[i].fac_corr_ph(b) << endl;
-	      surrogate[i].fac_corr_ph(b)=0.1;
+	    cout << "corr NH3 " << surrogate[i].fac_corr_ph(b) << endl;
+	    surrogate[i].fac_corr_ph(b)=0.1;
 	    }*/
 	}
       
@@ -1466,39 +1736,39 @@ void correct_flux_ph_ssh(model_config &config, vector<species>& surrogate, doubl
 
       //cout << "apres " << Jhp << endl;
       /*
-      chpout(b)=chp2;
-      for (i=0;i<n;i++)
+	chpout(b)=chp2;
+	for (i=0;i<n;i++)
         if (surrogate[i].name=="NH3")
-          {	   
-            surrogate[i].k1_aq(b,index)=a2/deltat;
+	{	   
+	surrogate[i].k1_aq(b,index)=a2/deltat;
 	    
-            surrogate[i].Jdn_aq(b,index)=0.0;
-            if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iNH4p].Aaq_bins_init(b)>tiny)
-              surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iNH4p].Aaq_bins_init(b)*surrogate[config.iNH4p].MM/surrogate[i].MM;
-          }
+	surrogate[i].Jdn_aq(b,index)=0.0;
+	if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iNH4p].Aaq_bins_init(b)>tiny)
+	surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iNH4p].Aaq_bins_init(b)*surrogate[config.iNH4p].MM/surrogate[i].MM;
+	}
         else if (surrogate[i].name=="HNO3")
-          {	   
-            surrogate[i].k1_aq(b,index)=b2/deltat;
-            surrogate[i].Jdn_aq(b,index)=0.0;
-            if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iNO3m].Aaq_bins_init(b)>tiny)
-              surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iNO3m].Aaq_bins_init(b)*surrogate[config.iNO3m].MM/surrogate[i].MM;
-          }
+	{	   
+	surrogate[i].k1_aq(b,index)=b2/deltat;
+	surrogate[i].Jdn_aq(b,index)=0.0;
+	if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iNO3m].Aaq_bins_init(b)>tiny)
+	surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iNO3m].Aaq_bins_init(b)*surrogate[config.iNO3m].MM/surrogate[i].MM;
+	}
         else if (surrogate[i].name=="HCl")
-          {	   
-            surrogate[i].k1_aq(b,index)=c2/deltat;
-            surrogate[i].Jdn_aq(b,index)=0.0;
-            if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iClm].Aaq_bins_init(b)>tiny)
-              surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iClm].Aaq_bins_init(b)*surrogate[config.iClm].MM/surrogate[i].MM;
-          }    
+	{	   
+	surrogate[i].k1_aq(b,index)=c2/deltat;
+	surrogate[i].Jdn_aq(b,index)=0.0;
+	if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[config.iClm].Aaq_bins_init(b)>tiny)
+	surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[config.iClm].Aaq_bins_init(b)*surrogate[config.iClm].MM/surrogate[i].MM;
+	}    
         else if (surrogate[i].is_organic)
-          if ((surrogate[i].aq_type=="monoacid" or surrogate[i].aq_type=="diacid") and surrogate[i].time_aq(b)>=config.tequilibrium)
-            {
-              if (surrogate[i].time_aq(b)>=config.tequilibrium)
-                surrogate[i].k1_aq(b,index)=surrogate[i].Aaq/deltat;
-              surrogate[i].Jdn_aq(b,index)=0.0;
-              if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Aaq_bins_init(b)>tiny)
-                surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[i].Aaq_bins_init(b);
-		}*/
+	if ((surrogate[i].aq_type=="monoacid" or surrogate[i].aq_type=="diacid") and surrogate[i].time_aq(b)>=config.tequilibrium)
+	{
+	if (surrogate[i].time_aq(b)>=config.tequilibrium)
+	surrogate[i].k1_aq(b,index)=surrogate[i].Aaq/deltat;
+	surrogate[i].Jdn_aq(b,index)=0.0;
+	if (surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Aaq_bins_init(b)>tiny)
+	surrogate[i].Jdn_aq(b,index)=surrogate[i].k1_aq(b,index)/surrogate[i].Aaq_bins_init(b);
+	}*/
     }
  
   //cout << " apres " << surrogate[config.iHNO3].k1_aq(0,index) << " " << index << " " << b2 << " " << deltat << " " << tmini << " " << chp2 << " " << chp(0) << endl;
@@ -1523,8 +1793,8 @@ void compute_morphology_ssh(model_config &config, Array<double,1> &vsol, Array<d
 }
 
 void flux_org_ssh(model_config &config, vector<species>& surrogate,
-              Array<double, 3> &MOinit, Array<double, 1> &AQinit,
-              double &tiny, int index)
+		  Array<double, 3> &MOinit, Array<double, 1> &AQinit,
+		  double &tiny, int index)
 {
   //compute kinetic rates for the absorption of a compound in the organic phase in a bin and a layer
   //index = 0 : first evaluation of rates)
@@ -1533,7 +1803,7 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
   int n=surrogate.size();
   int i,b,ilayer,iphase,jphase;
   double sum,sum_mass;
-   Array<double, 1> kpmo_interface;
+  Array<double, 1> kpmo_interface;
   kpmo_interface.resize(config.nlayer);
   Array <double,2> rJ_interface;
   rJ_interface.resize(config.nlayer,config.max_number_of_phases);
@@ -1571,7 +1841,7 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 	  {
 	    surrogate[i].k1(b,ilayer,iphase,index)=0.0;
 	    surrogate[i].Jdn(b,ilayer,iphase,index)=0.0;
-	    }
+	  }
   
   if (config.explicit_representation)
     {
@@ -1755,6 +2025,10 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)		
 			ktot1+=surrogate[i].k1(b,ilayer,iphase,index);
+
+		  /*
+		  if (surrogate[i].name=="SOAlP")
+		    cout << "Jinterface " << ktot1 << " " << surrogate[i].k1 << endl;*/
 		     		  
 		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
@@ -1897,7 +2171,7 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
                                       if(sumkpositive > 0.0) {
 		  		        a=1.0/(1.0/(surrogate[i].k1(b,ilayer,iphase,index)/(sumkpositive-max(sumk,0.0))*(kcond-max(sumk,0.0)))+1.0/surrogate[i].k1(b,ilayer,iphase,index))-sumknegative*surrogate[i].k1(b,ilayer,iphase,index)/sumkpositive;
 				        b2+=a;
-					}
+				      }
                                       else
                                         a = 0;
 				    }
@@ -1965,7 +2239,7 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 	}
     }
   
-
+  /*
   for (i=0;i<n;++i)      
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
       {
@@ -2004,19 +2278,295 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 								surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	      }
       }
+  */
+}
 
+
+void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
+		      Array<double, 3> &MOinit, Array<double, 1> &AQinit,
+		      double &tiny, int index, double deltat)
+{
+  //compute kinetic rates for the absorption of a compound in the organic phase in a bin and a layer
+  //index = 0 : first evaluation of rates)
+  //index = 1 : second evaluation of rates
+  //double Kp;
+  int n=surrogate.size();
+  int i,b,ilayer,iphase,jphase;
+  double sum,sum_mass;
+  Array<double, 1> kpmo_interface;
+  kpmo_interface.resize(config.nlayer);
+  Array <double,2> rJ_interface;
+  rJ_interface.resize(config.nlayer,config.max_number_of_phases);
+  double sumkpositive=0.0;
+  double sumknegative=0.0;
+  double sumkpmo_interface=0.0;
+  double sumk=0.0;
+  double sum1=0.0;
+  double sum2=0.0;
+  double sumap=0.0;
+  double kpmo=0.0;
+  double F1=0.0;
+  double F2=0.0;
+  double F1b,F2b;
+  double surf1=0.0;
+  double surf2=0.0;
+  double dorg=0.0;
+  bool eq_last_layer=true;
+  double tau_interface= 0.0;
+  double ap_interface=0.0;		  
+  double Vinterface=0.0;
+  int ilayer_interface=0;		  
+  double Jinterface=0.0;
+  double ktot1=0.0;
+  double kcond=0.0;	    	      
+  double ktot=0.0;
+  double b2=0.0;
+  double c2=0.0;
+  double a=0.0;
+  int jlayer;
+  
+  if (config.explicit_representation)
+    {
+      for (i=0;i<n;++i)
+	if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+	  for (b=0;b<config.nbins;++b)
+	    {	     
+	      sum_mass=AQinit(b);
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  {
+		    sum_mass+=MOinit(b,ilayer,iphase);
+		    surrogate[i].k1(b,ilayer,iphase,index)=0.0;
+		  }
+	   
+	      //compute kinetic rate of absorption	    
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  if(ilayer==config.nlayer-1 and surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+		    {		      
+		      sum=0.0;
+		      for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
+			sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
+
+		      surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/
+			(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+		      surrogate[i].kloss(b,ilayer,iphase)+=1./(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+		      surrogate[i].kprod_gas+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/
+			(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+		      surrogate[i].kprod_gas+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/
+			    (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+
+		      if (index==0)
+			surrogate[i].k1(b,ilayer,iphase,index)=
+			  (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			   -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
+			  (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));					      		     
+		    }
+
+	    
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)		    
+		{
+		  F1=0.0;
+		  F2=0.0;
+		  F1b=0.0;
+		  F2b=0.0;
+		  sum=0.0;
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    sum+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase));
+
+		  if (ilayer>0)
+		    {
+		      surf1=4.0*3.14159*pow(config.dbound(b,ilayer),2);
+		      sum1=0.0;
+		      for (iphase=0;iphase<config.nphase(b,ilayer-1);++iphase)
+			sum1+=surrogate[i].Ap_layer_init(b,ilayer-1,iphase)/(surrogate[i].Kp(b,ilayer-1,iphase)*MOinit(b,ilayer-1,iphase));
+
+		      dorg=(config.dbound(b,ilayer)-config.Radius(b,ilayer-1))/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1))*surrogate[i].dif_org(b,ilayer-1)
+			+(config.Radius(b,ilayer)-config.dbound(b,ilayer))/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1))*surrogate[i].dif_org(b,ilayer);
+			
+		      F1=surf1*dorg*sum1/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1));
+		      F1b=surf1*dorg*sum/(config.Radius(b,ilayer)-config.Radius(b,ilayer-1));
+		    }
+
+		  if (ilayer<config.nlayer-1)
+		    {
+		      surf2=4.0*3.14159*pow(config.dbound(b,ilayer+1),2);
+		      sum2=0.0;
+		      for (iphase=0;iphase<config.nphase(b,ilayer+1);++iphase)
+			sum2+=surrogate[i].Ap_layer_init(b,ilayer+1,iphase)/(surrogate[i].Kp(b,ilayer+1,iphase)*MOinit(b,ilayer+1,iphase));
+
+		      dorg=(config.dbound(b,ilayer+1)-config.Radius(b,ilayer))/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer))*surrogate[i].dif_org(b,ilayer)
+			+(config.Radius(b,ilayer+1)-config.dbound(b,ilayer+1))/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer))*surrogate[i].dif_org(b,ilayer+1);
+			
+		      F2=surf2*dorg*sum2/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer));
+		      F2b=surf2*dorg*sum/(config.Radius(b,ilayer+1)-config.Radius(b,ilayer));
+		      
+		    }
+		  
+		  sum=0.0;
+		  for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
+		    sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
+
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+		      {
+			surrogate[i].kprod(b,ilayer,iphase)+=pow(surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase),2.0)/sum*(F1+F2)/(4.0/3.0*3.14159*pow(config.diameters(b)*0.5e-6,3.0)*config.Vlayer(ilayer));
+			if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)
+			  surrogate[i].kloss(b,ilayer,iphase)+=pow(surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase),2.0)/sum*(F1b+F2b)/(4.0/3.0*3.14159*pow(config.diameters(b)*0.5e-6,3.0)*config.Vlayer(ilayer))/surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			if (index==0)
+			  surrogate[i].k1(b,ilayer,iphase,index)+=pow(surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase),2.0)/sum*(F1+F2-F1b-F2b)/(4.0/3.0*3.14159*pow(config.diameters(b)*0.5e-6,3.0)*config.Vlayer(ilayer));
+		      }
+		    
+		}
+	    }
+    }
+  else // Use implicit representation (low number of layers).
+    {
+      //cout << config.nphase << " " << config.nbins << endl;
+      if (config.nlayer>1)
+	{
+	  /*
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].name=="POAmP")
+	      cout << surrogate[i].tau_diffusion << endl;
+	    surrogate[i].tau_air=0.0001;*/
+	  
+	  for (i=0;i<n;i++)
+	    for (b=0;b<config.nbins;b++)
+	      for (ilayer=0;ilayer<config.nlayer-1;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  {
+		    surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,config.nlayer-1,iphase)/(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
+		      *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/surrogate[i].tau_diffusion(b,ilayer,iphase);
+		    surrogate[i].kloss(b,ilayer,iphase)+=1./surrogate[i].tau_diffusion(b,ilayer,iphase);
+		    surrogate[i].kprod(b,config.nlayer-1,iphase,index)+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].tau_diffusion(b,ilayer,iphase);
+		    surrogate[i].kloss(b,config.nlayer-1,iphase,index)+=1./(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
+		      *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/surrogate[i].tau_diffusion(b,ilayer,iphase);
+		  }
+	  
+	  for (b=0;b<config.nbins;++b)
+	    {	     
+	      sum_mass=AQinit(b);
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  sum_mass+=MOinit(b,ilayer,iphase);
+	      sum_mass=max(sum_mass,config.MOmin);
+	      
+	      //compute kinetic rate of absorption	    
+	      ilayer = config.nlayer-1;
+	      if (AQinit(b) != sum_mass) 
+		for (i=0;i<n;++i)
+		  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      //if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+		      {		      
+			sum=0.0;
+			for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
+			  sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
+			
+			surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			  /(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kloss(b,ilayer,iphase)+=1./(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kloss_gas+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			  /(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kprod_gas+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));			
+			if (sum > 0.0 and surrogate[i].tau_air(b) > 0.0 and index==0)
+			  surrogate[i].k1(b,ilayer,iphase,index)=			
+			    (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			     -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
+			    (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			
+			
+		      }
+	    }
+
+	  /*
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].name=="POAmP")
+	      cout << surrogate[i].name << " " << surrogate[i].kloss_gas << " " << surrogate[i].kprod_gas << " " << surrogate[i].kprod << " " << surrogate[i].kloss << endl;
+	  */
+	  
+	  /*
+	  flux_org_ssh(config, surrogate, MOinit, AQinit, tiny, index);
+	  for (i=0;i<n;i++)
+	    for (b=0;b<config.nbins;b++)
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  {
+		    double diff=(surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+				 -surrogate[i].Ap_layer_init(b,ilayer,iphase));
+		    double kloc=0.;
+		    if (diff!=0.)
+		      {
+			kloc=surrogate[i].k1(b,ilayer,iphase,index)/diff;
+		      }
+		    if (kloc<0.)
+		      {
+			cout << "error kloc " << endl;
+			exit(0);
+		      }
+		    double kloc2=0.*kloc+1.*surrogate[i].kloc(b,ilayer,iphase);
+		    if (index==0)
+		      surrogate[i].kloc(b,ilayer,iphase)=kloc;
+		    kloc=kloc2; 
+		    surrogate[i].kprod(b,ilayer,iphase)=kloc*surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+		    surrogate[i].kloss(b,ilayer,iphase)=kloc;
+		    surrogate[i].kloss_gas+=kloc*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+		    surrogate[i].kprod_gas+=kloc*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+		  }
+	  */
+	}
+      else // There is a single layer.
+	{      
+	  for (b=0;b<config.nbins;++b)
+	    {	     
+	      sum_mass=AQinit(b);
+	      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  sum_mass+=MOinit(b,ilayer,iphase);
+	      sum_mass=max(sum_mass,config.MOmin);
+	   
+	      //compute kinetic rate of absorption	    
+	      ilayer = 0;
+	      if (AQinit(b) != sum_mass) 
+		for (i=0;i<n;++i)
+		  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      //if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+		      {		      
+			sum=0.0;
+			for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
+			  sum+=surrogate[i].Kp(b,ilayer,jphase)*MOinit(b,ilayer,jphase);
+
+			surrogate[i].kprod(b,ilayer,iphase)=surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			  /(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kloss(b,ilayer,iphase)=1./(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kloss_gas+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			  /(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			surrogate[i].kprod_gas+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));			
+			if (sum > 0.0 and surrogate[i].tau_air(b) > 0.0 and index==0)
+			  surrogate[i].k1(b,ilayer,iphase,index)=			
+			    (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
+			     -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
+			    (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
+			
+			
+		      }
+	    }
+	}
+    }
 }
 
 void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int index_b, double Temperature, Array <double, 1> chp, 
-                   double &error, double &derivative, Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq,
-		   Array<double, 1> &LWC,
-		   double &chp_new)
+		       double &error, double &derivative, Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq,
+		       Array<double, 1> &LWC,
+		       double &chp_new, double deltat)
 {      
   int n=surrogate.size();
   int i;
   double inorganion=0.0;
   double organion=0.0;
-  double total;
+  double total,dtotal;
   double sum_K_AQ;
   int b;
   double kelvin_effect=1.0;
@@ -2036,8 +2586,8 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
   if (config.compute_kelvin_effect) //compute the kelvin effect    
     {
       kelvin_effect=2.0*config.surface_tension_aq*MMaq(index_b)/
-			(8.314*Temperature*config.AQrho(index_b)*
-			 0.5*config.diameters(index_b));
+	(8.314*Temperature*config.AQrho(index_b)*
+	 0.5*config.diameters(index_b));
       if(kelvin_effect > 50.0)
 	kelvin_effect = 50.0;
       kelvin_effect=exp(kelvin_effect);
@@ -2052,77 +2602,51 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
     }
   
   derivative=0.0;
-  for (i=0;i<n;++i)
-    if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
-      {
-        if (surrogate[i].name=="NH3")
-          {
-            if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-              {
-                total=surrogate[i].Ag/surrogate[i].MM;
-                sum_K_AQ=1.0;
-                for (b=0;b<config.nbins;b++)
-                  if (surrogate[i].time_aq(b)<config.tequilibrium)
-                    {
-                      total+=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM;
-                      sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
-                    }
-                derivative-=1000.0*total*
-                  (surrogate[i].Kaq(index_b)/chp(index_b)/sum_K_AQ
-                   -surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
-                inorganion-=1000.0*total*surrogate[i].Kaq(index_b)/sum_K_AQ; 
-              }
-            else
-              inorganion-=surrogate[config.iNH4p].Aaq_bins_init(index_b)/surrogate[config.iNH4p].MM/conc_org(index_b)*1000.0*surrogate[config.iNH4p].charge;
+  //cout << "ici " << deltat << endl;
+  if (config.imethod==0)
+    {
+      //cout << "laaaaa" << endl;
+      for (i=0;i<n;++i)
+	if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
+	  {
+	    if (surrogate[i].name=="NH3")
+	      {
+		total=(surrogate[config.iNH4p].Aaq_bins_init0(index_b)
+		       +0.5*deltat*(surrogate[config.iNH4p].k1_aq(index_b,0)+surrogate[config.iNH4p].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iNH4p].kloss_aq(index_b))
+		  /surrogate[config.iNH4p].MM/conc_org(index_b)*1000.*surrogate[config.iNH4p].charge;
+
+		dtotal=total/(1.0+0.5*deltat*surrogate[config.iNH4p].kloss_aq(index_b))*0.5*deltat*
+		  surrogate[config.iNH4p].kloss_aq(index_b)/chp(index_b);
+		derivative-=dtotal;
+		inorganion-=total;
+		//cout << "NH3: " << total << endl;
+	      }
+		
 	    //cout << "NH3: " << inorganion << endl;
-          }
+          
 	
         else if (surrogate[i].name=="HNO3")
           {
-            if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-              {
-                total=surrogate[i].Ag/surrogate[i].MM;
-                sum_K_AQ=1.0;
-                for (b=0;b<config.nbins;b++)
-                  if (surrogate[i].time_aq(b)<config.tequilibrium)
-                    {
-                      total+=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM;
-                      sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
-                    }
-                
-                derivative+=1000.0*total*
-                  (-surrogate[i].Kaq(index_b)/chp(index_b)/sum_K_AQ
-                   +surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
-                inorganion+=1000.*total*surrogate[i].Kaq(index_b)/sum_K_AQ;
-              }
-            else
-              inorganion-=surrogate[config.iNO3m].Aaq_bins_init(index_b)/surrogate[config.iNO3m].MM/conc_org(index_b)*1000.*surrogate[config.iNO3m].charge;
-	    //cout << "NO3: " << inorganion << endl;
+	    total=(surrogate[config.iNO3m].Aaq_bins_init0(index_b)
+		   +0.5*deltat*(surrogate[config.iNO3m].k1_aq(index_b,0)+surrogate[config.iNO3m].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))
+	      /surrogate[config.iNO3m].MM/conc_org(index_b)*1000.*surrogate[config.iNO3m].charge;
+	    
+	    dtotal=-total/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))*0.5*deltat*
+	      surrogate[config.iNO3m].kloss_aq(index_b)/chp(index_b);
+	    derivative-=dtotal;
+	    inorganion-=total; 
+	    //cout << "NO3: " << total << endl;  
           }
         else if (surrogate[i].name=="HCl")
           {
-            if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-              {
-                total=surrogate[i].Ag/surrogate[i].MM;
-                sum_K_AQ=1.0;
-                for (b=0;b<config.nbins;b++)
-                  if (surrogate[i].time_aq(b)<config.tequilibrium)
-                    {
-                      total+=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM;
-                      sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
-                    }
-                
-                derivative+=1000.0*total*
-                  (-surrogate[i].Kaq(index_b)/chp(index_b)/(sum_K_AQ)
-                   +surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
-                inorganion+=config.AQrho(index_b)*total*surrogate[i].Kaq(index_b)/sum_K_AQ;
-              }            
-            else
-              {
-                inorganion-=surrogate[config.iClm].Aaq_bins_init(index_b)/surrogate[config.iClm].MM/conc_org(index_b)*1000.*surrogate[config.iClm].charge;
-              }
-	    //cout << "HCL: " << inorganion << endl;
+	    total=(surrogate[config.iClm].Aaq_bins_init0(index_b)
+		   +0.5*deltat*(surrogate[config.iClm].k1_aq(index_b,0)+surrogate[config.iClm].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))
+	      /surrogate[config.iClm].MM/conc_org(index_b)*1000.*surrogate[config.iClm].charge;
 	    
+	    dtotal=-total/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))*0.5*deltat*
+	      surrogate[config.iClm].kloss_aq(index_b)/chp(index_b);
+	    derivative-=dtotal;
+	    inorganion-=total; 
           }
         else if (surrogate[i].name=="H2SO4")
           {
@@ -2136,96 +2660,278 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
             inorganion+=1000.*total/conc_org(index_b)*(2.0-1.0/(1.0+K/chp(index_b)));
 	    //cout << "H2SO4: " << inorganion << " " << total << " " << conc_org << " " << endl;
           }
-      }
-    else if (surrogate[i].is_organic and config.compute_organic)
-      {
-	if (surrogate[i].aq_type=="monoacid")
+	else if (surrogate[i].is_organic and config.compute_organic)
 	  {
-	    if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-	      {	       
-                total=surrogate[i].Ag/surrogate[i].MM;
-                sum_K_AQ=1.0;
-                for (b=0;b<config.nbins;b++)
-                  if (surrogate[i].time_aq(b)<config.tequilibrium)
-                    {
-                      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
-                      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
-                    }
-
-		fion1=0.0;
-		fion2=0.0;
-		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-
-		ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-		Kac=surrogate[i].Kacidity1/ratio_gamma;
-		Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		dK=-Kac*Kh/pow(chp(index_b),2.0);
-		
-                derivative+=1000.*AQinit(index_b)/conc_org(index_b)*total*fion1*
-		  (-(1.0-fion1)/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ+dK/sum_K_AQ
-		   -Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
-		organion+=1000.*fion1*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
-	      }
-	    else
+	    /*
+	      if (surrogate[i].aq_type=="monoacid")
 	      {
-		total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-		fion1=0.0;
-		fion2=0.0;
-		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		organion+=1000.*fion1*total/conc_org(index_b);
-		derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org(index_b);
-	      }
-
-	  }
-	else if (surrogate[i].aq_type=="diacid")
-	  {
-	    if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-	      {	       
-                total=surrogate[i].Ag/surrogate[i].MM;
-                sum_K_AQ=1.0;
-                for (b=0;b<config.nbins;b++)
-                  if (surrogate[i].time_aq(b)<config.tequilibrium)
-                    {
-                      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
-                      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
-                    }
-
-		fion1=0.0;
-		fion2=0.0;
-		surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-		Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-
-		ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-		ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
-		Kac1=surrogate[i].Kacidity1/ratio_gamma1;
-		Kac2=surrogate[i].Kacidity2/ratio_gamma2;
-		Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
-		
-		derivative+=1000.*total*AQinit(index_b)/conc_org(index_b)*
-		  ((fion1*(fion1-1.0)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ
-		   +dK/sum_K_AQ-Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
-		organion+=1000.0*(fion1+2.0*fion2)*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
-	      }
-	    else
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
 	      {
-		total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-		fion1=0.0;
-		fion2=0.0;
-		surrogate[i].gamma_LR=surrogate[i].LR(index_b);	      
-		Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-		organion+=1000.*(fion1+2.0*fion2)*total/conc_org(index_b);
-		derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org(index_b);
+		
+	      total=surrogate[i].Ag/surrogate[i].MM;
+	      sum_K_AQ=1.0;
+	      for (b=0;b<config.nbins;b++)
+	      if (surrogate[i].time_aq(b)<config.tequilibrium)
+	      {
+	      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
+	      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
 	      }
+
+	      fion1=0.0;
+	      fion2=0.0;
+	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+
+	      ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+	      Kac=surrogate[i].Kacidity1/ratio_gamma;
+	      Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	      dK=-Kac*Kh/pow(chp(index_b),2.0);
+		
+	      derivative+=1000.*AQinit(index_b)/conc_org(index_b)*total*fion1*
+	      (-(1.0-fion1)/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ+dK/sum_K_AQ
+	      -Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
+	      organion+=1000.*fion1*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
+	      }
+	      else
+	      {
+	      total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
+	      fion1=0.0;
+	      fion2=0.0;
+	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	      organion+=1000.*fion1*total/conc_org(index_b);
+	      derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org(index_b);
+	      }
+
+	      }
+	      else if (surrogate[i].aq_type=="diacid")
+	      {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+	      {	       
+	      total=surrogate[i].Ag/surrogate[i].MM;
+	      sum_K_AQ=1.0;
+	      for (b=0;b<config.nbins;b++)
+	      if (surrogate[i].time_aq(b)<config.tequilibrium)
+	      {
+	      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
+	      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
+	      }
+
+	      fion1=0.0;
+	      fion2=0.0;
+	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+
+	      ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+	      ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
+	      Kac1=surrogate[i].Kacidity1/ratio_gamma1;
+	      Kac2=surrogate[i].Kacidity2/ratio_gamma2;
+	      Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	      dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
+		
+	      derivative+=1000.*total*AQinit(index_b)/conc_org(index_b)*
+	      ((fion1*(fion1-1.0)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ
+	      +dK/sum_K_AQ-Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
+	      organion+=1000.0*(fion1+2.0*fion2)*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
+	      }
+	      else
+	      {
+	      total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
+	      fion1=0.0;
+	      fion2=0.0;
+	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);	      
+	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+	      organion+=1000.*(fion1+2.0*fion2)*total/conc_org(index_b);
+	      derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org(index_b);
+	      }
+	      }*/
 	  }
 
-      }
+      
+	  }
+
+
+
+    }
+  else
+    for (i=0;i<n;++i)
+      if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
+	{
+	  if (surrogate[i].name=="NH3")
+	    {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+		{
+		  total=surrogate[i].Ag/surrogate[i].MM;
+		  sum_K_AQ=1.0;
+		  for (b=0;b<config.nbins;b++)
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)
+		      {
+			total+=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM;
+			sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
+		      }
+		  derivative-=1000.0*total*
+		    (surrogate[i].Kaq(index_b)/chp(index_b)/sum_K_AQ
+		     -surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
+		  inorganion-=1000.0*total*surrogate[i].Kaq(index_b)/sum_K_AQ; 
+		}
+	      else
+		inorganion-=surrogate[config.iNH4p].Aaq_bins_init(index_b)/surrogate[config.iNH4p].MM/conc_org(index_b)*1000.0*surrogate[config.iNH4p].charge;
+	      //cout << "NH3: " << inorganion << endl;
+	    }
+	
+	  else if (surrogate[i].name=="HNO3")
+	    {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+		{
+		  total=surrogate[i].Ag/surrogate[i].MM;
+		  sum_K_AQ=1.0;
+		  for (b=0;b<config.nbins;b++)
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)
+		      {
+			total+=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM;
+			sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
+		      }
+                
+		  derivative+=1000.0*total*
+		    (-surrogate[i].Kaq(index_b)/chp(index_b)/sum_K_AQ
+		     +surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
+		  inorganion+=1000.*total*surrogate[i].Kaq(index_b)/sum_K_AQ;
+		}
+	      else
+		inorganion-=surrogate[config.iNO3m].Aaq_bins_init(index_b)/surrogate[config.iNO3m].MM/conc_org(index_b)*1000.*surrogate[config.iNO3m].charge;
+	      //cout << "NO3: " << inorganion << endl;
+	    }
+	  else if (surrogate[i].name=="HCl")
+	    {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+		{
+		  total=surrogate[i].Ag/surrogate[i].MM;
+		  sum_K_AQ=1.0;
+		  for (b=0;b<config.nbins;b++)
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)
+		      {
+			total+=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM;
+			sum_K_AQ+=surrogate[i].Kaq(b)*conc_org(b);
+		      }
+                
+		  derivative+=1000.0*total*
+		    (-surrogate[i].Kaq(index_b)/chp(index_b)/(sum_K_AQ)
+		     +surrogate[i].Kaq(index_b)/pow(sum_K_AQ,2.0)*surrogate[i].Kaq(index_b)/chp(index_b)*conc_org(index_b));
+		  inorganion+=config.AQrho(index_b)*total*surrogate[i].Kaq(index_b)/sum_K_AQ;
+		}            
+	      else
+		{
+		  inorganion-=surrogate[config.iClm].Aaq_bins_init(index_b)/surrogate[config.iClm].MM/conc_org(index_b)*1000.*surrogate[config.iClm].charge;
+		}
+	      //cout << "HCL: " << inorganion << endl;
+	    
+	    }
+	  else if (surrogate[i].name=="H2SO4")
+	    {
+	      total=surrogate[config.iHSO4m].Aaq_bins_init(index_b)/surrogate[config.iHSO4m].MM
+		+surrogate[config.iSO4mm].Aaq_bins_init(index_b)/surrogate[config.iSO4mm].MM;
+
+	      K=surrogate[i].Kequilibrium_ssh(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
+		/(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iSO4mm].gamma_aq_bins(index_b));
+	  
+	      derivative-=1000.*total/conc_org(index_b)*1.0/pow(1.0+K/chp(index_b),2.0)*K/(chp(index_b)*chp(index_b)); //HSO4m+SO4mm
+	      inorganion+=1000.*total/conc_org(index_b)*(2.0-1.0/(1.0+K/chp(index_b)));
+	      //cout << "H2SO4: " << inorganion << " " << total << " " << conc_org << " " << endl;
+	    }
+	}
+      else if (surrogate[i].is_organic and config.compute_organic)
+	{
+	  if (surrogate[i].aq_type=="monoacid")
+	    {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+		{	       
+		  total=surrogate[i].Ag/surrogate[i].MM;
+		  sum_K_AQ=1.0;
+		  for (b=0;b<config.nbins;b++)
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)
+		      {
+			total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
+			sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
+		      }
+
+		  fion1=0.0;
+		  fion2=0.0;
+		  surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+		  Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+							surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+
+		  ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+		  Kac=surrogate[i].Kacidity1/ratio_gamma;
+		  Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		  dK=-Kac*Kh/pow(chp(index_b),2.0);
+		
+		  derivative+=1000.*AQinit(index_b)/conc_org(index_b)*total*fion1*
+		    (-(1.0-fion1)/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ+dK/sum_K_AQ
+		     -Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
+		  organion+=1000.*fion1*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
+		}
+	      else
+		{
+		  total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
+		  fion1=0.0;
+		  fion2=0.0;
+		  surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+		  Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+							surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		  organion+=1000.*fion1*total/conc_org(index_b);
+		  derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org(index_b);
+		}
+
+	    }
+	  else if (surrogate[i].aq_type=="diacid")
+	    {
+	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
+		{	       
+		  total=surrogate[i].Ag/surrogate[i].MM;
+		  sum_K_AQ=1.0;
+		  for (b=0;b<config.nbins;b++)
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)
+		      {
+			total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
+			sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
+		      }
+
+		  fion1=0.0;
+		  fion2=0.0;
+		  surrogate[i].gamma_LR=surrogate[i].LR(index_b);
+		  Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+							surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+
+		  ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
+		  ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
+		  Kac1=surrogate[i].Kacidity1/ratio_gamma1;
+		  Kac2=surrogate[i].Kacidity2/ratio_gamma2;
+		  Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		  dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
+		
+		  derivative+=1000.*total*AQinit(index_b)/conc_org(index_b)*
+		    ((fion1*(fion1-1.0)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ
+		     +dK/sum_K_AQ-Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
+		  organion+=1000.0*(fion1+2.0*fion2)*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
+		}
+	      else
+		{
+		  total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
+		  fion1=0.0;
+		  fion2=0.0;
+		  surrogate[i].gamma_LR=surrogate[i].LR(index_b);	      
+		  Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
+							surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+		  organion+=1000.*(fion1+2.0*fion2)*total/conc_org(index_b);
+		  derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org(index_b);
+		}
+	    }
+
+	}
   /*else 
     if (surrogate[i].name=="Na")*/
   if (config.iNa>=0) inorganion-=surrogate[config.iNa].Aaq_bins_init(index_b)/surrogate[config.iNa].MM/conc_org(index_b)*1000.*surrogate[config.iNa].charge;
@@ -2238,13 +2944,14 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
   derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke,0.5))-1.0;
   chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5));
   error=chp_new-chp(index_b);
-  //cout << "chp new " << chp_new << " " << conc_org << endl;
+  //if (deltat>0)
+  //  cout << "chp bins la " << chp_new << " " << inorganion << " " << chp(index_b) << endl;
 }
 
 void error_ph_dyn_ssh(model_config &config, vector<species> &surrogate, int index_b, double Temperature, Array <double, 1> chp, 
-		  double &error, double &derivative, Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq,
-		  Array<double, 1> &LWC,
-		  double &chp_new)
+		      double &error, double &derivative, Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq,
+		      Array<double, 1> &LWC,
+		      double &chp_new)
 {      
   int n=surrogate.size();
   int i;
@@ -2305,7 +3012,7 @@ void error_ph_dyn_ssh(model_config &config, vector<species> &surrogate, int inde
 	    fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config,Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*fion1*total/conc_org;
 	    derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org;	   
 	  }
@@ -2316,7 +3023,7 @@ void error_ph_dyn_ssh(model_config &config, vector<species> &surrogate, int inde
 	    fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);	    
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*(fion1+2.0*fion2)*total/conc_org;
 	    derivative+=(fion1*(fion1-1.)+4.0*fion1*fion2+4.0*fion2*(fion2-1.))/chp(index_b)*1000.*total/conc_org;	   
 	  }
@@ -2339,7 +3046,7 @@ void error_ph_dyn_ssh(model_config &config, vector<species> &surrogate, int inde
 }
 
 void compute_ph_dyn_ssh(model_config &config, vector<species> &surrogate, double Temperature, Array <double, 1> &chp, 
-                    Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq, Array<double, 1> &LWC)
+			Array <double, 1> AQinit, Array<double , 1> &ionic, Array<double, 1> &MMaq, Array<double, 1> &LWC)
 {
   int b,i;
   double error_tot=1000.0;
@@ -2427,8 +3134,8 @@ void compute_ph_dyn_ssh(model_config &config, vector<species> &surrogate, double
 }	
 
 void error_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, int index_b, double Temperature, Array <double, 1> chp, 
-		   double &error, double &derivative, Array <double, 1> AQ, Array<double , 1> &ionic, Array<double, 1> &MMaq,
-		   Array<double, 1> &LWC, double &chp_new)
+		       double &error, double &derivative, Array <double, 1> AQ, Array<double , 1> &ionic, Array<double, 1> &MMaq,
+		       Array<double, 1> &LWC, double &chp_new)
 {      
   int n=surrogate.size();
   int i;
@@ -2485,7 +3192,7 @@ void error_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, int ind
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.*fion1*total/conc_org;
 	    derivative-=fion1*(1-fion1)/chp(index_b)*1000.0*total/conc_org;	   
 	  }
@@ -2496,7 +3203,7 @@ void error_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, int ind
 	    double fion2=0.0;
 	    surrogate[i].gamma_LR=surrogate[i].LR(index_b);
 	    Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-					      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
+						  surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2, index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
 	    organion+=1000.0*(fion1+2.0*fion2)*total/conc_org;
 	    derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org;	   
 	  }
@@ -2519,7 +3226,7 @@ void error_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, int ind
 }
    
 void compute_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, double Temperature, Array <double, 1> &chp, 
-		     Array <double, 1> AQ, Array<double , 1> &ionic, Array<double, 1> &MMaq, Array<double, 1> &LWC)
+			 Array <double, 1> AQ, Array<double , 1> &ionic, Array<double, 1> &MMaq, Array<double, 1> &LWC)
 {
   int b,i;
   double error_tot=1000.0;
@@ -2609,12 +3316,12 @@ void compute_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, doubl
 }
 
 void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& surrogate,
-                                  double &Temperature, Array<double, 1> &AQinit,
-                                  Array<double, 3> &MOinit,
-                                  Array<double, 1> &conc_inorganic,
-                                  Array<double, 1> &ionic, Array<double, 1> &ionic_organic,
-                                  Array<double, 1> &organion, Array<double, 1> &chp,
-                                  Array<double, 1> &LWC,Array<double, 1> &MMaq, double factor)
+				      double &Temperature, Array<double, 1> &AQinit,
+				      Array<double, 3> &MOinit,
+				      Array<double, 1> &conc_inorganic,
+				      Array<double, 1> &ionic, Array<double, 1> &ionic_organic,
+				      Array<double, 1> &organion, Array<double, 1> &chp,
+				      Array<double, 1> &LWC,Array<double, 1> &MMaq, double factor, double deltat, int index2)
 {
   //compute the activity coefficients with UNIFAC (short range interactions) for the organic phase
   //MOW: mean molar mass of the organic phase
@@ -2686,7 +3393,7 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
 
       //config.rho_aqueous=config.AQrho(b);
       compute_ionic_strenght_ssh(config, surrogate, Temperature, AQ, sum_inorganic, ionic_tmp, chp_tmp,
-                             organion_tmp, ionic_organic_tmp, conc_org, factor);      
+				 organion_tmp, ionic_organic_tmp, conc_org, factor);      
 
       activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaqtemp,XH2O,conc_org);
       if (config.compute_long_and_medium_range_interactions)
@@ -2759,7 +3466,7 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
 	  	
           //config.rho_aqueous=config.AQrho(b);          
           compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ, conc_inorganic(b), ionic(b), chp(b),
-				  organion(b), ionic_organic(b), conc_org, factor);                    
+				      organion(b), ionic_organic(b), conc_org, factor);                    
           
           activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaq(b),XH2O, conc_org);          
           if (config.compute_long_and_medium_range_interactions)
@@ -2780,66 +3487,567 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
                 }
             }         
         }
-           
-      for (b=0;b<config.nbins;++b)
-        {	  
-	  chp2=chp(b);
-          if (config.compute_inorganic)
-            {
-              error_h=1000.0;
-              index=0;
-              
-	      while(abs(error_h/chp2(b))>1.0e-3 and index<1000)
-		{
-		  index++;
-		  compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp2, MMaq);
-		  error_ph_bins_ssh(config, surrogate, b, Temperature, chp2, error_h, derivative_h,AQinit,ionic,MMaq,LWC,chp_new);
-		  if (chp2(b)==1.0e-14 and chp_new<=0.0)
-		    error_h=0.0;
-		  else if (chp_new <= 0.0 or chp_new!=chp_new)
-		    {
-		      error_h=1.0e-14-chp2(b);
-		      chp2(b)=1.0e-14;
-		    }
-		  else
-		    {
-		      if (chp2(b)-error_h/derivative_h>0.0 and derivative_h!=0.0)
-			chp2(b)=chp2(b)-error_h/derivative_h;
-		      else
-			{
-			  if (chp2(b)+error_h<1.0e-14)
-			    error_h=1.0e-14-chp2(b);
-			  chp2(b)=max(chp2(b)+error_h,1.0e-14);
-			}
+
+      if (factor>0.)
+	for (b=0;b<config.nbins;++b)
+	  {	  
+	    chp2=chp(b);
+	    if (config.compute_inorganic)
+	      {
+		error_h=1000.0;
+		index=0;              
+		while(abs(error_h/chp2(b))>1.0e-3 and index<1000)
+		  {
+		    index++;
+		    
+		    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp2, MMaq);
+		    if (config.imethod==0)
+		      prodloss_aq_ssh(config, surrogate, AQinit, LWC, MOinit, index2, deltat);
+		    error_ph_bins_ssh(config, surrogate, b, Temperature, chp2, error_h, derivative_h,AQinit,ionic,MMaq,LWC,chp_new,deltat);
+		    if (chp2(b)==1.0e-14 and chp_new<=0.0)
+		      error_h=0.0;
+		    else if (chp_new <= 0.0 or chp_new!=chp_new)
+		      {
+			error_h=1.0e-14-chp2(b);
+			chp2(b)=1.0e-14;
+		      }
+		    else
+		      {
+			if (chp2(b)-error_h/derivative_h>0.0 and derivative_h!=0.0)
+			  chp2(b)=chp2(b)-error_h/derivative_h;
+			else
+			  {
+			    if (chp2(b)+error_h<1.0e-14)
+			      error_h=1.0e-14-chp2(b);
+			    chp2(b)=max(chp2(b)+error_h,1.0e-14);
+			  }
 			  
-		    }
-		}
-	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);
+		      }
+		  }
 
-              conc_org=LWC(b);	  
-              for (i=0;i<n;i++)
-                if (surrogate[i].is_organic or i==config.iH2O)
-                  conc_org+=surrogate[i].Aaq_bins_init(b);
-              conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+		/*
+		if (deltat>0.)
+		  {
+		    cout << "new ph: " << chp2(b) << " " << chp(b) << " " << index << " " << error_h << endl;
+		    //exit(0);
+		  }*/
+		chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
 
-              // Concentrations of H+ is not calculated to avoid numerical issues when pH given by ISORROPIA is too low
-              surrogate[config.iHp].Aaq_bins_init(b)=chp(b)*conc_org/1000.0;
+		conc_org=LWC(b);	  
+		for (i=0;i<n;i++)
+		  if (surrogate[i].is_organic or i==config.iH2O)
+		    conc_org+=surrogate[i].Aaq_bins_init(b);
+		conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+	      
+		// Concentrations of H+ is not calculated to avoid numerical issues when pH given by ISORROPIA is too low
+		surrogate[config.iHp].Aaq_bins_init(b)=chp(b)*conc_org/1000.0;
               
-            }	  
+	      }	  
 	  
-        }      
+	  }      
       compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
       characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
     } 
 
   compute_organion_ssh(config, surrogate, Temperature,  MMaq, AQinit, ionic,
-                   chp, ionic_organic, organion, LWC);
+		       chp, ionic_organic, organion, LWC);
 }
 
+
+
+
+
+
+void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &tequilibrium,
+                     Array <double, 1> &AQinit,  Array <double, 1> &AQ,
+                     Array <double, 1> &conc_inorganic, Array <double, 1> &ionic,
+                     Array <double, 1> &ionic_organic, Array <double, 1> &organion,
+                     Array <double, 1> &chp, Array <double, 1> &LWC,
+                     Array <double, 3> &MOinit,  Array <double, 3> &MO, Array <double, 3> &MOW,
+                     double &Temperature, double &RH, Array <double, 1> &MMaq,
+                     bool compute_activity_coefficients, double factor, double t, double deltat,
+		     int index)
+{
+  //This routine computes the aqueous-phase and organic-phase concentrations being at equilibrium
+  //FOR THE COUPLED SYSTEM
+  //factor: weight factor to decrease variations in case of strong variations of composition
+  //                between two iterations
+  //compute_activity_coefficients: should the activity coefficients be recomputed?
+  //tequilibrium: criterium to distinguish cases under equilibrium (characteristic time lower
+  //                  than tequilibrium)
+  int n=surrogate.size();
+  int i,b,ilayer,iphase;
+  //double Kaq;
+  Array <double, 1> Kp,chp0,chp_save;
+  Kp.resize(config.max_number_of_phases);
+  chp0.resize(config.nbins);
+  chp_save.resize(config.nbins);
+  
+  double conc_equilibrium;
+  double sum=0.0;
+  bool is_equilibrium=false;
+  double LWCtot=0.0;
+  int index_b; //,index_layer;
+  double Mads,conceq;
+  int iter,index2;
+  double error_chp,conc_org,total,total2;
+  double tiny=1.0e-26;
+  
+  for (b=0;b<config.nbins;++b)
+    LWCtot+=LWC(b);
+
+  if (index==0)
+    prodloss_aq_ssh(config, surrogate, AQinit, LWC, MOinit, 0, deltat);
+    
+  
+  //cout << chp << endl;
+  chp0=chp;
+  chp_save=chp;
+
+  iter=0;
+  error_chp=1000.;
+  /*
+    while (iter<50 and error_chp>1.0e-3)
+    {
+    error_chp=0.0;
+    iter++;
+    if (config.compute_inorganic)	
+    {
+    compute_ph_dyn_ssh(config, surrogate, Temperature, chp, AQinit, ionic, MMaq, LWC);
+    for (b=0;b<config.nbins;++b)
+    {	  
+    conc_org=LWC(b);
+    for (i=0;i<n;++i)
+    if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+    conc_org+=surrogate[i].Aaq_bins_init(b);
+    conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+              
+              
+    //config.rho_aqueous=config.AQrho(b);
+    compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
+    organion(b), ionic_organic(b), conc_org, 1.0);
+    //cout << chp(b) << " " << chp0(b) << endl;
+    error_chp=max(error_chp,abs(chp0(b)-chp(b))/chp0(b));
+    chp0(b)=chp(b);	      
+    }      
+    }
+	  
+    if (compute_activity_coefficients)
+    {
+    if (config.compute_organic)
+    {
+    activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
+    compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+    }
+	  
+    if (LWCtot>config.LWClimit)
+    {
+    activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
+    MOinit,conc_inorganic, ionic, ionic_organic,
+    organion,chp,LWC,MMaq, 1.0);
+    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);   
+    }
+    }
+    }
+
+    for (b=0;b<config.nbins;b++)
+    {
+    chp(b)=factor*max(min(chp(b),2.*chp_save(b)),0.5*chp_save(b))+(1.-factor)*chp_save(b);
+    compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
+    organion(b), ionic_organic(b), conc_org, 1.0);
+    }
+    if (compute_activity_coefficients)
+    {
+    if (config.compute_organic)
+    {
+    activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
+    compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+    }
+	  
+    if (LWCtot>config.LWClimit)
+    {
+    activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
+    MOinit,conc_inorganic, ionic, ionic_organic,
+    organion,chp,LWC,MMaq, 1.0);
+    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);   
+    }
+    }
+  */
+
+ 
+  for (b=0;b<config.nbins;b++)
+    {
+      conc_org=LWC(b);  
+      for (i=0;i<n;++i)
+        if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+          conc_org+=surrogate[i].Aaq_bins_init(b);
+      conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+
+      double inorganion=0.0;
+      for (i=0;i<n;++i)
+        if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+          {
+            surrogate[i].molality=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;           
+            if (surrogate[i].name!="H")
+              inorganion-=surrogate[i].molality*surrogate[i].charge;
+          }
+
+      double chp_new=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5));
+      chp_new=max(min(chp_new,2.*chp(b)),0.5*chp(b));
+      chp(b)=factor*chp_new+(1.0-factor)*chp(b);
+      if (chp(b)==0.0)
+        chp(b)=pow(10.0,-5.6);
+    }
+  
+  if (compute_activity_coefficients)
+    {
+      if (config.compute_organic)
+        {
+          activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
+          compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+        }
+     
+      if (LWCtot>config.LWClimit)
+        {
+          activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
+					   MOinit, conc_inorganic, ionic, ionic_organic,
+					   organion,chp,LWC,MMaq, factor, deltat, 1);
+          compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
+        }    
+    }
+
+  //cout << chp << " " << index << endl;
+
+  for (i=0;i<n;i++)
+    {
+      surrogate[i].kprod_gas=0.0;
+      surrogate[i].kloss_gas=0.0;
+    }
+
+  //compute kinetic rates
+  //prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, index2);
+  prodloss_aq_ssh(config, surrogate, AQinit, LWC, MOinit, 1, deltat);
+  if (index==0)
+    prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 0, deltat);
+  else
+    prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 1, deltat);
+  /*
+    if (config.chemistry)
+    compute_prodloss_chem_ssh(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,index2);*/
+
+  double apnew;
+  for (i=0;i<n;++i)
+      {
+	if(surrogate[i].is_organic and config.compute_organic)
+	  if(surrogate[i].hydrophobic)
+            for (b=0;b<config.nbins;++b)
+              for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                  {		    	  		    
+		    apnew=(surrogate[i].Ap_layer_init0(b,ilayer,iphase)
+			   +surrogate[i].deltat_exp*surrogate[i].k1(b,ilayer,iphase,0)+(deltat-surrogate[i].deltat_exp)*
+			   surrogate[i].kprod(b,ilayer,iphase))/(1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss(b,ilayer,iphase));
+		    if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
+		      apnew=max(min(apnew,10.*surrogate[i].Ap_layer_init(b,ilayer,iphase)),0.1*surrogate[i].Ap_layer_init(b,ilayer,iphase));
+		    surrogate[i].Ap_layer_init(b,ilayer,iphase)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+		  }
+
+	if (LWCtot>config.LWClimit)
+	  if((surrogate[i].is_organic and config.compute_organic) or ((i==config.iClm or i==config.iNO3m or i==config.iNH4p) and config.compute_inorganic))
+	    if (surrogate[i].hydrophilic)
+	      for (b=0;b<config.nbins;++b)
+		{		    	  		    
+		  apnew=(surrogate[i].Aaq_bins_init0(b)+surrogate[i].deltat_exp*surrogate[i].k1_aq(b,0)
+			 +(deltat-surrogate[i].deltat_exp)*surrogate[i].kprod_aq(b))
+		    /(1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss_aq(b));
+		  if (surrogate[i].Aaq_bins_init(b)>tiny)
+		    apnew=max(min(apnew,10.*surrogate[i].Aaq_bins_init(b)),0.1*surrogate[i].Aaq_bins_init(b));
+		  surrogate[i].Aaq_bins_init(b)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Aaq_bins_init(b);
+		}
+
+	if (LWCtot>config.LWClimit)
+	  if (i==config.iSO4mm and config.compute_inorganic)
+	    for (b=0;b<config.nbins;++b)
+	      {
+		double Keq=surrogate[config.iH2SO4].Kequilibrium_ssh(Temperature)/chp(b)*surrogate[config.iHSO4m].gamma_aq_bins(b)/
+		  (surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));	     
+		total2=surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM;
+		total=(surrogate[config.iHSO4m].Aaq_bins_init0(b)+surrogate[i].deltat_exp*surrogate[config.iHSO4m].k1_aq(b,0)
+		       +(deltat-surrogate[i].deltat_exp)*surrogate[config.iHSO4m].kprod_aq(b))/
+		  (1.0+(deltat-surrogate[i].deltat_exp)*surrogate[config.iHSO4m].kloss_aq(b))/surrogate[config.iHSO4m].MM;
+		total+=(surrogate[config.iSO4mm].Aaq_bins_init0(b)+surrogate[i].deltat_exp*surrogate[config.iSO4mm].k1_aq(b,0)
+			+(deltat-surrogate[i].deltat_exp)*surrogate[config.iSO4mm].kprod_aq(b))/
+		  (1.0+(deltat-surrogate[i].deltat_exp)*surrogate[config.iSO4mm].kloss_aq(b))/surrogate[config.iSO4mm].MM;
+
+		if (total2>tiny)
+		  total=max(min(total,10.*total2),0.1*total2);	      
+		surrogate[config.iHSO4m].Aaq_bins_init(b)=total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq); //(1.0-factor)*surrogate[config.iHSO4m].Aaq_bins_init(b)+factor*total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq);
+		surrogate[config.iSO4mm].Aaq_bins_init(b)=total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq); //(1.0-factor)*surrogate[config.iSO4mm].Aaq_bins_init(b)+factor*total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq);
+		
+	      }
+	
+	if ((surrogate[i].is_organic and config.compute_organic) or (surrogate[i].is_inorganic_precursor and config.compute_inorganic))
+	  {
+	    apnew=(surrogate[i].Ag0+surrogate[i].deltat_exp*surrogate[i].k1_gas(0)+(deltat-surrogate[i].deltat_exp)*surrogate[i].kprod_gas)/
+	      (1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss_gas);
+	    if (surrogate[i].Ag>tiny)
+	      apnew=max(min(apnew,10.*surrogate[i].Ag),0.1*surrogate[i].Ag);
+	    surrogate[i].Ag=apnew; //factor*apnew+(1.-factor)*surrogate[i].Ag;
+	  }
+      }
+
+  /*
+  for (i=0;i<n;i++)
+    if (surrogate[i].Atot>0. and surrogate[i].name=="SOAlP")
+      cout << surrogate[i].name << " " << surrogate[i].Ag << " " << surrogate[i].Ap_layer_init(0,config.nlayer-1,0) << " " << surrogate[i].kprod(0,config.nlayer-1,0) << " " << surrogate[i].kloss_gas << " " << config.diameters(0) << " " << surrogate[i].k1(0,0,0) << endl;*/
+	 
+
+  if (config.chemistry==false)
+    if (config.compute_organic)
+      for (i=0;i<n;i++)
+	{
+	  double atot=0.; //surrogate[i].Ag;
+	  if (surrogate[i].hydrophobic)
+	    for (b=0;b<config.nbins;++b)
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+
+	  if (surrogate[i].hydrophilic)
+	    for (b=0;b<config.nbins;++b)
+	      atot+=surrogate[i].Aaq_bins_init(b);
+
+	
+	  if (atot<-surrogate[i].Atot)
+	    {
+	      surrogate[i].Ag=surrogate[i].Atot-atot;
+	    }
+	  else if (surrogate[i].Atot>0)
+	    {
+	      atot+=surrogate[i].Ag;
+	      if (atot==0.)
+		{
+		  cout << "error " << surrogate[i].Ag << " " << surrogate[i].Atot << " " << surrogate[i].name << endl;
+		  exit(0);
+		}
+	      //cout << surrogate[i].name << endl;
+
+	      if (atot>0.)
+		{
+		  surrogate[i].Ag*=surrogate[i].Atot/atot;
+		  if (surrogate[i].hydrophobic)
+		    for (b=0;b<config.nbins;++b)
+		      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			  surrogate[i].Ap_layer_init(b,ilayer,iphase)*=surrogate[i].Atot/atot;
+		  
+		  if (surrogate[i].hydrophilic)
+		    for (b=0;b<config.nbins;++b)
+		      surrogate[i].Aaq_bins_init(b)*=surrogate[i].Atot/atot;
+		}
+	    }
+	}
+  
+  if (config.chemistry==false)
+    if (config.compute_inorganic)
+      for (i=0;i<n;++i)
+	if (surrogate[i].is_inorganic_precursor)
+	  {
+
+	    double total=surrogate[i].Ag/surrogate[i].MM;
+	    double total0=surrogate[i].Ag0/surrogate[i].MM;
+	    for (b=0;b<config.nbins;b++)	      
+	      {
+		if (i==config.iHCl)
+		  {
+		    total+=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM;
+		    total0+=surrogate[config.iClm].Aaq_bins_init0(b)/surrogate[config.iClm].MM;
+		  }
+		else if (i==config.iNH3)
+		  {
+		    total+=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM;
+		    total0+=surrogate[config.iNH4p].Aaq_bins_init0(b)/surrogate[config.iNH4p].MM;
+		  }
+		else if (i==config.iHNO3)
+		  {
+		    total+=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM;
+		    total0+=surrogate[config.iNO3m].Aaq_bins_init0(b)/surrogate[config.iNO3m].MM;
+		  }
+		else if (i==config.iH2SO4)
+		  {
+		    total+=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM
+		      +surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM;
+		    total0+=surrogate[config.iSO4mm].Aaq_bins_init0(b)/surrogate[config.iSO4mm].MM
+		      +surrogate[config.iHSO4m].Aaq_bins_init0(b)/surrogate[config.iHSO4m].MM;
+		  }
+		
+	      }
+
+	    if (total>0)
+	      {
+		surrogate[i].Ag=surrogate[i].Ag/total*total0;		
+		for (b=0;b<config.nbins;b++)
+		  {
+		    if (i==config.iHCl)
+		      {
+			surrogate[config.iClm].Aaq_bins_init(b)*=total0/total;
+		      }
+		    else if (i==config.iNH3)
+		      {
+			surrogate[config.iNH4p].Aaq_bins_init(b)*=total0/total;
+		      }
+		    else if (i==config.iHNO3)
+		      {
+			surrogate[config.iNO3m].Aaq_bins_init(b)*=total0/total;
+		      }
+		    else if (i==config.iH2SO4)
+		      {
+			surrogate[config.iSO4mm].Aaq_bins_init(b)*=total0/total;
+			surrogate[config.iHSO4m].Aaq_bins_init(b)*=total0/total;
+		      }
+		    
+		  }
+	      }	  
+	  }
+
+
+  for (i=0;i<n;i++)
+    if (i!=config.iH2O)
+      {
+	surrogate[i].Ag=factor*surrogate[i].Ag+(1.-factor)*surrogate[i].Ag1;
+	for (b=0;b<config.nbins;b++)
+	  if (surrogate[i].hydrophilic)
+	    surrogate[i].Aaq_bins_init(b)=factor*surrogate[i].Aaq_bins_init(b)+(1.-factor)*surrogate[i].Aaq_bins(b);
+	
+	for (b=0;b<config.nbins;++b)
+	  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	      if (surrogate[i].hydrophobic)
+		surrogate[i].Ap_layer_init(b,ilayer,iphase)=
+		  factor*surrogate[i].Ap_layer_init(b,ilayer,iphase)+(1.-factor)*surrogate[i].Ap_layer(b,ilayer,iphase);
+      }
+
+
+  
+  sum=1.0;
+  conceq=surrogate[config.iH2O].Ag;  
+  for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
+    {	  	 	
+      if (surrogate[config.iH2O].hydrophilic)
+	if (LWCtot>config.LWClimit)  
+	  {
+	    conceq+=surrogate[config.iH2O].Aaq_bins_init(b);
+	    sum+=surrogate[config.iH2O].Kaq(b)*AQinit(b);
+	  }
+      
+      if (surrogate[config.iH2O].hydrophobic and config.compute_organic)
+	for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	    {
+	      conceq+=surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
+	      sum+=surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);                  
+	    }
+    }
+
+  if (surrogate[config.iH2O].hydrophilic and config.hygroscopicity)
+    if (LWCtot>config.LWClimit)
+      for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
+	{	    	    	    
+	  if (config.activity_model=="unifac" or config.compute_inorganic)
+	    {
+	      surrogate[config.iH2O].Aaq_bins_init(b)=factor*
+		max(conceq*surrogate[config.iH2O].Kaq(b)*AQinit(b)/sum - LWC(b), 0.0) +
+		(1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);
+	    }
+	  else	      
+	    {
+	      Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
+	      surrogate[config.iH2O].Aaq_bins_init(b)=factor*
+		surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*Mads/sum+
+		(1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);		
+	    }
+	}
+  
+  if (surrogate[config.iH2O].hydrophobic and config.compute_organic and config.hygroscopicity)
+    for (b=0;b<config.nbins;++b)
+      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	  //if (surrogate[config.iH2O].time(b,ilayer,iphase)<tequilibrium)	      
+	  surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)=factor*
+	    conceq*surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/sum+
+	    (1.0-factor)*surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
+
+
+  for (b=0;b<config.nbins;++b)
+    {
+      conc_inorganic(b)=0.0;
+      for (i=0;i<n;++i)
+        if(surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iH2O)
+          conc_inorganic(b)+=surrogate[i].Aaq_bins_init(b);
+    }
+  
+  //compute total concentration of the aqueous phase
+  for (b=0;b<config.nbins;++b)
+    {
+      AQ(b)=LWC(b)+conc_inorganic(b);
+      for (i=0;i<n;++i)
+        if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+          AQ(b)+=surrogate[i].Aaq_bins_init(b);
+    }
+
+  /*
+  for (i=0;i<n;i++)
+    if (surrogate[i].name=="POAlP")
+      {
+	cout << surrogate[i].name << " " << surrogate[i].Ap_layer_init << " " << surrogate[i].Ag << endl;
+	cout << surrogate[i].kprod << endl;
+	cout << surrogate[i].kloss << endl;
+	cout << surrogate[i].kprod_gas << " " << surrogate[i].kloss_gas << endl;
+      }*/
+
+  //compute total concentrations of the organic phase
+  if (config.compute_organic)
+    {
+      for (b=0;b<config.nbins;++b)
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+          {
+            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+              {
+                MO(b,ilayer,iphase)=0.0;
+                for (i=0;i<n;++i)
+                  if(surrogate[i].hydrophobic)
+                    MO(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+              }
+
+            //make sure that concentrations in a bin are at least equal to MOmin
+            sum=0.0;
+            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+              sum+=MO(b,ilayer,iphase);
+
+            if (sum>0.0)
+              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                MO(b,ilayer,iphase)=max(MO(b,ilayer,iphase),
+                                        config.MOmin*config.Vlayer(ilayer)*MO(b,ilayer,iphase)/sum);
+            else
+              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                if(iphase==0)
+                  MO(b,ilayer,iphase)=config.MOmin*config.Vlayer(ilayer);
+                else
+                  MO(b,ilayer,iphase)=0.0;
+          }
+    }
+  else
+    for (b=0;b<config.nbins;++b)
+      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+          MO(b,ilayer,iphase)=MOinit(b,ilayer,iphase);
+}
+
+
 void equilibrium_inorg_ssh(model_config &config, vector<species>& surrogate, double &tequilibrium,
-                       Array <double, 1> &AQinit, Array <double, 1> &conc_inorganic, 
-                       Array <double, 1> &chp, Array <double, 1> &LWC,
-                       double &Temperature, double &RH, Array <double, 1> &MMaq, double factor)
+			   Array <double, 1> &AQinit, Array <double, 1> &conc_inorganic, 
+			   Array <double, 1> &chp, Array <double, 1> &LWC,
+			   double &Temperature, double &RH, Array <double, 1> &MMaq, double factor)
 {
   int n=surrogate.size();
   int i,b;
@@ -2970,13 +4178,13 @@ void equilibrium_inorg_ssh(model_config &config, vector<species>& surrogate, dou
 }
 
 void equilibrium_aq_ssh(model_config &config, vector<species>& surrogate, double &tequilibrium,
-                    Array <double, 1> &AQinit,  Array <double, 1> &AQ,
-                    Array <double, 3> &MOinit,
-                    Array <double, 1> &conc_inorganic, Array <double, 1> &ionic,
-                    Array <double, 1> &ionic_organic, Array <double, 1> &organion,
-                    Array <double, 1> &chp, Array <double, 1> &LWC,
-                    double &Temperature, double &RH, Array <double, 1> &MMaq,
-                    bool compute_activity_coefficients, double factor)
+			Array <double, 1> &AQinit,  Array <double, 1> &AQ,
+			Array <double, 3> &MOinit,
+			Array <double, 1> &conc_inorganic, Array <double, 1> &ionic,
+			Array <double, 1> &ionic_organic, Array <double, 1> &organion,
+			Array <double, 1> &chp, Array <double, 1> &LWC,
+			double &Temperature, double &RH, Array <double, 1> &MMaq,
+			bool compute_activity_coefficients, double factor)
 {
   //This routine computes the aqueous-phase concentrations being at equilibrium
   //FOR THE UNCOUPLED SYSTEM
@@ -2990,12 +4198,12 @@ void equilibrium_aq_ssh(model_config &config, vector<species>& surrogate, double
   double sum=0.0;
   bool is_equilibrium=false; //indicates if there is concentrations at equilibrium
 
-  //compute activity coefficients
+  //compute activity coefficients  
   if (compute_activity_coefficients)
     {
       activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,MOinit,
-                                   conc_inorganic, ionic, ionic_organic,
-                                   organion,chp,LWC,MMaq, factor);
+				       conc_inorganic, ionic, ionic_organic,
+				       organion,chp,LWC,MMaq, factor, 0., 0);
       
       compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
     }
@@ -3042,7 +4250,7 @@ void equilibrium_aq_ssh(model_config &config, vector<species>& surrogate, double
   
   if (config.compute_inorganic)
     equilibrium_inorg_ssh(config, surrogate, tequilibrium, AQinit, conc_inorganic, chp, LWC,
-                      Temperature, RH, MMaq, factor);
+			  Temperature, RH, MMaq, factor);
 
   sum=1.0;
   for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase	 	  
@@ -3080,13 +4288,13 @@ void equilibrium_aq_ssh(model_config &config, vector<species>& surrogate, double
 }
 
 void equilibrium_tot_ssh(model_config &config, vector<species>& surrogate, double &tequilibrium,
-                     Array <double, 1> &AQinit,  Array <double, 1> &AQ,
-                     Array <double, 1> &conc_inorganic, Array <double, 1> &ionic,
-                     Array <double, 1> &ionic_organic, Array <double, 1> &organion,
-                     Array <double, 1> &chp, Array <double, 1> &LWC,
-                     Array <double, 3> &MOinit,  Array <double, 3> &MO, Array <double, 3> &MOW,
-                     double &Temperature, double &RH, Array <double, 1> &MMaq,
-                     bool compute_activity_coefficients, double factor)
+			 Array <double, 1> &AQinit,  Array <double, 1> &AQ,
+			 Array <double, 1> &conc_inorganic, Array <double, 1> &ionic,
+			 Array <double, 1> &ionic_organic, Array <double, 1> &organion,
+			 Array <double, 1> &chp, Array <double, 1> &LWC,
+			 Array <double, 3> &MOinit,  Array <double, 3> &MO, Array <double, 3> &MOW,
+			 double &Temperature, double &RH, Array <double, 1> &MMaq,
+			 bool compute_activity_coefficients, double factor)
 {
   //This routine computes the aqueous-phase and organic-phase concentrations being at equilibrium
   //FOR THE COUPLED SYSTEM
@@ -3124,8 +4332,8 @@ void equilibrium_tot_ssh(model_config &config, vector<species>& surrogate, doubl
       if (LWCtot>config.LWClimit)
         {
           activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
-                                       MOinit, conc_inorganic, ionic, ionic_organic,
-                                       organion,chp,LWC,MMaq, factor);
+					   MOinit, conc_inorganic, ionic, ionic_organic,
+					   organion,chp,LWC,MMaq, factor, 0., 0);
           compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
         }    
     }
@@ -3215,7 +4423,7 @@ void equilibrium_tot_ssh(model_config &config, vector<species>& surrogate, doubl
   //double kelvin_effect;
   if (config.compute_inorganic)
     equilibrium_inorg_ssh(config, surrogate, tequilibrium, AQinit, conc_inorganic, chp, LWC,
-                      Temperature, RH, MMaq, factor);
+			  Temperature, RH, MMaq, factor);
 
   sum=1.0;
   conceq=surrogate[config.iH2O].Ag;  
@@ -3316,9 +4524,9 @@ void equilibrium_tot_ssh(model_config &config, vector<species>& surrogate, doubl
 }
 
 void equilibrium_org_ssh(model_config &config, vector<species>& surrogate, double &tequilibrium,
-                     Array <double, 3> &MOinit,  Array <double, 3> &MO,
-                     double &Temperature, Array <double, 3> &MOW,
-                     bool compute_activity_coefficients, double factor)
+			 Array <double, 3> &MOinit,  Array <double, 3> &MO,
+			 double &Temperature, Array <double, 3> &MOW,
+			 bool compute_activity_coefficients, double factor)
 {
   //This routine computes the organic-phase concentrations being at equilibrium
   //FOR THE UNCOUPLED SYSTEM
@@ -3451,7 +4659,7 @@ void equilibrium_org_ssh(model_config &config, vector<species>& surrogate, doubl
 }
 
 void redistribution_ssh(model_config &config, vector<species>& surrogate,
-                    Array <double, 3> &MOinit,  Array <double, 3> &MO)
+			Array <double, 3> &MOinit,  Array <double, 3> &MO)
 {
   //redistribute organic concentrations over the layer to ensure that:
   // MOlayer(ilayer)=alpha(ilayer)*MO
@@ -3627,12 +4835,12 @@ void redistribution_ssh(model_config &config, vector<species>& surrogate,
 
 
 void dynamic_org_ssh(model_config &config, vector<species>& surrogate,
-                 Array<double, 3> &MOinit,Array<double, 3> &MO,
-                 Array<double, 1> &AQinit,
-                 Array<double, 3> &MOW,
-                 double &Temperature, 
-                 double &DT2, double &tequilibrium,
-                 bool compute_activity_coefficients)
+		     Array<double, 3> &MOinit,Array<double, 3> &MO,
+		     Array<double, 1> &AQinit,
+		     Array<double, 3> &MOW,
+		     double &Temperature, 
+		     double &DT2, double &tequilibrium,
+		     bool compute_activity_coefficients)
 {
   //compute the dynamic evolution of the organic phase concentrations with the roschem algorythm
   //FOR THE UNCOUPLED SYSTEM
@@ -3889,8 +5097,8 @@ void dynamic_org_ssh(model_config &config, vector<species>& surrogate,
     }
 }
 void dynamic_inorg_ssh(model_config &config, vector<species>& surrogate,
-                   Array <double, 1> &conc_inorganic, 
-                   Array <double, 1> &LWC, double &DT2, double &tequilibrium, int index)
+		       Array <double, 1> &conc_inorganic, 
+		       Array <double, 1> &LWC, double &DT2, double &tequilibrium, int index)
 {
   //compute the dynamic evolution of the inorganic compounds concentrations with the roschem algorythm
   //compute_activity_coefficients: should the activity coefficients be recomputed?
@@ -4283,17 +5491,17 @@ void dynamic_inorg_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
-                 Array<double, 3> &MOinit,Array<double, 3> &MO,
-                 Array<double, 3> &MOW,
-                 Array<double, 1> &AQinit,Array<double, 1> &AQ,
-                 Array <double, 1> &conc_inorganic,
-                 Array <double, 1> &ionic,Array <double, 1> &ionic_organic,
-                 Array <double, 1> &organion,Array <double, 1> &chp,
-		 Array <double, 1> &chp1,Array <double, 1> &chp0,
-                 Array <double, 1> &LWC,
-                 Array<double, 1> &MMaq,
-                 double &Temperature, double &DT2, double &tequilibrium,
-                 bool compute_activity_coefficients)
+		     Array<double, 3> &MOinit,Array<double, 3> &MO,
+		     Array<double, 3> &MOW,
+		     Array<double, 1> &AQinit,Array<double, 1> &AQ,
+		     Array <double, 1> &conc_inorganic,
+		     Array <double, 1> &ionic,Array <double, 1> &ionic_organic,
+		     Array <double, 1> &organion,Array <double, 1> &chp,
+		     Array <double, 1> &chp1,Array <double, 1> &chp0,
+		     Array <double, 1> &LWC,
+		     Array<double, 1> &MMaq,
+		     double &Temperature, double &DT2, double &tequilibrium,
+		     bool compute_activity_coefficients)
 {
   //compute the dynamic evolution of the organic-phase and the aqueous-phase concentrations with
   //         the roschem algorythm
@@ -4340,7 +5548,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
   //  cout << "Time :" << surrogate[i].name << " " << surrogate[i].time_aq(0) << endl;
 
   /*
-  for (i=0;i<n;i++)
+    for (i=0;i<n;i++)
     if (surrogate[i].name=="BiDER")
     cout << surrogate[i].Atot+surrogate[surrogate[i].ioligo].Atot << " " << surrogate[surrogate[i].ioligo].Atot << " " << surrogate[surrogate[i].ioligo].Ag << " " << sum(surrogate[surrogate[i].ioligo].Aaq_bins_init) << endl;*/
 
@@ -4373,7 +5581,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
               
 	      //config.rho_aqueous=config.AQrho(b);
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);
+					  organion(b), ionic_organic(b), conc_org, 1.0);
 	      error_chp=max(error_chp,abs(chp0(b)-chp(b))/chp0(b));
 	      chp0(b)=chp(b);	      
 	    }      
@@ -4390,8 +5598,8 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 	  if (LWCtot>config.LWClimit)
 	    {
 	      activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
-					   MOinit,conc_inorganic, ionic, ionic_organic,
-                                           organion,chp,LWC,MMaq, 1.0);
+					       MOinit,conc_inorganic, ionic, ionic_organic,
+					       organion,chp,LWC,MMaq, 1.0, 0., 0);
 	      compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);   
 	    }
 	}
@@ -4578,7 +5786,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);	      	      
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);	   
+					  organion(b), ionic_organic(b), conc_org, 1.0);	   
 	      error_chp=max(error_chp,abs(chp1(b)-chp(b))/chp1(b));
 	      chp1(b)=chp(b);	      
 	    } 
@@ -4596,8 +5804,8 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 	  if (LWCtot>config.LWClimit)
 	    {
 	      activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit2,
-					   MOinit2, conc_inorganic, ionic, ionic_organic,
-					   organion,chp,LWC,MMaq,1.0);
+					       MOinit2, conc_inorganic, ionic, ionic_organic,
+					       organion,chp,LWC,MMaq,1.0, 0., 0);
 	      compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
 	    }
 	}      
@@ -4793,9 +6001,9 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
                           if (sumconc > 0.0)
                             surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc*
                               0.999*surrogate[i].Atot;
-                        else
-                          surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc2*
-                            0.001*surrogate[i].Atot;
+			  else
+			    surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins(b)/sumconc2*
+			      0.001*surrogate[i].Atot;
                 }
               else
                 if(sumconc+sumconc2>surrogate[i].Atot)
@@ -4982,22 +6190,22 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 
 	  //config.rho_aqueous=config.AQrho(b);
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ(b), conc_inorganic(b), ionic(b), chp(b),
-				  organion(b), ionic_organic(b), conc_org, 1.0);	 	  
+				      organion(b), ionic_organic(b), conc_org, 1.0);	 	  
 	}    
     }
 }
 
 void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
-                Array<double, 1> &AQinit,Array<double, 1> &AQ,
-                Array<double, 3> &MOinit,
-                Array <double, 1> &conc_inorganic,
-                Array <double, 1> &ionic,Array <double, 1> &ionic_organic,
-                Array <double, 1> &organion,Array <double, 1> &chp,
-		Array <double, 1> &chp1, Array <double, 1> &chp0,
-                Array <double, 1> &LWC,
-                Array<double, 1> &MMaq,Array<double, 3> &MOW,
-                double &Temperature, double &DT2, double &tequilibrium,
-                bool compute_activity_coefficients)
+		    Array<double, 1> &AQinit,Array<double, 1> &AQ,
+		    Array<double, 3> &MOinit,
+		    Array <double, 1> &conc_inorganic,
+		    Array <double, 1> &ionic,Array <double, 1> &ionic_organic,
+		    Array <double, 1> &organion,Array <double, 1> &chp,
+		    Array <double, 1> &chp1, Array <double, 1> &chp0,
+		    Array <double, 1> &LWC,
+		    Array<double, 1> &MMaq,Array<double, 3> &MOW,
+		    double &Temperature, double &DT2, double &tequilibrium,
+		    bool compute_activity_coefficients)
 {
   //This routine computes the aqueous-phase concentrations being at equilibrium
   //FOR THE UNCOUPLED SYSTEM
@@ -5046,7 +6254,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);
+					  organion(b), ionic_organic(b), conc_org, 1.0);
 	      error_chp=max(error_chp,abs(chp0(b)-chp(b))/chp0(b));
 	      chp0(b)=chp(b);	      
 	    }      
@@ -5055,8 +6263,8 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
       if (compute_activity_coefficients)	         
 	{
 	  activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,
-				       MOinit,conc_inorganic, ionic, ionic_organic,
-                                       organion,chp,LWC,MMaq, 1.0);
+					   MOinit,conc_inorganic, ionic, ionic_organic,
+					   organion,chp,LWC,MMaq, 1.0, 0., 0);
 	  compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);   	
 	}
     }
@@ -5154,7 +6362,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 	  
 	  //config.rho_aqueous=config.AQrho(b);
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-				  organion(b), ionic_organic(b), conc_org, 1.0);
+				      organion(b), ionic_organic(b), conc_org, 1.0);
 
 	}      
     }
@@ -5163,8 +6371,8 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit2,
-                                   MOinit,conc_inorganic, ionic, ionic_organic,
-                                   organion,chp,LWC,MMaq, 1.0);
+				       MOinit,conc_inorganic, ionic, ionic_organic,
+				       organion,chp,LWC,MMaq, 1.0, 0., 0);
       compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
     }
 
@@ -5189,7 +6397,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);	      	      
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);	   
+					  organion(b), ionic_organic(b), conc_org, 1.0);	   
 	      error_chp=max(error_chp,abs(chp1(b)-chp(b))/chp1(b));
 	      chp1(b)=chp(b);	      
 	    } 
@@ -5199,8 +6407,8 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 	{
 	  //compute activity coefficients	  	  	
 	  activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit2,
-				       MOinit, conc_inorganic, ionic, ionic_organic,
-				       organion,chp,LWC,MMaq,1.0);
+					   MOinit, conc_inorganic, ionic, ionic_organic,
+					   organion,chp,LWC,MMaq,1.0,0., 0);
 	  compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);	    
 	}      
     }  
@@ -5385,18 +6593,18 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
           conc_org=max(conc_org,1.0e-5*AQinit(b)); //config.MOmin);
 
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ(b), conc_inorganic(b), ionic(b), chp(b),
-				  organion(b), ionic_organic(b), conc_org,1.0);	 	  
+				      organion(b), ionic_organic(b), conc_org,1.0);	 	  
 	}    
     }
 }
 
 void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temperature, double &tequilibrium,
-              double &deltat1, double &t, double &tend, double &deltatmin,
-              Array<double, 3> &MOinit, Array<double, 3> &MO, double LWCtot,
-              Array<double, 1> &AQinit, Array<double, 1> &AQ,
-              Array<double, 1> &LWC, Array<double, 1> &conc_inorganic,
-	      Array<double, 1> &chp, Array<double, 1> &chp1, Array<double, 1> &chp0,
-	      Array<double, 1> &Number)
+		  double &deltat1, double &t, double &tend, double &deltatmin,
+		  Array<double, 3> &MOinit, Array<double, 3> &MO, double LWCtot,
+		  Array<double, 1> &AQinit, Array<double, 1> &AQ,
+		  Array<double, 1> &LWC, Array<double, 1> &conc_inorganic,
+		  Array<double, 1> &chp, Array<double, 1> &chp1, Array<double, 1> &chp0,
+		  Array<double, 1> &Number)
 {
   //estimate the new time step necessary 
   double n2err=0.0;
@@ -5492,16 +6700,16 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
 	sum2=max(sum2,config.Vlayer(ilayer)*config.MOmin);
 
 	if (sum1 > tinym)
-           if (Number(b) > tinym)
-              if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
-                 n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
+	  if (Number(b) > tinym)
+	    if(sum1>config.Vlayer(ilayer)*tinym2/Number(b) or sum2>config.Vlayer(ilayer)*tinym2/Number(b))
+	      n2err2=max(n2err2,abs(sum1-sum2)/(sum1));
       }
 
   if (LWCtot>config.LWClimit) 
     for (b=0;b<config.nbins;++b)
-        if(Number(b) > tinym)
-           if(AQ(b)>tinym2/Number(b) or AQinit(b)>tinym2/Number(b))
-  	      n2err2=max(n2err2,abs(AQinit(b)-AQ(b))/(AQinit(b)));
+      if(Number(b) > tinym)
+	if(AQ(b)>tinym2/Number(b) or AQinit(b)>tinym2/Number(b))
+	  n2err2=max(n2err2,abs(AQinit(b)-AQ(b))/(AQinit(b)));
 
   if (config.compute_inorganic and LWCtot>config.LWClimit)
     {
@@ -5546,8 +6754,8 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
 }
 
 void compute_diameters_ssh(model_config &config, vector<species>& surrogate,
-                       Array<double, 1> &Vsol, Array<double, 1> &number,  Array<double, 1> &LWC,
-                       double LWCtot)
+			   Array<double, 1> &Vsol, Array<double, 1> &number,  Array<double, 1> &LWC,
+			   double LWCtot)
 {
   //compute the new diameter of particles due to the growth of the organic phases
   //number: number of particles in a bin
@@ -5580,8 +6788,8 @@ void compute_diameters_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void phase_repartition_ssh(model_config &config,vector<species>& surrogate, double &Temperature,
-                       Array<double, 3> &MOinit, Array<double, 3> &MO, Array<double, 3> &MOW,
-                       double factor)
+			   Array<double, 3> &MOinit, Array<double, 3> &MO, Array<double, 3> &MOW,
+			   double factor)
 {
   //compute the separation of phases due to saturation by minimizing the gibbs energy of organic
   //phases
@@ -5637,7 +6845,7 @@ void phase_repartition_ssh(model_config &config,vector<species>& surrogate, doub
 }
 
 void number_org_phases_ssh(model_config &config,vector<species>& surrogate, double &Temperature,
-                       Array<double, 3> &MOinit, Array<double, 3> &MOW)
+			   Array<double, 3> &MOinit, Array<double, 3> &MOW)
 {
   //compute the separation of phases due to saturation by minimizing the gibbs energy of organic
   //phases

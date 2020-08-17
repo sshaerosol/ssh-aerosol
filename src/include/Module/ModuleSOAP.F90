@@ -95,7 +95,8 @@ contains
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn2,soap_inorg_loc,&
+           lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn2, &
+           imethod, soap_inorg_loc,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
@@ -121,8 +122,7 @@ contains
                aero(j)=aero(j)+aero(oligo_index(j))
                aero(oligo_index(j))=0.               
             endif
-         ENDIF
-         !print*,aerosol_species_name(j),gas(j),aero(j)
+         ENDIF        
       ENDDO
      
       if (soap_inorg==1) then
@@ -212,7 +212,6 @@ contains
             IQ(s,js)=icpt
          END DO
       END DO
-     
 
       q_soap = 0.0
       qgas = 0.0
@@ -279,7 +278,8 @@ contains
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
-           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, soap_inorg_loc, &
+           lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, &
+           imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
@@ -299,8 +299,7 @@ contains
             if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
                  ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_mass(js, jesp) = q_soap(N_size + i)
-            endif
-            !print*,aerosol_species_name(jesp),js,concentration_mass(js,jesp)
+            endif         
          enddo
       enddo
     
@@ -473,7 +472,8 @@ contains
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize(ICUT+1:N_size), ionic_Nsize(ICUT+1:N_size), chp_Nsize(ICUT+1:N_size), &
-           liquid_Nsize(:,ICUT+1:N_size), N_size-ICUT, isoapdyn2, soap_inorg_loc, &
+           liquid_Nsize(:,ICUT+1:N_size), N_size-ICUT, isoapdyn2, &
+           imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
@@ -514,7 +514,7 @@ contains
 
       do js=ICUT+1,N_size
          proton_Nsize(js) = chp_Nsize(js) * lwc_Nsize(js) / 1.0e3
-      enddo      
+      enddo       
 
     END SUBROUTINE SSH_SOAP_DYN_ICUT
 end Module kSOAP

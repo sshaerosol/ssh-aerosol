@@ -78,6 +78,7 @@ module aInitialization
   integer, save :: with_nucl   !Tag nucleation
   Integer, save :: nucl_model  !ITERN !1= Ternary, 0= binary
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
+  integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic 
   integer, save :: with_oligomerization!IOLIGO
   integer, save :: output_type
   integer, save :: splitting
@@ -403,7 +404,8 @@ contains
 
     namelist /physic_coagulation/ with_coag, i_compute_repart, i_write_repart, Coefficient_file, Nmc
 
-    namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, soap_inorg, nlayer,&
+    namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
+         soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
          dorg, coupled_phases, activity_model, epser, epser_soap
 

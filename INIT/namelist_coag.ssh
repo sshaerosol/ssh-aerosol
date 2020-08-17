@@ -80,6 +80,7 @@ with_cond = 0,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
 soap_inorg=0,
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
+IMETHOD = 0,          !numerical method in SOAP, 0=ROS2 explicit method, 1=implicit method, 2=semi-dynamic implicit method
 with_kelvin_effect = 0,                 ! 1 if kelvin effect is taken into account.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"

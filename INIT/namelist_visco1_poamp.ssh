@@ -9,6 +9,7 @@ Relative_Humidity = 0.1	! if 0, compute RH from specific humidity. if not, use i
 
 &setup_time
 initial_time = 0,             
+!final_time = 6000,
 final_time = 2419200.0, !604800.0,             
 delta_t = 600,                 
 time_emis = 0,        	 
@@ -16,7 +17,7 @@ time_emis = 0,
 
 &initial_condition
 with_init_num = 0,                ! 0 estimated from mass and diameter; 1 number conc. for each bin is read 
-tag_init = 0,                     ! initial method for aerosol species (0 internally mixed; 1 mixing_state resolved !! option 1 not yet available)
+tag_init = 0,                     ! initial method for aerosol species (0 internall.y mixed; 1 mixing_state resolved !! option 1 not yet available)
 wet_diam_estimation = 0       	  ! 0 = isorropia, 1 = Gerber MTSBL
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 1,                    ! Number of size bin
@@ -98,6 +99,7 @@ with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
 soap_inorg=0,
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
+IMETHOD = 0,          !numerical method in SOAP, 0=ROS2 explicit method, 1=implicit method, 2=semi-dynamic implicit method
 nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.

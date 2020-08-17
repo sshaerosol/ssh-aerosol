@@ -1,4 +1,5 @@
 
+
 //!!-----------------------------------------------------------------------
 //!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 //!!     SSH-aerosol is distributed under the GNU General Public License v3
@@ -1794,6 +1795,358 @@ void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &
   
 }
 
+
+
+void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
+				     Array<double, 3> &MOinit, Array<double, 3> &MOW, Array<double, 1> &number,
+				     Array<double, 1> &Vsol,
+				     Array<double, 1> &LWC, Array<double, 1> &AQinit, Array<double, 1> &ionic,
+				     Array<double, 1> &chp,
+				     double &Temperature, double &RH,
+				     Array<double, 1> &AQ, Array<double, 3> &MO,
+				     Array<double, 1> &conc_inorganic, Array<double, 1> &ionic_organic, Array<double, 1> &organion, Array<double, 1> &MMaq,
+				     double t, double deltat)
+{
+  int b,ilayer,iphase,i;
+  int n=surrogate.size();
+  double error_tot=10.0;
+  int index=0;
+  Array<double, 1> vec_error_org,vec_error_aq; 
+  vec_error_org.resize(config.max_iter);
+  vec_error_aq.resize(config.max_iter);
+  bool non_convergence;
+  double LWCtot=0.0;
+  for (b=0;b<config.nbins;++b)
+    LWCtot+=LWC(b);
+  Array<double, 1> AQsave;
+  Array<double, 1> chp_save;
+  Array<double, 3> MOsave;
+  AQsave.resize(config.nbins);
+  chp_save.resize(config.nbins);
+  MOsave.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+
+  //The method of newton raphson cannot be used due to the high number of variables
+  //(nbins*(1+nlayer*nphase)
+  //
+  //Method to reach equilibrium
+  // - initialisation of MOinit and AQinit
+  // - initialisation of MO and AQ
+  // - compute error_tot = maximum of relative errors
+  //   if error_tot < 0.1% the system has converged
+  // - if error_tot = error_old2 (error from iteration - 2) the system cannot converge
+  //   due to strong variation of the composition.
+  //   in that case a method is used so that variations are smaller:
+  //     Ap(iter+1)=Ap(iter)*(1-1.0/nh)+1.0/nh*Ap(computed)
+  //     1.0/nh weight factor
+  //     nh is increased to ensure convergence
+  //     error_tot must be inferior to factor * 0.1% to reach equilibrium
+  int iiter=0;
+  int nh;
+
+  if (config.compute_inorganic and config.compute_organic==false)
+    nh=config.nh_inorg_init;
+  else if (config.compute_inorganic and config.compute_organic)
+    nh=max(config.nh_inorg_init,max(config.nh_aq_init,config.nh_org_init));
+  else
+    nh=max(config.nh_aq_init,config.nh_org_init);
+  config.nh_max=10;
+  
+  double factor=pow(0.5,nh-1);
+
+  for (i=0;i<n;i++)
+    {
+      surrogate[i].Ag0=surrogate[i].Ag;
+      for(b=0;b<config.nbins;b++)
+        {
+          if (surrogate[i].hydrophilic)
+            surrogate[i].Aaq_bins_init0(b)=surrogate[i].Aaq_bins_init(b);
+          if (surrogate[i].hydrophobic)
+            for (ilayer=0;ilayer<config.nlayer;++ilayer)
+              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                surrogate[i].Ap_layer_init0(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase); 
+        }
+    }
+
+  for(b=0;b<config.nbins;b++)
+    {
+      AQsave(b)=AQinit(b);
+      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+          MOsave(b,ilayer,iphase)=MOinit(b,ilayer,iphase); 
+    }
+
+  while (error_tot>config.relative_precision*factor and index < config.max_iter) 
+    {
+      if (index>2)
+        {
+          //ensure that the system can converge
+          non_convergence=false;   
+          if (iiter>20)
+            for (i=max(index-20,2);i<index-1;i++)
+              if (((abs(vec_error_org(i)-vec_error_org(index-1))/vec_error_org(index-1)/factor<1.0e-4 and vec_error_org(index-1)/factor>config.precision) and
+                   (abs(vec_error_org(i-1)-vec_error_org(index-2))/vec_error_org(index-2)/factor<1.0e-4) and (abs(vec_error_org(i-2)-vec_error_org(index-3))/vec_error_org(index-3)/factor<1.0e-4))
+                  or (abs(vec_error_aq(i)-vec_error_aq(index-1))/vec_error_aq(index-1)/factor<1.0e-4 and vec_error_aq(index-1)/factor>config.precision and 
+                      (abs(vec_error_aq(i-1)-vec_error_aq(index-2))/vec_error_aq(index-2)/factor<1.0e-4) and (abs(vec_error_aq(i-2)-vec_error_aq(index-3))/vec_error_aq(index-3)/factor<1.0e-4))                  
+                  or vec_error_org(index-1)/factor>10.0 or vec_error_aq(index-1)/factor>10.0)
+                non_convergence=true;
+
+          if (iiter>100)
+            if (vec_error_aq(index-1)/factor>config.precision)
+              {
+                double a=1;
+                double b=1;
+                for (i=index-100;i<index-90;i++)
+                  a*=vec_error_aq(i);
+              
+                
+                for (i=index-11;i<index-1;i++)
+                  b*=vec_error_aq(i);
+                  
+                if (b>a*0.999)
+                  non_convergence=true;
+              }
+
+          if (iiter>100)
+            if (vec_error_org(index-1)/factor>config.precision)
+              {
+                double a=1;
+                double b=1;
+                for (i=index-100;i<index-90;i++)
+                  a*=vec_error_org(i);
+                
+                for (i=index-11;i<index-1;i++)
+                  b*=vec_error_org(i);
+                  
+                if (b>a*0.999)
+                  non_convergence=true;
+              }
+          
+              
+          if (non_convergence and nh<config.nh_max)
+            { 
+              if (vec_error_org(index-1)/factor>100.0 or vec_error_aq(index-1)/factor>100.0)
+                {
+                  for (i=0;i<n;i++)
+                    {
+                      surrogate[i].Ag=surrogate[i].Ag0;
+                      if (surrogate[i].hydrophobic)
+                        for(b=0;b<config.nbins;b++)
+                          for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                              surrogate[i].Ap_layer_init(b,ilayer,iphase)=surrogate[i].Ap_layer_init0(b,ilayer,iphase);          
+                      if (surrogate[i].hydrophilic)
+                        for(b=0;b<config.nbins;b++)
+                          surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init0(b);             
+                    }
+                }
+              ++nh;
+	      factor=pow(0.5,nh-1);
+              for (i=max(index-50,0);i<index;i++)
+                {
+                  vec_error_org(i)=-1.0;
+                  vec_error_aq(i)=-1.0;
+                }
+              iiter=0;
+
+              for(b=0;b<config.nbins;b++)
+                {
+                  AQinit(b)=AQsave(b);
+                  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                      MOinit(b,ilayer,iphase)=MOsave(b,ilayer,iphase); 
+                }
+            }
+        }
+
+      for (b=0;b<config.nbins;++b)
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+          for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+            for (i=0;i<n;++i)
+              surrogate[i].Ap_layer(b,ilayer,iphase)=
+                surrogate[i].Ap_layer_init(b,ilayer,iphase);
+
+      for (b=0;b<config.nbins;++b)
+        for (i=0;i<n;i++)
+          surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins_init(b);
+
+      for (i=0;i<n;i++)
+	surrogate[i].Ag1=surrogate[i].Ag;
+
+      //cout << "NO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM+surrogate[config.iHNO3].Ag << " " << nh << endl;;
+      //cout << "NO3i: " << sum(surrogate[config.iNO3m].Aaq_bins_init0)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << " " << surrogate[config.iHNO3].Ag0 << " " << nh << endl;
+
+      iiter++;   
+      if (LWCtot>config.LWClimit)
+        density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
+          
+      for (b=0;b<config.nbins;b++)
+	chp_save(b)=chp(b);
+      
+      if (config.first_evaluation_activity_coefficients==false)
+        {	  
+          twostep_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
+			  ionic, ionic_organic, organion, chp, LWC, MOinit, MO,
+			  MOW, Temperature, RH, MMaq, true, factor, t, deltat, index);       
+          if (config.compute_saturation and config.compute_organic)
+            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);	  
+        }
+      else
+        {
+          twostep_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
+                              ionic, ionic_organic, organion, chp, LWC, MOinit, MO,
+			  MOW, Temperature, RH, MMaq, false, factor, t, deltat, index);
+          if (config.compute_saturation and config.compute_organic)
+            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);
+	}      
+
+      //redistribute concentrations to ensure that the volume of layers are constant      
+      redistribution_ssh(config, surrogate,MOinit,MO);
+
+      water_concentration_ssh(config, surrogate, Temperature, RH);
+      
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
+      
+
+      //compute the new diameters of particle due to the growth of particles by condensation
+      compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
+      if (config.explicit_representation)
+	compute_morphology_ssh(config, Vsol, number);
+		  
+      //Computation of error_tot
+      vec_error_org(index)=0.0;
+      vec_error_aq(index)=0.0;
+      for (b=0;b<config.nbins;++b)
+        {
+          AQ(b)=max(AQ(b),config.MOmin);
+          for (ilayer=0;ilayer<config.nlayer;++ilayer)
+            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+              {
+                if (MO(b,ilayer,iphase)>1.0e-5)
+                  vec_error_org(index)=max(vec_error_org(index),
+                                           abs(MO(b,ilayer,iphase)-MOinit(b,ilayer,iphase))
+                                           /MO(b,ilayer,iphase));
+                
+                for (i=0;i<n;i++)
+                  if (surrogate[i].hydrophobic and
+		      surrogate[i].Ap_layer(b,ilayer,iphase)>1.0e-5)
+		    {
+		      /*
+		      if (abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)
+						   -surrogate[i].Ap_layer(b,ilayer,iphase))
+			  /surrogate[i].Ap_layer(b,ilayer,iphase)>vec_error_org(index))
+			cout << surrogate[i].name << " " << abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)
+								-surrogate[i].Ap_layer(b,ilayer,iphase))
+			  /surrogate[i].Ap_layer(b,ilayer,iphase) << endl;*/
+		      vec_error_org(index)=max(vec_error_org(index),
+					       abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)
+						   -surrogate[i].Ap_layer(b,ilayer,iphase))
+					       /surrogate[i].Ap_layer(b,ilayer,iphase));
+		    }
+
+                MOinit(b,ilayer,iphase)=max(MO(b,ilayer,iphase),config.MOmin*config.Vlayer(ilayer));
+              }
+
+          if (AQ(b)>1.0e-5)
+            vec_error_aq(index)=max(vec_error_aq(index),abs(AQ(b)-AQinit(b))/AQ(b));
+
+	  if (chp(b)>0.)
+	    {
+	      /*if (abs(chp(b)-chp_save(b))/chp(b)>0.2)
+		cout << "error ph " << abs(chp(b)-chp_save(b))/chp(b) << endl;*/
+	      vec_error_aq(index)=max(vec_error_aq(index),abs(chp(b)-chp_save(b))/chp(b));
+	    }
+       
+          for (i=0;i<n;i++)
+            if (surrogate[i].hydrophilic and i!=config.iHp)
+	      if (surrogate[i].Aaq_bins(b)>1.0e-5)
+		{
+		  vec_error_aq(index)=max(vec_error_aq(index),abs(surrogate[i].Aaq_bins_init(b)
+								  -surrogate[i].Aaq_bins(b))
+					  /surrogate[i].Aaq_bins(b));
+		  /*
+		  if (abs(surrogate[i].Aaq_bins_init(b)
+			  -surrogate[i].Aaq_bins(b))
+		      /surrogate[i].Aaq_bins(b)>1.5)
+		    cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)
+							    -surrogate[i].Aaq_bins(b))
+							    /surrogate[i].Aaq_bins(b) <<endl;*/
+		    
+		}
+			  
+          AQinit(b)=AQ(b); //max(AQ(b),config.MOmin);
+
+	  
+        }
+
+      vec_error_org(index)=max(vec_error_org(index),0.001*config.precision*factor);
+      vec_error_aq(index)=max(vec_error_aq(index),0.001*config.precision*factor);
+
+      error_tot=max(vec_error_org(index),vec_error_aq(index));
+
+      /*
+      cout << error_tot << " " << sum(surrogate[config.iNO3m].Aaq_bins_init) << " " << vec_error_aq(index) << " " << factor << endl;
+      cout << chp << endl;
+      cout << sum(surrogate[config.iNO3m].Aaq_bins_init) << " "<< sum(surrogate[config.iNH4p].Aaq_bins_init) << " " << sum(surrogate[config.iHSO4m].Aaq_bins_init) << " " << sum(surrogate[config.iH2O].Aaq_bins_init) << endl;
+      
+      for (i=0;i<n;i++)
+	if (surrogate[i].hydrophilic and i!=config.iHp)
+	  for (b=0;b<config.nbins;b++)
+	    if (surrogate[i].Aaq_bins(b)>1.0e-5)
+	      if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>=error_tot)
+		cout << "error : " << surrogate[i].name << " " << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << endl;*/
+
+      /*
+      for (b=0;b<config.nbins;++b)
+	if (abs(chp(b)-chp_save(b))/chp(b)>=error_tot)
+	    cout << "error_ph " << b << endl;*/
+      
+      //cout << config.gamma_MR_ions << endl;
+      //Computation of characteristic times to reach equilibrium
+
+      /*
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+      if (LWCtot>config.LWClimit)
+      characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);      */
+      ++index;  
+    }
+
+  //cout << "niter: " << index << " " << chp(0) << " " << chp_save(0) << endl; 
+  
+  if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
+    {
+      number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
+      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
+      if (LWCtot>config.LWClimit)
+        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+    }
+
+  //cout << index << " " << error_tot << endl;
+  if (error_tot>config.relative_precision*factor)
+    {
+      cout << "The model did not converged..." << endl;
+      cout << "coupled" << endl;
+      for (b=0;b<config.nbins;b++)
+	cout << b << " " << abs(chp(b)-chp_save(b))/chp(b)/factor << endl;
+      cout << config.nphase << " " << nh << endl;
+      cout << surrogate[config.iH2O].time_aq << endl;
+      cout << "error" << error_tot << endl;
+      cout << "avant" << MOinit << endl;
+      cout << "avant" << AQinit << endl;
+      cout << "apres" << MO << endl;
+      cout << "apres" << AQ << endl;
+      for (i=0;i<n;i++)
+	if (surrogate[i].Atot>0.) 
+	  cout << surrogate[i].name << " " << sum(surrogate[i].Ap_layer_init) << " " << endl;
+      cout << chp << endl;
+      cout << t << " " << deltat << " " << config.max_iter << " " << factor << " " << index << endl;
+      //exit(0);
+    }
+  
+}
 void initialisation_ssh(model_config &config, vector<species> &surrogate,
                         Array<double,3> &MOinit, Array<double, 3> &MO, Array<double, 3> &MOW,
                         Array<double,1> &AQinit,Array<double,1> &AQ, Array<double,1> &MMaq,
@@ -2162,9 +2515,9 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 	    
 	    activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,MOinit,
                                        conc_inorganic, ionic, ionic_organic,
-                                       organion,chp,LWC,MMaq,1.0);	    
+					     organion,chp,LWC,MMaq,0.0,0.,0);	    
             
-				       compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
+	    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq);
 				       /*
 	    temp=surrogate[config.iH2O].Aaq_bins_init(b);
             surrogate[config.iH2O].Aaq_bins_init(b)=surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*AQinit(b)/(1.0+surrogate[config.iH2O].Kaq(b)*AQinit(b));
@@ -2211,7 +2564,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
     if (LWCtot>config.LWClimit)
       activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,MOinit,
                                        conc_inorganic, ionic, ionic_organic,
-                                       organion,chp,LWC,MMaq,1.0);
+                                       organion,chp,LWC,MMaq,0.0,0.,0);
   for (i=0;i<n;i++)
     {
       surrogate[i].Ap_layer=surrogate[i].Ap_layer_init;
@@ -2283,6 +2636,8 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   cout << "NH4: " << surrogate[config.iNH3].Ag+sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;
   cout << "PNO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
   cout << "PNH4: " << sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;*/
+  if (config.imethod==0)
+    config.tequilibrium=0;
 
   for (b=0;b<config.nbins;++b)		  
     for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -2321,9 +2676,130 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
   if (LWCtot>config.LWClimit)
     characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
-  
-  if (config.coupled_phases or 
-      (RH>=config.RHcoupling and surrogate[config.iH2O].hydrophilic and surrogate[config.iH2O].hydrophobic))
+
+  if (config.imethod>=1)    
+    {     
+      if (config.imethod==1)
+	{
+	  if (config.compute_saturation and config.compute_organic)
+	    {
+	      number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+	      tau_dif_ssh(config, surrogate, number, Vsol);
+	      tau_kmt_ssh(config, surrogate, Temperature, number);
+	      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+	      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+	      if (LWCtot>config.LWClimit)
+		characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+	    }
+      
+	  solve_semi_implicit_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+					  conc_inorganic, ionic_organic, organion, MMaq, t, 0);
+	}
+      /*
+      for (i=0;i<n;i++)
+	if (sum(surrogate[i].Aaq_bins_init)>0)
+	  cout << surrogate[i].name << " in " << surrogate[i].Aaq_bins_init << endl;
+	else if (surrogate[i].Ag>0. and surrogate[i].is_inorganic_precursor)
+	  cout << surrogate[i].name << " in " << surrogate[i].Ag << endl;*/
+      
+      deltat1=config.deltatmin;
+      if (config.imethod==2)
+	deltat1=deltatmax;
+      
+      double atol=1.e-6*config.EPSER;
+      double rtol=config.EPSER;
+      double wk;          
+      
+      while (t<deltatmax)
+        {
+	  //cout << "evol: " << t << " " << deltat1 << endl;
+	  deltat1=min(deltatmax-t,deltat1);
+	  deltat2=deltat1;
+	  solve_semi_implicit_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
+					  conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
+	  t+=deltat1;
+
+	  double error_max=0.;
+	  for (i=0;i<n;i++)
+	    {
+	      if (surrogate[i].is_organic or surrogate[i].is_inorganic_precursor)
+		{
+		  wk=atol+rtol*surrogate[i].Ag;
+		  error_max=max(error_max,(surrogate[i].Ag-surrogate[i].Ag0)/wk);
+		}
+
+	      if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  for (b=0;b<config.nbins;++b)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			wk=atol+rtol*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			error_max=max(error_max,(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk);
+		      }
+
+	      /*
+	      if ((surrogate[i].is_organic and surrogate[i].hydrophilic) or (surrogate[i].is_ion or config.iHp!=i))
+		{
+		  wk=atol+rtol*sum(surrogate[i].Aaq_bins_init);
+		  error_max=max(error_max,(sum(surrogate[i].Aaq_bins_init)-sum(surrogate[i].Aaq_bins_init0))/wk);
+		}*/
+	      
+	      for (b=0;b<config.nbins;++b)
+		{
+		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
+		  error_max=max(error_max,(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk);
+		}
+	    }
+
+	  /*
+	  for (i=0;i<n;i++)
+	    if ((surrogate[i].is_organic and surrogate[i].hydrophilic) or (surrogate[i].is_ion and i!=config.iHp))
+	      for (b=0;b<config.nbins;++b)
+		{
+		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
+		  if ((surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk>=0.9*error_max)
+		    cout << surrogate[i].name << " " << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins_init0(b) << endl;
+		}*/
+	  
+	  //cout << error_max << endl;
+	  if (error_max>0)
+	    {
+	      deltat2=0.8/pow(error_max,0.5)*deltat1;
+	      deltat1=max(min(deltat2,deltat1*10),deltat1*0.1);
+	    }
+	  else
+	    deltat1=10*deltat1;
+	  deltat1=max(deltat1,config.deltatmin);
+	}
+      for (i=0;i<n;i++)
+	{
+	  surrogate[i].Aaq_bins=surrogate[i].Aaq_bins_init;
+	  surrogate[i].Ap_layer=surrogate[i].Ap_layer_init;
+	  if (surrogate[i].name=="SOAlP")
+	  {
+	    double atot=surrogate[i].Ag;
+	  if (surrogate[i].hydrophobic)
+	    for (b=0;b<config.nbins;++b)
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+
+	  if (surrogate[i].hydrophilic)
+	    for (b=0;b<config.nbins;++b)
+	      atot+=surrogate[i].Aaq_bins_init(b);
+	  //cout << atot << " " << surrogate[i].Ag << " " << surrogate[i].Ap_layer_init << " " << surrogate[i].Atot << endl;
+	  }
+	}
+      /*
+      for (i=0;i<n;i++)
+	if (sum(surrogate[i].Aaq_bins_init)>0)
+	  cout << surrogate[i].name << " out " << surrogate[i].Aaq_bins_init << endl;
+	else if (surrogate[i].Ag>0. and surrogate[i].is_inorganic_precursor)
+	cout << surrogate[i].name << " out " << surrogate[i].Ag << endl;*/
+    }
+  else
+    if (config.coupled_phases or 
+	(RH>=config.RHcoupling and surrogate[config.iH2O].hydrophilic and surrogate[config.iH2O].hydrophobic))
     {
       // If the syst is coupled particulate hydrophilic compounds concentrations
       //must be computed simultaneously with the particulate hydrophobic compounds concentrations
@@ -2361,7 +2837,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
         characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
-   
+
       //Dynamic evolution
       while (t<deltatmax)
         {	  

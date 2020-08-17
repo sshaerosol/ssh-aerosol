@@ -1795,6 +1795,12 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
         for (iphase=0;iphase<config.max_number_of_phases;++iphase)
         surrogate[i].time(b,ilayer,iphase)=0.0;*/
+      surrogate[i].k1_gas.resize(2);
+      surrogate[i].kprod_aq.resize(config.nbins);
+      surrogate[i].kloss_aq.resize(config.nbins);
+      surrogate[i].kloc.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      surrogate[i].kprod.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      surrogate[i].kloss.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].k1_aq.resize(config.nbins,2);
       surrogate[i].Jdn_aq.resize(config.nbins,2);
       surrogate[i].time_aq.resize(config.nbins);
@@ -1910,7 +1916,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
       if (config.equilibrium==false)
 	config.diameters.resize(config.nbins);
 
-  config.nh_inorg_init=2;
+  config.nh_inorg_init=1;
   config.nh_aq_init=1;
   config.nh_org_init=1;
   config.nh_max=5;
