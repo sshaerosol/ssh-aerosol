@@ -149,7 +149,7 @@ void add_generic_species_ssh(model_config &config,
 	    X.MM =  molecular_weight_aer[i] / 1.e6;
 	    X.accomodation_coefficient = accomodation_coefficient[i];
 	    X.soap_ind = i;
-	    X.soap_ind_aero = (i-7) * (nlayer-1) + i;
+	    X.soap_ind_aero = (i-7) * (nlayer-1+i_hydrophilic) + i;
 	    X.is_generic=false;
 	    surrogate.push_back(X);	    
 

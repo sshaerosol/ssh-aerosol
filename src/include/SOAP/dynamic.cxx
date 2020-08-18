@@ -1085,6 +1085,103 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
     }    
 }
 
+
+
+void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
+			   Array<double, 3> &MOinit, Array<double, 3> &MOW, 
+			   Array<double, 1> &AQinit, Array<double, 1> &MMaq, 
+			   Array<double, 1> &chp, double &tiny,int index)
+{    
+  int n=surrogate.size();
+  int i,j,b,ilayer,iphase,jion; 
+  double Xmono=0.0;          
+  double XH2O;
+  double xmin=1.0e-10;
+
+  if (config.chemistry)
+    {
+      for (b=0;b<config.nbins;++b)
+        for (ilayer=0;ilayer<config.nlayer;ilayer++)
+          for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+            {        
+              Xmono=0.0;          
+              for (i=0;i<n;i++)
+                if (surrogate[i].is_monomer and surrogate[i].is_organic)              
+                  Xmono+=surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*MOW(b,ilayer,iphase)/surrogate[i].MM/max(MOinit(b,ilayer,iphase),1.0e-10);              
+              XH2O=surrogate[config.iH2O].gamma_org_layer(b,ilayer,iphase)*surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)*MOW(b,ilayer,iphase)/surrogate[config.iH2O].MM/max(MOinit(b,ilayer,iphase),1.0e-10);
+              xmin=1.0e-10;
+
+              for (i=0;i<n;++i)
+                if (surrogate[i].is_organic and surrogate[i].hydrophobic) 
+                  if (surrogate[i].is_monomer)
+                    {
+                      j=surrogate[i].ioligo;                       
+                      double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+                      double flux1=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono;
+		      double flux2=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2;
+		      
+                      surrogate[i].kprod(b,ilayer,iphase)+=flux2;
+		      surrogate[j].kprod(b,ilayer,iphase)+=flux1;
+		      surrogate[i].kloss(b,ilayer,iphase)+=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*Xmono;
+		      surrogate[j].kloss(b,ilayer,iphase)+=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)/Keq2;                      
+                    }
+            }
+  
+      for (b=0;b<config.nbins;++b)
+        {        
+          double Xmonoaq=0.0;
+          for (i=0;i<n;i++)
+            if (surrogate[i].is_monomer and surrogate[i].is_organic and surrogate[i].hydrophilic)  
+              Xmonoaq+=surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*MMaq(b)/surrogate[i].MM/max(AQinit(b),1.0e-10);          
+
+          double conc_org=0.0;//LWC(b);
+          for (i=0;i<n;++i)
+            if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
+              conc_org+=surrogate[i].Aaq_bins_init(b);
+
+          conc_org=max(conc_org,1.e-5*AQinit(b)); //config.MOmin);
+          //conc_org=max(conc_org,config.MOmin);
+      
+          double XH2Oaq=surrogate[config.iH2O].gamma_aq_bins(b)*surrogate[config.iH2O].Aaq_bins_init(b)*MMaq(b)/surrogate[config.iH2O].MM/max(AQinit(b),1.0e-10);
+          double xmin=1.0e-10;
+
+          for (i=0;i<n;++i)
+            {
+              if (surrogate[i].is_organic)
+                if (surrogate[i].is_organic and surrogate[i].hydrophilic) 
+                  if (surrogate[i].is_monomer)
+                    {
+                      j=surrogate[i].ioligo;                                        
+                      double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2Oaq,xmin),surrogate[i].moligo-1);                                            
+                      double flux1=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq;
+		      double flux2=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2;
+
+		      surrogate[i].kprod_aq(b)+=flux2;
+		      surrogate[j].kprod_aq(b)+=flux1;
+		      surrogate[i].kloss_aq(b)+=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*Xmonoaq;
+		      surrogate[j].kloss_aq(b)+=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf/Kaq2;                                            
+                    }
+
+              if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
+                for (jion=0;jion<surrogate[i].nion;jion++)
+                  {            
+                    double molality=surrogate[surrogate[i].iion(jion)].gamma_aq_bins(b)*surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;
+                    double flux=surrogate[i].kion(jion)*molality*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);		    
+                    double flux2=0.0;
+		    j=surrogate[i].iproduct(jion);
+		    surrogate[i].kloss_aq(b)+=surrogate[i].kion(jion)*molality*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b);
+                    if (surrogate[i].rion_catalyzed(jion)==false and molality>0.)
+                      {                                                  
+			surrogate[surrogate[i].iion(jion)].kloss_aq(b)+=flux/surrogate[i].MM*surrogate[surrogate[i].iion(jion)].MM/surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b);
+			flux2+=flux/surrogate[i].MM*surrogate[surrogate[i].iion(jion)].MM;
+                      }                
+                    surrogate[j].kprod_aq(b)+=flux+flux2;		                    
+                  }
+            }    
+        }
+    }
+}
+
 void prodloss_aq_ssh(model_config &config, vector<species>& surrogate, Array<double, 1> &AQinit,  Array<double, 1> &LWC, Array<double, 3> &MOinit, int index, double deltat)
 {
   //compute kinetic rates for the absorption of a compound in the aqueous phase in a bin
@@ -3584,7 +3681,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
   chp_save.resize(config.nbins);
   
   double conc_equilibrium;
-  double sum=0.0;
+  double sum1=0.0;
   bool is_equilibrium=false;
   double LWCtot=0.0;
   int index_b; //,index_layer;
@@ -3731,6 +3828,9 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
     prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 0, deltat);
   else
     prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 1, deltat);
+
+  if (config.chemistry)
+    prodloss_chem_ssh(config, surrogate, MOinit, MOW, AQinit, MMaq, chp, tiny, 0);
   /*
     if (config.chemistry)
     compute_prodloss_chem_ssh(config,surrogate,MOinit,MOW,AQinit,MMaq,chp,DT2,tiny,index2);*/
@@ -3800,7 +3900,43 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
   for (i=0;i<n;i++)
     if (surrogate[i].Atot>0. and surrogate[i].name=="SOAlP")
       cout << surrogate[i].name << " " << surrogate[i].Ag << " " << surrogate[i].Ap_layer_init(0,config.nlayer-1,0) << " " << surrogate[i].kprod(0,config.nlayer-1,0) << " " << surrogate[i].kloss_gas << " " << config.diameters(0) << " " << surrogate[i].k1(0,0,0) << endl;*/
-	 
+
+  if (config.chemistry==true)
+    {
+      if (config.compute_organic)	
+	for (i=0;i<n;i++)
+	  if (surrogate[i].is_organic)
+	    {
+	      double atot=surrogate[i].Ag;
+	    if (surrogate[i].hydrophobic)
+	      for (b=0;b<config.nbins;++b)
+		for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+	    
+	    if (surrogate[i].hydrophilic)
+	      for (b=0;b<config.nbins;++b)
+		atot+=surrogate[i].Aaq_bins_init(b);
+
+	    surrogate[i].Atot=atot;
+	  }
+
+      if (config.compute_inorganic)
+	for (i=0;i<n;i++)
+	  if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
+	    {
+	      surrogate[i].Atot=surrogate[i].Ag;
+	      if (surrogate[i].name=="NH3")
+		surrogate[i].Atot+=sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[i].MM; 
+	      else if (surrogate[i].name=="HNO3")
+		surrogate[i].Atot+=sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[i].MM;
+	      else if (surrogate[i].name=="HCl")
+		surrogate[i].Atot+=sum(surrogate[config.iClm].Aaq_bins_init)/surrogate[config.iClm].MM*surrogate[i].MM; 	
+	      else if (surrogate[i].name=="H2SO4")
+		surrogate[i].Atot+=sum(surrogate[config.iSO4mm].Aaq_bins_init)/surrogate[config.iSO4mm].MM*surrogate[i].MM+
+		  sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
+	    }
+    } 
 
   if (config.chemistry==false)
     if (config.compute_organic)
@@ -3929,7 +4065,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 
 
   
-  sum=1.0;
+  sum1=1.0;
   conceq=surrogate[config.iH2O].Ag;  
   for (b=0;b<config.nbins;++b) //mass of water absorbed by organics in the aqueous phase
     {	  	 	
@@ -3937,7 +4073,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	if (LWCtot>config.LWClimit)  
 	  {
 	    conceq+=surrogate[config.iH2O].Aaq_bins_init(b);
-	    sum+=surrogate[config.iH2O].Kaq(b)*AQinit(b);
+	    sum1+=surrogate[config.iH2O].Kaq(b)*AQinit(b);
 	  }
       
       if (surrogate[config.iH2O].hydrophobic and config.compute_organic)
@@ -3945,7 +4081,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 	    {
 	      conceq+=surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
-	      sum+=surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);                  
+	      sum1+=surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);                  
 	    }
     }
 
@@ -3956,14 +4092,14 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	  if (config.activity_model=="unifac" or config.compute_inorganic)
 	    {
 	      surrogate[config.iH2O].Aaq_bins_init(b)=factor*
-		max(conceq*surrogate[config.iH2O].Kaq(b)*AQinit(b)/sum - LWC(b), 0.0) +
+		max(conceq*surrogate[config.iH2O].Kaq(b)*AQinit(b)/sum1 - LWC(b), 0.0) +
 		(1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);
 	    }
 	  else	      
 	    {
 	      Mads=AQinit(b)-LWC(b)-conc_inorganic(b);
 	      surrogate[config.iH2O].Aaq_bins_init(b)=factor*
-		surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*Mads/sum+
+		surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*Mads/sum1+
 		(1.0-factor)*surrogate[config.iH2O].Aaq_bins_init(b);		
 	    }
 	}
@@ -3974,7 +4110,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 	  //if (surrogate[config.iH2O].time(b,ilayer,iphase)<tequilibrium)	      
 	  surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase)=factor*
-	    conceq*surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/sum+
+	    conceq*surrogate[config.iH2O].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/sum1+
 	    (1.0-factor)*surrogate[config.iH2O].Ap_layer_init(b,ilayer,iphase);
 
 
@@ -4020,14 +4156,14 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
               }
 
             //make sure that concentrations in a bin are at least equal to MOmin
-            sum=0.0;
+            sum1=0.0;
             for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-              sum+=MO(b,ilayer,iphase);
+              sum1+=MO(b,ilayer,iphase);
 
-            if (sum>0.0)
+            if (sum1>0.0)
               for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 MO(b,ilayer,iphase)=max(MO(b,ilayer,iphase),
-                                        config.MOmin*config.Vlayer(ilayer)*MO(b,ilayer,iphase)/sum);
+                                        config.MOmin*config.Vlayer(ilayer)*MO(b,ilayer,iphase)/sum1);
             else
               for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 if(iphase==0)
@@ -6631,7 +6767,8 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
 	      if (config.explicit_representation or config.nlayer>10)
 		n2err2=max(n2err2,abs(surrogate[i].Ag-surrogate[i].Ag1)/(surrogate[i].Ag1+tinym));	     
             }
-		
+
+       
         surrogate[i].Ap=0.0;
         if(surrogate[i].hydrophobic)
           for (b=0;b<config.nbins;++b)
@@ -6672,7 +6809,8 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
                         }		    
                     }
 	    }
-		
+
+	
         if(surrogate[i].hydrophilic and LWCtot>config.LWClimit) 
           for (b=0;b<config.nbins;++b)
             if (surrogate[i].time_aq(b)>=tequilibrium and
@@ -6685,7 +6823,7 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
               }
       }
 
-  
+ 
   for (ilayer=0;ilayer<config.nlayer;++ilayer)
     for (b=0;b<config.nbins;++b)
       {
@@ -6750,7 +6888,6 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
   deltat1=deltat1*pow(config.EPSER/n2err,0.5);
   deltat1=max(deltatmin,deltat1);
   deltat1=min(tend-t,deltat1);
- 
 }
 
 void compute_diameters_ssh(model_config &config, vector<species>& surrogate,

@@ -701,11 +701,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 
       density_aqueous_phase_ssh(config, surrogate, LWC_bins, Temperature);
 
-      /*
-      for (i=0;i<n;i++)
-	if (surrogate[i].name=="SOAlP")
-	  cout << surrogate[i].name << " bef dyn " << surrogate[i].Ag << " " << sum(surrogate[i].Ap_layer_init) << " " << sum(surrogate[i].Aaq_bins_init) << " " << i_hydrophilic << endl;*/
-
       dynamic_system_ssh(config,surrogate,
 			 MOinit_layer, MOW_layer,number,vsol,
 			 LWC_bins, AQinit_bins, ionic_bins, chp_bins,

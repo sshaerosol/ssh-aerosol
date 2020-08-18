@@ -1811,9 +1811,10 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
   int n=surrogate.size();
   double error_tot=10.0;
   int index=0;
-  Array<double, 1> vec_error_org,vec_error_aq; 
+  Array<double, 1> vec_error_org,vec_error_aq,vec_error_gas; 
   vec_error_org.resize(config.max_iter);
   vec_error_aq.resize(config.max_iter);
+  vec_error_gas.resize(config.max_iter);
   bool non_convergence;
   double LWCtot=0.0;
   for (b=0;b<config.nbins;++b)
@@ -1855,6 +1856,7 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
 
   for (i=0;i<n;i++)
     {
+      surrogate[i].Atot0=surrogate[i].Atot;
       surrogate[i].Ag0=surrogate[i].Ag;
       for(b=0;b<config.nbins;b++)
         {
@@ -1886,8 +1888,10 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
               if (((abs(vec_error_org(i)-vec_error_org(index-1))/vec_error_org(index-1)/factor<1.0e-4 and vec_error_org(index-1)/factor>config.precision) and
                    (abs(vec_error_org(i-1)-vec_error_org(index-2))/vec_error_org(index-2)/factor<1.0e-4) and (abs(vec_error_org(i-2)-vec_error_org(index-3))/vec_error_org(index-3)/factor<1.0e-4))
                   or (abs(vec_error_aq(i)-vec_error_aq(index-1))/vec_error_aq(index-1)/factor<1.0e-4 and vec_error_aq(index-1)/factor>config.precision and 
-                      (abs(vec_error_aq(i-1)-vec_error_aq(index-2))/vec_error_aq(index-2)/factor<1.0e-4) and (abs(vec_error_aq(i-2)-vec_error_aq(index-3))/vec_error_aq(index-3)/factor<1.0e-4))                  
-                  or vec_error_org(index-1)/factor>10.0 or vec_error_aq(index-1)/factor>10.0)
+                      (abs(vec_error_aq(i-1)-vec_error_aq(index-2))/vec_error_aq(index-2)/factor<1.0e-4) and (abs(vec_error_aq(i-2)-vec_error_aq(index-3))/vec_error_aq(index-3)/factor<1.0e-4))
+		   or (abs(vec_error_gas(i)-vec_error_gas(index-1))/vec_error_gas(index-1)/factor<1.0e-4 and vec_error_gas(index-1)/factor>config.precision and 
+                      (abs(vec_error_gas(i-1)-vec_error_gas(index-2))/vec_error_gas(index-2)/factor<1.0e-4) and (abs(vec_error_gas(i-2)-vec_error_gas(index-3))/vec_error_gas(index-3)/factor<1.0e-4)) 
+                  or vec_error_org(index-1)/factor>10.0 or vec_error_aq(index-1)/factor>10.0 or vec_error_gas(index-1)/factor>10.0)
                 non_convergence=true;
 
           if (iiter>100)
@@ -1920,14 +1924,29 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
                 if (b>a*0.999)
                   non_convergence=true;
               }
-          
+	  
+          if (iiter>100)
+            if (vec_error_gas(index-1)/factor>config.precision)
+              {
+                double a=1;
+                double b=1;
+                for (i=index-100;i<index-90;i++)
+                  a*=vec_error_gas(i);
+                
+                for (i=index-11;i<index-1;i++)
+                  b*=vec_error_gas(i);
+                  
+                if (b>a*0.999)
+                  non_convergence=true;
+              }
               
           if (non_convergence and nh<config.nh_max)
             { 
-              if (vec_error_org(index-1)/factor>100.0 or vec_error_aq(index-1)/factor>100.0)
+              if (vec_error_org(index-1)/factor>100.0 or vec_error_aq(index-1)/factor>100.0 or vec_error_gas(index-1)/factor>100.0)
                 {
                   for (i=0;i<n;i++)
                     {
+		      surrogate[i].Atot=surrogate[i].Atot0;
                       surrogate[i].Ag=surrogate[i].Ag0;
                       if (surrogate[i].hydrophobic)
                         for(b=0;b<config.nbins;b++)
@@ -1945,6 +1964,7 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
                 {
                   vec_error_org(i)=-1.0;
                   vec_error_aq(i)=-1.0;
+		  vec_error_gas(i)=-1.0;
                 }
               iiter=0;
 
@@ -1971,6 +1991,9 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
 
       for (i=0;i<n;i++)
 	surrogate[i].Ag1=surrogate[i].Ag;
+
+      for (i=0;i<n;i++)
+	surrogate[i].Atot1=surrogate[i].Atot;
 
       //cout << "NO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM+surrogate[config.iHNO3].Ag << " " << nh << endl;;
       //cout << "NO3i: " << sum(surrogate[config.iNO3m].Aaq_bins_init0)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << " " << surrogate[config.iHNO3].Ag0 << " " << nh << endl;
@@ -2016,6 +2039,14 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
       //Computation of error_tot
       vec_error_org(index)=0.0;
       vec_error_aq(index)=0.0;
+      vec_error_gas(index)=0.0;
+
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_organic or (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false))
+	  if (surrogate[i].Atot1>1.0e-10)
+	    vec_error_gas(index)=max(vec_error_gas(index),abs(surrogate[i].Atot-surrogate[i].Atot1)
+				     /surrogate[i].Atot1);	
+      
       for (b=0;b<config.nbins;++b)
         {
           AQ(b)=max(AQ(b),config.MOmin);
@@ -2081,8 +2112,9 @@ void solve_semi_implicit_coupled_ssh(model_config config, vector<species> &surro
 
       vec_error_org(index)=max(vec_error_org(index),0.001*config.precision*factor);
       vec_error_aq(index)=max(vec_error_aq(index),0.001*config.precision*factor);
-
-      error_tot=max(vec_error_org(index),vec_error_aq(index));
+      vec_error_gas(index)=max(vec_error_gas(index),0.001*config.precision*factor);
+      
+      error_tot=max(max(vec_error_org(index),vec_error_aq(index)),vec_error_gas(index));
 
       /*
       cout << error_tot << " " << sum(surrogate[config.iNO3m].Aaq_bins_init) << " " << vec_error_aq(index) << " " << factor << endl;
@@ -2636,7 +2668,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   cout << "NH4: " << surrogate[config.iNH3].Ag+sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;
   cout << "PNO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
   cout << "PNH4: " << sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;*/
-  if (config.imethod==0)
+  if (config.imethod>=1)
     config.tequilibrium=0;
 
   for (b=0;b<config.nbins;++b)		  
@@ -2842,7 +2874,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       while (t<deltatmax)
         {	  
           deltat1=min(deltatmax-t,deltat1);
-	  // cout << "evol: " << t << " " << deltat1 << " " << chp(0) << " " << surrogate[config.iNO3m].Aaq_bins_init(0) << " " << surrogate[config.iH2O].Aaq_bins_init(0) << endl;
+	  //cout << "evol: " << t << " " << deltat1 << endl; //" " << chp(0) << " " << surrogate[config.iNO3m].Aaq_bins_init(0) << " " << surrogate[config.iH2O].Aaq_bins_init(0) << endl;
+	  /*for (i=0;i<n;i++)
+	    if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Ap_layer_init)>0.)
+	    cout << surrogate[i].name << " " << surrogate[i].Ag << " " << sum(surrogate[i].Aaq_bins_init) << " " << sum(surrogate[i].Ap_layer_init) << endl;*/
 		  
           //save the old time step in deltat2          
 	  deltat2=deltat1;
