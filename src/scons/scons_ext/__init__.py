@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2016, ENPC - EDF R&D
 #     Author(s): Sylvain Doré
 #
@@ -20,8 +23,8 @@
 # For more information, visit the Polyphemus web site:
 #      http://cerea.enpc.fr/polyphemus/
 
-from flag_dict import *
-from profile_reader import *
-from run import *
-from spack import *
-from utils import *
+from . flag_dict import *
+from . profile_reader import *
+from . run import *
+from . spack import *
+from . utils import *

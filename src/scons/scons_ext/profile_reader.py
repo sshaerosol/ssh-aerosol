@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2007-2016, ENPC - INRIA - EDF R&D
 #     Author(s): Sylvain Doré, Vivien Mallet
 #
@@ -20,7 +23,7 @@
 # For more information, visit the Polyphemus web site:
 #      http://cerea.enpc.fr/polyphemus/
 
-import commands, os, re, types
+import subprocess, os, re, types
 
 from SCons.Errors import UserError
 
@@ -60,7 +63,7 @@ def load_profile(utils, env, profile_name):
 |  "{0}"
 ----------------------------------------------------------------------/
 """.format(profile_dir)
-        raise UserError, msg
+        raise UserError(msg)
 
     available_profile[profile_name](utils)
 
@@ -70,11 +73,11 @@ def list_profile(env):
 
     # In the case MPI is used, gets the wrapped compiler.
     if compiler == "mpicc":
-        s, o = commands.getstatusoutput(compiler + " --showme -v")
+        s, o = subprocess.getstatusoutput(compiler + " --showme -v")
         if s == 0:
             compiler = o.split()[0]
     elif compiler == "mpiicc":
-        s, o = commands.getstatusoutput(compiler + " -show")
+        s, o = subprocess.getstatusoutput(compiler + " -show")
         if s == 0:
             compiler = o.split()[0]
 

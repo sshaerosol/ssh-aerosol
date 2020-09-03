@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2007-2016, ENPC - INRIA - EDF R&D
 #     Author(s): Sylvain Doré, Vivien Mallet
 #
@@ -20,7 +23,7 @@
 # For more information, visit the Polyphemus web site:
 #      http://cerea.enpc.fr/polyphemus/
 
-import commands, glob, os, re, sys
+import subprocess, glob, os, re, sys
 import distutils.sysconfig
 from SCons.Errors import UserError
 from SCons.Script import *
@@ -63,8 +66,8 @@ class Utils:
         polyphemus_path = os.path.abspath(polyphemus_path)
 
         if not os.path.isdir(polyphemus_path):
-            raise Exception, "The Polyphemus path \"" + polyphemus_path \
-                  + "\" does not appear to be a valid path."
+            raise Exception( "The Polyphemus path \"" + polyphemus_path \
+                  + "\" does not appear to be a valid path.")
         self.polyphemus_path = polyphemus_path
 
         self.scons_dir = self.create_variable("scons_dir", self.polyphemus_path)
@@ -141,9 +144,9 @@ class Utils:
                 path = os.path.join(self.polyphemus_path, path)
                 path_list.append(path)
             else:
-                raise Exception, "Unable to find the '" + name + "' directory "\
+                raise Exception( "Unable to find the '" + name + "' directory "\
                     "\"" + path + "\" (even in Polyphemus directory, \"" \
-                      + self.polyphemus_path + "\")."
+                      + self.polyphemus_path + "\").")
         return path_list
 
 
@@ -158,10 +161,10 @@ class Utils:
 
     def assert_valid_argument(self, name, value, possible_value):
         if value not in possible_value:
-            raise Exception, "Unsupported option \"" + value \
+            raise Exception( "Unsupported option \"" + value \
                   + "\" for argument \"" + name \
                   + "\". Available options are: " \
-                  + ", ".join(["\"" + x + "\"" for x in possible_value]) + "."
+                  + ", ".join(["\"" + x + "\"" for x in possible_value]) + ".")
 
 
     def add_argument(self, name, value_list = None):
@@ -173,8 +176,8 @@ class Utils:
         """
         if value_list is None:
             if not ARGUMENTS.has_key(name):
-                raise Exception, "The command line argument \"" + name + \
-                      + "\" is required, but it was not provided."
+                raise Exception( "The command line argument \"" + name + \
+                      + "\" is required, but it was not provided.")
         else:
             ARGUMENTS[name] = ARGUMENTS.get(name, value_list[0])
             self.assert_valid_argument(name, ARGUMENTS[name], value_list)
@@ -200,7 +203,7 @@ class Utils:
         root_len = len(self.polyphemus_path)
 
         def translate_path(p):
-            if type(p) == str or type(p) == unicode:
+            if type(p) == str:
                 return base_dir + os.path.abspath(p)[root_len:]
             else:
                 return p
@@ -249,13 +252,13 @@ class Utils:
 
         env = self.create_env()
 
-        if os.environ.has_key("LD_LIBRARY_PATH"):
+        if "LD_LIBRARY_PATH" in os.environ:
             env.Append(LIBPATH = os.environ["LD_LIBRARY_PATH"].split(os.pathsep))
-        if os.environ.has_key("LIBRARY_PATH"):
+        if "LIBRARY_PATH" in os.environ:
             env.Append(LIBPATH = os.environ["LIBRARY_PATH"].split(os.pathsep))
-        if os.environ.has_key("CPATH"):
+        if "CPATH" in os.environ:
             env.Append(CPPPATH = os.environ["CPATH"].split(os.pathsep))
-        if os.environ.has_key("CPLUS_INCLUDE_PATH"):
+        if "CPLUS_INCLUDE_PATH" in os.environ:
             env.Append(CPPPATH = os.environ["CPLUS_INCLUDE_PATH"].split(os.pathsep))
 
         if ARGUMENTS["line"] == "no":
@@ -294,7 +297,7 @@ class Utils:
                     if WhereIs(cpp_compiler) != None:
                         break
                     else:
-                        raise Exception, "Unable to find a MPI compiler."
+                        raise Exception( "Unable to find a MPI compiler.")
                     c_compiler = "mpicc"
                     fortran_compiler = "mpif90"
                     linker = cpp_compiler
@@ -332,18 +335,18 @@ class Utils:
         self.profile = FlagDict()
         if not env.GetOption('clean'):
             if has_deprecated_debug:
-                print """
+                print("""
 [WARNING] === PLEASE READ: ===
 [WARNING] 'debug=' is deprecated, please use 'profile=' instead. It gives access
 to highly recommended debugging and optimization options.
 [WARNING] ====================
 
-"""
+""")
             elif 'profile' not in ARGUMENTS:
                 profile_compiler, profile_dict = list_profile(env)
                 if not profile_dict:
-                    print "[WARNING] No profile available for compiler '{0}'."\
-                        .format(profile_compiler)
+                    print("[WARNING] No profile available for compiler '{0}'."\
+                        .format(profile_compiler))
                 else:
 #                     raise UserError, """
 # [ERROR] No profile given, please use 'profile=NAME'...
@@ -376,7 +379,7 @@ to highly recommended debugging and optimization options.
             cpp_compilation_option += " -Wall -ansi -pedantic -Wno-unused" \
                 + " -Wno-parentheses"
             # For latest GCC versions.
-            s, o = commands.getstatusoutput(env["CC"] + " -dumpversion")
+            s, o = subprocess.getstatusoutput(env["CC"] + " -dumpversion")
             if s == 0:
                 version = [int(x) for x in o.split('.')]
                 if version >= [3, 4]:
@@ -404,9 +407,9 @@ to highly recommended debugging and optimization options.
                 cpp_compilation_option += " " + ARGUMENTS["flag_openmp"]
                 preprocessor_defines.append("POLYPHEMUS_PARALLEL_WITH_OPENMP")
             else:
-                print "[WARNING]: No openMP parallelization. Please use the" \
+                print("[WARNING]: No openMP parallelization. Please use the" \
                     " option 'flag_openmp' to indicate the openMP compiling" \
-                    " option to your C++ compiler."
+                    " option to your C++ compiler.")
 
             preprocessor_defines.append("BZ_THREADSAFE")
 
@@ -417,9 +420,9 @@ to highly recommended debugging and optimization options.
             elif ARGUMENTS.has_key("flag_openmp"):
                 fortran_compilation_option += " " + ARGUMENTS["flag_openmp"]
             else:
-                print "[WARNING]: No openMP parallelization. Please use the" \
+                print("[WARNING]: No openMP parallelization. Please use the" \
                     " option flag_openmp to indicate the openMP compiling" \
-                    " option suitable to your FORTRAN compiler."
+                    " option suitable to your FORTRAN compiler.")
 
         #=== MPI options.
         if ARGUMENTS["mpi"] == "yes":
@@ -517,9 +520,9 @@ to highly recommended debugging and optimization options.
             elif ARGUMENTS.has_key("flag_openmp"):
                 link_options += " " + ARGUMENTS["flag_openmp"]
             else:
-                print "[WARNING]: No openMP parallelization. Please, use the " \
+                print("[WARNING]: No openMP parallelization. Please, use the " \
                       "options flag_openmp to add the appropriate openMP " \
-                      "linking option."
+                      "linking option.")
 
         #=== User provided options.
         # Most linkers will give them precedence since they are appended last.

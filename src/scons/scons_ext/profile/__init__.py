@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2016, ENPC - EDF R&D
 #     Author(s): Sylvain Doré
 #
@@ -22,7 +25,7 @@
 """Contains settings profiles for the different build tools."""
 
 # Imports the profile modules to enable them:
-import gcc
-import icc
+from . import gcc
+from . import icc
 #import clang
 #import msvc

@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2016, ENPC - EDF R&D
 #     Author(s): Sylvain Doré
 #
@@ -78,7 +81,7 @@ def sconstruct(script, _cache=dict()):
     try:
         Export(src_dir = os.path.dirname(os.path.abspath(script)))
         if not is_quiet:
-            print "[SCONSTRUCT]", script
+            print("[SCONSTRUCT]", script)
         targets = SConscript(script)
         if targets is None:
             targets = []

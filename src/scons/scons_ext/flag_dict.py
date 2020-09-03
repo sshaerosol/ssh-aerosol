@@ -1,4 +1,7 @@
+#! /usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
+#
 # Copyright (C) 2016, ENPC - EDF R&D
 #     Author(s): Sylvain Doré
 #
@@ -50,5 +53,5 @@ if __name__ == '__main__':
     example = FlagDict()
     example.a_flag += " -Wall"
     example.a_flag += " -Wpedantic"
-    print example.a_flag
-    print example.dict()
+    print(example.a_flag)
+    print(example.dict())
