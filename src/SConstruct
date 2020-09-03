@@ -28,6 +28,9 @@ polyphemus_path = "./"
 
 utils = SConscript(polyphemus_path + '/scons/utils')(globals())
 
+# Force python version above 3.5
+EnsurePythonVersion(3,5)
+
 # Include paths: put the absolute paths, the relative paths or the paths
 # into the Polyphemus directory.
 include_path_template = """
