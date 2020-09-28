@@ -22,7 +22,9 @@ module SSHaerosolAPI
 !   maximum length of input set to 400 chars (cf read_namelist)
 ! =============================================================
 
-    subroutine ssh_api_simple_initialize(input_namelist_file, ngas, nlayer, nsize) bind(c, name='api_sshaerosol_simple_initialize_')
+    subroutine ssh_api_simple_initialize(input_namelist_file, ngas, &
+         n_aerosol_layers, nsize) &
+         bind(c, name='api_sshaerosol_simple_initialize_')
 
       use iso_c_binding
 
@@ -30,7 +32,7 @@ module SSHaerosolAPI
 
       integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
-      integer(kind=c_int), intent(out) :: ngas, nlayer, nsize
+      integer(kind=c_int), intent(out) :: ngas, n_aerosol_layers, nsize
       logical(kind=c_bool), parameter :: ok=.true.
       logical(kind=c_bool), parameter :: nope=.false.
       real(c_double) :: time
@@ -39,7 +41,7 @@ module SSHaerosolAPI
       call ssh_api_set_logger(ok)
       call ssh_api_initialize(input_namelist_file)
       ngas = api_get_ngas()
-      nlayer = api_get_nlayer()
+      n_aerosol_layers = api_get_n_aerosol_layers()
       nsize = api_get_nsize()
       call ssh_api_call_ssh_initoutput()
       call ssh_api_call_ssh_report()
@@ -127,6 +129,26 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_initialize
 
+! =============================================================
+!
+! External code can force SSH-aerosol to:
+!   call ssh_init_distributions
+!
+! =============================================================
+
+    subroutine ssh_api_init_distributions() bind(c, name='api_sshaerosol_init_distributions_')
+
+      use iso_c_binding
+      use lDiscretization, only : ssh_init_distributions
+
+      implicit none
+
+      ! Initialize distributions
+      call ssh_init_distributions()
+
+    end subroutine ssh_api_init_distributions
+
+    
 ! =============================================================
 !
 ! External code can force SSH-aerosol to intialize again
@@ -328,6 +350,7 @@ module SSHaerosolAPI
 
     end function logger
 
+    
 ! =============================================================
 !
 ! External code can get the number of gas species
@@ -372,21 +395,42 @@ module SSHaerosolAPI
 !
 ! External code can get the number of aerosols layers
 !
-! return value : number of aerosol layers
+! return value : number of aerosols layers
 ! =============================================================
 
     function api_get_nlayer() bind(c, name='api_sshaerosol_get_nlayer_')
+
+      use iso_c_binding
+      use aInitialization, only : nlayer
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nlayer
+      
+      api_get_nlayer = nlayer
+
+    end function api_get_nlayer    
+
+    
+! =============================================================
+!
+! External code can get the number of aerosols species in layers
+!
+! return value : number of aerosol species in layers
+! =============================================================
+
+    function api_get_n_aerosol_layers() bind(c, name='api_sshaerosol_get_n_aerosol_layers_')
 
       use iso_c_binding
       use aInitialization, only : N_aerosol_layers
 
       implicit none
 
-      integer(kind=c_int) :: api_get_nlayer
+      integer(kind=c_int) :: api_get_n_aerosol_layers
 
-      api_get_nlayer = N_aerosol_layers
+      api_get_n_aerosol_layers = N_aerosol_layers
 
-    end function api_get_nlayer
+    end function api_get_n_aerosol_layers
 
 ! =============================================================
 !
@@ -428,6 +472,69 @@ module SSHaerosolAPI
 
     end function api_get_nsizebin
 
+
+! =============================================================
+!
+! External code can get the number of inorganic aerosols species
+!
+! return value : number of inorganic aerosols species
+! =============================================================
+
+    function api_get_nesp_isorropia() bind(c, name='api_sshaerosol_get_nesp_isorropia_')
+
+      use iso_c_binding
+      use aInitialization, only : nesp_isorropia
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nesp_isorropia
+      
+      api_get_nesp_isorropia = nesp_isorropia
+
+    end function api_get_nesp_isorropia
+
+! =============================================================
+!
+! External code can get the number of organic aerosols species 
+!
+! return value : number of organic aerosols species
+! =============================================================
+
+    function api_get_nesp_aec() bind(c, name='api_sshaerosol_get_nesp_aec_')
+
+      use iso_c_binding
+      use aInitialization, only : nesp_aec
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nesp_aec
+      
+      api_get_nesp_aec = nesp_aec
+
+    end function api_get_nesp_aec
+
+    
+! =============================================================
+!
+! External code can get the number of photolysis reactions
+!
+! return value : number of photolysis reactions
+! =============================================================
+   
+    
+    function api_get_nphotolysis() bind(c, name='api_sshaerosol_get_nphotolysis_')
+
+      use iso_c_binding
+      use aInitialization, only : N_photolysis
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nphotolysis
+      
+      api_get_nphotolysis = N_photolysis
+
+    end function api_get_nphotolysis
+    
 ! =============================================================
 !
 ! External code can get the name of given aerosol species
@@ -500,8 +607,8 @@ module SSHaerosolAPI
         set_dt = .false.
         delta_t = DTAEROMIN
         dt = DTAEROMIN ! this is probably useless
-      endif
-
+     endif
+     
     end function set_dt
 
 ! =============================================================
@@ -621,6 +728,50 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_update_humidity
 
+! =============================================================
+!
+! External code can set specific humidity
+!
+! input : specific humidity in kg / kg
+! =============================================================
+
+    subroutine ssh_api_set_humidity(val) &
+         bind(c, name='api_sshaerosol_set_humidity')
+
+      use iso_c_binding
+      use aInitialization, only : humidity
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      humidity = val
+
+    end subroutine ssh_api_set_humidity
+   
+
+! =============================================================
+!
+! External code can set attenuation
+!
+! input : attenuation in adimensional value
+! =============================================================
+
+    subroutine ssh_api_set_attenuation(val) &
+         bind(c, name='api_sshaerosol_set_attenuation')
+
+      use iso_c_binding
+      use aInitialization, only : attenuation
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      attenuation = val
+
+    end subroutine ssh_api_set_attenuation
+
+    
 ! =============================================================
 !
 ! External code can get the specific humidity
@@ -804,6 +955,29 @@ module SSHaerosolAPI
 
     end function api_get_ph
 
+
+! =============================================================
+!
+! External code can get initial diameter
+!
+! output : array of diam_input in micro m
+! =============================================================
+
+    subroutine ssh_api_get_diam_input(diam) bind(c, name='api_sshaerosol_get_diam_input_')
+
+      use iso_c_binding
+      use aInitialization, only : diam_input, N_sizebin
+
+      implicit none
+
+      real(kind=c_double), dimension(N_sizebin + 1) :: diam
+
+      diam = diam_input
+
+    end subroutine ssh_api_get_diam_input
+    
+
+    
 ! =============================================================
 !
 ! External code can set the gaseous concentrations
@@ -844,6 +1018,46 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_get_gas_concentration
 
+! =============================================================
+!
+! External code can set the initial aerosols concentrations
+!
+! input : 2D array of concentrations in micrograms / m^3
+! =============================================================
+
+    subroutine ssh_api_set_init_bin_mass(array) bind(c, name='api_sshaerosol_set_init_bin_mass_')
+
+      use iso_c_binding
+      use aInitialization, only : N_sizebin, N_aerosol, init_bin_mass
+
+      implicit none
+
+      real(kind=c_double), intent(in), dimension(N_sizebin, N_aerosol) :: array
+
+      init_bin_mass(:,:) = array(:,:)
+
+    end subroutine ssh_api_set_init_bin_mass
+
+! =============================================================
+!
+! External code can set the initial aerosols number concentrations
+!
+! input : 2D array of concentrations in particles / m^3
+! =============================================================
+
+    subroutine ssh_api_set_init_bin_number(array) bind(c, name='api_sshaerosol_set_init_bin_number_')
+
+      use iso_c_binding
+      use aInitialization, only : N_sizebin, init_bin_number
+
+      implicit none
+
+      real(kind=c_double), intent(in), dimension(N_sizebin) :: array
+
+      init_bin_number(:) = array(:)
+
+    end subroutine ssh_api_set_init_bin_number
+    
 ! =============================================================
 !
 ! External code can set the aerosols concentrations
@@ -944,6 +1158,93 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can set the position in (lon, lat)
+!
+! input : longitude and latitude in degree
+! =============================================================
+
+    subroutine ssh_api_set_lonlat(val) bind(c, name='api_sshaerosol_set_lonlat_')
+
+      use iso_c_binding
+      use aInitialization, only : longitude, latitude
+
+      implicit none
+
+      real(kind=c_double), intent(in), dimension(2) :: val
+
+      longitude = val(1)
+      latitude = val(2)
+
+    end subroutine ssh_api_set_lonlat
+
+
+! =============================================================
+!
+! External code can get aerosol density for each size-composition section.
+!
+! output : array of density_aer_bin in micrograms / microm^3
+! =============================================================
+
+    subroutine ssh_api_get_density_aer_bin(array) bind(c, name='api_sshaerosol_get_density_aer_bin')
+
+      use iso_c_binding
+      use aInitialization, only : N_size, density_aer_bin
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_size) :: array
+      
+      array(:) = density_aer_bin(:)
+
+    end subroutine ssh_api_get_density_aer_bin
+
+
+! =============================================================
+!
+! External code can get aerosol density for each size section.
+!
+! output : array of density_aer_bin in micrograms / microm^3
+! =============================================================
+
+    subroutine ssh_api_get_density_aer_size(array) bind(c, name='api_sshaerosol_get_density_aer_size')
+
+      use iso_c_binding
+      use aInitialization, only : N_sizebin, density_aer_size
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_sizebin) :: array
+      
+      array(:) = density_aer_size(:)
+
+    end subroutine ssh_api_get_density_aer_size
+
+
+    
+! =============================================================
+!
+! External code can get fixed density
+!
+! output : fixed density in microgram/microm3
+! =============================================================
+
+    function api_get_fixed_density() bind(c, name='api_sshaerosol_get_fixed_density_')
+
+      use iso_c_binding
+      use aInitialization, only : fixed_density
+
+      implicit none
+
+      real(kind=c_double) :: api_get_fixed_density
+
+      api_get_fixed_density = fixed_density
+
+    end function api_get_fixed_density
+
+    
+    
+! =============================================================
+!
 ! External code can call the chemistry scheme
 !
 ! =============================================================
@@ -982,7 +1283,7 @@ module SSHaerosolAPI
           1, not(with_fixed_density), concentration_number, &
           mass_density)
       endif
-
+      
     end subroutine ssh_api_call_ssh_gaschemistry
 
 ! =============================================================
@@ -1132,4 +1433,104 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_call_ssh_updatephoto
 
+
+
+! =============================================================
+!
+! External code can call ssh_compute_all_density subroutine
+!         
+! =============================================================
+
+    subroutine ssh_api_call_ssh_compute_all_density() bind(c, name='api_sshaerosol_compute_all_density_')
+
+      use iso_c_binding
+      use dPhysicalbalance
+
+      implicit none
+
+      call ssh_compute_all_density()
+
+    end subroutine ssh_api_call_ssh_compute_all_density
+
+! =============================================================
+!
+! External code can set aerosol density
+!
+! input : µg/µm3
+! =============================================================
+
+    subroutine ssh_api_set_fixed_density(val) bind(c, name='api_sshaerosol_set_fixed_density_')
+
+      use iso_c_binding
+      use aInitialization, only : fixed_density
+
+      implicit none
+
+      real(kind=c_double), intent(in) :: val
+
+      fixed_density = val
+
+    end subroutine ssh_api_set_fixed_density
+
+! =============================================================
+!
+! External code can get concentration_index
+!
+! output : array of concentration_index
+! =============================================================
+
+    subroutine ssh_api_get_concentration_index(array) bind(c, name='api_sshaerosol_get_concentration_index_')
+
+      use iso_c_binding
+      use aInitialization, only : N_size, concentration_index
+
+      implicit none
+
+      integer, intent(out), dimension(N_size, 2) :: array
+      
+      array(:,:) = concentration_index(:,:)
+
+    end subroutine ssh_api_get_concentration_index
+
+
+! =============================================================
+!
+! External code can get index for aerosol species
+!
+! output : array of list_speices
+! =============================================================
+
+    subroutine ssh_api_get_list_species(array) bind(c, name='api_sshaerosol_get_list_species_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol_layers, list_species
+
+      implicit none
+
+      integer, intent(out), dimension(N_aerosol_layers) :: array
+      
+      array(:) = list_species(:)
+
+    end subroutine ssh_api_get_list_species
+
+! =============================================================
+!
+! External code can get the value for section_pass
+!
+! return value : section_pass
+! =============================================================
+
+    function api_get_section_pass() bind(c, name='api_sshaerosol_get_section_pass_')
+
+      use iso_c_binding
+      use aInitialization, only : section_pass
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_section_pass
+      
+      api_get_section_pass = section_pass
+
+    end function api_get_section_pass    
+    
 end module SSHaerosolAPI
