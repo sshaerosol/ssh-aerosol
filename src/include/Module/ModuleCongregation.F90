@@ -209,7 +209,7 @@ contains
     do j=1, N_size
        do s=1,N_aerosol_layers
           if (isnan(dqdt(j,s))) then
-             write(*,*) j,s,dqdt(j,s)
+             write(*,*) "ModuleCongregation", j,s,dqdt(j,s)
              stop
           endif
        enddo
