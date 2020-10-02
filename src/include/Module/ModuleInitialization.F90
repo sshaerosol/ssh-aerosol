@@ -2569,18 +2569,9 @@ contains
 
     ! Create log file if needed
     if (ssh_logger) then
-       ! Check if file exists
-       inquire(file = trim(ssh_logger_file), exist = log_file_exists, iostat = ierr)
-       if (ierr.ne.0) then
-          write(*,*) "SSH-aerosol: error when inquiring log file."
-          stop
-       endif
-       ! Open or create the file
-       if (log_file_exists) then
-          open(unit = logfile, file = trim(ssh_logger_file), access = "append", status = "old", action = "write", iostat = ierr)
-       else
-          open(unit = logfile, file = trim(ssh_logger_file), status = "new", iostat = ierr)
-       endif
+       ! Create or overwrite the logflie.
+       open(unit = logfile, file = trim(ssh_logger_file), status = "replace", iostat = ierr)
+       
        if (ierr.ne.0) then
           write(*,*) "SSH-aerosol: error when creating / opening log file."
           stop
