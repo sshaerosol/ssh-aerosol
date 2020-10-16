@@ -106,7 +106,9 @@ module SSHaerosolAPI
       integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       character(len=size_namelist_file) :: namelist_file
-
+      logical(kind=c_bool), parameter :: ok=.true.
+      logical(kind=c_bool), parameter :: nope=.false.
+      
       ! N_gas = 93; N_reaction = 206; N_photolysis = 24 
       call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
@@ -115,6 +117,9 @@ module SSHaerosolAPI
                                namelist_file)
       call ssh_read_namelist(namelist_file)
 
+      call ssh_set_standalone(nope)
+      call ssh_api_set_logger(ok)
+      
       ! Read inputs
       call ssh_read_inputs()
 
@@ -350,6 +355,29 @@ module SSHaerosolAPI
 
     end function logger
 
+
+! =============================================================
+!
+! External code can set option with_init_num
+!
+! input : 1 or 0
+! =============================================================
+
+    subroutine ssh_api_set_with_init_num(val) &
+      bind (c, name='api_sshaerosol_set_with_init_num_')
+
+      use iso_c_binding
+      use aInitialization, only : with_init_num
+
+      implicit none
+
+      integer(kind=c_int), intent(in) :: val
+
+      with_init_num = val
+
+    end subroutine ssh_api_set_with_init_num
+
+    
     
 ! =============================================================
 !
@@ -976,7 +1004,6 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_get_diam_input
     
-
     
 ! =============================================================
 !
@@ -1318,7 +1345,7 @@ module SSHaerosolAPI
       ! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
       do s = 1, N_aerosol
         if (aerosol_species_interact(s) .gt. 0) then
-          concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
+           concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
         end if
         total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
       end do
@@ -1333,7 +1360,7 @@ module SSHaerosolAPI
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
         end if
       end do
-
+      
     end subroutine ssh_api_call_ssh_aerochemistry
 
 ! =============================================================
@@ -1532,5 +1559,24 @@ module SSHaerosolAPI
       api_get_section_pass = section_pass
 
     end function api_get_section_pass    
+
+! =============================================================
+!
+! External code can call ssh_compute_number
+!         
+! =============================================================
+
+    subroutine ssh_api_call_ssh_compute_number() bind(c, name='api_sshaerosol_compute_number_')
+
+      use iso_c_binding
+      use dPhysicalbalance
+
+      implicit none
+
+      call ssh_compute_number
+      
+    end subroutine ssh_api_call_ssh_compute_number
+
+
     
 end module SSHaerosolAPI
