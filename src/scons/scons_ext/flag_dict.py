@@ -1,9 +1,8 @@
 #! /usr/bin/env python3
-#
-# -*- coding: utf-8 -*-
+# -*- coding: latin-1 -*-
 #
 # Copyright (C) 2016, ENPC - EDF R&D
-#     Author(s): Sylvain DorÃ©
+#     Author(s): Sylvain Doré
 #
 # This file is part of the air quality modeling system Polyphemus.
 #
