@@ -28,7 +28,12 @@ PROGRAM SSHaerosol
   call cpu_time(t0)
 
   ! Initialisation: discretization and distribution
-  call getarg(1, namelist_ssh)
+  if (iargc() == 0) then
+     write(*,*) "usage: ssh-aerosol namelist.input"
+     stop
+  else
+     call getarg(1, namelist_ssh)
+  end if
 
   ! Read the number of gas-phase species and chemical reactions
   call ssh_dimensions(N_gas, n_reaction, n_photolysis)
