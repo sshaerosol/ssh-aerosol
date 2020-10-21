@@ -1,68 +1,55 @@
 #!/bin/bash
 
-# Read the option for Chemistry kinetic mechanism.
-# Accepted values: racm, racm2, cb05
-# Default: chemistry=cb05
 for i in "$@"
 do
 case $i in
+# Read the option for Chemistry kinetic mechanism.
+# Accepted values: racm, racm2, cb05
+# Default: chemistry=cb05
     -c=*|--chemistry=*)
     chemistry="${i#*=}"
     shift
     ;;
-esac
-done
-if [ -z $chemistry ]; then
-    chemistry="cb05"
-fi
-echo "Chemistry: $chemistry"
-
+# Read the option to generate a shared lib
+# Accepted values: yes or no
+# Default: sharedlib = no
+    -s=*|--sharedlib=*)      
+    sharedlib="${i#*=}"        
+    shift                       
+    ;;                              
 # Read the option to choose whether Na and Cl are taken into account.
 # Accepted values: yes or no
 # Default: nacl = no
-for i in "$@"
-do
-case $i in
     -n=*|--nacl=*)
     nacl="${i#*=}"
     shift
     ;;
-esac
-done
-if [ -z $nacl ]; then
-    nacl="no"
-fi
-echo "NaCl: $nacl"
-
 # Read the option to choose whether openmp is taken into account.
 # Accepted values: yes or no
 # Default: openmp = no
-for i in "$@"
-do
-case $i in
     -o=*|--openmp=*)
     openmp="${i#*=}"
     shift
     ;;
 esac
 done
+
+
+if [ -z $chemistry ]; then
+    chemistry="cb05"
+fi
+echo "Chemistry: $chemistry"
+
+if [ -z $nacl ]; then
+    nacl="no"
+fi
+echo "NaCl: $nacl"
+
 if [ -z $openmp ]; then
     openmp="no"
 fi
 echo "OpenMP: $openmp"
 
-# Read the option to generate a shared lib
-# Accepted values: yes or no
-# Default: sharedlib = no
-for i in "$@"                                                       
-do
-case $i in
-    -s=*|--sharedlib=*)      
-    sharedlib="${i#*=}"        
-    shift                       
-    ;;                              
-esac                                
-done 
 if [ -z $sharedlib ]; then                     
     sharedlib="no"                
 fi
