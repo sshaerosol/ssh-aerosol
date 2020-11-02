@@ -127,7 +127,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
   for (i=0;i<n;i++)
     if (surrogate[i].smile!="")
       {
-	cout << i << endl;
+	cout <<"===="<< i <<"===="<<endl;
 	cout << surrogate[i].name << " is constructed from smiles: " << surrogate[i].smile << endl;
 	//cout << surrogate[i].smile.substr(2, 5) << endl;
 	for (j=0; j<56; j++)
@@ -369,29 +369,59 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		carbon_arom(ipos)=1;
 		last_pos=igr+1;
 	      }
-	    if (surrogate[i].smile.substr(igr,7)=="OC(=O)C" and igr!=0)
+	    
+	    if (surrogate[i].smile.substr(igr,19)=="C(=O)OO[N+](=O)[O-]")
 	      {
-		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"F";	      
-		last_pos=igr+6;		
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	      
+		last_pos=igr+19;		
+	      }
+	    else if (surrogate[i].smile.substr(igr,19)=="[O-][N+](=O)OOC(=O)")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	
+		last_pos=igr+19;		
+	      }
+	    else if (surrogate[i].smile.substr(igr,14)=="O=N(=O)OOC(=O)")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	
+		last_pos=igr+14;		
 	      }
 	    else if (surrogate[i].smile.substr(igr,14)=="C(=O)OON(=O)=O")
 	      {
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	      
 		last_pos=igr+14;		
 	      }
+	    else if (surrogate[i].smile.substr(igr,7)=="OC(=O)C" and igr!=0)
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"F";	      
+		last_pos=igr+6;		
+	      }
 	    else if (surrogate[i].smile.substr(igr,15)=="OO[N+](=O)[O-])")
 	      {
 		cout << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
-		cout << "Group O[N+](=O)[O-]) used instead" << endl;
+		cout << "Group O[N+](=O)[O-] used instead" << endl;
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"O[N+](=O)[O-])";	
 		last_pos=igr+15;
 		ipos=ipos+13;
+		total_o--;
+	      }
+	    else if (surrogate[i].smile.substr(igr,9)=="OON(=O)=O")
+	      {
+		cout << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
+		cout << "Group O[N+](=O)[O-]) used instead" << endl;
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"ON(=O)=O";	
+		last_pos=igr+9;
+		ipos=ipos+8;
 		total_o--;
 	      }
 	    else if (surrogate[i].smile.substr(igr,6)=="OC(=O)" and igr==0)
 	      {
 		smile2+="A";	      
 		last_pos=igr+6;		
+	      }
+	     else if (surrogate[i].smile=="OC=O" and igr==0)
+	      {
+		smile2+="A";	      
+		last_pos=igr+4;		
 	      }
 	    else if (surrogate[i].smile.substr(igr,7)=="OOC(=O)" and igr==0)
 	      {
@@ -467,8 +497,9 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  carbon_alcool(igr)+=1;
 	  }*/
 	//cout << carbon_alcool << endl;
-	if (smile2.substr(ngr-2,2)=="CO")
-	  carbon_alcool(ngr-2)=1;
+	if (ngr>=2)
+	  if (smile2.substr(ngr-2,2)=="CO")
+	    carbon_alcool(ngr-2)=1;
 	 
 		
 	/*
@@ -476,6 +507,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  carbon_tail=1;			*/
 
 	int will_be_hydroperoxide=0;
+	int will_be_nitrate=0;
 	int sum_len_group=0;
 	surrogate[i].smile=smile2;
 	cout << smile2 << endl;
@@ -536,6 +568,15 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		//cout << "is aldehyde" << endl;
 		surrogate[i].groups[31]+=1;
 		len_group=3;
+		if (surrogate[i].smile.substr(0,4)=="O=CK")
+		  {
+		    carbon_ketone(sum_len_group+2,iket)=1;
+		    carbon_ketone(sum_len_group+4,iket)=1;
+		    carbon_taken(sum_len_group+2)=1;
+		    iket++;
+		  }
+		if (surrogate[i].smile.substr(0,3)=="C=O")
+		  carbon_taken(sum_len_group)++;
 	      }
 	    else if (surrogate[i].smile.substr(0,3)=="OOC" and sum_len_group==0)	      
 	      {
@@ -559,6 +600,17 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    surrogate[i].groups[44]+=1;
 		    }*/	      		
 	      }
+	    else if (surrogate[i].smile.substr(0,14)=="[O-][N+](=O)OC" and sum_len_group==0)	      
+	      {
+		len_group=13;
+		will_be_nitrate=1;      		
+	      }
+	    else if (surrogate[i].smile.substr(0,9)=="O=N(=O)OC" and sum_len_group==0)	      
+	      {
+		len_group=8;
+		will_be_nitrate=1;      		
+	      }
+	    
 	    /*
 	      else if (surrogate[i].smile.substr(0,5)=="C(OO)")	      
 	      {
@@ -606,6 +658,11 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  {
 		    will_be_hydroperoxide=0;
 		    hydroxyperoxide++;
+		  }
+		if (will_be_nitrate==1)
+		  {
+		    will_be_nitrate=0;
+		    nitrate++;
 		  }
 
 		if (carbon_arom(sum_len_group)==1)
@@ -926,7 +983,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			//cout << "I: " << ipar2 << " " << surrogate[i].smile.substr(ipar2+1,1) << " " << carbon_cycle(sum_len_group+ipar2+1,icycle) << endl;
 
 			
-			if (surrogate[i].smile.substr(ipar2+1,1)=="O" and ipar+1==int(surrogate[i].smile.length())-1)
+			if (surrogate[i].smile.substr(ipar2+1,1)=="O" and ipar2+1==int(surrogate[i].smile.length())-1)
 			  {		      			
 			    carbon_alcool(sum_len_group)++;
 			  }
@@ -2102,7 +2159,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	for (j=0;j<56;j++)
 	  if (surrogate[i].groups[j]>0)
 	    {
-	      cout << name_group(j) << " " << surrogate[i].groups[j] << " " << nc_group(j) << " " << no_group(j) << endl;
+	      cout <<j<<" "<<name_group(j) << " " << surrogate[i].groups[j] << " " << nc_group(j) << " " << no_group(j) << endl;
 	      out_c=out_c+int(surrogate[i].groups[j]*nc_group(j));
 	      out_o=out_o+int(surrogate[i].groups[j]*no_group(j));
 	    }
