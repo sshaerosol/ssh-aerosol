@@ -253,9 +253,10 @@ module SSHaerosolAPI
     subroutine ssh_api_finalize() bind(c, name='api_sshaerosol_finalize_')
 
       use iso_c_binding
-      use aInitialization, only : ssh_free_allocated_memory, with_coag, ssh_logger, ssh_close_logger
+      use aInitialization, only : ssh_free_allocated_memory, with_coag, ssh_logger, ssh_close_logger, tag_chem, option_photolysis
       use bCoefficientRepartition, only : ssh_DeallocateCoefficientRepartition
-
+      use mod_photolysis, only : ssh_deallocate_photolysis
+      
       implicit none
 
       integer :: ierr
@@ -264,6 +265,10 @@ module SSHaerosolAPI
       call ssh_free_allocated_memory()
       if (with_coag.eq.1) call ssh_DeallocateCoefficientRepartition()
 
+      if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
+         call ssh_deallocate_photolysis()
+      endif
+      
       ! Close log file if needed
       if (ssh_logger) then
         call ssh_close_logger()
@@ -1460,7 +1465,28 @@ module SSHaerosolAPI
 
     end subroutine ssh_api_call_ssh_updatephoto
 
+! =============================================================
+!
+! External code can set the photolysis rate
+!
+! input : array of photolysis_rate  
+! =============================================================
 
+    subroutine ssh_api_set_photolysis_rate(array) bind(c, &
+         name='api_sshaerosol_set_photolysis_rate_')
+
+      use iso_c_binding
+      use aInitialization, only : n_photolysis, photolysis_rate
+
+      implicit none
+
+      real(kind=c_double), intent(in), dimension(n_photolysis) :: array
+
+      photolysis_rate(:) = array(:)
+
+    end subroutine ssh_api_set_photolysis_rate
+
+    
 
 ! =============================================================
 !
