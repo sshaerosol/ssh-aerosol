@@ -42,19 +42,19 @@ contains
     coagulation_rate_gain = 0.d0
     
     do k=1,N_size 
+      gain_term=0.d0
       do l=1,repartition_coefficient(k)%n
 	!check all possible repartition_coefficient combination of grid 1 and grid 2 into grid k
 	i=index1_repartition_coefficient(k)%arr(l)! index of grid 1
 	j=index2_repartition_coefficient(k)%arr(l)! index of grid 2
 	if(c_number(i).gt.0.d0) then
-	  gain_term=kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
+	  gain_term=gain_term+kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
 	      *c_number(i)
 	endif
-        do jesp=1,N_aerosol_layers+1
-          coagulation_rate_gain(k,jesp) = coagulation_rate_gain(k,jesp) + gain_term*distribution(j,jesp)
-        enddo
       enddo
-       
+      do jesp=1,N_aerosol_layers+1
+        coagulation_rate_gain(k,jesp) = coagulation_rate_gain(k,jesp) + gain_term*distribution(j,jesp)
+      enddo
     enddo
   end subroutine ssh_Gain
   
