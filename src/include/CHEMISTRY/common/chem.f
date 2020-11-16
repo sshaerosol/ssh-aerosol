@@ -295,7 +295,7 @@ C     compute the particle number (mass/geometric mean diameter)
             if (MSF(Jb) .GT. 0.D0) THEN
                granulo_aer(Jb) = conc_tot/MSF(Jb)               
             else
-               write(*,*) , "chem.f : error "
+               write(*,*) "chem.f : error "
                stop
             endif
          ENDIF
@@ -350,11 +350,10 @@ C     photolytic reactions may be read.
                   DLRKf(Nreactphot(i)) = DLRKi(Nreactphot(i)) 
                ENDDO
             ENDIF
-            
             CALL SSH_roschem (NS,Nr,nemis,ZC,ZCsourc,ZCsourcf,
      s           convers_factor, convers_factor_jac,tschem,
      s           tfchem_tmp,DLRki,DLRkf,ZC_old,DLK1,DLK2)
-            
+
 !            IF (jBiPER/=0) THEN
 !               DO Jb=1,nbin_aer
 !                  saveDLBiPER(Jb)=max(DLconc_aer(Jb,
