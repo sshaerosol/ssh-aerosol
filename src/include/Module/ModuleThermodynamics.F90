@@ -91,7 +91,7 @@ contains
                 k=concentration_index(j, 1)
                 wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
                 wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-                c_mass(j,EH2O)=qext(EH2O)
+                c_mass(j,EH2O_layers)=qext(EH2O)
                 wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
              else
                 k=concentration_index(j, 1)
