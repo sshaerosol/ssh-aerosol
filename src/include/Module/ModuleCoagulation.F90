@@ -141,12 +141,12 @@ contains
     double precision::coagulation_rate_loss(N_size)
     double precision::coagulation_rate_gain(N_size)
     double precision ::c_number(N_size)
-    double precision ::c_mass(N_size,N_aerosol)
+    double precision ::c_mass(N_size,N_aerosol_layers)
     double precision ::rate_number(N_size)
-    double precision ::rate_mass(N_size,N_aerosol)
+    double precision ::rate_mass(N_size,N_aerosol_layers)
     double precision ::total_mass_tmp
 	
-    do i=1,(N_aerosol-1)!loop by species
+    do i=1,(N_aerosol_layers-1)!loop by species
       jesp=List_species(i)
       do j = 1,N_size! Reassigned distribution by mass of each species
 	distribution(j) = c_mass(j,jesp)
