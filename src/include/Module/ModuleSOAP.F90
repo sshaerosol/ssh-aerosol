@@ -375,8 +375,8 @@ contains
       IMPLICIT NONE
     
       INTEGER neq
-      double precision q_soap((N_size-ICUT)*(1+N_aerosol_layers)+N_aerosol)
-      INTEGER IQ(N_aerosol_layers, (N_size-ICUT))
+      double precision q_soap((N_size-ICUT_org)*(1+N_aerosol_layers)+N_aerosol)
+      INTEGER IQ(N_aerosol_layers, (N_size-ICUT_org))
       DOUBLE PRECISION lwc, lwcorg, rh, temp
       DOUBLE PRECISION ionic, proton, chp
       DOUBLE PRECISION liquid(12)
@@ -384,44 +384,42 @@ contains
       INTEGER jj,jesp,js,s,isoapdyn2
       double precision qaero(N_aerosol), qgas(N_aerosol)
       double precision deltat
-      double precision DSD(N_size-ICUT)
-      double precision csol(N_size-ICUT) !! Concentration of solid particles (PBC + PMD)
+      double precision DSD(N_size-ICUT_org)
+      double precision csol(N_size-ICUT_org) !! Concentration of solid particles (PBC + PMD)
       DOUBLE PRECISION qaq(N_aerosol)
 
       integer icpt, i
 
       isoapdyn2=1
 
-      neq = (N_size-ICUT) * (1 + N_aerosol_layers) + N_aerosol
+      neq = (N_size-ICUT_org) * (1 + N_aerosol_layers) + N_aerosol
 
       !   Pointer for aerosol concentrations
-      icpt=N_size-ICUT
+      icpt=N_size-ICUT_org
       DO s = 1,N_aerosol_layers
-         DO js=ICUT+1,N_size
+         DO js=ICUT_org+1,N_size
             icpt=icpt+1
-            IQ(s,js-ICUT)=icpt
+            IQ(s,js-ICUT_org)=icpt
          END DO
       END DO
-
-      !print*,ICUT,N_size
 
       q_soap = 0.0
       qgas = 0.0
 
-      do js = ICUT+1, N_size
-         q_soap(js-ICUT) = concentration_number(js)
+      do js = ICUT_org+1, N_size
+         q_soap(js-ICUT_org) = concentration_number(js)
       enddo
       
       i = 0 
       do jesp = 1,N_aerosol_layers
-         do js = ICUT+1, N_size
+         do js = ICUT_org+1, N_size
             i = i + 1
-            q_soap(N_size - ICUT + i) = concentration_mass(js, jesp)
+            q_soap(N_size - ICUT_org + i) = concentration_mass(js, jesp)
          enddo
       enddo
       do jesp = 1,N_aerosol
         if (inon_volatile(jesp).EQ.0) then
-           q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
+           q_soap((N_size-ICUT_org)*(1+N_aerosol_layers) + jesp) = concentration_gas(jesp)
         endif
       enddo
 
@@ -434,12 +432,12 @@ contains
       DO s=1,N_aerosol_layers
         jesp = List_species(s)
         if(aerosol_species_name(jesp).NE.'PH2O') then
-          DO js=ICUT+1,N_size
-             jj=IQ(s,js-ICUT)
+          DO js=ICUT_org+1,N_size
+             jj=IQ(s,js-ICUT_org)
              qaero(jesp)=qaero(jesp)+q_soap(jj)
           END DO
           if (inon_volatile(jesp).EQ.0) then
-             qgas(jesp) = q_soap((N_size-ICUT) * (1 + N_aerosol_layers) + jesp)
+             qgas(jesp) = q_soap((N_size-ICUT_org) * (1 + N_aerosol_layers) + jesp)
           endif
         endif
       enddo
@@ -461,8 +459,8 @@ contains
         endif
       enddo
 
-      do js=ICUT+1,N_size
-         csol(js-ICUT) = q_soap(IQ(EMD,js-ICUT)) + q_soap(IQ(EBC,js-ICUT))
+      do js=ICUT_org+1,N_size
+         csol(js-ICUT_org) = q_soap(IQ(EMD,js-ICUT_org)) + q_soap(IQ(EBC,js-ICUT_org))
       enddo
 
       lwcorg=0.
@@ -471,8 +469,8 @@ contains
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
-           lwc_Nsize(ICUT+1:N_size), ionic_Nsize(ICUT+1:N_size), chp_Nsize(ICUT+1:N_size), &
-           liquid_Nsize(:,ICUT+1:N_size), N_size-ICUT, isoapdyn2, &
+           lwc_Nsize(ICUT_org+1:N_size), ionic_Nsize(ICUT_org+1:N_size), chp_Nsize(ICUT_org+1:N_size), &
+           liquid_Nsize(:,ICUT_org+1:N_size), N_size-ICUT_org, isoapdyn2, &
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
@@ -480,19 +478,18 @@ contains
            coupled_phases, activity_model, epser_soap, i_hydrophilic)
 
       ! Get the calculated values from SOAP
-      do js = ICUT+1, N_size
-         concentration_number(js) = q_soap(js-ICUT) 
+      do js = ICUT_org+1, N_size
+         concentration_number(js) = q_soap(js-ICUT_org) 
       enddo
       i = 0 
       do jesp = 1,N_aerosol_layers
          s = List_species(jesp)
-         do js = ICUT+1, N_size
+         do js = ICUT_org+1, N_size
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
             if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
                  ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
-               concentration_mass(js, jesp) = q_soap(N_size + i - ICUT)
-               !print*,aerosol_species_name(jesp),N_size+i-ICUT,js,concentration_mass(js,jesp)
+               concentration_mass(js, jesp) = q_soap(N_size + i - ICUT_org)
             endif           
          enddo        
       enddo
@@ -501,18 +498,18 @@ contains
          if (inon_volatile(jesp).EQ.0) then
             if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
                  (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
-               concentration_gas(jesp) = q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp)
+               concentration_gas(jesp) = q_soap((N_size-ICUT_org)*(1+N_aerosol_layers) + jesp)
             endif
          else
             !Add initial gas concentration that were not added to soap
             if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
                  (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
-               concentration_gas(jesp) = concentration_gas(jesp) + q_soap((N_size-ICUT)*(1+N_aerosol_layers) + jesp)
+               concentration_gas(jesp) = concentration_gas(jesp) + q_soap((N_size-ICUT_org)*(1+N_aerosol_layers) + jesp)
             endif
          endif
       enddo
 
-      do js=ICUT+1,N_size
+      do js=ICUT_org+1,N_size
          proton_Nsize(js) = chp_Nsize(js) * lwc_Nsize(js) / 1.0e3
       enddo       
 

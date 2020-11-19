@@ -85,7 +85,7 @@ module aInitialization
   integer, save :: soap_inorg,soap_inorg_loc
 
   ! cut-off diameter
-  integer, save :: ICUT      ! section index
+  integer, save :: ICUT,ICUT_org      ! section index
   Integer, save :: set_icut  ! 0 = need to update ICUT, 1 = keep ICUT unchanged after initialization
   Integer, save :: tag_icut  ! 0 = fixed ICUT, icut is computed in the program using 1 = c/e timescale criteria, 2 = ETR criteria, 3 = QSSA criteria
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
@@ -1088,10 +1088,12 @@ contains
 	  endif
 
           if (ISOAPDYN == 1) then
+             ICUT_org = 0
              if (ssh_standalone) write(*,*) 'Dynamic SOA computation are at dynamic.'
              if (ssh_logger) write(logfile,*) 'Dynamic SOA computation are at dynamic.'
           else
              ISOAPDYN = 0   ! defalut
+             ICUT_org = N_sizebin
              if (ssh_standalone) write(*,*) 'Dynamic SOA computation are at equilibrium.'
              if (ssh_logger) write(logfile,*) 'Dynamic SOA computation are at equilibrium.'
           end if
@@ -1105,6 +1107,7 @@ contains
           if(ISOAPDYN == 0) then
             if (ssh_standalone) write(*,*) 'Phases can not be coupled if ISOAPDYN = 0'
             if (ssh_logger) write(logfile,*) 'Phases can not be coupled if ISOADYN = 0'
+            coupled_phases = 0
             i_hydrophilic = 0
           endif
        else 

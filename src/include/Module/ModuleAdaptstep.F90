@@ -202,7 +202,7 @@ contains
        initial_time_splitting = final_sub_time
 
     enddo
-    
+   
     !do C/E equilibrium after each emission
     if (with_cond.gt.0) then
        if(ICUT.ge.1.and.soap_inorg==0) then ! use bulk equilibrium method for inorganics in section <= ICUT
@@ -225,7 +225,7 @@ contains
           endif
           
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
-          if (ICUT>0) then
+          if (ICUT_org>0) then
 
              call  ssh_bulkequi_org(nesp_aec,lwc,lwcorg,ionic,proton,liquid,delta_t)!equilibrium for organic
              call ssh_mass_conservation(concentration_mass,concentration_number,&
@@ -234,12 +234,12 @@ contains
              if (soap_inorg==0) then
                 call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
              else
-                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
+                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT_org)
                 call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
              endif
           endif
 
-          if (ICUT+1<=N_size) then
+          if (ICUT_org+1<=N_size) then
              call SSH_SOAP_DYN_ICUT(Relative_Humidity,&
                   ionic, proton, lwc,lwcorg,&
                   Temperature, delta_t,&
