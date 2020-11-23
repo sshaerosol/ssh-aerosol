@@ -415,6 +415,12 @@ Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate
 To add an organic aerosol species in SSH-aerosol, two different methods can be used. The first method consists on adding manually the species in the file src/include/SOAP/species.cxx file and to provided the different properties (saturation vapor pressure, henry's law constant, decomposition in functionnal group). However, this method is quite tedious, especially for a large number of species.\\
 An alternative method was therefore developped using ``Generic species''. Generic species are used by SSH-aerosol when a species is not found in SSH-aerosol (the name does not correspond to a H$^2$O species) but are present in the aerosol species file. If the different parameters are provided (smiles code, saturation vapor pressure, enthalpy of vaporization, molar mass, etc...) are provided SSH-aerosol will automatically create the species, do an automatic decomposition in UNIFAC functional groups, and evaluate the necessary properties (for example the Henry's law constant will be evaluated from the saturation vapor pressure and the activity coefficient at infinite dilution computed with UNIFAC).\\   
 
+\subsection{Oligomer species}
+
+A monomer species (for example called ``X'') can be transformed into oligomer species with the bulk oligomerization parameterization of \cite{couvidat2018} by changing the file ./species-list/species-list-aer.dat and adding a new species called ``OligoX'' (``Oligo'' + the name of the monomer). An example is provided in ./species-list/species-list-aer-oligo.dat\\
+Currently, the code assumed that the oligomers are only dimers.\\
+The bulk oligomerization parameterization is presented in section ``Oligomerization''.\\
+
 
 \subsection{Emissions}
 
@@ -566,9 +572,9 @@ nucl_model = 0,   ! Nucleation model
 /
 \end{verbatim} 
 
-\subsubsection{Organics}
+\subsubsection{Oligomerization of BiAOD}
 
-Concerning organic reactions in the particles, oligomerization of pinonaldehyde may be considered ({\textit{with\_oligomerization = 1}}) or not.
+Concerning organic reactions in the particles, oligomerization of BiAOD (pinonaldehyde) may be considered ({\textit{with\_oligomerization = 1}}) or not.
 
 
 \begin{verbatim}
@@ -576,6 +582,68 @@ Concerning organic reactions in the particles, oligomerization of pinonaldehyde 
 with_oligomerization = 1      
 /
 \end{verbatim}
+
+\subsubsection{Bulk oligomerization}
+
+To activate ``bulk oligomerization'', please refer to section ``Oligomer species''.\\
+Some SOA models use a parameterization for oligomerization based on a simple first-order rate constant of oligomerization. However, a first order complete reaction may not be appropriate to represent oligomerization. Indeed,
+ oligomerization should involve second order reversible reactions like esterification, hemiacetalization, aldolization,
+peroxyhemiacetalization. The equilibrium of these reactions are unfavored by humid conditions and the reaction is catalyzed under acidic conditions.\\ 
+\indent SSH-aerosol uses the bulk oligomerization parameterization. This paramerization assumes that oligomerization is represented by a reversible process which is mainly due to mechanisms like esterification, unfavored by humid conditions.
+In the bulk oligomerization parameterization, oligomerization is represented through a single reaction to estimate if a compound is presented as a monomer or as an oligomer.
+\begin{equation}
+A \underset{k_{reverse}}{\overset{k_{oligo}}{\leftrightarrow}} \frac{1}{m_{oligo}} A_{oligo}
+\label{oligo_reac}
+\end{equation}
+with A a monomer compound, A$_{oligo}$ the monomer blocks of compound A inside oligomers, m$_{oligo}$ the number of monomer blocks inside oligomers, k$_{oligo}$ the kinetic rate parameter of oligomerization and k$_{reverse}$ the kinetic rate parameter of the reverse reaction. In this parameterization, oligomers are represented 
+by a single model species. A represent the monomer and A$_{oligo}$ any monomer blocks present inside the oligomers.
+It can be use to represent oligomerization in a mixture of compounds (for example a mixture of compounds A and B).
+If a monomer block from a compound A reacts with another monomer block (the same compound A or another compound B), the compound will be converted from monomer A to oligomer
+ A$_{oligo}$ (independently of the reaction with A or B).  
+The parameterization currently does not take into account different kinetic rate parameters between each combination of compounds due to lack of data. It assumes that a compound A reacting with itself and a compound B reacting with itself will have the same kinetic parameter and will have the same value when compounds A and B react together.
+If more data were available, the parameterization could be improved to take into account different kinetic rate parameters of oligomerization per combination.\\
+\indent The net flux of oligomerization J$_{oligo}$ is computed using activities. Activity is often seen as the "apparent concentration" of a compound in thermodynamics. It is linked to the chemical potential (molar Gibbs free energy of a particular component) by the following equation:
+\begin{equation}
+a_i=exp(\frac{\mu_i-\mu_i^0}{RT})
+\label{activity}
+\end{equation}
+with a$_i$ the activity of compound i, $\mu_i$ is the chemical potential of compound i and $\mu_i^0$ the chemical potential under standard conditions, R is the gas constant, T is thermodynamic temperature.\\
+Activities (calculated here on the mole fraction basis) are used instead of concentrations for two main reasons. 
+First, chemical rates are more consistent with thermodynamic equilibrium by computing rates using activities. For example, in the case of a simple one product (A) giving one product (B) equilibrium reaction, if chemical reactions are written using concentrations, the net flux of reaction J would be computed with the following equation:
+\begin{equation}
+J=k_{1} C_{A}-k_{-1}C_{B}
+\label{AdonneB}
+\end{equation}
+with k$_{1}$ the forward kinetic parameter, k$_{-1}$ the reverse kinetic parameter, C$_{A}$ the concentration of compound A and C$_{B}$ the concentration of compound B. At equilibrium, 
+J would be equal to zero and the equilibrium constant would then correspond to the ratio of concentrations instead of a ratio of activities. 
+This paradox can be lifted by using activities instead of concentrations. Moreover, some studies expressed the need to compute chemical rates using activities and showed that better results are obtained for non-ideal systems.\\
+\indent The net flux of oligomerization J$_{oligo}$ for the reduced parameterization is therefore computed with the following equations:
+\begin{equation}
+J_{oligo}=-\frac{dX_{a,monomer}}{dt}=k_{oligo} a_{a,monomer}-k_{reverse}a_{a,oligomer}
+\label{oligo_flux}
+\end{equation}
+with X$_{a,monomer}$ the molar fraction of compound a, a$_{a,monomer}$ the activity on a molar fraction basis of compound a and a$_{a,oligomer}$ the activity on a molar fraction basis of the oligomer formed from compound a.\\
+\indent The kinetic rate of oligomerization k$_{oligo}$ is computed as follows:
+\begin{equation}
+k_{oligo}=k^{max}_{oligo} a_{monomer} %^{m_{oligo}-1}
+\label{oligo_kin}
+\end{equation}
+with k$^{max}_{oligo}$ the maximum kinetic rate parameter for oligomerization, and a$_{monomer}$ the sum of monomer activities.\\
+\indent To calculate the reverse kinetic rate parameter, the computation is based on the equilibrium oligomerization constant K$^{eq}_{oligo}$. The equilibrium constant for oligomerization (due to esterification or a similar oligomerization mechanism) is computed with:
+\begin{equation}
+(K^{eq}_{oligo})^{m_{oligo}-1}=\frac{a_{a,oligomer}(a_{H_2O})^{m_{oligo}-1}}{a_{a,monomer}(a_{monomer})^{m_{oligo}-1}}
+\label{keq_oligo}
+\end{equation}
+with a$_{H_2O}$ the activity of water on a molar basis.\\
+At equilibrium, the rate of oligomerization is zero. Therefore,
+\begin{equation}
+\frac{k^{max}_{oligo}}{k_{reverse}} = \frac{a_{a,oligomer}/{m_{oligo}}}{a_{monomer}a_{a,monomer}} =\frac{(K^{eq}_{oligo})^{m_{oligo}-1}(a_{monomer})^{m_{oligo}-2}}{(a_{H_2O})^{m_{oligo}-1}}
+\label{oligo_eq}
+\end{equation}
+\cite{couvidat2018} estimated that k$^{max}_{oligo}$ = 2.2 $\times$ 10$^{-4}$ s$^{-1}$ and K$^{eq}_{oligo}$ = 2.94. For simplification purporses, m$_{oligo}
+$ is set to 2.
+
+
 
 
 \subsection{Output}
@@ -1044,7 +1112,19 @@ As already shown in the 3D studies of \cite{couvidat2012, kim2019}, and as shown
 	\caption{Time evolution of isoprene SOA in the particle phase.}
 \label{fig-platt-isop}
 \end{figure}
-      
+
+Oligomerization may also be taken into by using the bulk oligomerization parameterization. With this parameterization, isoprene SOA monomers will e slowly converted into oligomer species with a second order reversible reaction unfavored by humid conditions. By converting monomers into oligomers, this parameterization will affect the composition of SOA but also the amount of isoprene SOA that is formed as oligomerization may displace the equilibrium.
+
+The configuration file for the test case of exhaust emissions with added isoprene emissions and oligomerization (and activity coefficients computed with AIOMFAC) is {\it{namelist\_platt\_nh3\_isopa\_oligo.ssh}}.
+  
+The evolutions of the concentrations of isoprene SOA, monomers and oligomers in the particles as a function of time for these simulations may be seen in Figure~\ref{fig-platt-oligo}, which can be plotted runing the script {\it{platt\_oligo.py}}.
+\begin{figure}[H]
+        \begin{center}
+                \includegraphics[angle=0,width=0.45\textwidth]{../graph/figure_ref/platt-oligo.png}
+        \end{center}
+	\caption{Time evolution of isoprene SOA, monomers and oligomers in the particle phase.}
+\label{fig-platt-oligo}
+\end{figure}
 
 \subsection{Mixing state}
 The previous test cases relied on the internal mixing assumption (one aerosol
@@ -1144,7 +1224,7 @@ of the simulation (Figure~\ref{fig-cond-extb}).
 two compounds at initial time (left panel) and after 12 h of simulation (right panel).}
 \label{fig-cond-extb}
 \end{figure}
- 
+
 \subsection{Viscosity}
      
 The gas/particle mass transfer is strongly affected by particle viscosity. To
