@@ -2335,8 +2335,7 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 	    }
 	}
     }
-  
-  /*
+
   for (i=0;i<n;++i)      
     if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
       {
@@ -2366,16 +2365,24 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 		  surrogate[i].k1(b,ilayer,iphase,index)=max(surrogate[i].k1(b,ilayer,iphase,index),1.0/config.deltatmin*
 							     ((surrogate[i].Ag+min(sumknegative+sumkpositive,0.0)*config.deltatmin+surrogate[i].Ap_layer_init(b,ilayer,iphase))*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/
 							      (1.0+surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase))-surrogate[i].Ap_layer_init(b,ilayer,iphase)));
-		
+	      }
+      }
+
+  for (i=0;i<n;++i)      
+    if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+      {
+	for (b=0;b<config.nbins;b++)
+	  for (ilayer=0;ilayer<config.nlayer;ilayer++)
+	    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	      {		
 		//compute fluxes
-		surrogate[i].Jdn(b,ilayer,iphase,index)=0.0; 
+		surrogate[i].Jdn(b,ilayer,iphase,index)=0.0;
 		if (surrogate[i].k1(b,ilayer,iphase,index)<0.0 and
 		    surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
 		  surrogate[i].Jdn(b,ilayer,iphase,index)=surrogate[i].k1(b,ilayer,iphase,index)/
-								surrogate[i].Ap_layer_init(b,ilayer,iphase);
+		    surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	      }
       }
-  */
 }
 
 
