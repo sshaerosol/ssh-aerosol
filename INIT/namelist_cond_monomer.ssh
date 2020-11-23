@@ -99,7 +99,6 @@ with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
 soap_inorg=0,
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
-IMETHOD = 0,          !numerical method in SOAP, 0=ROS2 explicit method, 1=implicit method, 2=semi-dynamic implicit method
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 1.e-12,                     ! time under which equilibrium is assumed.

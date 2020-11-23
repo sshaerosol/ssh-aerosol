@@ -1005,6 +1005,7 @@ contains
     ICUT=0 !default in case no input of ICUT in namelist
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation
+    imethod=0 !ROS2 explicit method in SOAP
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
