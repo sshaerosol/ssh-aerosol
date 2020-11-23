@@ -71,9 +71,7 @@ The model is based on the merge of three state-of-the-art models:
 
 SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 \section*{Hardware and software requirement}
-SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Intel compiler should also work. If not, please report to  \url{ssh-aerosol-help@liste.enpc.fr}.
-Before the compilation, make sure the construction tool: SCONS has already been installed. 
-If not you can obtain it through the instruction of the site: \url{http://www.scons.org/wiki/SconsTutorial1}\\
+SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Intel compiler should also work. If not, please report to  \url{ssh-aerosol-help@liste.enpc.fr}.\\
 
 The following external libraries are required:
 \begin{itemize}
@@ -82,10 +80,20 @@ The following external libraries are required:
 \url{http://www.unidata.ucar.edu/downloads/netcdf/index.jsp}
 \item SWIG (\url{http://www.swig.org/index.php})
 \end{itemize}
-After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
-
 The random access memory (RAM) requirement for a 0D simulation is very small. 
 
+\subsection{Compilation with scons}
+
+Before the compilation, make sure the construction tool: SCONS has already been installed. 
+If not you can obtain it through the instruction of the site: \url{http://www.scons.org/wiki/SconsTutorial1}\\
+
+After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
+
+\subsection{Compilation with Makefile and fortran interface}
+
+An alternative method is to compile SSH-aerosol with Makefiles to use an interface with fortran programs. Compiling with Makefiles create librairy module that can be use to link SSH-aerosol to a fortran program.\\
+To compile with Makefiles, fill mymodules.sh to provide link to the different librairies necessary to launch SSH (like Blitz and SSH). Then launch the command ./make.sh that will create the SSH librairies.\\
+In the repertory example\_fortran, an example to call SSH-aerosol is provided in the the program launch.f90. A Makefile is provided to illustrate the compilation of launch.f90 with a Makefile. In this example, the launch\_ssh\_aerosolonly subroutine is called (only calculates the fortran of aerosol without the gas phase chemistry). Different exemple are provided depending the values of parameter itest in launch.f90.
 
 \section{Folder structure}
 %\addcontentsline{toc}{section}{Folder structure}
@@ -401,6 +409,11 @@ Particles can be made of dust (PMD), black carbon (PBC), sulfate (PSO4), nitrate
 
 
 \end{footnotesize}
+
+\subsection{Use of generic organic aerosol species}
+
+To add an organic aerosol species in SSH-aerosol, two different methods can be used. The first method consists on adding manually the species in the file src/include/SOAP/species.cxx file and to provided the different properties (saturation vapor pressure, henry's law constant, decomposition in functionnal group). However, this method is quite tedious, especially for a large number of species.\\
+An alternative method was therefore developped using ``Generic species''. Generic species are used by SSH-aerosol when a species is not found in SSH-aerosol (the name does not correspond to a H$^2$O species) but are present in the aerosol species file. If the different parameters are provided (smiles code, saturation vapor pressure, enthalpy of vaporization, molar mass, etc...) are provided SSH-aerosol will automatically create the species, do an automatic decomposition in UNIFAC functional groups, and evaluate the necessary properties (for example the Henry's law constant will be evaluated from the saturation vapor pressure and the activity coefficient at infinite dilution computed with UNIFAC).\\   
 
 
 \subsection{Emissions}
