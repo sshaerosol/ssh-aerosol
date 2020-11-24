@@ -78,7 +78,6 @@ Nmc = 2000                             ! Number of Monte Carlo points if reparti
 &physic_condensation
 with_cond = 0,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
-soap_inorg=0,
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 with_kelvin_effect = 0,                 ! 1 if kelvin effect is taken into account.
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
