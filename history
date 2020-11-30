@@ -2,6 +2,37 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
+# SSH-aerosol version 1.2 release (2020-11-30)
+
+## Model
+
+- Added generic organic aerosol species. A generic species can be used when a particular species, which needs to be modeled, is not found in SSH-aerosol. Using some provided information about the species (smiles code, saturation vapor pressure, enthalpy of vaporization, molar mass, etc...), SSH-aerosol will automatically create a new generic species during the computation. The generic species can be used to easily add a new organic species in SSH-aerosol. The smiles code will be used to automatically estimate the decomposition into UNIFAC functionnal groups. 
+- ICUT (to distinguish bulk equilibrium and dynamic approach) differentiated form inorganics and organics (see the variable ICUT_org).
+- Allow coagulation if aerosols are made of different layers.
+- Added the peroxyacetyl acid, PAN, peroxide groups for the computation of activity coefficients in SOAP
+- For organic compounds, added the possibility to store the aqueous and the organic concentrations separately (see  the variable i_hydrophilic).
+- Multiple changes regarding the computation of ICUT using the c/e time scale, the ETR solver efficiency, and the weighted QSSA methods.
+- Oligomerization of organics species can be taken into account (with a second-order reversible reaction unfavored by humid conditions) based on [Couvidat et al. (2018)](https://acp.copernicus.org/articles/18/15743/2018/).
+
+## Test case
+
+- New test case for oligomerization.
+- Improved CPU time for cases where dynamic condensation and coagulation are considered.
+
+## Interface 
+
+- Modified ModuleAPI for the implementation to Polair3d.
+- Modified and corrected fortran Interface for the implementation to any fortran programs.
+- Improved CPU time for coagulation.
+- Added the possibility to gain CPU time by computing surface equilibrium concentrations only once per time (for second order solver).
+- Added input file for meteorological data.
+
+## Fixed bugs
+
+- Fixed condensation rate for hydrophobic species.
+- Corrected bug for computation of wet diameter for mixing-state resolved particles with a cutoff diameter between dynamic and equilibrium sections.
+
+
 * Version 1.1 release (2020-05-03)
 
   + Model
