@@ -585,7 +585,7 @@ module SSHaerosolAPI
 
       ! Arguments
 
-      integer, intent(in) :: aero_num
+      integer(kind=c_int), intent(in) :: aero_num
       character(len = 1, kind = c_char), dimension(81), intent(out) :: c_string
 
       ! Local variables
@@ -1539,7 +1539,7 @@ module SSHaerosolAPI
 
       implicit none
 
-      integer, intent(out), dimension(N_size, 2) :: array
+      integer(kind=c_int), intent(out), dimension(N_size, 2) :: array
       
       array(:,:) = concentration_index(:,:)
 
@@ -1560,7 +1560,7 @@ module SSHaerosolAPI
 
       implicit none
 
-      integer, intent(out), dimension(N_aerosol_layers) :: array
+      integer(kind=c_int), intent(out), dimension(N_aerosol_layers) :: array
       
       array(:) = list_species(:)
 
