@@ -151,7 +151,64 @@ module SSHaerosolAPI
       ! Initialize distributions
       call ssh_init_distributions()
 
+      
     end subroutine ssh_api_init_distributions
+
+
+    subroutine ssh_api_get_aero_concentration_conv(array) &
+         bind(c, name='api_sshaerosol_get_aero_conv')
+
+      use iso_c_binding
+      use aInitialization, only : N_size, N_aerosol, &
+           N_aerosol_layers, concentration_mass, list_species
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_size, N_aerosol) :: array
+      integer :: b, s, jesp
+      
+      array = 0.d0
+
+      do b = 1, N_size
+         do s = 1, N_aerosol_layers
+            jesp = List_species(s)
+            array(b, jesp) = array(b, jesp) + &
+                 concentration_mass(b, s)
+         enddo
+      enddo
+    
+    end subroutine ssh_api_get_aero_concentration_conv
+
+
+    subroutine ssh_api_set_aero_concentration_layer(array) &
+         bind(c, name='api_sshaerosol_set_aero_conv')
+
+      use iso_c_binding
+      use aInitialization
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_size, N_aerosol) :: array
+      integer :: s, jesp, j, lay
+      
+      do j = 1, N_size
+         do s = 1, N_aerosol             ! s : index of species         
+            if (s .LE. N_nonorganics) then
+               concentration_mass(j, s) = array(j, s) 
+            else
+               do lay = 1, nlayer
+                  jesp = index_species(s, lay)
+                  concentration_mass(j, jesp) = array(j, s) * Vlayer(lay)
+               enddo
+               if(i_hydrophilic==1) then
+                  jesp = index_species(s, nlayer + i_hydrophilic)
+                  concentration_mass(j, jesp) = 0.d0 ! Initialise the aqueous phase to zero
+               endif
+            endif
+         end do
+      end do
+    
+    end subroutine ssh_api_set_aero_concentration_layer
 
     
 ! =============================================================
