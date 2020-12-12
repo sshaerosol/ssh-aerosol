@@ -25,6 +25,10 @@ if __name__ == '__main__':
 
         ssh_dir = './'
         os.chdir(ssh_dir)
+
+        # remove all result files.
+        os.system('rm -rf results')
+
         # get all file names in the folder INIT
         initfile = os.listdir(ssh_dir+ 'INIT/')
         for i in range(len(initfile)):
