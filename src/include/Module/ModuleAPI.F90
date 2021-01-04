@@ -390,6 +390,31 @@ module SSHaerosolAPI
 
     end function logger
 
+! =============================================================
+!
+! External code can get the flag to check if SSH-aerosol is running with gas-phase chemistry.
+!
+! return value : true if running with gas-phase chemistry
+! =============================================================
+
+    function get_tag_chem() bind(c, name='api_sshaerosol_get_tag_chem_')
+
+      use iso_c_binding
+      use aInitialization, only : tag_chem
+
+      implicit none
+
+      logical(kind=c_bool) :: get_tag_chem
+
+      if (tag_chem == 0) then
+         get_tag_chem = .false.
+      else
+         get_tag_chem = .true.
+      endif
+      
+    end function get_tag_chem
+
+! =============================================================    
 
 ! =============================================================
 !
