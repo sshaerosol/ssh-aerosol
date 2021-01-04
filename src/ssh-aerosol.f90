@@ -44,8 +44,10 @@ PROGRAM SSHaerosol
 
   call ssh_read_meteo()
   
-  call ssh_init_parameters()  
- 
+  call ssh_init_parameters()
+  
+  call ssh_init_coag()  
+
   call ssh_init_distributions()  
 
   call ssh_init_output_conc() 

@@ -100,7 +100,16 @@ contains
     ELSE
        section_pass=1
     ENDIF
+    
+    if (with_cond.EQ.1) then  ! for condensation
 
+       if(.not. allocated(quadratic_speed)) allocate(quadratic_speed(N_aerosol))    
+       quadratic_speed=0.D0
+       if(.not. allocated(diffusion_coef)) allocate(diffusion_coef(N_aerosol))
+       diffusion_coef=0.D0
+
+    end if
+    
     ! diameter !
     if(.not.allocated(size_diam_av)) allocate(size_diam_av(N_sizebin))
     size_diam_av = 0.0
@@ -112,6 +121,26 @@ contains
        if(size_diam_av(k) .lt. diam_bound(k)) size_diam_av(k) = diam_bound(k)
     end do
 
+    if(.not. allocated(density_aer_bin)) allocate(density_aer_bin(N_size))
+    density_aer_bin = 0.0
+    if(.not. allocated(density_aer_size)) allocate(density_aer_size(N_sizebin))
+    density_aer_size = 0.0
+    if(.not. allocated(rho_wet_cell)) allocate(rho_wet_cell(N_size))
+    rho_wet_cell = 0.0
+
+    if (with_fixed_density.eq.1) then
+       ! convert from kg/m3 to µg/µm3 or µg/m3
+       !rho1 = fixed_density * 1.0d-9    !µg/µm3     
+       !rho2 = fixed_density * 1.0d+9    !µg/m3	       
+       mass_density(EH2O)=fixed_density
+       density_aer_bin=fixed_density
+       density_aer_size=fixed_density
+       rho_wet_cell = fixed_density
+    endif
+    do k = 1, N_sizebin
+       size_mass_av(k) = (size_diam_av(k)**3)*fixed_density*cst_PI6
+    end do
+     
     ! relative_humidity
     if (relative_humidity .eq. 0) then
        call ssh_compute_relative_humidity(humidity, Temperature, &
@@ -197,10 +226,6 @@ contains
     if(.not.allocated(emission_num_rate)) allocate(emission_num_rate(N_size))       ! ModuleEmission
     emission_num_rate=0.d0
 
-    ! cell : for each grid cell
-    if(.not.allocated(cell_mass_av)) allocate(cell_mass_av(N_size))
-    cell_mass_av=0.d0
-
     if(.not.allocated(cell_mass)) allocate(cell_mass(N_size))
     cell_mass = 0.d0
 
@@ -266,8 +291,6 @@ contains
     Nubvaild=0
     rankk=0
     allocate(counter(N_groups-1))
-
-
 
     !calculate the maximum fraction combinations
     do i = 1, N_frac
@@ -340,8 +363,66 @@ contains
     deallocate(counter)
   end subroutine ssh_discretization
 
+  subroutine ssh_init_coag()
+    
+    integer:: tag_file,i
 
+    !------------------------------------------------------------------------
+    !
+    !     -- DESCRIPTION
+    !     This subroutine initializes coagulation coefficients.
+    !
+    !------------------------------------------------------------------------
+    !
+    !     -- INPUT VARIABLES
+    !
+    !------------------------------------------------------------------------   
 
+    
+    if (with_coag.eq.1) then !if coagulation
+       if(.not. allocated(kernel_coagulation)) allocate(kernel_coagulation(N_size,N_size))
+       kernel_coagulation = 0.d0
+
+       if (i_compute_repart == 0 .or. i_write_repart == 1) then
+          do i=1,len(trim(Coefficient_file))!judge the input files
+             if(Coefficient_file(i:i)==".")then
+                if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
+                   tag_file=1
+                elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
+                   tag_file=0
+                elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
+                   tag_file=2
+                else
+                   if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation."
+                   if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation."
+                   if (i_compute_repart == 0) i_compute_repart = 1
+                   if (i_write_repart == 1) i_write_repart = 0
+                endif
+             endif
+          enddo
+          if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
+          if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
+       endif
+
+       ! Subroutines are defined in ModuleCoefficientRepartition
+       if (i_compute_repart == 0) then
+          call ssh_ReadCoefficientRepartition(Coefficient_file, tag_file)
+       else if (i_compute_repart == 1) then
+          if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition()
+       else
+          if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
+          if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
+          stop
+       endif
+       if (i_write_repart == 1) call ssh_WriteCoefficientRepartition(Coefficient_file, tag_file)
+
+       ! Check the quality of coagulation repartition coefficients
+       call ssh_check_repart_coeff()
+
+    endif
+    
+  end subroutine ssh_init_coag
+  
   subroutine ssh_Init_distributions()
     !------------------------------------------------------------------------
     !
@@ -355,13 +436,9 @@ contains
     !
     !------------------------------------------------------------------------   
     IMPLICIT NONE
-    integer:: tag_file    
     integer :: j,k,s, i,j1,j2,Czero,f,n,jesp,g,lay
     double precision::mass_frac(N_sizebin),binx_mass(N_sizebin),binx_emis(N_sizebin)
-    double precision:: ttnumb,tmp
-    double precision::speciesfrac(N_aerosol,N_sizebin)
-    double precision::totalv,singlev,thdim,Wet_diam_used,emw_tmp,rhop_tmp
-
+    double precision::speciesfrac(N_aerosol,N_sizebin),tmp
 
     speciesfrac=1.d0  !adjust mass distribution for different species
     concentration_mass = 0.d0
@@ -565,150 +642,31 @@ contains
     ! done with initialising concentrations 
     ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
 
-    ! initialise density ! after concentration_mass
+    ! initialise density ! after concentration_mass and number concentrations if necessary
 
-    if(.not. allocated(density_aer_bin)) allocate(density_aer_bin(N_size))
-    density_aer_bin = 0.0
-    if(.not. allocated(density_aer_size)) allocate(density_aer_size(N_sizebin))
-    density_aer_size = 0.0
-    if(.not. allocated(rho_wet_cell)) allocate(rho_wet_cell(N_size))
-    rho_wet_cell = 0.0
+!    if (with_fixed_density.NE.1) then
+!       call ssh_compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
+!       if (ssh_standalone) write(*,*)"Density is auto-generated."
+!       if (ssh_logger) write(logfile,*)"Density is auto-generated."
+!    end if
 
-    if (with_fixed_density.eq.1) then
-       ! convert from kg/m3 to µg/µm3 or µg/m3
-       !rho1 = fixed_density * 1.0d-9    !µg/µm3     
-       !rho2 = fixed_density * 1.0d+9    !µg/m3	       
-       mass_density(EH2O)=fixed_density
-       density_aer_bin=fixed_density
-       density_aer_size=fixed_density
-       rho_wet_cell = fixed_density
-    else
-       call ssh_compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
-       if (ssh_standalone) write(*,*)"Density is auto-generated."
-       if (ssh_logger) write(logfile,*)"Density is auto-generated."
-    end if
-
-    if (with_init_num == 1) then
-       ! calculate diameter
-       do k = 1, N_sizebin
-          tmp = 0.0
-          do s =1, N_aerosol
-             tmp = tmp + init_bin_mass(k,s)
-          end do
-          if (init_bin_number(k) .ne. 0) then
-             size_mass_av(k) = tmp / init_bin_number(k)
-          else
-             size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
-          end if
-       end do
-    else 
-       ! calculate size_mass_av(n_sizebin)
-       do k = 1, N_sizebin
-          size_mass_av(k) = (size_diam_av(k)**3)*density_aer_size(k)*cst_PI6
-       end do
+    if (with_init_num.NE.1) then
+       if (with_fixed_density.NE.1) then
+         call ssh_compute_all_density() ! density_aer_bin(N_size)  density_aer_size(N_sizebin)
+         if (ssh_standalone) write(*,*)"Density is auto-generated."
+         if (ssh_logger) write(logfile,*)"Density is auto-generated."
+       end if
        ! need size_diam_av and conc._mass
        call ssh_compute_number()  ! only for initialisation
        if (ssh_standalone) write(*,*)"Initial PM number concentration is auto-generated."
        if (ssh_logger) write(logfile,*)"Initial PM number concentration is auto-generated."
     end if
+    call ssh_compute_average_diameter() ! Compute average_diame for 1st iteration output
 
-    call ssh_compute_average_diameter()
-
-    ! wet_diameter is initialized 
-    if(wet_diam_estimation.eq.0) then !with isorropia
-      ! Compute wet_mass using isorropia, only if it is updated in the computation of derivatives
-      call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-           concentration_inti,wet_mass,wet_diameter,wet_volume)
-    else
-      do j=1,N_size
-         concentration_mass(j,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
-      enddo
-      call ssh_update_wet_diameter_liquid(N_size,concentration_mass,concentration_number,&
-           wet_mass,wet_diameter,wet_volume,cell_diam_av)
-    endif
-
-    if (with_coag.eq.1) then !if coagulation
-       if(.not. allocated(kernel_coagulation)) allocate(kernel_coagulation(N_size,N_size))
-       kernel_coagulation = 0.d0
-
-       if (i_compute_repart == 0 .or. i_write_repart == 1) then
-          do i=1,len(trim(Coefficient_file))!judge the input files
-             if(Coefficient_file(i:i)==".")then
-                if(Coefficient_file(i+1:i+2)=="nc".or.Coefficient_file(i+1:i+2)=="NC") then
-                   tag_file=1
-                elseif (Coefficient_file(i+1:i+3)=="bin".or.Coefficient_file(i+1:i+3)=="BIN") then
-                   tag_file=0
-                elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
-                   tag_file=2
-                else
-                   if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation."
-                   if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation."
-                   if (i_compute_repart == 0) i_compute_repart = 1
-                   if (i_write_repart == 1) i_write_repart = 0
-                endif
-             endif
-          enddo
-          if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
-          if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
-       endif
-
-       ! Subroutines are defined in ModuleCoefficientRepartition
-       if (i_compute_repart == 0) then
-          call ssh_ReadCoefficientRepartition(Coefficient_file, tag_file)
-       else if (i_compute_repart == 1) then
-          if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition()
-       else
-          if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
-          if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
-          stop
-       endif
-       if (i_write_repart == 1) call ssh_WriteCoefficientRepartition(Coefficient_file, tag_file)
-
-       ! Check the quality of coagulation repartition coefficients
-       call ssh_check_repart_coeff() !! YK
-
-       call ssh_COMPUTE_AIR_FREE_MEAN_PATH(Temperature, Pressure, air_free_mean_path, viscosity)
-
-       call ssh_compute_average_diameter()  !!?
-
-       do j1 = 1, N_size
-          do j2 = 1, j1
-             call ssh_compute_bidisperse_coagulation_kernel(Temperature,air_free_mean_path,&
-                  wet_diameter(j1),wet_diameter(j2),&
-                  wet_mass(j1),wet_mass(j2), kernel_coagulation(j1,j2))
-             ! symmetric kernels
-             kernel_coagulation(j2,j1)=kernel_coagulation(j1,j2)
-          enddo
-       enddo
-    endif
-
-    if (with_cond.EQ.1) then  ! for condensation
-
-       if(.not. allocated(quadratic_speed)) allocate(quadratic_speed(N_aerosol))    
-       quadratic_speed=0.D0
-       if(.not. allocated(diffusion_coef)) allocate(diffusion_coef(N_aerosol))
-       diffusion_coef=0.D0
-
-       ! exist in ModuleAdapstep :
-       tmp = 0.d0
-       do i = 1, N_aerosol 
-          tmp= molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
-
-          if (aerosol_species_interact(i) .gt. 0) then    
-             ! gas diffusivity
-             call ssh_compute_gas_diffusivity(temperature, pressure, &
-                  molecular_diameter(i), tmp,collision_factor_aer(i), &
-                  diffusion_coef(i))  
-             ! quadratic mean velocity
-             call ssh_compute_quadratic_mean_velocity(temperature, tmp,quadratic_speed(i)) 
-          endif
-       end do
-    end if
 
     if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
     if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
   end subroutine ssh_Init_distributions
-
 
 end MODULE lDiscretization

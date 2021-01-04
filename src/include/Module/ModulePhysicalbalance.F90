@@ -33,7 +33,6 @@ contains
 
     do j= 1, N_size
        k=concentration_index(j, 1)!size bins
-       cell_mass_av(j)=size_mass_av(k)
        cell_diam_av(j)=size_diam_av(k)
        volum_cell=0.d0
        mass_total =0.d0
@@ -48,7 +47,6 @@ contains
 	 !endif
 	enddo
 	if (concentration_number(j).gt.0.d0) then
-          cell_mass_av(j) =dble(mass_total)/dble(concentration_number(j)) !mass of single particle
           av_volum_cl=dble(volum_cell)/dble(concentration_number(j))
 	  cell_diam_av(j)  = (6.d0*av_volum_cl/pi)**(1.D0/3.D0) ! µm
 	else

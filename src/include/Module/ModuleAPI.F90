@@ -129,11 +129,31 @@ module SSHaerosolAPI
       ! Initialize parameters
       call ssh_init_parameters()
 
-      ! Initialize distributions
-      call ssh_init_distributions()
+      ! Initialize coag coefficients
+      call ssh_api_init_coag()
 
     end subroutine ssh_api_initialize
 
+! =============================================================
+!
+! External code can force SSH-aerosol to:
+!   call ssh_init_distributions0D
+!
+! =============================================================
+
+    subroutine ssh_api_init_coag() bind(c, name='api_sshaerosol_init_coag_')
+
+      use iso_c_binding
+      use lDiscretization, only : ssh_init_coag
+
+      implicit none
+
+      ! Initialize distributions
+      call ssh_init_coag()
+
+    end subroutine ssh_api_init_coag
+
+    
 ! =============================================================
 !
 ! External code can force SSH-aerosol to:
@@ -249,53 +269,6 @@ module SSHaerosolAPI
         end if
         total_mass(s)=total_mass(s) + total_aero_mass(s) + concentration_gas(s)
       end do
-
-      density_aer_bin = 0.0
-      density_aer_size = 0.0
-      rho_wet_cell = 0.0
-      if (with_fixed_density.eq.1) then
-        ! convert from kg/m3 to µg/µm3 or µg/m3
-        !rho1 = fixed_density * 1.0d-9    !µg/µm3     
-        !rho2 = fixed_density * 1.0d+9    !µg/m3	       
-        mass_density(EH2O)=fixed_density
-        density_aer_bin=fixed_density
-        density_aer_size=fixed_density
-        rho_wet_cell = fixed_density
-      else
-        call ssh_compute_all_density()
-      end if
-
-      call ssh_compute_average_diameter()
-
-      if(wet_diam_estimation.eq.0) then !with isorropia
-      ! Compute wet_mass using isorropia, only if it is updated in the computation of derivatives
-        call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
-             concentration_inti,wet_mass,wet_diameter,wet_volume)
-      else
-        do i=1,N_size
-          concentration_mass(i,N_aerosol_layers) = 0.d0 ! Do not consider water initially if not updated in fgde
-        enddo
-        call ssh_update_wet_diameter_liquid(N_size,concentration_mass,concentration_number,&
-             wet_mass,wet_diameter,wet_volume,cell_diam_av)
-      endif
-
-      if (with_cond.eq.1) then
-        quadratic_speed=0.D0
-        diffusion_coef=0.D0
-
-        ! exist in ModuleAdapstep :
-        tmp = 0.d0
-        do i = 1, N_aerosol
-          tmp = molecular_weight_aer(i) * 1.D-6 ! g/mol    !!! change
-          if (aerosol_species_interact(i) .gt. 0) then
-            ! gas diffusivity
-            call ssh_compute_gas_diffusivity(temperature, pressure, molecular_diameter(i), tmp, &
-                                         collision_factor_aer(i), diffusion_coef(i))
-            ! quadratic mean velocity
-            call ssh_compute_quadratic_mean_velocity(temperature, tmp, quadratic_speed(i))
-          endif
-        end do
-      endif
 
     end subroutine ssh_api_reinitialize
 

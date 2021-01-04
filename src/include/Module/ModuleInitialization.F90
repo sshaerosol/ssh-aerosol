@@ -169,7 +169,6 @@ module aInitialization
   Double precision,dimension(:), allocatable, save :: size_mass_av	!MSF average mass of each size section
   !Double precision,dimension(:), allocatable :: size_log_av	!XSF
   Double precision,dimension(:), allocatable, save :: cell_diam_av	!DSF average diameter of each grid cell
-  Double precision,dimension(:), allocatable, save :: cell_mass_av	!MSF average mass of each grid cell
   Double precision,dimension(:), allocatable, save :: cell_log_av	!XSF
 
   DOUBLE PRECISION, dimension(:), allocatable, save :: concentration_gas_all
@@ -2508,7 +2507,6 @@ contains
     if (allocated(emission_rate))  deallocate(emission_rate, stat=ierr)
     if (allocated(emission_num_rate))  deallocate(emission_num_rate, stat=ierr)
 
-    if (allocated(cell_mass_av))  deallocate(cell_mass_av, stat=ierr)
     if (allocated(cell_mass))  deallocate(cell_mass, stat=ierr)
     if (allocated(cell_diam_av))  deallocate(cell_diam_av, stat=ierr)
 

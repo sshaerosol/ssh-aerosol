@@ -292,7 +292,8 @@ contains
        if(N_fracmax.gt.1 ) then !.and. redistribution_method.ne.0) then
           call ssh_redistribution_fraction()!fraction redistribution
        endif
-
+       
+       call ssh_compute_average_diameter() ! Update average_diame
        if (redistribution_method.ne.0) call ssh_redistribution_size(redistribution_method)!size redistribution
 
     endif
@@ -426,6 +427,8 @@ contains
                if(N_fracmax.gt.1) then
                     call ssh_redistribution_fraction()!fraction redistribution
                endif
+                 
+               call ssh_compute_average_diameter() ! Update average_diame
                if (redistribution_method.ne.0) call ssh_redistribution_size(redistribution_method)!size redistribution    
              endif     
        endif

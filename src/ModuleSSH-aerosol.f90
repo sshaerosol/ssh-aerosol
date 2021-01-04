@@ -54,7 +54,8 @@ contains
 
     call ssh_init_parameters()
 
-    call ssh_init_distributions()
+    call ssh_Init_coag()       
+  !  call ssh_init_distributions()
 
     naero=N_aerosol_layers
     nspecies=N_aerosol
@@ -340,8 +341,6 @@ contains
     Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
     call ssh_compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
     concentration_gas_all=0.d0
-    init_bin_mass=0.d0
-    init_mass=0.d0
 
     do js=1,N_aerosol       
        concentration_gas(js)=gas_conc(js)
@@ -357,22 +356,11 @@ contains
        enddo
     enddo
 
-    do s = 1, N_aerosol_layers
-       jesp = List_species(s)
-       do j=1,N_size
-          init_bin_mass(j,jesp) = init_bin_mass(j,jesp) + concentration_mass(j,s)
-          init_mass(jesp)=init_mass(jesp) + aero_conc(j,s)
-       enddo
-    enddo
     aero_total_mass=sum(aero_conc(:,1:N_aerosol_layers))
-    
-    do k=1,N_sizebin
-       init_bin_number(k)=number(k)
-    enddo
-   
+       
     call ssh_init_parameters()
-        
-    call ssh_init_distributions()
+    call ssh_Init_coag()       
+    !call ssh_init_distributions()
     !print*,"numb: ",sum(concentration_number_tmp)
 
 
