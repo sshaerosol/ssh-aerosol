@@ -174,6 +174,11 @@ module SSHaerosolAPI
       
     end subroutine ssh_api_init_distributions
 
+! =============================================================
+!
+! External code can get converted aerosol mass concentration
+!
+! =============================================================
 
     subroutine ssh_api_get_aero_concentration_conv(array) &
          bind(c, name='api_sshaerosol_get_aero_conv')
@@ -192,23 +197,29 @@ module SSHaerosolAPI
       do b = 1, N_size
          do s = 1, N_aerosol_layers
             jesp = List_species(s)
-            array(b, jesp) = array(b, jesp) + &
-                 concentration_mass(b, s)
+            array(b, jesp) = array(b, jesp) + concentration_mass(b, s)
          enddo
       enddo
     
     end subroutine ssh_api_get_aero_concentration_conv
 
+! =============================================================
+!
+! External code can set aerosol converted mass concentration
+!
+! =============================================================
 
     subroutine ssh_api_set_aero_concentration_layer(array) &
          bind(c, name='api_sshaerosol_set_aero_conv')
 
       use iso_c_binding
-      use aInitialization
+      use aInitialization, only : N_size, N_aerosol, N_nonorganics, nlayer, &
+                                  concentration_mass, index_species, vlayer, &
+                                  i_hydrophilic
 
       implicit none
 
-      real(kind=c_double), intent(out), dimension(N_size, N_aerosol) :: array
+      real(kind=c_double), intent(in), dimension(N_size, N_aerosol) :: array
       integer :: s, jesp, j, lay
       
       do j = 1, N_size
