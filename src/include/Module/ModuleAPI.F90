@@ -106,8 +106,6 @@ module SSHaerosolAPI
       integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       character(len=size_namelist_file) :: namelist_file
-      logical(kind=c_bool), parameter :: ok=.true.
-      logical(kind=c_bool), parameter :: nope=.false.
       
       ! N_gas = 93; N_reaction = 206; N_photolysis = 24 
       call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
@@ -117,9 +115,6 @@ module SSHaerosolAPI
                                namelist_file)
       call ssh_read_namelist(namelist_file)
 
-      call ssh_set_standalone(nope)
-      call ssh_api_set_logger(ok)
-      
       ! Read inputs
       call ssh_read_inputs()
 
