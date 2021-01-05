@@ -40,6 +40,7 @@ module SSHaerosolAPI
       call ssh_set_standalone(nope)
       call ssh_api_set_logger(ok)
       call ssh_api_initialize(input_namelist_file)
+      call ssh_api_init_distributions()
       ngas = api_get_ngas()
       n_aerosol_layers = api_get_n_aerosol_layers()
       nsize = api_get_nsize()
