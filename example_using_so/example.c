@@ -206,6 +206,17 @@ void main(int argc, char** argv)
       api_sshaerosol_initialize(&namelist_ssh);
     }
 
+    // Finish initialization
+    {
+      typedef void (*api_sshaerosol_t)();
+      api_sshaerosol_t fct =
+        (api_sshaerosol_t) _get_dl_function_pointer(handle,
+                                                    lib_path,
+                                                   "api_sshaerosol_init_distributions",
+                                                    true);
+      fct();
+    }
+
     // Get the number of gas species
     {
       typedef int (*api_get_sshaerosol_t)();
