@@ -1,6 +1,6 @@
 //
 // How to compile and run this:
-// ./compile && LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_exemple
+// ./compile && LD_LIBRARY_PATH=../src/:$LD_LIBRARY_PATH ./c_example
 //
 // Note:
 //   - In this exemple, all the prototypes of the functions are
@@ -224,7 +224,7 @@ void main(int argc, char** argv)
       api_get_sshaerosol_t fct =
         (api_get_sshaerosol_t) _get_dl_function_pointer(handle,
                                                        lib_path,
-                                                      "api_sshaerosol_get_nlayer",
+                                                      "api_sshaerosol_get_n_aerosol_layers",
                                                        true);
       nlayer = fct();
       printf("N_aerosol_layers : %d\n", nlayer);
