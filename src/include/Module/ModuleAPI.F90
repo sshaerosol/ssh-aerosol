@@ -421,6 +421,31 @@ module SSHaerosolAPI
       
     end function get_tag_chem
 
+! =============================================================
+!
+! External code can get the flag to check the mixing state in SSH-aerosol.
+!
+! return value : true if running with external mixing
+! =============================================================
+
+    function get_tag_external() bind(c, name='api_sshaerosol_get_tag_external_')
+
+      use iso_c_binding
+      use aInitialization, only : tag_external
+
+      implicit none
+
+      logical(kind=c_bool) :: get_tag_external
+
+      if (tag_external == 0) then
+         get_tag_external = .false.
+      else
+         get_tag_external = .true.
+      endif
+      
+    end function get_tag_external
+
+    
 ! =============================================================    
 
 ! =============================================================
@@ -506,6 +531,26 @@ module SSHaerosolAPI
 
     end function api_get_nlayer    
 
+! =============================================================
+!
+! External code can get i_hydrophilic
+!
+! return value : i_hydrophilic
+! =============================================================
+
+    function api_get_i_hydrophilic() bind(c, name='api_sshaerosol_get_i_hydrophilic_')
+
+      use iso_c_binding
+      use aInitialization, only : i_hydrophilic
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_i_hydrophilic
+      
+      api_get_i_hydrophilic = i_hydrophilic
+
+    end function api_get_i_hydrophilic    
+    
     
 ! =============================================================
 !
@@ -607,6 +652,27 @@ module SSHaerosolAPI
       api_get_nesp_aec = nesp_aec
 
     end function api_get_nesp_aec
+
+! =============================================================
+!
+! External code can get the number of inert aerosols species
+!
+! return value : number of inert aerosols species
+! =============================================================
+
+    function api_get_n_inert() bind(c, name='api_sshaerosol_get_n_inert_')
+
+      use iso_c_binding
+      use aInitialization, only : n_inert
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_n_inert
+      
+      api_get_n_inert = n_inert
+
+    end function api_get_n_inert
+
 
     
 ! =============================================================
@@ -1089,7 +1155,7 @@ module SSHaerosolAPI
       real(kind=c_double), intent(in), dimension(N_gas) :: array
 
       concentration_gas_all(:) = array(:)
-
+      
     end subroutine ssh_api_set_gas_concentration
 
 ! =============================================================
@@ -1169,7 +1235,7 @@ module SSHaerosolAPI
       real(kind=c_double), intent(in), dimension(N_size, N_aerosol_layers) :: array
 
       concentration_mass(:,:) = array(:,:)
-
+      
     end subroutine ssh_api_set_aero_concentration
 
 ! =============================================================
@@ -1189,7 +1255,7 @@ module SSHaerosolAPI
       real(kind=c_double), intent(out), dimension(N_size, N_aerosol_layers) :: array
 
       array(:,:) = concentration_mass(:,:)
-
+      
     end subroutine ssh_api_get_aero_concentration
 
 ! =============================================================
@@ -1335,6 +1401,27 @@ module SSHaerosolAPI
 
     end function api_get_fixed_density
 
+
+! =============================================================
+!
+! External code can get 
+!
+! output : array of mass_density_layers in 
+! =============================================================
+
+    subroutine ssh_api_get_mass_density_layers(array) bind(c, name='api_sshaerosol_get_mass_density_layers')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol_layers, mass_density_layers
+
+      implicit none
+
+      real(kind=c_double), intent(out), dimension(N_aerosol_layers) :: array
+      
+      array(:) = mass_density_layers(:)
+
+    end subroutine ssh_api_get_mass_density_layers
+
     
     
 ! =============================================================
@@ -1416,7 +1503,7 @@ module SSHaerosolAPI
         end if
         total_mass(s) = total_mass(s) + concentration_gas(s) + total_aero_mass(s)
       end do
-
+     
       ! Aerosol dynamic
       CALL SSH_AERODYN(current_time_api,delta_t)
 
@@ -1665,6 +1752,66 @@ module SSHaerosolAPI
       
     end subroutine ssh_api_call_ssh_compute_number
 
+
+! =============================================================
+!
+! External code can get index_groups
+!
+! output : array of index_groups
+! =============================================================
+
+    subroutine ssh_api_get_index_groups(array) bind(c, name='api_sshaerosol_get_index_groups_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol, index_groups
+
+      implicit none
+
+      integer(kind=c_int), intent(out), dimension(N_aerosol) :: array
+      
+      array(:) = index_groups(:)
+
+    end subroutine ssh_api_get_index_groups
+
+! =============================================================
+!
+! External code can get the number of composition: n_fracmax
+!
+! return value : n_fracmax
+! =============================================================
+
+    function api_get_ncomposition() bind(c, name='api_sshaerosol_get_ncomposition_')
+
+      use iso_c_binding
+      use aInitialization, only : n_fracmax
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_ncomposition
+      
+      api_get_ncomposition = n_fracmax
+
+    end function api_get_ncomposition    
+
+! =============================================================
+!
+! External code can get the number of aerosol groups
+!
+! return value : n_groups
+! =============================================================
+
+    function api_get_n_groups() bind(c, name='api_sshaerosol_get_n_groups_')
+
+      use iso_c_binding
+      use aInitialization, only : n_groups
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_n_groups
+      
+      api_get_n_groups = n_groups
+
+    end function api_get_n_groups        
 
     
 end module SSHaerosolAPI
