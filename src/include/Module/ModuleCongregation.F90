@@ -67,7 +67,7 @@ contains
                                       wet_mass,wet_diam,wet_vol,cell_diam)
     if(((wet_diam_estimation.eq.0).AND.(tag_cond.eq.0)).OR. &
             ((splitting.eq.0).AND.(tag_coag.eq.1))) then !with isorropia
-        call ssh_compute_wet_mass_diameter(1,N_size,concentration_mass,concentration_number,&
+        call ssh_compute_wet_mass_diameter(1,N_size,c_mass,c_number,&
                                    concentration_inti,wet_mass,wet_diam,wet_vol)
     endif
     call ssh_mass_conservation(c_mass,c_number,c_gas,total_mass)
