@@ -69,6 +69,7 @@ class Utils:
 
         self.scons_dir = self.create_variable("scons_dir", self.polyphemus_path)
 
+        # Comment when spack is turned off.
         #=== Custom scons extensions.
         self.spack = Spack(self)
 
@@ -599,6 +600,7 @@ to highly recommended debugging and optimization options.
             src_dependencies += glob.glob(os.path.join(path, "*.[fFcC]"))
             src_dependencies += glob.glob(os.path.join(path, "*.f90"))
             src_dependencies += glob.glob(os.path.join(path, "*.F90"))
+            # Comment when spack is turned off.
             src_dependencies += self.spack.dependency(path, exclude_dependency,
                                                       build_dir) # YK
 
