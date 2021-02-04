@@ -77,11 +77,11 @@ contains
              endif
              
              ! Interpolation ratio
-             if (t_meteo(j + 1) == t_meteo(j)) then
+             if (t_meteo(ind_t + 1) == t_meteo(ind_t)) then
                 write(*,*) "Error: same times for meteo data.", &
-                     t_meteo(j + 1), t_meteo(j)
+                     t_meteo(ind_t + 1), t_meteo(ind_t)
              endif
-             ratio = (ctime - t_meteo(j)) / (t_meteo(j + 1) - t_meteo(j))
+             ratio = (ctime - t_meteo(ind_t)) / (t_meteo(ind_t + 1) - t_meteo(ind_t))
              temperature_array(i) = ratio * temperature_in(ind_t + 1) + &
                   (1 - ratio) * temperature_in(ind_t)
              pressure_array(i) = ratio * pressure_in(ind_t + 1) + &
