@@ -523,7 +523,9 @@ contains
     do s=1, nesp_eq
       jesp=eq_species(s)!index of the species in the N_aerosol list
       jespmass = index_species(jesp,1) !index of the species in the N_aerosol_layer list
-      jespmass2 = index_species(jesp,2) !index of the species in the N_aerosol_layer list
+      if(i_hydrophilic_tmp == 1) then
+         jespmass2 = index_species(jesp,2) !index of the species in the N_aerosol_layer list
+      endif
       if (aerosol_species_interact(jesp).GT.0) then
        if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
