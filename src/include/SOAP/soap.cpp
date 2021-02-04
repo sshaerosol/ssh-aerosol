@@ -528,16 +528,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 			    }
 			}
 		    }
-		  else
-		    if(i_hydrophilic == 1)
-		      {
-			for (b = 0; b < config.nbins; ++b)
-			  {
-			    for(ilayer =0; ilayer < config.nlayer;ilayer++)
-			      surrogate[i].Ap_layer_init(b,ilayer,0) += config.Vlayer(ilayer)*q[iq_aero + config.nlayer*config.nbins+ b ];
-			    surrogate[i].Ap+=q[iq_aero + config.nlayer*config.nbins + b ];
-			  }
-		      }
 
                   for(ilayer =0; ilayer < config.nlayer;ilayer++)
                     for (b = 0; b < config.nbins; ++b)
@@ -584,23 +574,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		  surrogate[i].Ag = qgas[iq]; //*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;           
 		  //cout << "in: " << surrogate[i].name << " " << surrogate[i].Ag << endl;
 		}
-	      /*
-		else if (surrogate[i].is_organic==false and i!=config.iHSO4m)
-		{
-		int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
-		for (b = 0; b < config.nbins; ++b)
-		{
-		surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]; 
-		if (surrogate[i].name=="SO4")
-		surrogate[i].Aaq_bins_init(b) *= surrogate[i].MM/surrogate[config.iH2SO4].MM;
-		else if (surrogate[i].name=="NO3")
-		surrogate[i].Aaq_bins_init(b) *= surrogate[i].MM/surrogate[config.iHNO3].MM;
-		else if (surrogate[i].name=="NH4")
-		surrogate[i].Aaq_bins_init(b) *= surrogate[i].MM/surrogate[config.iNH3].MM;
-		else if (surrogate[i].name=="Cl")
-		surrogate[i].Aaq_bins_init(b) *= surrogate[i].MM/surrogate[config.iHCl].MM;
-		}
-		}*/
 
             }
           else // liquid ions
@@ -763,41 +736,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		{
 		  int iq_gas = (ns_aer_layers + 1) * config.nbins + surrogate[i].soap_ind;
 		  q[iq_gas]=surrogate[i].Ag;   
-		  //cout << "out: " << surrogate[i].name << " " << surrogate[i].Ag << endl;
-		  //if (i==config.iNH3)
-		  //  cout << "totout :" << surrogate[config.iNH3].Ag+surrogate[config.iNH4p].Aaq_bins_init(0)/surrogate[config.iNH4p].MM*surrogate[i].MM << endl;
 		}
-
-
 	      
-	      /*
-		if (surrogate[i].is_ion)
-		if (i!=config.iHSO4m) 
-		{
-		int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins;
-		iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
-		for (b = 0; b < config.nbins; ++b)
-		q_aero[iq_aero + b]=surrogate[i].Aaq_bins(b);
-		if (i==config.iSO4mm)
-		for (b = 0; b < config.nbins; ++b)
-		{
-		q_aero[iq_aero + b]*=surrogate[config.iH2SO4].MM/surrogate[config.iSO4mm].MM;
-		q_aero[iq_aero + b]+=surrogate[config.iHSO4m].Aaq_bins(b)/surrogate[config.iHSO4m].MM*surrogate[config.iH2SO4].MM;
-		}
-		else if (i==config.iNH4p)
-		for (b = 0; b < config.nbins; ++b)
-		q_aero[iq_aero + b]*=surrogate[config.iNH3].MM/surrogate[i].MM;
-		else if (i==config.iNO3m)
-		for (b = 0; b < config.nbins; ++b)
-		q_aero[iq_aero + b]*=surrogate[config.iHNO3].MM/surrogate[i].MM;
-		else if (i==config.iClm)
-		for (b = 0; b < config.nbins; ++b)
-		q_aero[iq_aero + b]*=surrogate[config.iHCl].MM/surrogate[i].MM;
-		      
-		cout << "out: " << surrogate[i].name << " " << q[iq_aero] << " " << iq_aero << " " << q[iq_aero+1] << " " << iq_aero+1 << endl;
-		    
-		}*/
-	    	  
 	      for (b = 0; b < config.nbins; ++b)
 		{
 		  int ind;
@@ -809,7 +749,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		      int iq_aero = (ind + 1) * config.nbins;                                   
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iH2SO4].MM/surrogate[config.iSO4mm].MM+
 			surrogate[config.iHSO4m].Aaq_bins_init(b)*surrogate[config.iH2SO4].MM/surrogate[config.iHSO4m].MM;
-		      //cout << "out: " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init << endl;
 		    }
 		  else if (surrogate[i].name == "NO3")
 		    {
@@ -834,9 +773,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	  
 	}        
 
-      //cout << surrogate[config.iH2O].Aaq_bins_init << endl;
-      //cout << surrogate[config.iH2O].Ap_layer_init << endl;
-      //Cou << "chp: " << chp_bins << " " << surrogate[config.iNO3m].Aaq_bins_init << endl;
       for (b = 0; b < config.nbins; ++b)
         {
 	  DSD[b] = config.diameters(b);
