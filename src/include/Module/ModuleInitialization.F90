@@ -59,6 +59,7 @@ module aInitialization
   integer, save :: kind_composition  ! 1 for auto discretization and 0 for manual discretization
 
   integer, save :: tag_chem
+  integer, save :: tag_twostep ! 1 for use the two-step time numerical solver to solve chemistry 
   integer, save :: option_photolysis, day0_photolysis ! current day in photolysis files
   double precision, save :: time_update_photolysis
   integer, save :: with_heterogeneous  !Tag of heterogeneous reaction 
@@ -396,7 +397,8 @@ contains
          photolysis_dir, photolysis_file, &
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
-         n_altitude, altitude_photolysis_input
+         n_altitude, altitude_photolysis_input, & 
+         tag_twostep
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -721,6 +723,8 @@ contains
     delta_latitude = -999.d0
     n_altitude = -999
     altitude_photolysis_input = -999.d0
+    tag_twostep = 0
+
     read(10, nml = physic_gas_chemistry, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_gas_chemistry data can not be read."

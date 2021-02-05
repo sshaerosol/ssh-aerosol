@@ -75,7 +75,8 @@ rm -f $output_file
 $script_dir/spack_generator spack_config ${SPECIES}_preprocessed $REACT
 
 # Those unused files don't even compile:
-rm -f fexloss.f90 fexprod.f90
+# use in two-step time numerical solver
+# rm -f fexloss.f90 fexprod.f90
 
 # Replaces strings "E+" by "D+" and "E-" by "D-" in the output to get double precision.
 sed -i 's/E\([+-]\)/D\1/g' *.f90

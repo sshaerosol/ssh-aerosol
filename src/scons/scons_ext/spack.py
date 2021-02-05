@@ -71,9 +71,13 @@ class Spack:
         spack_env = self.utils.create_env()
 
         spack_fortran_output = []
+
         for filename in ["dimensions.f90", "dratedc.f90", "fexchem.f90",
                          "jacdchemdc.f90", "kinetic.f90", "rates.f90",
-                         "LU_decompose.f90", "LU_solve.f90", "LU_solve_tr.f90"]:
+                         "LU_decompose.f90", "LU_solve.f90", "LU_solve_tr.f90",
+                         # use in two-step time numerical solver
+                         "fexloss.f90", "fexprod.f90"]:
+
             fortran_file = os.path.join(path, filename)
             spack_fortran_output.append(fortran_file)
 

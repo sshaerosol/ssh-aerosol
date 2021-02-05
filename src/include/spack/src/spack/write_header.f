@@ -535,7 +535,7 @@ C     Routine fexloss.f90
       write(nwrite,701) function_suffix
  701  format('subroutine ssh_fexloss',a,'( &')
       write(nwrite,7011)
- 7011 format(4x,'NS,dw,loss)')
+ 7011 format(4x,'NR,NS,dw,loss)')
       write(nwrite,300)
       write(nwrite,200)
       write(nwrite,150)
@@ -618,7 +618,7 @@ C     Routine fexprod.f90
       write(nwrite,801) function_suffix
  801  format('subroutine ssh_fexprod',a,'( &')
       write(nwrite,8011)
- 8011 format(4x,'NS,w,prod)')
+ 8011 format(4x,'NR,NS,w,prod)')
       write(nwrite,300)
       write(nwrite,200)
       write(nwrite,150)
