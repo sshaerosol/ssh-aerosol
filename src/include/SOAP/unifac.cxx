@@ -30,27 +30,32 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
       for (i=0;i<nmols;i++)
         Xmol(i)/=xtot;
   
-      static Array <double, 1> theta,phi;
-      static Array <double, 1> surface_fraction;
-      static Array <double, 1> group_activity;
-      static Array <double, 1> sum2;    
-      if (int(phi.size())!=nmols)
+      static Array <double, 1> theta_org,phi_org;
+      static Array <double, 1> surface_fraction_org;
+      static Array <double, 1> group_activity_org;
+      static Array <double, 1> sum2_org;    
+      if (int(phi_org.size())!=nmols)
         {
-          theta.resize(nmols);
-          phi.resize(nmols);
-          surface_fraction.resize(nfunc);
-          group_activity.resize(nfunc);
-          sum2.resize(nfunc);
+          theta_org.resize(nmols);
+          phi_org.resize(nmols);
         }
-      surface_fraction=0.0; 
+
+      if (int(surface_fraction_org.size())!=nfunc)
+        {
+          surface_fraction_org.resize(nfunc);
+          group_activity_org.resize(nfunc);
+          sum2_org.resize(nfunc);
+        }
+      
+      surface_fraction_org=0.0; 
       double Lmean=0.0;
       double sumtheta=0.0;
       double sumphi=0.0;
       for (i=0;i<nmols;i++)
         {
-          theta(i)=Xmol(i)*Qparam(i);
+          theta_org(i)=Xmol(i)*Qparam(i);
           sumtheta+=Xmol(i)*Qparam(i);
-          phi(i)=Xmol(i)*Rparam(i);
+          phi_org(i)=Xmol(i)*Rparam(i);
           sumphi+=Xmol(i)*Rparam(i);
           Lmean+=Xmol(i)*Lparam(i);
         }
@@ -59,9 +64,9 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
       //Computation of residual gamma
       for (i=0;i<nmols;i++)
         {
-          theta(i)/=sumtheta;
-          phi(i)/=sumphi;           
-          gamma(i)=log(phi(i)/Xmol(i))+Z/2*Qparam(i)*log(theta(i)/phi(i))+Lparam(i)-phi(i)/Xmol(i)*Lmean; 
+          theta_org(i)/=sumtheta;
+          phi_org(i)/=sumphi;           
+          gamma(i)=log(phi_org(i)/Xmol(i))+Z/2*Qparam(i)*log(theta_org(i)/phi_org(i))+Lparam(i)-phi_org(i)/Xmol(i)*Lmean; 
         }      
       
       //Compute surface fraction  
@@ -69,28 +74,28 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
       for (i=0;i<nmols;i++)
         {          
           for (j=0;j<nfunc;j++)
-            if (groups(j,i)>0.0)
+           if (groups(j,i)>0.0)
               {
-                surface_fraction(j)+=QG(j)*Xmol(i)*groups(j,i);                           
+                surface_fraction_org(j)+=QG(j)*Xmol(i)*groups(j,i);                           
                 sum_surf+=QG(j)*Xmol(i)*groups(j,i);                 
               }
         }
     
       for (j=0;j<nfunc;j++)      
-        surface_fraction(j)/=sum_surf;
+        surface_fraction_org(j)/=sum_surf;
      
       for (j=0;j<nfunc;j++)
         {
-          sum2(j)=0.0;
+          sum2_org(j)=0.0;
           for (k=0;k<nfunc;k++)
-            sum2(j)+=surface_fraction(k)*Inter2(k,j);
+            sum2_org(j)+=surface_fraction_org(k)*Inter2(k,j);
         }
 
       for (j=0;j<nfunc;j++)
         {
-          group_activity(j)=1.0-log(sum2(j));                             
+          group_activity_org(j)=1.0-log(sum2_org(j));                             
           for (k=0;k<nfunc;k++)            
-            group_activity(j)-=surface_fraction(k)*Inter2(j,k)/sum2(k);           
+            group_activity_org(j)-=surface_fraction_org(k)*Inter2(j,k)/sum2_org(k);           
         }
       
       for (i=0;i<nmols;i++)
@@ -98,7 +103,7 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
           double sum1=0.0;         
           for (j=0;j<nfunc;j++)
             if (groups(j,i)>0.0)
-              sum1+=groups(j,i)*QG(j)*(group_activity(j)-group_activity_mol(j,i));                	      
+              sum1+=groups(j,i)*QG(j)*(group_activity_org(j)-group_activity_mol(j,i));                	      
 	  
           gamma(i)+=sum1;	  
         }
@@ -159,11 +164,19 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
         {
           theta.resize(nmols);
           phi.resize(nmols);
-          theta_ions.resize(nions);
-          phi_ions.resize(nions);
+        }
+
+      if (int(theta_ions.size())!=nions)
+        {
+           theta_ions.resize(nions);
+           phi_ions.resize(nions);
+           surface_fraction_ions.resize(nions);
+        }
           //Array <double, 2> surface_fraction_mol;
+
+      if (int(surface_fraction.size())!=nfunc)
+        {
           surface_fraction.resize(nfunc);
-          surface_fraction_ions.resize(nions);
           group_activity.resize(nfunc);
           sum2.resize(nfunc);
         }
