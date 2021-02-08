@@ -540,9 +540,9 @@ contains
 	         temp_mass=c_mass(j,jespmass)+dq(jesp)*frac(j,jesp)
                  if(i_hydrophilic_tmp == 1) then
 	            temp_mass_aq=c_mass(j,jespmass2)+dqaq(jesp)*frac(j,jesp)
+                    if(temp_mass_aq.lt.0.d0) iclipaq=1!case of over evaporation
                  endif
 	         if(temp_mass.lt.0.d0) iclip=1!case of over evaporation
-	         if(temp_mass_aq.lt.0.d0) iclipaq=1!case of over evaporation
               endif
             endif
          enddo
