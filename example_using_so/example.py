@@ -31,6 +31,7 @@ libssh.api_sshaerosol_get_gas_.restype=None
 libssh.api_sshaerosol_get_aero_.restype=None
 libssh.api_sshaerosol_get_aero_num_.restype=None
 libssh.api_sshaerosol_get_aero_name_.restype=None
+libssh.api_sshaerosol_set_gas_.restype=None
 libssh.api_sshaerosol_initoutput_.restype=None
 libssh.api_sshaerosol_report_.restype=None
 libssh.api_sshaerosol_output_.restype=None
@@ -69,10 +70,6 @@ print("Number of gas species, aerosols and aerosols layers : " + str(ngas) + " "
 #
 # Read the initial time and the time step
 #
-libssh.api_sshaerosol_get_initial_t_.restype=ct.c_double
-libssh.api_sshaerosol_get_dt_.restype=ct.c_double
-libssh.api_sshaerosol_get_current_t_.restype=ct.c_double
-#
 t_init = libssh.api_sshaerosol_get_initial_t_()
 dt = libssh.api_sshaerosol_get_dt_()
 
@@ -104,6 +101,14 @@ cname = ct.create_string_buffer(81)
 libssh.api_sshaerosol_get_aero_name_(ct.byref(ct.c_int(3)),cname)
 #print("Name of aerosol number 3 : " + str(cname.value.decode()))
 
+#
+# Modify the gas concentration
+#
+if True:
+    cgas[3] = 8.
+    libssh.api_sshaerosol_set_gas_(cgas)
+    libssh.api_sshaerosol_get_gas_(cgas)
+    #print("New gas concentration : " + str(cgas[:]))
 
 #
 # Call ssh-aerosol built-in reporting
