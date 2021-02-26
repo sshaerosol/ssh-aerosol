@@ -15,7 +15,7 @@ import multiprocessing
 
 def multiprocessing_func(k):
         if k[-4:] == '.ssh':
-	        print "Run: namelist file : " + k
+	        print("Run: namelist file : " + k)
                 # run simulations
 	        os.system('time ssh-aerosol INIT/' + k )
 
@@ -41,9 +41,9 @@ if __name__ == '__main__':
 
         print('That took {} seconds'.format(time.time() - starttime))
 
-        print '! ! All simulations are done, '
+        print('! ! All simulations are done, ')
 
-        print '! Run all postprocessing python scripts in graph folder: '
+        print('! Run all postprocessing python scripts in graph folder: ')
 
         # record the number of python scripts
         num = 0
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         for k in graphfile :
 	        if k[-3:] == '.py':
 	                num = num + 1
-	                print "Run "+str(num) + ", python script : " + k
+	                print("Run "+str(num) + ", python script : " + k)
                         # run python script
 	                os.system('python ' + k)
-        print '! ! All processing file are done, ','number of .py files : ',num
+        print('! ! All processing file are done, ' + 'number of .py files : ' + str(num))
