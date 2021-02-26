@@ -32,79 +32,79 @@ inorg=np.zeros(shape)
 isop=np.zeros(shape)
 
 with open (dir2+'/PPOAlP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   poa1[j] = float(string_conc1[j])
+                  poa1[j] = float(string_conc1[j])
 
 with open (dir2+'/PPOAmP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   poa2[j] = float(string_conc1[j])
+                  poa2[j] = float(string_conc1[j])
 
 with open (dir2+'/PPOAhP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   poa3[j] = float(string_conc1[j])
+                  poa3[j] = float(string_conc1[j])
 
 with open (dir2+'/PSOAlP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa1[j] = float(string_conc1[j])
+                  soa1[j] = float(string_conc1[j])
 
 with open (dir2+'/PSOAmP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa2[j] = float(string_conc1[j])
+                  soa2[j] = float(string_conc1[j])
 
 with open (dir2+'/PSOAhP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa3[j] = float(string_conc1[j])
+                  soa3[j] = float(string_conc1[j])
 
 with open (dir2+'/PAnClP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa4[j] = float(string_conc1[j])
+                  soa4[j] = float(string_conc1[j])
 
 with open (dir2+'/PAnBlP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa5[j] = float(string_conc1[j])
+                  soa5[j] = float(string_conc1[j])
 
 with open (dir2+'/PAnBmP_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   soa6[j] = float(string_conc1[j])
+                  soa6[j] = float(string_conc1[j])
 
 with open (dir2+'/PNO3_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   inorg[j] = float(string_conc1[j])
+                  inorg[j] = float(string_conc1[j])
 
 with open (dir2+'/PNH4_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   inorg[j] = inorg[j] + float(string_conc1[j])
+                  inorg[j] = inorg[j] + float(string_conc1[j])
 
 with open (dir2+'/PSO4_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   inorg[j] = inorg[j] + float(string_conc1[j])
+                  inorg[j] = inorg[j] + float(string_conc1[j])
 
 with open (dir2+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop[j] = isop[j] + float(string_conc1[j])
+                  isop[j] = isop[j] + float(string_conc1[j])
 
 with open (dir2+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop[j] = isop[j] + float(string_conc1[j])
+                  isop[j] = isop[j] + float(string_conc1[j])
 
 with open (dir2+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop[j] = isop[j] + float(string_conc1[j])
+                  isop[j] = isop[j] + float(string_conc1[j])
 
 ppoa = poa1 + poa2 + poa3
 totsoa = poa1 + poa2 + poa3 + soa1 + soa2 + soa3 + soa4 + soa5 + soa6 + inorg + isop

@@ -40,16 +40,16 @@ for i in range(nt):
 #### 
 fig = plt.figure(1,figsize = (15,15))
 with open (pcase_dyn+'/gas/NH3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_nh3_dyn[i] = float(values[i])
 with open (pcase_eq+'/gas/NH3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_nh3_eq[i] = float(values[i])
 with open (pcase_icut+'/gas/NH3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_nh3_icut[i] = float(values[i])
 plt.plot(ssh_time, conc_nh3_dyn, label = 'SSH dyn')
 plt.plot(ssh_time, conc_nh3_eq, linestyle='-.',label = 'SSH eq')
@@ -58,21 +58,21 @@ plt.plot(ssh_time, conc_nh3_icut, linestyle='--',label = 'SSH hyb')
 plt.xlabel(r'time (s)')
 plt.title( 'NH$_3$ time evolution')
 plt.ylabel(r'Concentration ($\mu$g m$^{-3}$)')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 fig.savefig('NH3_COND-EVAP_'+tag_fig)
 
 fig.clf()
 with open (pcase_dyn+'/gas/HNO3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_hno3_dyn[i] = float(values[i])
 with open (pcase_eq+'/gas/HNO3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_hno3_eq[i] = float(values[i])
 with open (pcase_icut+'/gas/HNO3.txt') as finit :
-	values = finit.read().splitlines()
-	for i in range(nt):
+        values = finit.read().splitlines()
+        for i in range(nt):
            conc_hno3_icut[i] = float(values[i])
 plt.plot(ssh_time, conc_hno3_dyn, label = 'SSH dyn')
 plt.plot(ssh_time, conc_hno3_eq, linestyle='-.',label = 'SSH eq')
@@ -81,6 +81,6 @@ plt.plot(ssh_time, conc_hno3_icut, linestyle = '--',label = 'SSH hyb')
 plt.xlabel(r'time (s)')
 plt.title( 'HNO$_3$ time evolution')
 plt.ylabel(r'Concentration ($\mu$g m$^{-3}$)')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 plt.tight_layout()
 fig.savefig('HNO3_COND-EVAP_'+tag_fig)

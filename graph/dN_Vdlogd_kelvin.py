@@ -51,20 +51,20 @@ sizebin = 50
 tmp1 = -1
 tmp2 = -1
 with open ('cond_ref/number.init') as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 for i in range(len(values)) :
-	if i <= (sizebin + 2) : continue # sizebound + title + star line
-	tmp2 = values[i].split('   ', -1)[0]
-	if tmp1 == tmp2 : continue
-	else :
-		diam.append(tmp2.replace('D','E'))
-		tmp1 = tmp2
+        if i <= (sizebin + 2) : continue # sizebound + title + star line
+        tmp2 = values[i].split('   ', -1)[0]
+        if tmp1 == tmp2 : continue
+        else :
+                diam.append(tmp2.replace('D','E'))
+                tmp1 = tmp2
 diam.append(10.)
 diam_mean=[]
 #### diameter
 for j in range(len(diam)-1) :
         diam_mean.append((float(diam[j])*float(diam[j+1]))**0.5)
-	deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
+        deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
 
 ############################## extract results from Zhang ###########################################
 
@@ -158,29 +158,29 @@ deltalogd_out_sml = np.zeros((len(cases),sizebin_ssh))
 deltalogd_init_sml = np.zeros((len(cases),sizebin_ssh))
 
 for i in cases :
-	for j in range(sizebin_ssh) :
-		with open (pcase[cases.index(i)]+'/number/NUMBER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		num_init_sml[cases.index(i)][j] = float(values[0])
-		num_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase[cases.index(i)]+'/aero/PPOAmP_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] = float(values[0])
-		mass_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase[cases.index(i)]+'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		cell_diam_init_sml[cases.index(i)][j] = float(values[0])
-		cell_diam_out_sml[cases.index(i)][j] = float(values[-1])
+        for j in range(sizebin_ssh) :
+                with open (pcase[cases.index(i)]+'/number/NUMBER_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                num_init_sml[cases.index(i)][j] = float(values[0])
+                num_out_sml[cases.index(i)][j] = float(values[-1])
+                with open (pcase[cases.index(i)]+'/aero/PPOAmP_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                mass_init_sml[cases.index(i)][j] = float(values[0])
+                mass_out_sml[cases.index(i)][j] = float(values[-1])
+                with open (pcase[cases.index(i)]+'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                cell_diam_init_sml[cases.index(i)][j] = float(values[0])
+                cell_diam_out_sml[cases.index(i)][j] = float(values[-1])
 
-	for j in range(sizebin_ssh-1):
-	    deltalogd_init_sml[cases.index(i)][j] = math.log10(float(cell_diam_init_sml[cases.index(i)][j+1]))-math.log10(float(cell_diam_init_sml[cases.index(i)][j]))
-	j = sizebin_ssh-1
-	deltalogd_init_sml[cases.index(i)][j] = math.log10(float(cell_diam_init_sml[cases.index(i)][j]))-math.log10(float(cell_diam_init_sml[cases.index(i)][j-1]))
+        for j in range(sizebin_ssh-1):
+            deltalogd_init_sml[cases.index(i)][j] = math.log10(float(cell_diam_init_sml[cases.index(i)][j+1]))-math.log10(float(cell_diam_init_sml[cases.index(i)][j]))
+        j = sizebin_ssh-1
+        deltalogd_init_sml[cases.index(i)][j] = math.log10(float(cell_diam_init_sml[cases.index(i)][j]))-math.log10(float(cell_diam_init_sml[cases.index(i)][j-1]))
 
-	for j in range(sizebin_ssh-1):
-	    deltalogd_out_sml[cases.index(i)][j] = abs(math.log10(float(cell_diam_out_sml[cases.index(i)][j+1]))-math.log10(float(cell_diam_out_sml[cases.index(i)][j])))
-	j = sizebin_ssh-1
-	deltalogd_out_sml[cases.index(i)][j] =  abs(math.log10(float(cell_diam_out_sml[cases.index(i)][j]))-math.log10(float(cell_diam_out_sml[cases.index(i)][j-1])))
+        for j in range(sizebin_ssh-1):
+            deltalogd_out_sml[cases.index(i)][j] = abs(math.log10(float(cell_diam_out_sml[cases.index(i)][j+1]))-math.log10(float(cell_diam_out_sml[cases.index(i)][j])))
+        j = sizebin_ssh-1
+        deltalogd_out_sml[cases.index(i)][j] =  abs(math.log10(float(cell_diam_out_sml[cases.index(i)][j]))-math.log10(float(cell_diam_out_sml[cases.index(i)][j-1])))
 
 ############################### drawing Particle Number Distribution#################
 lists = []
@@ -204,34 +204,34 @@ num = len(deltalogd)
 for i in range(len(lists)) :
    if(i!=1):
      if(i < 1) or (iredist==1):
-	tmp = np.zeros(num)
-	for j in range(num) :
-		tmp[j]= float(lists[i][j]) / deltalogd[j]
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
-		else:
-			tmp[j] = tmp[j] * 1E-6 #in cm-3
+        tmp = np.zeros(num)
+        for j in range(num) :
+                tmp[j]= float(lists[i][j]) / deltalogd[j]
+                if (tmp[j] < 0.01) : tmp[j] = 0.0
+                else:
+                        tmp[j] = tmp[j] * 1E-6 #in cm-3
         tmp = np.array(tmp)
         masked = ma.masked_where(tmp == 0.0, tmp)
-	plt.plot(diam_mean, masked, cols[i],label = lbs[i])                 
+        plt.plot(diam_mean, masked, cols[i],label = lbs[i])                 
      else:
-	tmp = np.zeros(num)
-	diam_tmp = np.zeros(num)
-	for j in range(num) :
+        tmp = np.zeros(num)
+        diam_tmp = np.zeros(num)
+        for j in range(num) :
                 diam_tmp[j]  =float(lists_diam[i][j])
                 if(diam_tmp[j] < 0.001):
-			diam_tmp[j]  = 0.001
+                        diam_tmp[j]  = 0.001
                         tmp[j] = 0.0
-		tmp[j]= float(lists[i][j]) / float(lists_logdiam[i][j])
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
-		else:
-			tmp[j] = tmp[j] * 1E-6 #in cm-3
-	plt.plot(diam_tmp, tmp, cols[i],label = lbs[i])
+                tmp[j]= float(lists[i][j]) / float(lists_logdiam[i][j])
+                if (tmp[j] < 0.01) : tmp[j] = 0.0
+                else:
+                        tmp[j] = tmp[j] * 1E-6 #in cm-3
+        plt.plot(diam_tmp, tmp, cols[i],label = lbs[i])
 
 num = len(dist_nb)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j]= float(dist_nb[j])# / dt_exa_diam_out[j]
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j]= float(dist_nb[j])# / dt_exa_diam_out[j]
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 
 tmp = np.array(tmp)
 masked = ma.masked_where(tmp == 0.0, tmp)
@@ -240,8 +240,8 @@ plt.plot(points, masked,'-',label = 'Devilliers_init')
 num = len(full_nb)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j]= float(full_nb[j])# / dt_exa_diam_out[j]
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j]= float(full_nb[j])# / dt_exa_diam_out[j]
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 tmp = np.array(tmp)
 masked = ma.masked_where(tmp == 0.0, tmp)
 plt.plot(full_diam, masked,'-',label = 'Devilliers_out')
@@ -249,8 +249,8 @@ plt.plot(full_diam, masked,'-',label = 'Devilliers_out')
 num = len(nfin_e_h)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j]= float(nfin_e_h[j])# / dt_exa_diam_out[j]
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j]= float(nfin_e_h[j])# / dt_exa_diam_out[j]
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 tmp = np.array(tmp)
 masked = ma.masked_where(tmp == 0.0, tmp)
 plt.plot(dinit, masked,'*',label = 'Devilliers_48bin_out')
@@ -260,7 +260,7 @@ plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_KELVIN')
 
@@ -274,48 +274,48 @@ num = len(deltalogd)
 for i in range(len(lists)) :
    if(i!=1):
      if(i < 1) or (iredist==1):
-	tmp = np.zeros(num)
-	for j in range(num) :
-		tmp[j]= float(lists2[i][j]) / deltalogd[j]/density  
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
-	plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+        tmp = np.zeros(num)
+        for j in range(num) :
+                tmp[j]= float(lists2[i][j]) / deltalogd[j]/density  
+                if (tmp[j] < 0.01) : tmp[j] = 0.0
+        plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
      else:
-	tmp = np.zeros(num)
-	diam_tmp = np.zeros(num)
-	for j in range(num) :
+        tmp = np.zeros(num)
+        diam_tmp = np.zeros(num)
+        for j in range(num) :
                 diam_tmp[j]  =float(lists_diam[i][j])
                 if(diam_tmp[j] < 0.001):
-			diam_tmp[j]  = 0.001
+                        diam_tmp[j]  = 0.001
                         tmp[j] = 0.0
-		tmp[j]= float(lists2[i][j])  / float(lists_logdiam[i][j])/density  
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
-	plt.plot(diam_tmp, tmp, cols[i],label = lbs[i])
+                tmp[j]= float(lists2[i][j])  / float(lists_logdiam[i][j])/density  
+                if (tmp[j] < 0.01) : tmp[j] = 0.0
+        plt.plot(diam_tmp, tmp, cols[i],label = lbs[i])
 
 num = len(dist_nb)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j] = float(dist_vol[j])
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j] = float(dist_vol[j])
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 plt.plot(points, tmp,'-',label = 'Devilliers_init')
 
 num = len(full_nb)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j]= float(full_vol[j])# / dt_exa_diam_out[j]
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j]= float(full_vol[j])# / dt_exa_diam_out[j]
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 plt.plot(full_diam, tmp,'-',label = 'Devilliers_out')
 
 num = len(vfin_e_h)
 tmp = np.zeros(num)
 for j in range(num) :
-	tmp[j]= float(vfin_e_h[j])# / dt_exa_diam_out[j]
-	if(tmp[j] < 0.01) : tmp[j] = 0.0
+        tmp[j]= float(vfin_e_h[j])# / dt_exa_diam_out[j]
+        if(tmp[j] < 0.01) : tmp[j] = 0.0
 plt.plot(dinit, tmp,'*',label = 'Devilliers_48bin_out')
 
 plt.xlabel(r'd ($\mu$m)')
 plt.xscale('log')
 plt.ylabel(r'dV/d log d ($\mu$m$^3$ cm$^{-3}$)')
 plt.title( 'Particle Volume Distribution')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_KELVIN')

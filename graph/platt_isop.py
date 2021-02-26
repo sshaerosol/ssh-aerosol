@@ -29,56 +29,56 @@ isop3=np.zeros(shape)
 isop4=np.zeros(shape)
 
 with open (dir1+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 
 with open (dir2+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 
 with open (dir3+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop3[j] = isop3[j] + float(string_conc1[j])
+                  isop3[j] = isop3[j] + float(string_conc1[j])
 with open (dir3+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop3[j] = isop3[j] + float(string_conc1[j])
+                  isop3[j] = isop3[j] + float(string_conc1[j])
 with open (dir3+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop3[j] = isop3[j] + float(string_conc1[j])
+                  isop3[j] = isop3[j] + float(string_conc1[j])
 
 with open (dir4+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop4[j] = isop4[j] + float(string_conc1[j])
+                  isop4[j] = isop4[j] + float(string_conc1[j])
 with open (dir4+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop4[j] = isop4[j] + float(string_conc1[j])
+                  isop4[j] = isop4[j] + float(string_conc1[j])
 with open (dir4+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop4[j] = isop4[j] + float(string_conc1[j])
+                  isop4[j] = isop4[j] + float(string_conc1[j])
 
 time=range(60,60*(Nt+1),60)
 time=numpy.array(time)

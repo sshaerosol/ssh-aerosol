@@ -37,14 +37,14 @@ diam = []
 tmp1 = -1
 tmp2 = -1
 with open ('cond_ref/number.init') as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 for i in range(len(values)) :
-	if i <= (sizebin + 2) : continue # sizebound + title + star line
-	tmp2 = values[i].split('   ', -1)[0]
-	if tmp1 == tmp2 : continue
-	else :
-		diam.append(tmp2.replace('D','E'))
-		tmp1 = tmp2
+        if i <= (sizebin + 2) : continue # sizebound + title + star line
+        tmp2 = values[i].split('   ', -1)[0]
+        if tmp1 == tmp2 : continue
+        else :
+                diam.append(tmp2.replace('D','E'))
+                tmp1 = tmp2
 diam.append(10.0)
 diam_bounds = np.zeros(sizebin_ssh+1)
 #### diameter
@@ -55,15 +55,15 @@ num_init = np.zeros((N_fraction,sizebin_ssh))
 num_out = np.zeros((N_fraction,sizebin_ssh))
 for j in range(sizebin_ssh) :
           for k in range(N_fraction):
-        	with open (pcase+'/aero/PSO4_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
-	  	     values = finit.read().splitlines()
-	  	num_init[k][j] += float(values[0])
-	  	num_out[k][j] += float(values[-1])
-        	with open (pcase+'/aero/PMonomer_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
-	  	     values = finit.read().splitlines()
-	  	num_init[k][j] += float(values[0])
-	  	num_out[k][j] += float(values[-1])
-print  num_out[0][49], num_init[9][49]
+                with open (pcase+'/aero/PSO4_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+                     values = finit.read().splitlines()
+                num_init[k][j] += float(values[0])
+                num_out[k][j] += float(values[-1])
+                with open (pcase+'/aero/PMonomer_' + str(j*N_fraction+(k)+1) + '.txt') as finit :
+                     values = finit.read().splitlines()
+                num_init[k][j] += float(values[0])
+                num_out[k][j] += float(values[-1])
+print (num_out[0][49], num_init[9][49])
 
 #jetcmap = cm.get_cmap("jet", 500) #generate a jet map with 10 values
 #jet_vals = jetcmap(np.arange(500)) #extract those values as an array

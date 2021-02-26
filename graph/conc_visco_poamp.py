@@ -41,74 +41,74 @@ matplotlib.rc('font', **font)
 matplotlib.pyplot.xticks(fontsize=14)
 
 with open (namefic2+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic2+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco2.append(float(values[i]))
         t.append(t0)
         t0=t0+deltat*1./3600
 
 with open (namefic3+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic3+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco3.append(float(values[i]))
         
 with open (namefic4+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic4+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco4.append(float(values[i]))
         
 with open (namefic5+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic5+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco5.append(float(values[i]))
 
 with open (namefic6+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic6+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco6.append(float(values[i]))
 
 with open (namefic7+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic7+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco7.append(float(values[i]))
 
 with open (namefic8+species1) as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open (namefic8+species2) as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 for i in range(len(values)) :
-	tmp = values[i].split('   ', -1)[0]        
-	tmp2 = values2[i].split('   ', -1)[0]      
+        tmp = values[i].split('   ', -1)[0]        
+        tmp2 = values2[i].split('   ', -1)[0]      
         values[i] = float(values[i]) + float(values2[i])  
         visco8.append(float(values[i]))
 
@@ -123,7 +123,7 @@ semilogx(t,visco8,'k',label='10$^{-24}$') #m$^2$ s$^{-1}$')
 title("Kp $\simeq$ 0.01")
 xlabel('Time (s)')
 ylabel('Organic concentrations ($\mu$g m$^{-3}$)')
-legend(loc ='best')	
+legend(loc ='best')        
 savefig("visco_poamp.png")
 
 

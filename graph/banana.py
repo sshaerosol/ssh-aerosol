@@ -24,13 +24,13 @@ cell_diam = np.zeros(sizebin_ssh)
 temps = arange(time_ssh)
 
 for j in range(sizebin_ssh) :
-	with open (pcase+'/number/NUMBER_' + str(j+1) + '.txt') as finit :
-		values = finit.read().splitlines()
+        with open (pcase+'/number/NUMBER_' + str(j+1) + '.txt') as finit :
+                values = finit.read().splitlines()
         for i in range(time_ssh):
-  	   number[j][i] = float(values[i])
-	with open (pcase+'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
-		values = finit.read().splitlines()
-  	cell_diam[j] = float(values[0])
+             number[j][i] = float(values[i])
+        with open (pcase+'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
+                values = finit.read().splitlines()
+        cell_diam[j] = float(values[0])
 
 # on repasse en echelle log pour les sections alors
 # a*log(section1)+b=1 et a*log(sectionN)+b=N
@@ -44,31 +44,31 @@ tmp2 = -1
 deltalogd=[]
 diam=[]
 with open ('cond_ref/number.init') as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 for i in range(len(values)) :
-	if i <= (sizebin_ssh + 2) : continue # sizebound + title + star line
-	tmp2 = values[i].split('   ', -1)[0]
-	if tmp1 == tmp2 : continue
-	else :
-	     diam.append(tmp2.replace('D','E'))
-	     tmp1 = tmp2
+        if i <= (sizebin_ssh + 2) : continue # sizebound + title + star line
+        tmp2 = values[i].split('   ', -1)[0]
+        if tmp1 == tmp2 : continue
+        else :
+             diam.append(tmp2.replace('D','E'))
+             tmp1 = tmp2
 diam.append(10.)
 #### diameter
 for j in range(len(diam)-1) :
-	deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
+        deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
 
 maxnumber = 0.0
 for j in range(sizebin_ssh):
    for i in range(time_ssh):
-#  	   number[j][i] = number[j][i]/deltalogd[j]
+#             number[j][i] = number[j][i]/deltalogd[j]
            if(number[j][i] < 1e3):
-		number[j][i] = 1e3
+                number[j][i] = 1e3
            if(number[j][i] > maxnumber):
                 maxnumber = number[j][i] 
-print number.min(),maxnumber,'minmaxnumber'
+print (number.min(),maxnumber,'minmaxnumber')
       
 maxnumber = 6.e12      
-print number.min(),maxnumber,'minmaxnumber'
+print (number.min(),maxnumber,'minmaxnumber')
 
 font = {'size'   : 16}
 matplotlib.rc('font', **font)

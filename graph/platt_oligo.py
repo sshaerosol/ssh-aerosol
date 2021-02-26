@@ -26,82 +26,82 @@ isop2=np.zeros(shape)
 oligo2=np.zeros(shape)
 
 with open (dir1+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiNIT3_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiMGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
 with open (dir1+'/PBiNGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop1[j] = isop1[j] + float(string_conc1[j])
+                  isop1[j] = isop1[j] + float(string_conc1[j])
               
                       
 
 with open (dir2+'/PBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiNIT3_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiMGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 with open (dir2+'/PBiNGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   isop2[j] = isop2[j] + float(string_conc1[j])
+                  isop2[j] = isop2[j] + float(string_conc1[j])
 
            
 with open (dir2+'/POligoBiPER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 with open (dir2+'/POligoBiDER_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 with open (dir2+'/POligoBiMT_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 with open (dir2+'/POligoBiNIT3_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 with open (dir2+'/POligoBiMGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 with open (dir2+'/POligoBiNGA_1.txt') as finit :
-	string_conc1 = finit.read().splitlines()
+        string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
-       	   oligo2[j] = oligo2[j] + float(string_conc1[j])
+                  oligo2[j] = oligo2[j] + float(string_conc1[j])
 
 time=range(60,60*(Nt+1),60)
 time=numpy.array(time)

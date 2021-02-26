@@ -47,30 +47,30 @@ sizebin = 50
 tmp1 = -1
 tmp2 = -1
 with open ('cond_ref/number.init') as f1 :
-	values = f1.read().splitlines()
+        values = f1.read().splitlines()
 with open ('cond_ref/number.out') as f2 :
-	values2 = f2.read().splitlines()
+        values2 = f2.read().splitlines()
 with open ('cond_ref/comp.init') as ff1 :
-	values3 = ff1.read().splitlines()
+        values3 = ff1.read().splitlines()
 with open ('cond_ref/comp.out') as ff2 :
-	values4 = ff2.read().splitlines()
+        values4 = ff2.read().splitlines()
 for i in range(len(values)) :
-	if i <= (sizebin + 2) : continue # sizebound + title + star line
-	tmp2 = values[i].split('   ', -1)[0]
-	if tmp1 == tmp2 : continue
-	else :
-		num_org_init.append('%.16E'%(float(values[i].split('   ', -1)[1].replace('D','E'))*1e6)) #in # m-3
-		num_org_out.append('%.16E'%(float(values2[i].split('   ', -1)[1].replace('D','E'))*1e6)) #in # m-3
-		mass_org_init.append('%.16E'%(float(values3[i].split('   ', -1)[2].replace('D','E')))) # in ug m-3
-		mass_org_out.append('%.16E'%(float(values4[i].split('   ', -1)[2].replace('D','E')))) # in ug m-3
-		diam.append(tmp2.replace('D','E'))
-		tmp1 = tmp2
+        if i <= (sizebin + 2) : continue # sizebound + title + star line
+        tmp2 = values[i].split('   ', -1)[0]
+        if tmp1 == tmp2 : continue
+        else :
+                num_org_init.append('%.16E'%(float(values[i].split('   ', -1)[1].replace('D','E'))*1e6)) #in # m-3
+                num_org_out.append('%.16E'%(float(values2[i].split('   ', -1)[1].replace('D','E'))*1e6)) #in # m-3
+                mass_org_init.append('%.16E'%(float(values3[i].split('   ', -1)[2].replace('D','E')))) # in ug m-3
+                mass_org_out.append('%.16E'%(float(values4[i].split('   ', -1)[2].replace('D','E')))) # in ug m-3
+                diam.append(tmp2.replace('D','E'))
+                tmp1 = tmp2
 diam.append(10.)
 diam_mean=[]
 #### diameter
 for j in range(len(diam)-1) :
         diam_mean.append((float(diam[j])*float(diam[j+1]))**0.5)
-	deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
+        deltalogd.append(math.log10(float(diam[j+1]))-math.log10(float(diam[j])))
 
 ############################## extract results from simulation
 #### 
@@ -86,23 +86,23 @@ cell_diam_init_sml = np.zeros(sizebin_ssh)
 cell_diam_out_sml = np.zeros(sizebin_ssh)
 
 for i in cases :
-	for j in range(sizebin_ssh) :
-		with open (pcase[cases.index(i)] +'/number/NUMBER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		num_init_sml[cases.index(i)][j] = float(values[0])
-		num_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase[cases.index(i)] +'/aero/PSO4_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] = float(values[0])
-		mass_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase[cases.index(i)] +'/aero/PNH4_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		mass_init_sml[cases.index(i)][j] = float(values[0])
-		mass_out_sml[cases.index(i)][j] = float(values[-1])
-		with open (pcase[cases.index(i)] +'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
-			values = finit.read().splitlines()
-		cell_diam_init_sml[j] = float(values[0])
-		cell_diam_out_sml[j] = float(values[-1])
+        for j in range(sizebin_ssh) :
+                with open (pcase[cases.index(i)] +'/number/NUMBER_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                num_init_sml[cases.index(i)][j] = float(values[0])
+                num_out_sml[cases.index(i)][j] = float(values[-1])
+                with open (pcase[cases.index(i)] +'/aero/PSO4_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                mass_init_sml[cases.index(i)][j] = float(values[0])
+                mass_out_sml[cases.index(i)][j] = float(values[-1])
+                with open (pcase[cases.index(i)] +'/aero/PNH4_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                mass_init_sml[cases.index(i)][j] = float(values[0])
+                mass_out_sml[cases.index(i)][j] = float(values[-1])
+                with open (pcase[cases.index(i)] +'/diameter/DIAMETER_' + str(j+1) + '.txt') as finit :
+                        values = finit.read().splitlines()
+                cell_diam_init_sml[j] = float(values[0])
+                cell_diam_out_sml[j] = float(values[-1])
 
 ############################### drawing Particle Number Distribution
 lists = [num_org_init, num_org_out]
@@ -120,29 +120,29 @@ fig = plt.figure(1,figsize = (15,15))
 num = len(deltalogd)
 for i in range(len(lists)) :
      if(i < 3) or (iredist==1):
-	tmp = np.zeros(num)
-	for j in range(num) :
-		tmp[j]= float(lists[i][j]) / deltalogd[j]* 1E-6 #in cm-3
-		if (tmp[j] < 0.00001) : tmp[j] = 0.0
-	if(i>=2):
+        tmp = np.zeros(num)
+        for j in range(num) :
+                tmp[j]= float(lists[i][j]) / deltalogd[j]* 1E-6 #in cm-3
+                if (tmp[j] < 0.00001) : tmp[j] = 0.0
+        if(i>=2):
             tmp = np.array(tmp)
             masked = ma.masked_where(tmp == 0.0, tmp)
-	    plt.plot(diam_mean, masked, cols[i],label = lbs[i])
+            plt.plot(diam_mean, masked, cols[i],label = lbs[i])
      else:
-	tmp = np.zeros(num)
-	for j in range(num) :
+        tmp = np.zeros(num)
+        for j in range(num) :
                 dd = 1.
                 if ((j < num-1) and float(cell_diam_out_sml[j]) > 0.001):
                    dd = math.log10(float(cell_diam_out_sml[j+1]))-math.log10(float(cell_diam_out_sml[j]))
                 if (j == num-1):
                    dd = math.log10(float(cell_diam_out_sml[j]))-math.log10(float(cell_diam_out_sml[j-1]))
-		if(dd <=0.0):
+                if(dd <=0.0):
                   dd = 1.
-		tmp[j]= float(lists[i][j]) / dd* 1E-6 #in cm-3
-		if (tmp[j] < 0.00001) : tmp[j] = 0.0
+                tmp[j]= float(lists[i][j]) / dd* 1E-6 #in cm-3
+                if (tmp[j] < 0.00001) : tmp[j] = 0.0
         tmp = np.array(tmp)
         masked = ma.masked_where(tmp == 0.0, tmp)
-	plt.plot(cell_diam_out_sml, masked, cols[i],label = lbs[i])
+        plt.plot(cell_diam_out_sml, masked, cols[i],label = lbs[i])
 
 
 plt.xlabel(r'd($\mu$m)')
@@ -150,7 +150,7 @@ plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution') # - case NUCL')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_'+tag_fig)
 
@@ -168,37 +168,37 @@ plt.clf()
 num = len(deltalogd)
 for i in range(len(lists2)) :
      if(i < 3) or (iredist==1):
-	tmp = np.zeros(num)
+        tmp = np.zeros(num)
         for j in range(num) :
-		tmp[j]= float(lists2[i][j])/deltalogd[j]/density
-		if(tmp[j] < 0.01) : tmp[j] = 0.0
-		else:
-			tmp[j] = tmp[j] * 1E-6 #in cm-3
-	if(i>=2):
-	   plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
+                tmp[j]= float(lists2[i][j])/deltalogd[j]/density
+                if(tmp[j] < 0.01) : tmp[j] = 0.0
+                else:
+                        tmp[j] = tmp[j] * 1E-6 #in cm-3
+        if(i>=2):
+           plt.plot(diam_mean, tmp, cols[i],label = lbs[i])
 
      else:
-	tmp = np.zeros(num)
-	for j in range(num) :
+        tmp = np.zeros(num)
+        for j in range(num) :
                 dd = 1.
                 if ((j < num-1) and float(cell_diam_out_sml[j]) > 0.001):
                    dd = math.log10(float(cell_diam_out_sml[j+1]))-math.log10(float(cell_diam_out_sml[j]))
                 if (j == num-1):
                    dd = math.log10(float(cell_diam_out_sml[j]))-math.log10(float(cell_diam_out_sml[j-1]))
-		if(dd <=0.0):
+                if(dd <=0.0):
                   dd = 1.
-		tmp[j]= float(lists2[i][j]) / dd /density
-		if (tmp[j] < 0.01) : tmp[j] = 0.0
-		else:
-			tmp[j] = tmp[j] * 1E-6 #in cm-3
-	plt.plot(cell_diam_out_sml, tmp, cols[i],label = lbs[i])
+                tmp[j]= float(lists2[i][j]) / dd /density
+                if (tmp[j] < 0.01) : tmp[j] = 0.0
+                else:
+                        tmp[j] = tmp[j] * 1E-6 #in cm-3
+        plt.plot(cell_diam_out_sml, tmp, cols[i],label = lbs[i])
 
 plt.xlabel(r'd($\mu$m)')
 plt.ylabel(r'dV/d log d (cm$^{-3}$)')
 plt.xscale('log')
 #plt.yscale('log')
 plt.title( 'Particle Volume Distribution')# - case NUCL')
-plt.legend(loc ='best')		# show legend
+plt.legend(loc ='best')                # show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_'+tag_fig)
 
