@@ -2,6 +2,28 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
+
+# SSH-aerosol version 1.2.1 release (2021-03-01)
+
+
+## Model
+
+- Add the two-step time numerical solver for gas-phase chemistry
+- Correct the reallocation of the vectors in unifac.cxx
+
+## Interface 
+
+- Add a python example for the shared library
+- Added new functions in API including get_tag_external
+
+## Fixed bugs
+
+- Correct bug on computation of coagulation
+- Correct bug on initialization when aqueous and organic phases are coupled
+- Fixed missing initialization of some variables
+- Correct bug for water content of sections lower than ICUT
+
+
 # SSH-aerosol version 1.2 release (2020-11-30)
 
 ## Model
