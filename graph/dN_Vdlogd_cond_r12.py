@@ -81,7 +81,7 @@ with open ('cond_ref/cond_ni_exact.txt') as fexai :
             exti = fexai.readline()
             str_exti = exti.split()
             exact_num_out.append(str_exti[1])
-                exa_diam_out.append(float(str_exti[0]))
+            exa_diam_out.append(float(str_exti[0]))
 with open ('cond_ref/cond_vi_exact.txt') as fexa2 :
         for j in range(500):
             exti = fexa2.readline()
