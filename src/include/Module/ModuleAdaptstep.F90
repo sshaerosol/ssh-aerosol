@@ -333,6 +333,8 @@ contains
     double precision:: tau(N_size),cond_time(N_size,3),tmp,tmp1
     !integer :: tag_cond_save
 
+    cond_time = 0.0
+    
     ! set icut=0 in case of processing coagulation under split numerical scheme
     if (splitting.eq.0.and.tag_coag.eq.1.and.tag_cond.eq.0) then
 	icut_tmp = icut
@@ -854,9 +856,12 @@ contains
     double precision:: q1(N_size,N_aerosol_layers)!1st order mass concentration
     double precision:: q2(N_size,N_aerosol_layers)!2d order mass concentration
 
+    qh2o = 0.0
+    
     !for condensation or coagulation
-
+   
     call ssh_fgde(q2,n2,c_gas,dq1dt,dn1dt,ce_kernal_coef,qH2O,cond_time,0)
+    
     !     First step
     do j=1,N_size
        if(n2(j)+dn1dt(j)*sub_timestep_splitting.GE.TINYN) then

@@ -127,6 +127,8 @@ contains
     double precision:: cond_time_char(3),cond_time(N_size,3)
     double precision:: liquid(12),qtot
 
+    cond_time_char = 0.0
+    
     !init cond_time for c/e timescale and QSSA
     if (tag_icut.eq.1.or.tag_icut.eq.3) cond_time=0.d0
 
