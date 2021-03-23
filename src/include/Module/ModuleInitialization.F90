@@ -2072,11 +2072,13 @@ contains
                 layer_number(esp_layer) = ilayer
              enddo
           else
+             !! Water
              List_species(N_aerosol_layers) = s
              do ilayer=1,(nlayer + i_hydrophilic)
                 index_species(N_aerosol,ilayer) = N_aerosol_layers 
              enddo
              layer_number(N_aerosol_layers) = 1
+             mass_density_layers(N_aerosol_layers) = mass_density(s)
           endif
        endif
     enddo
