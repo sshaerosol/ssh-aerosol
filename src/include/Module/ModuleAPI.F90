@@ -715,7 +715,7 @@ module SSHaerosolAPI
 
       integer(kind=c_int), intent(in) :: aero_num
       character(len = 1, kind = c_char), dimension(81), intent(out) :: c_string
-
+     
       ! Local variables
 
       integer i, strlen
@@ -739,7 +739,7 @@ module SSHaerosolAPI
 
       ! C termination
       c_string(strlen + 1) = C_NULL_CHAR
-
+      
     end subroutine ssh_api_get_aero_name
 
 ! =============================================================
@@ -1295,7 +1295,7 @@ module SSHaerosolAPI
       real(kind=c_double), intent(out), dimension(N_size) :: array
 
       array(:) = concentration_number(:)
-
+      
     end subroutine ssh_api_get_aero_number
 
 ! =============================================================
@@ -1565,7 +1565,7 @@ module SSHaerosolAPI
       implicit none
 
       call ssh_save_concentration()
-
+      
     end subroutine ssh_api_call_ssh_output
 
 ! =============================================================
@@ -1775,6 +1775,58 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can get index_groups in coupled phases.
+!
+! output : array of index_groups_ext
+! =============================================================
+
+    subroutine ssh_api_get_index_groups_ext(array) bind(c, name='api_sshaerosol_get_index_groups_ext_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol, index_groups, &
+           N_aerosol_layers, List_species
+      
+      implicit none
+
+      integer(kind=c_int), intent(out), dimension(N_aerosol_layers) :: array
+      integer(kind=c_int) s, jesp
+      
+      do s = 1, N_aerosol_layers
+         jesp=List_species(s)
+         array(s) = index_groups(jesp)
+      enddo
+      
+    end subroutine ssh_api_get_index_groups_ext
+
+
+! =============================================================
+!
+! External code can get discretization_composition.
+!
+! output : array of discretization_composition
+! =============================================================
+
+    subroutine ssh_api_get_discretization_composition(array) bind(c, name='api_sshaerosol_get_discretization_composition_')
+
+      use iso_c_binding
+      use aInitialization, only : N_fracmax, N_groups, &
+           discretization_composition
+      
+      implicit none
+
+      integer :: i, j, k
+
+      real (kind=c_double), intent(out), &
+           dimension(N_fracmax, N_groups, 2) :: array
+
+      array(:,:,:) = discretization_composition(:,:,:)
+      
+    end subroutine ssh_api_get_discretization_composition
+    
+
+    
+! =============================================================
+!
 ! External code can get the number of composition: n_fracmax
 !
 ! return value : n_fracmax
@@ -1795,6 +1847,27 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can get the number of fraction: n_frac
+!
+! return value : n_frac
+! =============================================================
+
+    function api_get_nfrac() bind(c, name='api_sshaerosol_get_nfrac_')
+
+      use iso_c_binding
+      use aInitialization, only : n_frac
+
+      implicit none
+
+      integer(kind=c_int) :: api_get_nfrac
+      
+      api_get_nfrac = n_frac
+
+    end function api_get_nfrac    
+    
+    
+! =============================================================
+!
 ! External code can get the number of aerosol groups
 !
 ! return value : n_groups
@@ -1812,6 +1885,48 @@ module SSHaerosolAPI
       api_get_n_groups = n_groups
 
     end function api_get_n_groups        
+
+
+! =============================================================
+!
+! External code can get wet_diameter
+!
+! output : array of wet_diameter in micro m
+! =============================================================
+
+    subroutine ssh_api_get_wet_diameter(array) bind(c, name='api_sshaerosol_get_wet_diameter_')
+
+      use iso_c_binding
+      use aInitialization, only : wet_diameter, N_size
+
+      implicit none
+
+      real(kind=c_double), dimension(N_size) :: array
+
+      ! Unit conversion from micro.m to m
+      array = wet_diameter * 1.e-6 
+
+    end subroutine ssh_api_get_wet_diameter
+
+! =============================================================
+!
+! External code can get aerosol_type
+!
+! output : array of aerosol_type
+! =============================================================
+
+    subroutine ssh_api_get_aerosol_type(array) bind(c, name='api_sshaerosol_get_aerosol_type_')
+
+      use iso_c_binding
+      use aInitialization, only : N_aerosol, aerosol_type
+
+      implicit none
+
+      integer(kind=c_int), intent(out), dimension(N_aerosol) :: array
+      
+      array(:) = aerosol_type(:)
+
+    end subroutine ssh_api_get_aerosol_type
 
     
 end module SSHaerosolAPI
