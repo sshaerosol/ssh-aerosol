@@ -195,7 +195,7 @@ contains
     integer, intent(in) :: tag_file
     double precision:: TempCoef
     integer::j, l, i, Ncoef, varid, dimid, ncid, i1, i2 , Ncfix
-    character (len=30), intent(in) :: file
+    character (len=100), intent(in) :: file
     ! This is the name of the data file we will read.
     character (len = *), parameter :: NCP_NAME = "Ncompute"
     double precision::sum_coef(N_size,N_size)
@@ -433,7 +433,7 @@ contains
 
     ! Inputs
     integer, intent(in) :: tag_file
-    character (len=30), intent(in) :: file
+    character (len=100), intent(in) :: file
 
     ! Local variables
     integer, parameter :: write_unit = 11
