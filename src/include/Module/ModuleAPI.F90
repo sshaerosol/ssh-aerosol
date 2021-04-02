@@ -698,6 +698,52 @@ module SSHaerosolAPI
     
 ! =============================================================
 !
+! External code can get the name of given gas species
+!
+! input : number of the gas species
+! return value : name of the gas species
+! =============================================================
+
+    subroutine ssh_api_get_gas_name(gas_num, c_string) bind(c, name='api_sshaerosol_get_gas_name_')
+
+      use iso_c_binding
+      use aInitialization, only : N_gas, species_name, logfile, ssh_standalone, ssh_logger
+
+      implicit none
+
+      ! Arguments
+
+      integer(kind=c_int), intent(in) :: gas_num
+      character(len = 1, kind = c_char), dimension(81), intent(out) :: c_string
+     
+      ! Local variables
+
+      integer i, strlen
+
+      ! Safety bounds check
+      if (1.gt.gas_num .or. gas_num.gt.N_gas) then
+        if (ssh_standalone) write(*,*) "Error: given gas number out of bounds."
+        if (ssh_standalone) write(*,*) "Given : ", gas_num
+        if (ssh_standalone) write(*,*) "Bounds: [1,",N_gas,"]"
+        if (ssh_logger) write(logfile,*) "Error: given gas number out of bounds."
+        if (ssh_logger) write(logfile,*) "Given : ", gas_num
+        if (ssh_logger) write(logfile,*) "Bounds: [1,",N_gas,"]"
+        stop
+      endif
+
+      ! Fill with aerosol species name
+      strlen = min(80,len_trim(species_name(gas_num)))
+      do i = 1, strlen
+        c_string(i) = species_name(gas_num)(i:i)
+      enddo
+
+      ! C termination
+      c_string(strlen + 1) = C_NULL_CHAR
+      
+    end subroutine ssh_api_get_gas_name
+
+! =============================================================
+!
 ! External code can get the name of given aerosol species
 !
 ! input : number of the aerosol species
@@ -715,7 +761,7 @@ module SSHaerosolAPI
 
       integer(kind=c_int), intent(in) :: aero_num
       character(len = 1, kind = c_char), dimension(81), intent(out) :: c_string
-     
+
       ! Local variables
 
       integer i, strlen
@@ -739,7 +785,7 @@ module SSHaerosolAPI
 
       ! C termination
       c_string(strlen + 1) = C_NULL_CHAR
-      
+
     end subroutine ssh_api_get_aero_name
 
 ! =============================================================
