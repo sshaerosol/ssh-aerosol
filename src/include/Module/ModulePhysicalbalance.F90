@@ -241,8 +241,9 @@ contains
     do jesp=1,(N_aerosol-1)
       if (aerosol_species_interact(jesp).gt.0) then      
 	!renew the gas_concentration (reduce into aerosol)
-	  c_gas(jesp)=t_mass(jesp)-total_aero_mass(jesp)
-          if(c_gas(jesp).LT.TINYM) c_gas(jesp) = 0.d0
+         c_gas(jesp)=t_mass(jesp)-total_aero_mass(jesp)
+         if ((c_gas(jesp) .GT. 0.d0) .and. &
+              (c_gas(jesp) .LT. TINYM)) c_gas(jesp) = 0.d0
       else
 	  c_gas(jesp)=0.d0
       endif
