@@ -911,6 +911,8 @@ contains
 !       q2(j,N_aerosol_layers) = qH2O(j)!water is the last species
     enddo
 
+    call ssh_mass_conservation(q2,n2,c_gas, total_mass) !! YK
+
   end subroutine ssh_Etr_solver
 
   subroutine ssh_Euler_solver(c_mass,c_number,c_gas,dqdt,current_sub_time,sub_timestep_splitting)
