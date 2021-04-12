@@ -11,6 +11,9 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
   int n=surrogate.size();
   int i;
   double MOW=1.0;
+  if (Temperature == 0.0)
+    throw string("Error: Temperature is zero.");
+
   double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic,0.5)/(1.0+pow(ionic,0.5)));
   config.initAQ=AQinit;
   config.ionicinit=ionic;
@@ -213,6 +216,11 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
                 {
                   if (surrogate[i].aqt==2) //diacid
                     {
+                      if ((pow(gamma, 2) * chp) == 0.0)
+                        {
+                          cout << "gamma :" << gamma << " chp: " << chp << endl;
+                          throw string("Error: division by zero for diacid.");
+                        }
                       surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*
                         (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp)*
                          (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp)));
@@ -223,11 +231,18 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
                     }
                   else if (surrogate[i].aqt==1) //monoacid
                     {
+                      if ((pow(gamma, 2) * chp) == 0.0)
+                        throw string("Error: division by zero for monoacid.");                      
                       surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp));
                       surrogate[i].fioni1=(surrogate[i].Kacidity1/(pow(gamma,2)*chp))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp));
                     }
                   else if (surrogate[i].aqt==3) //aldehyde
-                    surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+                    {
+                      if ((pow(10, -surrogate[i].pHref)) == 0.0)
+                        throw string("Error: division by zero for aldehyde.");
+                      surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW) *
+                        (1.0+surrogate[i].Koligo_aq*pow(gamma*chp/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+                    }
                   else
                     surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW);
                 }
@@ -397,6 +412,8 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
               }
             else
               {
+                if (MOW == 0.0 or surrogate[i].gamma_org == 0.0)
+                  throw string("Error: division by zero in error_org.");
                 Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
                 surrogate[i].Ap=surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit);
                 MO+=surrogate[i].Ap;
@@ -436,14 +453,24 @@ void error_ph_ssh(model_config &config, vector<species> &surrogate, double Tempe
 
   derivative=0.0; //-1.0;
 
+  if (conc_org == 0.0 or MOW == 0.0 or MOinit == 0.0 or chp == 0.0)
+    throw string("Error: division by zero in error_ph.");
+  
   for (i=0;i<n;++i)
     {
       if (surrogate[i].is_organic)
         {
           if (surrogate[i].hydrophilic)
             {
+              if (surrogate[i].gamma_LR == 0.0)
+                throw string("Error: division by zero gamma_LR.");
+              if (surrogate[i].gamma_aq == 0.0)
+                throw string("Error: division by zero gamma_aq.");
+              if (surrogate[i].gamma_org == 0.0)
+                throw string("Error: division by zero gamma_org.");                  
+               
               if (surrogate[i].aqt==1) //monoacid
-                {                      
+                {
                   double ratio_gamma=pow(surrogate[config.iHp].gamma_LR,2.0)*surrogate[config.iHp].gamma_SRMR/surrogate[i].gamma_LR;
                   double Kaq=surrogate[i].Kpart_aq_ssh(Temperature, MMaq)*(1.0+surrogate[i].Kacidity1/(ratio_gamma*chp))/surrogate[i].gamma_aq;
                   double sumk=1.0+Kaq*AQinit;
@@ -572,6 +599,9 @@ void error_ph_sat_ssh(model_config &config, vector<species> &surrogate, double T
   int iphase;
   int nphase=MOinit.size();
 
+  if (conc_org == 0.0 or chp == 0.0)
+    throw string("Error: division by zero in error_ph_sat.");
+  
   derivative=0.0; //-1.0;
   for (i=0;i<n;++i)
     {
@@ -579,6 +609,13 @@ void error_ph_sat_ssh(model_config &config, vector<species> &surrogate, double T
         {
           if (surrogate[i].hydrophilic)
             {
+              if (surrogate[i].gamma_LR == 0.0)
+                throw string("Error: division by zero gamma_LR in error_ph_sat.");
+              if (surrogate[i].gamma_aq == 0.0)
+                throw string("Error: division by zero gamma_aq in error_ph_sat.");
+              if (surrogate[i].gamma_org == 0.0)
+                throw string("Error: division by zero gamma_org in error_ph_sat.");                  
+              
               if (surrogate[i].aqt==1) //monoacid
                 {                      
                   double ratio_gamma=pow(surrogate[config.iHp].gamma_LR,2.0)*surrogate[config.iHp].gamma_SRMR/surrogate[i].gamma_LR;
@@ -1396,6 +1433,8 @@ void error_aq_ssh(model_config &config, vector<species>& surrogate,
             }              
           chp2=min(10*chp,max(0.1*chp,chp2));
           //Too low ph may cause instability
+          if (surrogate[config.iHp].gamma_aq == 0.0)
+            throw string("Error: zero division in error_aq.");
           chp2=min(chp2,30./surrogate[config.iHp].gamma_aq);
           chp=max(factor*chp2+(1.0-factor)*chp,1.e-15);  
           Kpreal_inorganic_ssh(config, surrogate, chp);
@@ -1435,6 +1474,9 @@ void error_aq_ssh(model_config &config, vector<species>& surrogate,
             {
               fion1=0.0;
               fion2=0.0;
+
+              if (surrogate[i].gamma_aq == 0.0)
+                throw string("Error: zero division gamma_aq in error_aq.");
               Kp=surrogate[i].Kp_eff_aqreal_ssh(config, Temperature, ionic, chp,surrogate[config.iHp].gamma_LR,
                                             surrogate[config.iHp].gamma_SRMR,MMaq,fion1,fion2)
                 /surrogate[i].gamma_aq;
@@ -1444,7 +1486,9 @@ void error_aq_ssh(model_config &config, vector<species>& surrogate,
               AQ+=surrogate[i].Aaq;
               derivative+=surrogate[i].Atot*pow(Kp,2)*AQinit/(pow(1+Kp*AQinit,2))
                 -surrogate[i].Atot*Kp/(1+Kp*AQinit);
-              //molality1: molality of ions HA- or A-  
+              //molality1: molality of ions HA- or A-
+              if (conc_org == 0.0)
+                throw string("Error: division by zero conc_org.");
               molality1=surrogate[i].Aaq*fion1/surrogate[i].MM/conc_org*1000.0;
               //molality2: molality of ions A2-
               molality2=surrogate[i].Aaq*fion2/surrogate[i].MM/conc_org*1000.0;
@@ -2357,6 +2401,8 @@ void init_saturation_ssh(model_config &config, vector<species>& surrogate,
             sumX+=surrogate[i].Xorg_sat_old(j);
           }
 	  
+      if (sumX == 0.0)
+        throw string("Error: division by zero sumX in equilibrium.cxx.");
       for (i=0;i<n;++i)
         if ((surrogate[i].is_organic or i==config.iH2O)
             and (surrogate[i].hydrophobic or all_hydrophobic))
@@ -2393,7 +2439,9 @@ void init_saturation_ssh(model_config &config, vector<species>& surrogate,
             surrogate[i].Xaq_old=surrogate[i].Aaq_old/surrogate[i].MM;
             sumX+=surrogate[i].Xaq_old;
           }
-	  
+
+      if (sumX == 0.0)
+        throw string("Error: division by zero sumX #2 in equilibrium.cxx.");      
       for (i=0;i<n;++i)
         if (surrogate[i].hydrophilic)
           surrogate[i].Xaq_old/=sumX;

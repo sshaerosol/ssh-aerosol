@@ -372,6 +372,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		    if (RH<0.2)
 		      factor_max=0.5;
 
+                  if (pow(2.0, nh) == 0.0)
+                    throw string("Error: division by zero in solving_equilibrium.");
 		  double factor=1.0/pow(2.0,nh);
 		  //double factor=1.0/nh;
 		  double relprec=1.0e-3;
