@@ -86,11 +86,15 @@ contains
 !    microg/m3(=micromol/m3) / microg/m3 (H+ molar mass: 1 g/mol) 
 !     = micromol/microg * 1000 
       !     = mol/kg = mol/L (Water density: 1 kg/L)
-      if (lwc>0.d0) then
+
+      ! proton must not be negative,
+      ! 'if' for proton  is added so that
+      ! the program is not stopped.
+      if (lwc>0.d0 .and. proton > 0.d0) then
          chp = proton / lwc * 1.0e3
       else
          chp= 1.0e-7
-      endif           
+      endif
       
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
