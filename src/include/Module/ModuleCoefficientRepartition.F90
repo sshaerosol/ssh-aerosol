@@ -593,11 +593,14 @@ contains
     integer, intent ( in) :: status
 
     if(status /= nf90_noerr) then
-      print *, trim(nf90_strerror(status))
-      stop 2
+       if (ssh_standalone) write(*,*) "Error: NetCDF file. ", &
+            trim(nf90_strerror(status))
+       if (ssh_logger) write(logfile,*) "Error: NetCDF file. ", &
+            trim(nf90_strerror(status))
+       stop "NetCDF"
     end if
   end subroutine ssh_check
-
+  
   subroutine ssh_check_repart_coeff()
 !------------------------------------------------------------------------
 !
