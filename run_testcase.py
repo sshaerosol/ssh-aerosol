@@ -2,6 +2,8 @@ import os,sys
 import numpy as np
 import time
 import multiprocessing
+import re
+import subprocess
 
 #########
 #
@@ -27,10 +29,16 @@ if __name__ == '__main__':
         os.chdir(ssh_dir)
 
         # remove all result files.
-        os.system('rm -rf results')
+        subprocess.run(['rm', '-rf', 'results'])
 
         # get all file names in the folder INIT
-        initfile = os.listdir(ssh_dir+ 'INIT/')
+        all_files = False
+        if all_files:
+            initfile = os.listdir(ssh_dir+ 'INIT/')
+        else:
+            keyword = 'soalp'
+            initfile = [f for f in os.listdir(ssh_dir+ 'INIT/') if re.search(keyword,f)]
+            
         for i in range(len(initfile)):
                 p = multiprocessing.Process(target = multiprocessing_func, args = (initfile[i],))
                 processes.append(p)
