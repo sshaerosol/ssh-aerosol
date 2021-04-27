@@ -60,6 +60,10 @@ C------------------------------------------------------------------------
        endif
       enddo
 
+      if (subrho.LE.0.1) then
+         subrho = 0.d0
+      endif
+
       if (conctot.GE.tinyc .AND. subrho.GT.0.d0) then
          rho = conctot/subrho
       else
