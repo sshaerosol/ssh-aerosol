@@ -60,7 +60,7 @@ C------------------------------------------------------------------------
        endif
       enddo
 
-      if (subrho.LE.0.1) then
+      if (subrho.LE.tinyc) then
          subrho = 0.d0
       endif
 
