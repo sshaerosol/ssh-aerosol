@@ -19,7 +19,7 @@ def multiprocessing_func(k):
         if k[-4:] == '.ssh':
 	        print("Run: namelist file : " + k)
                 # run simulations
-	        os.system('time ssh-aerosol INIT/' + k )
+	        os.system('time ./ssh-aerosol INIT/' + k )
 
 if __name__ == '__main__':
         starttime = time.time()
