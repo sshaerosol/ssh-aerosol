@@ -177,7 +177,7 @@ module SSHaerosolAPI
 ! =============================================================
 
     subroutine ssh_api_get_aero_concentration_conv(array) &
-         bind(c, name='api_sshaerosol_get_aero_conv')
+         bind(c, name='api_sshaerosol_get_aero_conv_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, &
@@ -206,7 +206,7 @@ module SSHaerosolAPI
 ! =============================================================
 
     subroutine ssh_api_set_aero_concentration_layer(array) &
-         bind(c, name='api_sshaerosol_set_aero_conv')
+         bind(c, name='api_sshaerosol_set_aero_conv_')
 
       use iso_c_binding
       use aInitialization, only : N_size, N_aerosol, N_nonorganics, nlayer, &
@@ -943,7 +943,7 @@ module SSHaerosolAPI
 ! =============================================================
 
     subroutine ssh_api_set_humidity(val) &
-         bind(c, name='api_sshaerosol_set_humidity')
+         bind(c, name='api_sshaerosol_set_humidity_')
 
       use iso_c_binding
       use aInitialization, only : humidity
@@ -965,7 +965,7 @@ module SSHaerosolAPI
 ! =============================================================
 
     subroutine ssh_api_set_attenuation(val) &
-         bind(c, name='api_sshaerosol_set_attenuation')
+         bind(c, name='api_sshaerosol_set_attenuation_')
 
       use iso_c_binding
       use aInitialization, only : attenuation
@@ -1391,7 +1391,7 @@ module SSHaerosolAPI
 ! output : array of density_aer_bin in micrograms / microm^3
 ! =============================================================
 
-    subroutine ssh_api_get_density_aer_bin(array) bind(c, name='api_sshaerosol_get_density_aer_bin')
+    subroutine ssh_api_get_density_aer_bin(array) bind(c, name='api_sshaerosol_get_density_aer_bin_')
 
       use iso_c_binding
       use aInitialization, only : N_size, density_aer_bin
@@ -1412,7 +1412,7 @@ module SSHaerosolAPI
 ! output : array of density_aer_bin in micrograms / microm^3
 ! =============================================================
 
-    subroutine ssh_api_get_density_aer_size(array) bind(c, name='api_sshaerosol_get_density_aer_size')
+    subroutine ssh_api_get_density_aer_size(array) bind(c, name='api_sshaerosol_get_density_aer_size_')
 
       use iso_c_binding
       use aInitialization, only : N_sizebin, density_aer_size
@@ -1455,7 +1455,7 @@ module SSHaerosolAPI
 ! output : array of mass_density_layers in 
 ! =============================================================
 
-    subroutine ssh_api_get_mass_density_layers(array) bind(c, name='api_sshaerosol_get_mass_density_layers')
+    subroutine ssh_api_get_mass_density_layers(array) bind(c, name='api_sshaerosol_get_mass_density_layers_')
 
       use iso_c_binding
       use aInitialization, only : N_aerosol_layers, mass_density_layers
@@ -1488,28 +1488,53 @@ module SSHaerosolAPI
       current_time_api = current_time
 
       if (tag_chem .ne. 0) then
-        call ssh_chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-          ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-          0, lwc_cloud_threshold, molecular_weight, &
-          current_time_api, attenuation, &
-          humidity, temperature,&
-          pressure, source, &
-          photolysis_rate, delta_t, attenuation,&
-          humidity, temperature,&
-          pressure, source, &
-          photolysis_rate, longitude,&
-          latitude, concentration_gas_all,&
-          0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-          0.d0,&
-          diam_bound, fixed_density, &
-          wet_diameter, &
-          heterogeneous_reaction_index, &
-          concentration_mass,&
-          with_adaptive, adaptive_time_step_tolerance,&
-          min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-          1, not(with_fixed_density), concentration_number, &
-          mass_density)
-      endif
+        if (tag_twostep .ne. 1) then
+          call ssh_chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
+              0, lwc_cloud_threshold, molecular_weight, &
+              current_time, attenuation, &
+              humidity, temperature,&
+              pressure, source, &
+              photolysis_rate, delta_t, attenuation,&
+              humidity, temperature,&
+              pressure, source, &
+              photolysis_rate, longitude,&
+              latitude, concentration_gas_all,&
+              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
+              0.d0,&
+              diam_bound, fixed_density, &
+              wet_diameter, &
+              heterogeneous_reaction_index, &
+              concentration_mass,&
+              with_adaptive, adaptive_time_step_tolerance,&
+              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
+              1, not(with_fixed_density), concentration_number, &
+              mass_density)
+        else
+          ! solve chemistry with the two-step time numerical solver if tag_twostep .eq. 1
+          call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
+              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
+              0, lwc_cloud_threshold, molecular_weight, &
+              current_time, attenuation, &
+              humidity, temperature,&
+              pressure, source, &
+              photolysis_rate, delta_t, attenuation,&
+              humidity, temperature,&
+              pressure, source, &
+              photolysis_rate, longitude,&
+              latitude, concentration_gas_all,&
+              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
+              0.d0,&
+              diam_bound, fixed_density, &
+              wet_diameter, &
+              heterogeneous_reaction_index, &
+              concentration_mass,&
+              with_adaptive, adaptive_time_step_tolerance,&
+              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
+              1, not(with_fixed_density), concentration_number, &
+              mass_density)
+        endif
+      end if
       
     end subroutine ssh_api_call_ssh_gaschemistry
 
