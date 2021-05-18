@@ -370,6 +370,11 @@ contains
           wet_m(j)=size_mass_av(k)
           dry_d(j)=size_diam_av(k) 
        endif
+     else
+       k=concentration_index(j, 1)
+       wet_d(j)=size_diam_av(k)
+       wet_m(j)=size_mass_av(k)
+       dry_d(j)=size_diam_av(k) 
      endif
     enddo
 
