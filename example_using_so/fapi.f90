@@ -193,6 +193,12 @@ module modsshaero
       implicit none
       character(len=*), intent(inout) :: val
     end subroutine send_recv_char
+    ! Exchange integer and character array
+    subroutine send_recv_intchar(ii, val)
+      implicit none
+      integer, intent(in) :: ii
+      character(len=1), intent(inout) :: val(*)
+    end subroutine send_recv_intchar
     ! Just call a subroutine
     subroutine just_call
       implicit none
@@ -452,6 +458,44 @@ module modsshaero
     call snd_rcv_db(conc_numb_aero(1))
 
   end subroutine modsshaero_set_naero
+
+  !
+  ! Get the name of given gas species
+  ! Size of gas name is imposed in ModuleAPI.f90, ssh_api_get_gas_name
+  !
+  subroutine modsshaero_get_gas_name(igas, gas_name)
+
+    implicit none
+
+    ! Arguments
+    integer, intent(in) :: igas
+    character(len=1), dimension(80) :: gas_name
+
+    ! Local variables
+    integer :: i
+    integer, parameter :: size_c_gas_name = 81
+    character(len=1, kind=c_char), dimension(size_c_gas_name) :: c_gas_name
+    procedure(send_recv_intchar), pointer :: snd_rcv_ichr
+
+    ! Initialize
+    do i = 1, size_c_gas_name - 1
+      gas_name(i) = ' '
+    enddo
+    do i = 1, size_c_gas_name
+      c_gas_name(i) = ' '
+    enddo
+
+    ! Get the name of given gas species
+    procaddr = get_func(libssh, "api_sshaerosol_get_gas_name_")
+    call c_f_procpointer(procaddr, snd_rcv_ichr)
+    call snd_rcv_ichr(igas, c_gas_name)
+
+    ! Remove trailing c_null_char
+    do i = 1, size_c_gas_name - 1
+      gas_name(i) = c_gas_name(i)
+    enddo
+
+  end subroutine modsshaero_get_gas_name
 
   !
   ! Get temperature, pressure and relative humidity from SSH
@@ -733,6 +777,7 @@ program main
   implicit none
 
   ! Local variables
+  character(80) :: gas_name
   character(50) :: nmlst = "namelist.ssh"
   integer :: it, nt, ngas, naerolayer, nsize
   double precision :: t, dt, temp, pres, relh
@@ -778,6 +823,10 @@ program main
   call modsshaero_set_gas(cgas)
   call modsshaero_set_aero(conc_mass_aero)
   call modsshaero_set_naero(conc_numb_aero)
+
+  ! Example: get name of gas species 5
+  call modsshaero_get_gas_name(5, gas_name)
+  write(*,*) "Name of gas species 5 : ", trim(gas_name)
 
   ! Example: perform 60 time steps of gas chemistry + aerosol dynamic
   nt = 60
