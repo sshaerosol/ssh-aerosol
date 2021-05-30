@@ -112,7 +112,7 @@ contains
     !
     !------------------------------------------------------------------------
     implicit none
-    integer:: iker,j,jesp,s
+    integer:: iker,j,jesp,s,lay
     double precision:: dqdt(N_size,N_aerosol_layers),qH2O(N_size)
     double precision:: dndt(N_size)
     double precision :: ce_kernel(N_aerosol)
@@ -191,19 +191,24 @@ contains
    ! Compute dynamically low-volatility organics
     do j=1,N_size
        qn=c_number(j)!initial number and mass
-       do s=1,N_aerosol_layers
-          jesp = List_species(s)
-          if((inon_volatile(jesp).EQ.1).OR.  &
-              ((inon_volatile(jesp).EQ.0).AND.(concentration_index(j,1)>ICUT).AND.(jesp.EQ.ESO4))) then
+       do s=1,N_aerosol
+          if(s.LE.N_nonorganics) then
+             lay = 1 
+          else
+             lay = nlayer
+          endif
+          jesp = index_species(s,lay)
+          if((inon_volatile(s).EQ.1).OR.  &
+              ((inon_volatile(s).EQ.0).AND.(concentration_index(j,1)>ICUT).AND.(s.EQ.ESO4))) then
              call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
-                diffusion_coef(jesp), &! diffusion coef (m2.s-1)
-                quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
-                accomodation_coefficient(jesp),& ! accomadation coef (adim)
+                diffusion_coef(s), &! diffusion coef (m2.s-1)
+                quadratic_speed(s),& ! quadratic mean speed (m.s-1)
+                accomodation_coefficient(s),& ! accomadation coef (adim)
                 wet_diam(j),   & ! wet aero diameter (µm)
-                ce_kernal_coef_i(jesp) ) ! c/e kernel coef (m3.s-1)
-             ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)    ! bulk gas conc (ug.m-3)
-             ce_kernel(jesp)=ce_kernal_coef_i(jesp) * c_gas(jesp)    ! bulk gas conc (ug.m-3)
-             dqdt(j,s)=dqdt(j,s)+c_number(j)*ce_kernel(jesp)
+                ce_kernal_coef_i(s) ) ! c/e kernel coef (m3.s-1)
+             ce_kernal_coef(j,s)=ce_kernal_coef_i(s)    ! bulk gas conc (ug.m-3)
+             ce_kernel(s)=ce_kernal_coef_i(s) * c_gas(s)    ! bulk gas conc (ug.m-3)
+             dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(s)
           endif
        enddo
     enddo
