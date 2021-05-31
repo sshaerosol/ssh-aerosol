@@ -53,6 +53,7 @@ contains
     double precision :: dsum,f1,f2,m1,m2,m12,fact,f12
     integer :: i1,i2,l1,l2,j1,j2,n,s,i,j,k,l,g
     integer :: ki
+    integer, dimension(40) :: seed
 
     if (ssh_standalone) write(*,*) "Compute coefficient repartition"
     if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
@@ -65,6 +66,10 @@ contains
     allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
     allocate(random_vector(2+2*N_groups))
+
+    ! set seed for random number generator
+    seed(1:40) = 47281
+    call random_seed(put=seed)
  
     !!allocate(concentration_index_iv(N_sizebin, N_fracmax))
     !!allocate(discretization_composition(N_fracmax, N_groups, 2))
