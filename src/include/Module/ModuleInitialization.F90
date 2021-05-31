@@ -1160,11 +1160,6 @@ contains
        end if
     end if
 
-    if((with_coag == 1).AND.nlayer > 1) then
-       print*, 'coagulation can not be switched on if several aerosol layers.'
-       stop
-    endif
-
     if((ISOAPDYN == 0).AND.nlayer > 1) then
        print*, 'Organics can not be at equilibrium if several aerosol layers.'
        stop
