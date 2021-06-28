@@ -16,6 +16,26 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can get the version of SSH-aerosol
+!
+! =============================================================
+
+    subroutine ssh_api_get_version(major, minor) &
+         bind(c, name='api_sshaerosol_get_version_')
+
+      use iso_c_binding
+
+      implicit none
+
+      integer(kind=c_int), intent(out) :: major, minor
+
+      major = 1
+      minor = 2
+    
+    end subroutine ssh_api_get_version
+
+! =============================================================
+!
 ! External code can use a simplified initialization for SSH
 !
 ! input : namelist.ssh file
