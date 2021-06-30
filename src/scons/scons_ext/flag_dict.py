@@ -50,5 +50,5 @@ if __name__ == '__main__':
     example = FlagDict()
     example.a_flag += " -Wall"
     example.a_flag += " -Wpedantic"
-    print example.a_flag
-    print example.dict()
+    print(example.a_flag)
+    print(example.dict())

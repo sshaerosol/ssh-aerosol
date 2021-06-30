@@ -20,7 +20,8 @@
 # For more information, visit the Polyphemus web site:
 #      http://cerea.enpc.fr/polyphemus/
 
-import commands, os, re, types
+from subprocess import Popen, PIPE
+import os, re, types
 
 from SCons.Errors import UserError
 
@@ -60,21 +61,25 @@ def load_profile(utils, env, profile_name):
 |  "{0}"
 ----------------------------------------------------------------------/
 """.format(profile_dir)
-        raise UserError, msg
+        raise UserError(msg)
 
     available_profile[profile_name](utils)
 
-
+def getstatusoutput(command):
+    process = Popen(command, stdout=PIPE)
+    out, _ = process.communicate()
+    return (process.returncode, out)    
+    
 def list_profile(env):
     compiler = env.subst("$CC")
 
     # In the case MPI is used, gets the wrapped compiler.
     if compiler == "mpicc":
-        s, o = commands.getstatusoutput(compiler + " --showme -v")
+        s, o = getstatusoutput([compiler, "--showme", "-v"])        
         if s == 0:
             compiler = o.split()[0]
     elif compiler == "mpiicc":
-        s, o = commands.getstatusoutput(compiler + " -show")
+        s, o = getstatusoutput([compiler, " -show"])
         if s == 0:
             compiler = o.split()[0]
 

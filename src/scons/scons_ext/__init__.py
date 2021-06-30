@@ -20,8 +20,8 @@
 # For more information, visit the Polyphemus web site:
 #      http://cerea.enpc.fr/polyphemus/
 
-from flag_dict import *
-from profile_reader import *
-from run import *
-from spack import *
-from utils import *
+from scons_ext.flag_dict import *
+from scons_ext.profile_reader import *
+from scons_ext.run import *
+from scons_ext.spack import *
+from scons_ext.utils import *
