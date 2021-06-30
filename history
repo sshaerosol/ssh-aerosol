@@ -3,6 +3,32 @@ o---------------------o
 o---------------------o
 
 
+# SSH-aerosol version 1.2.2 release (2021-07-01)
+
+## Model
+
+- Improved the generation of random number.
+- For particles with several organic layers, condense low-volatility compounds
+  only on the layer which is the most outside.
+
+## Test case
+
+- In the viscosity test case, special treatment is not applied for
+  low-volatility compounds.
+
+## Interface
+
+- Names of gas-phase species are transferred.
+- Added the two-step chemistry option.
+- Added Fortran example for shared library.
+
+## Fixed bugs
+
+- Added initialization which was missing.
+- Improved checking on division by tiny number or zero.
+- Improved checking on mass conservation.
+
+
 # SSH-aerosol version 1.2.1 release (2021-03-01)
 
 
