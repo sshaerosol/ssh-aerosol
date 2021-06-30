@@ -61,7 +61,7 @@ def format_reaction(reaction_str):
 
 photolysis_reactions = []
 current_reaction = ""
-with open(sys.argv[2],'r') as f:
+with open(sys.argv[2],'r', encoding="UTF-8") as f:
     # Jumps the title line.
     f.readline()
     for line in f:
