@@ -665,7 +665,7 @@ C     compute the particle number (mass/geometric mean diameter)
             if (MSF(Jb) .GT. 0.D0) THEN
                granulo_aer(Jb) = conc_tot/MSF(Jb)               
             else
-               write(*,*) , "chem.f : error "
+               write(*,*) "chem.f : error "
                stop
             endif
          ENDIF

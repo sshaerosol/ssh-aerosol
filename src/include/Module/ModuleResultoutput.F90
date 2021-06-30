@@ -46,82 +46,82 @@ contains
     ! write the new report
     open(unit=10,file=trim(output_directory) // "/" // "report.txt", status="new")
 
-	write(unit=10,FMT=*),'<<<< Meteorological setup >>>>'
-        write(unit=10,FMT=*),'location', latitude, 'N','	', longitude,'E','	','Temperature', Temperature, 'K'
-        write(unit=10,FMT=*),'Pressure', Pressure, 'Pa', '	','Specific Humidity', Humidity, '	',&
+	write(unit=10,FMT=*) '<<<< Meteorological setup >>>>'
+        write(unit=10,FMT=*) 'location', latitude, 'N','	', longitude,'E','	','Temperature', Temperature, 'K'
+        write(unit=10,FMT=*) 'Pressure', Pressure, 'Pa', '	','Specific Humidity', Humidity, '	',&
 				'Cloud attenuation field', attenuation, '	relative humidity', relative_humidity
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Simulation time setup >>>>'
-        write(unit=10,FMT=*),'Begining time (from Jan. 1st)', initial_time, 's','	',&
+	write(unit=10,FMT=*) '<<<< Simulation time setup >>>>'
+        write(unit=10,FMT=*) 'Begining time (from Jan. 1st)', initial_time, 's','	',&
 				'Simulation Time', final_time,'s','	','Initial Time Step', delta_t,'s',&
          			'	','Number of iterations:', nt
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Inition condition >>>>'
-	if (tag_init == 0) write(unit=10,FMT=*),&
+	write(unit=10,FMT=*) '<<<< Inition condition >>>>'
+	if (tag_init == 0) write(unit=10,FMT=*) &
 			'Internally mixed aerosol species are provided for initial condition.'
-	write(unit=10,FMT=*), 'Gas-phase conc. input file :', init_gas_conc_file
-	write(unit=10,FMT=*), 'Particle conc. input file :', init_aero_conc_mass_file
-	write(unit=10,FMT=*), 'N_sizebin', N_sizebin
-        if (with_init_num .eq. 1) write(unit=10,FMT=*), 'Aerosol number conc. is read from file :',&
+	write(unit=10,FMT=*)  'Gas-phase conc. input file :', init_gas_conc_file
+	write(unit=10,FMT=*)  'Particle conc. input file :', init_aero_conc_mass_file
+	write(unit=10,FMT=*)  'N_sizebin', N_sizebin
+        if (with_init_num .eq. 1) write(unit=10,FMT=*)  'Aerosol number conc. is read from file :',&
 							 init_aero_conc_num_file
 	if (with_init_num .eq. 0) then
-		write(unit=10,FMT=*),' Aerosol number conc. is estimated from mass and diameter.' 
-		write(unit=10,FMT=*), '====== concentration_number : ======'
-		write(unit=10,FMT=*), concentration_number
+		write(unit=10,FMT=*) ' Aerosol number conc. is estimated from mass and diameter.' 
+		write(unit=10,FMT=*)  '====== concentration_number : ======'
+		write(unit=10,FMT=*)  concentration_number
 	end if
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Mixing state >>>>'
-	if (tag_external == 1) write(unit=10,FMT=*), 'simulation is mixing-state resolved.', &
+	write(unit=10,FMT=*) '<<<< Mixing state >>>>'
+	if (tag_external == 1) write(unit=10,FMT=*)  'simulation is mixing-state resolved.', &
 					'N_frac', N_frac ,'	','N_groups', N_groups
-	if (tag_external == 0) write(unit=10,FMT=*), 'simulation is internally mixed.' ,&
+	if (tag_external == 0) write(unit=10,FMT=*)  'simulation is internally mixed.' ,&
 					'N_frac', N_frac ,'	','N_groups', N_groups
-	write(unit=10,FMT=*),'frac_bound', frac_bound
+	write(unit=10,FMT=*) 'frac_bound', frac_bound
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Species lists >>>>'
-	write(unit=10,FMT=*), 'gas phase species file :', species_list_file
-	write(unit=10,FMT=*), 'particle species file :', aerosol_species_list_file
+	write(unit=10,FMT=*) '<<<< Species lists >>>>'
+	write(unit=10,FMT=*)  'gas phase species file :', species_list_file
+	write(unit=10,FMT=*)  'particle species file :', aerosol_species_list_file
 	write(unit=10,FMT=*)
-	if (tag_chem == 0) write(unit=10,FMT=*),'<<<< Without Gas-phase chemistry >>>>'
+	if (tag_chem == 0) write(unit=10,FMT=*) '<<<< Without Gas-phase chemistry >>>>'
 	if (tag_chem == 1) then
-		write(unit=10,FMT=*),'<<<< Gas-phase chemistry >>>>'
-		write(unit=10,FMT=*), 'with_heterogeneous', with_heterogeneous,'	','with_adaptive', with_adaptive,&
+		write(unit=10,FMT=*) '<<<< Gas-phase chemistry >>>>'
+		write(unit=10,FMT=*)  'with_heterogeneous', with_heterogeneous,'	','with_adaptive', with_adaptive,&
 					'	','adaptive time step tolerance', adaptive_time_step_tolerance,&
 					'	','min adaptive time step', min_adaptive_time_step
 	end if
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Emissions >>>>'
+	write(unit=10,FMT=*) '<<<< Emissions >>>>'
 	if (tag_emis == 1) then
-		write(unit=10,FMT=*), 'With internally-mixed emissions.'
-		write(unit=10,FMT=*), 'Gas-phase conc. emission file :', emis_gas_file
-		write(unit=10,FMT=*), 'Particle conc. emission file :', emis_aero_mass_file
-		if (with_emis_num == 1) write(unit=10,FMT=*),&
+		write(unit=10,FMT=*)  'With internally-mixed emissions.'
+		write(unit=10,FMT=*)  'Gas-phase conc. emission file :', emis_gas_file
+		write(unit=10,FMT=*)  'Particle conc. emission file :', emis_aero_mass_file
+		if (with_emis_num == 1) write(unit=10,FMT=*) &
 			'Emitted aerosol number conc. is read from file :', emis_aero_num_file
-		if (with_emis_num == 0) write(unit=10,FMT=*),&
+		if (with_emis_num == 0) write(unit=10,FMT=*) &
 			'Emitted aerosol number conc. is estimated from mass and diameter.'
 	end if
-        if (tag_emis == 0) write(unit=10,FMT=*),'Without emission.'
+        if (tag_emis == 0) write(unit=10,FMT=*) 'Without emission.'
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'<<<< Particle Dynamic >>>>'
+	write(unit=10,FMT=*) '<<<< Particle Dynamic >>>>'
 	if (with_cond == 1) then 
-		write(unit=10,FMT=*), 'With condensation', '	','Cut_dim', Cut_dim,'	', 'ISOAPDYN', ISOAPDYN
+		write(unit=10,FMT=*)  'With condensation', '	','Cut_dim', Cut_dim,'	', 'ISOAPDYN', ISOAPDYN
 	else
-		write(unit=10,FMT=*), 'Without condensation'
+		write(unit=10,FMT=*)  'Without condensation'
 	end if
 	if (with_coag == 1) then 
-		write(unit=10,FMT=*), 'With coagulation', '	','coefficient file :', Coefficient_file
+		write(unit=10,FMT=*)  'With coagulation', '	','coefficient file :', Coefficient_file
 	else
-		write(unit=10,FMT=*), 'Without coagulation'
+		write(unit=10,FMT=*)  'Without coagulation'
 	end if
 	if (with_nucl == 1) then 
-		write(unit=10,FMT=*), 'With nucleation', '	','nucl_model', nucl_model
+		write(unit=10,FMT=*)  'With nucleation', '	','nucl_model', nucl_model
 	else
-		write(unit=10,FMT=*), 'Without nucleation'
+		write(unit=10,FMT=*)  'Without nucleation'
 	end if
-	write(unit=10,FMT=*), 'DTAEROMIN', DTAEROMIN, '	','redistribution_method', redistribution_method
-	write(unit=10,FMT=*), 'Method',dynamic_solver, '	 with_oligomerization', with_oligomerization
-	write(unit=10,FMT=*), 'with_fixed_density', with_fixed_density,'	', 'fixed_density', fixed_density, 'kg/m^3'
+	write(unit=10,FMT=*)  'DTAEROMIN', DTAEROMIN, '	','redistribution_method', redistribution_method
+	write(unit=10,FMT=*)  'Method',dynamic_solver, '	 with_oligomerization', with_oligomerization
+	write(unit=10,FMT=*)  'with_fixed_density', with_fixed_density,'	', 'fixed_density', fixed_density, 'kg/m^3'
 	write(unit=10,FMT=*)
-	write(unit=10,FMT=*),'output directory :', trim(output_directory),'/'
+	write(unit=10,FMT=*) 'output directory :', trim(output_directory),'/'
 
    CLOSE(10)
 
