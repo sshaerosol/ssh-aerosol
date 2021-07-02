@@ -3,30 +3,39 @@ o---------------------o
 o---------------------o
 
 
-# SSH-aerosol version 1.2.2 release (2021-07-01)
+# SSH-aerosol version 1.2.2 release (2021-07-02)
 
 ## Model
 
-- Improved the generation of random number.
+- Improved the reproductability of the generation of random numbers
+  when calculating the coagulation partition coefficient.
 - For particles with several organic layers, condense low-volatility compounds
   only on the layer which is the most outside.
+
+## Interface
+
+- Added a detailed example for using the shared library
+  for coupling SSH-aerosol to other models in FORTRAN.
+- Names of gas-phase species are now available in the API.
+- The option to use the two-step solver for gaseous chemistry is
+  now available in the API.
+
+## Architecture
+
+- scons compile script is now compatible with python 3.x
+
+## Fixed bugs
+
+- Added initialization of wet diameter which was missing in some cases.
+- Improved checking on division by tiny number or zero.
+- Improved checking on mass conservation.
 
 ## Test case
 
 - In the viscosity test case, special treatment is not applied for
   low-volatility compounds.
 
-## Interface
 
-- Names of gas-phase species are transferred.
-- Added the two-step chemistry option.
-- Added Fortran example for shared library.
-
-## Fixed bugs
-
-- Added initialization which was missing.
-- Improved checking on division by tiny number or zero.
-- Improved checking on mass conservation.
 
 
 # SSH-aerosol version 1.2.1 release (2021-03-01)
