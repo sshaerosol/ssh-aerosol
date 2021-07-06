@@ -390,6 +390,11 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	      
 		last_pos=igr+14;		
 	      }
+	    else if (surrogate[i].smile.substr(igr,16)=="C(=O)OON(=O)(=O)")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"P";	      
+		last_pos=igr+16;		
+	      }
 	    else if (surrogate[i].smile.substr(igr,7)=="OC(=O)C" and igr!=0)
 	      {
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"F";	      
@@ -411,6 +416,15 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"ON(=O)=O";	
 		last_pos=igr+9;
 		ipos=ipos+8;
+		total_o--;
+	      }
+	    else if (surrogate[i].smile.substr(igr,11)=="OON(=O)(=O)")
+	      {
+		cout << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
+		cout << "Group O[N+](=O)[O-]) used instead" << endl;
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"ON(=O)(=O)";	
+		last_pos=igr+11;
+		ipos=ipos+10;
 		total_o--;
 	      }
 	    else if (surrogate[i].smile.substr(igr,6)=="OC(=O)" and igr==0)
@@ -765,7 +779,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  
 		if (surrogate[i].smile.substr(1,surrogate[i].smile.length()-1)=="OO")
 		  hydroxyperoxide++;
-		if (surrogate[i].smile.substr(1,8)=="ON(=O)=O" or surrogate[i].smile.substr(1,13)=="O[N+](=O)[O-]")
+		if (surrogate[i].smile.substr(1,8)=="ON(=O)=O" or surrogate[i].smile.substr(1,10)=="ON(=O)(=O)" or surrogate[i].smile.substr(1,13)=="O[N+](=O)[O-]")
 		  nitrate++;
 		//cout << "nitrate: " << nitrate << endl;
 		
@@ -787,7 +801,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		      carbon_alcool(sum_len_group)++;
 		    if (surrogate[i].smile.substr(1,4)=="(OO)")
 		      hydroxyperoxide++;
-		    if (surrogate[i].smile.substr(1,10)=="(ON(=O)=O)" or surrogate[i].smile.substr(1,14)=="(O[N+](=O)[O-]")
+		    if (surrogate[i].smile.substr(1,10)=="(ON(=O)=O)" or surrogate[i].smile.substr(1,12)=="(ON(=O)(=O))" or surrogate[i].smile.substr(1,14)=="(O[N+](=O)[O-]")
 		      nitrate++;
 		    if (surrogate[i].smile.substr(2,2)=="OC")
 		      {		      
@@ -913,7 +927,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    if (surrogate[i].smile.substr(ipar+1,surrogate[i].smile.length()-1-ipar)=="OO")
 		      hydroxyperoxide++;
 		    //cout << "la " << surrogate[i].smile.substr(ipar+1,surrogate[i].smile.length()-1-ipar) << endl;
-		    if (surrogate[i].smile.substr(ipar+1,8)=="ON(=O)=O" or surrogate[i].smile.substr(ipar+1,13)=="O[N+](=O)[O-]")
+		    if (surrogate[i].smile.substr(ipar+1,8)=="ON(=O)=O" or surrogate[i].smile.substr(ipar+1,10)=="ON(=O)(=O)" or surrogate[i].smile.substr(ipar+1,13)=="O[N+](=O)[O-]")
 		      nitrate++;
 		    
 		    //cout << ipar << endl;
@@ -923,7 +937,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 
 			if (surrogate[i].smile.substr(ipar+1,4)=="(OO)")
 			  hydroxyperoxide++;			
-			if (surrogate[i].smile.substr(ipar+1,10)=="(ON(=O)=O)" or surrogate[i].smile.substr(ipar+1,14)=="(O[N+](=O)[O-]")
+			if (surrogate[i].smile.substr(ipar+1,10)=="(ON(=O)=O)" or surrogate[i].smile.substr(ipar+1,12)=="(ON(=O)(=O))" or surrogate[i].smile.substr(ipar+1,14)=="(O[N+](=O)[O-]")
 			  nitrate++;
 			if (surrogate[i].smile.substr(ipar+1,2)=="(F")		  		      			   
 			  ester++;
@@ -1033,7 +1047,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			  }
 			if (surrogate[i].smile.substr(ipar2+1,surrogate[i].smile.length()-1-ipar2)=="OO")
 			  hydroxyperoxide++;
-			if (surrogate[i].smile.substr(ipar2+1,8)=="ON(=O)=O" or surrogate[i].smile.substr(ipar2+1,13)=="O[N+](=O)[O-]")
+			if (surrogate[i].smile.substr(ipar2+1,8)=="ON(=O)=O" or surrogate[i].smile.substr(ipar2+1,10)=="ON(=O)(=O)" or surrogate[i].smile.substr(ipar2+1,13)=="O[N+](=O)[O-]")
 			  nitrate++;
 			if (surrogate[i].smile.substr(ipar2+1,1)=="F")		  		      			   
 			  ester++;
@@ -1245,6 +1259,10 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    else if (surrogate[i].smile.substr(0,8)=="ON(=O)=O")
 	      {
 		len_group=8;
+	      }
+	    else if (surrogate[i].smile.substr(0,10)=="ON(=O)(=O)")
+	      {
+		len_group=10;
 	      }
 	    else if (surrogate[i].smile.substr(0,2)=="OC")
 	      {
