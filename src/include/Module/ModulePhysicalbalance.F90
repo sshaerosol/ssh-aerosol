@@ -182,7 +182,7 @@ contains
     double precision:: t_mass(N_aerosol)
     double precision:: tmp_cell,total_ms
 
-    double precision:: total_number,total_mass_t
+    !double precision:: total_number,total_mass_t
 
     do jesp=1,N_aerosol
        total_aero_mass(jesp)=0.d0
@@ -191,28 +191,28 @@ contains
           t_mass(oligo_index(jesp))=0.d0
        endif
     enddo
-    bin_mass=0.d0
-    cell_mass=0.d0
-    bin_number=0.d0
-    total_number=0.d0
-    total_mass_t=0.d0
+    !bin_mass=0.d0
+    !cell_mass=0.d0
+    !bin_number=0.d0
+    !total_number=0.d0
+    !total_mass_t=0.d0
     !check all not negtive value is allowed   
     
     do j=1,N_size
       tmp_cell=0.d0
-      k=concentration_index(j, 1)
-      total_number=total_number+c_number(j)
-      bin_number(k)=bin_number(k)+c_number(j)
+      !k=concentration_index(j, 1)
+      !total_number=total_number+c_number(j)
+      !bin_number(k)=bin_number(k)+c_number(j)
       do s=1,N_aerosol_layers-1
          jesp=List_species(s)
-         if(s.NE.EH2O_layers) then
-            total_mass_t=total_mass_t+c_mass(j,s)
-            tmp_cell=tmp_cell+c_mass(j,s)
-            bin_mass(k)=bin_mass(k)+c_mass(j,s)
-            cell_mass(j)=cell_mass(j)+c_mass(j,s)
-         endif
+         !if(s.NE.EH2O_layers) then
+         !total_mass_t=total_mass_t+c_mass(j,s)
+         tmp_cell=tmp_cell+c_mass(j,s)
+         !bin_mass(k)=bin_mass(k)+c_mass(j,s)
+         !cell_mass(j)=cell_mass(j)+c_mass(j,s)
+         !endif
       enddo
-      if(tmp_cell.eq.0.d0) then
+      if(tmp_cell.eq.0.d0) then!
 	c_number(j)=0.d0
 	do jesp=1,N_aerosol_layers
 	  c_mass(j,jesp)=0.d0
@@ -220,21 +220,21 @@ contains
       endif
     enddo
 
-    if(total_number.eq.0.d0.or.total_mass_t.eq.0.d0) then
-      do j=1,N_size
-	c_number(j)=0.d0
-	do jesp=1,N_aerosol_layers
-	  c_mass(j,jesp)=0.d0
-	enddo
-      enddo
-    endif
+    !if(total_number.eq.0.d0.or.total_mass_t.eq.0.d0) then
+    !  do j=1,N_size
+	!c_number(j)=0.d0
+	!do jesp=1,N_aerosol_layers
+	!  c_mass(j,jesp)=0.d0
+	!enddo
+      !enddo
+    !endif
 
     do j=1,N_size
       do s=1,N_aerosol_layers-1
          jesp = List_species(s)
-         if(s.NE.EH2O_layers) then
-	    total_aero_mass(jesp)=total_aero_mass(jesp)+c_mass(j,s)
-         endif
+         !if(s.NE.EH2O_layers) then
+         total_aero_mass(jesp)=total_aero_mass(jesp)+c_mass(j,s)
+         !endif
       enddo
     enddo
 

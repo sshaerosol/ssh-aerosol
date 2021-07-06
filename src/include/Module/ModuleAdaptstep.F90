@@ -77,7 +77,7 @@ contains
     call ssh_update_wet_diameter_liquid(N_size,concentration_mass, concentration_number,&
          wet_mass,wet_diameter,wet_volume,cell_diam_av)
 
-    call ssh_mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
+    !call ssh_mass_conservation(concentration_mass,concentration_number,concentration_gas, total_mass)
 
     if (with_coag.EQ.1) then
        call ssh_COMPUTE_AIR_FREE_MEAN_PATH(Temperature,Pressure,&
@@ -209,8 +209,8 @@ contains
 
           call ssh_bulkequi_inorg(nesp_isorropia,& 
                lwc, ionic, proton, liquid) !equlibrium for inorganic
-          call ssh_mass_conservation(concentration_mass,concentration_number,&
-                                 concentration_gas, total_mass)
+          !call ssh_mass_conservation(concentration_mass,concentration_number,&
+          !                       concentration_gas, total_mass)
 
           call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT)
 
@@ -228,8 +228,8 @@ contains
           if (ICUT_org>0) then
 
              call  ssh_bulkequi_org(nesp_aec,lwc,lwcorg,ionic,proton,liquid,delta_t)!equilibrium for organic
-             call ssh_mass_conservation(concentration_mass,concentration_number,&
-                  concentration_gas, total_mass)
+             !call ssh_mass_conservation(concentration_mass,concentration_number,&
+             !     concentration_gas, total_mass)
 
              if (soap_inorg==0) then
                 call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
@@ -349,12 +349,12 @@ contains
     !endif
     do while ( current_sub_time .lt. final_sub_time )
        time_step_sulf = 0.0
-       if (tag_cond.eq.1) then
+       !if (tag_cond.eq.1) then
           !!if (tag_emis .ne. 0) call ssh_emission(sub_timestep_splitting)
           !     Compute gas mass conservation.
-          call ssh_mass_conservation(concentration_mass,concentration_number,&
-               concentration_gas, total_mass)
-       endif
+       !   call ssh_mass_conservation(concentration_mass,concentration_number,&
+       !        concentration_gas, total_mass)
+       !endif
 
        if (solver.eq.0) then
           ! euler solver used for coagulation
@@ -374,8 +374,8 @@ contains
                current_sub_time,sub_timestep_splitting)
        endif
        
-       call ssh_mass_conservation(concentration_mass,concentration_number,&
-                  concentration_gas, total_mass)
+       !call ssh_mass_conservation(concentration_mass,concentration_number,&
+       !           concentration_gas, total_mass)
 
        if (current_sub_time.le.final_sub_time) then
 

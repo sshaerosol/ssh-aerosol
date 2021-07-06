@@ -1163,7 +1163,7 @@ contains
   end subroutine ssh_DRYIN
 
 
-  subroutine ssh_ISOROPIA_DRV(nesp_aer,&
+  subroutine ssh_isoropia_drv(nesp_aer,&
        aero, gas, organion, watorg, ionic, proton, lwc, rh, Temp, &
        liquid)
 
@@ -1253,6 +1253,6 @@ contains
        endif
     enddo
 
-  end subroutine ssh_ISOROPIA_DRV
+  end subroutine ssh_isoropia_drv
 
 End module cThermodynamics

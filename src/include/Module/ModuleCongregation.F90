@@ -70,7 +70,7 @@ contains
         call ssh_compute_wet_mass_diameter(1,N_size,c_mass,c_number,&
                                    concentration_inti,wet_mass,wet_diam,wet_vol)
     endif
-    call ssh_mass_conservation(c_mass,c_number,c_gas,total_mass)
+    !call ssh_mass_conservation(c_mass,c_number,c_gas,total_mass)
 
     if (tag_nucl.eq.1) then
        call ssh_fgde_nucl(c_mass,c_number,c_gas,dqdt,dndt)
