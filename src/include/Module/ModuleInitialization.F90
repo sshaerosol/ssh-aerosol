@@ -84,6 +84,8 @@ module aInitialization
   integer, save :: output_type
   integer, save :: splitting
   integer, save :: soap_inorg,soap_inorg_loc
+  integer ,save :: niter_water,niter_eqconc
+  integer, dimension(:), allocatable, save :: iter_eqconc,iter_water
 
   ! cut-off diameter
   integer, save :: ICUT,ICUT_org      ! section index
@@ -127,6 +129,8 @@ module aInitialization
   double precision, dimension(:), allocatable, save :: temperature_array
   double precision, dimension(:), allocatable, save :: humidity_array
   double precision, dimension(:), allocatable, save :: pressure_array
+  double precision, dimension(:), allocatable, save :: ratio_water
+  double precision, dimension(:,:), allocatable, save :: ratio_eqconc
   
   integer, save :: tag_coag,tag_cond,tag_nucl
 
@@ -408,7 +412,7 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap
+         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water
 
     namelist /physic_nucleation/ with_nucl, nucl_model
 
@@ -550,7 +554,8 @@ contains
     end if
 
     if (ssh_standalone) write(*,*) 'N_sizebin', N_sizebin
-    if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin
+    if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin    
+
     allocate(init_bin_number(N_sizebin))
     init_bin_number = 0.d0
 
@@ -1010,6 +1015,8 @@ contains
     set_icut = 1 !default fix ICUT in the simulation
     imethod=0 !ROS2 explicit method in SOAP
     soap_inorg=0
+    niter_eqconc=1
+    niter_water=1
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."

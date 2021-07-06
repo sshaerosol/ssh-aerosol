@@ -62,6 +62,11 @@ contains
     start_time= 0.d0
 
     frac_oligo=0.d0
+  
+    iter_eqconc(:) = 0
+    ratio_water(:)=0.d0
+    ratio_eqconc(:,:)=0.d0   
+    iter_water(:) = 0    
 
     ! Initialize the density of aerosols
     if (with_fixed_density.ne.1) then

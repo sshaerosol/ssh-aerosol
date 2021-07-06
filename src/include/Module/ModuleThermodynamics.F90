@@ -49,6 +49,7 @@ contains
     double precision :: rhoaer_dry
 
     rhoaer = fixed_density
+    
     do j=start_bin,end_bin
        !initialization
        do jesp=1,N_aerosol
@@ -73,7 +74,7 @@ contains
                 jesp=isorropia_species(i)
                 aero(i)=qext(jesp)
              enddo
-             call ssh_calculatewater(aero,qinti,lwc)
+             call ssh_calculatewater(aero,qinti,lwc,j)
              qext(EH2O)=lwc
              if(rhoaer.le.0.d0) then
                 rhoaer=density_aer_bin(j)
@@ -111,7 +112,7 @@ contains
 
   end subroutine ssh_compute_wet_mass_diameter
 
-  subroutine ssh_calculatewater(aero,qinti,lwc)
+  subroutine ssh_calculatewater(aero,qinti,lwc,jbin)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -138,6 +139,8 @@ contains
     double precision liquid(N_liquid),solid(N_solid)
     double precision qinti(N_inside_aer)
 
+    integer jbin
+
     organion = 0.D0
     watorg = 0.D0
     proton = 0.D0
@@ -159,30 +162,44 @@ contains
     end do
 
     !     call isorropia fortran routine
-    call SSH_ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
-         liquid, solid, other, organion, watorg)
-    !     clipping to tinym
+    if (iter_water(jbin)==0) then
+        call SSH_ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
+            liquid, solid, other, organion, watorg)
+        !     clipping to tinym
 
-    !     Aqueous phase total liquid water content and pH (proton) concentration
-    ionic = other(5)
-    proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+        !     Aqueous phase total liquid water content and pH (proton) concentration
+        ionic = other(5)
+        proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 
-    if (gas(1).lt.0.d0) gas(1)=tinym
-    if (gas(2).lt.0.d0) gas(2)=tinym
-    if (gas(3).lt.0.d0) gas(3)=tinym
+        if (gas(1).lt.0.d0) gas(1)=tinym
+        if (gas(2).lt.0.d0) gas(2)=tinym
+        if (gas(3).lt.0.d0) gas(3)=tinym
 
-    !     Aqueous phase total liquid water content and pH (proton) concentration
-    do jesp=IH,IOH
-       qinti(jesp)= DMAX1(liquid(jesp),0.D0)*imw(jesp)   ! moles to µg MOLAR WEIGHT
-    end do
-    ! solid inorg aerosol
-    do jesp=SNaNO3,SLC
-       qinti(jesp)= DMAX1(solid(jesp-12),0.D0)&
-            *smw(jesp)        ! moles to µg !molecular_weight_solid(jesp)
-    end do
-    ! liquid water content
-    lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
-    if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
+        !     Aqueous phase total liquid water content and pH (proton) concentration
+        do jesp=IH,IOH
+           qinti(jesp)= DMAX1(liquid(jesp),0.D0)*imw(jesp)   ! moles to µg MOLAR WEIGHT
+        end do
+        ! solid inorg aerosol
+        do jesp=SNaNO3,SLC
+           qinti(jesp)= DMAX1(solid(jesp-12),0.D0)&
+              *smw(jesp)        ! moles to µg !molecular_weight_solid(jesp)
+        end do
+        ! liquid water content
+        lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
+        if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
+        if (sum(wi)>0.d0) then
+          ratio_water(jbin)=lwc/sum(wi)
+          iter_water(jbin)=iter_water(jbin)+1
+       endif
+    else
+       iter_water(jbin)=iter_water(jbin)+1
+       lwc=ratio_water(jbin)*sum(wi)
+       do jesp=SNaNO3,SLC
+          qinti(jesp)=0.D0      !FCo: Warning if delisquescent is used one day      
+       end do
+    endif
+    if (iter_water(jbin)==niter_water) iter_water(jbin)=0
+
   end subroutine ssh_calculatewater
 
   subroutine ssh_update_wet_diameter(end_bin,c_mass,c_inti,c_number,wet_m,&
@@ -512,7 +529,7 @@ contains
     endif
   end subroutine ssh_VOLAERO
 
-  subroutine ssh_EQINORG(nesp_aer,qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,aerliq)
+  subroutine ssh_EQINORG(nesp_aer,qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,aerliq,jbin)
     !------------------------------------------------------------------------
     !
     !     -- DESCRIPTION
@@ -549,6 +566,8 @@ contains
     !      CHARACTER*15 scase
     double precision organion,watorg
 
+    integer jbin
+
     organion = 0.D0
     watorg = 0.D0
     !     Inputs  for Isorropia
@@ -569,22 +588,74 @@ contains
     wi(1) = 0.D0              !Do not consider sea salt in isoropia
     wi(5) = 0.D0
 #endif
-    call ssh_ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
-         aerliq,aersld,other,organion,watorg)
-    !     clipping to tinym
-    if (gas(1).lt.0.d0) gas(1)=tinym
-    if (gas(2).lt.0.d0) gas(2)=tinym
-    if (gas(3).lt.0.d0) gas(3)=tinym
-    !     Aqueous phase total liquid water content and pH (proton) concentration
-    lwc = aerliq(IH2O) * imw(IH2O) ! microg.m-3 
 
-    ionic = other(5)
-    proton = aerliq(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+    if (iter_eqconc(jbin)==0) then
+       call ssh_ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
+            aerliq,aersld,other,organion,watorg)
+       !     clipping to tinym
+       if (gas(1).lt.0.d0) gas(1)=tinym
+       if (gas(2).lt.0.d0) gas(2)=tinym
+       if (gas(3).lt.0.d0) gas(3)=tinym
+       !     Aqueous phase total liquid water content and pH (proton) concentration       
+       
+       ionic = other(5)
+       proton = aerliq(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3      
+       
+       ! liquid inorg aerosol
+       do jesp=IH,IOH
+          qinti(jesp)= DMAX1(aerliq(jesp),0.D0)*imw(jesp)  ! moles to µg
+
+       end do
+       ! liquid water content
+       qext(EH2O)= qinti(IH2O)&
+            +qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
+       if(qext(EH2O) < 1.1d-12) qext(EH2O) = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
+       ! solid inorg aerosol
+       do jesp=SNaNO3,SLC
+          qinti(jesp)= DMAX1(aersld(jesp-12),0.D0)&
+               *smw(jesp)        ! moles to µg  
+          !molecular_weight_solid(jesp)
+       end do
+
+       if (wi(3)>0.d0) then
+          ratio_eqconc(1,jbin)=gas(1)/wi(3)
+       else
+          ratio_eqconc(1,jbin)=0.d0
+       endif
+       if (wi(4)>0.d0) then
+          ratio_eqconc(2,jbin)=gas(2)/wi(4)
+       else
+          ratio_eqconc(2,jbin)=0.d0
+       endif
+       if (wi(5)>0.d0) then
+          ratio_eqconc(3,jbin)=gas(3)/wi(5)
+       else
+          ratio_eqconc(3,jbin)=0.d0
+       endif
+       if (sum(wi)>0.d0) then
+          ratio_eqconc(4,jbin)=aerliq(IH2O)/sum(wi)
+          iter_eqconc(jbin)=iter_eqconc(jbin)+1
+       else
+          ratio_eqconc(4,jbin)=0.d0
+       endif
+
+    else
+       gas(1)=wi(3)*ratio_eqconc(1,jbin)
+       gas(2)=wi(4)*ratio_eqconc(2,jbin)
+       gas(3)=wi(5)*ratio_eqconc(3,jbin)
+       aerliq(:)=0.d0
+       aersld(:)=0.d0
+       other(:)=0.d0
+       aerliq(IH2O)=ratio_eqconc(4,jbin)*sum(wi)
+       iter_eqconc(jbin)=iter_eqconc(jbin)+1
+       qext(EH2O)=aerliq(IH2O) * imw(IH2O) 
+       if(qext(EH2O) < 1.1d-12) qext(EH2O) = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
+    endif
 
     !     Outputs isorropia
     ! sulfate surf conc always 0. µg.m-3
     surface_equilibrium_conc(ESO4)=0.D0
-
+    
     ! convert moles.m-3 to µg.m-3
     surface_equilibrium_conc(ENH4)=gas(1)*molecular_weight_aer(ENH4)
     surface_equilibrium_conc(ENO3)=gas(2)*molecular_weight_aer(ENO3)
@@ -592,22 +663,9 @@ contains
 #ifdef WITHOUT_NACL_IN_THERMODYNAMICS
     surface_equilibrium_conc(ECl) = 0.d0 
 #endif
+    lwc = aerliq(IH2O) * imw(IH2O) ! microg.m-3 
 
-    ! liquid inorg aerosol
-    do jesp=IH,IOH
-       qinti(jesp)= DMAX1(aerliq(jesp),0.D0)*imw(jesp)  ! moles to µg
-
-    end do
-    ! liquid water content
-    qext(EH2O)= qinti(IH2O)&
-         +qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
-    if(qext(EH2O) < 1.1d-12) qext(EH2O) = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
-    ! solid inorg aerosol
-    do jesp=SNaNO3,SLC
-       qinti(jesp)= DMAX1(aersld(jesp-12),0.D0)&
-            *smw(jesp)        ! moles to µg  
-       !molecular_weight_solid(jesp)
-    end do
+    if (iter_eqconc(jbin)==niter_eqconc) iter_eqconc(jbin)=0
 
   end subroutine ssh_EQINORG
 

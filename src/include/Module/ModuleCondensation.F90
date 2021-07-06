@@ -158,7 +158,7 @@ contains
 
 !calculate the equilibrium between aerosols and gas-phase
       if(iker.EQ.0) then
-        call ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
+        call ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid,jj)
         concentration_mass(jj,EH2O_layers)=qext(EH2O)!water updated here
         Do jesp=1,N_aerosol
           surface_equilibrium_conc_nsize(jj,jesp) = surface_equilibrium_conc(jesp)
@@ -314,7 +314,7 @@ contains
 
   end subroutine ssh_KERCOND
    
-  subroutine ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid)
+  subroutine ssh_surface_eq_conc(qext,qinti,surface_equilibrium_conc,lwc,ionic,proton,liquid,jbin)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -340,6 +340,8 @@ contains
     double precision:: qtinorg
     double precision:: lwc,ionic,proton,liquid(12)
 
+    integer :: jbin
+
 !!     ******zero init
     do jesp=1,N_aerosol
       surface_equilibrium_conc(jesp)=0.D0
@@ -359,7 +361,7 @@ contains
 
     call ssh_EQINORG( N_aerosol,qext,&         ! ext inorg aero conc (µg.m-3)
 		qinti,&         ! int inorg aero conc (µg.m-3)
-		surface_equilibrium_conc,lwc,ionic,proton,liquid)        ! inorg eq gas conc (µg.m-3)
+		surface_equilibrium_conc,lwc,ionic,proton,liquid,jbin)        ! inorg eq gas conc (µg.m-3)
 
     do s=1,nesp_isorropia
       jesp=isorropia_species(s)

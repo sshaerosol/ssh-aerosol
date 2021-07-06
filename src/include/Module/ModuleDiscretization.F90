@@ -667,6 +667,11 @@ contains
     if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
     if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
+    allocate(ratio_water(N_size))
+    allocate(ratio_eqconc(4,N_size))
+    allocate(iter_water(N_size))
+    allocate(iter_eqconc(N_size))    
+
   end subroutine ssh_Init_distributions
 
 end MODULE lDiscretization
