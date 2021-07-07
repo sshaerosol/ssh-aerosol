@@ -356,11 +356,21 @@ contains
        enddo
     enddo
 
+    init_bin_mass=0.d0
+    init_mass=0.d0
+    do s = 1, N_aerosol_layers
+       jesp = List_species(s)
+       do j=1,N_size
+          init_bin_mass(j,jesp) = init_bin_mass(j,jesp) + concentration_mass(j,s)
+          init_mass(jesp)=init_mass(jesp) + aero_conc(j,s)
+       enddo
+    enddo
     aero_total_mass=sum(aero_conc(:,1:N_aerosol_layers))
        
     call ssh_init_parameters()
-    call ssh_Init_coag()       
-    !call ssh_init_distributions()
+    call ssh_Init_coag()
+    
+    call ssh_init_distributions()
     !print*,"numb: ",sum(concentration_number_tmp)
 
 
