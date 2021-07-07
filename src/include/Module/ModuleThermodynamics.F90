@@ -9,7 +9,7 @@ Module cThermodynamics
 contains
   subroutine ssh_compute_nonlinear_density(watconc,so4,nh4,no3,na,cl,massol,soldensity, &
        wet_density,dry_density,massdry,masswet,dry_to_wet)
-    
+
     double precision :: watconc,so4,nh4,no3,na,cl,wet_density,dry_density,dry_to_wet
     double precision :: availso4, availna, availnh4, availno3, availcl
     double precision :: summass, waq_hcl, waq_hno3, waq_h2so4, waq_nacl
@@ -90,90 +90,98 @@ contains
     temp_value2=0.d0
     Tr=(Temperature-273.15d0)/273.15d0
     Tr2=(293.d0-273.15d0)/273.d0
-    if (summass>1.0d-10) then
+    if (summass-watconc>0.d0) then
+       if (summass>1.0d-10) then
 
-       !     H2SO4
-       w=waq_h2So4/summass    ! wet
-       temp_rho=98d0/(36.2249d0+5.46891d0*w+8.73468d0*w*w+34.4556d0*Tr-65.0688d0*Tr*w &
-            &        +41.7174d0*Tr*w*w+13.6245d0*Tr*Tr-39.1920d0*Tr*Tr*w+25.2329d0*Tr*Tr*w*w)*1000d0
-       temp_value=temp_value+w/temp_rho
+          !     H2SO4
+          w=waq_h2So4/summass    ! wet
+          temp_rho=98d0/(36.2249d0+5.46891d0*w+8.73468d0*w*w+34.4556d0*Tr-65.0688d0*Tr*w &
+               &        +41.7174d0*Tr*w*w+13.6245d0*Tr*Tr-39.1920d0*Tr*Tr*w+25.2329d0*Tr*Tr*w*w)*1000d0
+          temp_value=temp_value+w/temp_rho
 
-       w=waq_h2So4/(summass-watconc) !dry
-       temp_rho=98d0/(36.2249d0+5.46891d0*w+8.73468d0*w*w+34.4556d0*Tr2-65.0688d0*Tr2*w &
-            &        +41.7174d0*Tr2*w*w+13.6245d0*Tr2*Tr2-39.1920d0*Tr2*Tr2*w+25.2329d0*Tr2*Tr2*w*w)*1000d0
-       temp_value2=temp_value2+w/temp_rho
+          w=waq_h2So4/(summass-watconc) !dry
+          temp_rho=98d0/(36.2249d0+5.46891d0*w+8.73468d0*w*w+34.4556d0*Tr2-65.0688d0*Tr2*w &
+               &        +41.7174d0*Tr2*w*w+13.6245d0*Tr2*Tr2-39.1920d0*Tr2*Tr2*w+25.2329d0*Tr2*Tr2*w*w)*1000d0
+          temp_value2=temp_value2+w/temp_rho
 
-       !     (NH4)2SO4
-       w=waq_nh4nh4so4/summass ! wet
-       temp_rho=132d0/(55.8085d0+40.62d0*w-11.0797d0*w*w+13.5837d0*Tr-15.8075d0*Tr*w)*1000d0
-       temp_value=temp_value+w/temp_rho
+          !     (NH4)2SO4
+          w=waq_nh4nh4so4/summass ! wet
+          temp_rho=132d0/(55.8085d0+40.62d0*w-11.0797d0*w*w+13.5837d0*Tr-15.8075d0*Tr*w)*1000d0
+          temp_value=temp_value+w/temp_rho
 
-       w=waq_nh4nh4so4/(summass-watconc) ! dry
-       temp_rho=132d0/(55.8085d0+40.62d0*w-11.0797d0*w*w+13.5837d0*Tr2-15.8075d0*Tr2*w)*1000d0
-       temp_value2=temp_value2+w/temp_rho
+          w=waq_nh4nh4so4/(summass-watconc) ! dry
+          temp_rho=132d0/(55.8085d0+40.62d0*w-11.0797d0*w*w+13.5837d0*Tr2-15.8075d0*Tr2*w)*1000d0
+          temp_value2=temp_value2+w/temp_rho
 
-       !     HNO3
-       w=waq_hno3/summass     ! wet
-       temp_rho=63d0/(28.6889d0-1.354d0*w+15.9166d0*w*w+16.9281d0*Tr-1.36496d0*Tr*w)*1000d0
-       temp_value=temp_value+w/temp_rho
+          !     HNO3
+          w=waq_hno3/summass     ! wet
+          temp_rho=63d0/(28.6889d0-1.354d0*w+15.9166d0*w*w+16.9281d0*Tr-1.36496d0*Tr*w)*1000d0
+          temp_value=temp_value+w/temp_rho
 
-       w=waq_hno3/(summass-watconc) ! dry
-       temp_rho=63d0/(28.6889d0-1.354d0*w+15.9166d0*w*w+16.9281d0*Tr2-1.36496d0*Tr2*w)*1000d0
-       temp_value2=temp_value2+w/temp_rho
+          w=waq_hno3/(summass-watconc) ! dry
+          temp_rho=63d0/(28.6889d0-1.354d0*w+15.9166d0*w*w+16.9281d0*Tr2-1.36496d0*Tr2*w)*1000d0
+          temp_value2=temp_value2+w/temp_rho
 
-       !     NH4NO3
-       w=waq_nh4no3/summass
-       temp_rho=80d0/(50.3779d0-6.91069d0*w+11.3024d0*w*w-28.7432d0*Tr+155.419d0*Tr*w-157.049d0*Tr*w*w &
-            &       +161.094d0*Tr*Tr-585.88d0*Tr*Tr*w+541.843d0*Tr*Tr*w*w)*1000d0
-       temp_value=temp_value+w/temp_rho
+          !     NH4NO3
+          w=waq_nh4no3/summass
+          temp_rho=80d0/(50.3779d0-6.91069d0*w+11.3024d0*w*w-28.7432d0*Tr+155.419d0*Tr*w-157.049d0*Tr*w*w &
+               &       +161.094d0*Tr*Tr-585.88d0*Tr*Tr*w+541.843d0*Tr*Tr*w*w)*1000d0
+          temp_value=temp_value+w/temp_rho
 
-       w=waq_nh4no3/(summass-watconc)
-       temp_rho=80d0/(50.3779d0-6.91069d0*w+11.3024d0*w*w-28.7432d0*Tr2+155.419d0*Tr2*w-157.049d0*Tr2*w*w &
-            &       +161.094d0*Tr2*Tr2-585.88d0*Tr2*Tr2*w+541.843d0*Tr2*Tr2*w*w)*1000d0
-       temp_value2=temp_value2+w/temp_rho
+          w=waq_nh4no3/(summass-watconc)
+          temp_rho=80d0/(50.3779d0-6.91069d0*w+11.3024d0*w*w-28.7432d0*Tr2+155.419d0*Tr2*w-157.049d0*Tr2*w*w &
+               &       +161.094d0*Tr2*Tr2-585.88d0*Tr2*Tr2*w+541.843d0*Tr2*Tr2*w*w)*1000d0
+          temp_value2=temp_value2+w/temp_rho
 
-       !     Na2SO4
-       temp_value=temp_value+waq_na2so4/2700d0/summass
-       temp_value2=temp_value2+waq_na2so4/2700d0/(summass-watconc)
+          !     Na2SO4
+          temp_value=temp_value+waq_na2so4/2700d0/summass
+          temp_value2=temp_value2+waq_na2so4/2700d0/(summass-watconc)
 
-       !     NaNO3
-       temp_value=temp_value+waq_nano3/2260d0/summass
-       temp_value2=temp_value2+waq_nano3/2260d0/(summass-watconc)
+          !     NaNO3
+          temp_value=temp_value+waq_nano3/2260d0/summass
+          temp_value2=temp_value2+waq_nano3/2260d0/(summass-watconc)
 
-       !     NaCl
-       temp_value=temp_value+waq_nacl/2165d0/summass
-       temp_value2=temp_value2+waq_nacl/2165d0/(summass-watconc)
+          !     NaCl
+          temp_value=temp_value+waq_nacl/2165d0/summass
+          temp_value2=temp_value2+waq_nacl/2165d0/(summass-watconc)
 
-       !     NH4Cl
-       temp_value=temp_value+waq_nh4cl/1530d0/summass
-       temp_value2=temp_value2+waq_nh4cl/1530d0/(summass-watconc)
+          !     NH4Cl
+          temp_value=temp_value+waq_nh4cl/1530d0/summass
+          temp_value2=temp_value2+waq_nh4cl/1530d0/(summass-watconc)
 
-       !     HCl
-       temp_value=temp_value+waq_hcl/1150d0/summass
-       temp_value2=temp_value2+waq_hcl/1150d0/(summass-watconc)
+          !     HCl
+          temp_value=temp_value+waq_hcl/1150d0/summass
+          temp_value2=temp_value2+waq_hcl/1150d0/(summass-watconc)
 
-       !     Na
-       temp_value=temp_value+waq_na/970d0/summass
-       temp_value2=temp_value2+waq_na/970d0/(summass-watconc)
+          !     Na
+          temp_value=temp_value+waq_na/970d0/summass
+          temp_value2=temp_value2+waq_na/970d0/(summass-watconc)
 
-       !     NH3
-       temp_value=temp_value+waq_nh3/910d0/summass
-       temp_value2=temp_value2+waq_nh3/910d0/(summass-watconc)
+          !     NH3
+          temp_value=temp_value+waq_nh3/910d0/summass
+          temp_value2=temp_value2+waq_nh3/910d0/(summass-watconc)
 
-       !     H20
-       temp_value=temp_value+watconc/1000d0/summass
-       
-       masswet=summass+massol
-       massdry=masswet-watconc
-       !print*,"la",massol,summass+massol,summass
+          !     H20
+          temp_value=temp_value+watconc/1000d0/summass
 
-       wet_density=1.d0/(massol/masswet*1.d0/soldensity+1.d9*temp_value*(1.d0-massol/masswet))
-       dry_density=1.d0/(massol/massdry*1.d0/soldensity+1.d9*temp_value2*(1.d0-massol/massdry))
-       !print*,"loc: ", wet_density,dry_density,soldensity,fixed_density,massol,masswet,massdry,temp_value,temp_value2
-       !stop
+          masswet=summass+massol
+          massdry=masswet-watconc
+          !print*,"la",massol,summass+massol,summass
 
-       if (wet_density.le.900d-9) then
-          wet_density=900d-9
+          wet_density=1.d0/(massol/masswet*1.d0/soldensity+1.d9*temp_value*(1.d0-massol/masswet))
+          dry_density=1.d0/(massol/massdry*1.d0/soldensity+1.d9*temp_value2*(1.d0-massol/massdry))
+          !print*,"loc: ", wet_density,dry_density,soldensity,fixed_density,massol,masswet,massdry,temp_value,temp_value2
+          !stop
+
+          if (wet_density.le.900d-9) then
+             wet_density=900d-9
+          endif
+       else
+          masswet=summass+massol
+          massdry=masswet-watconc
+
+          wet_density=soldensity
+          dry_density=soldensity
        endif
     else
        masswet=summass+massol
@@ -205,7 +213,7 @@ contains
     double precision :: qext(N_aerosol)
     double precision :: massol,soldensity,dry_density,wet_density,dry_mass,wmass,dry_to_wet
     integer :: is_inorg,jesp,jesp2,i
-    
+
     massol=0.d0
     soldensity=0.d0
     do jesp=1,N_aerosol
@@ -214,20 +222,20 @@ contains
           soldensity=soldensity+qext(jesp)/mass_density(jesp)
        endif
     enddo
-    
+
     if (massol>0.d0) then       
        soldensity=1.d0/(soldensity/massol)       
     else
        soldensity=fixed_density
     endif
-    
+
     !print*,"ici",massol,massol+qext(EH2O)+qext(ESO4)+qext(ENH4)+qext(ENO3)+qext(ENa)+qext(ECl)
     call ssh_compute_nonlinear_density(qext(EH2O),qext(ESO4),qext(ENH4),qext(ENO3),qext(ENa),qext(ECl), &
          massol,soldensity,wet_density,dry_density,dry_mass,wmass,dry_to_wet)
     !print*,wet_density
 
   end subroutine ssh_get_nonlinear_density
-  
+
   subroutine ssh_compute_wet_mass_diameter(start_bin,end_bin,c_mass,c_number,c_inti, &
        wet_m,wet_d,wet_v)
     !------------------------------------------------------------------------
@@ -271,7 +279,7 @@ contains
     double precision :: dry_density,wet_density,dry_mass,wmass,dry_to_wet
 
     rhoaer = fixed_density
-    
+
     do j=start_bin,end_bin
        !initialization
        do jesp=1,N_aerosol
@@ -292,61 +300,61 @@ contains
        ! The threshold 0.0 for the minimum aerosol concentration 
        ! should be avoided because it leads to a too small particle diameter.
        if ((qti.gt.TINYM).AND.(c_number(j).gt.TINYN)) then ! No water  initially - compute it
-             do i=1,nesp_isorropia
-                jesp=isorropia_species(i)
-                aero(i)=qext(jesp)
-             enddo
-             call ssh_calculatewater(aero,qinti,lwc,j)             
-             qext(EH2O)=lwc
-             do jesp=1,N_inside_aer
-                c_inti(j,jesp)=qinti(jesp)
-             enddo
-             
-             if (with_fixed_density == 2) then                
-                call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)                
-                
-                vad=dry_mass/dry_density !qti/rhoaer!qti total dry mass            
-                rho_wet_cell(j)=wet_density
-                rhoaer=rho_wet_cell(j)
-                wet_v(j)=wmass/wet_density !vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).                            
-                dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm                
-                wet_d(j)=dry_to_wet*dry_d(j) ! (wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-                wet_m(j)=wmass/c_number(j) !(qti+qext(EH2O))/c_number(j)
-                c_mass(j,EH2O_layers)=qext(EH2O)
-             else
-                if(rhoaer.le.0.d0) then
-                   rhoaer=density_aer_bin(j)
-                endif                
-                
-                if(rhoaer.gt.0.d0) then
-                   vad=qti/rhoaer!qti total dry mass
-                   wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-                   ! aerosol diameter
-                   ! qn cannot be zero, checked in eqpart routine                   
-                   dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-                   k=concentration_index(j, 1)
-                   wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-                   wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-                   c_mass(j,EH2O_layers)=qext(EH2O)
-                   wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)                   
-                else
-                   k=concentration_index(j, 1)
-                   wet_d(j)=size_diam_av(k)
-                   wet_m(j)=size_mass_av(k)
-                endif
+          do i=1,nesp_isorropia
+             jesp=isorropia_species(i)
+             aero(i)=qext(jesp)
+          enddo
+          call ssh_calculatewater(aero,qinti,lwc,j)             
+          qext(EH2O)=lwc
+          do jesp=1,N_inside_aer
+             c_inti(j,jesp)=qinti(jesp)
+          enddo
+
+          if (with_fixed_density == 2) then                
+             call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)                
+
+             vad=dry_mass/dry_density !qti/rhoaer!qti total dry mass            
+             rho_wet_cell(j)=wet_density
+             rhoaer=rho_wet_cell(j)
+             wet_v(j)=wmass/wet_density !vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).                            
+             dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm                
+             wet_d(j)=dry_to_wet*dry_d(j) ! (wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+             wet_m(j)=wmass/c_number(j) !(qti+qext(EH2O))/c_number(j)
+             c_mass(j,EH2O_layers)=qext(EH2O)
+          else
+             if(rhoaer.le.0.d0) then
+                rhoaer=density_aer_bin(j)
              endif
-             !if (j==50) then
-             !   print*,rhoaer,wet_v(j),wet_m(j),dry_d(j),wet_d(j)
-             !   stop
-             !endif
+
+             if(rhoaer.gt.0.d0) then
+                vad=qti/rhoaer!qti total dry mass
+                wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+                ! aerosol diameter
+                ! qn cannot be zero, checked in eqpart routine                   
+                dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+                k=concentration_index(j, 1)
+                wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+                wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
+                c_mass(j,EH2O_layers)=qext(EH2O)
+                wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)                   
+             else
+                k=concentration_index(j, 1)
+                wet_d(j)=size_diam_av(k)
+                wet_m(j)=size_mass_av(k)
+             endif
+          endif
+          !if (j==50) then
+          !   print*,rhoaer,wet_v(j),wet_m(j),dry_d(j),wet_d(j)
+          !   stop
+          !endif
        else
-             c_number(j) = 0.d0
-             do jesp=1,N_aerosol_layers
-                c_mass(j,s) = 0.d0
-             enddo
-             k=concentration_index(j, 1)
-             wet_d(j)=size_diam_av(k)
-             wet_m(j)=size_mass_av(k)
+          c_number(j) = 0.d0
+          do jesp=1,N_aerosol_layers
+             c_mass(j,s) = 0.d0
+          enddo
+          k=concentration_index(j, 1)
+          wet_d(j)=size_diam_av(k)
+          wet_m(j)=size_mass_av(k)
        endif
     enddo
 
@@ -403,31 +411,31 @@ contains
 
     !     call isorropia fortran routine
     if (iter_water(jbin)==0) then
-        call SSH_ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
+       call SSH_ISOROPIA(wi, Relative_Humidity, Temperature, cntrl, w, gas,&
             liquid, solid, other, organion, watorg)
-        !     clipping to tinym
+       !     clipping to tinym
 
-        !     Aqueous phase total liquid water content and pH (proton) concentration
-        ionic = other(5)
-        proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
+       !     Aqueous phase total liquid water content and pH (proton) concentration
+       ionic = other(5)
+       proton = liquid(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3
 
-        if (gas(1).lt.0.d0) gas(1)=tinym
-        if (gas(2).lt.0.d0) gas(2)=tinym
-        if (gas(3).lt.0.d0) gas(3)=tinym
+       if (gas(1).lt.0.d0) gas(1)=tinym
+       if (gas(2).lt.0.d0) gas(2)=tinym
+       if (gas(3).lt.0.d0) gas(3)=tinym
 
-        !     Aqueous phase total liquid water content and pH (proton) concentration
-        do jesp=IH,IOH
-           qinti(jesp)= DMAX1(liquid(jesp),0.D0)*imw(jesp)   ! moles to µg MOLAR WEIGHT
-        end do
-        ! solid inorg aerosol
-        do jesp=SNaNO3,SLC
-           qinti(jesp)= DMAX1(solid(jesp-12),0.D0)&
-              *smw(jesp)        ! moles to µg !molecular_weight_solid(jesp)
-        end do
-        ! liquid water content
-        lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
-        if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
-        if (sum(wi)>0.d0) then
+       !     Aqueous phase total liquid water content and pH (proton) concentration
+       do jesp=IH,IOH
+          qinti(jesp)= DMAX1(liquid(jesp),0.D0)*imw(jesp)   ! moles to µg MOLAR WEIGHT
+       end do
+       ! solid inorg aerosol
+       do jesp=SNaNO3,SLC
+          qinti(jesp)= DMAX1(solid(jesp-12),0.D0)&
+               *smw(jesp)        ! moles to µg !molecular_weight_solid(jesp)
+       end do
+       ! liquid water content
+       lwc= qinti(IH2O)+qinti(IOH)*1.05882352941D0 ! mwh2o/mwioh
+       if(lwc < 1.1d-12) lwc = 0.d0 !Minimum lwc is arbitrary fixed in ISORROPIA. Remove it.
+       if (sum(wi)>0.d0) then
           ratio_water(jbin)=lwc/sum(wi)
           iter_water(jbin)=iter_water(jbin)+1
        endif
@@ -484,53 +492,53 @@ contains
     total_water=0.d0
     total_IH=0.d0
     Do j=1,N_size
-     if(concentration_index(j, 1) <= end_bin) then
-       rho_wet_cell(j)=fixed_density
-       total_water=total_water+c_mass(j,EH2O)
-       total_IH=total_IH+c_inti(j,IH)
-       qti=0.D0
-       do s=1,N_aerosol_layers-1
+       if(concentration_index(j, 1) <= end_bin) then
+          rho_wet_cell(j)=fixed_density
+          total_water=total_water+c_mass(j,EH2O)
+          total_IH=total_IH+c_inti(j,IH)
+          qti=0.D0
+          do s=1,N_aerosol_layers-1
              qti=qti+c_mass(j,s)     ! µg.m-3
-       end do
-       do s=1,N_aerosol
-          qext(s) = 0.d0
-       enddo
-       if (c_number(j).gt.TINYN.and.qti.gt.TINYM ) then
-          do jesp=1,N_aerosol_layers
-             s = List_species(jesp)
-             qext(s) = qext(s) + c_mass(j,jesp)
+          end do
+          do s=1,N_aerosol
+             qext(s) = 0.d0
           enddo
-          do jesp=1,N_inside_aer
-             qinti(jesp)=c_inti(j,jesp)
-          enddo
-          call ssh_VOLAERO(N_aerosol,qext,qinti,rhoaer,rhoaer_dry)
+          if (c_number(j).gt.TINYN.and.qti.gt.TINYM ) then
+             do jesp=1,N_aerosol_layers
+                s = List_species(jesp)
+                qext(s) = qext(s) + c_mass(j,jesp)
+             enddo
+             do jesp=1,N_inside_aer
+                qinti(jesp)=c_inti(j,jesp)
+             enddo
+             call ssh_VOLAERO(N_aerosol,qext,qinti,rhoaer,rhoaer_dry)
 
-	  if(rhoaer.gt.0.d0) then
-             rho_wet_cell(j)=rhoaer
-	  else
-             rhoaer=density_aer_bin(j)
- 	  endif
-          if(rhoaer.gt.0.d0) then
-             ! vad=qti/rhoaer!qti total dry mass
-             vad=qti/rhoaer_dry!qti total dry mass YK: aerosol density without water.
-             wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-             ! aerosol diameter
-             ! qn cannot be zero, checked in eqpart routine
-             dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-             wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-             wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-             wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+             if(rhoaer.gt.0.d0) then
+                rho_wet_cell(j)=rhoaer
+             else
+                rhoaer=density_aer_bin(j)
+             endif
+             if(rhoaer.gt.0.d0) then
+                ! vad=qti/rhoaer!qti total dry mass
+                vad=qti/rhoaer_dry!qti total dry mass YK: aerosol density without water.
+                wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+                ! aerosol diameter
+                ! qn cannot be zero, checked in eqpart routine
+                dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+                wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+                wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
+                wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+             endif
+          else
+             ! if too few aerosols or too few mass
+             ! we set variables of given bins as
+             ! its initial fixed ones,
+             ! thus avoiding zero values
+             k=concentration_index(j, 1)
+             wet_d(j)=size_diam_av(k)
+             wet_m(j)=size_mass_av(k)
           endif
-       else
-          ! if too few aerosols or too few mass
-          ! we set variables of given bins as
-          ! its initial fixed ones,
-          ! thus avoiding zero values
-          k=concentration_index(j, 1)
-          wet_d(j)=size_diam_av(k)
-          wet_m(j)=size_mass_av(k)
        endif
-     endif
     enddo
 
   end subroutine ssh_update_wet_diameter
@@ -580,77 +588,77 @@ contains
     total_water=0.d0
     !total_IH=0.d0
     Do j=1,N_size
-     if(concentration_index(j, 1) <= end_bin) then
-       rho_wet_cell(j)=fixed_density
-       qti=0.D0
-       do s=1,N_aerosol_layers-1
-           qti=qti+c_mass(j,s)     ! µg.m-3
-       end do
-       total_water=total_water+c_mass(j,N_aerosol_layers)
-       
-       if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
-          do jesp=1,N_aerosol
-             qext(jesp)=0.d0
-          enddo
-          do jesp=1,N_aerosol_layers
-             s = List_species(jesp)
-             qext(s) = qext(s) + c_mass(j,jesp)
-          enddo
-          if (with_fixed_density == 2) then
-             call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)             
+       if(concentration_index(j, 1) <= end_bin) then
+          rho_wet_cell(j)=fixed_density
+          qti=0.D0
+          do s=1,N_aerosol_layers-1
+             qti=qti+c_mass(j,s)     ! µg.m-3
+          end do
+          total_water=total_water+c_mass(j,N_aerosol_layers)
 
-             vad=dry_mass/dry_density !qti/rhoaer!qti total dry mass            
-             rho_wet_cell(j)=wet_density
-             
-             wet_v(j)=wmass/wet_density !vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-             ! aerosol diameter
-             ! qn cannot be zero, checked in eqpart routine
-             dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-             !k=concentration_index(j, 1)
-             wet_d(j)=dry_to_wet*dry_d(j) ! (wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-             ! wet_d(j)= !DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-             !c_mass(j,EH2O)=qext(EH2O)
-             wet_m(j)=wmass/c_number(j) !(qti+qext(EH2O))/c_number(j) 
-          else
-             if (with_fixed_density == 0) then
-                call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
-                     mass_density_layers,j,rhoaer)
-             else
-                rhoaer = fixed_density 
-             endif
-             if(rhoaer.gt.0.d0) then
-                rho_wet_cell(j)=rhoaer
-             else
-                rhoaer=density_aer_bin(j)
-                rho_wet_cell(j)=rhoaer
-             endif
-             if(rhoaer.gt.0.d0) then
-                vad=qti/rhoaer!qti total dry mass
-                wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+          if (c_number(j).gt.TINYN.AND.qti.gt.TINYM) then
+             do jesp=1,N_aerosol
+                qext(jesp)=0.d0
+             enddo
+             do jesp=1,N_aerosol_layers
+                s = List_species(jesp)
+                qext(s) = qext(s) + c_mass(j,jesp)
+             enddo
+             if (with_fixed_density == 2 .and. c_number(j)>0.d0) then
+                call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)             
+
+                vad=dry_mass/dry_density !qti/rhoaer!qti total dry mass            
+                rho_wet_cell(j)=wet_density
+
+                wet_v(j)=wmass/wet_density !vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
                 ! aerosol diameter
                 ! qn cannot be zero, checked in eqpart routine
                 dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-                wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-                wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
-                wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+                !k=concentration_index(j, 1)
+                wet_d(j)=dry_to_wet*dry_d(j) ! (wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+                ! wet_d(j)= !DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
+                !c_mass(j,EH2O)=qext(EH2O)
+                wet_m(j)=wmass/c_number(j) !(qti+qext(EH2O))/c_number(j) 
+             else
+                if (with_fixed_density == 0) then
+                   call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+                        mass_density_layers,j,rhoaer)
+                else
+                   rhoaer = fixed_density 
+                endif
+                if(rhoaer.gt.0.d0) then
+                   rho_wet_cell(j)=rhoaer
+                else
+                   rhoaer=density_aer_bin(j)
+                   rho_wet_cell(j)=rhoaer
+                endif
+                if(rhoaer.gt.0.d0) then
+                   vad=qti/rhoaer!qti total dry mass
+                   wet_v(j)=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+                   ! aerosol diameter
+                   ! qn cannot be zero, checked in eqpart routine
+                   dry_d(j)=(vad/c_number(j)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+                   wet_d(j)=(wet_v(j)/c_number(j)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+                   wet_d(j)=DMAX1(wet_d(j),dry_d(j))!wet diameter is always larger than dry diameter
+                   wet_m(j)=(qti+qext(EH2O))/c_number(j) ! single wet mass (µg)
+                endif
              endif
+          else
+             ! if too few aerosols or too few mass
+             ! we set variables of given bins as
+             ! its initial fixed ones,
+             ! thus avoiding zero values
+             k=concentration_index(j, 1)
+             wet_d(j)=size_diam_av(k)
+             wet_m(j)=size_mass_av(k)
+             dry_d(j)=size_diam_av(k) 
           endif
        else
-          ! if too few aerosols or too few mass
-          ! we set variables of given bins as
-          ! its initial fixed ones,
-          ! thus avoiding zero values
           k=concentration_index(j, 1)
           wet_d(j)=size_diam_av(k)
           wet_m(j)=size_mass_av(k)
           dry_d(j)=size_diam_av(k) 
        endif
-     else
-       k=concentration_index(j, 1)
-       wet_d(j)=size_diam_av(k)
-       wet_m(j)=size_mass_av(k)
-       dry_d(j)=size_diam_av(k) 
-     endif
     enddo
 
   end subroutine ssh_update_wet_diameter_liquid
@@ -770,7 +778,7 @@ contains
        vod=vod+qext(jesp)/mass_density(jesp)
        sumint=sumint+qext(jesp)
     enddo
-    
+
     !!     ******tot dry and wet vol, µm3.m-3
     vad=vod+vid
     vaw=vad+viw
@@ -855,10 +863,10 @@ contains
        if (gas(2).lt.0.d0) gas(2)=tinym
        if (gas(3).lt.0.d0) gas(3)=tinym
        !     Aqueous phase total liquid water content and pH (proton) concentration       
-       
+
        ionic = other(5)
        proton = aerliq(IH) * imw(IH) !* gammaH  ! microg.m-3 but equivalent to micromol.m-3      
-       
+
        ! liquid inorg aerosol
        do jesp=IH,IOH
           qinti(jesp)= DMAX1(aerliq(jesp),0.D0)*imw(jesp)  ! moles to µg
@@ -913,7 +921,7 @@ contains
     !     Outputs isorropia
     ! sulfate surf conc always 0. µg.m-3
     surface_equilibrium_conc(ESO4)=0.D0
-    
+
     ! convert moles.m-3 to µg.m-3
     surface_equilibrium_conc(ENH4)=gas(1)*molecular_weight_aer(ENH4)
     surface_equilibrium_conc(ENO3)=gas(2)*molecular_weight_aer(ENO3)
@@ -967,26 +975,26 @@ contains
     do s=1,nesp_isorropia
        jesp=isorropia_species(s)
        do j =1, N_size
-         if(concentration_index(j, 1) > ICUT) then! k : index of size bins
-	  ! only when evaporation
-          if (k(j,jesp).lt.0.D0) then
-             ! if q(j,s) is <=TINYM or =0
-             ! then k should be >=0, but
-             ! due to bad matrix inversion
-             ! this case may occur
-             if (q(j,jesp).lt.TINYM) k(j,jesp)=0.D0
-             ! test clipping in other cases
-             qnew=q(j,jesp)+k(j,jesp)
-             if (qnew.lt.0.D0) then
-                ! we are sure that q>=tinym
-                ! otherwise k would be = 0
-                ! from previous case
-                k(j,jesp)=(TINYM-q(j,jesp)) !/timestep_splitting ! <=0 µg.m-3.s-1
-                ! we force q to be a
-                ! 'little' more than TINYM
-                k(j,jesp)=0.99D0*k(j,jesp)
+          if(concentration_index(j, 1) > ICUT) then! k : index of size bins
+             ! only when evaporation
+             if (k(j,jesp).lt.0.D0) then
+                ! if q(j,s) is <=TINYM or =0
+                ! then k should be >=0, but
+                ! due to bad matrix inversion
+                ! this case may occur
+                if (q(j,jesp).lt.TINYM) k(j,jesp)=0.D0
+                ! test clipping in other cases
+                qnew=q(j,jesp)+k(j,jesp)
+                if (qnew.lt.0.D0) then
+                   ! we are sure that q>=tinym
+                   ! otherwise k would be = 0
+                   ! from previous case
+                   k(j,jesp)=(TINYM-q(j,jesp)) !/timestep_splitting ! <=0 µg.m-3.s-1
+                   ! we force q to be a
+                   ! 'little' more than TINYM
+                   k(j,jesp)=0.99D0*k(j,jesp)
+                endif
              endif
-            endif
           endif
        enddo
     enddo
@@ -996,9 +1004,9 @@ contains
        ! compute total mass rate per species
        ksum=0.D0
        do j =1, N_size
-         if(concentration_index(j, 1) > ICUT) then! k : index of size bins
-	    ksum=ksum+k(j,jesp)     !µg.m-3.s-1
-         endif
+          if(concentration_index(j, 1) > ICUT) then! k : index of size bins
+             ksum=ksum+k(j,jesp)     !µg.m-3.s-1
+          endif
        enddo
        ! we perform limiting in
        ! case of condensation only
@@ -1007,9 +1015,9 @@ contains
           ! to perserve from clipping
           qsum=c_gas(jesp)
           do j =1, N_size
-            if(concentration_index(j, 1) <= ICUT) then! k : index of size bins
-               qsum=qsum+q(j,jesp)  ! µg.m-3
-            endif
+             if(concentration_index(j, 1) <= ICUT) then! k : index of size bins
+                qsum=qsum+q(j,jesp)  ! µg.m-3
+             endif
           enddo
           ! test if clipping occurs
           ! then perform the limitation
@@ -1023,19 +1031,19 @@ contains
              ktlim=qsum       !/timestep_splitting
              do j =1, N_size
                 if(concentration_index(j, 1) > ICUT) then! k : index of size bins
-                ! fraction, adim
-                  if (ce_kernal_coef_tot .ne. 0.d0) then !! YK
-                     frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
-                  else
-                     frac = 0.d0
-                  endif !! YK
-               
-                ! we allow only a given fraction
-                ! of ktlim to condense on given bin
-                  klim=ktlim*frac
-                ! apply the limit
-                ! only if necessary
-                  if (k(j,jesp).gt.klim) k(j,jesp)=klim
+                   ! fraction, adim
+                   if (ce_kernal_coef_tot .ne. 0.d0) then !! YK
+                      frac=ce_kernal_coef(j,jesp)/ce_kernal_coef_tot ! ce_kernal_coef_tot != 0
+                   else
+                      frac = 0.d0
+                   endif !! YK
+
+                   ! we allow only a given fraction
+                   ! of ktlim to condense on given bin
+                   klim=ktlim*frac
+                   ! apply the limit
+                   ! only if necessary
+                   if (k(j,jesp).gt.klim) k(j,jesp)=klim
                 endif
              enddo
           endif
