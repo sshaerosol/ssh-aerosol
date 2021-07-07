@@ -133,7 +133,7 @@ contains
     double precision:: lwc,ionic,proton, liquid(12),qtot
     double precision:: vad,rhoaer,cond_time(3)
     double precision:: pplusl,pminusl
-
+    double precision:: dry_density,wet_density,dry_mass,wmass,dry_to_wet
 
 !!     ******Initialization to zero
     do jesp=1,N_aerosol
@@ -169,21 +169,33 @@ contains
           surface_equilibrium_conc(jesp) = surface_equilibrium_conc_nsize(jj,jesp) 
         Enddo 
       endif
-!     Compute wet_diam and wet_mass 
-      if (with_fixed_density == 0) then
-        call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
-                  mass_density_layers,jj,rhoaer)
+      !     Compute wet_diam and wet_mass
+      if (with_fixed_density == 2) then
+         call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)
+         rhoaer = wet_density
+         vad=dry_mass/dry_density !qti/rhoaer!qti total dry mass            
+         rho_wet_cell(jj)=wet_density
+             
+         wet_vol=wmass/wet_density !: wet volume aerosol concentration (µm3/m3).         
+         dry_diam=(vad/c_number(jj)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm             
+         wet_diam=dry_to_wet*dry_diam ! wet aerosol diameter µm
+         wet_mass=wmass/c_number(jj) !single wet mass (µg)
       else
-        rhoaer = fixed_density 
+         if (with_fixed_density == 0) then
+            call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,c_mass,&
+                 mass_density_layers,jj,rhoaer)             
+         else
+            rhoaer = fixed_density 
+         endif
+         if(rhoaer.gt.0.d0) then
+            vad=qtot/rhoaer!qtot total dry mass
+            wet_vol=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
+            dry_diam=(vad/c_number(jj)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
+            wet_diam=((wet_vol)/c_number(jj)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
+            wet_diam=DMAX1(wet_diam,dry_diam)!wet diameter is always larger than dry diameter
+            wet_mass=(qtot+qext(EH2O))/c_number(jj) ! single wet mass (µg)
+         endif
       endif
-      if(rhoaer.gt.0.d0) then
-         vad=qtot/rhoaer!qtot total dry mass
-         wet_vol=vad+qext(EH2O)/rhoaer!: wet volume aerosol concentration (µm3/m3).
-         dry_diam=(vad/c_number(jj)/cst_pi6)**cst_FRAC3 ! dry aerosol dimaeter µm
-         wet_diam=((wet_vol)/c_number(jj)/cst_pi6)**cst_FRAC3 ! wet aerosol diameter µm
-         wet_diam=DMAX1(wet_diam,dry_diam)!wet diameter is always larger than dry diameter
-         wet_mass=(qtot+qext(EH2O))/c_number(jj) ! single wet mass (µg)
-       endif
       ! we prevent evaporation when conc
       ! are too near from zero
       do s=1,nesp_isorropia

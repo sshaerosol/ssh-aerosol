@@ -57,6 +57,7 @@ contains
     double precision :: initial_time_splitting,current_sub_time,final_sub_time
     double precision :: qaero(N_aerosol)
     double precision :: watorg,organion,qgas(N_aerosol)
+    double precision :: dry_density,wet_density,dry_mass,wmass,dry_to_wet
 
     lwcorg_nsize = 0.d0
     start_time= 0.d0
@@ -69,7 +70,7 @@ contains
     iter_water(:) = 0    
 
     ! Initialize the density of aerosols
-    if (with_fixed_density.ne.1) then
+    if (with_fixed_density.eq.0) then
 
        do j1 = 1, N_size
           call ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,&
@@ -77,7 +78,22 @@ contains
           rho_wet_cell(j1) = rhoaer
           if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
        enddo
-    end if
+    else if (with_fixed_density.eq.2) then
+
+       do j1 = 1, N_size
+          do jesp=1,N_aerosol
+             qext(jesp)=0.d0
+          enddo
+          do jesp=1,N_aerosol_layers
+             s = List_species(jesp)
+             qext(s) = qext(s) + concentration_mass(j1,jesp)
+          enddo
+
+          call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)
+          rho_wet_cell(j1) = wet_density
+          if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
+       enddo
+    end if  
 
     call ssh_update_wet_diameter_liquid(N_size,concentration_mass, concentration_number,&
          wet_mass,wet_diameter,wet_volume,cell_diam_av)
