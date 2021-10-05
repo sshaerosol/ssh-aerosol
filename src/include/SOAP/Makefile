@@ -14,7 +14,7 @@ libssh-soap.a:	$(OBJS)
 		$(AR) r libssh-soap.a $(OBJS)
 
 soap.o: soap.cpp
-	$(REALCC) -o soap.o -c soap.cpp -I $(BLITZLIB)
+	$(REALCC) -o soap.o $(CCFLAGS) -c soap.cpp -I $(BLITZLIB)
 
 clean:
 	$(RM) $(RM_LIST)

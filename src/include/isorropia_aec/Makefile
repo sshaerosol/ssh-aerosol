@@ -15,7 +15,7 @@ libssh-iso.a:	$(OBJS)
 		$(AR) r libssh-iso.a $(OBJS)
 
 %.o:		%.f
-		$(REALFC) -o $@ $(F77FLAGS2) -c $<
+		$(REALFC) -o $@ $(F77FLAGS) -c $<
 clean:
 		$(RM) $(RM_LIST)
 

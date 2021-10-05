@@ -7,11 +7,12 @@ include		../Makefile.hdr
 RM_LIST =	*.a *.o *.e *.mod core 
 
 LDFLAGS =	-L. -lssh-modules -lssh-iso -lssh-atmo -lssh-chem -lssh-rdb -lssh-soap -lssh-talos -lnetcdff \
-			-L${NETCDFLIB} $(CDFLIBS) -L${HDF5LIB} -I $(BLITZINC)
+			-L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I $(BLITZLIB) -I $(NETCDFINC)
 
 .PHONY:		all libssh-modules main libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos
 
-all:		libssh-aerosol.a ssh-aerosol
+all:		libssh-aerosol.a 
+#ssh-aerosol
 
 libssh-aerosol.a:	ModuleSSH-aerosol.o
 	        $(RM) libssh-aerosol.a
@@ -46,12 +47,12 @@ libssh-talos:
 		$(LN) include/Talos/libssh-talos.a .
 
 ssh-aerosol.o:	ssh-aerosol.f90 
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -Iinclude/Module/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -Iinclude/Module/ $(LDFLAGS) -c $<
 
 
-ssh-aerosol:	libssh-modules libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos main ssh-aerosol.o
-		$(MPIFC) -o ssh-aerosol $(FFLAGS) \
-		ssh-aerosol.o $(LDFLAGS)
+#ssh-aerosol:	libssh-modules libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos main ssh-aerosol.o
+#		$(MPIFC) -Iinclude/Module/ -o ssh-aerosol $(FFLAGS) \
+#		ssh-aerosol.o $(LDFLAGS)
 
 
 ModuleSSH-aerosol.o:	ModuleSSH-aerosol.f90 libssh-modules libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos main 

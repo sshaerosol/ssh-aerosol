@@ -5,7 +5,7 @@ include		../../../Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
-LDFLAGS =       -L${NETCDFLIB} $(CDFLIBS) -L${HDF5LIB}
+LDFLAGS =       -L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I $(NETCDFINC)
 
 OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o ModuleAdaptstep.o ModuleEmissions.o ModulePhotolysis.o compute_general.o ModuleMeteo.o
 
@@ -19,7 +19,7 @@ init.o:         ModuleInitialization.F90
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
 
 repartition.o:  ModuleCoefficientRepartition.F90 
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ $(LDFLAGS) -c $<
 
 balance.o:      ModulePhysicalbalance.F90 
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<

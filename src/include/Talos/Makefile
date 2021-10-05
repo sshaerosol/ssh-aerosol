@@ -14,7 +14,7 @@ libssh-talos.a:	$(OBJS)
 		$(AR) r libssh-talos.a $(OBJS)
 
 Talos.o: Talos.cpp
-	$(REALCC) -g -traceback -o Talos.o -c Talos.cpp -I $(BLITZLIB)
+	$(REALCC) -o Talos.o -c Talos.cpp -I $(BLITZLIB)
 
 clean:
 	$(RM) $(RM_LIST)
