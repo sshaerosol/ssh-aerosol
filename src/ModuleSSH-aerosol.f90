@@ -270,7 +270,7 @@ contains
 !!$
 !!$  end subroutine launch_ssh_chemonly
 
-  subroutine launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)    
+  subroutine launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)    
     ! Computes aerosol formation
     !    With internal mixing
     !    Inviscid organic aerosol (only one layer) in that case naero=nspecies=number of aerosol species
@@ -294,7 +294,7 @@ contains
     character (len=400) :: namelist_ssh  ! Configuration file
     double precision :: duration,temp,pres,relh
     double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
-    double precision,dimension(nbins) :: number
+    double precision,dimension(nbins) :: number,wet_density,wet_diam_out
     double precision,dimension(nspecies) :: gas_conc
     double precision,dimension(nbins,naero) :: aero_conc
 
@@ -368,9 +368,9 @@ contains
     aero_total_mass=sum(aero_conc(:,1:N_aerosol_layers))
        
     call ssh_init_parameters()
-    call ssh_Init_coag()
-    
+    call ssh_Init_coag()       
     call ssh_init_distributions()
+    !call ssh_init_distributions()
     !print*,"numb: ",sum(concentration_number_tmp)
 
 
@@ -420,6 +420,10 @@ contains
        aero_conc(:,s)=concentration_mass(:,s)
     enddo
     number(:)=concentration_number(:)
+    wet_density(:)=rho_wet_cell(:)*1.e9
+    wet_diam_out(:)=wet_diameter(:)*1.e-6 !/wet_diam_out(:)
+
+    !print*,"IN ssh: ",maxval(aero_conc)
 
     !call delete_empty_file() ! delete empty output files
     !call free_allocated_memory()
