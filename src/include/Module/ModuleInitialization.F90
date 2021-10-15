@@ -101,15 +101,12 @@ module aInitialization
   integer, save :: section_pass
   double precision, save :: tequilibrium ! time under which equilibrium is assumed
 
-  ! ! part 3: System pointers
-  Integer, save :: E1,E2,G1,G2 !Mark the begin and end of dynamic aerosol (except EH2O)
   ! Number of different species group
   Integer, dimension(:), allocatable, save :: isorropia_species
   Integer, dimension(:), allocatable, save :: aec_species
   Integer, save :: nesp, nesp_isorropia, nesp_aec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! Integer :: ENa,ESO4,ENH4,ENO3,ECl,EMD,EBC,EH2O!inorganic pointers
   Integer, save :: ictmNH3,ictmHNO3,ictmHCl,ictmSO2,ictmH2O2,ictmHCHO,ictmHNO2
   Integer, save :: ictmO3,ictmOH,ictmHO2,ictmNO3,ictmNO,ictmNO2,ictmPAN,ictmH2SO4
   ! pointers of cloud species.
@@ -1498,15 +1495,12 @@ contains
        endif
     end do
 
-    EBC=-1
     do s = 1, N_aerosol
        ! For non-organic species.
        if (s <= N_nonorganics) then
           mass_density_layers(s) = mass_density(s)
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
           List_species(s) = s
-          if (aerosol_species_name(s) .eq. "PMD") EMD = s
-          if (aerosol_species_name(s) .eq. "PBC") EBC = s
           if (aerosol_species_name(s) .eq. "PNA") ENa = s
           if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
           if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
@@ -2045,8 +2039,6 @@ contains
           mass_density_layers(s) = mass_density(s)
           molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
           List_species(s) = s
-          if (aerosol_species_name(s) .eq. "PMD") EMD = s
-          if (aerosol_species_name(s) .eq. "PBC") EBC = s
           if (aerosol_species_name(s) .eq. "PNA") ENa = s
           if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
           if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s

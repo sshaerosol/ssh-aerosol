@@ -25,4 +25,5 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		   char smiles[], double saturation_vapor_pressure[], double enthalpy_vaporization[],
                    double diffusion_coef[], int nlayer, int with_kelvin_effect,
 		   double tequilibrium, double dtaeromin, double dorg,
-		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic);
+		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic,
+		   int N_inert, int N_inorganic);

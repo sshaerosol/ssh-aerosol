@@ -699,15 +699,12 @@ contains
     sumint=0.d0
     sum_dry = 0.d0
     !print*,mass_density
-    !!     Mineral Dust
-    vis = vis + qext(EMD)/mass_density(EMD)
-    sumint = sumint + qext(EMD)
+    !!     Mineral Dust and BC
+    do jesp=1,N_inert
+      vis = vis + qext(jesp)/mass_density(jesp)
+      sumint = sumint + qext(jesp)
+    enddo
 
-    !!     Black Carbon
-    if (EBC>0) then
-       vis = vis + qext(EBC)/mass_density(EBC)
-       sumint = sumint + qext(EBC)
-    endif
     !!     Inorganic
     ! compute solid aerosol volume
     do jesp=SNaNO3,SLC

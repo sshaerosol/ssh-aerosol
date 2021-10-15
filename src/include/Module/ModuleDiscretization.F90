@@ -27,13 +27,6 @@ contains
     integer i,b,j,f,k,s
     double precision :: totv,tmp
 
-    !INIT physical parameters
-    ! pointers
-    G1=ESO4
-    G2=ECl
-    E1=EMD
-    E2=EH2O-1
-
     ! pointer for cond_time
     cond_time_index(1)=ENH4
     cond_time_index(2)=ENO3

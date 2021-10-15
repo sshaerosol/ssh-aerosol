@@ -105,7 +105,7 @@ contains
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic)
+           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -274,8 +274,10 @@ contains
       enddo
 
       do js=1,N_size
-         csol(js) = q_soap(IQ(EMD,js))
-         if (EBC>0) csol(js) = csol(js) + q_soap(IQ(EBC,js))
+         csol(js) = 0.d0
+         do jesp=1,N_inert 
+            csol(js) = csol(js) + q_soap(IQ(jesp,js))
+         enddo
       enddo
       
       lwcorg=0.
@@ -288,7 +290,7 @@ contains
            accomodation_coefficient, aerosol_type, &
            smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic)
+           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size
@@ -464,7 +466,10 @@ contains
       enddo
 
       do js=ICUT_org+1,N_size
-         csol(js-ICUT_org) = q_soap(IQ(EMD,js-ICUT_org)) + q_soap(IQ(EBC,js-ICUT_org))
+         csol(js-ICUT_org) = 0.d0 
+         do jesp=1,N_inert
+            csol(js-ICUT_org) = csol(js-ICUT_org) + q_soap(IQ(jesp,js-ICUT_org))
+         enddo
       enddo
 
       lwcorg=0.
@@ -479,7 +484,7 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic)
+           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 
       ! Get the calculated values from SOAP
       do js = ICUT_org+1, N_size
