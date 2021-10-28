@@ -929,13 +929,14 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		  int ntoo_big=0;             
 		 
 		  //if (RH<0.4 or RH>0.9)
-		  config.first_evaluation_activity_coefficients=true;                            
+		  //config.first_evaluation_activity_coefficients=true;                            
 		  //config.compute_organic=false; 
 
 		  double RHsave=RH;
 		  while ((index_iter < config.max_iter) and (abs(error2)/factor_old > config.precision or abs(error4)/factor_old>relprec or
 							     config.first_evaluation_activity_coefficients==true or RH>RHsave))
 		    {                                    
+                     /*
 		      if (config.first_evaluation_activity_coefficients==true)
 			{
 			  if (abs(error2)/factor_old < config.precision and abs(error4)/factor_old<relprec and index_iter>0)
@@ -943,7 +944,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 			      config.first_evaluation_activity_coefficients=false;                          
 			      RH=RHsave;
 			    }
-			}            
+			}            */
                     
 		      if (config.first_evaluation_activity_coefficients==false or index_iter==0)
 			compute_activity_coefficients=true;
