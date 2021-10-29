@@ -2684,7 +2684,7 @@ C
       OM2  = HI
       BB   =-(OM1+OM2+A42)
       CC   = OM1*OM2
-      DD   = SQRT(BB*BB-4.D0*CC)
+      DD   = SQRT(MAX(BB*BB-4.D0*CC,0.d0))
 
       DEL1 = 0.5D0*(-BB - DD)
       DEL2 = 0.5D0*(-BB + DD)
