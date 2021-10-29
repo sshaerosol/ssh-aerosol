@@ -1345,9 +1345,7 @@ contains
             saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp       
 
        found_spec=0
-       do j=1,nspecies
-          if (name_input_species(j)=="DUST") name_input_species(j)="PMD"
-          if (name_input_species(j)=="PPM") name_input_species(j)="BC"
+       do j=1,nspecies          
           if (name_input_species(j)=="H2SO4") name_input_species(j)="SO4"
           if (name_input_species(j)=="NH3") name_input_species(j)="NH4"
           if (name_input_species(j)=="HNO3") name_input_species(j)="NO3"
