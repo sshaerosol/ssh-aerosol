@@ -752,7 +752,7 @@ C     two-step solver starts
         tstep=alpha*tstep
       endif
 
-
+      tstep=min(tstep,tfchem-tschem)
       c=dtnsave/tstep
       gam=(c+dun)/(c+2.d0)
 
@@ -809,6 +809,7 @@ C     two-step solver starts
         do while (error_max>10.0d0 .and. tstep>tstep_min)
             tstep=max(tstep_min,max(dun/alpha,min(alpha,
      &                0.8d0/(error_max**0.5d0)))*tstep)
+            tstep=min(tstep,tfchem-tschem)
             c=dtnsave/tstep
             gam=(c+1)/(c+2.d0)
             do Jsp=1,NS
@@ -876,10 +877,10 @@ C     two-step solver starts
             tstep=alpha*tstep
         endif
 
+        tstep=min(tstep,tfchem-tschem)
+
         c=dtnsave/tstep
         gam=(c+dun)/(c+2.d0)
-
-        tstep=min(tstep,tfchem-tschem)
 
         do Jsp=1,NS
             concii(Jsp)=conci(Jsp)
