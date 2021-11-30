@@ -185,7 +185,7 @@ C     aerosol formation ==============
 
 
       write(nwrite,4341)
- 4341 format('  double precision lwctmp')
+ 4341 format('  double precision lwctmp,VH2O,VN2,VO2')
       write(nwrite,4342)
  4342 format('  double precision WetDiam(Nbin_aer)')
       write(nwrite,4343)

@@ -127,27 +127,41 @@ module SSHaerosolAPI
       integer, parameter :: size_namelist_file = 400
       character(kind=c_char), intent(in) :: input_namelist_file(size_namelist_file)
       character(len=size_namelist_file) :: namelist_file
-      
+
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_dimensions'
       ! N_gas = 93; N_reaction = 206; N_photolysis = 24 
       call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_dimensions'
+      
       ! Read SSH simulation settings file
       namelist_file = transfer(input_namelist_file(1:size_namelist_file), &
                                namelist_file)
+
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_read_namelist'
       call ssh_read_namelist(namelist_file)
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_read_namelist'
+      
       ! Read inputs
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_read_inputs'
       call ssh_read_inputs()
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_read_inputs'
+      
       ! Read meteo
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_read_meteo'
       call ssh_read_meteo()
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_read_meteo'
       ! Initialize parameters
+
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_init_parameters'
       call ssh_init_parameters()
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_init_parameters'
+      
       ! Initialize coag coefficients
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - before call ssh_init_coag'
       call ssh_api_init_coag()
-
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - after call ssh_init_coag'
+      
+      print*,'in ssh_api_initialize in ModuleAPI.F90 - end of the subroutine'
     end subroutine ssh_api_initialize
 
 ! =============================================================
