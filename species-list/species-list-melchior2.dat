@@ -1,4 +1,5 @@
 # The order of species in this list should not be changed.
+NH3     17.
 C2H6    30.
 MALEIC  1.
 HUMULE  136.
@@ -25,6 +26,7 @@ BiPER   168.
 BiNIT3  272.
 CH3COY  86.
 CH3OH   32.
+BiDER   136.
 obioH   64.
 oROOH   64.
 PAN     109.
