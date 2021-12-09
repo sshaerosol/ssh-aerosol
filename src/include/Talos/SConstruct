@@ -2,4 +2,8 @@ import distutils.sysconfig
 env = Environment(SWIGFLAGS = ['-c++', '-python'],
                   CPPPATH = [distutils.sysconfig.get_python_inc()],
                   SHLIBPREFIX = "")
+
+if ARGUMENTS["intel"] == "yes":
+    cpp_compiler = "icpc"
+
 env.SharedLibrary('_talos.so', ['Talos.cpp', 'talos.i'])

@@ -289,9 +289,9 @@ class Utils:
 
         if ARGUMENTS["mpi"] == "yes":
             if ARGUMENTS["intel"] == "yes":
-                cpp_compiler = "mpiicpc"
-                c_compiler = "mpiicc"
-                fortran_compiler = "mpiifort"
+                cpp_compiler = "mpic++"
+                c_compiler = "mpicc"
+                fortran_compiler = "mpif90"
             else:
                 for cpp_compiler in ['mpiCC', 'mpicxx', 'mpic++']:
                     if WhereIs(cpp_compiler) != None:
@@ -648,6 +648,11 @@ to highly recommended debugging and optimization options.
                                     + src_dependencies + dir_dependencies
             # Either we generate the program
             if generate_program:
+
+                if (('ssh-aerosol.f90' in target) and
+                    (ARGUMENTS["intel"] == "yes")):
+                    env.Replace(LINK = fortran_compiler) # YK
+                
                 program = env.Program(program_name, program_dependencies)
                 if program_name in self.command_line_target:
                     BUILD_TARGETS.append(program_name + env["PROGSUFFIX"])

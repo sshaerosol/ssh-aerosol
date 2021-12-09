@@ -71,7 +71,10 @@ sharedlib_list = utils.create_list("sharedlib", ["yes", "no"], "*")
 src_dependencies = os.path.join(polyphemus_path,
    "include/SOAP/soap.cpp") 
 
-flag_fortran = "-I /usr/include -cpp"
+# Path to netcdf.mod
+netcdf_path = "/usr/include" 
+
+flag_fortran = "-I" + netcdf_path + " -cpp"
 
 for chemistry in chemistry_list:
     for nacl in nacl_list:
