@@ -1971,7 +1971,7 @@ contains
        if (ierr == 0) count = count + 1
     end do
 
-    print*,'in ssh_read_inputs in ModuleInitialization - before reading gas-phase species list'
+    
     if (ssh_standalone) write(*,*) 'read gas-phase species list.'
     if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
     if (N_gas == count - 1) then   ! minus the first comment line
@@ -1981,7 +1981,7 @@ contains
        write(*,*) 'Given gas-phase species list does not fit chem() setting.'
        stop
     end if
-    print*,'in ssh_read_inputs in ModuleInitialization - after reading gas-phase species list'
+    
     
     rewind 11
     read(11, *)  ! read the first comment line
@@ -1990,7 +1990,7 @@ contains
     enddo
     close(11)
 
-    print*,'in ssh_read_inputs in ModuleInitialization - before reading aerosol species namelist'
+    
     ! read aerosol species namelist ! unit = 12
     open(unit = 12, file = aerosol_species_list_file, status = "old")
     count = 0
@@ -2002,7 +2002,7 @@ contains
     if (ssh_standalone) write(*,*) 'read aerosol species list.'
     if (ssh_logger) write(logfile,*) 'read aerosol species list.'
     N_aerosol = count - 1  ! minus the first comment line
-    print*,'in ssh_read_inputs in ModuleInitialization - after reading aerosol species namelist'
+    
 
     allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
@@ -2028,14 +2028,14 @@ contains
     
     allocate(partitioning(N_aerosol))
 
-    print*,'in ssh_read_inputs in ModuleInitialization - before read lines from aerosol species file'
+    
     ! Read lines from aerosol species file.
     rewind 12
     count = 0
     read(12, *) ! Read a header line (#)
-    print*,'N_aerosol : ',N_aerosol
+    
     do s = 1, N_aerosol
-       print*,s
+       
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
@@ -2075,7 +2075,7 @@ contains
        endif
     enddo
     close(12)
-    print*,'in ssh_read_inputs in ModuleInitialization - after read lines from aerosol species file'
+    
     
     ! Safety check if index_groups is used
     if (tag_external.eq.1) then
@@ -2136,7 +2136,7 @@ contains
     allocate(aec_species(nesp_aec))
     allocate(aec_species_name(nesp_aec))
 
-    print*,'in ssh_read_inputs in ModuleInitialization - before reading aerosol species name'
+    
     ! Read aerosol species name.
     js = 0
     i = 0
