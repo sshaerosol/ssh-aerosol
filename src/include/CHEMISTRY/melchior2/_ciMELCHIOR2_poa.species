@@ -1,6 +1,6 @@
 File for chemical species MELCHIOR2 (name and molar mass)
 # gaseous species # aqueous species
-88      0
+89      0
 ---Gas-phase----
 C2H4       28.
 C2H6       30.
@@ -90,6 +90,7 @@ TMB        120.
 OCIMEN     136.
 NH3        17.
 BiDER      136.
+HCL       36.5
 
 
 

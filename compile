@@ -36,7 +36,7 @@ done
 
 
 if [ -z $chemistry ]; then
-    chemistry="cb05"
+    chemistry="melchior2"
 fi
 echo "Chemistry: $chemistry"
 
