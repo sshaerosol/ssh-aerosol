@@ -264,7 +264,7 @@ contains
              call SSH_SOAP_DYN_ICUT(Relative_Humidity,&
                   ionic, proton, lwc,lwcorg,&
                   Temperature, delta_t,&
-                  cell_diam_av, neq, liquid)
+                  cell_diam_av(ICUT_org+1:N_size), neq, liquid)
           endif
        endif
        
