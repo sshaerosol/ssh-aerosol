@@ -3948,48 +3948,49 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
   if (config.chemistry==false)
     if (config.compute_organic)
       for (i=0;i<n;i++)
-	{
-	  double atot=0.; //surrogate[i].Ag;
-	  if (surrogate[i].hydrophobic)
-	    for (b=0;b<config.nbins;++b)
-	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
-		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		  atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+	if (surrogate[i].is_organic)
+	  {
+	    double atot=0.; //surrogate[i].Ag;
+	    if (surrogate[i].hydrophobic)
+	      for (b=0;b<config.nbins;++b)
+		for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
 
-	  if (surrogate[i].hydrophilic)
-	    for (b=0;b<config.nbins;++b)
-	      atot+=surrogate[i].Aaq_bins_init(b);
+	    if (surrogate[i].hydrophilic)
+	      for (b=0;b<config.nbins;++b)
+		atot+=surrogate[i].Aaq_bins_init(b);
 
 	
-	  if (atot<-surrogate[i].Atot)
-	    {
-	      surrogate[i].Ag=surrogate[i].Atot-atot;
-	    }
-	  else if (surrogate[i].Atot>0)
-	    {
-	      atot+=surrogate[i].Ag;
-	      if (atot==0.)
-		{
-		  cout << "error " << surrogate[i].Ag << " " << surrogate[i].Atot << " " << surrogate[i].name << endl;
-		  exit(0);
-		}
-	      //cout << surrogate[i].name << endl;
+	    if (atot<-surrogate[i].Atot)
+	      {
+		surrogate[i].Ag=surrogate[i].Atot-atot;
+	      }
+	    else if (surrogate[i].Atot>0)
+	      {
+		atot+=surrogate[i].Ag;
+		if (atot==0.)
+		  {
+		    cout << "error " << surrogate[i].Ag << " " << surrogate[i].Atot << " " << surrogate[i].name << endl;
+		    exit(0);
+		  }
+		//cout << surrogate[i].name << endl;
 
-	      if (atot>0.)
-		{
-		  surrogate[i].Ag*=surrogate[i].Atot/atot;
-		  if (surrogate[i].hydrophobic)
-		    for (b=0;b<config.nbins;++b)
-		      for (ilayer=0;ilayer<config.nlayer;++ilayer)
-			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			  surrogate[i].Ap_layer_init(b,ilayer,iphase)*=surrogate[i].Atot/atot;
+		if (atot>0.)
+		  {
+		    surrogate[i].Ag*=surrogate[i].Atot/atot;
+		    if (surrogate[i].hydrophobic)
+		      for (b=0;b<config.nbins;++b)
+			for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			    surrogate[i].Ap_layer_init(b,ilayer,iphase)*=surrogate[i].Atot/atot;
 		  
-		  if (surrogate[i].hydrophilic)
-		    for (b=0;b<config.nbins;++b)
-		      surrogate[i].Aaq_bins_init(b)*=surrogate[i].Atot/atot;
-		}
-	    }
-	}
+		    if (surrogate[i].hydrophilic)
+		      for (b=0;b<config.nbins;++b)
+			surrogate[i].Aaq_bins_init(b)*=surrogate[i].Atot/atot;
+		  }
+	      }
+	  }
   
   if (config.chemistry==false)
     if (config.compute_inorganic)

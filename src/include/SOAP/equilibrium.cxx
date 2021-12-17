@@ -364,8 +364,8 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
 }
 
 void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOinit,double &MOW,
-               double &Temperature, double &error, double &derivative, double &RH,
-               bool all_hydrophobic, bool compute_activity_coefficients)
+		   double &Temperature, double &error, double &derivative, double &RH, double factor,
+		   bool all_hydrophobic, bool compute_activity_coefficients)
 {
   //Compute the value of the function error in the organic phase
   //error=MOinit-MO
@@ -405,7 +405,7 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
             if (surrogate[i].kp_from_experiment)
               {
                 Kp=surrogate[i].kpi;
-                surrogate[i].Ap=surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit);
+                surrogate[i].Ap=(1.-factor)*surrogate[i].Ap+factor*surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit);
                 MO+=surrogate[i].Ap;
                 derivative+=surrogate[i].Atot*pow(Kp,2)*MOinit/(pow(1+Kp*MOinit,2))
                   -surrogate[i].Atot*Kp/(1+Kp*MOinit);
@@ -415,7 +415,7 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
                 if (MOW == 0.0 or surrogate[i].gamma_org == 0.0)
                   throw string("Error: division by zero in error_org.");
                 Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
-                surrogate[i].Ap=surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit);
+                surrogate[i].Ap=(1.-factor)*surrogate[i].Ap+factor*surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit);
                 MO+=surrogate[i].Ap;
                 derivative+=surrogate[i].Atot*pow(Kp,2)*MOinit/(pow(1+Kp*MOinit,2))
                   -surrogate[i].Atot*Kp/(1+Kp*MOinit);
@@ -423,7 +423,7 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
   
       if (config.iH2O>=0 and config.hygroscopicity)
         if (surrogate[config.iH2O].hydrophobic) //Can H2O condense on the organic phase
-          hygroscopicity_org_ssh(config, surrogate, Temperature, MOW, RH, MOinit, MO, derivative, 1.0);
+          hygroscopicity_org_ssh(config, surrogate, Temperature, MOW, RH, MOinit, MO, derivative, factor);
 
       MO=max(MO,config.MOmin);
       
@@ -453,8 +453,11 @@ void error_ph_ssh(model_config &config, vector<species> &surrogate, double Tempe
 
   derivative=0.0; //-1.0;
 
-  if (conc_org == 0.0 or MOW == 0.0 or MOinit == 0.0 or chp == 0.0)
-    throw string("Error: division by zero in error_ph.");
+  if (conc_org == 0.0 or chp == 0.0)
+    {
+      cout << conc_org << " " << MOW << " " << MOinit << " " << chp << endl;
+      throw string("Error: division by zero in error_ph.");
+    }
   
   for (i=0;i<n;++i)
     {
@@ -1695,7 +1698,7 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
           double derivative_h;
           chp2=chp;
           int index=0;
-          while(abs(error_h/chp2)>1.0e-3 and index<10)
+          while(abs(error_h/chp2)>1.0e-3 and index<20)
             {
               Kpreal_inorganic_ssh(config, surrogate, chp2);
               error_ph_ssh(config, surrogate, Temperature, chp2, organion, error_h, derivative_h,AQinit,LWC,MMaq,MOinit,MOW,conc_org);
@@ -1704,7 +1707,7 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
               else
                 chp2=chp2+error_h;
               
-              chp2=max(chp2,1.0e-20);	                    
+              chp2=max(chp2,1.0e-8);	                    
               index++;
             }          
           chp2=min(10*chp,max(0.1*chp,chp2));
@@ -1918,9 +1921,9 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
           //compute hygroscopicity
           LWC=0.0; //In the case where SOAP compute inorganics, LWC is only used for the initialization
           if (config.hygroscopicity)
-            hygroscopicity_coupled_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
-                                   MOinit, MO, AQinit, AQ, deriv_error1_MO, 
-                                   deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);
+	    hygroscopicity_coupled_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
+				       MOinit, MO, AQinit, AQ, deriv_error1_MO, 
+				       deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);
 	  
           //hygroscopicity_tot_ssh(config, surrogate, Temperature, RH, AQinit, conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
           //if (config.hygroscopicity and config.compute_organic)
@@ -1933,9 +1936,17 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
       AQ+=LWC+conc_inorganic;  
       if (config.iH2O>=0 and config.hygroscopicity)        
         if (config.hygroscopicity)
-          hygroscopicity_coupled_tot_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
-                                     MOinit, MO, AQinit, AQ, deriv_error1_MO, 
-                                     deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);        
+	  {
+	    if (surrogate[config.iH2O].hydrophobic) //Can H2O condense on the organic phase
+	      hygroscopicity_org_ssh(config, surrogate, Temperature, MOW, RH, MOinit, MO, deriv_error1_MO, factor);
+	    if (surrogate[config.iH2O].hydrophilic) //Can H2O condense on the organic phase
+	      hygroscopicity_aq_ssh(config, surrogate, Temperature, RH, AQinit, LWC,
+				    conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
+	    /*
+	    hygroscopicity_coupled_tot_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
+					   MOinit, MO, AQinit, AQ, deriv_error1_MO, 
+					   deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);       */
+	  }
     }  
   /*
     for (i=0;i<n;i++)
@@ -2063,7 +2074,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
           double derivative_h;
           chp2=chp;
           int index=0;
-          while(abs(error_h/chp2)>1.0e-3 and index<10)
+          while(abs(error_h/chp2)>1.0e-3 and index<20)
             {
               Kpreal_inorganic_ssh(config, surrogate, chp2);
               error_ph_ssh(config, surrogate, Temperature, chp2, organion, error_h, derivative_h,AQinit,LWC,MMaq,MOinit,MOW,conc_org);
@@ -2074,7 +2085,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
 
               //Too high ph may cause instability
               chp2=max(chp2,1.0e-8);	 
-              chp2=max(chp2,1.0e-20);	                    
+              //chp2=max(chp2,1.0e-20);	                    
               index++;
             }          
           chp2=min(10*chp,max(0.1*chp,chp2));
@@ -2256,9 +2267,15 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
           //compute hygroscopicity
           LWC=0.0; //In the case where SOAP compute inorganics, LWC is only used for the initialization
           if (config.hygroscopicity)
-            hygroscopicity_coupled_tot_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
-                                       MOinit, MO, AQinit, AQ, deriv_error1_MO, 
-                                       deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);
+	    {
+	      /*
+	      hygroscopicity_tot_ssh(config, surrogate, Temperature, RH, AQinit, conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
+	      hygroscopicity_org_ssh(config, surrogate, Temperature, MOW, RH, MOinit, MO, deriv_error1_MO, factor);
+	      */
+	      hygroscopicity_coupled_tot_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
+					     MOinit, MO, AQinit, AQ, deriv_error1_MO, 
+					     deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);
+	    }
 	  
           //hygroscopicity_tot_ssh(config, surrogate, Temperature, RH, AQinit, conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
           //if (config.hygroscopicity and config.compute_organic)
