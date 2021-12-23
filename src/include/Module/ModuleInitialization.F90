@@ -349,6 +349,10 @@ module aInitialization
   !
   integer, parameter :: logfile = 99
 
+  ! Flag for the verbose mode:
+  ! When activated, more information is displayed.
+  logical :: ssh_verbose = .false.
+
 contains
 
 

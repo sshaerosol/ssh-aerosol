@@ -399,6 +399,29 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can set the flag to decide if SSH-aerosol is logging informations
+!
+! Important: This subroutine must be called before api_initialize
+!
+! input : true if logging to a file, false (default) otherwise
+! =============================================================
+
+    subroutine ssh_api_set_verbose(cflag) bind(c, name='api_sshaerosol_set_verbose_')
+
+      use iso_c_binding
+      use aInitialization, only : ssh_verbose
+
+      implicit none
+
+      logical(kind=c_bool), intent(in) :: cflag
+
+      ssh_verbose = cflag
+
+    end subroutine ssh_api_set_verbose
+    
+
+! =============================================================
+!
 ! External code can get the flag to check if SSH-aerosol is logging informations
 !
 ! return value : true if logging to a file, false (default) otherwise
@@ -1314,14 +1337,15 @@ module SSHaerosolAPI
     subroutine ssh_api_get_aero_concentration(array) bind(c, name='api_sshaerosol_get_aero_')
 
       use iso_c_binding
-      use aInitialization, only : N_size, N_aerosol_layers, concentration_mass
+      use aInitialization, only : N_size, N_aerosol_layers, &
+           concentration_mass, ssh_verbose
 
       implicit none
 
       real(kind=c_double), intent(out), dimension(N_size, N_aerosol_layers) :: array
-
-      array(:,:) = concentration_mass(:,:)
       
+      array(:,:) = concentration_mass(:,:)
+
     end subroutine ssh_api_get_aero_concentration
 
 ! =============================================================
@@ -1605,6 +1629,10 @@ module SSHaerosolAPI
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
         end if
       end do
+
+      if (ssh_verbose) then
+         write(*,*) " SSH-aerosol: aerosol chemistry done"
+      endif
       
     end subroutine ssh_api_call_ssh_aerochemistry
 
