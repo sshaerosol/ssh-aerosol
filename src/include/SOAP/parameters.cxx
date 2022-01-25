@@ -140,19 +140,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   if (config.chemistry)
     config.coupled_phases=true;
 
-  for (i=0;i<n;++i) 
-    {
-      if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-        surrogate[i].is_ion=true;
-      else
-        surrogate[i].is_ion=false;
 
-      if ((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic
-          and surrogate[i].index_gamma_aiomfac>=0)
-        surrogate[i].is_solvent=true;
-      else
-        surrogate[i].is_solvent=false;
-    }
 
   get_smiles(config, surrogate);
 }
@@ -637,6 +625,20 @@ void system_aiomfac_ssh(model_config &config, vector<species>& surrogate)
 
   config.gMg_aiomfac.resize(config.nmol_aiomfac,config.ngroup_aiomfac);
   config.gMg_aiomfac=config.groups_aiomfac*config.Mgroups_aiomfac*0.001;
+
+  for (i=0;i<n;++i) 
+    {
+      if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
+        surrogate[i].is_ion=true;
+      else
+        surrogate[i].is_ion=false;
+
+      if ((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic
+          and surrogate[i].index_gamma_aiomfac>=0)
+        surrogate[i].is_solvent=true;
+      else
+        surrogate[i].is_solvent=false;
+    }
 		
 }
 
