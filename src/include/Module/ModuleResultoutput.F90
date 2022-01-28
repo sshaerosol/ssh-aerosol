@@ -172,7 +172,7 @@ contains
     integer :: s, b, i, j, jesp
     !real (kind = 4) :: conc_save
     double precision :: conc_save
-    character (len=100) output_filename
+    character (len=200) output_filename
     integer :: out_aero_num(6) = (/2,1,7,33,0,33/)  ! last index of required aero species list; 0 for PM2.5
 
     ! **** output_directory/gas/
@@ -309,8 +309,8 @@ contains
 
     integer :: stat, s, b
     logical :: file_exists
-    character (len=100) output_filename
-    character (len=80) :: cmd
+    character (len=200) output_filename
+    character (len=200) :: cmd
     character (len=10) :: out_dir(5) 
     out_dir(1) = "/number/"
     out_dir(2) = "/gas/"	
@@ -459,8 +459,8 @@ contains
     integer :: stat, s, b
     real :: conc_value
     logical :: file_exists
-    character (len=100) output_filename
-    character (len=80) :: cmd
+    character (len=200) output_filename
+    character (len=200) :: cmd
     character (len=10) :: out_dir(5) 
    ! gas phase
     do s = 1, n_gas

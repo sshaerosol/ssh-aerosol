@@ -285,18 +285,18 @@ module aInitialization
   character (len=800), save :: emis_aero_num_file
   character (len=80), dimension(:), allocatable, save :: isorropia_species_name
   character (len=80), dimension(:), allocatable, save :: aec_species_name
-  character (len=10), save :: precursor
-  character (len=10), dimension(:), allocatable, save :: species_name
+  character (len=40), save :: precursor
+  character (len=40), dimension(:), allocatable, save :: species_name
   character (len=40), dimension(:), allocatable, save :: aerosol_species_name
   integer, save :: spec_name_len
-  character (len=10), dimension(:), allocatable, save :: emis_gas_species_name
-  character (len=10), dimension(:), allocatable, save :: emis_aer_species_name
+  character (len=40), dimension(:), allocatable, save :: emis_gas_species_name
+  character (len=40), dimension(:), allocatable, save :: emis_aer_species_name
   character (len=100), save :: output_directory, output_dir2
   
   ! Photolysis
   character (len=800), save :: photolysis_file ! File for photolysis list.
   character (len=800), save :: photolysis_dir ! Directory for photolysis list.
-  character (len=10), dimension(:), allocatable, save :: photolysis_name 
+  character (len=40), dimension(:), allocatable, save :: photolysis_name
   integer, save :: n_time_angle
   double precision, save :: time_angle_min, delta_time_angle
   integer, save :: n_latitude
@@ -540,13 +540,13 @@ contains
           if (ssh_logger) write(logfile,*) 'Internally mixed aerosol species are provided for initial condition.'
        end if
 
-       if (ssh_standalone) write(*,*) 'Gas-phase conc. input file :', init_gas_conc_file
-       if (ssh_logger) write(logfile,*) 'Gas-phase conc. input file :', init_gas_conc_file
-       if (ssh_standalone) write(*,*) 'Particle conc. input file :', init_aero_conc_mass_file
-       if (ssh_logger) write(logfile,*) 'Particle conc. input file :', init_aero_conc_mass_file
+       if (ssh_standalone) write(*,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
+       if (ssh_logger) write(logfile,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
+       if (ssh_standalone) write(*,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
+       if (ssh_logger) write(logfile,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
        if (with_init_num .eq. 1) then
-          if (ssh_standalone) write(*,*) 'Aerosol number conc. is read from file :', init_aero_conc_num_file
-          if (ssh_logger) write(logfile,*) 'Aerosol number conc. is read from file :', init_aero_conc_num_file
+          if (ssh_standalone) write(*,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
+          if (ssh_logger) write(logfile,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
        else 
           with_init_num = 0  ! default with_init_num == 0
           if (ssh_standalone) write(*,*) ' Aerosol number conc. is estimated from mass and diameter.' 
@@ -610,13 +610,15 @@ contains
        allocate(emis_bin_number(N_sizebin))
        emis_bin_number = 0.d0
        if (tag_emis .ne. 0) then
-          if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', emis_gas_file
-          if (ssh_logger) write(logfile,*) 'Gas-phase conc. emission file :', emis_gas_file
-          if (ssh_standalone) write(*,*) 'Particle conc. emission file :', emis_aero_mass_file
-          if (ssh_logger) write(logfile,*) 'Particle conc. emission file :', emis_aero_mass_file
+          if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
+          if (ssh_logger) write(logfile,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
+          if (ssh_standalone) write(*,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
+          if (ssh_logger) write(logfile,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
           if (with_emis_num == 1) then
-             if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is read from file :', emis_aero_num_file
-             if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is read from file :', emis_aero_num_file
+             if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is read from file :', &
+                 trim(emis_aero_num_file)
+             if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is read from file :', &
+                 trim(emis_aero_num_file)
           else  ! default with_emis_num == 0 
              with_emis_num = 0
              if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
@@ -699,8 +701,8 @@ contains
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Species lists >>>>'
        if (ssh_logger) write(logfile,*) '<<<< Species lists >>>>'
-       if (ssh_standalone) write(*,*) 'gas phase species file :', species_list_file
-       if (ssh_logger) write(logfile,*) 'gas phase species file :', species_list_file
+       if (ssh_standalone) write(*,*) 'gas phase species file :', trim(species_list_file)
+       if (ssh_logger) write(logfile,*) 'gas phase species file :', trim(species_list_file)
     end if
 
     read(10, nml = aerosol_species, iostat = ierr)
@@ -708,8 +710,8 @@ contains
        write(*,*) "aerosol_species data can not be read."
        stop
     else
-       if (ssh_standalone) write(*,*) 'particle species file :', aerosol_species_list_file
-       if (ssh_logger) write(logfile,*) 'particle species file :', aerosol_species_list_file
+       if (ssh_standalone) write(*,*) 'particle species file :', trim(aerosol_species_list_file)
+       if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
     end if
 
     ! gas chemistry
@@ -972,8 +974,8 @@ contains
           if(i_compute_repart == 0) then
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are read'
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are read'
-	     if (ssh_standalone) write(*,*) 'coefficient file : ', Coefficient_file
-	     if (ssh_logger) write(logfile,*) 'coefficient file : ', Coefficient_file
+	     if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
+	     if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
              i_write_repart = 0 ! Do no write repartition coefficients if they are not computed.
           else
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
@@ -984,8 +986,8 @@ contains
           if (i_write_repart == 1) then
              if (ssh_standalone) write(*,*) i_write_repart,'repartition coefficient are written'
              if (ssh_logger) write(logfile,*) i_write_repart,'repartition coefficient are written'
-             if (ssh_standalone) write(*,*) 'coefficient file : ', Coefficient_file
-             if (ssh_logger) write(logfile,*) 'coefficient file : ', Coefficient_file
+             if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
+             if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
           endif
           ! Safety check
           if (i_compute_repart .lt. 0 .or. i_compute_repart .gt. 1) then
@@ -1197,10 +1199,10 @@ contains
           if (ssh_standalone) write(*,*) 'results are saved in text files.'
           if (ssh_logger) write(logfile,*) 'results are saved in text files.'
        end if
-       if (ssh_standalone) write(*,*) 'output directory :', output_directory
-       if (ssh_logger) write(logfile,*) 'output directory :', output_directory
-       if (ssh_standalone) write(*,*) 'Particles composition file : ', particles_composition_file
-       if (ssh_logger) write(logfile,*) 'Particles composition file : ', particles_composition_file
+       if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
+       if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
+       if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
+       if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
     end if
 
     close(10)
@@ -1255,7 +1257,7 @@ contains
     character (len=40),dimension(nspecies) :: name_input_species
     character (len=100) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp, char1,char2
-    character (len=10) :: precursor_tmp
+    character (len=40) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh
 
     index_species_ssh(:)=-1
@@ -1396,8 +1398,10 @@ contains
           enddo
           !! Check if a precursor name is found in the list of gas-phase species.
           if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+                 trim(aerosol_species_list_file), trim(precursor)
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+                 trim(aerosol_species_list_file), trim(precursor)
              stop
           endif
        endif
@@ -1572,8 +1576,10 @@ contains
           if (ind == 1) exit
        enddo
        if (ind .eq. 0) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+              trim(init_gas_conc_file), trim(ic_name)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+              trim(init_gas_conc_file), trim(ic_name)
        endif
     enddo
     close(21)
@@ -1616,8 +1622,10 @@ contains
              if (ind  == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
-             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
+             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ", &
+                 trim(init_aero_conc_mass_file), trim(ic_name)
+             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ", &
+                 trim(init_aero_conc_mass_file), trim(ic_name)
           endif
        enddo
 
@@ -1646,7 +1654,7 @@ contains
              if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
              if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
           else 
-             write(*,*) "Aerosol number conc. can not be read from file ",init_aero_conc_num_file
+             write(*,*) "Aerosol number conc. can not be read from file ",trim(init_aero_conc_num_file)
              stop
           end if
        else if (tag_init == 1) then
@@ -1690,8 +1698,10 @@ contains
              if (ind == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
+                 trim(init_gas_conc_file), trim(ic_name)
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
+                 trim(init_gas_conc_file), trim(ic_name)
           end if
        end do
 
@@ -1729,8 +1739,10 @@ contains
                 end if
                 if (ind ==1) exit
              end do
-             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', emis_aero_mass_file, ic_name
-             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', emis_aero_mass_file, ic_name
+             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', &
+                 trim(emis_aero_mass_file), trim(ic_name)
+             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', &
+                 trim(emis_aero_mass_file), trim(ic_name)
           enddo
           if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
           if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
@@ -1753,7 +1765,7 @@ contains
 	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
 	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
           else 
-             write(*,*) "can not read aerosol number conc. from ", emis_aero_num_file
+             write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
              stop
           end if
        end if
@@ -1955,8 +1967,10 @@ contains
        enddo
        !! Check if a precursor name is found in the list of gas-phase species.
        if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", aerosol_species_list_file, trim(precursor)
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+              trim(aerosol_species_list_file), trim(precursor)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+              trim(aerosol_species_list_file), trim(precursor)
           stop
        endif
     enddo
@@ -2125,8 +2139,10 @@ contains
           if (ind == 1) exit
        enddo
        if (ind .eq. 0) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ", init_gas_conc_file, ic_name
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+              trim(init_gas_conc_file), trim(ic_name)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+              trim(init_gas_conc_file), trim(ic_name)
        endif
     enddo
     close(21)
@@ -2169,8 +2185,10 @@ contains
              if (ind  == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
-             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ",init_aero_conc_mass_file, ic_name
+             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ", &
+                 trim(init_aero_conc_mass_file), trim(ic_name)
+             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ", &
+                 trim(init_aero_conc_mass_file), trim(ic_name)
           endif
        enddo
 
@@ -2199,7 +2217,7 @@ contains
              if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
              if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
           else 
-             write(*,*) "Aerosol number conc. can not be read from file ",init_aero_conc_num_file
+             write(*,*) "Aerosol number conc. can not be read from file ", trim(init_aero_conc_num_file)
              stop
           end if
        else if (tag_init == 1) then
@@ -2243,8 +2261,10 @@ contains
              if (ind == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", init_gas_conc_file, ic_name
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
+               trim(init_gas_conc_file), trim(ic_name)
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
+               trim(init_gas_conc_file), trim(ic_name)
           end if
        end do
 
@@ -2282,8 +2302,10 @@ contains
                 end if
                 if (ind ==1) exit
              end do
-             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', emis_aero_mass_file, ic_name
-             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', emis_aero_mass_file, ic_name
+             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', &
+                 trim(emis_aero_mass_file), trim(ic_name)
+             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', &
+                 trim(emis_aero_mass_file), trim(ic_name)
           enddo
           if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
           if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
@@ -2306,7 +2328,7 @@ contains
 	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
 	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
           else 
-             write(*,*) "can not read aerosol number conc. from ", emis_aero_num_file
+             write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
              stop
           end if
        end if
