@@ -2138,7 +2138,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SO4.is_solid=false;
   SO4.is_monomer=false;
   SO4.rion=false;
-  if (compute_inorganic)
+
     for (int i = 0; i < nsp; ++i)
       if (species_list_aer[i].substr(1,-1) == "SO4")
 	{
@@ -2195,7 +2195,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NO3.is_solid=false;
   NO3.is_monomer=false;
   NO3.rion=false;
-  if (compute_inorganic)
+
     for (int i = 0; i < nsp; ++i)
       if (species_list_aer[i].substr(1,-1) == "NO3")
 	{
@@ -2228,7 +2228,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NH4.is_solid=false;
   NH4.is_monomer=false;
   NH4.rion=false;
-  if (compute_inorganic)
+
     for (int i = 0; i < nsp; ++i)
       if (species_list_aer[i].substr(1,-1) == "NH4")
 	{
@@ -2317,7 +2317,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Cl.is_solid=false;
   Cl.is_monomer=false;
   Cl.rion=false;
-  if (compute_inorganic)
+
     for (int i = 0; i < nsp; ++i)
       if (species_list_aer[i].substr(1,-1) == "HCL")
 	{
