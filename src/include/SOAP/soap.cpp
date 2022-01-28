@@ -354,7 +354,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	}
       for (i = 0; i < n; ++i)      
 	MOinit += surrogate[i].Ap;
-      
+
       global_equilibrium_ssh(config,surrogate,
 			     MOinit,MOW,
 			     LWC, AQinit, ionic, chp,
@@ -583,43 +583,37 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
             {	      
 	      for (b = 0; b < config.nbins; ++b)
 		{
-		  int ind;
+		  int ind=surrogate[i].soap_ind;
 		  // PMD    PBC     PNA    PSO4    PNH4    PNO3
 		  // PHCL   PBiA2D  PBiA1D PBiA0D  PAGLY   PAMGLY ...
 		  if (surrogate[i].name == "SO4")
 		    {
-		      ind = 3;
 		      int iq_aero = (ind + 1) * config.nbins;                                   
 		      surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) * q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
 		      //cout << "in: " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[config.iHSO4m].Aaq_bins_init(b) << ' ' << endl;
 		    }
 		  else if (surrogate[i].name == "HSO4")
 		    {
-		      ind = 3;
 		      int iq_aero = (ind + 1) * config.nbins;                                   
 		      surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) * q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
 		    }
 		  else if (surrogate[i].name == "NO3")
 		    {
-		      ind = 5;
 		      int iq_aero = (ind + 1) * config.nbins; 
 		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iNO3m].MM/surrogate[config.iHNO3].MM;
 		    }
 		  else if (surrogate[i].name == "NH4")
 		    {
-		      ind = 4;
 		      int iq_aero = (ind + 1) * config.nbins; 
 		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iNH4p].MM/surrogate[config.iNH3].MM;			
 		    }
 		  else if (surrogate[i].name == "Cl")
 		    {
-		      ind = 6;
 		      int iq_aero = (ind + 1) * config.nbins; 
 		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iClm].MM/surrogate[config.iHCl].MM;			
 		    }
 		  else if (surrogate[i].name=="Na")
 		    {
-		      ind = 2;
 		      int iq_aero = (ind + 1) * config.nbins; 
 		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];			
 		    }
@@ -743,31 +737,27 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	      
 	      for (b = 0; b < config.nbins; ++b)
 		{
-		  int ind;
+		  int ind=surrogate[i].soap_ind;
 		  // PMD    PBC     PNA    PSO4    PNH4    PNO3
 		  // PHCL   PBiA2D  PBiA1D PBiA0D  PAGLY   PAMGLY ...
 		  if (surrogate[i].name == "SO4")
 		    {
-		      ind = 3;
 		      int iq_aero = (ind + 1) * config.nbins;                                   
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iH2SO4].MM/surrogate[config.iSO4mm].MM+
 			surrogate[config.iHSO4m].Aaq_bins_init(b)*surrogate[config.iH2SO4].MM/surrogate[config.iHSO4m].MM;
 		    }
 		  else if (surrogate[i].name == "NO3")
 		    {
-		      ind = 5;
 		      int iq_aero = (ind + 1) * config.nbins; 		      
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iHNO3].MM/surrogate[config.iNO3m].MM;
 		    }
 		  else if (surrogate[i].name == "NH4")
 		    {
-		      ind = 4;
 		      int iq_aero = (ind + 1) * config.nbins; 		      
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
 		    }
 		  else if (surrogate[i].name == "Cl")
 		    {
-		      ind = 6;
 		      int iq_aero = (ind + 1) * config.nbins; 		      
 		      q[iq_aero+b]=surrogate[i].Aaq_bins_init(b)*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
 		    }
