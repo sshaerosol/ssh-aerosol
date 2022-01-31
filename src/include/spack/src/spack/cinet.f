@@ -335,6 +335,7 @@ c     SPEC: specific reactions.
 
 c modif: YK(2010/02/15)
          write(*,*) 'For some specific reactionconstants',mechanism_name
+         write(*,*) mechanism_name
 c         if (chem_mechanism.eq.1) then
          if (mechanism_name .eq. "racm  ") then
             call ssh_WSPEC_RACM90 (nr,ispebp(nr))
@@ -351,7 +352,12 @@ c         elseif (chem_mechanism.eq.3) then
      &           mechanism_name .eq. "racm2-2020rad") then
             call ssh_WSPEC_RACM290 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM2 mechanism are used'
+	 elseif (mechanism_name .eq. "MELCHIOR2") then
+            write(*,*) nr, ispebp(nr)
+	    call ssh_WSPEC_MELCHIOR2 (nr, ispebp(nr))
+	    write(*,*) '   expressions in MELCHIOR2 mechanism are used'
          else
+            write(*,*) nr, ispebp(nr)
             write(*,*) 'Warning: specific reaction expression
      &   is not given for ', mechanism_name
          endif

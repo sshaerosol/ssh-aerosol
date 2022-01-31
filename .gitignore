@@ -46,6 +46,7 @@ ssh-aerosol
 ssh-aerosol-*
 
 ### Spack
+src/include/CHEMISTRY/melchior2/*.f*
 src/include/CHEMISTRY/cb05*/*.f*
 src/include/CHEMISTRY/cb05en/*.f*
 src/include/CHEMISTRY/cb05/*.f*

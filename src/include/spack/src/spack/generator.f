@@ -464,6 +464,7 @@ C     YK 30/08/2010
       end
 
 
+
 C      
 C      
 C------------------------------------------------------------------------
@@ -518,6 +519,63 @@ C------------------------------------------------------------------------
       end
       
       
+      subroutine ssh_WSPEC_MELCHIOR2 (nr,ispebp)
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     Write kinetic rates case for specific reactions in
+C     MELCHIOR2 mechanism.
+C     
+C------------------------------------------------------------------------
+C
+C     -- AUTHOR(S)
+C
+C     Yelva Roustan, 2020.
+C
+C------------------------------------------------------------------------
+      include 'nficfort'
+      integer nr,ispebp
+
+      If(ispebp.EQ.-6) then
+         write(nficK90, 16) nr
+      elseif(ispebp.EQ.-7) then
+         write(nficK90, 17) nr
+      elseif(ispebp.EQ.-9) then
+         write(nficK90, 19) nr
+      else
+         write(*,*) 'ERROR: unknown specific reaction ',ispebp
+         stop 1
+      endif
+
+C     YS 19/11/2008 value given by IUPAC 2005
+C     NO2 + OH + M -> HNO3
+C     k(T, M) = mtroe(3.4e-30, 0, 3.2, 4.77e-11, 0, 1.4, 0.30)
+ 16   format(6x,'Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
+     &     6x,'Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
+     &     6x,'rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
+     &     5x,'(1.0d0/(1.0d0+ ((dlog10(Effko)-0.12)/1.2)**2))')
+C     YR 28/04/2020 value given by REACTIONS.univ.melchior2
+C     N2O5 + H2O + H2O -> 2*HNO3      k=2e-39
+ 17   format(6x,'rk(',i3,') = 2.0d-39 * YlH2O * YlH2O')
+C     YR 28/04/2020 value given by REACTIONS.univ.melchior2
+C     Surface production by heterogeneous reaction (Aumont et al., 2003)
+C     NO2 -> HONO + NO2      ks = 0.5 * vd_NO2 / h
+C     with vd_NO2 = 0.033 cm / s in urban area.
+C     with h_mixing = 15 m in urban area.
+ 19   format(6x,'h_mixing  = 15.0d0',/
+     &     6x,'vd_NO2 = 0.00033d0',/
+     &     6x,'rk(',i3,') = 0.5d0 * vd_NO2 / h_mixing')
+      return
+      end
+
+
+
+
+
+
+
+>>>>>>> correction of a bug -> missing reaction
 C------------------------------------------------------------------------
       subroutine ssh_WTB90(nr,ittb)
 C------------------------------------------------------------------------

@@ -140,9 +140,9 @@ def debug(utils):
 
         # Polyphemus related macros.
         "TALOS_DEBUG",
-        "SELDONDATA_DEBUG_LEVEL_4",
-        "SELDON_DEBUG_LEVEL_4",
-        "VERDANDI_DEBUG_LEVEL_4",
+        "SELDONDATA_DEBUG_LEVEL_2",
+        "SELDON_DEBUG_LEVEL_2",
+        "VERDANDI_DEBUG_LEVEL_2",
         "SELDON_WITH_ABORT",
         "VERDANDI_WITH_ABORT",
         "OPS_WITH_ABORT"

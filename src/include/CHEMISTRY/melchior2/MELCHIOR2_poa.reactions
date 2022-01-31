@@ -396,6 +396,48 @@ KINETIC PHOTOLYSIS 1.00e-15  1.00e-07  1.79e-07  3.49e-07  5.91e-07  //
 BiPER    ->
 KINETIC PHOTOLYSIS 1.00e-15 6.400e-06 1.160e-05 2.280e-05 3.885e-05 //
 7.300e-05 1.165e-04 2.065e-04 3.240e-04 4.100e-04 4.615e-04 4.790e-04 
+!R113bis1
+BiA2D -> X
+KINETIC ARR1 1.0e-18
+!R113bis2
+BiA1D -> X
+KINETIC ARR1 1.0e-18
+!R113bis3
+BiA0D -> X
+KINETIC ARR1 1.0e-18
+!R113bis4
+BiMT -> X
+KINETIC ARR1 1.0e-18
+!R113bis5
+BiDER -> X
+KINETIC ARR1 1.0e-18
+!R113bis6
+BiMGA -> X
+KINETIC ARR1 1.0e-18
+!R113bis7
+AnBlP -> X
+KINETIC ARR1 1.0e-18
+!R113bis8
+AnBmP -> X
+KINETIC ARR1 1.0e-18
+!R113bis9
+BiBlP -> X
+KINETIC ARR1 1.0e-18
+!R113bis10
+BiBmP -> X
+KINETIC ARR1 1.0e-18
+!R113bis11
+AnClP -> X
+KINETIC ARR1 1.0e-18
+!R113bis12
+BiNGA -> X
+KINETIC ARR1 1.0e-18
+!R113bis13
+BiNIT3 -> X
+KINETIC ARR1 1.0e-18
+!R113bis14
+BiNIT -> X
+KINETIC ARR1 1.0e-18
 ! R114
 APINEN + NO3 -> CH3CHO + CH3COE + oRN1 + 0.70 BiA0D + 0.10 BiNIT
 KINETIC ARR2 1.19e-12 -490.
@@ -404,7 +446,7 @@ BPINEN + NO3 -> CH3CHO + CH3COE + oRN1 + 0.02 BiA0D + 0.63 BiNIT
 KINETIC ARR1 2.51e-12
 ! R116    k(1/T)=A/T,A=4.30e-9
 OCIMEN + NO3 -> CH3CHO + CH3COE + oRN1 + 0.69 BiA0D + 0.27 BiNIT 
-KINETIC ARR3 4.30e-9 -1 0       
+KINETIC ARR3 4.30e-9 -1. 0       
 !R117
 LIMONE + NO3 -> CH3CHO + CH3COE + oRN1 + 0.69 BiA0D + 0.27 BiNIT
 KINETIC ARR1 1.22e-11
@@ -416,7 +458,7 @@ BPINEN + OH -> 0.8 CH3CHO + 0.8 CH3COE + obio + 0.07 BiA0D + 0.08 BiA1D + 0.06 B
 KINETIC ARR2 2.38e-11 -357.
 !R120     k(1/T)=A/T,A=5.1e-8
 OCIMEN + OH -> 0.8 CH3CHO + 0.8 CH3COE + obio + 0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D 
-KINETIC ARR3 5.1e-8 -1 0
+KINETIC ARR3 5.1e-8 -1. 0
 !R121
 LIMONE + OH -> 0.8 CH3CHO + 0.8 CH3COE + obio + 0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D
 KINETIC ARR2 4.20e-11 -401.
@@ -431,7 +473,7 @@ BPINEN + O3 -> 1.27 CH3CHO + 0.53 CH3COE + 0.14 CO + 0.62 oRO2 + 0.42 HCHO + 0.8
 KINETIC ARR1 1.5e-17
 !R125            k(1/T)=A/T,A=7.5e-14
 OCIMEN + O3 -> 1.27 CH3CHO + 0.53 CH3COE + 0.14 CO + 0.62 oRO2 + 0.42 HCHO + 0.85 OH + 0.1 HO2 + 0.09 BiA0D + 0.10 BiA1D       
-KINETIC ARR3 7.5e-14 -1 0
+KINETIC ARR3 7.5e-14 -1. 0
 !R126
 LIMONE + O3 -> 1.27 CH3CHO + 0.53 CH3COE + 0.14 CO + 0.62 oRO2 + 0.42 HCHO + 0.85 OH + 0.1 HO2 + 0.09 BiA0D + 0.10 BiA1D
 KINETIC ARR2 2.95e-15 -783.
@@ -507,7 +549,7 @@ TOL + OH -> OH + 0.25 TOLP
 KINETIC ARR2 1.81e-12 -355.
 !R149       k(1/T)=A/T,A=9.80e-9
 TMB + OH -> OH + 0.274 XYLP      
-KINETIC ARR3 9.80e-9 -1 0
+KINETIC ARR3 9.80e-9 -1. 0
 !R150
 OXYL + OH -> MEMALD + MGLYOX + oRO2
 KINETIC ARR1 1.37e-11
@@ -543,7 +585,7 @@ XYLP + NO3 -> 0.063 AnBlP + 0.424 AnBmP + NO3
 KINETIC ARR1 1.2e-12
 !R161                       k(T)=Aexp(-B/T)(300/T)**N,A=1.36e-12,B=-190,N=-2
 NC4H10 + OH -> 0.9 CH3COE + 0.1 CH3CHO + 0.1 CH3COO + 0.9 oRO2
-KINETIC ARR3 1.51e-17 2. -190.      
+KINETIC ARR3 1.51e-17 2. -190.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                       Heterogeneous chemistry                                              !
 !                       Reactions taken from cb05 because independent of gaz mecanism        !
@@ -567,6 +609,15 @@ KINETIC ARR1    1.20E-12
 !--------------------165, HR4---------------
 N2O5             ->      2 HNO3
 KINETIC ARR1    1.20E-12
+!R165bis1
+NH3 -> X
+KINETIC ARR1 1.0e-18
+!R165bis2
+H2SO4 -> X
+KINETIC ARR1 1.0e-18
+!R165bis3
+!H2SO4AQ -> X
+!KINETIC ARR1 1.0e-18
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  The following reactions come from CHIMERE REACTIONS.univ.carb_h2o1                        !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -579,4 +630,13 @@ KINETIC ARR1 2.0e-11
 !R168
 POAhP + OH -> SOAhP + OH
 KINETIC ARR1 2.0e-11
+!R169
+SOAlP -> X
+KINETIC ARR1 1.0e-18
+!R170
+SOAmP -> X
+KINETIC ARR1 1.0e-18
+!R171
+SOAhP -> X
+KINETIC ARR1 1.0e-18
 END

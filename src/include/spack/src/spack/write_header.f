@@ -210,6 +210,8 @@ C ====================================
      2     'azi,att')
       write(nwrite,434)
  434  format('  double precision YlH2O')
+      write(nwrite,4348)
+ 4348 format('      double precision vd_NO2, h_mixing')
       write(nwrite,435)
  435  format('  integer option_photolysis')
       write(nwrite,300)

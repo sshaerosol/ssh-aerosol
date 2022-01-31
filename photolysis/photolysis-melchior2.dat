@@ -1,0 +1,26 @@
+# This file contains informations about photolysis data prepared 
+# for MELCHIOR2 chemical mechanism.
+# 1st colonne: Name of binary file for a reaction
+# 2nd colonne: Photolysis index in MELCHIOR2 chemical mechanism.  
+NO2 92  
+NO3NO 93  
+NO3NO2 94
+H2O2 95
+HNO3 96  
+HONO 97  
+HCHO-1 98
+HCHO-2 99  
+CH3CHO 100  
+CH3COY 101  
+MGLYOX 102
+GLYOX 103 
+MEMALD 104  
+CH3COE 105  
+N2O5 106
+CH3OOH 107  
+CH3OOH 108  
+PAN 109
+CH3OOH 110
+CH3OOH 111
+CH3OOH 112
+BiPER 113
