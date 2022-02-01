@@ -2072,8 +2072,8 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
       if (config.compute_inorganic)
         {
           double error_h=1000.0;
-          double derivative_h;
-          chp2=chp;
+          double derivative_h=0.0;
+          chp2=max(chp,1.0e-15);
           int index=0;
           while(abs(error_h/chp2)>1.0e-3 and index<20)
             {
@@ -2120,7 +2120,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
           if (surrogate[i].nonvolatile)
             {
               surrogate[i].Ap=surrogate[i].Atot;
-              surrogate[i].Aaq=0.0;
+              //surrogate[i].Aaq=0.0;
               MO+=surrogate[i].Ap;
             }
           else
@@ -2128,13 +2128,13 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
               {
                 Kp=surrogate[i].kpi;
                 surrogate[i].Ap=factor*surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit)+(1.0-factor)*surrogate[i].Ap;
-                surrogate[i].Aaq=0.0;
+                //surrogate[i].Aaq=0.0;
                 MO+=surrogate[i].Ap;
               }
             else
               {
                 Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
-                surrogate[i].Aaq=0.0;
+                //surrogate[i].Aaq=0.0;
                 surrogate[i].Ap=factor*surrogate[i].Atot*Kp*MOinit/(1+Kp*MOinit)+(1.0-factor)*surrogate[i].Ap;
                 MO+=surrogate[i].Ap;
               }
@@ -2145,7 +2145,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
             {
               surrogate[i].Aaq=surrogate[i].Atot;
               AQ+=surrogate[i].Aaq;
-              surrogate[i].Ap=0.0;
+              //surrogate[i].Ap=0.0;
             }
   
           else
@@ -2156,7 +2156,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
                                             surrogate[config.iHp].gamma_SRMR,MMaq, fion1, fion2)
                 /surrogate[i].gamma_aq;
               surrogate[i].Aaq=factor*surrogate[i].Atot*Kp*AQinit/(1+Kp*AQinit)+(1.0-factor)*surrogate[i].Aaq;
-              surrogate[i].Ap=0.0;
+              //surrogate[i].Ap=0.0;
               AQ+=surrogate[i].Aaq;
               //molality1: molality of ions HA- or A-  
               molality1=surrogate[i].Aaq*fion1/surrogate[i].MM/conc_org*1000.0;
@@ -2268,14 +2268,13 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
           //compute hygroscopicity
           LWC=0.0; //In the case where SOAP compute inorganics, LWC is only used for the initialization
           if (config.hygroscopicity)
-	    {
-	      /*
+	    {	      
 	      hygroscopicity_tot_ssh(config, surrogate, Temperature, RH, AQinit, conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
 	      hygroscopicity_org_ssh(config, surrogate, Temperature, MOW, RH, MOinit, MO, deriv_error1_MO, factor);
-	      */
+	      /*
 	      hygroscopicity_coupled_tot_ssh(config, surrogate, Temperature, MOW, MMaq, RH, LWC, conc_inorganic,
 					     MOinit, MO, AQinit, AQ, deriv_error1_MO, 
-					     deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);
+					     deriv_error1_AQ, deriv_error2_MO, deriv_error2_AQ, factor);*/
 	    }
 	  
           //hygroscopicity_tot_ssh(config, surrogate, Temperature, RH, AQinit, conc_inorganic,MMaq,AQ,deriv_error2_AQ,factor);
