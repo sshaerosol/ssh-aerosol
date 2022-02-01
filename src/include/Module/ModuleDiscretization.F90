@@ -87,6 +87,7 @@ contains
      if (ssh_standalone) write(*,*)'tag_icut :',tag_icut,'Cut_dim :',Cut_dim
      if (ssh_logger) write(logfile,*)'tag_icut :',tag_icut,'Cut_dim :',Cut_dim
    endif
+   if (soap_inorg==1) ICUT_org=ICUT
 
     IF(ICUT.GT.0.D0) THEN
        section_pass=concentration_index(ICUT,1)
