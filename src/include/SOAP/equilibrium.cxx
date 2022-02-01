@@ -266,6 +266,7 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
 
   if (config.activity_model=="unifac")
     {
+      config.gamma_MR_ions=-1;
       double tval1=1.0/298.15-1.0/Temperature;
       double tval2=298.15/Temperature-1.0+log(Temperature/298.15);
       //config.Inter2_aq.resize(config.nfunc_aq,config.nfunc_aq);

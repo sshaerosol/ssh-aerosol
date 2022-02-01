@@ -108,6 +108,7 @@ namespace ssh_soap
         Array<double,1> molality,gamma_LR_ions,gamma_MR_ions, charges_ions,molar_mass_groups;
         Array<double,1> gamma_LR_solvents,gamma_MR_solvents,X_aiomfac,molar_mass_solvents;
 	Array<double,1> gamma_ions_inf;
+	Array<double,2> gamma_MR_ions_bins;
 
         int iiter;
 	int imethod;

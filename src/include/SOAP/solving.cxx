@@ -2856,6 +2856,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
         if(MOW(b,ilayer,iphase)<1)
           MOW(b,ilayer,iphase) = 200.;
 
+  config.gamma_MR_ions_bins=-1.0;
+
   /*
     for (i=0;i<n;i++)
     if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)>0.)

@@ -2105,7 +2105,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
   for (i=0;i<n;++i)
     if (surrogate[i].is_ion)
       {
-	if ((config.gamma_MR_ions(surrogate[i].index_ion)<exp(-11.5) and gamma_mr_old(surrogate[i].index_ion)>exp(11.5)))
+	if ((config.gamma_MR_ions(surrogate[i].index_ion)<exp(-11.5) and gamma_mr_old(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)>0))
 	  //or (config.gamma_MR_ions(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)<exp(-11.5)))
 	  {
 	    //cout << "error " << endl;

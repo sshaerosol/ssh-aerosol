@@ -3500,8 +3500,17 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
 				 organion_tmp, ionic_organic_tmp, conc_org, factor);      
 
       activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaqtemp,XH2O,conc_org);
+
+      for (i=0;i<config.nion_aiomfac;i++)            
+        for (b=0;b<config.nbins;++b)
+          config.gamma_MR_ions(i)=config.gamma_MR_ions_bins(b,i);
+      
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, 0.0, ionic_tmp);
+      
+      for (b=0;b<config.nbins;++b)
+        for (i=0;i<config.nion_aiomfac;i++)            
+          config.gamma_MR_ions_bins(b,i)=config.gamma_MR_ions(i);      
 						  
       for (i=0;i<n;++i)
         for (b=0;b<config.nbins;++b)
@@ -3572,9 +3581,17 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
           compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ, conc_inorganic(b), ionic(b), chp(b),
 				      organion(b), ionic_organic(b), conc_org, factor);                    
           
-          activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaq(b),XH2O, conc_org);          
+          activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaq(b),XH2O, conc_org);
+
+	  for (i=0;i<config.nion_aiomfac;i++)            
+            config.gamma_MR_ions(b,i)=config.gamma_MR_ions_bins(b,i);
+	  
           if (config.compute_long_and_medium_range_interactions)
             activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, 0.0, ionic(b));
+
+	  for (i=0;i<config.nion_aiomfac;i++)            
+            config.gamma_MR_ions_bins(b,i)=config.gamma_MR_ions(i);
+	  
           for (i=0;i<n;++i)
             {
               surrogate[i].gamma_aq_bins(b)=surrogate[i].gamma_aq;              

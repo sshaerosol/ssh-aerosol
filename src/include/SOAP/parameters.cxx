@@ -1773,6 +1773,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 	}
     }
 
+  config.gamma_MR_ions_bins.resize(config.nbins,config.nion_aiomfac);
   for (i=0;i<n;++i)
     {      
       surrogate[i].Ap_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
