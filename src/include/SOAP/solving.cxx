@@ -31,7 +31,6 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
   //  config.coupled_phases=true;
 
   //cout << RH << " " << config.RHcoupling << " " << surrogate[config.iH2O].hydrophilic << " " <<  surrogate[config.iH2O].hydrophobic << endl;
-
   
   if (config.coupled_phases or 
       (RH>=config.RHcoupling and surrogate[config.iH2O].hydrophilic and surrogate[config.iH2O].hydrophobic))
@@ -111,7 +110,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	      //int ntoo_low=0;
               //cout << "ici" << endl;
               //if (RH<0.4 or RH>0.9)
-              config.first_evaluation_activity_coefficients=true;                            
+              //config.first_evaluation_activity_coefficients=true;                            
               //config.compute_organic=false; 
 
               double RHsave=RH;
@@ -120,7 +119,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
               while ((index_iter < config.max_iter) and (abs(error1)/factor_old > config.precision or abs(error2)/factor_old > config.precision or
                                                          ((abs(error3)/factor_old>relprec  or abs(error4)/factor_old>relprec) and AQ>100*config.MOmin) or
                                                          config.first_evaluation_activity_coefficients==true or RH>RHsave))
-                {                                    
+                {
+		  /*
                   if (config.first_evaluation_activity_coefficients==true)
                     {
                       if (abs(error2)/factor_old <= config.precision and abs(error3)/factor_old<=relprec and abs(error4)/factor_old<=relprec and index_iter>0)
@@ -128,7 +128,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                           config.first_evaluation_activity_coefficients=false;                          
                           RH=RHsave;
                         }
-                    }            
+                    }  */          
                     
                   if (config.first_evaluation_activity_coefficients==false or index_iter==0)
                     compute_activity_coefficients=true;
@@ -138,15 +138,14 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                   double Asol=0.;
 		  for (i=0;i<n;i++)
                     {
-                      if (surrogate[i].hydrophilic)
-                        {
-                          surrogate[i].Ag_old=surrogate[i].Ag;
+		      surrogate[i].Ag_old=surrogate[i].Ag;
+                      if (surrogate[i].hydrophilic and surrogate[i].is_inorganic_precursor==false)
+                        {                          
                           surrogate[i].Aaq_old=surrogate[i].Aaq;
                           surrogate[i].gamma_aq_old=surrogate[i].gamma_aq;
                         }
                       if (surrogate[i].hydrophobic)
                         {
-                          surrogate[i].Ag_old=surrogate[i].Ag;
                           surrogate[i].Ap_old=surrogate[i].Ap;
                           surrogate[i].gamma_org_old=surrogate[i].gamma_org;
                         }
@@ -186,7 +185,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                   double var=0.;                    
                   int m=0;
                   for (i=0;i<n;i++)
-		    if (surrogate[i].hydrophilic)
+		    if (surrogate[i].hydrophilic and surrogate[i].is_inorganic_precursor==false)
                       {
                         if (0.5*surrogate[i].gamma_aq+0.5*surrogate[i].gamma_aq_old>1.0e-6 and (surrogate[i].Aaq>negligeable or surrogate[i].Aaq_old>negligeable))
                           {
@@ -199,7 +198,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                   error_spec=0.0;
 		  for (i=0;i<n;i++)
 		    {
-		      if (surrogate[i].hydrophilic)
+		      if (surrogate[i].hydrophilic  and surrogate[i].is_inorganic_precursor==false)
 			{
 			  if (surrogate[i].Aaq_old>negligeable and surrogate[i].Aaq>negligeable)                                              
 			    {
@@ -250,8 +249,10 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                         for (i=0;i<n;i++)
                           {
 			    surrogate[i].Ag=surrogate[i].Ag_old;
-			    surrogate[i].Aaq=surrogate[i].Aaq_old;                           
-			    surrogate[i].Ap=surrogate[i].Ap_old;                         
+			    if (surrogate[i].hydrophilic and surrogate[i].is_inorganic_precursor==false)
+                              surrogate[i].Aaq=surrogate[i].Aaq_old;                        
+                            if (surrogate[i].hydrophobic or surrogate[i].is_solid)
+			      surrogate[i].Ap=surrogate[i].Ap_old; 
                           }
                     }
                   else if (var<var_min and index_iter>0 and factor<1.)

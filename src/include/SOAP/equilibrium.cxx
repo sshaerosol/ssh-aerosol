@@ -336,8 +336,8 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
 	  for (k=0;k<config.nfunc_org;k++)          
 	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature+config.InterB_org(j,k)*tval1+config.InterC_org(j,k)*tval2);         
       else
-	for (j=0;j<config.nfunc_aq;j++)
-	  for (k=0;k<config.nfunc_aq;k++)          
+	for (j=0;j<config.nfunc_org;j++)
+	  for (k=0;k<config.nfunc_org;k++)          
 	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature); 
 
       
