@@ -481,6 +481,15 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 				var+=abs((surrogate[i].gamma_aq_old-surrogate[i].gamma_aq)/(0.5*surrogate[i].gamma_aq+0.5*surrogate[i].gamma_aq_old));
 			      }
 			  }
+		      for (i=0;i<n;i++)
+			if (surrogate[i].hydrophobic)
+			  {
+			    if (0.5*surrogate[i].gamma_org+0.5*surrogate[i].gamma_org_old>1.0e-6 and (surrogate[i].Ap>negligeable_org or surrogate[i].Ap_old>negligeable_org))
+			      {
+				m++;
+				var+=abs((surrogate[i].gamma_org_old-surrogate[i].gamma_org)/(0.5*surrogate[i].gamma_org+0.5*surrogate[i].gamma_org_old));
+			      }
+			  }
 
 		      error4=0.0;
 		      error_spec=0.0;
@@ -512,6 +521,10 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 				}
 			    }
 			}
+
+		      //If takes too much iterations make sure that factor_max is not above 0.5
+		      if (index_iter>1000)
+			factor_max=min(factor_max,0.5);
 
 		      if (m>0)
 			var=var/m; 
