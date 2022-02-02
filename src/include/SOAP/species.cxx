@@ -1594,8 +1594,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Monomer.nonvolatile=true; // Is the compound nonvolatile?
   Monomer.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   Monomer.is_organic=true;  // Is the compound organic?
-  Monomer.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  Monomer.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
+  Monomer.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  Monomer.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   Monomer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Monomer.rho=1840.0;
   Monomer.is_monomer=false;
@@ -1609,29 +1609,29 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
   //
-  double group_tmp_Monomer [] = {0.0,0.0,0.0,0.0, // group C
+  double group_tmp_Monomer [] = {0.0,1.0,2.0,0.0, // group C
 				 0.0,0.0,0.0,0.0, //group C[OH]
 				 0.0,0.0,0.0,0.0, //group Calcohol
 				 0.0,0.0,0.0,0.0, //group Calcohol-tail
 				 0.0,0.0,0.0,0.0,0.0, //group C=C
-				 3.0,1.0, //group aromatic carbon (AC)
-				 1.0,0.0,0.0, // group //AC-C
+				 0.0,0.0, //group aromatic carbon (AC)
+				 0.0,0.0,0.0, // group //AC-C
 				 0.0,  //group OH
 				 0.0, //group H2O
 				 0.0, //group ACOH
-				 0.0,0.0, //group ketone
+				 0.0,2.0, //group ketone
 				 0.0,   //group aldehyde  
 				 0.0,0.0, //group ester
 				 0.0,0.0,0.0, //group ether 
-				 1.0,  //group acid
-				 1.0,   //group ACNO2
+				 0.0,  //group acid
+				 0.0,   //group ACNO2
 				 0.0,0.0,0.0, //group NO3
-				 0.0,0.0,0.0, //group CO-OH
+				 0.0,2.0,0.0, //group CO-OH
 				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 				 0.0,  //group PAN
-				 0.0,  //group CO-OOH
-			       0.0,  //group O=COC=O
-			       0.0,0.0,0.0}; //group CHxNO2
+				 1.0,  //group CO-OOH
+	  		         0.0,  //group O=COC=O
+			         0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_Monomer)/sizeof(double);
   assert(size == 60);
@@ -1659,8 +1659,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Dimer.nonvolatile=false; // Is the compound nonvolatile?
   Dimer.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   Dimer.is_organic=true;  // Is the compound organic?
-  Dimer.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-  Dimer.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound?
+  Dimer.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  Dimer.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   Dimer.Koligo_org=0.0;      //oligomeriation constant in the organic phase
   Dimer.rho=1300.0;
   Dimer.is_monomer=false;
@@ -1674,27 +1674,27 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   //Group: if no functionnal group in the species use the default species
   //for the computation of activity coefficients
   //
-  double group_tmp_dimer [] = {0.0,0.0,0.0,0.0, // group C
+  double group_tmp_dimer [] = {1.0,4.0,4.0,0.0, // group C
 			       0.0,0.0,0.0,0.0, //group C[OH]
 			       0.0,0.0,0.0,0.0, //group Calcohol
 			       0.0,0.0,0.0,0.0, //group Calcohol-tail
 			       0.0,0.0,0.0,0.0,0.0, //group C=C
-			       3.0,1.0, //group aromatic carbon (AC)
-			       1.0,0.0,0.0, // group //AC-C
-			       0.0,  //group OH
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       1.0,  //group OH
 			       0.0, //group H2O
 			       0.0, //group ACOH
-			       0.0,0.0, //group ketone
-			       0.0,   //group aldehyde  
+			       0.0,2.0, //group ketone
+			       1.0,   //group aldehyde  
 			       0.0,0.0, //group ester
 			       0.0,0.0,0.0, //group ether 
-			       1.0,  //group acid
-			       1.0,   //group ACNO2
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
 			       0.0,0.0,0.0, //group NO3
-			       0.0,0.0,0.0, //group CO-OH
-			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,1.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0,  //group CO-OOH
+			       1.0,  //group CO-OOH
 			       0.0,  //group O=COC=O
 			       0.0,0.0,0.0}; //group CHxNO2
 
