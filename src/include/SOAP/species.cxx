@@ -1059,15 +1059,18 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+                               0.0,  //group CO-OOH
+                               0.0,  //group O=COC=O
+                               0.0,0.0,0.0}; //group CHxNO2
+
 
   size = sizeof(group_tmp_anboahp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     AnBOAhP.groups[i] = group_tmp_anboahp[i];
 
   add_species_ssh(surrogate, AnBOAhP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   
@@ -1119,15 +1122,18 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+                               0.0,  //group CO-OOH
+                               0.0,  //group O=COC=O
+                               0.0,0.0,0.0}; //group CHxNO2
+
 
   size = sizeof(group_tmp_anboalp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     AnBOAlP.groups[i] = group_tmp_anboalp[i];
 
   add_species_ssh(surrogate, AnBOAlP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
 
@@ -1179,15 +1185,18 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+                               0.0,  //group CO-OOH
+                               0.0,  //group O=COC=O
+                               0.0,0.0,0.0}; //group CHxNO2
+
 
   size = sizeof(group_tmp_anboamp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     AnBOAmP.groups[i] = group_tmp_anboamp[i];
 
   add_species_ssh(surrogate, AnBOAmP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species AnBSOAhP;
@@ -1216,12 +1225,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   AnBSOAhP.is_generic=false;
   
   size = sizeof(group_tmp_anboahp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     AnBSOAhP.groups[i] = group_tmp_anboahp[i];
 
   add_species_ssh(surrogate, AnBSOAhP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species AnBSOAmP;
@@ -1253,12 +1262,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   //for the computation of activity coefficients 
 
   size = sizeof(group_tmp_anboamp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     AnBSOAmP.groups[i] = group_tmp_anboamp[i];
 
   add_species_ssh(surrogate, AnBSOAmP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species BiNGA;
