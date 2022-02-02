@@ -2423,7 +2423,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   ACIDMAL.Tref=298;
   ACIDMAL.deltaH= 50.0;     // Enthalpy of vaporization (kJ/mol)
   ACIDMAL.Henry=0.0;     // Henry's law constant at Tref (M/atm)
-  ACIDMAL.aq_type="aldehyde"; // "none","diacid","monoacid" or "aldehyde"
+  ACIDMAL.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   ACIDMAL.hydrophilic=true; // Does the species condense on the aqueous phase?
   ACIDMAL.hydrophobic=false;  // Does the species condense on the organic phase?
   ACIDMAL.nonvolatile=false;  // Is the compound nonvolatile?
