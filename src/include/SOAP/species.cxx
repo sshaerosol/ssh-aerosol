@@ -376,6 +376,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   else {
          BiA0D.Koligo_aq=0.;     
          BiA0D.aq_type="none"; }// "none","diacid","monoacid" or "aldehyde"
+  BiA0D.Koligo_org=0.0;
   BiA0D.pHref=6.0;
   BiA0D.beta=1.91;
   BiA0D.rho=1300.0;
@@ -639,6 +640,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiMGA.is_organic=true;  // Is the compound organic?
   BiMGA.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiMGA.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  BiMGA.Koligo_org=0.0;
   BiMGA.rho=1300.0;
   BiMGA.is_monomer=false;
   BiMGA.rion=false;
@@ -960,6 +962,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   AnClP.is_organic=true;  // Is the compound organic?
   AnClP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   AnClP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  AnClP.Koligo_org=0.0;  
   AnClP.rho=1300.0;
   AnClP.is_monomer=false;
   AnClP.rion=false;
@@ -1219,6 +1222,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAlP.is_organic=true;  // Is the compound organic?
   POAlP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  POAlP.Koligo_org=0.0;  
   POAlP.rho=1300.0;
   POAlP.is_monomer=false;
   POAlP.rion=false;
@@ -1280,6 +1284,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAmP.is_organic=true;  // Is the compound organic?
   POAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  POAmP.Koligo_org=0.0;  
   POAmP.rho=1300.0;
   POAmP.is_monomer=false;
   POAmP.rion=false;
@@ -1342,6 +1347,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   POAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   POAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   POAhP.rho=1300.0;
+  POAhP.Koligo_org=0.0;  
   POAhP.is_monomer=false;
   POAhP.rion=false;
   //POAhP.KDiffusion_air=1.0e-5;
@@ -1403,6 +1409,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAlP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAlP.rho=1300.0;
+  SOAlP.Koligo_org=0.0;  
   SOAlP.is_monomer=false;
   SOAlP.rion=false;
   //SOAlP.KDiffusion_air=1.0e-5;
@@ -1464,6 +1471,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAmP.rho=1300.0;
+  SOAmP.Koligo_org=0.0;  
   SOAmP.is_monomer=false;
   SOAmP.rion=false;
   //SOAmP.KDiffusion_air=1.0e-5;
@@ -1525,6 +1533,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SOAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   SOAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   SOAhP.rho=1300.0;
+  SOAhP.Koligo_org=0.0;  
   SOAhP.is_monomer=false;
   SOAhP.rion=false;
   //SOAhP.KDiffusion_air=1.0e-5;
