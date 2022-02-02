@@ -414,13 +414,16 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 			b1=1.0-Kaq*AQ2-Kaq*surrogate[i].Atot;
 			c1=-(AQinit(b)-surrogate[i].Aaq_bins_init(b));
 			delta=pow(b1,2.0)-4.0*a1*c1;
-			
-			AQ2=max(AQinit(b),(-b1+pow(delta,0.5))/(2.0*a1));
-			f1=pow((AQ2+sumMO)/(AQinit(b)+sumMO),1.0/3.0);			
-			surrogate[i].time_aq(b)=
-			  (AQ2+sumMO)/AQ2*
-			  (Kaq*AQ2*surrogate[i].tau_air(b)/f1)
-			  /(1.0+Kaq*AQ2/surrogate[i].Aaq_bins_init(b)*surrogate[i].Aaq);
+
+			if (delta>=0)
+			  {
+			    AQ2=max(AQinit(b),(-b1+pow(delta,0.5))/(2.0*a1));
+			    f1=pow((AQ2+sumMO)/(AQinit(b)+sumMO),1.0/3.0);			
+			    surrogate[i].time_aq(b)=
+			      (AQ2+sumMO)/AQ2*
+			      (Kaq*AQ2*surrogate[i].tau_air(b)/f1)
+			      /(1.0+Kaq*AQ2/surrogate[i].Aaq_bins_init(b)*surrogate[i].Aaq);
+			  }
 		      }
 
 		  }
