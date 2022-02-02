@@ -434,7 +434,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiMT.Psat_ref=1.45e-6; // Saturation vapor pressure at Tref (torr)
   BiMT.Tref=298;         // Temperature of reference (K)
   BiMT.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
-  BiMT.Henry=33.e9;     // Henry's law constant at Tref (M/atm)
+  BiMT.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiMT.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   BiMT.hydrophilic=true;   // Does the species condense on the aqueous phase?
   BiMT.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -499,7 +499,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiPER.Psat_ref=2.61e-6; // Saturation vapor pressure at Tref (torr)
   BiPER.Tref=298;         // Temperature of reference (K)
   BiPER.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
-  BiPER.Henry=8.1e9;     // Henry's law constant at Tref (M/atm)
+  BiPER.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiPER.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   BiPER.hydrophilic=true;   // Does the species condense on the aqueous phase?
   BiPER.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -564,7 +564,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiDER.Psat_ref=4.10e-7; // Saturation vapor pressure at Tref (torr)
   BiDER.Tref=298;         // Temperature of reference (K)
   BiDER.deltaH=38.4;     // Enthalpy of vaporization (kJ/mol)
-  BiDER.Henry=89.1e9;     // Henry's law constant at Tref (M/atm)
+  BiDER.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiDER.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   BiDER.hydrophilic=true;   // Does the species condense on the aqueous phase?
   BiDER.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -629,7 +629,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiMGA.Psat_ref=1.40e-5; // Saturation vapor pressure at Tref (torr)
   BiMGA.Tref=298;         // Temperature of reference (K)
   BiMGA.deltaH=43.2;     // Enthalpy of vaporization (kJ/mol)
-  BiMGA.Henry=5.25e8;     // Henry's law constant at Tref (M/atm)
+  BiMGA.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiMGA.aq_type="monoacid"; // "none","diacid","monoacid" or "aldehyde"
   BiMGA.Kacidity1=1.0e-4;    // First acidity constant
   BiMGA.Koligo_org=64.2;    //oligomeriation constant in the organic phase
@@ -1017,7 +1017,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiNGA.Psat_ref=1.40e-5; // Saturation vapor pressure at Tref (torr)
   BiNGA.Tref=298;         // Temperature of reference (K)
   BiNGA.deltaH=43.2;     // Enthalpy of vaporization (kJ/mol)
-  BiNGA.Henry=3.73e7;     // Henry's law constant at Tref (M/atm)
+  BiNGA.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiNGA.aq_type="monoacid"; // "none","diacid","monoacid" or "aldehyde"
   BiNGA.Kacidity1=1.0e-4;    // First acidity constant
   BiNGA.Koligo_org=64.2;    //oligomeriation constant in the organic phase
@@ -1718,7 +1718,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA3D.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   BiA3D.Tref=298;         // Temperature of reference (K)
   BiA3D.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
-  BiA3D.Henry=2.67e8;     // Henry's law constant at Tref (M/atm)
+  BiA3D.Henry=0.;     // Henry's law constant at Tref (M/atm)
   BiA3D.aq_type="diacid"; // "none","diacid","monoacid" or "aldehyde"
   BiA3D.Kacidity1=3.95e-4;    // First acidity constant
   BiA3D.Kacidity2=7.70e-6;    // Second acidity constant
