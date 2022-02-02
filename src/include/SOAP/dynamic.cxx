@@ -2732,135 +2732,44 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 	    //cout << "NH3: " << inorganion << endl;
           
 	
-        else if (surrogate[i].name=="HNO3")
-          {
-	    total=(surrogate[config.iNO3m].Aaq_bins_init0(index_b)
-		   +0.5*deltat*(surrogate[config.iNO3m].k1_aq(index_b,0)+surrogate[config.iNO3m].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))
-	      /surrogate[config.iNO3m].MM/conc_org(index_b)*1000.*surrogate[config.iNO3m].charge;
+	    else if (surrogate[i].name=="HNO3")
+	      {
+		total=(surrogate[config.iNO3m].Aaq_bins_init0(index_b)
+		       +0.5*deltat*(surrogate[config.iNO3m].k1_aq(index_b,0)+surrogate[config.iNO3m].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))
+		  /surrogate[config.iNO3m].MM/conc_org(index_b)*1000.*surrogate[config.iNO3m].charge;
 	    
-	    dtotal=-total/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))*0.5*deltat*
-	      surrogate[config.iNO3m].kloss_aq(index_b)/chp(index_b);
-	    derivative-=dtotal;
-	    inorganion-=total; 
-	    //cout << "NO3: " << total << endl;  
-          }
-        else if (surrogate[i].name=="HCl")
-          {
-	    total=(surrogate[config.iClm].Aaq_bins_init0(index_b)
-		   +0.5*deltat*(surrogate[config.iClm].k1_aq(index_b,0)+surrogate[config.iClm].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))
-	      /surrogate[config.iClm].MM/conc_org(index_b)*1000.*surrogate[config.iClm].charge;
+		dtotal=-total/(1.0+0.5*deltat*surrogate[config.iNO3m].kloss_aq(index_b))*0.5*deltat*
+		  surrogate[config.iNO3m].kloss_aq(index_b)/chp(index_b);
+		derivative-=dtotal;
+		inorganion-=total; 
+		//cout << "NO3: " << total << endl;  
+	      }
+	    else if (surrogate[i].name=="HCl")
+	      {
+		total=(surrogate[config.iClm].Aaq_bins_init0(index_b)
+		       +0.5*deltat*(surrogate[config.iClm].k1_aq(index_b,0)+surrogate[config.iClm].kprod_aq(index_b)))/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))
+		  /surrogate[config.iClm].MM/conc_org(index_b)*1000.*surrogate[config.iClm].charge;
 	    
-	    dtotal=-total/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))*0.5*deltat*
-	      surrogate[config.iClm].kloss_aq(index_b)/chp(index_b);
-	    derivative-=dtotal;
-	    inorganion-=total; 
-          }
-        else if (surrogate[i].name=="H2SO4")
-          {
-            total=surrogate[config.iHSO4m].Aaq_bins_init(index_b)/surrogate[config.iHSO4m].MM
-              +surrogate[config.iSO4mm].Aaq_bins_init(index_b)/surrogate[config.iSO4mm].MM;
+		dtotal=-total/(1.0+0.5*deltat*surrogate[config.iClm].kloss_aq(index_b))*0.5*deltat*
+		  surrogate[config.iClm].kloss_aq(index_b)/chp(index_b);
+		derivative-=dtotal;
+		inorganion-=total; 
+	      }
+	    else if (surrogate[i].name=="H2SO4")
+	      {
+		total=surrogate[config.iHSO4m].Aaq_bins_init(index_b)/surrogate[config.iHSO4m].MM
+		  +surrogate[config.iSO4mm].Aaq_bins_init(index_b)/surrogate[config.iSO4mm].MM;
 
-	    K=surrogate[i].Kequilibrium_ssh(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
-              /(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iSO4mm].gamma_aq_bins(index_b));
+		K=surrogate[i].Kequilibrium_ssh(Temperature)*surrogate[config.iHSO4m].gamma_aq_bins(index_b)
+		  /(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iSO4mm].gamma_aq_bins(index_b));
 	  
-            derivative-=1000.*total/conc_org(index_b)*1.0/pow(1.0+K/chp(index_b),2.0)*K/(chp(index_b)*chp(index_b)); //HSO4m+SO4mm
-            inorganion+=1000.*total/conc_org(index_b)*(2.0-1.0/(1.0+K/chp(index_b)));
-	    //cout << "H2SO4: " << inorganion << " " << total << " " << conc_org << " " << endl;
-          }
-	else if (surrogate[i].is_organic and config.compute_organic)
-	  {
-	    /*
-	      if (surrogate[i].aq_type=="monoacid")
-	      {
-	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-	      {
-		
-	      total=surrogate[i].Ag/surrogate[i].MM;
-	      sum_K_AQ=1.0;
-	      for (b=0;b<config.nbins;b++)
-	      if (surrogate[i].time_aq(b)<config.tequilibrium)
-	      {
-	      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
-	      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
+		derivative-=1000.*total/conc_org(index_b)*1.0/pow(1.0+K/chp(index_b),2.0)*K/(chp(index_b)*chp(index_b)); //HSO4m+SO4mm
+		inorganion+=1000.*total/conc_org(index_b)*(2.0-1.0/(1.0+K/chp(index_b)));
+		//cout << "H2SO4: " << inorganion << " " << total << " " << conc_org << " " << endl;
 	      }
-
-	      fion1=0.0;
-	      fion2=0.0;
-	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-
-	      ratio_gamma=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-	      Kac=surrogate[i].Kacidity1/ratio_gamma;
-	      Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-	      dK=-Kac*Kh/pow(chp(index_b),2.0);
-		
-	      derivative+=1000.*AQinit(index_b)/conc_org(index_b)*total*fion1*
-	      (-(1.0-fion1)/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ+dK/sum_K_AQ
-	      -Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
-	      organion+=1000.*fion1*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
-	      }
-	      else
-	      {
-	      total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-	      fion1=0.0;
-	      fion2=0.0;
-	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-	      organion+=1000.*fion1*total/conc_org(index_b);
-	      derivative-=fion1*(1-fion1)/chp(index_b)*1000.*total/conc_org(index_b);
-	      }
-
-	      }
-	      else if (surrogate[i].aq_type=="diacid")
-	      {
-	      if (surrogate[i].time_aq(index_b)<config.tequilibrium)
-	      {	       
-	      total=surrogate[i].Ag/surrogate[i].MM;
-	      sum_K_AQ=1.0;
-	      for (b=0;b<config.nbins;b++)
-	      if (surrogate[i].time_aq(b)<config.tequilibrium)
-	      {
-	      total+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM;
-	      sum_K_AQ+=surrogate[i].Kaq(b)*AQinit(b);
-	      }
-
-	      fion1=0.0;
-	      fion2=0.0;
-	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);
-	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-
-	      ratio_gamma1=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b)/surrogate[i].gamma_LR;
-	      ratio_gamma2=pow(surrogate[config.iHp].LR(index_b),2.0)*surrogate[config.iHp].SRMR(index_b);
-	      Kac1=surrogate[i].Kacidity1/ratio_gamma1;
-	      Kac2=surrogate[i].Kacidity2/ratio_gamma2;
-	      Kh=surrogate[i].Kpart_aq_ssh(Temperature, MMaq(index_b))/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-	      dK=-Kac1*Kh/pow(chp(index_b),2.0)-2.0*Kac1*Kac2*Kh/pow(chp(index_b),3.0);
-		
-	      derivative+=1000.*total*AQinit(index_b)/conc_org(index_b)*
-	      ((fion1*(fion1-1.0)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*surrogate[i].Kaq(index_b)/sum_K_AQ
-	      +dK/sum_K_AQ-Kaq/pow(sum_K_AQ,2.0)*AQinit(index_b)*dK);                 
-	      organion+=1000.0*(fion1+2.0*fion2)*total*surrogate[i].Kaq(index_b)*AQinit(index_b)/sum_K_AQ/conc_org(index_b);		
-	      }
-	      else
-	      {
-	      total=surrogate[i].Aaq_bins_init(index_b)/surrogate[i].MM;
-	      fion1=0.0;
-	      fion2=0.0;
-	      surrogate[i].gamma_LR=surrogate[i].LR(index_b);	      
-	      Kaq=surrogate[i].Kp_eff_aqrealdyn_ssh(config, Temperature, ionic(index_b), chp(index_b),surrogate[config.iHp].LR(index_b),
-	      surrogate[config.iHp].SRMR(index_b),MMaq(index_b), fion1, fion2,index_b)/kelvin_effect/surrogate[i].gamma_aq_bins(index_b);
-	      organion+=1000.*(fion1+2.0*fion2)*total/conc_org(index_b);
-	      derivative+=(fion1*(fion1-1)+4.0*fion1*fion2+4.0*fion2*(fion2-1))/chp(index_b)*1000.*total/conc_org(index_b);
-	      }
-	      }*/
+	    
+	    
 	  }
-
-      
-	  }
-
 
 
     }
@@ -2950,7 +2859,7 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 	      //cout << "H2SO4: " << inorganion << " " << total << " " << conc_org << " " << endl;
 	    }
 	}
-      else if (surrogate[i].is_organic and config.compute_organic)
+      else if (surrogate[i].is_organic and config.compute_organic and surrogate[i].hydrophilic)
 	{
 	  if (surrogate[i].aq_type=="monoacid")
 	    {
@@ -3655,7 +3564,8 @@ void activity_coefficients_dyn_aq_ssh(model_config &config, vector<species>& sur
 		    cout << "new ph: " << chp2(b) << " " << chp(b) << " " << index << " " << error_h << endl;
 		    //exit(0);
 		  }*/
-		chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
+		chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);
+		chp(b)=max(chp(b),1.0e-14);
 
 		conc_org=LWC(b);	  
 		for (i=0;i<n;i++)
