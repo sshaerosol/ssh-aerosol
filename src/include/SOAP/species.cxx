@@ -221,7 +221,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   species BiA2D;
   BiA2D.name="BiA2D";
   BiA2D.is_inorganic_precursor=false;
-  BiA2D.Psat_ref=1.43e-7; // Saturation vapor pressure at Tref (torr)
+  BiA2D.Psat_ref=4.43e-6; // Saturation vapor pressure at Tref (torr)
   BiA2D.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
   BiA2D.Tref=298;         // Temperature of reference (K)
   BiA2D.deltaH=109.0;     // Enthalpy of vaporization (kJ/mol)
@@ -291,7 +291,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   species BiA1D;
   BiA1D.name="BiA1D";
   BiA1D.is_inorganic_precursor=false;
-  BiA1D.Psat_ref=2.17e-7; // Saturation vapor pressure at Tref (torr)
+  BiA1D.Psat_ref=2.98e-6; // Saturation vapor pressure at Tref (torr)
   BiA1D.Tref=298;         // Temperature of reference (K)
   BiA1D.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   BiA1D.Henry=1.12e8;     // Henry's law constant at Tref (M/atm)
