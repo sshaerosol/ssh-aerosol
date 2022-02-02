@@ -6435,7 +6435,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 		  inorganion-=surrogate[i].molality*surrogate[i].charge;
 	      }
 	  
-	  chp(b)=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5));
+	  chp(b)=max(0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5)),1.e-14);
 	  if (chp(b)==0.0)
 	    chp(b)=pow(10.0,-5.6);	  
 	  
