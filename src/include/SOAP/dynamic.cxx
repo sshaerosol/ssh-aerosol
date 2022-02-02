@@ -3784,8 +3784,8 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 		    apnew=(surrogate[i].Ap_layer_init0(b,ilayer,iphase)
 			   +surrogate[i].deltat_exp*surrogate[i].k1(b,ilayer,iphase,0)+(deltat-surrogate[i].deltat_exp)*
 			   surrogate[i].kprod(b,ilayer,iphase))/(1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss(b,ilayer,iphase));
-		    if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
-		      apnew=max(min(apnew,10.*surrogate[i].Ap_layer_init(b,ilayer,iphase)),0.1*surrogate[i].Ap_layer_init(b,ilayer,iphase));
+		    //if (surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
+		    //  apnew=max(min(apnew,10.*surrogate[i].Ap_layer_init(b,ilayer,iphase)),0.1*surrogate[i].Ap_layer_init(b,ilayer,iphase));
 		    surrogate[i].Ap_layer_init(b,ilayer,iphase)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
 		  }
 
@@ -3797,8 +3797,8 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 		  apnew=(surrogate[i].Aaq_bins_init0(b)+surrogate[i].deltat_exp*surrogate[i].k1_aq(b,0)
 			 +(deltat-surrogate[i].deltat_exp)*surrogate[i].kprod_aq(b))
 		    /(1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss_aq(b));
-		  if (surrogate[i].Aaq_bins_init(b)>tiny)
-		    apnew=max(min(apnew,10.*surrogate[i].Aaq_bins_init(b)),0.1*surrogate[i].Aaq_bins_init(b));
+		  //if (surrogate[i].Aaq_bins_init(b)>tiny)
+		  //  apnew=max(min(apnew,10.*surrogate[i].Aaq_bins_init(b)),0.1*surrogate[i].Aaq_bins_init(b));
 		  surrogate[i].Aaq_bins_init(b)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Aaq_bins_init(b);
 		}
 
@@ -3816,8 +3816,8 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 			+(deltat-surrogate[i].deltat_exp)*surrogate[config.iSO4mm].kprod_aq(b))/
 		  (1.0+(deltat-surrogate[i].deltat_exp)*surrogate[config.iSO4mm].kloss_aq(b))/surrogate[config.iSO4mm].MM;
 
-		if (total2>tiny)
-		  total=max(min(total,10.*total2),0.1*total2);	      
+		//if (total2>tiny)
+		//  total=max(min(total,10.*total2),0.1*total2);	      
 		surrogate[config.iHSO4m].Aaq_bins_init(b)=total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq); //(1.0-factor)*surrogate[config.iHSO4m].Aaq_bins_init(b)+factor*total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq);
 		surrogate[config.iSO4mm].Aaq_bins_init(b)=total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq); //(1.0-factor)*surrogate[config.iSO4mm].Aaq_bins_init(b)+factor*total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq);
 		
@@ -3827,16 +3827,11 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	  {
 	    apnew=(surrogate[i].Ag0+surrogate[i].deltat_exp*surrogate[i].k1_gas(0)+(deltat-surrogate[i].deltat_exp)*surrogate[i].kprod_gas)/
 	      (1.0+(deltat-surrogate[i].deltat_exp)*surrogate[i].kloss_gas);
-	    if (surrogate[i].Ag>tiny)
-	      apnew=max(min(apnew,10.*surrogate[i].Ag),0.1*surrogate[i].Ag);
+	    //if (surrogate[i].Ag>tiny)
+	    //  apnew=max(min(apnew,10.*surrogate[i].Ag),0.1*surrogate[i].Ag);
 	    surrogate[i].Ag=apnew; //factor*apnew+(1.-factor)*surrogate[i].Ag;
 	  }
       }
-
-  /*
-  for (i=0;i<n;i++)
-    if (surrogate[i].Atot>0. and surrogate[i].name=="SOAlP")
-      cout << surrogate[i].name << " " << surrogate[i].Ag << " " << surrogate[i].Ap_layer_init(0,config.nlayer-1,0) << " " << surrogate[i].kprod(0,config.nlayer-1,0) << " " << surrogate[i].kloss_gas << " " << config.diameters(0) << " " << surrogate[i].k1(0,0,0) << endl;*/
 
   if (config.chemistry==true)
     {
@@ -4111,10 +4106,20 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
           }
     }
   else
-    for (b=0;b<config.nbins;++b)
-      for (ilayer=0;ilayer<config.nlayer;++ilayer)
-        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-          MO(b,ilayer,iphase)=MOinit(b,ilayer,iphase);
+    {
+      for (b=0;b<config.nbins;++b)
+        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+          {
+            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+              {
+                MO(b,ilayer,iphase)=0.0;
+                for (i=0;i<n;++i)
+                  if(surrogate[i].hydrophobic and (surrogate[i].is_organic or i==config.iH2O))
+                    MO(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+              }
+          }
+            
+    }
 }
 
 
