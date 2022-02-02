@@ -9,8 +9,8 @@ Module Resultoutput
 
   implicit none
 
-! out_aero : array of file names; outpout time variation of organic, inorganic, PBC, Dust, PM2.5, PM10 results
-  character(20), save :: out_aero(6) 
+! out_aero : array of file names; outpout time variation of organic, inorganic, PM2.5, PM10 results
+  character(20), save :: out_aero(4) 
   character(4), save :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
 
 contains
@@ -169,11 +169,10 @@ contains
 !
 !------------------------------------------------------------------------
 
+    logical :: iPM25, iPM10
     integer :: s, b, i, j, jesp
-    !real (kind = 4) :: conc_save
-    double precision :: conc_save
+    double precision :: conc_save, out_conc(4) ! for out_aero
     character (len=200) output_filename
-    integer :: out_aero_num(6) = (/2,1,7,33,0,33/)  ! last index of required aero species list; 0 for PM2.5
 
     ! **** output_directory/gas/
     ! save gas concentration results over each time step
@@ -266,30 +265,43 @@ contains
        end do
     end do
 
-    ! save organic, inorganic, PBC, Dust, PM2.5, PM10 results over each time step
-    ! generate files' names
-    do s = 1, 6
-        conc_save = 0.0
-        output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//trim(out_type(output_type))
-        open(unit=100,file=output_filename, status="old", position = "append") ! index (/1,2,7,33,0,33/) 
-	     if (s .eq. 5) then	! PM2.5
-		do b = 1, N_sizebin
-		     if (diam_bound(b) .ge. 2.5d0 ) exit
-		     j = b	! j = last size bin number of PM 2.5 
-		enddo
-		do b = 1, N_aerosol-1	! without water
-		     do i = 1, j
-			conc_save = conc_save + concentration_mass_tmp(i, b)
-		     enddo
-		enddo
-	     else if (out_aero_num(s) .le. 2) then ! PBC and Dust, not PM2.5
-		conc_save = total_aero_mass(out_aero_num(s))
-	     else if (out_aero_num(s) .gt. 2) then ! inorganic (index 3-7) organic(index 8-33) PM10 (index 1-33)
-		do b = out_aero_num(s-1) + 1, out_aero_num(s)
-			conc_save = conc_save + total_aero_mass(b)
-		enddo
-	     end if
-             write(100,*) conc_save
+
+    !** save organic, inorganic, PM2.5, PM10 per each time step
+    out_conc = 0.d0 ! init
+
+    do b = 1, N_size
+        ! check diameter for PM2.5 and PM10
+        s = concentration_index(b,1)! get index of size bins
+        if (diam_bound(s) .gt. 1d1) then ! d > 10
+            iPM10 = .false.
+            iPM25 = .false.
+        else if (diam_bound(s) .gt. 2.5d0) then ! 2.5 < d <= 10
+            iPM10 = .true.
+            iPM25 = .false.
+        else ! d <= 2.5
+            iPM10 = .true.
+            iPM25 = .true.
+        end if
+        ! compute concs
+        do s = 1, N_aerosol ! remove water and no-organics
+            ! OM and IM
+            if (aerosol_type(s).eq.3) then
+                out_conc(1)=out_conc(1)+concentration_mass_tmp(b,s)! add inorganics
+            else if (aerosol_type(s).eq.4) then
+                out_conc(2)=out_conc(2)+concentration_mass_tmp(b,s)! add organics
+            end if
+            ! PM2.5 and PM10
+            if (aerosol_type(s).ne.9) then
+                if (iPM25) out_conc(3)=out_conc(3)+concentration_mass_tmp(b,s)! add PM2.5
+                if (iPM10) out_conc(4)=out_conc(4)+concentration_mass_tmp(b,s)! add PM10
+            end if
+        end do
+    end do
+    ! save concs
+    do s = 1, 4
+        output_filename=trim(output_directory)//"/aero/"//trim(out_aero(s))//trim(out_type(output_type))
+        open(unit=100,file=output_filename,status="old",position="append")
+            write(100,*) out_conc(s)
         close(100)
     end do
 
@@ -317,13 +329,11 @@ contains
     out_dir(3) = "/aero/"
     out_dir(4) = "/TM/"
     out_dir(5) = "/diameter/"
-    ! update out_aero, outpout names 
-    out_aero(1) = 'Black_Carbon'
-    out_aero(2) = 'Dust'
-    out_aero(3) = 'Inorganic'
-    out_aero(4) = 'Organic'
-    out_aero(5) = 'PM2.5'
-    out_aero(6) = 'PM10'
+    ! init ! do not change order
+    out_aero(1) = 'Inorganic'
+    out_aero(2) = 'Organic'
+    out_aero(3) = 'PM2.5'
+    out_aero(4) = 'PM10'
 
     ! Create directory if it does not exist.
     do s = 1, 5
@@ -346,8 +356,8 @@ contains
     enddo
 
 
-    ! organic, inorganic, PBC, Dust, PM2.5, PM10
-    do s = 1, 6
+    ! organic, inorganic, PM2.5, PM10
+    do s = 1, 4
           output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//trim(out_type(output_type))
           ! Remove if output file exist
           inquire (file = output_filename, exist = file_exists)
