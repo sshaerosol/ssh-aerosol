@@ -1011,6 +1011,256 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
               accomodation_coefficient,diffusion_coef,species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
+  species AnBOAhP;
+  AnBOAhP.name="AnBOAhP";
+  AnBOAhP.Psat_ref=8.63e-5;
+  AnBOAhP.is_inorganic_precursor=false;
+  AnBOAhP.MM=167.84;           // Molar mass (g/mol)
+  AnBOAhP.nonvolatile=false;  // Is the compound nonvolatile?
+  AnBOAhP.Henry=0.;
+  AnBOAhP.hydrophilic=true; // Does the species condense on the aqueous phase?
+  AnBOAhP.hydrophobic=true;  // Does the species condense on the organic phase?
+  AnBOAhP.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  AnBOAhP.kp_experiment=0.00023;       // Value of the experimental partitioning constant at Tref?
+  AnBOAhP.deltaH=79.0;     // Enthalpy of vaporization (kJ/mol)
+  AnBOAhP.Tref=298;
+  AnBOAhP.is_organic=true;  // Is the compound organic?
+  AnBOAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  AnBOAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  AnBOAhP.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+  AnBOAhP.rho=1300.0;
+  AnBOAhP.is_monomer=false;
+  AnBOAhP.rion=false;
+  AnBOAhP.aq_type="none";
+  AnBOAhP.viscosity=1.68e12;  
+  AnBOAhP.is_solid=false;
+  AnBOAhP.is_generic=false;
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_anboahp [] = {0.33,3.3,0.0,0.0, // group C
+                               0.0,0.0,0.0,0.0, //group C[OH]
+                               0.0,0.0,0.0,0.0, //group Calcohol
+                               0.0,0.0,0.0,0.0, //group Calcohol-tail
+                               0.0,0.0,0.0,0.0,0.0, //group C=C
+                               2.01,2.01, //group aromatic carbon (AC)
+                               0.0,0.0,0.0, // group //AC-C
+                               0.0,  //group OH
+                               0.0, //group H2O
+                               0.67, //group ACOH
+                               0.0,0.0, //group ketone
+                               0.67,   //group aldehyde  
+                               0.0,0.0, //group ester
+                               0.67,0.0,0.0, //group ether  
+                               0.33,  //group acid
+                               0.0,   //group ACNO2
+                               0.0,0.0,0.0, //group NO3
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
+
+  size = sizeof(group_tmp_anboahp)/sizeof(double);
+  assert(size == 56);
+  for(int i = 0; i < size; ++i)
+    AnBOAhP.groups[i] = group_tmp_anboahp[i];
+
+  add_species_ssh(surrogate, AnBOAhP, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
+
+  
+  species AnBOAlP;
+  AnBOAlP.name="AnBOAlP";
+  AnBOAlP.Psat_ref=4.69e-9; 
+  AnBOAlP.is_inorganic_precursor=false;
+  AnBOAlP.MM=210.0;           // Molar mass (g/mol)
+  AnBOAlP.nonvolatile=false;  // Is the compound nonvolatile?
+  AnBOAlP.Henry=0.;
+  AnBOAlP.hydrophilic=true; // Does the species condense on the aqueous phase?
+  AnBOAlP.hydrophobic=true;  // Does the species condense on the organic phase?
+  AnBOAlP.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  AnBOAlP.kp_experiment=18.3;       // Value of the experimental partitioning constant at Tref?
+  AnBOAlP.deltaH=106.0;     // Enthalpy of vaporization (kJ/mol)
+  AnBOAlP.Tref=298;
+  AnBOAlP.is_organic=true;  // Is the compound organic?
+  AnBOAlP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  AnBOAlP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  AnBOAlP.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+  AnBOAlP.rho=1300.0;
+  AnBOAlP.is_monomer=false;
+  AnBOAlP.rion=false;
+  AnBOAlP.aq_type="none";
+  AnBOAlP.viscosity=1.68e12;  
+  AnBOAlP.is_solid=false;
+  AnBOAlP.is_generic=false;
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+
+  double group_tmp_anboalp [] = {0.0,0.0,0.0,0.0, // group C
+                               0.0,0.0,0.0,0.0, //group C[OH]
+                               0.0,0.0,0.0,0.0, //group Calcohol
+                               0.0,0.0,0.0,0.0, //group Calcohol-tail
+                               0.0,0.0,0.0,0.0,0.0, //group C=C
+                               3.0,3.0, //group aromatic carbon (AC)
+                               0.0,0.0,0.0, // group //AC-C
+                               0.0,  //group OH
+                               0.0, //group H2O
+                               0.0, //group ACOH
+                               0.0,0.0, //group ketone
+                               0.0,   //group aldehyde  
+                               0.0,0.0, //group ester
+                               0.0,0.0,0.0, //group ether  
+                               3.,  //group acid
+                               0.0,   //group ACNO2
+                               0.0,0.0,0.0, //group NO3
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
+
+  size = sizeof(group_tmp_anboalp)/sizeof(double);
+  assert(size == 56);
+  for(int i = 0; i < size; ++i)
+    AnBOAlP.groups[i] = group_tmp_anboalp[i];
+
+  add_species_ssh(surrogate, AnBOAlP, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
+
+
+  species AnBOAmP;
+  AnBOAmP.name="AnBOAmP";
+  AnBOAmP.Psat_ref=6.04e-7;
+  AnBOAmP.is_inorganic_precursor=false;
+  AnBOAmP.MM=180.98;           // Molar mass (g/mol)
+  AnBOAmP.nonvolatile=false;  // Is the compound nonvolatile?
+  AnBOAmP.Henry=0.;
+  AnBOAmP.hydrophilic=true; // Does the species condense on the aqueous phase?
+  AnBOAmP.hydrophobic=true;  // Does the species condense on the organic phase?
+  AnBOAmP.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  AnBOAmP.kp_experiment=0.040;       // Value of the experimental partitioning constant at Tref?
+  AnBOAmP.deltaH=91.0;     // Enthalpy of vaporization (kJ/mol)
+  AnBOAmP.Tref=298;
+  AnBOAmP.is_organic=true;  // Is the compound organic?
+  AnBOAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  AnBOAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  AnBOAmP.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+  AnBOAmP.rho=1300.0;
+  AnBOAmP.is_monomer=false;
+  AnBOAmP.rion=false;
+  AnBOAmP.aq_type="none";
+  AnBOAmP.viscosity=1.68e12;  
+  AnBOAmP.is_solid=false;
+  AnBOAmP.is_generic=false;
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+  
+  double group_tmp_anboamp [] = {0.17,2.38,0.0,0.0, // group C
+                               0.0,0.0,0.99,0.0, //group C[OH]
+                               0.0,0.0,0.33,0.0, //group Calcohol
+                               0.0,0.0,0.0,0.0, //group Calcohol-tail
+                               0.0,0.0,0.0,0.0,0.0, //group C=C
+                               1.5,1.5, //group aromatic carbon (AC)
+                               0.0,0.0,0.0, // group //AC-C
+                               0.99,  //group OH
+                               0.0, //group H2O
+                               0.5, //group ACOH
+                               0.0,0.0, //group ketone
+                               0.0,   //group aldehyde  
+                               0.0,0.0, //group ester
+                               0.5,0.33,0.33, //group ether 
+                               0.67,  //group acid
+                               0.0,   //group ACNO2
+                               0.0,0.0,0.0, //group NO3
+                               0.0,0.0,0.0, //group CO-OH
+			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,  //group PAN
+			       0.0}; //group COOOH
+
+  size = sizeof(group_tmp_anboamp)/sizeof(double);
+  assert(size == 56);
+  for(int i = 0; i < size; ++i)
+    AnBOAmP.groups[i] = group_tmp_anboamp[i];
+
+  add_species_ssh(surrogate, AnBOAmP, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
+
+  species AnBSOAhP;
+  AnBSOAhP.name="AnBSOAhP";
+  AnBSOAhP.Psat_ref=8.63e-7;
+  AnBSOAhP.is_inorganic_precursor=false;
+  AnBSOAhP.MM=234.976;           // Molar mass (g/mol)
+  AnBSOAhP.nonvolatile=false;  // Is the compound nonvolatile?
+  AnBSOAhP.Henry=0.;
+  AnBSOAhP.hydrophilic=true; // Does the species condense on the aqueous phase?
+  AnBSOAhP.hydrophobic=true;  // Does the species condense on the organic phase?
+  AnBSOAhP.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  AnBSOAhP.kp_experiment=0.00023;       // Value of the experimental partitioning constant at Tref?
+  AnBSOAhP.deltaH=79.0;     // Enthalpy of vaporization (kJ/mol)
+  AnBSOAhP.Tref=298;
+  AnBSOAhP.is_organic=true;  // Is the compound organic?
+  AnBSOAhP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  AnBSOAhP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  AnBSOAhP.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+  AnBSOAhP.rho=1300.0;
+  AnBSOAhP.is_monomer=false;
+  AnBSOAhP.rion=false;
+  AnBSOAhP.aq_type="none";
+  AnBSOAhP.viscosity=1.68e12;  
+  AnBSOAhP.is_solid=false;
+  AnBSOAhP.is_generic=false;
+  
+  size = sizeof(group_tmp_anboahp)/sizeof(double);
+  assert(size == 56);
+  for(int i = 0; i < size; ++i)
+    AnBSOAhP.groups[i] = group_tmp_anboahp[i];
+
+  add_species_ssh(surrogate, AnBSOAhP, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
+
+  species AnBSOAmP;
+  AnBSOAmP.name="AnBSOAmP";
+  AnBSOAmP.Psat_ref=6.04e-9;
+  AnBSOAmP.is_inorganic_precursor=false;
+  AnBSOAmP.MM=253.372;           // Molar mass (g/mol)
+  AnBSOAmP.nonvolatile=false;  // Is the compound nonvolatile?
+  AnBSOAmP.Henry=0.;
+  AnBSOAmP.hydrophilic=true; // Does the species condense on the aqueous phase?
+  AnBSOAmP.hydrophobic=true;  // Does the species condense on the organic phase?
+  AnBSOAmP.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  AnBSOAmP.kp_experiment=0.040;       // Value of the experimental partitioning constant at Tref?
+  AnBSOAmP.deltaH=91.0;     // Enthalpy of vaporization (kJ/mol)
+  AnBSOAmP.Tref=298;
+  AnBSOAmP.is_organic=true;  // Is the compound organic?
+  AnBSOAmP.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  AnBSOAmP.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  AnBSOAmP.Koligo_org=0.0;         //oligomeriation constant in the organic phase
+  AnBSOAmP.rho=1300.0;
+  AnBSOAmP.is_monomer=false;
+  AnBSOAmP.rion=false;
+  AnBSOAmP.aq_type="none";
+  AnBSOAmP.viscosity=1.68e12;  
+  AnBSOAmP.is_solid=false;
+  AnBSOAmP.is_generic=false;
+
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients 
+
+  size = sizeof(group_tmp_anboamp)/sizeof(double);
+  assert(size == 56);
+  for(int i = 0; i < size; ++i)
+    AnBSOAmP.groups[i] = group_tmp_anboamp[i];
+
+  add_species_ssh(surrogate, AnBSOAmP, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
+
   species BiNGA;
   BiNGA.name="BiNGA";
   BiNGA.is_inorganic_precursor=false;
