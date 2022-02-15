@@ -145,6 +145,16 @@ During the simulation, five subfolders and a report file are automatically gener
 \end{itemize}
 The user can also modify the name of the output folder ({\it{output\_directory}}) or select the output file type ({\it{output\_type = 1}} for text {\it{outputs and = 2}} for binary outputs) in the file \textit{namelist.ssh}.
 
+\subsection{Tools}
+The folder {\it{tools}} contains a few python routines that may be usefull
+for the numerical representation of aerosols. 
+
+\subsubsection{Partitioning mass and number into sections}
+The functions of the routine \textit{upsample.py} may be used to partition a
+section into several sections, while conserving both mass and number
+concentrations. A example is provided in the file  \textit{test_upsample.py}
+
+
 \section{Array structure}
 
 The variables and arrays corresponding to the number of compounds in the different
