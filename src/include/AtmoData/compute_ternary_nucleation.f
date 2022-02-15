@@ -20,7 +20,7 @@ c     jnucl - Nucleation rate (#part/cm^3/s).
 c     ntoth2so4 - Number of molecules of H2SO4 in the critical cluster.
 c     ntotnh3 - Number of molecules of NH3 in the critical cluster.
 c     dpnucl -  Nucleation diameter (nm).
-      subroutine ssh_compute_ternary_nucleation(rh, temp, natmp, mrtmp,
+      subroutine ssh_compute_ternary_nucleation(rh,temptmp,natmp,mrtmp,
      $     jnucl, ntoth2so4, ntotnh3, dpnucl)
 
       double precision a0(20), a1(20), a2(20), a3(20)
@@ -54,7 +54,7 @@ c     dpnucl -  Nucleation diameter (nm).
      $     - 5.73788d-07, 8.39522d-08, - 6.48365d-07,
      $     - 0.0000293564d0, 8.0459d-08 /
 
-      double precision rh, temp, natmp, na, mrtmp, mr
+      double precision rh, temp, natmp, na, mrtmp, mr, temptmp
       double precision jnucl, ntoth2so4, ntotnh3, dpnucl
 
       double precision ssh_fa
@@ -68,13 +68,14 @@ c     dpnucl -  Nucleation diameter (nm).
       parameter(tmin = 240.d0, tmax = 300.d0,
      $     rhmin = 0.05d0, rhmax = 0.95d0,
      $     namin = 1.d04, namax = 1.d09,
-     s     mrmin = 0.1d0, mrmax = 100.d0)
+     s     mrmin = 0.1d0, mrmax = 80.d0)
 
 c     test if parameterization is valid.
 
       na = natmp
       mr = mrtmp
-      if (temp.lt.tmin.or.temp.gt.tmax
+      temp = temptmp
+      if (temp.lt.tmin
      $     .or.rh.lt.rhmin.or.rh.gt.rhmax
      $     .or.na.lt.namin.or.mr.lt.mrmin) then
          dpnucl = 0.d0
@@ -83,6 +84,7 @@ c     test if parameterization is valid.
          ntotnh3 = 0.d0
 
       else
+         temp = dmin1(temptmp,tmax)
          na = dmin1(na, namax)
          mr = dmin1(mr, mrmax)
 
