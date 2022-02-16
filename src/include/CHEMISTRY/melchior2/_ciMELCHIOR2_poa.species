@@ -1,6 +1,6 @@
 File for chemical species MELCHIOR2 (name and molar mass)
 # gaseous species # aqueous species
-89      0
+88      0
 ---Gas-phase----
 C2H4       28.
 C2H6       30.
@@ -46,7 +46,6 @@ SO2        64.
 toPAN      161.
 CO2        44.
 H2SO4      98.
-X          1.
 H2         2.
 MALEIC     1.
 H2O        18.

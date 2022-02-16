@@ -187,7 +187,7 @@ KINETIC ARR1 4e-11
 oRN1 + NO3 -> 1.5 NO2
 KINETIC ARR1 1.2e-12
 ! R56     
-oRN1 + HO2 -> X
+oRN1 + HO2 ->
 KINETIC ARR2 2.7e-13 -1000.
 ! R57     
 CH4 + OH -> CH3O2
@@ -396,48 +396,6 @@ KINETIC PHOTOLYSIS 1.00e-15  1.00e-07  1.79e-07  3.49e-07  5.91e-07  //
 BiPER    ->
 KINETIC PHOTOLYSIS 1.00e-15 6.400e-06 1.160e-05 2.280e-05 3.885e-05 //
 7.300e-05 1.165e-04 2.065e-04 3.240e-04 4.100e-04 4.615e-04 4.790e-04 
-!R113bis1
-BiA2D -> X
-KINETIC ARR1 1.0e-18
-!R113bis2
-BiA1D -> X
-KINETIC ARR1 1.0e-18
-!R113bis3
-BiA0D -> X
-KINETIC ARR1 1.0e-18
-!R113bis4
-BiMT -> X
-KINETIC ARR1 1.0e-18
-!R113bis5
-BiDER -> X
-KINETIC ARR1 1.0e-18
-!R113bis6
-BiMGA -> X
-KINETIC ARR1 1.0e-18
-!R113bis7
-AnBlP -> X
-KINETIC ARR1 1.0e-18
-!R113bis8
-AnBmP -> X
-KINETIC ARR1 1.0e-18
-!R113bis9
-BiBlP -> X
-KINETIC ARR1 1.0e-18
-!R113bis10
-BiBmP -> X
-KINETIC ARR1 1.0e-18
-!R113bis11
-AnClP -> X
-KINETIC ARR1 1.0e-18
-!R113bis12
-BiNGA -> X
-KINETIC ARR1 1.0e-18
-!R113bis13
-BiNIT3 -> X
-KINETIC ARR1 1.0e-18
-!R113bis14
-BiNIT -> X
-KINETIC ARR1 1.0e-18
 ! R114
 APINEN + NO3 -> CH3CHO + CH3COE + oRN1 + 0.70 BiA0D + 0.10 BiNIT
 KINETIC ARR2 1.19e-12 -490.
@@ -609,15 +567,6 @@ KINETIC ARR1    1.20E-12
 !--------------------165, HR4---------------
 N2O5             ->      2 HNO3
 KINETIC ARR1    1.20E-12
-!R165bis1
-NH3 -> X
-KINETIC ARR1 1.0e-18
-!R165bis2
-H2SO4 -> X
-KINETIC ARR1 1.0e-18
-!R165bis3
-!H2SO4AQ -> X
-!KINETIC ARR1 1.0e-18
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  The following reactions come from CHIMERE REACTIONS.univ.carb_h2o1                        !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -630,13 +579,4 @@ KINETIC ARR1 2.0e-11
 !R168
 POAhP + OH -> SOAhP + OH
 KINETIC ARR1 2.0e-11
-!R169
-SOAlP -> X
-KINETIC ARR1 1.0e-18
-!R170
-SOAmP -> X
-KINETIC ARR1 1.0e-18
-!R171
-SOAhP -> X
-KINETIC ARR1 1.0e-18
 END
