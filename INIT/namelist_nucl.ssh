@@ -107,8 +107,14 @@ epser_soap = 0.01,                 ! relative difference of ros2 in SOAP
 /
 
 &physic_nucleation
-with_nucl = 1,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 1,               !Tag of type of nucleation model (0= binary, 1= Ternary Napari, 2= Ternary Merinkanto) 
+with_nucl = 1,
+nucl_model_binary = 0,         !Tag of type of binary nucleation model (0=none, 1=Veahkamaki, 2=Kuang)
+nucl_model_ternary = 1,        !Tag of type of ternary nucleation model (0=none, 1=Napari, 2=Merikanto)
+scal_ternary = 1.,         ! Scaling factor for ternary nucleation rate
+nucl_model_hetero = 0,         ! Tag of heteromolecular nucleation (0=none, 1=yes)
+scal_hetero = 1,             ! Scaling factor for heteromolecular nucleation rate
+nesp_org_h2so4_nucl = 2,      ! number of organics involved in heteromolecular nucleation
+name_org_h2so4_nucl_species = 'Monomer' 'Dimer',                  ! Species names involved in heteromolecular nucleation
 /
 
 &physic_organic

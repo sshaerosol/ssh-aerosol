@@ -113,7 +113,9 @@ contains
 		write(unit=10,FMT=*)  'Without coagulation'
 	end if
 	if (with_nucl == 1) then 
-		write(unit=10,FMT=*)  'With nucleation', '	','nucl_model', nucl_model
+		write(unit=10,FMT=*)  'With nucleation', '	','nucl_model_binary', nucl_model_binary
+		write(unit=10,FMT=*)  'With nucleation', '	','nucl_model_ternary', nucl_model_ternary
+		write(unit=10,FMT=*)  'With nucleation', '	','nucl_model_hetero', nucl_model_hetero
 	else
 		write(unit=10,FMT=*)  'Without nucleation'
 	end if

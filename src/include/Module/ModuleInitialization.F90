@@ -77,7 +77,11 @@ module aInitialization
   integer, save :: i_write_repart ! 1 if repartition coeff are written, 0 otherwise
   integer, save :: with_cond   !Tag fCondensation
   integer, save :: with_nucl   !Tag nucleation
-  Integer, save :: nucl_model  !ITERN !1= Ternary, 0= binary
+  integer, save :: nucl_model_binary, nucl_model_ternary, nucl_model_hetero
+  double precision, save :: scal_ternary, scal_hetero
+  integer, save :: nesp_org_h2so4_nucl
+  integer, dimension(2), save :: org_h2so4_nucl_species
+  character (len=40), dimension(2) :: name_org_h2so4_nucl_species
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic 
   integer, save :: with_oligomerization!IOLIGO
@@ -415,7 +419,8 @@ contains
          with_kelvin_effect, tequilibrium,&
          dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water
 
-    namelist /physic_nucleation/ with_nucl, nucl_model
+    namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
+         scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
 
     namelist /physic_organic/ with_oligomerization
 
@@ -1062,7 +1067,7 @@ contains
        endif
 
        
-       if (with_cond == 1)  then ! defalut
+       if (with_cond == 1)  then ! default
           if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
 
@@ -1131,28 +1136,72 @@ contains
     end if
 
     ! nucleation
+    nucl_model_binary = 0
+    nucl_model_ternary = 0
+    scal_ternary = 1.0
+    nucl_model_hetero = 0
+    scal_hetero = 0.1            
+    nesp_org_h2so4_nucl = 0
+    name_org_h2so4_nucl_species(1) = 'none'
+    name_org_h2so4_nucl_species(2) = 'none'
+
     read(10, nml = physic_nucleation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_nucleation data can not be read."
        stop
     else
        if (with_nucl == 1) then
+          if (nucl_model_binary == -999) nucl_model_binary = 0
+          if (nucl_model_ternary == -999) nucl_model_ternary = 0
+          if (nucl_model_hetero == -999) nucl_model_hetero = 0
+             
           if (ssh_standalone) write(*,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
           if (ssh_logger) write(logfile,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
-          if (nucl_model == 0) then
-             if (ssh_standalone) write(*,*) 'nucleation model : binary'
-             if (ssh_logger) write(logfile,*) 'nucleation model : binary'
-          else 
-             nucl_model = 1
-             if (ssh_standalone) write(*,*) 'nucleation model : ternary'
-             if (ssh_logger) write(logfile,*) 'nucleation model : ternary'
-          end if
-       else
-          with_nucl = 0   ! defalut
-          if (ssh_standalone) write(*,*) 'Without nucleation.'
-          if (ssh_logger) write(logfile,*) 'Without nucleation.'
-       end if
-    end if
+          if (nucl_model_binary == 0) then
+             if (ssh_standalone) write(*,*) ' No binary nucleation'
+             if (ssh_logger) write(logfile,*) 'No binary nucleation'
+          else
+             if (nucl_model_binary == 1) then
+                if (ssh_standalone) write(*,*) 'nucleation model : binary Veahkamaki'
+                if (ssh_logger) write(logfile,*) 'nucleation model : binary Veahkamaki'
+             else 
+                if (nucl_model_binary == 2) then
+                   if (ssh_standalone) write(*,*) 'nucleation model : binary Kuang'
+                   if (ssh_logger) write(logfile,*) 'nucleation model : binary Kuang'
+                endif
+             endif
+          endif
+          if (nucl_model_ternary == 0) then
+             if (ssh_standalone) write(*,*) ' No ternary nucleation'
+             if (ssh_logger) write(logfile,*) 'No ternary nucleation'
+          else
+             if(scal_ternary == -999.d0) scal_ternary = 1
+             if (nucl_model_ternary == 1) then
+                if (ssh_standalone) write(*,*) 'nucleation model : ternary Napari - scaling:',scal_ternary
+                if (ssh_logger) write(logfile,*) 'nucleation model : ternary Napari - scaling:',scal_ternary
+             else 
+                if (nucl_model_ternary == 2) then
+                  if (ssh_standalone) write(*,*) 'nucleation model : ternary Merikanto - scaling:',scal_ternary
+                  if (ssh_logger) write(logfile,*) 'nucleation model : ternary Merikanto - scaling:',scal_ternary
+               endif
+             endif
+          endif
+           if (nucl_model_hetero == 0) then
+             if (ssh_standalone) write(*,*) ' No heteromolecular nucleation'
+             if (ssh_logger) write(logfile,*) 'No heteromolecular nucleation'
+          else
+             if(scal_hetero == -999.d0) scal_hetero = 1
+             if (nucl_model_hetero == 1) then
+                if(nesp_org_h2so4_nucl.GT.2) then
+                  if (ssh_standalone) write(*,*) 'nucleation model : heteromolecular - no more than 2 species',nesp_org_h2so4_nucl
+                  if (ssh_logger) write(logfile,*) 'nucleation model : heteromolecular- no more than 2 species',nesp_org_h2so4_nucl
+                endif   
+                if (ssh_standalone) write(*,*) 'nucleation model : heteromolecular',scal_hetero
+                if (ssh_logger) write(logfile,*) 'nucleation model : heteromolecular',scal_hetero
+             endif
+          endif
+      endif
+    endif
 
     ! organic
     read(10, nml = physic_organic, iostat = ierr)
@@ -1855,7 +1904,22 @@ contains
        end if
     end do
     close(34)
-    
+
+    if(nucl_model_hetero == 1) then
+       do s=1,nesp_org_h2so4_nucl
+          !ifound = 0
+          do i = 1,N_gas
+             write(*,*) species_name(i),name_org_h2so4_nucl_species(s)
+             if(species_name(i) == name_org_h2so4_nucl_species(s)) then
+                org_h2so4_nucl_species(s) = i
+                if (ssh_standalone) write(*,*) "Nucl. species found",species_name(i)
+                if (ssh_logger) write(logfile,*) "Nucl. species found",species_name(i)
+           !     ifound = 1
+             endif
+           enddo
+       enddo
+    endif
+
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
 
@@ -2418,6 +2482,18 @@ contains
        end if
     end do
     close(34)
+    
+    if(nucl_model_hetero == 1) then
+       do s=1,nesp_org_h2so4_nucl
+          do i = 1,N_gas
+              if(species_name(i) == name_org_h2so4_nucl_species(s)) then
+                org_h2so4_nucl_species(s) = i
+                if (ssh_standalone) write(*,*) "Nucl. species found ",species_name(i)
+                if (ssh_logger) write(logfile,*) "Nucl. species found ",species_name(i)
+             endif
+           enddo
+       enddo
+    endif
     
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"

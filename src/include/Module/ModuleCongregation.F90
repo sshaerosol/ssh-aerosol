@@ -313,82 +313,13 @@ contains
     double precision	:: xstar,mSO4,nanh3,dmdt
     double precision :: perc_so4, perc_nh4,tot_so4nh4
     integer :: iterp,s,isection
-    !     Compute gas mass conservation
+    double precision :: mass_nucl,mass_nucl1,mass_nucl2
+    double precision :: mass_density_nucl
+    double precision :: org_terp, org_terp_tmp(nesp_org_h2so4_nucl)
+    double precision :: xterp(nesp_org_h2so4_nucl)
 
-    if(nucl_model.eq.1.OR.nucl_model.eq.2) then            ! sulfuric-acid-ammonia-water nucl'n
-       !     mr should be in ppt
-       mr = c_gas(ENH4)/17. * 22.41d0 *273.d0/Temperature * Pressure/101300.d0
-
-       na= c_gas(ESO4)*1.D-06&       ! convert to Âµg.cm-3
-            /98.d6 &        ! to mol.cm-3
-            *Navog            ! to #molec.cm-3      
-
-       if(nucl_model.eq.1) then            ! Napari
-          call ssh_COMPUTE_TERNARY_NUCLEATION(Relative_Humidity,&     ! relative humidity 
-               Temperature,&             ! temperature (Kelvin)
-               na,&               ! gas h2so4 conc (#molec.cm-3)
-               mr,&		      !Mixing ratio of NH3 (ppt).
-               jnucl,&           ! nucleation rate (#part.cm-3.s-1)
-               ntot,&             ! number of molec of h2so4 in nucleus 
-               ntotnh3,&          ! number of molec of nh3 in nucleus 
-               dpnucl )          ! nucleation diameter (nm)    
-       else ! Merikanto
-          call ssh_COMPUTE_TERNARY_NUCLEATION_MERIKANTO(Relative_Humidity,&     ! relative humidity 
-               Temperature,&             ! temperature (Kelvin)
-               na,&               ! gas h2so4 conc (#molec.cm-3)
-               mr,&		      !Mixing ratio of NH3 (ppt).
-               jnucl,&           ! nucleation rate (#part.cm-3.s-1)
-               ntot,&             ! number of molec of h2so4 in nucleus 
-               ntotnh3,&          ! number of molec of nh3 in nucleus 
-               dpnucl )          ! nucleation diameter (nm)    
-       endif
-       ! nucleation rate (#part.m-3.s-1)
-       jnucl=jnucl*1.D06
-       if(jnucl.GT.0.0) then
-          dpnucl = dpnucl * 0.001
-          isection = 1 !0
-          !    if(dpnucl.LT.diam_bound(1)) then
-          !       isection=1  ! Consider diameters even if below diam_bound(1)
-          !       !jnucl = 0
-          !    else
-          !       s = 2
-          !       Do while ((isection == 0).AND.(s < N_sizebin+1))
-          !          if(dpnucl.LT.diam_bound(s)) then
-          !             isection = s-1
-          !          endif
-          !          s = s+1
-          !       Enddo
-          !    endif
-
-          if(jnucl.gt.0.d0.and.(.not.IsNaN(jnucl*0.d0))) then
-            if(ntot.GT.0.d0.OR.ntotnh3.GT.0.0) then
-	     dndt(isection) =dndt(isection) +jnucl ! #part.m-3.s-1
-             dpnucl = size_diam_av(1) 
-             dmdt = jnucl * PI/6.0 * dpnucl**3
-             perc_so4 = ntot * molecular_weight_aer(ESO4)
-             perc_nh4 = ntotnh3 * molecular_weight_aer(ENH4)
-             tot_so4nh4 = perc_so4 + perc_nh4
-             perc_so4 = perc_so4/tot_so4nh4
-             perc_nh4 = perc_nh4/tot_so4nh4
-             !dqdt(isection,ESO4)=dqdt(isection,ESO4)+jnucl*ntot/Navog*molecular_weight_aer(ESO4) ! Âµg.m-3.s-1
-	     !dqdt(isection,ENH4)=dqdt(isection,ENH4)+jnucl*ntotnh3/Navog*molecular_weight_aer(ENH4)
-	     dqdt(isection,ESO4)=dqdt(isection,ESO4)+ dmdt * perc_so4 * fixed_density ! Âµg.m-3.s-1
-	     dqdt(isection,ENH4)=dqdt(isection,ENH4)+ dmdt * perc_nh4 * fixed_density
-
-             if(IsNaN(dndt(isection)*0.d0)) then
-                dndt(isection)=0.d0
-                dqdt(isection,ESO4)=0.d0
-                dqdt(isection,ENH4)=0.d0
-             endif
-            endif
-          endif
-
-       endif
-
-    else                     
-       if(nucl_model.eq.0) then   !sulfuric-acid-water nucl'n   
+    if(nucl_model_binary.eq.1) then   !sulfuric-acid-water nucl'n   
           !     Compute H2SO4 threshold concentration
-
           call ssh_NA_THRESHOLD_VEAHKAMAKI(Relative_Humidity,Temperature,nanucl) !#molec.cm-3
 
           qanucl= nanucl*1.D06&   ! convert to #molec.m-3
@@ -431,12 +362,145 @@ contains
              endif
 
           endif
-       else
-          write(*,*) 'nucleation scheme not implemented',nucl_model
-          stop
+    else
+       if(nucl_model_binary.eq.2) then   !sulfuric-acid-water nucl'n   - Kuang
+             dpnucl = size_diam_av(1) 
+             na= c_gas(ESO4)*1.d-06&    ! convert to µg.cm-3
+		  /molecular_weight_aer(ESO4)&     ! to mol.cm-3
+		  *Navog           ! to #molec.cm-3
+                !jnucl = 10**(-12.5d0) *  na**2 * 10.**6
+             jnucl = 10**(-6.5d0) *  na**2
+             dndt(1) =dndt(1) +jnucl ! #part.m-3.s-1
+             dmdt = jnucl * PI/6.0 * mass_density(ESO4) * dpnucl**3
+             mSO4= 1.D0 &          ! #molec
+                     /Navog&         ! Avogadro number (adim)
+                     *molecular_weight_aer(ESO4)     ! mol weight µg.mol-1
+             dmdt = jnucl * PI/6.0 *mso4 
+             dqdt(1,ESO4)=dqdt(1,ESO4)+dmdt! µg.m-3.s-1
+       endif
+    endif
+
+    if(nucl_model_ternary.eq.1.OR.nucl_model_ternary.eq.2) then ! sulfuric-acid-ammonia-water nucl'n
+       !     mr should be in ppt
+       mr = c_gas(ENH4)/17. * 22.41d0 *273.d0/Temperature * Pressure/101300.d0
+
+       na= c_gas(ESO4)*1.D-06&       ! convert to Âµg.cm-3
+            /98.d6 &        ! to mol.cm-3
+            *Navog            ! to #molec.cm-3      
+
+       if(nucl_model_ternary.eq.1) then            ! Napari
+          call ssh_COMPUTE_TERNARY_NUCLEATION(Relative_Humidity,&     ! relative humidity 
+               Temperature,&             ! temperature (Kelvin)
+               na,&               ! gas h2so4 conc (#molec.cm-3)
+               mr,&		      !Mixing ratio of NH3 (ppt).
+               jnucl,&           ! nucleation rate (#part.cm-3.s-1)
+               ntot,&             ! number of molec of h2so4 in nucleus 
+               ntotnh3,&          ! number of molec of nh3 in nucleus 
+               dpnucl )          ! nucleation diameter (nm)    
+       else ! Merikanto
+          call ssh_COMPUTE_TERNARY_NUCLEATION_MERIKANTO(Relative_Humidity,&     ! relative humidity 
+               Temperature,&             ! temperature (Kelvin)
+               na,&               ! gas h2so4 conc (#molec.cm-3)
+               mr,&		      !Mixing ratio of NH3 (ppt).
+               jnucl,&           ! nucleation rate (#part.cm-3.s-1)
+               ntot,&             ! number of molec of h2so4 in nucleus 
+               ntotnh3,&          ! number of molec of nh3 in nucleus 
+               dpnucl )          ! nucleation diameter (nm)    
+       endif
+       ! nucleation rate (#part.m-3.s-1)
+       jnucl=jnucl*1.D06 * scal_ternary
+       if(jnucl.GT.0.0) then
+          dpnucl = dpnucl * 0.001
+          isection = 1 !0
+          !    if(dpnucl.LT.diam_bound(1)) then
+          !       isection=1  ! Consider diameters even if below diam_bound(1)
+          !       !jnucl = 0
+          !    else
+          !       s = 2
+          !       Do while ((isection == 0).AND.(s < N_sizebin+1))
+          !          if(dpnucl.LT.diam_bound(s)) then
+          !             isection = s-1
+          !          endif
+          !          s = s+1
+          !       Enddo
+          !    endif
+
+          if(jnucl.gt.0.d0) then
+            if(ntot.GT.1.d-15.OR.ntotnh3.GT.1.d-15) then
+	     dndt(isection) =dndt(isection) +jnucl ! #part.m-3.s-1
+             dpnucl = size_diam_av(isection) 
+             dmdt = jnucl * PI/6.0 * dpnucl**3
+             perc_so4 = ntot * molecular_weight_aer(ESO4)
+             perc_nh4 = ntotnh3 * molecular_weight_aer(ENH4)
+             tot_so4nh4 = perc_so4 + perc_nh4
+             perc_so4 = perc_so4/tot_so4nh4
+             perc_nh4 = perc_nh4/tot_so4nh4
+             !dqdt(isection,ESO4)=dqdt(isection,ESO4)+jnucl*ntot/Navog*molecular_weight_aer(ESO4) ! Âµg.m-3.s-1
+	     !dqdt(isection,ENH4)=dqdt(isection,ENH4)+jnucl*ntotnh3/Navog*molecular_weight_aer(ENH4)
+	     dqdt(isection,ESO4)=dqdt(isection,ESO4)+ dmdt * perc_so4 * fixed_density ! Âµg.m-3.s-1
+	     dqdt(isection,ENH4)=dqdt(isection,ENH4)+ dmdt * perc_nh4 * fixed_density
+
+             if(IsNaN(dndt(isection)*0.d0)) then
+                dndt(isection)=0.d0
+                dqdt(isection,ESO4)=0.d0
+                dqdt(isection,ENH4)=0.d0
+             endif
+            endif
+          endif
+
        endif
 
     endif
+
+    if(nucl_model_hetero.eq.1) then ! heteromolecular nucl'n (Org-H2SO4)
+          isection = 1
+          na= c_gas(ESO4)*1.d-06&    ! convert to µg.cm-3
+		  /molecular_weight_aer(ESO4)&     ! to mol.cm-3
+		  *Navog           ! to #molec.cm-3
+          org_terp = 0.0
+          Do iterp = 1,nesp_org_h2so4_nucl
+            org_terp_tmp(iterp) = c_gas(org_h2so4_nucl_species(iterp))*1.D-06&    ! convert to ug.cm-3
+               /molecular_weight_aer(org_h2so4_nucl_species(iterp))&     ! to mol.m-3
+                *Navog         ! to #molec.cm-3
+            org_terp = org_terp + org_terp_tmp(iterp)
+          Enddo
+          if ((org_terp > 1.d5).AND.(na > 1.d5)) then
+             Do iterp = 1,nesp_org_h2so4_nucl
+               xterp(iterp) = org_terp_tmp(iterp)/org_terp
+             Enddo
+             if(org_terp > 1.d8) then ! Set max value to max observed value in experiments
+                org_terp = 1.d8
+             endif
+             if (na > 1.d8) then
+                na = 1.d8
+             endif
+             jnucl=3.27*1.d-15*org_terp*na*na * scal_hetero ! in #.m-3 s-1 !!!SCALING FACTOR
+             if(jnucl.gt.1.d10) then ! Prevent nucleation rate from being too large
+               jnucl = 1.d10
+             endif
+             if(jnucl > 1.d-6) then
+               dpnucl = size_diam_av(isection) 
+               mass_nucl1 = 2.D0 * molecular_weight_aer(ESO4)
+               Do iterp = 1,nesp_org_h2so4_nucl
+                 mass_nucl2 = xterp(iterp) * molecular_weight_aer(org_h2so4_nucl_species(iterp))
+               Enddo
+               mass_nucl = mass_nucl1 + mass_nucl2
+               mass_density_nucl = mass_nucl /&
+                   (mass_nucl1/mass_density(ESO4) + mass_nucl2/mass_density(org_h2so4_nucl_species(1)))
+               dmdt = jnucl * PI/6.0 * mass_density_nucl * dpnucl**3
+              ! Each cluster has 2 molec of SO4 et 1 of organics, so the mass fraction of
+              ! organics and sulfate is proportionnel to
+               dndt(isection) = dndt(isection) +jnucl  ! #part.m-3.s-1
+               dqdt(isection,ESO4) = dqdt(isection,ESO4) + dmdt * mass_nucl1/mass_nucl
+               Do iterp = 1,nesp_org_h2so4_nucl
+                 dqdt(isection,org_h2so4_nucl_species(iterp)) = dqdt(isection,org_h2so4_nucl_species(iterp)) &
+                     + dmdt * xterp(iterp) * &
+                      molecular_weight_aer(org_h2so4_nucl_species(iterp)) / mass_nucl
+               Enddo
+             endif
+          endif
+    endif
+    
   end subroutine ssh_fgde_nucl
 
 end module hCongregation

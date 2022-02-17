@@ -86,7 +86,6 @@ activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 
 &physic_nucleation
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
 /
 
 
