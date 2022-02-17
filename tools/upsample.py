@@ -70,7 +70,7 @@ def M_conservative_upsample_logspace(M, dmin, dmax, ns):
     [Ni] array of number concentration in successive sections
     """
 
-    dp = np.geomspace(dmin, dmax, num=ns+1)
+    dp = np.logspace(np.log10(dmin), np.log10(dmax), num=ns+1)
 
     return M_conservative_upsample(M, dp)
 
@@ -97,6 +97,6 @@ def M_N_conservative_upsample_logspace(M, rho, dmin, dmax, ns):
     [Ni] array of number concentration in successive sections
     """
 
-    dp = np.geomspace(dmin, dmax, num=ns+1)
+    dp = np.logspace(np.log10(dmin), np.log10(dmax), num=ns+1)
 
     return M_N_conservative_upsample(M, rho, dp)
