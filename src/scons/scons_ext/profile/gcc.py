@@ -74,7 +74,8 @@ def fast(utils):
     won't work on computers with older CPUs. Newer CPUs should be backward
     compatible.
     """
-    p = fast_portable(utils)
+    p = _warning(utils)
+    p.flag_compiler += " -Ofast"
 
     # p.flag_compiler += " -march=native"
     # using -march=native leads to a more CPU time in polair3d simulations.
