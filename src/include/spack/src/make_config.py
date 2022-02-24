@@ -96,3 +96,12 @@ with open("species.spack.dat","w") as f:
 #""")
     f.write("\n#".join(photolysis_reactions))
     f.write("\n")
+    
+#write species-list.dat automaticaly
+with open("species-list.dat","w") as f:
+    f.write("# The order of species in this list should not be changed.")
+    for k, v in zip(species_name, species_weight):
+        k += " "
+        f.write("\n")
+        f.write(k.ljust(8))
+        f.write(v)

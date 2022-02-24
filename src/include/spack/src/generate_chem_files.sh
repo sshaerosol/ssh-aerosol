@@ -51,7 +51,9 @@ fi
 #
 
 tmp_files="inSPACK perm.dat ${SPECIES}_preprocessed non_zero.dat non_zero_90.dat"
-output_file="LU_decompose.f90 LU_solve.f90 species.spack.dat dratedc.f90 fexchem.f90 fexloss.f90 fexprod.f90 jacdchemdc.f90 kinetic.f90 rates.f90 dimensions.f90 non_zero.dat"
+#output_file="LU_decompose.f90 LU_solve.f90 species.spack.dat dratedc.f90 fexchem.f90 fexloss.f90 fexprod.f90 jacdchemdc.f90 kinetic.f90 rates.f90 dimensions.f90 non_zero.dat"
+output_file="LU_decompose.f90 LU_solve.f90 species.spack.dat species-list.dat dratedc.f90 fexchem.f90 fexloss.f90 fexprod.f90 jacdchemdc.f90 kinetic.f90 rates.f90 dimensions.f90 non_zero.dat"
+
 
 # Automatically delete temporary files on exit.
 function on_exit {
