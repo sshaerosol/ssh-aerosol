@@ -61,7 +61,7 @@ then
     rm -f $file
 fi
 
-./cleantmp
+./cleantmp $chemistry
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry nacl=$nacl openmp=no sharedlib=no

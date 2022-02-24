@@ -1,6 +1,27 @@
 #!/bin/bash
 
-for i in dimensions.f90 dratedc.f90 fexchem.f90 fexprod.f90 fexloss.f90 jacdchemdc.f90 kinetic.f90 rates.f90 LU_decompose.f90 LU_solve.f90 LU_solve_tr.f90
-do
-  rm -rf src/include/CHEMISTRY/*/${i}
-done
+chemistry=$1
+
+if [ -z $chemistry ]; then
+  chemistry="cb05"
+fi
+
+if [ $chemistry == "all" ]; then
+  
+  echo "cleaning all chemistry repository"
+  
+  for i in dimensions.f90 dratedc.f90 fexchem.f90 jacdchemdc.f90 kinetic.f90 rates.f90 LU_decompose.f90 LU_solve.f90 LU_solve_tr.f90 fexloss.f90 fexprod.f90 species.spack.dat species-list.dat
+  do
+    rm -rf src/include/CHEMISTRY/*/${i}
+  done
+
+else
+
+  echo "cleaning $chemistry repository"
+
+  for i in dimensions.f90 dratedc.f90 fexchem.f90 jacdchemdc.f90 kinetic.f90 rates.f90 LU_decompose.f90 LU_solve.f90 LU_solve_tr.f90 fexloss.f90 fexprod.f90 species.spack.dat species-list.dat
+  do
+    rm -rf src/include/CHEMISTRY/$1/${i}
+  done
+  
+fi
