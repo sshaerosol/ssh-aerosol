@@ -10,6 +10,7 @@ c
 c
       dimension bp(nbpmax,nrmax)
       dimension ispebp(nrmax)
+      dimension ihetero(nrmax)
 c
       dimension tabphot(ntabphotmax)
       dimension iphot(nrmax),iphotinv(nrmax),

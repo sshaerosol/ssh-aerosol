@@ -1464,24 +1464,31 @@ KINETIC ARR1    1.20E-12
 !  --- KIRCHNER AND STOCKWELL, 1996
 !
 ! R239
+!=============================================%
+!========== HETEROGENEOUS REACTIONS ==========%
+!=============================================%
+!
+! Nb of reactions: 4
+!
+!--------------------HR1---------------------%
 HO2              ->      0.5 H2O2
-KINETIC ARR1    1.20E-12
-!  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -1
 !
-! R240
+!--------------------HR2---------------------%
 NO2              ->      0.5 HONO + 0.5 HNO3
-KINETIC ARR1    1.20E-12
-!  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -2
 !
-! R241
+!--------------------HR3---------------------%
 NO3              ->      HNO3
-KINETIC ARR1    1.20E-12
-!  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -3
 !
-! R242
+!--------------------HR4---------------------%
 N2O5             ->      2 HNO3
-KINETIC ARR1    1.20E-12
-!  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -4
+!
+!=============================================%
+!====== END OF HETEROGENEOUS REACTIONS =======%
+!=============================================%
 !
 ! R243
 % Modif ED : formation of SOA for aecbox

@@ -73,6 +73,7 @@ c
          bp(5,ir)=0.D0
          bp(6,ir)=0.D0
          ispebp(ir)=0
+         ihetero(ir)=0
          jer(1,ir)=0
          jer(2,ir)=0
          jer(3,ir)=0

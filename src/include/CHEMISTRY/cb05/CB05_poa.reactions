@@ -933,31 +933,31 @@ NO2 + ISOP -> 0.2 ISPD + 0.8 NTR + XO2 + 0.8 HO2 + //
 KINETIC ARR1    1.5E-19
 % Stabel,J.R. et al. (2005)
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%=============================================%
+%========== HETEROGENEOUS REACTIONS ==========%
+%=============================================%
 %
-%  Heterogeneous reactions
+% Nb of reactions: 4
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%--------------------153, HR1---------------
+%--------------------HR1---------------------%
 HO2              ->      0.5 H2O2
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -1
 %
-%--------------------154, HR2---------------
+%--------------------HR2---------------------%
 NO2              ->      0.5 HONO + 0.5 HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -2
 %
-%--------------------155, HR3---------------
+%--------------------HR3---------------------%
 NO3              ->      HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -3
 %
-%--------------------156, HR4---------------
+%--------------------HR4---------------------%
 N2O5             ->      2 HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -4
+%
+%=============================================%
+%====== END OF HETEROGENEOUS REACTIONS =======%
+%=============================================%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

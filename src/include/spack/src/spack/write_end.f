@@ -98,51 +98,6 @@ C =============================
 
 C     Routine kinetic.f90
       nwrite=nfick90
-C ======================
-      if (aerosol_formation) then
-      write(nwrite,601)
- 601  format('!    Heteroheneous Reactions on aerosol surface:')
-      write(nwrite,150)
-      write(nwrite,602) HR1
- 602  format('!    Reaction ',I3,': HO2  -->  0.5 H2O2')
-      write(nwrite,603) HR2
- 603  format('!    Reaction ',I3,': NO2  -->  0.5 HONO + 0.5 HNO3')
-      write(nwrite,604) HR3
- 604  format('!    Reaction ',I3,': NO3  -->  HNO3')
-      write(nwrite,605) HR4
- 605  format('!    Reaction ',I3,': N2O5 -->  2 HNO3')
-      write(nwrite,300)
-      write(nwrite,606) HR1
- 606  format(2x,'rk',I3,'=0.D0')
-      write(nwrite,607) HR2
- 607  format(2x,'rk',I3,'=0.D0')
-      write(nwrite,608) HR3
- 608  format(2x,'rk',I3,'=0.D0')
-      write(nwrite,609) HR4
- 609  format(2x,'rk',I3,'=0.D0')
-      write(nwrite,300)
-      write(nwrite,610)
- 610  format(2x,'if (IHETER.eq.1) then')
-      write(nwrite,611)
- 611  format(2x,'  call HETRXN(Ns,Nbin_aer,temp,press,ICLD,lwctmp, &')
-      write(nwrite,612) HR1,HR2,HR3,HR4
- 612  format(2x,'    WetDiam,granulo,rk',I3,',rk',I3,',rk',I3,
-     2      ',rk',I3,', &')
-      write(nwrite,613)
- 613  format(2x,'    dsf_aero,ispeclost,Wmol,LWCmin)')
-      write(nwrite,614)
- 614  format(2x,'endif')
-      write(nwrite,300)
-      write(nwrite,615) HR1,HR1
- 615  format(2x,'rk(',I3,') = rk',I3)
-      write(nwrite,616) HR2,HR2
- 616  format(2x,'rk(',I3,') = rk',I3)
-      write(nwrite,617) HR3,HR3
- 617  format(2x,'rk(',I3,') = rk',I3)
-      write(nwrite,618) HR4,HR4
- 618  format(2x,'rk(',I3,') = rk',I3)
-      endif
-C =====================================
 
 
       call ssh_write_end2_90(nwrite)

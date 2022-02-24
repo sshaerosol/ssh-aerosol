@@ -346,7 +346,9 @@ c         elseif (chem_mechanism.eq.2) then
             call ssh_WSPEC_CB0590 (nr,ispebp(nr))
             write(*,*) '   expressions in CB05 mechanism are used'
 c         elseif (chem_mechanism.eq.3) then
-         elseif (mechanism_name .eq. "racm2 ") then
+         elseif (mechanism_name .eq. "racm2 " .or.
+     &           mechanism_name .eq. "racm2-2020" .or.
+     &           mechanism_name .eq. "racm2-2020rad") then
             call ssh_WSPEC_RACM290 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM2 mechanism are used'
          else
@@ -355,6 +357,14 @@ c         elseif (chem_mechanism.eq.3) then
          endif
 
 c end of modif
+
+!!!!!!!!!! ADDED BY VICTOR2020 :
+c     HETERO: heterogeneous reactions.
+      elseif (mot(i)(1:6).eq.'HETERO') then
+         nb(nr)=5
+         call ssh_entier(ihetero(nr),mot(i+1),imot(i+1))
+         call ssh_WHETERO90 (nr,ihetero(nr))
+!!!!!!!!!! 
 
 c     EXTRA: specific reaction with corrected factors
 C     O3 -> 2. OH with corrected photolysis

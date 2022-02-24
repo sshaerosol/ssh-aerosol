@@ -411,6 +411,7 @@ C
 C     -- AUTHOR(S)
 C
 C     Youngseob KIM, 2010.
+C     Victor Lannuque, 2020.
 C
 C------------------------------------------------------------------------
       include 'nficfort'
@@ -451,17 +452,72 @@ C     YS(16/02/2009): values given by IUPAC 2006
 C     Modif (YK:201108/09)): 2.4d-17 to 2.7d-17 based on RACM2_5L version
  15   format('  rk(',i3,') = 1.44d-13 * (1.0d0 + 8.0d-1 * SumM &', /
      &     '    / 4.0d19)')
-C     YS 16/02/2009 value given by IUPAC 2006
- 16   format('  Rapk = 3.4d-30 * (300./temp)**(3.2)*SumM',/
-     &     '  Effko = Rapk/(4.77D-11*(300./temp)**1.4)',/
-     &     '  rk(',i3,')=(Rapk/(1.+Effko))*0.3** &',/
-     &     '    (1.0d0/(1.0d0+ ((log10(Effko)-0.12)/1.2)**2))')
+C     VICTOR2020: modified according to RACM2 v2013 :
+ 16   format('  Rapk = 3.43d-12 * exp(270./temp)',/
+     &     '  Effko = (530./temp) + 4.8d-6 * Press - 1.73',/
+     &     '  rk(',i3,')= Rapk * Effko / 100.')
  17   format('  rk(',i3,') = 1.8d-39 * YlH2O * YlH2O')
- 18   format('  rk(',i3,') = 4.56d-14*(temp/300)**(3.65) &',/
-     &     '    * exp(-427.0d0/temp)')
+C     VICTOR2020: modified according to RACM2 v2013 :
+ 18   format('  rk(',i3,') = 1.39d-13 + 3.72d-11 * exp(-2044./temp)')
 C     YK 30/08/2010
       return
       end
+
+
+C      
+C      
+C------------------------------------------------------------------------
+      subroutine ssh_WHETERO90 (nr,ihetero)
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     Associate kinetic rates of heterogeneous reactions with right variable
+C     for hetrxn.f.
+C
+C     HETERO -1 : HO2  -->  0.5 H2O2
+C     HETERO -2 : NO2  -->  0.5 HONO + 0.5 HNO3
+C     HETERO -3 : NO3  -->  HNO3
+C     HETERO -4 : N2O5 -->  2 HNO3
+C
+C------------------------------------------------------------------------
+C
+C     -- AUTHOR(S)
+C
+C     VICTOR LANNUQUE, 2020.
+C
+C------------------------------------------------------------------------
+      include 'nficfort'
+      integer nr,ihetero
+
+      If(ihetero.EQ.-1) then
+         write(nficK90,11)nr
+      elseif(ihetero.EQ.-2) then
+         write(nficK90,12)nr
+      elseif(ihetero.EQ.-3) then
+         write(nficK90,13)nr
+      elseif(ihetero.EQ.-4) then
+         write(nficK90,14)nr
+
+      else
+         write(*,*) 'ERROR: unknown heterogeneous reaction ',ihetero
+         stop 1
+      endif
+      
+      
+!     HETERO -1 : HO2  -->  0.5 H2O2
+ 11   format('  rk(',i3,') = rkhHO2')
+!     HETERO -2 : NO2  -->  0.5 HONO + 0.5 HNO3
+ 12   format('  rk(',i3,') = rkhNO2')
+!     HETERO -3 : NO3  -->  HNO3
+ 13   format('  rk(',i3,') = rkhNO3')
+!     HETERO -4 : N2O5 -->  2 HNO3
+ 14   format('  rk(',i3,') = rkhN2O5')
+
+      return
+      end
+      
+      
 C------------------------------------------------------------------------
       subroutine ssh_WTB90(nr,ittb)
 C------------------------------------------------------------------------

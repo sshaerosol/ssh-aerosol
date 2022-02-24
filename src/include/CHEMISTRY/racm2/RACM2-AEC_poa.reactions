@@ -2131,31 +2131,31 @@ XYLPAEC + ACO3 -> 0.71 AnClP + ACO3
 KINETIC ARR2   7.40E-13   -765.
 % Rate from XYLP + ACO3
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%=============================================%
+%========== HETEROGENEOUS REACTIONS ==========%
+%=============================================%
 %
-%  Heterogeneous reactions
+% Nb of reactions: 4
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%--------------------369, HR1---------------
+%--------------------HR1---------------------%
 HO2              ->      0.5 H2O2
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -1
 %
-%--------------------370, HR2---------------
+%--------------------HR2---------------------%
 NO2              ->      0.5 HONO + 0.5 HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -2
 %
-%--------------------371, HR3---------------
+%--------------------HR3---------------------%
 NO3              ->      HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -3
 %
-%--------------------372, HR4---------------
+%--------------------HR4---------------------%
 N2O5             ->      2 HNO3
-KINETIC ARR1    1.20E-12
-%  --- HETEROGENEOUS REACTION !! change rate after spack
+KINETIC HETERO -4
+%
+%=============================================%
+%====== END OF HETEROGENEOUS REACTIONS =======%
+%=============================================%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

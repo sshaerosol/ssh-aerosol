@@ -48,47 +48,6 @@ C------------------------------------------------------------------------
       include 'parametre'
       integer nwrite
 
-C     Setup of Heterogeneous reactions no.
-      integer HR1,HR2,HR3,HR4
-      common /HR/ HR1,HR2,HR3,HR4
-
-c---------- for RACM
-c      if (chem_mechanism.eq.1) then
-      if (mechanism_name .eq. "racm  " .or.
-     &    mechanism_name .eq. "radm  ") then
-      HR1=238
-      HR2=239
-      HR3=240
-      HR4=241
-c      mechanism_name = 'racm'
-c---------- for CB05
-c      elseif (chem_mechanism.eq.2) then
-      elseif (mechanism_name .eq. "cb05  " .or.
-     &     mechanism_name .eq. "cb05en" ) then
-      HR1=152
-      HR2=153
-      HR3=154
-      HR4=155
-
-      elseif (mechanism_name .eq. "cb05v0") then
-C     for cb05v0
-      HR1=156
-      HR2=157
-      HR3=158
-      HR4=159
-c      mechanism_name = 'cb05'
-c---------- for RACM2
-c      elseif (chem_mechanism.eq.3) then
-      elseif (mechanism_name .eq. "racm2 ") then
-      HR1=352
-      HR2=353
-      HR3=354
-      HR4=355
-c      mechanism_name = 'racm2'
-      else
-      write(*,*) "Error:"
-      write(*,*) "wrong number of chemical mechanism in parametre"
-      endif
 
 C     Routine dimensions.f90
       nficdim90=ipiste
@@ -219,8 +178,12 @@ C     aerosol formation ==============
       if (aerosol_formation) then
       write(nwrite,421)
  421  format('  integer Ns,Nbin_aer,nr')
-      write(nwrite,4311) HR1,HR2,HR3,HR4
- 4311 format('  double precision rk',I3,',rk',I3,',rk',I3,',rk',I3)
+ 
+
+      write(nwrite,4312)
+ 4312 format('  double precision rkhHO2,rkhNO2,rkhNO3,rkhN2O5')
+
+
       write(nwrite,4341)
  4341 format('  double precision lwctmp')
       write(nwrite,4342)
@@ -276,6 +239,42 @@ C ====================================
       write(nwrite,446)
  446  format('  azi=abs(azi)')
       write(nwrite,300)
+        
+C     heterogeneous reactions with adaptative reaction number      
+      if (aerosol_formation) then
+      write(nwrite,451)
+ 451  format('!     For the Heteroheneous Reac. on aerosol surface:')
+      write(nwrite,150)
+      write(nwrite,452)
+ 452  format('!    Reaction : HO2  -->  0.5 H2O2')
+      write(nwrite,453)
+ 453  format('!    Reaction : NO2  -->  0.5 HONO + 0.5 HNO3')
+      write(nwrite,454)
+ 454  format('!    Reaction : NO3  -->  HNO3')
+      write(nwrite,455)
+ 455  format('!    Reaction : N2O5 -->  2 HNO3')
+      write(nwrite,300)
+      write(nwrite,456)
+ 456  format(2x,'rkhHO2=0.D0')
+      write(nwrite,457)
+ 457  format(2x,'rkhNO2=0.D0')
+      write(nwrite,458)
+ 458  format(2x,'rkhNO3=0.D0')
+      write(nwrite,459)
+ 459  format(2x,'rkhN2O5=0.D0')
+      write(nwrite,300)
+      write(nwrite,460)
+ 460  format(2x,'if (IHETER.eq.1) then')
+      write(nwrite,461)
+ 461  format(2x,'  call HETRXN(Ns,Nbin_aer,temp,press,ICLD,lwctmp, &')
+      write(nwrite,462)
+ 462  format(2x,'    WetDiam,granulo,rkhHO2,rkhNO2,rkhNO3,rkhN2O5, &')
+      write(nwrite,463)
+ 463  format(2x,'    dsf_aero,ispeclost,Wmol,LWCmin)')
+      write(nwrite,464)
+ 464  format(2x,'endif')
+      write(nwrite,300)
+      endif
 
 C     Routine fexchem.f90
       nficf90=ipiste
