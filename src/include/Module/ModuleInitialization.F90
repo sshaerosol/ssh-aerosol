@@ -1870,40 +1870,49 @@ contains
     allocate(photolysis_reaction_index(n_photolysis))
     allocate(photolysis_rate(n_photolysis))
     photolysis_rate = 0.d0
-     
-    open(unit = 34, file = photolysis_file, status = "old")
-    count = 0 
-    ierr = 0
-    nline = 0
-    do while(ierr .eq. 0)
-       read(34, *, iostat=ierr) tmp_name
-       if (ierr == 0) then
-          if (trim(tmp_name) .eq. "#") then
-             nline = nline + 1
-          else
-             count = count + 1
-          end if
-       end if
-    end do
 
-    if (count .ne. n_photolysis) then
-       write(*,*) "Error: number of files for photolysis rate should be ", &
-            n_photolysis
-       write(*,*) "However, the number of given files is ", count
-       stop
-    end if
-       
-    rewind 34
-    do s = 1, nline
-       read(34, *) ! read comment lines.
-    end do
-    do s = 1, count
-       read(34, *) photolysis_name(s), photolysis_reaction_index(s)
-       if (photolysis_name(s) == "BiPER") then
-          ind_kbiper = s    ! photolysis index for BiPER
-       end if
-    end do
-    close(34)
+    if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
+      open(unit = 34, file = photolysis_file, status = "old")
+      count = 0 
+      ierr = 0
+      nline = 0
+      do while(ierr .eq. 0)
+         read(34, *, iostat=ierr) tmp_name
+         if (ierr == 0) then
+            if (trim(tmp_name) .eq. "#") then
+               nline = nline + 1
+            else
+               count = count + 1
+            end if
+         end if
+      end do
+  
+      if (count .ne. n_photolysis) then
+         write(*,*) "Error: number of files for photolysis rate should be ", &
+              n_photolysis
+         write(*,*) "However, the number of given files is ", count
+         stop
+      end if
+         
+      rewind 34
+      do s = 1, nline
+         read(34, *) ! read comment lines.
+      end do
+      do s = 1, count
+         read(34, *) photolysis_name(s), photolysis_reaction_index(s)
+         if (photolysis_name(s) == "BiPER") then
+            ind_kbiper = s    ! photolysis index for BiPER
+         end if
+      end do
+      close(34)
+      
+    else
+      do s = 1, n_photolysis
+        photolysis_name(s) = "useless"
+        photolysis_reaction_index(s) = s
+      end do
+    
+    endif
 
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
@@ -2448,40 +2457,49 @@ contains
     allocate(photolysis_reaction_index(n_photolysis))
     allocate(photolysis_rate(n_photolysis))
     photolysis_rate = 0.d0
-     
-    open(unit = 34, file = photolysis_file, status = "old")
-    count = 0 
-    ierr = 0
-    nline = 0
-    do while(ierr .eq. 0)
-       read(34, *, iostat=ierr) tmp_name
-       if (ierr == 0) then
-          if (trim(tmp_name) .eq. "#") then
-             nline = nline + 1
-          else
-             count = count + 1
-          end if
-       end if
-    end do
+    
+    if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
+      open(unit = 34, file = photolysis_file, status = "old")
+      count = 0 
+      ierr = 0
+      nline = 0
+      do while(ierr .eq. 0)
+         read(34, *, iostat=ierr) tmp_name
+         if (ierr == 0) then
+            if (trim(tmp_name) .eq. "#") then
+               nline = nline + 1
+            else
+               count = count + 1
+            end if
+         end if
+      end do
+  
+      if (count .ne. n_photolysis) then
+         write(*,*) "Error: number of files for photolysis rate should be ", &
+              n_photolysis
+         write(*,*) "However, the number of given files is ", count
+         stop
+      end if
+         
+      rewind 34
+      do s = 1, nline
+         read(34, *) ! read comment lines.
+      end do
+      do s = 1, count
+         read(34, *) photolysis_name(s), photolysis_reaction_index(s)
+         if (photolysis_name(s) == "BiPER") then
+            ind_kbiper = s    ! photolysis index for BiPER
+         end if
+      enddo
+      close(34)
 
-    if (count .ne. n_photolysis) then
-       write(*,*) "Error: number of files for photolysis rate should be ", &
-            n_photolysis
-       write(*,*) "However, the number of given files is ", count
-       stop
-    end if
-       
-    rewind 34
-    do s = 1, nline
-       read(34, *) ! read comment lines.
-    end do
-    do s = 1, count
-       read(34, *) photolysis_name(s), photolysis_reaction_index(s)
-       if (photolysis_name(s) == "BiPER") then
-          ind_kbiper = s    ! photolysis index for BiPER
-       end if
-    end do
-    close(34)
+    else
+      do s = 1, n_photolysis
+        photolysis_name(s) = "useless"
+        photolysis_reaction_index(s) = s
+      enddo
+      
+    endif
     
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
