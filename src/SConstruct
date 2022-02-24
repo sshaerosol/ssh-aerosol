@@ -62,7 +62,7 @@ if 'sharedlib' not in ARGUMENTS:
 
 chemistry_list = utils.create_list("chemistry", 
                                    ["racm", "racm2", "cb05", "cb05en",
-                                    "cb05v0"], "*")
+                                    "cb05v0", ARGUMENTS["chemistry"]], "*")
 nacl_list = utils.create_list("nacl", ["yes", "no"], "*")
 sharedlib_list = utils.create_list("sharedlib", ["yes", "no"], "*")
 
