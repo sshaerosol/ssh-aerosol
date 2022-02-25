@@ -2029,6 +2029,30 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
+! External code can set aerosol wet diameter
+!
+! input : m
+! output : micro.m
+! =============================================================
+
+    subroutine ssh_api_set_wet_diameter(array) bind(c, name='api_sshaerosol_set_wet_diameter_')
+
+      use iso_c_binding
+      use aInitialization, only : wet_diameter, N_size
+
+      implicit none
+
+      real(kind=c_double), dimension(N_size) :: array
+
+      ! Unit conversion from m to micro.m
+      wet_diameter = array * 1.e6
+
+    end subroutine ssh_api_set_wet_diameter
+
+
+    
+! =============================================================
+!
 ! External code can get aerosol_type
 !
 ! output : array of aerosol_type
