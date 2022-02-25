@@ -651,13 +651,15 @@ contains
              k=concentration_index(j, 1)
              wet_d(j)=size_diam_av(k)
              wet_m(j)=size_mass_av(k)
-             dry_d(j)=size_diam_av(k) 
+             dry_d(j)=size_diam_av(k)
+             wet_v(j)=cst_pi6*(wet_d(j)**3.d0)
           endif
        else
           k=concentration_index(j, 1)
           wet_d(j)=size_diam_av(k)
           wet_m(j)=size_mass_av(k)
-          dry_d(j)=size_diam_av(k) 
+          dry_d(j)=size_diam_av(k)
+          wet_v(j)=cst_pi6*(wet_d(j)**3.d0)
        endif
     enddo
 
