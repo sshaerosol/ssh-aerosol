@@ -130,7 +130,7 @@ namespace ssh_soap
 	bool hydrophilic, hydrophobic,nonvolatile,kp_from_experiment,is_organic;
 	bool compute_gamma_org,compute_gamma_aq,is_inorganic_precursor;
 	int index_gamma_org, index_gamma_aq, index_gamma_tot,index_gamma_aiomfac;
-	double groups[56],conc_mol;
+	double groups[60],conc_mol;
 	int index_ion_aiomfac,index_ion;
 	int aqt;
 	

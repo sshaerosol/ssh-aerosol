@@ -222,10 +222,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //greoup peroxyacetyl acid
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
   
   int size = sizeof(group_tmp_bia2d)/sizeof(double);
-  assert(size = 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiA2D.groups[i] = group_tmp_bia2d[i];
@@ -289,10 +291,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,    //group PAN
-			       0.0};  //group OOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
   
   size = sizeof(group_tmp_bia1d)/sizeof(double);
-  assert(size = 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiA1D.groups[i] = group_tmp_bia1d[i];
@@ -356,10 +360,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group OOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bia0d)/sizeof(double);
-  assert(size = 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiA0D.groups[i] = group_tmp_bia0d[i];
@@ -368,7 +374,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,nlayer, i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species BiMT;
@@ -419,10 +425,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			      0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			      0.0,  //group PAN
-			      0.0}; //group OOOH
+			      0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bimt)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiMT.groups[i] = group_tmp_bimt[i];
@@ -482,10 +490,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,2.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; // group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_biper)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiPER.groups[i] = group_tmp_biper[i];
@@ -545,10 +555,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bider)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiDER.groups[i] = group_tmp_bider[i];
@@ -557,8 +569,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiDER, species_list_aer, molecular_weight_aer,
-               accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	       N_inert, N_inorganic);
+              accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
+	      N_inert, N_inorganic);
 
   species BiMGA;
   BiMGA.name="BiMGA";
@@ -609,10 +621,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bimga)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiMGA.groups[i] = group_tmp_bimga[i];
@@ -672,10 +686,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
   			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_anblp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     AnBlP.groups[i] = group_tmp_anblp[i];
@@ -735,10 +751,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_anbmp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     AnBmP.groups[i] = group_tmp_anbmp[i];
@@ -798,10 +816,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0};
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_biblp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiBlP.groups[i] = group_tmp_biblp[i];
@@ -861,10 +881,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0};  
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bibmp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiBmP.groups[i] = group_tmp_bibmp[i];
@@ -919,10 +941,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
   
   size = sizeof(group_tmp_anclp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   
   for(int i = 0; i < size; ++i)
     AnClP.groups[i] = group_tmp_anclp[i];
@@ -983,10 +1007,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_binga)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiNGA.groups[i] = group_tmp_binga[i];
@@ -1046,10 +1072,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 				0.0,0.0,0.0, //group CO-OH
 				0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 				0.0,  //group PAN
-				0.0}; //group COOOH  
+				0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_binit3)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiNIT3.groups[i] = group_tmp_binit3[i];
@@ -1059,7 +1087,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species BiNIT;
   BiNIT.name="BiNIT";
@@ -1109,10 +1137,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_binit)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiNIT.groups[i] = group_tmp_binit[i];
@@ -1122,7 +1152,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-   	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species POAlP;
   POAlP.name="POAlP";
@@ -1171,10 +1201,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH			       
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
   
   size = sizeof(group_tmp_poalp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     POAlP.groups[i] = group_tmp_poalp[i];
 
@@ -1183,7 +1215,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, POAlP, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-  	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species POAmP;
   POAmP.name="POAmP";
@@ -1230,10 +1262,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_poamp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     POAmP.groups[i] = group_tmp_poamp[i];
 
@@ -1289,10 +1323,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_poahp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     POAhP.groups[i] = group_tmp_poahp[i];
 
@@ -1348,10 +1384,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_soalp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     SOAlP.groups[i] = group_tmp_soalp[i];
 
@@ -1360,7 +1398,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-  	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species SOAmP;
   SOAmP.name="SOAmP";
@@ -1407,10 +1445,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_soamp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     SOAmP.groups[i] = group_tmp_soamp[i];
 
@@ -1419,7 +1459,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species SOAhP;
   SOAhP.name="SOAhP";
@@ -1466,10 +1506,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_soahp)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     SOAhP.groups[i] = group_tmp_soahp[i];
 
@@ -1478,7 +1520,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species Monomer;
   Monomer.name="Monomer";
@@ -1528,10 +1570,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 				 0.0,0.0,0.0, //group CO-OH
 				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 				 0.0,  //group PAN
-				 0.0}; //group COOOH
+				 0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_Monomer)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     Monomer.groups[i] = group_tmp_Monomer[i];
@@ -1541,7 +1585,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, Monomer, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
- 	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species Dimer;
   Dimer.name="Dimer";
@@ -1591,10 +1635,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			       0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_dimer)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     Dimer.groups[i] = group_tmp_dimer[i];
@@ -1604,7 +1650,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, Dimer, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species BiA3D;
   BiA3D.name="BiA3D";
@@ -1656,10 +1702,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_bia3d)/sizeof(double);
-  assert(size = 56);
+  assert(size == 60);
 	
   for(int i = 0; i < size; ++i)
     BiA3D.groups[i] = group_tmp_bia3d[i];
@@ -1669,7 +1717,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species ACIDMAL;
   ACIDMAL.name="ACIDMAL";
@@ -1723,10 +1771,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                  0.0,0.0,0.0, //group CO-OH
 				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 				 0.0,  //group PAN
-				 0.0}; //group COOOH
+				 0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_acidmal)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     ACIDMAL.groups[i] = group_tmp_acidmal[i];
 
@@ -1735,7 +1785,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
- 	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species DHMB;
   DHMB.name="DHMB";
@@ -1786,10 +1836,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                               0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			      0.0,  //group PAN
-			      0.0}; //group COOOH
+			      0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_dhmb)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     DHMB.groups[i] = group_tmp_dhmb[i];
 
@@ -1798,7 +1850,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, DHMB, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species PAHlN;
   PAHlN.name="PAHlN";
@@ -1851,10 +1903,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_pahln)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     PAHlN.groups[i] = group_tmp_pahln[i];
 
@@ -1863,7 +1917,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
- 	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species PAHhN;
   PAHhN.name="PAHhN";
@@ -1916,10 +1970,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                0.0,0.0,0.0, //group CO-OH
 			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			       0.0,  //group PAN
-			       0.0}; //group COOOH
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_pahhn)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     PAHhN.groups[i] = group_tmp_pahhn[i];
 
@@ -1928,7 +1984,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
- 	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species PSYR;
   PSYR.name="PSYR";
@@ -1979,10 +2035,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                               0.0,0.0,0.0, //group CO-OH
 			      0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			      0.0,  //group PAN
-			      0.0}; //group COOOH
+			      0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_psyr)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     PSYR.groups[i] = group_tmp_psyr[i];
 
@@ -1991,7 +2049,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, PSYR, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   species GHDPerox;
   GHDPerox.name="GHDPerox";
@@ -2042,10 +2100,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
                                   0.0,1.0,0.0, //group CO-OH
 				  0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 				  0.0,  //group PAN
-				  0.0}; //group COOOH
+				  0.0,  //group CO-OOH
+			          0.0,  //group O=COC=O
+			          0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_ghdperox)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   for(int i = 0; i < size; ++i)
     GHDPerox.groups[i] = group_tmp_ghdperox[i];
 
@@ -2054,11 +2114,13 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
 
   add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
 			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, 
-			  nlayer,i_hydrophilic,N_inert,N_inorganic);
+			  nlayer,i_hydrophilic,
+		          N_inert, N_inorganic);
+
   
   species H2O;
   H2O.name="H2O";
@@ -2101,10 +2163,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			     0.0,0.0,0.0, //group CO-OH
 			     0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
 			     0.0,  //group PAN
-			     0.0}; //group COOOH
+			     0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
 
   size = sizeof(group_tmp_h2o)/sizeof(double);
-  assert(size == 56);
+  assert(size == 60);
   
   for(int i = 0; i < size; ++i)
     H2O.groups[i] = group_tmp_h2o[i];
@@ -2114,7 +2178,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
   add_species_ssh(surrogate, H2O, species_list_aer, molecular_weight_aer,
 		  accomodation_coefficient,diffusion_coef,nlayer,i_hydrophilic,
-	          N_inert, N_inorganic);
+		  N_inert, N_inorganic);
   
   species SO4;
   SO4.name="SO4";
