@@ -258,6 +258,8 @@ module aInitialization
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
+  character(len=4),dimension(:), allocatable, save :: partitioning ! HPHO HPHI BOTH
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   integer, dimension(:), allocatable, save :: Ncoefficient, index_first, index_second
   double precision, dimension(:), allocatable, save :: coefficient
@@ -1308,6 +1310,8 @@ contains
     character (len=40) :: aerosol_species_name_tmp, char1,char2
     character (len=40) :: precursor_tmp
     integer,dimension(nspecies) :: index_species_ssh
+    
+    character (len=4) :: partitioning_tmp
 
     index_species_ssh(:)=-1
 
@@ -1370,6 +1374,8 @@ contains
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))    
     
+    allocate(partitioning(N_aerosol)
+    
     allocate(Vlayer(nlayer))    
     ! relation between Aerosol and GAS
     allocate(aerosol_species_interact(N_aerosol))      
@@ -1396,7 +1402,7 @@ contains
             precursor_tmp, &
             collision_factor_aer_tmp, molecular_diameter_tmp, &
             surface_tension_tmp, accomodation_coefficient_tmp, &
-            mass_density_tmp, inon_volatile_tmp, smiles_tmp, &
+            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
             saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp       
 
        found_spec=0
@@ -1427,6 +1433,7 @@ contains
           accomodation_coefficient(s)=accomodation_coefficient_tmp
           mass_density(s)=mass_density_tmp
           inon_volatile(s)=inon_volatile_tmp
+          partitioning(s)=partitioning_tmp
           smiles(s)=smiles_tmp
           saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
           enthalpy_vaporization(s)=enthalpy_vaporization_tmp
@@ -1435,6 +1442,13 @@ contains
              write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
              stop
           endif
+          
+          if((partitioning(s).NE."HPHO").AND.(partitioning(s).NE."HPHI").AND.(partitioning(s).NE."BOTH").AND. &
+             (trim(partitioning(s)).NE."--")) then
+             write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
+             stop
+          endif
+          
           ! Find pairs of aerosol species and its precursor.
           ind = 0
           do js = 1, N_gas
@@ -2008,6 +2022,8 @@ contains
     allocate(enthalpy_vaporization(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
+    
+    allocate(partitioning(N_aerosol))
 
     ! Read lines from aerosol species file.
     rewind 12
@@ -2022,11 +2038,16 @@ contains
             precursor, &
             collision_factor_aer(s), molecular_diameter(s), &
             surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s), inon_volatile(s), smiles(s), &
+            mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
             saturation_vapor_pressure(s),enthalpy_vaporization(s)
         if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
             stop
+        endif
+        if((partitioning(s).NE."HPHO").AND.(partitioning(s).NE."HPHI").AND.(partitioning(s).NE."BOTH").AND. &
+           (trim(partitioning(s)).NE."--")) then
+           write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
+           stop
         endif
        ! Find pairs of aerosol species and its precursor.
        ind = 0
@@ -2562,6 +2583,7 @@ contains
     if (allocated(molecular_diameter))  deallocate(molecular_diameter, stat=ierr)
     if (allocated(surface_tension))  deallocate(surface_tension, stat=ierr)
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
+    if (allocated(partitioning)) deallocate(partitioning, stat=ierr)
     if (allocated(smiles)) deallocate(smiles, stat=ierr)
     if (allocated(saturation_vapor_pressure))  deallocate(saturation_vapor_pressure, stat=ierr)
     if (allocated(enthalpy_vaporization))  deallocate(enthalpy_vaporization, stat=ierr)    

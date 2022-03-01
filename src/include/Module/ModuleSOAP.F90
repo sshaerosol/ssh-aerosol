@@ -103,7 +103,7 @@ contains
            imethod, soap_inorg_loc,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
-           smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 
@@ -288,7 +288,7 @@ contains
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
-           smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 
@@ -482,7 +482,7 @@ contains
            liquid_Nsize(:,ICUT_org+1:N_size), N_size-ICUT_org, isoapdyn2, &
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
-           aerosol_type, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic)
 

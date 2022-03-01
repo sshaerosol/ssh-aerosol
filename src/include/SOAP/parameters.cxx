@@ -1860,7 +1860,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 
 void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
-		    vector<string> species_smiles, double saturation_vapor_pressure[],
+		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
 		    double enthalpy_vaporization[], double diffusion_coef[], int i_hydrophilic,
 		    int N_inert, int N_inorganic)
 {
@@ -1961,7 +1961,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
-		       diffusion_coef, config.nlayer, i_hydrophilic, config.compute_inorganic,
+		       diffusion_coef, species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
 		       N_inert, N_inorganic); 
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 

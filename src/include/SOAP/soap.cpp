@@ -29,7 +29,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 			       int* imethod, int* soap_inorg,
 			       char* species_name, int* name_len, double* molecular_weight_aer,
 			       double* accomodation_coefficient, int* aerosol_type, 
-			       char* smiles, double* saturation_vapor_pressure,
+			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
 			       double* enthalpy_vaporization, double *diffusion_coef, int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
@@ -45,7 +45,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 		       *imethod, *soap_inorg,
 		       species_name, *name_len, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
-		       smiles, saturation_vapor_pressure,
+		       partitioning, smiles, saturation_vapor_pressure,
 		       enthalpy_vaporization, diffusion_coef, *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
@@ -72,7 +72,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		   int imethod, int soap_inorg,
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
-		   char smiles[], double saturation_vapor_pressure[],
+		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
 		   double enthalpy_vaporization[], double diffusion_coef[], int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
@@ -96,8 +96,28 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
   vector<string> species_smiles;
+  vector<string> species_part;
   // Get aerosol species names.
   // conversion char to string
+  
+  string tmp2a;
+	  
+  for (i = 0; i < ns_aer * 4; i++)
+    {
+      tmp2a.push_back(partitioning[i]);
+    }
+
+  for (i = 0; i < ns_aer; i++)
+    {
+      string tmp3(tmp2a.substr(i * 4, 4));
+      for (int j = 4 - 1; j >= 0; --j)
+        {
+          if(tmp3[j] == ' ')
+            tmp3.erase(j, 1);
+        }
+      species_part.push_back(tmp3);
+    }
+  
   string tmp2;
 	  
   for (i = 0; i < ns_aer * name_len; i++)
@@ -183,7 +203,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   if (surrogate.size()==0)
     {
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
-                     accomodation_coefficient, aerosol_type, species_smiles,
+                     accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
 		     diffusion_coef, i_hydrophilic,N_inert,N_inorganic);
       
