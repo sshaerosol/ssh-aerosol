@@ -152,11 +152,11 @@ for the numerical representation of aerosols.
 \subsubsection{Partitioning mass and number into sections}
 The functions of the routine \textit{upsample.py} may be used to partition a
 section into several sections, while conserving both mass and number
-concentrations. A example is provided in the file \textit{test_upsample.py}.
+concentrations. An example is provided in the file \textit{test\_upsample.py}.
 
 The following scheme is employed : We assume the mass concentration M and the number concentration N of section, ranging from diameters $d_{min}$ to $d_{max}$, are related such that $M = \frac{\pi}{6} \rho \bar{d}^3 N$ where $\rho$ is the density of the aerosols in that section and $\bar{d}=\sqrt{d_{min}d_{max}}$ is the geometric mean diameter of the section boundaries.
 
-Provided that $\{d_i\}$ is a partition of the interval $\[d_{min}d_{max}\]$, such that $d_{i-1}<d_i$ for all $i = 1, ..., n$ and $d_0=d_{min}$, $d_n=d_{max}$, we can derive a mass and number concentrations that satisfy the condition $M_i = \frac{\pi}{6} \rho \bar{d_i}^3 N_i$, where $\bar{d_i}=\sqrt{d_{i-1}d_{i}}$ is the geometric mean diameter of the $i$-th section, in a way that conserves both total mass and number.
+Provided that $\{d_i\}$ is a partition of the interval $[d_{min},d_{max}]$, such that $d_{i-1}<d_i$ for all $i = 1, ..., n$ and $d_0=d_{min}$, $d_n=d_{max}$, we can derive a mass and number concentrations that satisfy the condition $M_i = \frac{\pi}{6} \rho \bar{d_i}^3 N_i$, where $\bar{d_i}=\sqrt{d_{i-1}d_{i}}$ is the geometric mean diameter of the $i$-th section, in a way that conserves both total mass and number.
 
 By setting
 
