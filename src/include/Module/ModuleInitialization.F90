@@ -1374,7 +1374,7 @@ contains
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))    
     
-    allocate(partitioning(N_aerosol)
+    allocate(partitioning(N_aerosol))
     
     allocate(Vlayer(nlayer))    
     ! relation between Aerosol and GAS
