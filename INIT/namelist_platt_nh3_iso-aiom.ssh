@@ -21,7 +21,7 @@ tag_init = 0,                     ! initial method for aerosol species (0 intern
 wet_diam_estimation = 1       	  ! 0 = isorropia
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 1,                    ! Number of size bin
-init_gas_conc_file = "./inputs/inputs-platt/init_gas_nh3_iso.dat",                     ! Initial data for gas
+init_gas_conc_file = "./inputs/inputs-platt/init_gas_nh3_isop.dat",                     ! Initial data for gas
 init_aero_conc_mass_file = "./inputs/inputs-platt/init_aero.dat",        !  Initial data for aero mass  
 init_aero_conc_num_file = "./inputs/inputs-platt/init_num.dat",     !  Initial data for aero number  
 /
@@ -111,7 +111,6 @@ epser_soap = 0.01,                 ! relative difference of ros2 in SOAP
 
 &physic_nucleation
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
 /
 
 

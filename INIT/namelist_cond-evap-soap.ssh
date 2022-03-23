@@ -110,7 +110,6 @@ epser_soap = 0.01,                 ! relative difference of ros2 in SOAP
 
 &physic_nucleation
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
 /
 
 
