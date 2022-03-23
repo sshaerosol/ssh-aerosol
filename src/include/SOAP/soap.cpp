@@ -537,7 +537,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
           if (iq != -1)
             {
               if (surrogate[i].is_organic)
-                {             
+                {
 		  surrogate[i].Ag = qgas[iq];
 		  int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
                   if (surrogate[i].hydrophilic)
@@ -545,7 +545,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		      if(i_hydrophilic == 1)
 			{
 			  for (b = 0; b < config.nbins; ++b)
-			    {     
+			    {
 			      surrogate[i].Aaq_bins_init(b) += q[iq_aero + config.nlayer*config.nbins+ b ];
 			      surrogate[i].Aaq+=q[iq_aero + config.nlayer*config.nbins + b ];
 			    }
@@ -577,19 +577,47 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                           }
 		      }
                 }
-              else if (NaCl and (surrogate[i].name == "Na" or surrogate[i].name == "Cl"))
+              else // inorganics
                 {
-                  int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
+                  int ind = surrogate[i].soap_ind_aero;
+                  int iq_aero = (ind + 1) * config.nbins;                                   
                   for (b = 0; b < config.nbins; ++b)
-		    surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
-
+                    {
+                      if (surrogate[i].name == "SO4")
+                        {
+                          surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) *
+                            q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
+                        }
+                      else if (surrogate[i].name == "HSO4")
+                        {
+                          surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) *
+                            q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
+                        }
+                      else if (surrogate[i].name == "NO3")
+                        {
+                          surrogate[i].Aaq_bins_init(b) = q[iq_aero + b] *
+                            surrogate[config.iNO3m].MM/surrogate[config.iHNO3].MM;
+                        }
+                      else if (surrogate[i].name == "NH4")
+                        {
+                          surrogate[i].Aaq_bins_init(b) = q[iq_aero + b] *
+                            surrogate[config.iNH4p].MM/surrogate[config.iNH3].MM;			
+                        }
+                      else if (surrogate[i].name == "Cl" and NaCl)
+                        {
+                          surrogate[i].Aaq_bins_init(b) = q[iq_aero + b] *
+                            surrogate[config.iClm].MM/surrogate[config.iHCl].MM;			
+                        }
+                      else if (surrogate[i].name == "Na" and NaCl)
+                        {
+                          surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];			
+                        }
+                      else
+                        surrogate[i].Aaq_bins_init = 0.0;
+                    }
+                  surrogate[i].Ap_layer_init = 0.0;		
                 }
-              else
-                {
-                  surrogate[i].Aaq_bins_init = 0.0;
-                  surrogate[i].Ap_layer_init = 0.0;
-                }
-             
+              
 	      // Inorganic gas concentrations
               if (surrogate[i].is_inorganic_precursor)
 		{
@@ -599,48 +627,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		}
 
             }
-          else // liquid ions
+          else // iq is -1, soap_ind is not found for the SOAP species.
             {	      
-	      for (b = 0; b < config.nbins; ++b)
-		{
-		  int ind=surrogate[i].soap_ind;
-		  // PMD    PBC     PNA    PSO4    PNH4    PNO3
-		  // PHCL   PBiA2D  PBiA1D PBiA0D  PAGLY   PAMGLY ...
-		  if (surrogate[i].name == "SO4")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins;                                   
-		      surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) * q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
-		      //cout << "in: " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[config.iHSO4m].Aaq_bins_init(b) << ' ' << endl;
-		    }
-		  else if (surrogate[i].name == "HSO4")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins;                                   
-		      surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) * q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
-		    }
-		  else if (surrogate[i].name == "NO3")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins; 
-		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iNO3m].MM/surrogate[config.iHNO3].MM;
-		    }
-		  else if (surrogate[i].name == "NH4")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins; 
-		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iNH4p].MM/surrogate[config.iNH3].MM;			
-		    }
-		  else if (surrogate[i].name == "Cl")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins; 
-		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b]*surrogate[config.iClm].MM/surrogate[config.iHCl].MM;			
-		    }
-		  else if (surrogate[i].name=="Na")
-		    {
-		      int iq_aero = (ind + 1) * config.nbins; 
-		      surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];			
-		    }
-		  else
-		    surrogate[i].Aaq_bins_init = 0.0;
-		}
-	      surrogate[i].Ap_layer_init = 0.0;		
+              surrogate[i].Aaq_bins_init = 0.0;
+              surrogate[i].Ap_layer_init = 0.0;
             }
 	  surrogate[i].Atot = surrogate[i].Ap + surrogate[i].Ag + surrogate[i].Aaq;
 

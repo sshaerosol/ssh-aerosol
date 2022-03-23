@@ -2248,14 +2248,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   SO4.is_monomer=false;
   SO4.rion=false;
 
-    for (int i = 0; i < nsp; ++i)
-      if (species_list_aer[i].substr(1,-1) == "SO4")
-	{
-	  SO4.soap_ind = i;
-	  SO4.soap_ind_aero = i;
-	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
-	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
-	}
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "SO4")
+      {
+        SO4.soap_ind = i;
+        SO4.soap_ind_aero = i;
+      }
   surrogate.push_back(SO4);
 
 
@@ -2280,6 +2278,13 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   HSO4.is_solid=false;
   HSO4.is_monomer=false;
   HSO4.rion=false;
+
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "SO4")
+      {
+        HSO4.soap_ind = i;
+        HSO4.soap_ind_aero = i;
+      }
   surrogate.push_back(HSO4);
 
   species NO3;
@@ -2305,14 +2310,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NO3.is_monomer=false;
   NO3.rion=false;
 
-    for (int i = 0; i < nsp; ++i)
-      if (species_list_aer[i].substr(1,-1) == "NO3")
-	{
-	  NO3.soap_ind = i;
-	  NO3.soap_ind_aero = i;
-	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
-	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
-	}
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "NO3")
+      {
+        NO3.soap_ind = i;
+        NO3.soap_ind_aero = i;
+      }
   surrogate.push_back(NO3);
 
   species NH4;
@@ -2338,14 +2341,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   NH4.is_monomer=false;
   NH4.rion=false;
 
-    for (int i = 0; i < nsp; ++i)
-      if (species_list_aer[i].substr(1,-1) == "NH4")
-	{
-	  NH4.soap_ind = i;
-	  NH4.soap_ind_aero = i;
-	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
-	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
-	}
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "NH4")
+      {
+        NH4.soap_ind = i;
+        NH4.soap_ind_aero = i;
+      }
   surrogate.push_back(NH4);
 
   species H;
@@ -2427,14 +2428,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   Cl.is_monomer=false;
   Cl.rion=false;
 
-    for (int i = 0; i < nsp; ++i)
-      if (species_list_aer[i].substr(1,-1) == "HCL")
-	{
-	  Cl.soap_ind = i;
-	  Cl.soap_ind_aero = i;
-	  //SO4.MM =  molecular_weight_aer[i] / 1.e6;
-	  //SO4.accomodation_coefficient = accomodation_coefficient[i];
-	}
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "HCL")
+      {
+        Cl.soap_ind = i;
+        Cl.soap_ind_aero = i;
+      }
   surrogate.push_back(Cl);
 
       species H2SO4;
