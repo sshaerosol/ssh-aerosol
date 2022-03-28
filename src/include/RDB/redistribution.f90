@@ -730,11 +730,15 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
            DO jesp = 1,naer-1
               aam = aam + qesp(js2,jesp)
            END DO
-           if(aam.GT.TINYM) then
-              DO jesp = 1,naer
-                 qnew(1,jesp) = qnew(1,jesp) + Qtotal/aam*qesp(js2,jesp)
-              END DO
-           endif
+           ! Added to take into account the particles
+           ! less than the first size bin.
+           ! But it can lead to a high increase
+           ! in the mass concentration (YK).
+           ! if(aam.GT.TINYM) then
+           !    DO jesp = 1,naer
+           !       qnew(1,jesp) = qnew(1,jesp) + Qtotal/aam*qesp(js2,jesp)
+           !    END DO
+           ! endif
         ELSEIF (j1hi.GE.NS) THEN ! use Euler-Mass for the last section
            Qtotal = 0.D0
            DO jesp = 1,naer-1
@@ -871,11 +875,15 @@ SUBROUTINE SSH_REDIST_MOVINGDIAM(ns,naer,n,q,with_fixed_density,fixed_density,rh
            DO jesp = 1,naer-1
               aam = aam + q(js2,jesp)
            END DO
-           if(aam.GT.TINYM) then
-              DO jesp = 1,naer
-                 qnew(1,jesp) = qnew(1,jesp) + Qtotal/aam*q(js2,jesp)
-              END DO
-           endif
+           ! Added to take into account the particles
+           ! less than the first size bin.
+           ! But it can lead to a high increase
+           ! in the mass concentration (YK).
+           ! if(aam.GT.TINYM) then
+           !    DO jesp = 1,naer
+           !       qnew(1,jesp) = qnew(1,jesp) + Qtotal/aam*q(js2,jesp)
+           !    END DO
+           ! endif
         ELSEIF (j1hi.GE.NS) THEN ! use Euler-Mass for the last section
            Qtotal = 0.D0
            DO jesp = 1,naer-1
