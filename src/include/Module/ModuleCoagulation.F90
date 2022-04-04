@@ -50,6 +50,8 @@ contains
 	if(c_number(i).gt.0.d0) then
 	  gain_term=kernel_coagulation(j,i)*repartition_coefficient(k)%arr(l)&
 	      *c_number(i)
+        else
+          gain_term = 0.d0
 	endif
         do jesp=1,N_aerosol_layers+1
           coagulation_rate_gain(k,jesp) = coagulation_rate_gain(k,jesp) + gain_term*distribution(j,jesp)
