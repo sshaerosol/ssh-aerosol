@@ -575,7 +575,6 @@ C     with h_mixing = 15 m in urban area.
 
 
 
->>>>>>> correction of a bug -> missing reaction
 C------------------------------------------------------------------------
       subroutine ssh_WTB90(nr,ittb)
 C------------------------------------------------------------------------

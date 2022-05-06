@@ -551,22 +551,22 @@ KINETIC ARR3 1.51e-17 2. -190.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !--------------------162, HR1---------------
 HO2              ->      0.5 H2O2
-KINETIC ARR1    1.20E-12
+KINETIC HETERO    -1
 !  --- HETEROGENEOUS REACTION !! change rate after spack
 !
 !--------------------163, HR2---------------
 NO2              ->      0.5 HONO + 0.5 HNO3
-KINETIC ARR1    1.20E-12
+KINETIC HETERO    -2
 !  --- HETEROGENEOUS REACTION !! change rate after spack
 !
 !--------------------164, HR3---------------
 NO3              ->      HNO3
-KINETIC ARR1    1.20E-12
+KINETIC HETERO    -3 
 !  --- HETEROGENEOUS REACTION !! change rate after spack
 !
 !--------------------165, HR4---------------
 N2O5             ->      2 HNO3
-KINETIC ARR1    1.20E-12
+KINETIC HETERO    -4
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  The following reactions come from CHIMERE REACTIONS.univ.carb_h2o1                        !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
