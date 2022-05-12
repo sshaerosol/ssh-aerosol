@@ -48,7 +48,7 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./species-list/species-list-cb05.dat"                    !Species list for CB05 
+species_list_file = "./species-list/species-list.dat"
 /
 
 &aerosol_species
@@ -67,9 +67,9 @@ redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 eule
 
 &physic_coagulation
 with_coag = 1,                 		!Tag of coagulation
-i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+i_compute_repart = 0,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
 i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
-Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file
+Coefficient_file = "coef_s1_f1_b50.nc",  !Coagulation coefficient file
 /
 
 &physic_condensation
@@ -81,7 +81,6 @@ activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 
 &physic_nucleation
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-nucl_model = 0,               !Tag of type of nucleation model ( 1= Ternary, 0= binary) 
 /
 
 

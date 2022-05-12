@@ -43,6 +43,10 @@ then
     rm -f $file
 fi
 
+cd species-list
+rm -f `find -iname "species-list.dat"` 
+
+
 # if [ "$1" = "all" ]; then
 #    lst=`ls -d tmp* 2>/dev/null`
 #    for di in ${lst}; do

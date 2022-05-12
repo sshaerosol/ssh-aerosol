@@ -71,6 +71,7 @@ src/include/AtmoData/*hxx
 
 ### Generated files
 namelist.out
+species-list/species-list.dat
 
 ### Temporary files in example_using_so
 example_using_so/graph/*png
