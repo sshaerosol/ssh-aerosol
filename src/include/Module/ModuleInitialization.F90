@@ -1127,9 +1127,8 @@ contains
        if(coupled_phases == 1) then
           i_hydrophilic = 1 
           if(ISOAPDYN == 0) then
-            if (ssh_standalone) write(*,*) 'Phases can not be coupled if ISOAPDYN = 0'
-            if (ssh_logger) write(logfile,*) 'Phases can not be coupled if ISOADYN = 0'
-            coupled_phases = 0
+          !  if (ssh_standalone) write(*,*) 'Phases can not be coupled if ISOAPDYN = 0'
+          !  if (ssh_logger) write(logfile,*) 'Phases can not be coupled if ISOADYN = 0'
             i_hydrophilic = 0
           endif
        else 

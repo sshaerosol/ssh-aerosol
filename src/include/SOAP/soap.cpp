@@ -283,18 +283,17 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		    {
 		      if(i_hydrophilic == 0)
 			surrogate[i].Aaq = qaero[iq];
-		      else
-			surrogate[i].Aaq = qaq[iq];
-		    }
+		    } // else
+	             //surrogate[i].Aaq = qaq[iq];
+		  else
 		  // Organic aersol is hydrophobic or LWC is equal or less than LWClimit
-		  if(surrogate[i].hydrophobic) 
+		  //if(surrogate[i].hydrophobic) 
 		    surrogate[i].Ap = qaero[iq];
                 }
 
 	      // Inorganic gas concentrations
 	      if (surrogate[i].is_inorganic_precursor)
 		{
-		  //cout << surrogate[i].name << " la " << qgas[iq] << " " << qaero[iq] << " " << i << " " << config.iHNO3 << endl;
 		  surrogate[i].Ag = qgas[iq];
 		  surrogate[i].Ap = 0.0;
 		  surrogate[i].Aaq = 0.0;
@@ -436,7 +435,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 			qaero[iq]=surrogate[config.iNH4p].Aaq*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
 		      if (i==config.iHCl)
 			qaero[iq]=surrogate[config.iClm].Aaq*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
-		      //cout << "out: " << surrogate[i].name << " " << qgas[iq] << endl;
 		    }
 		  /*
 		    else if (surrogate[i].is_organic==false and i!=config.iH2O and i!=config.iHSO4m)
