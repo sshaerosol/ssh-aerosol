@@ -575,7 +575,7 @@ namespace Talos
   */
   ExtStream& ExtStream::SkipDiscarded()
   {
-    streampos position;
+    std::streampos position;
     while ((!is_emptystream(*this)) && (Discard(PeekFullLine(position))))
       this->seekg(position);
     return *this;
@@ -751,7 +751,7 @@ namespace Talos
   */
   string ExtStream::PeekFullLine()
   {
-    streampos position = this->tellg();
+    std::streampos position = this->tellg(); 
     iostate state = this->rdstate();
 
     string line;
@@ -768,9 +768,9 @@ namespace Talos
     \param position (output) the position of the line following the next line.
     \return The next line.
   */
-  string ExtStream::PeekFullLine(streampos& position)
+  string ExtStream::PeekFullLine(std::streampos& position)
   {
-    streampos position_back = this->tellg();
+    std::streampos position_back = this->tellg();
     iostate state = this->rdstate();
 
     string line;
@@ -791,7 +791,7 @@ namespace Talos
   */
   bool ExtStream::PeekFullLine(string& line)
   {
-    streampos position = this->tellg();
+    std::streampos position = this->tellg();
     iostate state = this->rdstate();
 
     bool success = bool(std::getline(*this, line));
@@ -888,7 +888,7 @@ namespace Talos
   {
     string line;
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     line = this->GetLine();
@@ -908,9 +908,9 @@ namespace Talos
     line.
     \return The valid line.
   */
-  string ExtStream::PeekLine(streampos& position)
+  string ExtStream::PeekLine(std::streampos& position)
   {
-    streampos position_back = this->tellg();
+    std::streampos position_back = this->tellg();
     iostate state = this->rdstate();
 
     string line = this->GetLine();
@@ -932,7 +932,7 @@ namespace Talos
   */
   bool ExtStream::PeekLine(string& line)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     bool success = this->GetLine(line);
@@ -993,7 +993,7 @@ namespace Talos
   */
   string ExtStream::GetElement()
   {
-    streampos position;
+    std::streampos position;
     string element;
     string::size_type index, length;
 
@@ -1059,7 +1059,7 @@ namespace Talos
   */
   string ExtStream::PeekElement()
   {
-    streampos initial_position;
+    std::streampos initial_position;
     string element;
 
     initial_position = this->tellg();
@@ -1082,7 +1082,7 @@ namespace Talos
   template <class T>
   bool ExtStream::PeekElement(T& element)
   {
-    streampos initial_position;
+    std::streampos initial_position;
     bool success;
 
     initial_position = this->tellg();
@@ -1146,7 +1146,7 @@ namespace Talos
   */
   double ExtStream::PeekNumber()
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     string element;
@@ -1167,7 +1167,7 @@ namespace Talos
   template <class T>
   bool ExtStream::PeekNumber(T& number)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     string element;
@@ -1223,7 +1223,7 @@ namespace Talos
   */
   string ExtStream::PeekValue(string name)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     string element = this->GetValue(name);
@@ -1303,7 +1303,7 @@ namespace Talos
   template <class T>
   void ExtStream::PeekValue(string name, T& value)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, value);
@@ -1346,7 +1346,7 @@ namespace Talos
   template <class T>
   void ExtStream::PeekValue(string name, T min, T max, T& value)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, min, max, value);
@@ -1395,7 +1395,7 @@ namespace Talos
   template <class T>
   void ExtStream::PeekValue(string name, string constraint, T& value)
   {
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, constraint, value);
@@ -1441,7 +1441,7 @@ namespace Talos
   {
     SearchScope s(*this, name);
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, value);
@@ -1485,7 +1485,7 @@ namespace Talos
   {
     SearchScope s(*this, name);
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, accepted, value, delimiter);
@@ -1530,7 +1530,7 @@ namespace Talos
   {
     SearchScope s(*this, name);
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     this->GetValue(name, value);
@@ -1654,7 +1654,7 @@ namespace Talos
   */
   bool ConfigStream::IsEmpty()
   {
-    streampos initial_position;
+    std::streampos initial_position;
     bool success;
 
     initial_position = this->tellg();
@@ -1679,7 +1679,7 @@ namespace Talos
   {
     SearchScope s(*this, element);
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
 
     string elt;
     while (ExtStream::GetRawElement(elt) && elt != element
@@ -1744,7 +1744,7 @@ namespace Talos
 
     string element = ExtStream::GetElement();
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     vector<string> elements;
@@ -1800,7 +1800,7 @@ namespace Talos
 
     string element = ExtStream::GetLine();
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     vector<string> elements;
@@ -1845,7 +1845,7 @@ namespace Talos
 
     bool success = ExtStream::GetLine(line);
 
-    streampos initial_position = this->tellg();
+    std::streampos initial_position = this->tellg();
     iostate state = this->rdstate();
 
     vector<string> elements;
@@ -2174,7 +2174,7 @@ namespace Talos
   string ConfigStreams::PeekFullLine()
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string line = (*current_)->PeekFullLine();
@@ -2192,10 +2192,10 @@ namespace Talos
     \param position (output) the position of the line following the next line.
     \return The next line.
   */
-  string ConfigStreams::PeekFullLine(streampos& position)
+  string ConfigStreams::PeekFullLine(std::streampos& position)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string line = (*current_)->PeekFullLine(position);
@@ -2215,7 +2215,7 @@ namespace Talos
   bool ConfigStreams::PeekFullLine(string& line)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     bool success = (*current_)->PeekFullLine(line);
@@ -2278,7 +2278,7 @@ namespace Talos
     bool success = (line != "");
 
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     vector<string> elements;
@@ -2323,7 +2323,7 @@ namespace Talos
   string ConfigStreams::PeekLine()
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string line = this->GetLine();
@@ -2345,10 +2345,10 @@ namespace Talos
     line.
     \return The valid line.
   */
-  string ConfigStreams::PeekLine(streampos& position)
+  string ConfigStreams::PeekLine(std::streampos& position)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string line = this->GetLine();
@@ -2372,7 +2372,7 @@ namespace Talos
   bool ConfigStreams::PeekLine(string& line)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     bool success = this->GetLine(line);
@@ -2479,7 +2479,7 @@ namespace Talos
     string element = GetRawElement();
 
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     vector<string> elements;
@@ -2548,7 +2548,7 @@ namespace Talos
   string ConfigStreams::PeekElement()
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string element = this->GetElement();
@@ -2571,7 +2571,7 @@ namespace Talos
   bool ConfigStreams::PeekElement(T& element)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     bool success = this->GetElement(element);
@@ -2635,7 +2635,7 @@ namespace Talos
   double ConfigStreams::PeekNumber()
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     double num = this->GetNumber();
@@ -2658,7 +2658,7 @@ namespace Talos
   bool ConfigStreams::PeekNumber(T& number)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     bool success = this->GetNumber(number);
@@ -2713,7 +2713,7 @@ namespace Talos
   string ConfigStreams::PeekValue(string name)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     string element = this->GetValue(name);
@@ -2796,7 +2796,7 @@ namespace Talos
   void ConfigStreams::PeekValue(string name, T& value)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, value);
@@ -2842,7 +2842,7 @@ namespace Talos
   void ConfigStreams::PeekValue(string name, T min, T max, T& value)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, min, max, value);
@@ -2894,7 +2894,7 @@ namespace Talos
   void ConfigStreams::PeekValue(string name, string constraint, T& value)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, constraint, value);
@@ -2941,7 +2941,7 @@ namespace Talos
   void ConfigStreams::PeekValue(string name, string& value)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, value);
@@ -2986,7 +2986,7 @@ namespace Talos
                                 string delimiter = "|")
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, accepted, value, delimiter);
@@ -3032,7 +3032,7 @@ namespace Talos
   void ConfigStreams::PeekValue(string name, bool& value)
   {
     vector<ConfigStream*>::iterator iter = current_;
-    streampos initial_position = (*current_)->tellg();
+    std::streampos initial_position = (*current_)->tellg();
     ifstream::iostate state = (*current_)->rdstate();
 
     this->GetValue(name, value);

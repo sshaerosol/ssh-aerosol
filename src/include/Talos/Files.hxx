@@ -113,7 +113,7 @@ namespace Talos
     bool GetFullLine(string& line);
     string PeekFullLine();
 #ifndef SWIG
-    string PeekFullLine(streampos& position);
+    string PeekFullLine(std::streampos& position);
 #endif
     bool PeekFullLine(string& line);
     void SkipFullLines(int nb);
@@ -122,7 +122,7 @@ namespace Talos
     virtual bool GetLine(string& line);
     virtual string PeekLine();
 #ifndef SWIG
-    virtual string PeekLine(streampos& position);
+    virtual string PeekLine(std::streampos& position);
 #endif
     virtual bool PeekLine(string& line);
     void SkipLines(int nb);
@@ -272,7 +272,7 @@ namespace Talos
     bool GetFullLine(string& line);
     string PeekFullLine();
 #ifndef SWIG
-    string PeekFullLine(streampos& position);
+    string PeekFullLine(std::streampos& position);
 #endif
     bool PeekFullLine(string& line);
     void SkipFullLines(int nb);
@@ -282,7 +282,7 @@ namespace Talos
     bool GetLine(string& line);
     string PeekLine();
 #ifndef SWIG
-    string PeekLine(streampos& position);
+    string PeekLine(std::streampos& position);
 #endif
     bool PeekLine(string& line);
     void SkipLines(int nb);
