@@ -60,7 +60,6 @@ contains
     double precision :: dry_density,wet_density,dry_mass,wmass,dry_to_wet
 
     lwcorg_nsize = 0.d0
-    start_time= 0.d0
 
     frac_oligo=0.d0
   

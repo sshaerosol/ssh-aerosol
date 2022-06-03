@@ -59,6 +59,7 @@ contains
              call ssh_compute_sh(rh_in(1), temperature_in(1), &
                   pressure_in(1), sh_in(1))
              humidity_array(i) = sh_in(1)
+             relative_humidity_array(i) = rh_in(1)
           else
              if (t_meteo(1) > initial_time .or. t_meteo(nt_meteo) < final_time) then
                 write(*,*) "Error: missing meteorological data."
@@ -92,6 +93,7 @@ contains
                   (1 - ratio) * sh_in(ind_t)
              call ssh_compute_sh(rh_tmp, temperature_array(i), &
                   pressure_array(i), sh_tmp)
+             relative_humidity_array(i) = rh_tmp
              humidity_array(i) = sh_tmp
              
           endif
@@ -104,6 +106,7 @@ contains
           temperature_array(i) = temperature
           pressure_array(i) = Pressure
           humidity_array(i) = humidity
+          relative_humidity_array(i) = relative_humidity
        enddo
     endif
     

@@ -1,12 +1,12 @@
       integer nrmax,nphotmax,nespmax,nphase
       integer ntabphotmax,nintphotmax,nbpmax
       integer nequilx,nionx,nangl,nlo,ntab1,neqmax
-      parameter(nrmax=800)
+      parameter(nrmax=9999)
       parameter(nphotmax=2)
       parameter(ntabphotmax=12)
       parameter(nintphotmax=ntabphotmax-1)
       parameter(nbpmax=12+ntabphotmax)
-      parameter(nespmax=300)
+      parameter(nespmax=999)
       parameter(nphase=3)
       parameter(nequilx=25)
       parameter(nionx=25)

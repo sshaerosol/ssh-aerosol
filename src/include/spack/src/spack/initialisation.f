@@ -130,7 +130,7 @@ C     Check species name
 c      do ie = 1,nesp(1)
 c         write(6,777)ie,NOM(ie)
 c      enddo
-c 777  format(2x,i3,2x,a10)
+c 777  format(2x,i4,2x,a10)
 C     ..v.7..x....v....x....v....x....v....x....v....x....v....x....v....x.I
 c     Read chemical mechanism
 

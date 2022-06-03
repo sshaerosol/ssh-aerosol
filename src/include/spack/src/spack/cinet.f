@@ -328,6 +328,42 @@ c     RCFE: Reactions Calculated From Equilibria.
          call ssh_WRCFE90 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
      &        bp(5,nr),bp(6,nr))
 
+C     MCM add for Complex rate coefficients in MCM v3.3.1
+      elseif (mot(i)(1:4).eq.'MCM1') then
+         nb(nr)=4
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+         call ssh_reel(bp(8,nr),mot(i+8),imot(i+8))
+         call ssh_WKMCM1 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr),bp(6,nr),bp(7,nr),bp(8,nr))
+
+      elseif (mot(i)(1:4).eq.'MCM2') then
+         nb(nr)=4
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+         call ssh_reel(bp(8,nr),mot(i+8),imot(i+8))
+         call ssh_WKMCM2 (nr,bp(1,nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr),bp(6,nr),bp(7,nr),bp(8,nr))
+
+c     GENERAL: IUPAC from MCM photolysis genoa
+      elseif (mot(i)(1:4).eq.'MCM3') then
+         nb(nr)=10
+         nrphot = nrphot + 1
+         call ssh_reel(bp(1,nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_WKMCM3 (nr,bp(1,nr),bp(2,nr),bp(3,nr))
+
 c     SPEC: specific reactions.
       elseif (mot(i)(1:4).eq.'SPEC') then
          nb(nr)=5
@@ -356,6 +392,8 @@ c         elseif (chem_mechanism.eq.3) then
             write(*,*) nr, ispebp(nr)
 	    call ssh_WSPEC_MELCHIOR2 (nr, ispebp(nr))
 	    write(*,*) '   expressions in MELCHIOR2 mechanism are used'
+         elseif (mechanism_name .eq. "MCM") then
+            call ssh_WSPEC_MCM (nr,ispebp(nr))
          else
             write(*,*) nr, ispebp(nr)
             write(*,*) 'Warning: specific reaction expression
@@ -408,6 +446,8 @@ c     Third body.
             ittb(nr)=4
          elseif ((mot(i+1)(1:2).eq.'H2').and.(imot(i+1).eq.2)) then
             ittb(nr)=5
+         elseif (mot(i+1)(1:3).eq.'RO2') then !genoa add RO2 in TB
+            ittb(nr)=6
          else
             write(*,*)'ERROR: syntax for Third Body'
             write(*,*)'M, O2, N2, H20 or H2 expected.'

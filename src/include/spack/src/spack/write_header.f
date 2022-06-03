@@ -84,7 +84,7 @@ C===========
  4012 format(4x,'Press,azi,att,lwctmp,granulo,WetDiam,',
      2     'dsf_aero,ispeclost, &')
       write(nwrite,4013)
- 4013 format(4x,'Wmol,LWCmin,option_photolysis)')
+ 4013 format(4x,'Wmol,LWCmin,option_photolysis,RO2)')
 
 C===========
 C     Only gas-phase reactions
@@ -95,7 +95,7 @@ C==========
       write(nwrite,4015)
  4015 format(4x,'nr,rk,temp,xlw,Press,azi,att, &')
       write(nwrite,4016)
- 4016 format(4x,'option_photolysis)')
+ 4016 format(4x,'option_photolysis,RO2)')
       endif
 C=====================
       write(nwrite,300)
@@ -206,8 +206,8 @@ C ====================================
       write(nwrite,432)
  432  format('  double precision rk(nr),temp,xlw,Press')
       write(nwrite,433)
- 433  format('  double precision Effko,Rapk,facteur,SumM,',
-     2     'azi,att')
+ 433  format('  double precision Effko,Rapk,facteur,SumM,RO2,',
+     2     'azi,att,cosX,secX')
       write(nwrite,434)
  434  format('  double precision YlH2O')
       write(nwrite,4348)
@@ -277,6 +277,24 @@ C     heterogeneous reactions with adaptative reaction number
  464  format(2x,'endif')
       write(nwrite,300)
       endif
+
+C     add for MCM photolysis
+      write(nwrite,465)
+      write(nwrite,466)
+      write(nwrite,467)
+      write(nwrite,468)
+      write(nwrite,469)
+      write(nwrite,470)
+      write(nwrite,471)
+      write(nwrite,300)
+ 465  format('  if (azi.lt.90) then')            ! with photolysis
+ 466  format('      cosX=dcos(azi/180.D0*3.1416D0)')             ! cosX
+ 467  format('      secX=1.0d+0/(cosX+1.0D-30)') ! secX
+ 468  format('  else')                           ! without photolysis
+ 469  format('      cosX=0.d0')                  ! cosX
+ 470  format('      secX=0.d0')                  ! secX
+ 471  format('  endif')
+C     end add for MCM photolysis
 
 C     Routine fexchem.f90
       nficf90=ipiste

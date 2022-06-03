@@ -136,7 +136,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       species_list_aer.push_back(tmp3);
     }
 
-  int smile_len=100;
+  int smile_len=800;
   string tmp2b;
   for (i = 0; i < ns_aer * smile_len; i++)
     tmp2b.push_back(smiles[i]);

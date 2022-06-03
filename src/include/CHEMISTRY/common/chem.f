@@ -96,7 +96,7 @@ C------------------------------------------------------------------------
 C     
 C     -- AUTHOR(S)
 C     
-C     Denis Quélo, CEREA, June 2001.
+C     Denis QuÃ©lo, CEREA, June 2001.
 C     
 C------------------------------------------------------------------------
 
@@ -459,7 +459,9 @@ C     Storage in the array of chemical concentrations.
      $     ,fixed_density_aer,wet_diameter_aer,hetero_species_index
      $     ,DLconc_aer,option_adaptive_time_step, TOL, tstep_min
      $     ,option_photolysis,jBiPER,kBiPER,INUM,IDENS
-     $     ,DLnumconc_aer,mass_density_aer)
+     $     ,DLnumconc_aer,mass_density_aer
+     $     ,ncst_gas, cst_gas, cst_gas_index !genoa use constant gas conc.
+     $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index) ! for RO2-RO2 reaction
 
 C------------------------------------------------------------------------
 C     
@@ -563,6 +565,11 @@ C     To take into account BiPER degradation inside the particle
       INTEGER jBiPER,kBiPER
       DOUBLE PRECISION saveDLBiPER(nbin_aer)
 
+C     genoa for RO2-RO2 reaction and constant profile
+      INTEGER ncst_gas,nRO2_chem,iRO2,iRO2_cst,tag_RO2
+      INTEGER cst_gas_index(ncst_gas), RO2index(nRO2_chem)
+      DOUBLE PRECISION RO2,cst_gas(ncst_gas),ZC_cst(ncst_gas)
+
 C     Aerosol density converted in microg / microm^3.
       RHOA = fixed_density_aer * 1.D-09
 C     Aerosol discretization converted in microm.
@@ -652,6 +659,14 @@ C     Projection.
          ZC(Jsp) = DLconc(Jsp)* convers_factor(Jsp)
       ENDDO
 
+C!  input constant concentration genoa
+      if (ncst_gas.gt.0) then
+        do i1=1,ncst_gas
+           ZC_cst(i1)=cst_gas(i1)* convers_factor(cst_gas_index(i1))
+           ZC(cst_gas_index(i1))=ZC_cst(i1)
+        enddo
+      endif
+
 C     Initialization of granulo for kinetic cte of heterogeneous rxns
       DO Jb=1,Nbin_aer
          conc_tot=0.0D0
@@ -677,8 +692,8 @@ C     two-step solver starts
       atol=1.d-6*TOL
       m=2 !m nombre d'iteration
       tstep=tstep_min ! initial step tstep: dtn
-        tschem=ts ! initial timestep
-        tfchem=tschem+delta_t! total chemistry step
+      tschem=ts ! initial timestep
+      tfchem=tschem+delta_t! total chemistry step
 
       ! init conc.
       do Jsp=1,NS
@@ -690,6 +705,23 @@ C     two-step solver starts
       do j=1,m
 
         !computes chpr and chlo which are the vectors with all the terms of production (chpr=P) and losses (chlo=LxC)
+
+         ! compute RO2
+         RO2=0.d0
+         if (tag_RO2.ne.0) then
+           ! add background if tag = 2,3,4 (from ro2 file)
+           if (tag_RO2.ge.2
+     &         .and.iRO2_cst.ne.0) then
+             RO2 = RO2 + ZC_cst(iRO2_cst)
+           endif
+           ! add from primary VOCs (RO2 list) tag = 1,3
+           if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3 
+     &         ) then
+             do Jsp =1,nRO2_chem
+               RO2=RO2+ZC(RO2index(Jsp))
+             enddo
+           endif
+         endif
 
         ! kinetic rate
         ! Compute zenithal angles
@@ -703,7 +735,14 @@ C     two-step solver starts
      &        Zatt,lwca,granulo_aer,
      &        wet_diameter_aer,DSF,
      &        hetero_species_index,Wmol,LWCmin,
-     &        option_photolysis)
+     &        option_photolysis,RO2)
+
+        ! keep inorganic constant
+        if (ncst_gas.gt.0) then
+            do i1=1,ncst_gas
+               ZC(cst_gas_index(i1))=ZC_cst(i1)
+            enddo
+        endif
 
         !C    !prod(Ns): chpr0
         ! W(Nr): reaction rates.: DLRkf
@@ -727,8 +766,15 @@ C     two-step solver starts
              enddo
       enddo
 
+      ! keep inorganic constant
+      if (ncst_gas.gt.0) then
+        do i1=1,ncst_gas
+           ZC(cst_gas_index(i1))=ZC_cst(i1)
+        enddo
+      endif
+
       ! calculate error
-      error_max=0 
+      error_max=0.d0 
       do Jsp=1,NS
         wk=atol+rtol*ZC(Jsp)
         error_max=max(error_max,abs(ZC(Jsp)-conci(Jsp))/wk)
@@ -753,13 +799,35 @@ C     two-step solver starts
       endif
 
       tstep=min(tstep,tfchem-tschem)
-      c=dtnsave/tstep
+      if (tstep.gt.dzero) then
+          c=dtnsave/tstep
+      else
+         c=1
+      endif
       gam=(c+dun)/(c+2.d0)
 
       !les calculs suivants de l'ordre 2
       do while (tschem<tfchem)
         do j=1,m
             !computes chpr and chlo which are the vectors with all the terms of production (chpr=P) and losses (chlo=LxC)
+
+            ! compute RO2 used in chem
+            RO2=0.d0
+            if (tag_RO2.ne.0) then
+                ! add background tag = 2,3,4 (from ro2 file)
+                if (tag_RO2.ge.2 
+     &              .and.iRO2_cst.ne.0) then
+                   RO2 = RO2 + ZC_cst(iRO2_cst)
+                endif
+                ! add from primary VOCs (RO2 list) tag = 1,3
+                if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3 
+     &              ) then
+                   do Jsp =1,nRO2_chem
+                     RO2=RO2+ZC(RO2index(Jsp))
+                   enddo
+                endif
+            endif
+
             ! kinetic rate
             ! Compute zenithal angles
             DLmuzero=ssh_muzero(tschem,Dlon,Dlat)
@@ -772,7 +840,14 @@ C     two-step solver starts
      &            Zatt,lwca,granulo_aer,
      &            wet_diameter_aer,DSF,
      &            hetero_species_index,Wmol,LWCmin,
-     &            option_photolysis)
+     &            option_photolysis,RO2)
+
+            ! keep inorganic constant
+            if (ncst_gas.gt.0) then
+               do i1=1,ncst_gas
+                  ZC(cst_gas_index(i1))=ZC_cst(i1)
+               enddo
+            endif
 
             !C    !prod(Ns): chpr0
             ! W(Nr): reaction rates.: DLRkf
@@ -798,6 +873,13 @@ C     two-step solver starts
             enddo
         enddo
 
+        ! keep inorganic constant
+        if (ncst_gas.gt.0) then
+            do i1=1,ncst_gas
+               ZC(cst_gas_index(i1))=ZC_cst(i1)
+            enddo
+        endif
+
         error_max=0 
         do Jsp=1,NS
             wk=atol+rtol*abs(ZC(Jsp))
@@ -810,7 +892,11 @@ C     two-step solver starts
             tstep=max(tstep_min,max(dun/alpha,min(alpha,
      &                0.8d0/(error_max**0.5d0)))*tstep)
             tstep=min(tstep,tfchem-tschem)
-            c=dtnsave/tstep
+            if (tstep.gt.dzero) then
+                c=dtnsave/tstep
+            else
+                c=1
+            endif
             gam=(c+1)/(c+2.d0)
             do Jsp=1,NS
                 ZC(Jsp)=conci(Jsp)
@@ -818,6 +904,23 @@ C     two-step solver starts
 
           do j=1,m
             !computes chpr and chlo which are the vectors with all the terms of production (chpr=P) and losses (chlo=LxC)
+
+               ! compute RO2 used in chem
+               RO2=0.d0
+               if (tag_RO2.ne.0) then
+                   ! add background tag = 2,3,4 (from ro2 file)
+                   if (tag_RO2.ge.2.
+     &                 and.iRO2_cst.ne.0) then
+                      RO2 = RO2 + ZC_cst(iRO2_cst)
+                   endif
+                   ! add from primary VOCs (RO2 list) tag = 1,3
+                   if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3 
+     &                ) then
+                      do Jsp =1,nRO2_chem
+                        RO2=RO2+ZC(RO2index(Jsp))
+                      enddo
+                   endif
+               endif
 
             ! kinetic rate
             ! Compute zenithal angles
@@ -831,7 +934,14 @@ C     two-step solver starts
      &            Zatt,lwca,granulo_aer,
      &            wet_diameter_aer,DSF,
      &            hetero_species_index,Wmol,LWCmin,
-     &            option_photolysis)
+     &            option_photolysis,RO2)
+
+            ! keep inorganic constant
+            if (ncst_gas.gt.0) then
+                do i1=1,ncst_gas
+                   ZC(cst_gas_index(i1))=ZC_cst(i1)
+                enddo
+            endif
 
             !C    !prod(Ns): chpr0
             ! W(Nr): reaction rates.: DLRkf
@@ -857,6 +967,13 @@ C     two-step solver starts
             enddo
           enddo
 
+          ! keep inorganic constant
+          if (ncst_gas.gt.0) then
+            do i1=1,ncst_gas
+               ZC(cst_gas_index(i1))=ZC_cst(i1)
+            enddo
+          endif
+
           error_max=0 
           do Jsp=1,NS
             wk=atol+rtol*abs(ZC(Jsp))
@@ -879,12 +996,24 @@ C     two-step solver starts
 
         tstep=min(tstep,tfchem-tschem)
 
-        c=dtnsave/tstep
+        if (tstep.gt.dzero) then
+            c=dtnsave/tstep
+        else
+           c=1
+        endif
         gam=(c+dun)/(c+2.d0)
 
         do Jsp=1,NS
             concii(Jsp)=conci(Jsp)
             conci(Jsp)=ZC(Jsp)
+            ! keep inorganic constant
+            if (ncst_gas.gt.0) then
+               do i1=1,ncst_gas
+                  concii(cst_gas_index(i1))=ZC_cst(i1)
+                  conci(cst_gas_index(i1))=ZC_cst(i1)
+                  ZC(cst_gas_index(i1))=ZC_cst(i1)
+               enddo
+            endif
         enddo
 
       enddo
@@ -904,6 +1033,25 @@ C     Storage in the array of chemical concentrations.
           ! Conversion molecules/cm3 to mug/m3.
           DLconc(Jsp) = ZC(Jsp)/convers_factor(Jsp)
                ENDDO
+
+      ! keep inorganic constant
+      if (ncst_gas.gt.0) then
+         do i1=1,ncst_gas
+            DLconc(cst_gas_index(i1))=ZC(cst_gas_index(i1))/
+     &                  convers_factor(cst_gas_index(i1))
+         enddo
+      endif
+
+      ! output RO2
+      if (iRO2.ne.0.and.tag_RO2.ne.0) then
+            ! output only ro2 from list
+            DLconc(iRO2)=0.d0
+            do Jsp =1,nRO2_chem
+               DLconc(iRO2)= DLconc(iRO2)+
+     &                  ZC(RO2index(Jsp))/
+     &                  convers_factor(RO2index(Jsp))
+            enddo
+      endif
 
       DO Jb=1,Nbin_aer
          DO Jsp=1,Ns_aer
