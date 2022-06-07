@@ -75,7 +75,7 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
           //cout << "Ginf " << surrogate[i].name << " " << surrogate[i].GAMMAinf << endl;
           if (surrogate[i].Henry <= tiny_henry)
 	    surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
-	  //cout << "Ginf " << surrogate[i].name << " " << surrogate[i].GAMMAinf << " " << surrogate[i].Henry << endl;
+	    //cout<<"Ginf "<< surrogate[i].name <<" "<<surrogate[i].Psat_ref<<" "<<surrogate[i].GAMMAinf<<" "<<surrogate[i].Henry<<endl;
         }
       else
         {

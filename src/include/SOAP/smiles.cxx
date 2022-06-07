@@ -2415,13 +2415,12 @@ void get_vectors(model_config &config, vector<species>& surrogate)
                 cout<<j<<" "<<name_group(j)<<" read from "<<surrogate[i].smile.substr(j*9+1,8)<<" as "<<tmp_group<<endl;
                 surrogate[i].groups[j]=tmp_group;
               }
-            else
-                if (tmp_group < 0.)
-                  {
-                    cout<<"Warning!!! aerosol vector input < 0.!!! set to 0. Please check aerosol species list."<<endl;
-                    cout<<j<<" "<<name_group(j)<<" read from "<<surrogate[i].smile.substr(j*9+1,8)<<" as "<<endl;
-                  }
-	            surrogate[i].groups[j]=0.;
+            else if (tmp_group < 0.)
+              {
+                cout<<"Warning!!! aerosol vector input < 0.!!! set to 0. Please check aerosol species list."<<endl;
+                cout<<j<<" "<<name_group(j)<<" read from "<<surrogate[i].smile.substr(j*9+1,8)<<" as "<<endl;
+                surrogate[i].groups[j]=0.;
+              }
           }
 
         if (surrogate[i].is_generic)
