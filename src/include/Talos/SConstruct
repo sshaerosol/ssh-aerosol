@@ -1,7 +1,15 @@
 import distutils.sysconfig
+
+
+if ARGUMENTS["swig"] == None:
+   SWIGBIN = "swig"
+else:
+   SWIGBIN = ARGUMENTS["swig"]		
+
 env = Environment(SWIGFLAGS = ['-c++', '-python'],
                   CPPPATH = [distutils.sysconfig.get_python_inc()],
-                  SHLIBPREFIX = "")
+                  SHLIBPREFIX = "",
+		  SWIG = SWIGBIN)
 
 if ARGUMENTS["intel"] == "yes":
     cpp_compiler = "icpc"

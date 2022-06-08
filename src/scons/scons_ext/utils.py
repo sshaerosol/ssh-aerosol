@@ -260,7 +260,17 @@ class Utils:
             env.Append(CPPPATH = os.environ["CPATH"].split(os.pathsep))
         if "CPLUS_INCLUDE_PATH" in os.environ:
             env.Append(CPPPATH = os.environ["CPLUS_INCLUDE_PATH"].split(os.pathsep))
+        # Add for F90FLAGS    
+        if "F90FLAGS" in os.environ:
+            env.Append(F90FLAGS = os.environ["F90FLAGS"].split(os.pathsep))
 
+        # Add for SWIG
+        if "SWIG" in os.environ:
+            ARGUMENTS["swig"] = os.environ["SWIG"]
+        else:
+            ARGUMENTS["swig"] = None
+           
+            
         if ARGUMENTS["line"] == "no":
             env.Replace(CCCOMSTR = "[C] $SOURCE")
             env.Replace(CXXCOMSTR = "[C++] $SOURCE")
@@ -280,7 +290,7 @@ class Utils:
         cpp_compiler = self.create_variable("cpp_compiler", None)
         fortran_compiler = self.create_variable("fortran_compiler", None)
         linker = self.create_variable("linker", "$CXX")
-
+      
         if ARGUMENTS["intel"] == "yes":
             c_compiler = "icc"
             cpp_compiler = "icpc"
@@ -440,13 +450,14 @@ to highly recommended debugging and optimization options.
         flag_fortran = self.create_flag_string("flag_fortran")
         if flag_fortran != "":
             fortran_compilation_option += " " + flag_fortran
-
+            
         env.Append(CPPDEFINES=preprocessor_defines)
         env.Replace(CCFLAGS = cpp_compilation_option)
         env.Replace(F77FLAGS = fortran_compilation_option)
         env.Replace(FORTRANFLAGS = fortran_compilation_option)
-        env.Replace(F90FLAGS = fortran_compilation_option) # YK
-
+        env.Append(F90FLAGS = fortran_compilation_option)
+       
+       
         ################
         # INCLUDE PATH #
         ################
@@ -467,8 +478,8 @@ to highly recommended debugging and optimization options.
         env.Append(CPPPATH = include_search_path)
         env.Append(F77PATH = include_search_path)
         env.Append(FORTRANPATH = include_search_path)
-        include_search_path.append("/usr/include/") # YK
-        env.Append(F90PATH = include_search_path) # YK
+        include_search_path.append("/usr/include/")
+        env.Append(F90PATH = include_search_path)
 
         #############
         # LIBRARIES #
@@ -571,7 +582,7 @@ to highly recommended debugging and optimization options.
         target_list = self.create_list("target_list")
         if not target_list:
             target_list = glob.glob(self.src_dir + "/*.cpp")
-            target_list += glob.glob(self.src_dir + "/ssh-aerosol.f90") # YK
+            target_list += glob.glob(self.src_dir + "/ssh-aerosol.f90")
 
         # In case there is a list of targets to be excluded.
         exclude_target = self.create_list("exclude_target")
@@ -596,7 +607,7 @@ to highly recommended debugging and optimization options.
             src_dependencies += glob.glob(os.path.join(path, "*.F90"))
             # Comment when spack is turned off.
             src_dependencies += self.spack.dependency(path, exclude_dependency,
-                                                      build_dir) # YK
+                                                      build_dir)
 
         # In case there is a list of dependencies to be excluded.
         filtered_dependencies = []
@@ -651,7 +662,7 @@ to highly recommended debugging and optimization options.
 
                 if (('ssh-aerosol.f90' in target) and
                     (ARGUMENTS["intel"] == "yes")):
-                    env.Replace(LINK = fortran_compiler) # YK
+                    env.Replace(LINK = fortran_compiler)
                 
                 program = env.Program(program_name, program_dependencies)
                 if program_name in self.command_line_target:
