@@ -71,24 +71,153 @@ The model is based on the merge of three state-of-the-art models:
 
 SSH-aerosol is a free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
 \section*{Hardware and software requirement}
-SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with both the gfortran and the GNU gcc compiler and under a Linux system. Intel compiler should also work. If not, please report to  \url{ssh-aerosol-help@liste.enpc.fr}.\\
+SSH-aerosol is written in the programming language FORTRAN and C++. It can run on PC or a cluster with the GNU compilers (gfortran, gcc and g++) under a Linux system. Intel compiler should also work. If not, please report to  \url{ssh-aerosol-help@liste.enpc.fr}.\\
 
 The following external libraries are required:
 \begin{itemize}
-\item C++ library Blitz++ (\url{https://github.com/blitzpp/blitz}) \\
-  If you install Blitz++ using a package manager like apt or yum, you need to install libblitz0-dev and libblitz0v5
+\item C++ library Blitz++ (\url{https://github.com/blitzpp/blitz}). See section~\ref{sec:blitz} for the instruction.
 \item NetCDF library may be required if you have precomputed coagulation repartition coefficients, you can download from the following site:
-\url{http://www.unidata.ucar.edu/downloads/netcdf/index.jsp}
-\item SWIG (\url{http://www.swig.org/index.php})
+\url{http://www.unidata.ucar.edu/downloads/netcdf/index.jsp}. See section~\ref{sec:netcdf} for the instruction.
+\item SWIG (\url{http://www.swig.org/index.php}). See section~{sec:swig} for the instruction.
+\item Header file for Python (Python.h). It is included in \code{libpython3-dev}. When you install \code{python3-dev}, \code{libpython3-dev} is installed too.
 \end{itemize}
 The random access memory (RAM) requirement for a 0D simulation is very small. 
 
-\subsection{Compilation with scons}
+
+All installations are done on your local directory \code{YourLocal}, for example,  \code{~/usr/local}.
+\begin{verbatim}
+export YourLocal=~/usr/local
+\end{verbatim}
+
+\subsection{Install Blitz++}\label{sec:blitz}
+
+If you install Blitz++ using a package manager like apt or yum, you need to install \code{libblitz0-dev} and \code{libblitz0v5}.
+
+If you can not install using a package manager, you can install from source files. To do that, \code{cmake} is required to build Blitz++ from source files.
+
+If \code{cmake} is not installed, this following guide provides instruction on how to install.
+You can skip if \code{cmake} is already installed.
+\begin{verbatim}
+wget https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2.tar.gz
+tar xvf cmake-3.23.2.tar.gz
+./configure --prefix=$YourLocal
+make
+make install
+\end{verbatim}
+
+
+- to build \code{Blitz++} from the source
+\begin{verbatim}
+wget https://github.com/blitzpp/blitz/archive/refs/heads/master.zip
+unzip master.zip
+
+cd blitz-master
+mkdir build
+cd build
+cmake ..
+make lib
+\end{verbatim}
+
+And edit \code{CMakeCache.txt} to indicate where blitz is installed. 
+Please indicate the full path to YourLocal
+
+\begin{verbatim}
+CMAKE_INSTALL_PREFIX:PATH=/home/xxx/usr/local
+\end{verbatim}
+
+\begin{verbatim}
+make install
+\end{verbatim}
+
+Please set the following paths to the installed \code{Blitz++} in your environment before compiling.
+\begin{verbatim}
+export CPLUS_INCLUDE_PATH=/home/xxx/usr/local/include:$CPLUS_INCLUDE_PATH
+export LD_LIBRARY_PATH=/home/xxx/usr/local/lib:$LD_LIBRARY_PATH
+\end{verbatim}
+
+
+
+
+\subsection{Install netCDF}\label{sec:netcdf}
+
+You have to install \code{netCDF-C} and then \code{netCDF-fortran}.
+
+\subsubsection{\code{netCDF-C}}
+
+If you install \code{netCDF-C} using a package manager like apt or yum, you need to install \code{libnetcdf-dev}.
+
+For the installation from the source, Version 4.7.3 is tested.
+
+\begin{verbatim}
+wget https://downloads.unidata.ucar.edu/netcdf-c/4.7.3/netcdf-c-4.7.3.tar.gz
+tar xvf netcdf-c-4.7.3.tar.gz
+cd netcdf-c-4.7.3
+./configure LDFLAGS="-L$HOME/usr/local/lib" --disable-hdf5 --prefix=$HOME/usr/local
+make
+make install
+\end{verbatim}
+
+
+\subsubsection{\code{netCDF-fortran}}
+
+If you install \code{netCDF-fortran} using a package manager like apt or yum, you need to install \code{libnetcdff-dev}.
+
+For the installation from the source, Version 4.5.2 is tested.
+
+\begin{verbatim}
+wget https://downloads.unidata.ucar.edu/netcdf-fortran/4.5.2/netcdf-fortran-4.5.2.tar.gz
+tar xvf netcdf-fortran-4.5.2.tar.gz
+cd netcdf-fortran-4.5.2
+./configure CPPFLAGS="-I$HOME/usr/local/include" LDFLAGS="-L$HOME/usr/local/lib" --prefix=$HOME/usr/local
+make
+make install
+\end{verbatim}
+
+
+\subsection{\code{SWIG}}\label{sec:swig}
+
+If you install \code{SWIG} using a package manager like apt or yum, you need to install \code{swig}.
+
+If you can not install using a package manager, you can install from source files.
+
+\begin{verbatim}
+wget http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+tar xvf swig-4.0.2.tar.gz 
+cd swig-4.0.2
+./configure --without-pcre --prefix=$HOME/usr/local
+make
+make install
+\end{verbatim}
+
+
+% \subsection{Other libraries}
+
+% Any version of \code{Lapack/Blas} should be installed.
+% If Lapack/Blas is installed by the package manager, \code{PATH\_TO\_LAPACK} should be \code{/usr/lib}
+
+
+\subsection{Compilation with scons}\label{sec:scons}
 
 Before the compilation, make sure the construction tool: SCONS has already been installed. 
 If not you can obtain it through the instruction of the site: \url{http://www.scons.org/wiki/SconsTutorial1}\\
 
-After all the required software and library are ready, the compilation can be done by typing a simple command: compile, within a terminal under the program main path.
+After all the required software and library are ready, you may need to modify \code{compile} to indicate the right path.
+
+\begin{verbatim}
+# Path to blitz and netcdf libraries
+export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH
+# Path to blitz and netcdf files
+export CPLUS_INCLUDE_PATH=/home/cereaadm/usr/local/include:$CPLUS_INCLUDE_PATH
+# path to netcdf.mod
+export F90FLAGS=-I/home/cereaadm/usr/local/include:$F90FLAGS
+# path to swig
+export SWIG=/home/cereaadm/usr/local/bin/swig
+\end{verbatim}
+
+Finally, the compilation can be done by typing a simple command: \code{compile}.
+\begin{verbatim}
+./compile
+\end{verbatim}
 
 \subsection{Compilation with Makefile and fortran interface}
 
