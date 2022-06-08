@@ -53,6 +53,7 @@ src/include/CHEMISTRY/cb05/*.f*
 src/include/CHEMISTRY/racm/*.f*
 src/include/CHEMISTRY/racm2/*.f*
 src/include/CHEMISTRY/*/species.spack.dat
+src/include/CHEMISTRY/*/species-list.dat
 src/include/spack/src/LU_generator
 src/include/spack/src/find_perm
 src/include/spack/src/spack_generator
