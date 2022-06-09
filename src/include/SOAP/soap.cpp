@@ -583,12 +583,12 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                     {
                       if (surrogate[i].name == "SO4")
                         {
-                          surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) *
+                          surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) *
                             q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
                         }
                       else if (surrogate[i].name == "HSO4")
                         {
-                          surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) *
+                          surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) *
                             q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
                         }
                       else if (surrogate[i].name == "NO3")
