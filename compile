@@ -64,13 +64,13 @@ fi
 ./cleantmp $chemistry
 
 # Path to blitz and netcdf libraries
-export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH
 # Path to blitz and netcdf files
-export CPLUS_INCLUDE_PATH=/home/cereaadm/usr/local/include:$CPLUS_INCLUDE_PATH
+#export CPLUS_INCLUDE_PATH=/home/cereaadm/usr/local/include:$CPLUS_INCLUDE_PATH
 # path to netcdf.mod
-export F90FLAGS=-I/home/cereaadm/usr/local/include:$F90FLAGS
+#export F90FLAGS=-I/home/cereaadm/usr/local/include:$F90FLAGS
 # path to swig
-export SWIG=/home/cereaadm/usr/local/bin/swig
+#export SWIG=/home/cereaadm/usr/local/bin/swig
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry nacl=$nacl openmp=no sharedlib=no
