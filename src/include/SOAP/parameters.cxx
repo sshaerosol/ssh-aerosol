@@ -1876,6 +1876,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
     {
       config.SR_ions = false;
       config.temperature_dependancy = false;
+      config.hygroscopicity=false; //Hygroscopicity is not computed for ideality to avoid artificially high concentrations of water in the organic phase
     }  
 
   config.first_evaluation_activity_coefficients=false; //Use initial concentrations to compute activity coefficients
