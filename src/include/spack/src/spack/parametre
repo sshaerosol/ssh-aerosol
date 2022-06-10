@@ -6,7 +6,7 @@
       parameter(ntabphotmax=12)
       parameter(nintphotmax=ntabphotmax-1)
       parameter(nbpmax=12+ntabphotmax)
-      parameter(nespmax=999)
+      parameter(nespmax=2000)
       parameter(nphase=3)
       parameter(nequilx=25)
       parameter(nionx=25)

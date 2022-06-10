@@ -287,13 +287,15 @@ C     add for MCM photolysis
       write(nwrite,470)
       write(nwrite,471)
       write(nwrite,300)
- 465  format('  if (azi.lt.90) then')            ! with photolysis
- 466  format('      cosX=dcos(azi/180.D0*3.1416D0)')             ! cosX
- 467  format('      secX=1.0d+0/(cosX+1.0D-30)') ! secX
- 468  format('  else')                           ! without photolysis
- 469  format('      cosX=0.d0')                  ! cosX
- 470  format('      secX=0.d0')                  ! secX
+
+ 465  format('  cosX=0.d0 !init')                  ! init cosX
+ 466  format('  secX=0.d0 !init')                  ! init secX
+ 467  format('  if (azi.lt.9d2) then ! with photolysis')
+ 468  format('      cosX=max(0d0,dcos(azi/1.8D2* &')
+ 469  format('            3.14159265358979323846D0))')! cosX
+ 470  format('      if (cosX.gt.0d0) secX=1.0d+0/(cosX+1.0D-30)')! secX
  471  format('  endif')
+
 C     end add for MCM photolysis
 
 C     Routine fexchem.f90

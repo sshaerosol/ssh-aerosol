@@ -649,7 +649,7 @@ C genoa add formula for '2*1.03D-13*0.5*dexp(365/TEMP)*(1-7.18*dexp(-885/TEMP))'
      &     '    (1d0-7.18d0*dexp(-885d0/TEMP))')
 C for Limonene species INDO
 C genoa add formula for '2.20E+10*EXP(-8174/TEMP)*EXP(1.00E+8/TEMP@3)'
- 26   format('  rk(',i4,') 2.2d10*dexp(-8174d0/TEMP)* &',/
+ 26   format('  rk(',i4,') =  2.2d10*dexp(-8174d0/TEMP)* &',/
      &     '    dexp(1d8/TEMP**3)')
 C genoa add formula for '8.14E+9*EXP(-8591/TEMP)*EXP(1.00E+8/TEMP@3)'
  27   format('  rk(',i4,') = 8.14d9*dexp(-8591/TEMP)* &',/
