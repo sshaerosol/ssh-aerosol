@@ -79,23 +79,23 @@ with open(sys.argv[2],'r', encoding="UTF-8") as f:
 ####################
 
 
-with open("species.spack.dat","w") as f:
-    f.write("[species]\n")
-    f.write("\n".join(species_name))
-    f.write("\n\n[molecular_weight]\n")
-    for k, v in zip(species_name, species_weight):
-        k += " "
-        v += "\n"
-        f.write(k.ljust(8))
-        f.write(v)
-    f.write("""
+#with open("species.spack.dat","w") as f:
+#    f.write("[species]\n")
+#    f.write("\n".join(species_name))
+#    f.write("\n\n[molecular_weight]\n")
+#    for k, v in zip(species_name, species_weight):
+#        k += " "
+#        v += "\n"
+#        f.write(k.ljust(8))
+#        f.write(v)
+#    f.write("""
 
 # Here is the list of photolysis reactions in good order.
 # This section is generated to help debugging
 # the section '[photolysis_reaction_index]'
 #""")
-    f.write("\n#".join(photolysis_reactions))
-    f.write("\n")
+#    f.write("\n#".join(photolysis_reactions))
+#    f.write("\n")
     
 #write species-list.dat automaticaly
 with open("species-list.dat","w") as f:
