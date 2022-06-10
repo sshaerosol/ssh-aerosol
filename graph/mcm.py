@@ -14,8 +14,7 @@ matplotlib.rc('font', **font)
 matplotlib.pyplot.xticks(fontsize=14)
 
 ################### input parameters #################################"
-filename = ['../results/mcm-wFGL-tag_RO2-0', '../results/mcm-wFGL-tag_RO2-1', '../results/mcm-wFGL-tag_RO2-2000', '../results/mcm-wFGL-tag_RO2-3000/']
-pcase = '../results/cond-sulfate/r12/'
+filename = ['../results/mcm-wFGL-tag_RO2-0', '../results/mcm-wFGL-tag_RO2-1', '../results/mcm-wFGL-tag_RO2-2', '../results/mcm-wFGL-tag_RO2-3/']
 stl = ['b-','g--','k:','r-']
 tiny=1E-19
 #####################################################################

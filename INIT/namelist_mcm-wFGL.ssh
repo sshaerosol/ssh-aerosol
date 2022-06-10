@@ -1,3 +1,5 @@
+! Please specify the chemistry option when compiling SSH-aerosol
+! compile -c=mcm
 &setup_meteo
 latitude = 36.00,
 longitude = 15.40,
@@ -50,12 +52,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-!Species list for mcm. You can also find the reaction list in the same folder: BCARYorg.reactions
-! if use spack.dat file, do not change the name
-species_list_file = "./src/include/CHEMISTRY/mcm/species.spack.dat",
-!user-defined species list should be identical to species-list.dat that generated from SPACK
-!species_list_file = "./src/include/CHEMISTRY/mcm/species-list.dat",
-!species_list_file = "./species-list/species-list-mcm-bcary.dat",
+!use the Automatic generated link
+species_list_file = "./species-list/species-list.dat",
 /
 
 &aerosol_species
