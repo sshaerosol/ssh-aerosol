@@ -2676,7 +2676,7 @@ contains
         ncst_aero = count
         allocate(cst_aero_index(ncst_aero))
         allocate(cst_aero(ncst_aero,N_sizebin,nt))
-        allocate(tmp_read(nt))
+        if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
         rewind 24
@@ -2754,6 +2754,7 @@ contains
         ncst_gas =count
         allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
         allocate(cst_gas(ncst_gas,nt))
+        if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
         rewind 34
