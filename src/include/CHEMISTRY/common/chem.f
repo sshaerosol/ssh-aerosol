@@ -329,14 +329,14 @@ C     photolytic reactions are calculated in kinetic.f
      s           Zatt,lwca,granulo_aer,
      s           wet_diameter_aer,DSF,
      s           hetero_species_index,Wmol,LWCmin,
-     s           option_photolysis)
+     s           option_photolysis,0d0)
 !            CALL Kinetic(Ns,Nbin_aer,Nr,
 !     s           IHETER,ICLD,DLRKf,DLtempf,
 !     s           DLhumidf,DLpressf,
 !     s           Zangzenf,Zattf,lwca,granulo_aer,
 !     s           wet_diameter_aer,DSF,
 !     s           hetero_species_index,Wmol,LWCmin,
-!     s           option_photolysis)
+!     s           option_photolysis,RO2)
                DO i=1,Nr
                   DLRKf(i) = DLRKi(i) 
                ENDDO
