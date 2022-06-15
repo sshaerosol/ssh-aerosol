@@ -1,11 +1,19 @@
 
-# How to download binary files containing photolysis data.
+# How to get binary files containing photolysis data.
 
-1. Please go to https://cloud.enpc.fr/s/6GY57cakKtZtqd8 using a web browser.
+1. Download
 
-2. Click "Télécharger photolysis.tar.bz2 (42MB)" and downloading begins.
+- From a Terminal window
 
-3. Extract files to the current directory.
+> wget https://cloud.enpc.fr/s/6GY57cakKtZtqd8/download/photolysis.tar.bz2
+
+- From a web browser
+
+go to https://cloud.enpc.fr/s/6GY57cakKtZtqd8 and click "Télécharger photolysis.tar.bz2 (42MB)" and downloading begins.
+
+2. Extract files to the current directory.
+
+> tar xjf photolysis.tar.bz2
 
 # Files are prepared to be used for a common year. If your simulation should
 cover a leap year (having an additional day). Please contact ssh-aerosol-help@liste.enpc.fr
