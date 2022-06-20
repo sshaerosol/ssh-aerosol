@@ -297,6 +297,7 @@ module aInitialization
   character (len=800), save :: init_gas_conc_file ! File for gas-phase initial conc.
   character (len=800), save :: species_list_file ! File for species list.
   character (len=800), save :: aerosol_species_list_file ! File for species list.
+  character (len=800), save :: aerosol_structure_file ! File for species list.
   character (len=800), save :: namelist_species ! Namelist file for species list.
   character (len=800), save :: particles_composition_file ! File for particles composition
   character (len=800), save :: emis_gas_file
@@ -413,7 +414,7 @@ contains
 
     namelist /gas_phase_species/ species_list_file
 
-    namelist /aerosol_species/ aerosol_species_list_file
+    namelist /aerosol_species/ aerosol_species_list_file,aerosol_structure_file
 
     namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
          time_update_photolysis, & 
@@ -735,6 +736,7 @@ contains
        if (ssh_logger) write(logfile,*) 'gas phase species file :', trim(species_list_file)
     end if
 
+    aerosol_structure_file="---"
     read(10, nml = aerosol_species, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "aerosol_species data can not be read."
@@ -742,6 +744,12 @@ contains
     else
        if (ssh_standalone) write(*,*) 'particle species file :', trim(aerosol_species_list_file)
        if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
+       if (aerosol_structure_file.ne."---") then
+          if (ssh_standalone) write(*,*) 'Read aerosol structure from file :', & 
+                trim(aerosol_structure_file)
+          if (ssh_logger) write(logfile,*) 'Read aerosol structure from file :', & 
+                trim(aerosol_structure_file)
+       endif
     end if
 
     ! gas chemistry
@@ -1326,7 +1334,7 @@ contains
     integer:: nspecies
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero
+    double precision, dimension(:), allocatable :: tmp_aero, tmp_fgls
     character (len=40) :: ic_name, sname, tmp_name
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
@@ -1753,6 +1761,47 @@ contains
        end if
     end if
 
+    ! read aerosol structure file
+    if (aerosol_structure_file.ne."---") then
+      open(unit = 25, file = aerosol_structure_file, status = "old")
+        ! count comment lines and the number of input aerosol structures
+        count = 0 
+        ierr = 0
+        nline = 0
+        do while(ierr .eq. 0)
+           read(25, *, iostat=ierr) tmp_name
+           if (ierr == 0) then
+              ! read comment lines
+              if (trim(tmp_name) .eq. "#") then
+                 nline = nline + 1
+              else
+                 count = count + 1
+              end if
+           end if
+        end do
+        ! read
+        rewind 25
+        do s = 1, nline
+           read(25, *) ! read comment lines.
+        end do
+        allocate(tmp_fgls(60)) !read unifac founctional groups (60)
+        do s= 1, count
+           ! name, unifac groups
+           read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
+           do js=1, N_aerosol
+              if (aerosol_species_name(js).eq.ic_name) then
+                 ! update smiles in the format &1.23E+02&1.00E+01&...
+                 smiles(js)='' !init
+                 do k=1, 60 !update
+                    write(char1,'(A1,ES8.2)') "&",tmp_fgls(k)
+                    smiles(js)=trim(smiles(js))//trim(char1)
+                 enddo
+                 !print*,aerosol_species_name(js),smiles(js)
+              endif
+           enddo
+        enddo
+      close(25)
+    endif
 
     ! ! ! ! ! ! 
     if (tag_emis == 1) then  ! with internal emission 
@@ -1974,6 +2023,7 @@ contains
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
 
     if (allocated(tmp_aero))  deallocate(tmp_aero)
+    if (allocated(tmp_fgls))  deallocate(tmp_fgls)
   end subroutine ssh_read_inputs_spec
 
 
@@ -1983,7 +2033,7 @@ contains
     implicit none
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, s2
     double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero, tmp_read
+    double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
     character (len=40) :: ic_name, sname, tmp_name, char1, char2
 
     ! read gas-phase species namelist ! unit = 11
@@ -2722,6 +2772,48 @@ contains
         close(24)
     endif
 
+    ! read aerosol structure file
+    if (aerosol_structure_file.ne."---") then
+      open(unit = 25, file = aerosol_structure_file, status = "old")
+        ! count comment lines and the number of input aerosol structures
+        count = 0 
+        ierr = 0
+        nline = 0
+        do while(ierr .eq. 0)
+           read(25, *, iostat=ierr) tmp_name
+           if (ierr == 0) then
+              ! read comment lines
+              if (trim(tmp_name) .eq. "#") then
+                 nline = nline + 1
+              else
+                 count = count + 1
+              end if
+           end if
+        end do
+        ! read
+        rewind 25
+        do s = 1, nline
+           read(25, *) ! read comment lines.
+        end do
+        allocate(tmp_fgls(60)) !read unifac founctional groups (60)
+        do s= 1, count
+           ! name, unifac groups
+           read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
+           do js=1, N_aerosol
+              if (aerosol_species_name(js).eq.ic_name) then
+                 ! update smiles in the format &1.23E+02&1.00E+01&...
+                 smiles(js)='' !init
+                 do k=1, 60 !update
+                    write(char1,'(A1,ES8.2)') "&",tmp_fgls(k)
+                    smiles(js)=trim(smiles(js))//trim(char1)
+                 enddo
+                 !print*,aerosol_species_name(js),smiles(js)
+              endif
+           enddo
+        enddo
+      close(25)
+    endif
+
     ! read input cst_gas file
     ! init
     iRO2_cst = 0
@@ -2884,6 +2976,7 @@ contains
 
     if (allocated(tmp_aero))  deallocate(tmp_aero)
     if (allocated(tmp_read))  deallocate(tmp_read)
+    if (allocated(tmp_fgls))  deallocate(tmp_fgls)
   end subroutine ssh_read_inputs
 
 

@@ -57,7 +57,11 @@ species_list_file = "./species-list/species-list.dat",
 /
 
 &aerosol_species
-aerosol_species_list_file = "./species-list/species-list-aer-mcm-bcary-fgl.dat",        !Aerosol species list
+!option 1: the species list includes lists of functional groups
+!aerosol_species_list_file = "./species-list/species-list-aer-mcm-bcary-fgl.dat",        !Aerosol species list
+!option 2: the functional group lists are provided separately in another file
+aerosol_species_list_file = "./species-list/species-list-aer-mcm-bcary.dat",
+aerosol_structure_file = "./species-list/aerosol-structure-mcm-bcary.dat ",
 /
 
 &physic_gas_chemistry
