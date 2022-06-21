@@ -100,12 +100,12 @@ module aInitialization
 
   ! genoa add to run chemistry with constant profile
   integer, save :: ncst_gas, nRO2_chem, ncst_aero ! number of species
-  integer, save :: iRO2, iRO2_cst ! RO2 index in gas species list
+  integer, save :: iRO2, iRO2_cst ! RO2 pool index in gas species list
   integer, save :: tag_RO2 ! treat for RO2-RO2 reaction: 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   integer, dimension(:), allocatable, save :: cst_gas_index, RO2index, cst_aero_index ! index
   double precision, dimension(:,:), allocatable, save :: cst_gas  ! unchanged conc. for gas phase species
   double precision, dimension(:,:,:), allocatable, save :: cst_aero  ! unchanged conc. for aerosol phase species
-  character (len=800), save :: RO2_list_file ! File for RO2 species.
+  character (len=800), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
   character (len=800), save :: cst_gas_file ! File for species that need to be keep as constants.
   character (len=800), save :: cst_aero_file ! File for constant aerosol species.
 
@@ -2665,20 +2665,20 @@ contains
         if (ssh_logger) write(logfile,*) "Treat RO2-RO2 reaction:"
         ! RO2 index
         do js = 1, N_gas
-          if (species_name(js).eq."RO2") then
+          if (species_name(js).eq."RO2pool") then
               iRO2=js
-              if (ssh_standalone) write(*,*) 'RO2 is found in gas-phase species with index ',iRO2
-              if (ssh_logger) write(logfile,*) 'RO2 is found in gas-phase species with index ',iRO2
+              if (ssh_standalone) write(*,*) 'RO2 pool is found in gas-phase species with index ',iRO2
+              if (ssh_logger) write(logfile,*) 'RO2 pool is found in gas-phase species with index ',iRO2
           endif
         enddo
         ! check RO2 index
         if (iRO2 .eq. 0) then
-          if (ssh_standalone) write(*,*) "  RO2 is not in the list", trim(species_list_file)
-          if (ssh_logger) write(logfile,*) "  RO2 is not in the list", trim(species_list_file)
+          if (ssh_standalone) write(*,*) "  RO2 pool is not in the list", trim(species_list_file)
+          if (ssh_logger) write(logfile,*) "  RO2 pool is not in the list", trim(species_list_file)
           if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3 ) then ! need generated RO2
-              if (ssh_standalone) write(*,*) "  Need generated RO2 pool but there is no RO2 ", &
+              if (ssh_standalone) write(*,*) "  Need generated RO2 pool but there is no RO2 pool index", &
                  "in the species list. tag_RO2 = ",tag_RO2
-              if (ssh_logger) write(logfile,*) "  Need generated RO2 pool but there is no RO2 ", &
+              if (ssh_logger) write(logfile,*) "  Need generated RO2 pool but there is no RO2 pool index", &
                  "in the species list. tag_RO2 = ",tag_RO2
               stop
           endif
@@ -2861,13 +2861,13 @@ contains
               if (species_name(js) .eq. ic_name) then
                  cst_gas_index(s)=js
 
-                 if (iRO2 .ne. 0 .and. ic_name .eq. 'RO2') then
+                 if (iRO2 .ne. 0 .and. ic_name .eq. 'RO2pool') then
                     iRO2_cst = s
-                    if (ssh_standalone) write(*,*) 'Index for cst background RO2 in cst_gas list', iRO2_cst
-                    if (ssh_logger) write(logfile,*) 'Index for cst background RO2 in cst_gas list', iRO2_cst
+                    if (ssh_standalone) write(*,*) 'Index for cst background RO2 pool in cst_gas list', iRO2_cst
+                    if (ssh_logger) write(logfile,*) 'Index for cst background RO2 pool in cst_gas list', iRO2_cst
                     if (tag_RO2 .lt. 2) then
-                        if (ssh_standalone) write(*,*) 'Constant RO2 concs. is read but not used. tag_RO2 = ',tag_RO2
-                        if (ssh_logger) write(logfile,*) 'Constant RO2 concs. is read but not used. tag_RO2 = ',tag_RO2
+                        if (ssh_standalone) write(*,*) 'Constant RO2 pool concentration, read but not used. tag_RO2 = ',tag_RO2
+                        if (ssh_logger) write(logfile,*) 'Constant RO2 pool concentration, read but not used. tag_RO2 = ',tag_RO2
                     endif
                  endif
 
