@@ -82,7 +82,11 @@ PROGRAM SSHaerosol
   timer(2) = t0
 
   ! for constant concentrations
-  if (ncst_gas.gt.0) allocate(cst_gas_use(ncst_gas))
+  if (ncst_gas.gt.0) then
+     allocate(cst_gas_use(ncst_gas))
+  else
+     allocate(cst_gas_use(0))
+  endif
 
   do t = 1, nt
 
