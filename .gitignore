@@ -3,6 +3,7 @@
 ### Directories
 src/.build/*
 results/*
+user_manual/*
 
 ### Binaries
 *.o
