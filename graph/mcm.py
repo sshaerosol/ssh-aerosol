@@ -30,7 +30,6 @@ for ind,fn in enumerate(filename):
         data[i] = (float(soa[i])-soa0) /(voc0-float(voc[i])+tiny)*100.
     plt.plot(data,stl[ind],linewidth=1.3,label=fn)
 plt.xlabel('time (hour)')
-plt.ylabel(r'Concentrations ($\mu$g/m$^3$)')
 plt.xlim(0,24)
 plt.title('SOA yields (%)')
 plt.legend(['0-no RO2','1-generated RO2','2-background RO2','3-generated+background RO2'],loc='best',framealpha=0.5)
