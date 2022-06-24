@@ -31,6 +31,7 @@ core
 graph/*.png
 src/include/Talos/talos.py
 src/include/Talos/talos_wrap.cc
+src/include/Talos/.sconsign.dblite
 src/include/atmopy/*
 INIT/fractions.txt
 user_manual/user_manual.aux
@@ -47,6 +48,7 @@ ssh-aerosol
 ssh-aerosol-*
 
 ### Spack
+src/include/CHEMISTRY/mcm/*.f*
 src/include/CHEMISTRY/melchior2/*.f*
 src/include/CHEMISTRY/cb05*/*.f*
 src/include/CHEMISTRY/cb05en/*.f*
@@ -61,6 +63,9 @@ src/include/spack/src/spack_generator
 src/include/spack/src/spack_input
 src/include/spack/src/.scons.log
 src/include/spack/src/mechanism/*
+src/include/spack/src/reactions
+src/include/spack/src/spack_config
+src/include/spack/src/species
 
 ###
 src/include/common/*
@@ -80,3 +85,4 @@ example_using_so/graph/*png
 example_using_so/ssh-aerosol.log
 example_using_so/simple_cpp
 example_using_so/results/*
+species-list/species-list.dat.bck
