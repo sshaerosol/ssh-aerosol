@@ -2409,6 +2409,7 @@ void get_vectors(model_config &config, vector<species>& surrogate)
         //cout << surrogate[i].smile.substr(2, 5) << endl;
         for (j=0; j<60; j++)
           {
+            surrogate[i].groups[j]=0.;
             tmp_group = atof(surrogate[i].smile.substr(j*9+1,8).c_str());
             if (tmp_group > 0.)
               {
