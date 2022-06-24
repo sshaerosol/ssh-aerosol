@@ -90,7 +90,7 @@ fig = plt.figure(1,figsize = (15,15))
 plt.ylim(0.,80.)
 
 plt.plot(time, isop1,'k-',label='No NH$_3$')
-plt.plot(time, isop2,'g-',label='With NH$_3$ - ideal')
+plt.plot(time, isop2,'g-',label='With NH$_3$ - not coupled phases')
 plt.plot(time, isop3,'b--',label='With NH$_3$ - coupled phases eq')
 plt.plot(time, isop4,'c-.',label='With NH$_3$ - coupled phases dyn')
 plt.ylabel("$\mu g.m^{-3}$", fontsize=18)
