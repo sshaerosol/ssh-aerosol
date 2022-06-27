@@ -361,7 +361,6 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA0D.Tref=298;         // Temperature of reference (K)
   BiA0D.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   BiA0D.Henry=1.98e6;     // Henry's law constant at Tref (M/atm)
-  BiA0D.aq_type="aldehyde"; // "none","diacid","monoacid" or "aldehyde"
   BiA0D.Koligo_org=0.0;    //oligomeriation constant in the organic phase
   BiA0D.hydrophilic=true;   // Does the species condense on the aqueous phase?
   BiA0D.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -371,8 +370,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA0D.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiA0D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   //Parameters for the oligomerization of aldehyde in the aqueous phase:
-  if(with_oligomerization == 1) BiA0D.Koligo_aq=0.1;     
-  else BiA0D.Koligo_aq=0.;     
+  if(with_oligomerization == 1) {
+         BiA0D.Koligo_aq=0.1;     
+         BiA0D.aq_type="aldehyde";} // "none","diacid","monoacid" or "aldehyde"
+  else {
+         BiA0D.Koligo_aq=0.;     
+         BiA0D.aq_type="none"; }// "none","diacid","monoacid" or "aldehyde"
   BiA0D.pHref=6.0;
   BiA0D.beta=1.91;
   BiA0D.rho=1300.0;
