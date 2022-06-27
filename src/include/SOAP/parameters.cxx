@@ -1864,7 +1864,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
 		    double enthalpy_vaporization[], double diffusion_coef[], int i_hydrophilic,
-		    int N_inert, int N_inorganic)
+		    int N_inert, int N_inorganic, int with_oligomerization)
 {
   config.max_iter=10000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
@@ -1965,7 +1965,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
 		       diffusion_coef, species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
-		       N_inert, N_inorganic); 
+		       N_inert, N_inorganic, with_oligomerization); 
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 
   system_aiomfac_ssh(config, surrogate);

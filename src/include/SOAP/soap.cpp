@@ -34,7 +34,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap, int* i_hydrophilic,
-			       int* N_inert, int* N_inorganic){
+			       int* N_inert, int* N_inorganic, int* with_oligomerization){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, 
 		       *ionic, *chp, LWCorg, 
@@ -50,7 +50,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap, *i_hydrophilic,
-		       *N_inert, *N_inorganic);
+		       *N_inert, *N_inorganic, *with_oligomerization);
 }
 
 /*! \brief Main function of SOAP
@@ -77,7 +77,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic)
+		   int N_inert, int N_inorganic, int with_oligomerization)
 {
 
   /*** General parameters and options ***/
@@ -205,7 +205,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
-		     diffusion_coef, i_hydrophilic,N_inert,N_inorganic);
+		     diffusion_coef, i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
       
       // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 

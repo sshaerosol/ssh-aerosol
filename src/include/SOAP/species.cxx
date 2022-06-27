@@ -212,7 +212,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			   vector<string> species_smiles, double saturation_vapor_pressure[],
 			   double enthalpy_vaporization[], 
 			   double diffusion_coef[], vector<string> species_part,
-			   int nlayer, int i_hydrophilic, bool compute_inorganic, int N_inert, int N_inorganic)
+			   int nlayer, int i_hydrophilic, bool compute_inorganic, int N_inert, int N_inorganic,
+                           int with_oligomerization)
 {
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
@@ -370,7 +371,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA0D.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiA0D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
   //Parameters for the oligomerization of aldehyde in the aqueous phase:
-  BiA0D.Koligo_aq=0.1;     
+  if(with_oligomerization == 1) BiA0D.Koligo_aq=0.1;     
+  else BiA0D.Koligo_aq=0.;     
   BiA0D.pHref=6.0;
   BiA0D.beta=1.91;
   BiA0D.rho=1300.0;
@@ -1782,7 +1784,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   ACIDMAL.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   ACIDMAL.Koligo_org=0.0;
   //Parameters for the oligomerization of aldehyde in the aqueous phase as BiA0D:  
-  ACIDMAL.Koligo_aq = 0.1;
+  if(with_oligomerization) ACIDMAL.Koligo_aq = 0.1;
+  else ACIDMAL.Koligo_aq = 0.;
   ACIDMAL.pHref = 6.0;
   ACIDMAL.beta = 1.91;
   ACIDMAL.rho=1300.0;

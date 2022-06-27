@@ -1246,12 +1246,12 @@ contains
        stop
     else
        if (with_oligomerization == 1) then
-          if (ssh_standalone) write(*,*) 'with oligomerization.'
-          if (ssh_logger) write(logfile,*) 'with oligomerization.'
+          if (ssh_standalone) write(*,*) 'with oligomerization of aldehydes.'
+          if (ssh_logger) write(logfile,*) 'with oligomerization of aldehydes.'
        else
-          with_oligomerization = 0   ! defalut
-          if (ssh_standalone) write(*,*) 'without oligomerization.'
-          if (ssh_logger) write(logfile,*) 'without oligomerization.'
+          with_oligomerization = 0   ! default
+          if (ssh_standalone) write(*,*) 'without oligomerization of aldehydes.'
+          if (ssh_logger) write(logfile,*) 'without oligomerization of aldehydes.'
        end if
     end if
 
