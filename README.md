@@ -29,39 +29,39 @@ is a preliminary version and therefore is not fully tested.
 Run
 ---
 
-> ./ssh-aerosol INIT/namelist_xxx.ssh
+> ./ssh-aerosol namelist.ssh
 
 
 Input files
 -----------
 
-- namelist_xxx.ssh
+- namelist.ssh
 
-This file is the main configuration file.
+  This file is the main configuration file.
 
-- species-list-cb05.dat
+- species-list/species-list.dat
 
-This file contains the list of gas-phase species.
+  This file contains the list of gas-phase species.
 
-- species-list-aer.dat
+- species-list/species-list-aer.dat
 
-This file contains the list of aerosol species.
+  This file contains the list of aerosol species.
 
-- init_gas.dat
+- inputs/inputs-XXX/init_gas_XXX.dat
 
-This file contains initial concentrations for gas-phase species.
+  This file contains initial concentrations for gas-phase species.
 
-- init_aero.dat
+- inputs/inputs-XXX/init_aero_XXX.dat
 
-This file contains initial mass concentrations for aerosol species.
+  This file contains initial mass concentrations for aerosol species.
 
-- init_num.dat
+- inputs/inputs-XXX/init_num_XXX.dat
 
-This file contains initial number concentrations for aerosol species.
+  This file contains initial number concentrations for aerosol species.
 
 - coef_s1_f1_b50.nc
 
-This file contains an example coagulation coefficient data.
+  This file contains an example coagulation coefficient data.
 
 
 Download input data

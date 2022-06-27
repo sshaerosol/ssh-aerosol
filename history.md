@@ -3,6 +3,58 @@ o---------------------o
 o---------------------o
 
 
+# SSH-aerosol version 1.3 release (2022-06-27)
+
+## Model
+
+- Added the possibility to consider organic compounds as both hydrophilic and hydrophobic.
+- Added the possibility to use MCM chemical mechanism, with beta-carophylene as an example.
+- Added Melchior2 chemical mechanism.
+- Added RACM2-2020 chemical mechanism (Lannuque et al. 2021).
+- Added heteromolecular nucleation scheme for biogenic organics and sulfuric acid and the possibility to take into account different types of nucleation simultaneously.
+- Improved convergence in SOAP.
+- Added an alternative solver (used when the number of iterations exceeds 50) in SOAP in the coupled mode used ideal conditions.
+- Corrected smiles for PAN as C(=O)OON(=O)(=O)
+- Added parameters niter_eqconc and niter_water to call ISOROPIA every iteration and gain computation time.
+
+## Papers illustrating the new functionalities:
+- Lannuque V., D'Anna B., Couvidat F., Valorso R., Sartelet K. (2021), Improvement in modeling of OH and HO2 radical concentrations during toluene and xylene oxidation with RACM2 using MCM/GECKO-A. Atmosphere, 12, 732, doi:10.3390/atmos12060732.
+- Sartelet, K., Kim, Y., Couvidat, F., Merkel, M., Petäjä, T., Sciare, J., and Wiedensohler, A.: Influence of emission size distribution and nucleation on number concentrations over Greater Paris, Atmos. Chem. Phys. Discuss. [preprint], https://doi.org/10.5194/acp-2022-22, accepted, 2022.
+- Wang, Z., Couvidat, F., and Sartelet, K.: GENerator of reduced Organic Aerosol mechanism (GENOA v1.0): An automatic generation tool of semi-explicit mechanisms, EGUsphere [preprint], https://doi.org/10.5194/egusphere-2022-245, 2022.
+
+
+## Interface 
+
+- Added partitioning variable in species-list-aer.
+- Added files for CHIMERE species
+- Added the possibility to have as many inert species as required by the user.
+- Added option with_fixed_density=2. Density is then nonlinear and depends on the concentrations of inorganics.
+- Added option to read aerosol species structures in UNIFAC functional group format.
+- Added option to run simulations when applying fixed concentration profiles per time step to certain species in gas and aerosol phases.
+- Added script to refine the discretization of the size distribution, while conserving mass and number. 
+
+## Architecture
+
+- Updated compiling by scons for Intel compiler.
+- Updated Makefile to include external libraries
+
+
+## Fixed bugs
+
+- Correct a bug when organics can be both hydrophilic and hydrophobic and at equilibrium.
+- Force the gain term of coagulation to zero in case the number of particles is zero.
+- Unusual increase in the mass concentration when the particles less than the first size bin are taken into account.
+- Wrong initialization for inorganic aerosols using the dynamic approach in SOAP.
+- Modify the redistribution in the lowest bin for the redistribution 12.
+
+
+## Test case
+
+- New test case for mass and number conservative upsampling scheme.
+- New test case to use MCM chemical mechanism.
+
+
+
 # SSH-aerosol version 1.2.2 release (2021-07-02)
 
 ## Model
