@@ -85,10 +85,10 @@ splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucl
 
 &physic_coagulation
 with_coag = 1,                 		!Tag of coagulation
-i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+i_compute_repart = 0,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
 i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
-Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file
-Nmc = 2000                             ! Number of Monte Carlo points if repartition coeff are computed
+Coefficient_file = "INIT/coef_nucl.nc",  !Coagulation coefficient file
+Nmc = 1000000                             ! Number of Monte Carlo points if repartition coeff are computed
 /
 
 &physic_condensation
@@ -100,7 +100,7 @@ with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into accou
 tequilibrium = 0.1,                     ! time under which equilibrium is assumed.
 dorg = 1.d-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
-activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
+activity_model = 2,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 /
