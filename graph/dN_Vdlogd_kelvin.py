@@ -12,6 +12,7 @@ import numpy.ma as ma
 #
 # Turn interactive plotting off
 plt.ioff()
+warnings.filterwarnings("ignore",category =RuntimeWarning)
 
 
 ################### input parameters #################################"
