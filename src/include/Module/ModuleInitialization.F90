@@ -2934,6 +2934,8 @@ contains
     else
         allocate(RO2index(nRO2_chem)) ! index of RO2
     endif
+    ! for twostep solver input
+    if (tag_twostep.eq.1 .and. .not.allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
 
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
