@@ -2040,71 +2040,35 @@ contains
     allocate(molecular_weight(N_gas))
     allocate(species_name(N_gas))
 
-    ! genoa !change it to read from file: species.spack.dat
-    count = index(species_list_file, 'species.spack.dat')
-    if (count .ne. 0) then
-        open(unit = 11, file = species_list_file, status = "old")
-        count = 0
-        ierr = 0
-        ind = 0
-        s = 0 ! index
-        do while(s.ne.N_gas)
-            if (ind.eq.0) then ! not find the start line
-                read(11, *, iostat=ierr) char1
-                if (ierr == 0) then
-                    count = count + 1 ! line number
-                    if (trim(char1).eq.'[molecular_weight]') ind = count !start to read
-                endif
-            else ! read species
-                s = s + 1
-                read(11, *) species_name(s), molecular_weight(s)
-                !print*, N_gas, s, species_name(s), molecular_weight(s)
-                if (molecular_weight(s).le. 0.d0) then
-                     print*,'Error: input MWs <= 0',s, species_name(s),&
-                                    molecular_weight(s)
-                     stop
-                endif
-            endif
-        end do
-        if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-        if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-
-        close(11)
-
-    ! normal read
-    else
-        open(unit = 11, file = species_list_file, status = "old")
-        count = 0
-        ierr = 0
-        do while(ierr .eq. 0)
-           read(11, *, iostat=ierr)
-           if (ierr == 0) count = count + 1
-        end do
-
-        
-        if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-        if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-        if (N_gas == count - 1) then   ! minus the first comment line
-           if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
-           if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
-        else 
-           write(*,*) 'Given gas-phase species list does not fit chem() setting.'
-           stop
-        end if
-        
-        
-        rewind 11
-        read(11, *)  ! read the first comment line
-        do s = 1, N_gas
-           read(11, *) species_name(s), molecular_weight(s)
-           if (molecular_weight(s).le. 0.d0) then
-             print*,'Error: input MWs <= 0',s, species_name(s),&
-                     molecular_weight(s)
-             stop
-           endif
-        enddo
-        close(11)
-    endif
+    open(unit = 11, file = species_list_file, status = "old")
+    count = 0
+    ierr = 0
+    do while(ierr .eq. 0)
+       read(11, *, iostat=ierr)
+       if (ierr == 0) count = count + 1
+    end do
+    
+    if (ssh_standalone) write(*,*) 'read gas-phase species list.'
+    if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
+    if (N_gas == count - 1) then   ! minus the first comment line
+       if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
+       if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
+    else 
+       write(*,*) 'Given gas-phase species list does not fit chem() setting.'
+       stop
+    end if
+    
+    rewind 11
+    read(11, *)  ! read the first comment line
+    do s = 1, N_gas
+       read(11, *) species_name(s), molecular_weight(s)
+       if (molecular_weight(s).le. 0.d0) then
+         print*,'Error: input MWs <= 0',s, species_name(s),&
+                 molecular_weight(s)
+         stop
+       endif
+    enddo
+    close(11)
     
     ! read aerosol species namelist ! unit = 12
     open(unit = 12, file = aerosol_species_list_file, status = "old")
