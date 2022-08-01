@@ -90,10 +90,15 @@ contains
       ! proton must not be negative,
       ! 'if' for proton  is added so that
       ! the program is not stopped.
-      if (lwc>0.d0 .and. proton > 0.d0) then
-         chp = proton / lwc * 1.0e3
+      if (soap_inorg==1) then
+         chp=1.e-7
+         lwc=0.d0
       else
-         chp= 1.0e-7
+         if (lwc>0.d0 .and. proton > 0.d0) then
+            chp = proton / lwc * 1.0e3
+         else
+            chp= 1.0e-7
+         endif
       endif
       
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
