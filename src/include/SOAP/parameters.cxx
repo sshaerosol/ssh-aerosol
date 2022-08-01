@@ -21,7 +21,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   int n=surrogate.size();
   int i,j,jion;
   config.iH2O=-1;
-  //config.coupled_phases=false;
+  config.coupled_phases=false;
   config.iNa=-1;
   config.iCa=-1;
   config.iMg=-1;

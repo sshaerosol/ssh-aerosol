@@ -29,6 +29,7 @@ namespace ssh_soap
         bool compute_rho_aqueous;
         bool compute_aqueous_phase_properties;
 	bool explicit_representation;	
+	bool compute_aqorg_repart;
         int number_of_org_inorg_cycles;
 	int max_number_of_phases; //maximal number of organic phases
 	string activity_model; // unifac or ideal

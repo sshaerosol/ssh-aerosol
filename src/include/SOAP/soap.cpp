@@ -156,11 +156,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
   config.tequilibrium = tequilibrium;
   config.dorg = dorg;
   config.deltatmin = dtaeromin;
-  config.EPSER = epser_soap;
-  if (coupled_phases == 1)
-    config.coupled_phases = true;
-  else
-    config.coupled_phases = false;
+  config.EPSER = epser_soap;  
   config.nlayer=nlayer;
   if (with_kelvin_effect == 1)
     config.compute_kelvin_effect = true;
@@ -210,7 +206,19 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 
       compute_gamma_infini_ssh(config, surrogate);
-    }  
+    }
+
+  if (config.coupled_phases and isoapdyn==1 and (config.imethod<3 or config.nlayer>1) and coupled_phases==0)
+    {
+      cout << "Some organic compounds are hydrophilic and hydrophobic. Aqueous phases must be track in the dynamic mode. coupled_phases must be equal to 1." << endl;
+      throw string ("Exiting");
+    }
+  else if (config.coupled_phases and isoapdyn==1 and imethod==3 and coupled_phases==0 and config.nlayer==1) 
+    {
+      config.compute_aqorg_repart=false;
+    }
+  else
+    config.compute_aqorg_repart=false;
   
   if (soap_inorg==0)
     {
@@ -555,7 +563,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                       {
 			if (surrogate[i].hydrophilic)
 			  {
-			    if(i_hydrophilic == 0)
+			    if(i_hydrophilic == 0 and surrogate[i].hydrophobic==false)
 			      {
 				surrogate[i].Aaq_bins_init(b) += q[iq_aero + ilayer * config.nbins + b ];
 				surrogate[i].Aaq+=q[iq_aero + ilayer * config.nbins + b ];
@@ -748,17 +756,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                   int iq_gas = (ns_aer_layers + 1) * config.nbins + surrogate[i].soap_ind;
                   int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins;
                   q[iq_gas] = surrogate[i].Ag;
-                  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		    for (b = 0; b < config.nbins; ++b)
 		      {
-                        q[iq_aero + ilayer*config.nbins + b] = 0.;
-                        for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                          q[iq_aero + ilayer*config.nbins + b] += surrogate[i].Ap_layer(b,ilayer,iphase);
+			q[iq_aero + ilayer*config.nbins + b] = 0.;
+			for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			  q[iq_aero + ilayer*config.nbins + b] += surrogate[i].Ap_layer(b,ilayer,iphase);
 		      }
+
 		  if(i_hydrophilic == 0)
 		    for (b = 0; b < config.nbins; ++b)
 		      q[iq_aero + b] += surrogate[i].Aaq_bins(b);
-	          else
+		  else
 		    for (b = 0; b < config.nbins; ++b)
 		      q[iq_aero + config.nlayer*config.nbins + b] = surrogate[i].Aaq_bins(b);
                 }

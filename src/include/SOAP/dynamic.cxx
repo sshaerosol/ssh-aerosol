@@ -3735,7 +3735,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
   
   if (compute_activity_coefficients)
     {
-      if (config.compute_organic)
+      if (config.compute_organic or config.compute_aqorg_repart)
         {
           activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
           compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
@@ -3801,6 +3801,37 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 		  //  apnew=max(min(apnew,10.*surrogate[i].Aaq_bins_init(b)),0.1*surrogate[i].Aaq_bins_init(b));
 		  surrogate[i].Aaq_bins_init(b)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Aaq_bins_init(b);
 		}
+	
+	if (config.compute_organic==false and config.compute_aqorg_repart and surrogate[i].is_organic)
+          {
+            if (surrogate[i].hydrophilic and surrogate[i].hydrophobic)
+              {
+                double atot=0.;
+                double sumkp=0.;
+                for (b=0;b<config.nbins;++b)
+                  {
+                    atot=surrogate[i].Aaq_bins(b);
+                    sumkp=surrogate[i].Kaq(b)*AQinit(b);
+                    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+                        {
+                          atot+=surrogate[i].Ap_layer(b,ilayer,iphase);
+                          sumkp+=surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+                        }
+
+                    if (sumkp>0.)
+                      {
+                        surrogate[i].Aaq_bins_init(b)=atot/sumkp*surrogate[i].Kaq(b)*AQinit(b);
+                        for (ilayer=0;ilayer<config.nlayer;++ilayer)
+                          for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)                          
+                            surrogate[i].Ap_layer_init(b,ilayer,iphase)=atot/sumkp*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase);
+                      }
+                  }
+   
+              }
+
+          }
+	
 
 	if (LWCtot>config.LWClimit)
 	  if (i==config.iSO4mm and config.compute_inorganic)

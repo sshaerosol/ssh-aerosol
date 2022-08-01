@@ -3235,7 +3235,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
     cout << "NH4: " << surrogate[config.iNH3].Ag+sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;
     cout << "PNO3: " << sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[config.iHNO3].MM << endl;
     cout << "PNH4: " << sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[config.iNH3].MM << endl;*/
-  if (config.imethod>=2)
+  if (config.imethod>=1)
     config.tequilibrium=0;
 
   for (b=0;b<config.nbins;++b)		  
