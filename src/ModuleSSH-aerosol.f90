@@ -341,6 +341,7 @@ contains
     Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
     call ssh_compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
     concentration_gas_all=0.d0
+    current_time=0.d0
 
     do js=1,N_aerosol       
        concentration_gas(js)=gas_conc(js)
