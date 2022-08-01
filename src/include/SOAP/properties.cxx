@@ -2097,37 +2097,18 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
 	      config.b2ca_aq, config.b3ca_aq, config.c1ca_aq,
               config.c2ca_aq, config.Rcc_aq, config.Qcca_aq,jH2O,iH,config.compute_organic);
   
-  //cout << "ions: " << config.gamma_MR_ions << endl;  
-  //cout << "MR: " << config.gamma_MR_ions << " " << ionic << " " << config.molality << endl;
-  //cout << "solv: " << config.gamma_MR_solvents << endl;
-  if (max(config.gamma_MR_ions)<exp(-11.5) or min(config.gamma_MR_ions)>exp(11.5))
-    config.gamma_MR_solvents=1.;
+
   for (i=0;i<n;++i)
     if (surrogate[i].is_ion)
       {
-	if ((config.gamma_MR_ions(surrogate[i].index_ion)<exp(-11.5) and gamma_mr_old(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)>0))
-	  //or (config.gamma_MR_ions(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)<exp(-11.5)))
+	if ((config.gamma_MR_ions(surrogate[i].index_ion)<exp(-11.5) and gamma_mr_old(surrogate[i].index_ion)>exp(11.5) and gamma_mr_old(surrogate[i].index_ion)>0))	  
 	  {
-	    //cout << "error " << endl;
-	    //cout << config.gamma_MR_ions(surrogate[i].index_ion) << " " << gamma_mr_old(surrogate[i].index_ion) << endl;
 	    config.gamma_MR_ions(surrogate[i].index_ion)=gamma_mr_old(surrogate[i].index_ion);
-	    //config.gamma_MR_solvents=1.0;
-	    
 	  }
         surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
         surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_ions(surrogate[i].index_ion);
 	
-        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;
-	
-	  
-	
-        /*
-	  if (surrogate[i].gamma_aq<=1.0e-10)
-          {            
-	  surrogate[i].gamma_LR*=1.e-8/surrogate[i].gamma_aq;
-	  surrogate[i].gamma_SRMR*=1.0e-8/surrogate[i].gamma_aq;
-	  surrogate[i].gamma_aq=1.0e-6;
-	  }       */
+        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;       	 
       }  
   
   for (i=0;i<n;++i)
