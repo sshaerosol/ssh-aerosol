@@ -180,6 +180,7 @@ contains
     qgas(jesp)=0.d0
     qgas(EH2O)=0.0
     if (soap_inorg==1) then
+      qaero(EH2O)=0.d0
       do j=1,N_size
          if(concentration_index(j, 1) <= ICUT_org) then
             qaero(EH2O)=qaero(EH2O)+concentration_mass(j,EH2O)
