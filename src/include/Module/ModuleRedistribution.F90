@@ -264,7 +264,7 @@ contains
     enddo
   end subroutine ssh_redistribution_lwc
   
-  subroutine ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+  subroutine ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize,endbin)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -281,7 +281,7 @@ contains
     implicit none
 
     double precision :: org_total, org_bin(N_size)
-    integer :: jesp, js, jesp2
+    integer :: jesp, js, jesp2, endbin
     double precision :: lwcorg,lwcorg_Nsize(N_size)
 
     org_total = 0.D0
@@ -289,13 +289,13 @@ contains
 
     do jesp=1,nesp_aec
        jesp2 = aec_species(jesp)
-       do js=1,N_size
+       do js=1,endbin
           org_total = org_total + concentration_mass(js, jesp2)
           org_bin(js) = org_bin(js) + concentration_mass(js, jesp2)
        enddo
     enddo
 
-    do js=1,N_size
+    do js=1,endbin
        if (org_total .gt. 0.D0) then
           concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &
                                       lwcorg * org_bin(js) / org_total
