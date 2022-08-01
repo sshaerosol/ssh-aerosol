@@ -179,7 +179,7 @@ contains
 !
 !     -- MODIFICATIONS
 !     2019: Take into account number of layers of particle - Karine Sartelet 
-!
+!     2022: This routine is only applied for the condensation of organics - Florian Couvidat
 !
 !------------------------------------------------------------------------
 !
@@ -199,6 +199,7 @@ contains
       DOUBLE PRECISION liquid(12)
 
       INTEGER jj,jesp,js,s
+      INTEGER soap_inorg_loc2
       double precision qaero(N_aerosol), qgas(N_aerosol)
       double precision deltat
       double precision DSD(N_size)
@@ -282,11 +283,14 @@ contains
       enddo
       
       lwcorg=0.
+
+      ! FCo: force this routine to be used only for organics. Condensation of inorganics have to be computed in the subroutine SSH_SOAP_DYN_ICUT
+      soap_inorg_loc2=0      
       CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, &
-           imethod, soap_inorg_loc, &
+           imethod, soap_inorg_loc2, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
