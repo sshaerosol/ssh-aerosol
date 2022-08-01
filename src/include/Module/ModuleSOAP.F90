@@ -462,7 +462,7 @@ contains
         lwc = 1.d-19
       endif
 
-      do js = 1, N_size
+      do js = ICUT_org+1, N_size
         if (lwc_Nsize(js).GT.1.d-19) then
           chp_Nsize(js) = proton_Nsize(js) / lwc_Nsize(js) * 1.0e3
         else
