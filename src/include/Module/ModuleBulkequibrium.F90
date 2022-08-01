@@ -284,7 +284,7 @@ contains
             i_hydrophilic,dqaq)
     else       
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,&
+            nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
             i_hydrophilic,dqaq)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
