@@ -38,6 +38,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   config.iH2SO4=-1;
   for (i=0;i<n;++i)
     {
+      surrogate[i].aqt=-1;
       if (surrogate[i].is_inorganic_precursor==false)
          surrogate[i].is_solid=false;
       else
@@ -1812,6 +1813,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
         for (iphase=0;iphase<config.max_number_of_phases;++iphase)
         surrogate[i].Xinit(b,ilayer,iphase)=0.0;*/
       surrogate[i].gamma_aq_bins.resize(config.nbins);
+      surrogate[i].gamma_aq_bins_old.resize(config.nbins);
       surrogate[i].LR.resize(config.nbins);
       surrogate[i].SRMR.resize(config.nbins);
       surrogate[i].tau_diffusion.resize(config.nbins,config.nlayer,config.max_number_of_phases);
@@ -1837,7 +1839,6 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
       surrogate[i].Jdn_aq.resize(config.nbins,2);
       surrogate[i].time_aq.resize(config.nbins);
       surrogate[i].time_aq = 0.0;
-      //surrogate[i].gamma_old.resize(config.max_number_of_phases);
       surrogate[i].Kp.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       /*for (b=0;b<config.nbins;++b)		  
         for (ilayer=0;ilayer<config.nlayer;++ilayer)

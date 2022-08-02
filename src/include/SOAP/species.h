@@ -29,7 +29,7 @@ namespace ssh_soap
         bool compute_rho_aqueous;
         bool compute_aqueous_phase_properties;
 	bool explicit_representation;	
-	bool compute_aqorg_repart;
+        bool aqorg_repart;
         int number_of_org_inorg_cycles;
 	int max_number_of_phases; //maximal number of organic phases
 	string activity_model; // unifac or ideal
@@ -117,6 +117,7 @@ namespace ssh_soap
     double chpinit,ionicinit,initAQ;
     double molalmax;
     bool to_be_rejected;
+    double wat_min;
 
   };
 
@@ -155,7 +156,7 @@ namespace ssh_soap
 	//Xaq: molar fraction in the aqueous phase
         //Waq: mass fraction in the aqueous phase
 	//Xorg: molar fraction in the organic phase
-	double kpi,keq,kaqi,fioni1,fioni2;
+	double kpi,keq,keqi,kaqi,fioni1,fioni2;
 	double Ap,Ag,Aaq,Atot,Atot0,Atot1,Xaq,Xorg,Waq;
 	double Aaq_save;
 	double gamma_aq_old,Aaq_old,Xaq_old,Ag_old,Ap_old;
@@ -177,7 +178,7 @@ namespace ssh_soap
 	Array<double, 3> Ap_layer,Ap_layer_init,Ap_layer_init0,gamma_org_layer,gamma_org_layer0,Xinit;
 	Array<double, 3> Kp;
 	Array<double, 1> Aaq_bins,Aaq_bins_init,Aaq_bins_init0,time_aq,LR,SRMR,Kaq,dKaq;
-	Array<double, 1> gamma_aq_bins,gamma_old;
+	Array<double, 1> gamma_aq_bins,gamma_aq_bins_old;
 	double KDiffusion_p,KDiffusion_air,accomodation_coefficient,Ag0,Aaq0;
 	Array<double, 3> tau_diffusion,time;
 	Array<double, 1> tau_air;

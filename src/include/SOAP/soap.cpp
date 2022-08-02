@@ -208,17 +208,15 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       compute_gamma_infini_ssh(config, surrogate);
     }
 
+  config.aqorg_repart=false;
   if (config.coupled_phases and isoapdyn==1 and (config.imethod<3 or config.nlayer>1) and coupled_phases==0)
     {
       cout << "Some organic compounds are hydrophilic and hydrophobic. Aqueous phases must be track in the dynamic mode. coupled_phases must be equal to 1." << endl;
       throw string ("Exiting");
     }
-  else if (config.coupled_phases and isoapdyn==1 and imethod==3 and coupled_phases==0 and config.nlayer==1) 
-    {
-      config.compute_aqorg_repart=false;
-    }
-  else
-    config.compute_aqorg_repart=false;
+  else if (config.coupled_phases and isoapdyn==1 and (config.imethod==3 or config.nlayer>1) and coupled_phases==0)
+    config.aqorg_repart=true;
+  
   
   if (soap_inorg==0)
     {
@@ -229,11 +227,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
     {
       config.compute_inorganic=true;
       config.compute_organic=false;
+      config.LWClimit=-1;
+      LWC=0.;
+      config.MOmin=1.0e-5;
     }
   else
     {      
       config.compute_inorganic=true;
       config.compute_organic=true;
+      config.LWClimit=-1;
+      LWC=0.;
+      //FCo: config.MOinit is increased to 1.e-5 to improve stability. Probably need to be changed in the future.
+      config.MOmin=1.0e-5;
     }
 
   //cout << "SOAP inorg: " << soap_inorg << endl;
@@ -362,6 +367,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	{
 	  //surrogate[config.iHSO4m].Aaq=0.;
 	  LWC=0.;
+	  if (NaCl)
+            surrogate[config.iNa].Aaq = qaero[surrogate[config.iNa].soap_ind];
 	}
 
       // Set the total values in each phase. 
@@ -396,6 +403,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 	  liquid[6]=surrogate[config.iNO3m].Aaq/1.0e6/62.0; // NO3-
 	  liquid[2]=surrogate[config.iNH4p].Aaq/1.0e6/18.0; // NH4+
 	  liquid[0]=surrogate[config.iHp].Aaq/1.0e6; // H+
+
+	  //Multiply by gamma to output activity and compute pH. pH=-log10(activity(H+))
+	  chp=chp*surrogate[config.iHp].gamma_aq;
 	}
 
       // Give back the concentrations
@@ -515,18 +525,27 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       frac_HSO4m_bins.resize(config.nbins);    
       for (b = 0; b < config.nbins; ++b)
 	{
-	  total_so4_bins(b) = surrogate[config.iSO4mm].Aaq_bins_init(b) + 
-	    surrogate[config.iHSO4m].Aaq_bins_init(b);
-	  if (total_so4_bins(b) == 0.0)
-	    {
-	      frac_SO4mm_bins(b) = 1.0;
-	      frac_HSO4m_bins(b) = 0.0;
-	    }  
-	  else
-	    {
-	      frac_SO4mm_bins(b) = surrogate[config.iSO4mm].Aaq_bins_init(b) / total_so4_bins(b);
-	      frac_HSO4m_bins(b) = 1.0 - frac_SO4mm_bins(b);
+	  if (config.compute_inorganic)
+            {
+              frac_SO4mm_bins(b) = 1.0;
+              frac_HSO4m_bins(b) = 0.0;
+            }
+          else
+            {	  
+	      total_so4_bins(b) = surrogate[config.iSO4mm].Aaq_bins_init(b) + 
+		surrogate[config.iHSO4m].Aaq_bins_init(b);
+	      if (total_so4_bins(b) == 0.0)
+		{
+		  frac_SO4mm_bins(b) = 1.0;
+		  frac_HSO4m_bins(b) = 0.0;
+		}  
+	      else
+		{
+		  frac_SO4mm_bins(b) = surrogate[config.iSO4mm].Aaq_bins_init(b) / total_so4_bins(b);
+		  frac_HSO4m_bins(b) = 1.0 - frac_SO4mm_bins(b);
+		}
 	    }
+	  
 	  if (NaCl)
 	    for (i = 0; i < n; ++i) // Na+ and Cl-
 	      if ((surrogate[i].name == "Na") or (surrogate[i].name == "HCl"))
@@ -540,6 +559,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       for (i = 0; i < n; ++i)
         {
           int iq = surrogate[i].soap_ind;
+	  if (config.compute_inorganic==false and (i==config.iSO4mm or i==config.iHSO4m or i==config.iNH4p or i==config.iNO3m or i==config.iClm))
+            iq=-1;
+	  
           if (iq != -1)
             {
               if (surrogate[i].is_organic)
@@ -583,6 +605,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                           }
 		      }
                 }
+	      else if ((NaCl and (surrogate[i].name == "Na" or surrogate[i].name == "Cl")) or i==config.iSO4mm or i==config.iNH4p or i==config.iNO3m)
+                {
+		  int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
+                  for (b = 0; b < config.nbins; ++b)
+		    surrogate[i].Aaq_bins_init(b) = q[iq_aero + b];
+                }
+              else
+                {
+                  surrogate[i].Aaq_bins_init = 0.0;
+                  surrogate[i].Ap_layer_init = 0.0;
+                }
+	      /*
               else // inorganics
                 {
                   int ind = surrogate[i].soap_ind_aero;
@@ -622,7 +656,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                         surrogate[i].Aaq_bins_init = 0.0;
                     }
                   surrogate[i].Ap_layer_init = 0.0;		
-                }
+		  }*/
               
 	      // Inorganic gas concentrations
               if (surrogate[i].is_inorganic_precursor)
@@ -643,13 +677,13 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 		  if (surrogate[i].name == "SO4")
 		    {
 		      int iq_aero = (ind + 1) * config.nbins;                                   
-		      surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) * q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
+		      surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) * q[iq_aero + b]*surrogate[config.iSO4mm].MM/surrogate[config.iH2SO4].MM;
 		      //cout << "in: " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[config.iHSO4m].Aaq_bins_init(b) << ' ' << endl;
 		    }
 		  else if (surrogate[i].name == "HSO4")
 		    {
 		      int iq_aero = (ind + 1) * config.nbins;                                   
-		      surrogate[i].Aaq_bins_init(b) = frac_SO4mm_bins(b) * q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
+		      surrogate[i].Aaq_bins_init(b) = frac_HSO4m_bins(b) * q[iq_aero + b]*surrogate[config.iHSO4m].MM/surrogate[config.iH2SO4].MM;        
 		    }
 		  else if (surrogate[i].name == "NO3")
 		    {
