@@ -2150,7 +2150,7 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
     }
 
   while ((error_tot>config.relative_precision*factor or maxaq>0.01) and index < config.max_iter) 
-    {
+    {     
       water_concentration_ssh(config, surrogate, Temperature, RH);
       if (index>2)
 	{
@@ -2573,7 +2573,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
   for (b=0;b<config.nbins;b++)
     chp(b)=min(1.,max(chp(b),1.e-6));
   
-  while (error_tot>config.relative_precision and index < config.max_iter) 
+  while ((error_tot>config.relative_precision and index < config.max_iter) or index<2)
     {
       if (index>2)
         {
@@ -2805,7 +2805,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
             for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
               //if (abs(MO(b,ilayer,iphase)-MOinit(b,ilayer,iphase))>config.precision)
               {
-                if (MO(b,ilayer,iphase)>1.0e-5)
+                if (MO(b,ilayer,iphase)>1.0e-5*config.Vlayer(ilayer))
                   {
                     errloc=(MO(b,ilayer,iphase)-MOinit(b,ilayer,iphase))/MO(b,ilayer,iphase)/factor_old;
                     if (abs(errloc)>abs(vec_error_org(index)))
@@ -2851,7 +2851,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                       /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
                         cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b) << " " << surrogate[i].gamma_aq_bins(b) << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << b << endl;*/
                       errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
-                      if (abs(errloc)>abs(vec_error_aq(index)))
+                      if (abs(errloc)>abs(vec_error_compo(index)))
                         vec_error_compo(index)=errloc;
                       /*
                         if (abs(errloc)>1.e20)
@@ -2861,8 +2861,19 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                         }*/
                       
                     }
-              
-            }
+	    }
+	      
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].hydrophobic)
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  if (surrogate[i].Ap_layer(b,ilayer,iphase)>config.Vlayer(ilayer)*config.MOmin)
+		    {
+		      errloc=(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer(b,ilayer,iphase))/surrogate[i].Ap_layer(b,ilayer,iphase)/factor_old;
+		      if (abs(errloc)>abs(vec_error_compo(index)))
+			vec_error_compo(index)=errloc;
+		    }
+	  
           //if (AQ(b)>1.0e-5)
           //  vec_error_chp(index)=max(vec_error_chp(index),abs(chp(b)-chp_save(b))/chp(b));
           //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
@@ -4214,12 +4225,12 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       
       while (t<deltatmax)
         {
-	  //cout << "evol: " << t << " " << deltat1 << endl;
 	  deltat1=min(deltatmax-t,deltat1);
-	  deltat2=deltat1;
+	  deltat2=deltat1;	  
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
-	  t+=deltat1;
+	  
+	  t+=deltat1;       
 
 	  double error_max=0.;
 	  for (i=0;i<n;i++)
@@ -4723,6 +4734,5 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      } 
 	  }
       }
-
 }
 

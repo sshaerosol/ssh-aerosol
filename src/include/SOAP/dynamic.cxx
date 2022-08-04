@@ -2022,6 +2022,15 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
   double c2=0.0;
   double a=0.0;
   int jlayer;
+
+  
+  for (i=0;i<n;++i)
+    {
+      //surrogate[i].kloss_gas=0.0;
+      //surrogate[i].kprod_gas=0.0;    
+      surrogate[i].kprod=0.0;
+      surrogate[i].kloss=0.0;       
+    }
   
   if (config.explicit_representation)
     {
@@ -2128,6 +2137,8 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
 	      for (ilayer=0;ilayer<config.nlayer-1;ilayer++)
 		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		  {
+		    if (surrogate[i].tau_diffusion(b,ilayer,iphase)<0.1)
+		      surrogate[i].tau_diffusion(b,ilayer,iphase)=0.1;
 		    surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,config.nlayer-1,iphase)/(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
 		      *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/surrogate[i].tau_diffusion(b,ilayer,iphase);
 		    surrogate[i].kloss(b,ilayer,iphase)+=1./surrogate[i].tau_diffusion(b,ilayer,iphase);
@@ -2145,12 +2156,11 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
 	      sum_mass=max(sum_mass,config.MOmin);
 	      
 	      //compute kinetic rate of absorption	    
-	      ilayer = config.nlayer-1;
+	      ilayer = config.nlayer-1;	     
 	      if (AQinit(b) != sum_mass) 
 		for (i=0;i<n;++i)
 		  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		      //if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
 		      {		      
 			sum=0.0;
 			for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
@@ -2166,9 +2176,7 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
 			  surrogate[i].k1(b,ilayer,iphase,index)=			
 			    (surrogate[i].Ag*surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)
 			     -surrogate[i].Ap_layer_init(b,ilayer,iphase))/
-			    (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));
-			
-			
+			    (sum/(1.0-AQinit(b)/sum_mass)*surrogate[i].tau_air(b));			
 		      }
 	    }
 	}
@@ -2188,7 +2196,6 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
 		for (i=0;i<n;++i)
 		  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		      //if(surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
 		      {		      
 			sum=0.0;
 			for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
