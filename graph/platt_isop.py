@@ -12,6 +12,7 @@ dir1 = '../results/aerosol-platt/aero/'
 dir2 = '../results/aerosol-platt-nh3-isop/aero/'
 dir3 = '../results/aerosol-platt-nh3-isopu/aero/'
 dir4 = '../results/aerosol-platt-nh3-isopa/aero/'
+dir5 = '../results/aerosol-platt-nh3-isopa-inorg/aero/'
 
 Nt= 5 * 60
 #####################################################################
@@ -27,7 +28,7 @@ isop1=np.zeros(shape)
 isop2=np.zeros(shape)
 isop3=np.zeros(shape)
 isop4=np.zeros(shape)
-
+isop5=np.zeros(shape)
 with open (dir1+'/PBiPER_1.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
@@ -80,6 +81,19 @@ with open (dir4+'/PBiMT_1.txt') as finit :
         for j in range(Nt) :
                   isop4[j] = isop4[j] + float(string_conc1[j])
 
+with open (dir5+'/PBiPER_1.txt') as finit :
+        string_conc1 = finit.read().splitlines()
+        for j in range(Nt) :
+                  isop5[j] = isop5[j] + float(string_conc1[j])
+with open (dir5+'/PBiDER_1.txt') as finit :
+        string_conc1 = finit.read().splitlines()
+        for j in range(Nt) :
+                  isop5[j] = isop5[j] + float(string_conc1[j])
+with open (dir5+'/PBiMT_1.txt') as finit :
+        string_conc1 = finit.read().splitlines()
+        for j in range(Nt) :
+                  isop5[j] = isop5[j] + float(string_conc1[j])                 
+
 time=range(60,60*(Nt+1),60)
 time=numpy.array(time)
 time=time/3600.0
@@ -93,6 +107,7 @@ plt.plot(time, isop1,'k-',label='No NH$_3$')
 plt.plot(time, isop2,'g-',label='With NH$_3$ - ideal')
 plt.plot(time, isop3,'b--',label='With NH$_3$ - unifac')
 plt.plot(time, isop4,'c-.',label='With NH$_3$ - aiomfac')
+plt.plot(time, isop5,'r-.',label='With NH$_3$ - coupled organics and inorganics')
 plt.ylabel("$\mu g.m^{-3}$", fontsize=18)
 plt.xlabel("time [h]", fontsize=18)
 plt.legend(loc=2)
