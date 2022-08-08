@@ -562,7 +562,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       for (i = 0; i < n; ++i)
         {
           int iq = surrogate[i].soap_ind;
-	  if (config.compute_inorganic==false and (i==config.iSO4mm or i==config.iHSO4m or i==config.iNH4p or i==config.iNO3m or i==config.iClm))
+	  if (i==config.iSO4mm or i==config.iHSO4m or i==config.iNH4p or i==config.iNO3m or i==config.iClm)
             iq=-1;
 	  
           if (iq != -1)
@@ -608,7 +608,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                           }
 		      }
                 }
-	      else if ((NaCl and (surrogate[i].name == "Na" or surrogate[i].name == "Cl")) or i==config.iSO4mm or i==config.iNH4p or i==config.iNO3m)
+	      else if (NaCl and (surrogate[i].name == "Na" or surrogate[i].name == "Cl")) //or i==config.iSO4mm or i==config.iNH4p or i==config.iNO3m)
                 {
 		  int iq_aero = (surrogate[i].soap_ind_aero + 1) * config.nbins; 
                   for (b = 0; b < config.nbins; ++b)
@@ -765,8 +765,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       dynamic_system_ssh(config,surrogate,
 			 MOinit_layer, MOW_layer,number,vsol,
 			 LWC_bins, AQinit_bins, ionic_bins, chp_bins,
-			 Temperature, RH, deltat);     
- 
+			 Temperature, RH, deltat);
+
       // Give back the concentrations
       for (i = 0; i < n; ++i)
         {
