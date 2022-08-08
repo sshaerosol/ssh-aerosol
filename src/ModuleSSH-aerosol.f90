@@ -270,7 +270,7 @@ contains
 !!$
 !!$  end subroutine launch_ssh_chemonly
 
-  subroutine launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)    
+  subroutine launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out,ph_out)    
     ! Computes aerosol formation
     !    With internal mixing
     !    Inviscid organic aerosol (only one layer) in that case naero=nspecies=number of aerosol species
@@ -294,7 +294,7 @@ contains
     character (len=400) :: namelist_ssh  ! Configuration file
     double precision :: duration,temp,pres,relh
     double precision :: ttmassaero = 0.d0, ttmass = 0.d0, totsulf = 0.d0
-    double precision,dimension(nbins) :: number,wet_density,wet_diam_out
+    double precision,dimension(nbins) :: number,wet_density,wet_diam_out,ph_out
     double precision,dimension(nspecies) :: gas_conc
     double precision,dimension(nbins,naero) :: aero_conc
 
@@ -419,6 +419,14 @@ contains
     enddo
     do s = 1, N_aerosol_layers
        aero_conc(:,s)=concentration_mass(:,s)
+    enddo    
+    do j=1,N_size       
+       if (lwc_Nsize(j)>0.d0.and.proton_Nsize(j)>0.d0) then
+          !print*,proton_Nsize(j),lwc_Nsize(j)
+          ph_out(j)=-log10(proton_Nsize(j)/lwc_Nsize(j)*1.0e3)
+       else
+          ph_out(j)=7.d0
+       endif
     enddo
     number(:)=concentration_number(:)
     wet_density(:)=rho_wet_cell(:)*1.e9
