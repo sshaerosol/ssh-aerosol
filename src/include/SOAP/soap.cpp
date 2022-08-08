@@ -222,6 +222,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
     {
       config.compute_organic=true;
       config.compute_inorganic=false;
+      config.isorropia_ph=true;
     }
   else if (soap_inorg==-1)
     {
@@ -230,6 +231,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       config.LWClimit=-1;
       LWC=0.;
       config.MOmin=1.0e-5;
+      config.isorropia_ph=false;
     }
   else
     {      
@@ -239,6 +241,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
       LWC=0.;
       //FCo: config.MOinit is increased to 1.e-5 to improve stability. Probably need to be changed in the future.
       config.MOmin=1.0e-5;
+      config.isorropia_ph=false;
     }
 
   //cout << "SOAP inorg: " << soap_inorg << endl;

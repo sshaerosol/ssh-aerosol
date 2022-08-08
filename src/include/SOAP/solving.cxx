@@ -3669,24 +3669,24 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 		  if (surrogate[i].nonvolatile)
 		    surrogate[i].veckaqi(b)=1000.;
 		  else
-		    {
+		    {		      
 		      if (surrogate[i].aqt==2) //diacid
 			{
 			  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*
-			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*
-			     (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
-			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/
-			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
-			  surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp(b)))/
-			    (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b))*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp(b))));
+			    (1.0+surrogate[i].Kacidity1/(gamma*chp(b))*
+			     (1.0+surrogate[i].Kacidity2/(gamma*chp(b))));
+			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(gamma*chp(b))*(1.0+surrogate[i].Kacidity2/(gamma*chp(b))));
+			  surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))*(surrogate[i].Kacidity2/(gamma*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(gamma*chp(b))*(1.0+surrogate[i].Kacidity2/(gamma*chp(b))));
 			}
 		      else if (surrogate[i].aqt==1) //monoacid
 			{
-			  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
-			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp(b)));
+			  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Kacidity1/(gamma*chp(b)));
+			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))/(1.0+surrogate[i].Kacidity1/(gamma*chp(b)));
 			}
 		      else if (surrogate[i].aqt==3) //aldehyde
-			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(gamma*chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc)*(1.0+surrogate[i].Koligo_aq*pow(chp(b)/pow(10,-surrogate[i].pHref),surrogate[i].beta));
 		      else
 			surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);
 		    }
@@ -4574,6 +4574,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	    deltat2=deltat1;
 		  
 	    //compute the dynamic evolution for dt=deltat1
+	    /*
 	    if (config.first_evaluation_activity_coefficients==false)
 	      {
 		dynamic_org_ssh(config,surrogate,MOinit,MO,AQinit,
@@ -4589,7 +4590,15 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		if (LWCtot>config.LWClimit)
 		  dynamic_aq_ssh(config,surrogate,AQinit,AQ,MOinit,conc_inorganic,ionic,ionic_organic,
 				 organion,chp,chp1,chp0,LWC,MMaq,MOW,Temperature,deltat1,config.tequilibrium, false);
-	      }
+	      }*/
+	    if (config.first_evaluation_activity_coefficients==false)
+	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      deltat1,config.tequilibrium,true);
+	    else
+	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      deltat1,config.tequilibrium,false); 
           
 		  
 	    //compute the new time step so that changes are small

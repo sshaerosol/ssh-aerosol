@@ -47,6 +47,8 @@ namespace ssh_soap
 	double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
 	double Ke, moligo;
 
+        bool isorropia_ph; //is pH taken from isorropia
+
 	//equilibrium parameters:
 	double precision; //absolute precision under which the system has been solved 
 	

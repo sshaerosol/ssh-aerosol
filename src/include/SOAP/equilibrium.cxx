@@ -63,7 +63,7 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
             if ((surrogate[i].hydrophilic)) // and surrogate[i].Aaq > 1.e-15) 
               if (config.compute_aqueous_phase_properties)
                 surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW);              
-              else
+              else		
                 {
                   if (surrogate[i].aqt==2) //diacid
                     {
@@ -73,26 +73,26 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
                           throw string("Error: division by zero for diacid.");
                         }
                       surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*
-                        (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp)*
-                         (1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp)));
-                      surrogate[i].fioni1=(surrogate[i].Kacidity1/(pow(gamma,2)*chp))/
-                        (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp)*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp)));
-                      surrogate[i].fioni2=(surrogate[i].Kacidity1/(pow(gamma,2)*chp))*(surrogate[i].Kacidity2/(pow(gamma,2)*chp))/
-                        (1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp)*(1.0+surrogate[i].Kacidity2/(pow(gamma,2)*chp)));
+                        (1.0+surrogate[i].Kacidity1/(gamma*chp)*
+                         (1.0+surrogate[i].Kacidity2/(gamma*chp)));
+                      surrogate[i].fioni1=(surrogate[i].Kacidity1/(gamma*chp))/
+                        (1.0+surrogate[i].Kacidity1/(gamma*chp)*(1.0+surrogate[i].Kacidity2/(gamma*chp)));
+                      surrogate[i].fioni2=(surrogate[i].Kacidity1/(gamma*chp))*(surrogate[i].Kacidity2/(gamma*chp))/
+                        (1.0+surrogate[i].Kacidity1/(gamma*chp)*(1.0+surrogate[i].Kacidity2/(gamma*chp)));
                     }
                   else if (surrogate[i].aqt==1) //monoacid
                     {
                       if ((pow(gamma, 2) * chp) == 0.0)
                         throw string("Error: division by zero for monoacid.");                      
-                      surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp));
-                      surrogate[i].fioni1=(surrogate[i].Kacidity1/(pow(gamma,2)*chp))/(1.0+surrogate[i].Kacidity1/(pow(gamma,2)*chp));
+                      surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW)*(1.0+surrogate[i].Kacidity1/(gamma*chp));
+                      surrogate[i].fioni1=(surrogate[i].Kacidity1/(gamma*chp))/(1.0+surrogate[i].Kacidity1/(gamma*chp));
                     }
                   else if (surrogate[i].aqt==3) //aldehyde
                     {
                       if ((pow(10, -surrogate[i].pHref)) == 0.0)
                         throw string("Error: division by zero for aldehyde.");
                       surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW) *
-                        (1.0+surrogate[i].Koligo_aq*pow(gamma*chp/pow(10,-surrogate[i].pHref),surrogate[i].beta));
+                        (1.0+surrogate[i].Koligo_aq*pow(chp/pow(10,-surrogate[i].pHref),surrogate[i].beta));
                     }
                   else
                     surrogate[i].kaqi=surrogate[i].Kpart_aq_ssh(Temperature,MOW);

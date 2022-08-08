@@ -629,7 +629,7 @@ double species::Kp_eff_aq_ssh(model_config &config, double &Temperature, double 
   if (aqt==2) //diacid
     {
       //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           //For a species H2A:
           //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
@@ -643,6 +643,27 @@ double species::Kp_eff_aq_ssh(model_config &config, double &Temperature, double 
           //gamma_LR(A2-)=pow(gamma_LR(H+),2)
           double ratio_gamma1=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
           double ratio_gamma2=pow(gammaH_LR,2.0)*gammaH_SRMR;
+          value=Kpart_aq_ssh(Temperature, MMaq)*
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion1=(Kacidity1/(ratio_gamma1*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+        }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          //For a species H2A:
+          //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
+          //gamma(HA-)=gamma_LR(HA-)*gamma_MR(HA-)*gamma_SR(HA-)
+          //gamma(A2-)=gamma_LR(A2-)*gamma_MR(A2-)*gamma_SR(A2-)
+          //gamma(H+)=gamma_LR(H+)*gamma_MR(H+)*gamme_LR(H+)
+          //Hypothesis:
+          //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
+          //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
+          //gamma_LR(HA-)=gamma_LR(H+)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)
+          double ratio_gamma1=gammaH_LR/gamma_LR;
+          double ratio_gamma2=gammaH_LR; 
           value=Kpart_aq_ssh(Temperature, MMaq)*
             (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
           fion1=(Kacidity1/(ratio_gamma1*chp))/
@@ -665,9 +686,16 @@ double species::Kp_eff_aq_ssh(model_config &config, double &Temperature, double 
   else if (aqt==1) //monoacid
     {
       //Kp_effective=Kp_theoric*(1+A-/HA)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           double ratio_gamma=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          value=Kpart_aq_ssh(Temperature, MMaq)*(1.0+Kacidity1/(ratio_gamma*chp));
+          fion1=(Kacidity1/(ratio_gamma*chp))
+            /(1.0+Kacidity1/(ratio_gamma*chp));
+        }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          double ratio_gamma=gammaH_LR/gamma_LR;
           value=Kpart_aq_ssh(Temperature, MMaq)*(1.0+Kacidity1/(ratio_gamma*chp));
           fion1=(Kacidity1/(ratio_gamma*chp))
             /(1.0+Kacidity1/(ratio_gamma*chp));
@@ -683,16 +711,15 @@ double species::Kp_eff_aq_ssh(model_config &config, double &Temperature, double 
   else if (aqt==3) //aldehyde
     {
       //effective partitioning based on Pun and Seigneur (2007)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           value=Kpart_aq_ssh(Temperature, MMaq)*
             (1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));
-        }
+        }      
       else
-        {
-          gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic,0.5)/(1.0+pow(ionic,0.5)));
+        {          
           value=Kpart_aq_ssh(Temperature, MMaq)*
-            (1.0+Koligo_aq*pow(gamma*chp/pow(10,-pHref),beta));
+            (1.0+Koligo_aq*pow(chp/pow(10,-pHref),beta));
         }
     }
   else if (aqt==0) //Kp_effective=Kp_theoric
@@ -727,7 +754,7 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
   if (aqt==2) //diacid
     {
       //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           //For a species H2A:
           //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
@@ -754,6 +781,33 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
           fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
             (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
         }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          //For a species H2A:
+          //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
+          //gamma(HA-)=gamma_LR(HA-)*gamma_MR(HA-)*gamma_SR(HA-)
+          //gamma(A2-)=gamma_LR(A2-)*gamma_MR(A2-)*gamma_SR(A2-)
+          //gamma(H+)=gamma_LR(H+)*gamma_MR(H+)*gamma_SR(H+)
+          //Hypothesis:
+          //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
+          //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
+          //gamma_LR(HA-)=gamma_LR(H+)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)	  
+          double ratio_gamma1=max(gammaH_LR/LR(b),1.e-5);
+          double ratio_gamma2=max(gammaH_LR,1.e-5);
+
+          if (chp==0)
+            {
+              cout << "chp prop" << endl;
+              exit(0);
+            }
+	  value=veckaqi(b)/MMaq*
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion1=(Kacidity1/(ratio_gamma1*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+        }
       else
         {          
           value=veckaqi(b)/MMaq;
@@ -764,9 +818,16 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
   else if (aqt==1) //monoacid
     {
       //Kp_effective=Kp_theoric*(1+A-/HA)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           double ratio_gamma=pow(gammaH_LR,2.0)*gammaH_SRMR/LR(b);
+          value=veckaqi(b)/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
+          fion1=(Kacidity1/(ratio_gamma*chp))
+            /(1.0+Kacidity1/(ratio_gamma*chp));
+        }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          double ratio_gamma=gammaH_LR/LR(b);
           value=veckaqi(b)/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
           fion1=(Kacidity1/(ratio_gamma*chp))
             /(1.0+Kacidity1/(ratio_gamma*chp));
@@ -780,8 +841,10 @@ double species::Kp_eff_aqrealdyn_ssh(model_config &config,
   else if (aqt==3) //aldehyde
     {
       //effective partitioning based on Pun and Seigneur (2007)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)        
-        value=veckaqi(b)/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));        
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)        
+        value=veckaqi(b)/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)        
+        value=veckaqi(b)/MMaq*(1.0+Koligo_aq*pow(chp/pow(10,-pHref),beta));
       else        
         value=veckaqi(b)/MMaq;        
     }
@@ -817,7 +880,7 @@ double species::Kp_eff_aqreal_ssh(model_config &config,
   if (aqt==2) //diacid
     {
       //Kp_effective=Kp_theoric*(1+HA-/H2A*(1+A2-/H2A))
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           //For a species H2A:
           //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
@@ -839,6 +902,28 @@ double species::Kp_eff_aqreal_ssh(model_config &config,
           fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
             (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
         }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          //For a species H2A:
+          //gamma(H2A)=gamma_LR(H2A)*gamma_MR(H2A)*gamma_SR(H2A)
+          //gamma(HA-)=gamma_LR(HA-)*gamma_MR(HA-)*gamma_SR(HA-)
+          //gamma(A2-)=gamma_LR(A2-)*gamma_MR(A2-)*gamma_SR(A2-)
+          //gamma(H+)=gamma_LR(H+)*gamma_MR(H+)*gamma_SR(H+)
+          //Hypothesis:
+          //gamma_SR(H2A)=gamma_SR(HA-)=gamma_SR(A2-)
+          //gamma_MR(H2A)=gamma_MR(HA-)=gamma_MR(A2-)
+          //gamma_LR(HA-)=gamma_LR(H+)
+          //gamma_LR(A2-)=pow(gamma_LR(H+),2)          
+          double ratio_gamma1=gammaH_LR/gamma_LR;
+          double ratio_gamma2=gammaH_LR;
+          //cout << kaqi << " " << MMaq << " " << ratio_gamma1 << " " << ratio_gamma2 << " " << chp << endl;
+          value=kaqi/MMaq*
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion1=(Kacidity1/(ratio_gamma1*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+          fion2=(Kacidity1/(ratio_gamma1*chp))*(Kacidity2/(ratio_gamma2*chp))/
+            (1.0+Kacidity1/(ratio_gamma1*chp)*(1.0+Kacidity2/(ratio_gamma2*chp)));
+        }
       else
         {          
           value=kaqi/MMaq;
@@ -849,9 +934,16 @@ double species::Kp_eff_aqreal_ssh(model_config &config,
   else if (aqt==1) //monoacid
     {
       //Kp_effective=Kp_theoric*(1+A-/HA)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)
         {
           double ratio_gamma=pow(gammaH_LR,2.0)*gammaH_SRMR/gamma_LR;
+          value=kaqi/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
+          fion1=(Kacidity1/(ratio_gamma*chp))
+            /(1.0+Kacidity1/(ratio_gamma*chp));
+        }
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)
+        {
+          double ratio_gamma=gammaH_LR/gamma_LR;
           value=kaqi/MMaq*(1.0+Kacidity1/(ratio_gamma*chp));
           fion1=(Kacidity1/(ratio_gamma*chp))
             /(1.0+Kacidity1/(ratio_gamma*chp));
@@ -865,8 +957,10 @@ double species::Kp_eff_aqreal_ssh(model_config &config,
   else if (aqt==3) //aldehyde
     {
       //effective partitioning based on Pun and Seigneur (2007)
-      if (config.compute_aqueous_phase_properties) //config.compute_long_and_medium_range_interactions)        
-        value=kaqi/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));        
+      if (config.compute_aqueous_phase_properties and config.isorropia_ph==false) //config.compute_long_and_medium_range_interactions)        
+        value=kaqi/MMaq*(1.0+Koligo_aq*pow(gammaH_LR*gammaH_SRMR*chp/pow(10,-pHref),beta));
+      else if (config.compute_aqueous_phase_properties and config.isorropia_ph) //config.compute_long_and_medium_range_interactions)        
+        value=kaqi/MMaq*(1.0+Koligo_aq*pow(chp/pow(10,-pHref),beta)); 
       else        
         value=kaqi/MMaq;
       //cout << "Kaqi " << kaqi << endl; 
