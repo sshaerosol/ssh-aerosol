@@ -1,5 +1,3 @@
-
-
 //!!-----------------------------------------------------------------------
 //!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 //!!     SSH-aerosol is distributed under the GNU General Public License v3
@@ -1716,7 +1714,7 @@ void solve_local_equilibriums_uncoupled_ssh(model_config config, vector<species>
               for (i=0;i<n;i++)
                 if (surrogate[i].hydrophilic and
                     surrogate[i].Aaq_bins_init(b)>1.0e-5 and surrogate[i].Aaq_bins(b)>1.0e-5 and
-                    i!=config.iHp)
+                    i!=config.iHp and i!=config.iOHm)
                   error_aq=max(error_aq,abs(surrogate[i].Aaq_bins_init(b)
                                             -surrogate[i].Aaq_bins(b))
                                /surrogate[i].Aaq_bins(b));
@@ -1999,7 +1997,7 @@ void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &
 	    vec_error_aq(index)=max(vec_error_aq(index),abs(chp(b)-chp_save(b))/chp(b));
        
           for (i=0;i<n;i++)
-            if (surrogate[i].hydrophilic and i!=config.iHp)
+            if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm)
 	      if (surrogate[i].Aaq_bins(b)>1.0e-5)
 		vec_error_aq(index)=max(vec_error_aq(index),abs(surrogate[i].Aaq_bins_init(b)
 								-surrogate[i].Aaq_bins(b))
@@ -2366,7 +2364,7 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
                     }*/
                 }
        
-              if (surrogate[i].hydrophilic and i!=config.iHp)
+              if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm)
                 if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))
                   {
                     double errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))
@@ -2705,7 +2703,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
             for (b=0;b<config.nbins;b++)
               //if (error_spec(i)/factor_old>relprec)
               {
-                if (0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)>1.0e-6 and (surrogate[i].Aaq_bins_init(b)>negligeable or surrogate[i].Aaq_bins(b)>negligeable or i==config.iHp))
+                if (0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)>1.0e-6 and (surrogate[i].Aaq_bins_init(b)>negligeable or surrogate[i].Aaq_bins(b)>negligeable or i==config.iHp or i==config.iOHm))
                   {
                     m++;
                     var+=abs((surrogate[i].gamma_aq_bins_old(b)-surrogate[i].gamma_aq_bins(b))/(0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)));
@@ -2845,7 +2843,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                 }
        
               for (i=0;i<n;i++)
-                if (surrogate[i].hydrophilic and i!=config.iHp)
+                if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm)
                   if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
                     {
                       /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
@@ -3291,7 +3289,7 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
                 //if (surrogate[i].hydrophilic and surrogate[i].is_inorganic_precursor==false)
                 //if (error_spec(i)/factor_old>relprec)
                 {
-                  if (0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)>1.0e-6 and (surrogate[i].Aaq_bins_init(b)>negligeable or surrogate[i].Aaq_bins(b)>negligeable or i==config.iHp))
+                  if (0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)>1.0e-6 and (surrogate[i].Aaq_bins_init(b)>negligeable or surrogate[i].Aaq_bins(b)>negligeable or i==config.iHp or i==config.iOHm))
                     {
                       m++;
                       var+=abs((surrogate[i].gamma_aq_bins_old(b)-surrogate[i].gamma_aq_bins(b))/(0.5*surrogate[i].gamma_aq_bins(b)+0.5*surrogate[i].gamma_aq_bins_old(b)));
@@ -3394,7 +3392,7 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
                 }
        
               for (i=0;i<n;i++)
-                if (surrogate[i].hydrophilic and i!=config.iHp)
+                if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iHp)
                   if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
                     {
                       /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
@@ -3916,7 +3914,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
               double inorg1;
               inorg1=0.0;
               for (i=0;i<n;++i) 
-                if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iHp and i!=config.iH2O)
+                if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iHp and i!=config.iOHm and i!=config.iH2O)
                   {
                     inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
                   }
@@ -4047,7 +4045,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 		double inorg1;
 		inorg1=0.0;
 		for (i=0;i<n;++i) 
-		  if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iHp and i!=config.iH2O)
+		  if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and i!=config.iHp and i!=config.iOHm and i!=config.iH2O)
 		    inorg1-=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[i].charge*config.AQrho(b)/AQinit(b);
 		   
 		chp(b)=0.5*(inorg1+pow(pow(inorg1,2)+4*config.Ke,0.5));
@@ -4103,7 +4101,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
   config.gamma_MR_ions_bins=-1.0;
 
-
+  for (b=0;b<config.nbins;++b)	
+    surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)*LWC(b)/1000.;
   /*
     for (i=0;i<n;i++)
     if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)>0.)

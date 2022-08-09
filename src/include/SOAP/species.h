@@ -36,7 +36,7 @@ namespace ssh_soap
 	double LWClimit; //LWC under which all the compounds there is no aqueous phase 
 	double RHcoupling;
 	int max_iter; //maximal number of iterations for the newton raphson method
-	int iH2O,iHp; //indexes for water and H+
+	int iH2O,iHp,iOHm; //indexes for water, H+ and OH-
 	int iHSO4m,iSO4mm;
 	int iNH4p;
 	int iNO3m;

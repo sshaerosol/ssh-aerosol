@@ -1239,16 +1239,17 @@ void compute_ionic_strenght_ssh(model_config &config, vector<species>& surrogate
         if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
           {
             surrogate[i].molality=surrogate[i].Aaq/surrogate[i].MM/conc_org*1000.0;           
-            if (i!=config.iHp)
+            if (i!=config.iHp and i!=config.iOHm)
               inorganion-=surrogate[i].molality*surrogate[i].charge;
           }
+      surrogate[config.iOHm].molality=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq;
 
       double sum_org=0.;
       for (i=0;i<n;++i)
         if (surrogate[i].is_organic)
           sum_org+=surrogate[i].Aaq;
       
-      chp=factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp;
+      chp=factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq,0.5))+(1.0-factor)*chp;
       if (chp==0.0)
         chp=pow(10.0,-5.6);
 
@@ -1270,6 +1271,8 @@ void compute_ionic_strenght_ssh(model_config &config, vector<species>& surrogate
             surrogate[i].molality=surrogate[i].Aaq/surrogate[i].MM/conc_org*1000.0;
             if (i==config.iHp)
               surrogate[i].molality=chp;
+	    else if (i==config.iOHm)
+	      surrogate[i].molality=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq;
           }
     }
   ionic=min(ionic,120.);
@@ -1307,6 +1310,11 @@ void compute_ionic_strenght2_ssh(model_config &config, vector<species>& surrogat
               {                                
                 surrogate[i].Aaq=chp/1000.*surrogate[i].MM*conc_org;
 		surrogate[i].molality=chp; 
+              }
+	    else if (i==config.iOHm)
+	      {                                
+                surrogate[i].Aaq=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq/1000.*surrogate[i].MM*conc_org;
+		surrogate[i].molality=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq; 
               }
             ionic=ionic+0.5*surrogate[i].molality*pow(surrogate[i].charge,2);
             conc_inorganic+=surrogate[i].Aaq;

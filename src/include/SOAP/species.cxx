@@ -3026,6 +3026,30 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   H.rion=false;
   surrogate.push_back(H);
 
+  species OH;
+  OH.name="OH";
+  OH.is_inorganic_precursor=false;
+  OH.MM=17.0;           // Molar mass (g/mol)
+  OH.is_organic=false;  // Is the compound organic?
+  OH.hydrophilic=true; // Does the species condense on the aqueous phase?
+  OH.hydrophobic=false;  // Does the species condense on the organic phase?
+  OH.nonvolatile=false;
+  OH.kp_from_experiment=false;
+  OH.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  OH.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  OH.charge=-1.0;
+  OH.rho=1300.0; //1400.0;
+  OH.index_ion_aiomfac=14;
+  OH.KDiffusion_air=1.0e-5;
+  OH.accomodation_coefficient=0.5;
+  OH.viscosity=1.0;
+  OH.soap_ind = -1;
+  OH.soap_ind_aero = -1;
+  OH.is_solid=false;
+  OH.is_monomer=false;
+  OH.rion=false;
+  surrogate.push_back(OH);
+
   species Na;
   Na.name="Na";
   Na.is_inorganic_precursor=false;

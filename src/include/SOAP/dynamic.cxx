@@ -2552,8 +2552,8 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
   if (config.iK>=0) inorganion-=surrogate[config.iK].Aaq_bins_init(index_b)/surrogate[config.iK].MM/conc_org(index_b)*1000.*surrogate[config.iK].charge;
     }
 
-  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke,0.5))-1.0;
-  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5));
+  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.0;
+  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5));
   error=chp_new-chp(index_b);
 }
 
@@ -2640,8 +2640,8 @@ void error_ph_dyn_ssh(model_config &config, vector<species> &surrogate, int inde
   if (config.iCa>=0) inorganion-=surrogate[config.iCa].Aaq_bins_init(index_b)/surrogate[config.iCa].MM/conc_org*1000.*surrogate[config.iCa].charge;  
   if (config.iK>=0) inorganion-=surrogate[config.iK].Aaq_bins_init(index_b)/surrogate[config.iK].MM/conc_org*1000.*surrogate[config.iK].charge;
 
-  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke,0.5))-1.0;
-  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5));
+  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.0;
+  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5));
   error=chp_new-chp(index_b);
 }
 
@@ -2712,6 +2712,7 @@ void compute_ph_dyn_ssh(model_config &config, vector<species> &surrogate, double
 	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
             }	  
           surrogate[config.iHp].Aaq_bins_init(b)=chp(b)*conc_org(b)/1000.0;
+	  surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b)*conc_org(b)/1000.0;
         }
       nh++;
     }
@@ -2826,8 +2827,8 @@ void error_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, int ind
   if (config.iK>=0) inorganion-=surrogate[config.iK].Aaq_bins(index_b)/surrogate[config.iK].MM/conc_org*1000.*surrogate[config.iK].charge;
 
 
-  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke,0.5))-1.0;
-  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5));
+  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.0;
+  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5));
   error=chp_new-chp(index_b);
 }
    
@@ -2900,6 +2901,7 @@ void compute_ph_dyn2_ssh(model_config &config, vector<species> &surrogate, doubl
 	      chp(b)=factor*min(chp2(b),100.)+(1.0-factor)*chp(b);	      
             }	  
           surrogate[config.iHp].Aaq_bins(b)=chp(b)*conc_org(b)/1000.;
+	  surrogate[config.iOHm].Aaq_bins(b)=config.Ke/chp(b)/surrogate[config.iOHm].gamma_aq_bins(b)/surrogate[config.iHp].gamma_aq_bins(b)*conc_org(b)/1000.;
         }
       nh++;
     }
@@ -3090,6 +3092,7 @@ void activity_coefficients_dyn_aq_bins_ssh(model_config &config, vector<species>
 	      
           // Concentrations of H+ is not calculated to avoid numerical issues when pH given by ISORROPIA is too low
           surrogate[config.iHp].Aaq_bins_init(b)=chp(b)*conc_org/1000.0;
+	  surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b)*conc_org/1000.0;
         }	  
     }
 }
@@ -3384,12 +3387,12 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
               {
                 surrogate[i].molality=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;           
-                if (i!=config.iHp)
+                if (i!=config.iHp and i!=config.iOHm)
                   inorganion-=surrogate[i].molality*surrogate[i].charge; 
               }
 
 
-          double chp_new=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5));
+          double chp_new=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b),0.5));
           //cout << "new " << chp_new << endl;
           double change_ph=1.1;
           chp_new=max(max(min(chp_new,change_ph*chp(b)),1./change_ph*chp(b)),1.e-14);
@@ -3851,7 +3854,7 @@ void twostep_aqorg_repart_ssh(model_config &config, vector<species>& surrogate, 
     if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
       {
         surrogate[i].molality=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;           
-        if (i!=config.iHp)
+        if (i!=config.iHp and i!=config.iOHm)
           inorganion-=surrogate[i].molality*surrogate[i].charge; 
       }
 
@@ -3877,7 +3880,7 @@ void twostep_aqorg_repart_ssh(model_config &config, vector<species>& surrogate, 
   if (config.compute_inorganic==false)
     {
 
-      double chp_new=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5));
+      double chp_new=0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b),0.5));
       //cout << "new " << chp_new << endl;
       double change_ph=1.1;
       chp_new=max(max(min(chp_new,change_ph*chp(b)),1./change_ph*chp(b)),1.e-14);
@@ -5054,7 +5057,7 @@ void dynamic_inorg_ssh(model_config &config, vector<species>& surrogate,
   for (b=0;b<config.nbins;++b)
     {
       LWC(b)=0.0;
-      conc_inorganic(b)=surrogate[config.iHp].Aaq_bins_init(b);
+      conc_inorganic(b)=surrogate[config.iHp].Aaq_bins_init(b)+surrogate[config.iOHm].Aaq_bins_init(b);
     }
 
   if (index==0) //first estimation of concentrations
@@ -6264,11 +6267,11 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 	    if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
 	      {
 		surrogate[i].molality=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;		
-		if (i!=config.iHp)
+		if (i!=config.iHp and i!=config.iHp)
 		  inorganion-=surrogate[i].molality*surrogate[i].charge;
 	      }
 	  
-	  chp(b)=max(0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke,0.5)),1.e-14);
+	  chp(b)=max(0.5*(organion(b)+inorganion+pow(pow(organion(b)+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b),0.5)),1.e-14);
 	  if (chp(b)==0.0)
 	    chp(b)=pow(10.0,-5.6);	  
 	  
@@ -6642,7 +6645,7 @@ void adapstep_ssh(model_config &config, vector<species>& surrogate, double &Temp
 		n2err+=pow((surrogate[i].Ag-surrogate[i].Ag1)/(surrogate[i].Ag1+tinym),2);
 	      }
 
-	  if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and config.iH2O!=i and config.iHp!=i)
+	  if (surrogate[i].is_organic==false and surrogate[i].is_inorganic_precursor==false and config.iH2O!=i and config.iHp!=i and config.iOHm!=i)
 	    {	    
 	      for (b=0;b<config.nbins;++b)
 		if (surrogate[i].Aaq_bins(b) > tinym or surrogate[i].Aaq_bins_init(b)> tinym)

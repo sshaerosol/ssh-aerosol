@@ -228,12 +228,14 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
       //Recompute inorganion
       inorganion=0.0;
       for (i=0;i<n;++i)
-        if (surrogate[i].is_inorganic_precursor==false and surrogate[i].is_organic==false and i!=config.iH2O and i!=config.iHp)               
+        if (surrogate[i].is_inorganic_precursor==false and surrogate[i].is_organic==false and i!=config.iH2O and i!=config.iHp and i!=config.iOHm)               
           inorganion-=surrogate[i].Aaq/surrogate[i].MM/conc_org*1000.*surrogate[i].charge;
 
       chp=max(0.5*(inorganion+pow(pow(inorganion,2)+4*config.Ke,0.5)),1.0e-15);
       surrogate[config.iHp].Aaq=chp*conc_org/1000.;
-    }  
+    }
+  surrogate[config.iOHm].Aaq=config.Ke/chp*LWC/1000.;
+      
 }
 
 void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOinit,double &MOW,
@@ -462,9 +464,9 @@ void error_ph_ssh(model_config &config, vector<species> &surrogate, double Tempe
 
   //inorganion*=AQinit/conc_org;
   //cout << "inorganion: " << inorganion << endl;
-  derivative=derivative*0.5*(1.0+cion/pow(pow(cion,2)+4*config.Ke,0.5))-1.0;
+  derivative=derivative*0.5*(1.0+cion/pow(pow(cion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))-1.0;
   
-  error=0.5*(cion+pow(pow(cion,2)+4*config.Ke,0.5))-chp;
+  error=0.5*(cion+pow(pow(cion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))-chp;
   //cout << organion+inorganion+pow(pow(organion+inorganion,2)+4*Ke,0.5) << " " << organion << " " << inorganion << " " << error << endl;
 }
 
@@ -602,9 +604,9 @@ void error_ph_sat_ssh(model_config &config, vector<species> &surrogate, double T
 
   //inorganion*=AQinit/conc_org;
   //cout << "inorganion: " << inorganion << endl;
-  derivative=derivative*0.5*(1.0+cion/pow(pow(cion,2)+4*config.Ke,0.5))-1.0;
+  derivative=derivative*0.5*(1.0+cion/pow(pow(cion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))-1.0;
   
-  error=0.5*(cion+pow(pow(cion,2)+4*config.Ke,0.5))-chp;
+  error=0.5*(cion+pow(pow(cion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))-chp;
   //cout << organion+inorganion+pow(pow(organion+inorganion,2)+4*Ke,0.5) << " " << organion << " " << inorganion << " " << error << endl;
 }
 
@@ -884,7 +886,7 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
             int j;
             for (j=0;j<n;++j)
               if (surrogate[j].is_organic==false and j!=config.iH2O and surrogate[j].is_inorganic_precursor==false)
-                if (j!=config.iHp)
+                if (j!=config.iHp and j!=config.iOHm)
                   {
 
                     //if (surrogate[j].Aaq>0.) cout << surrogate[j].name << " " << surrogate[j].Aaq << endl;
@@ -1015,10 +1017,10 @@ void error_inorg_aq_ssh(model_config &config, vector<species>& surrogate,
           double inorganion=0.0;
           for (i=0;i<n;++i)
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-              if (i!=config.iHp)
+              if (i!=config.iHp and i!=config.iOHm)
                 inorganion-=surrogate[i].molality*surrogate[i].charge;
       
-          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp,1.e-15);
+          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))+(1.0-factor)*chp,1.e-15);
         }
     }
 
@@ -1230,10 +1232,10 @@ void error_aq_ssh(model_config &config, vector<species>& surrogate,
           double inorganion=0.0;
           for (i=0;i<n;++i)
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-              if (i!=config.iHp)
+              if (i!=config.iHp and i!=config.iOHm)
                 inorganion-=surrogate[i].molality*surrogate[i].charge;
       
-          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp,1.0e-15);
+          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))+(1.0-factor)*chp,1.0e-15);
         }
     }
 
@@ -1472,10 +1474,10 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
           double inorganion=0.0;
           for (i=0;i<n;++i)
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-              if (i!=config.iHp)
+              if (i!=config.iHp and i!=config.iHp)
                 inorganion-=surrogate[i].molality*surrogate[i].charge;
       
-          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp,1.0e-15);
+          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))+(1.0-factor)*chp,1.0e-15);
         }
     }
   
@@ -1836,10 +1838,10 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
           double inorganion=0.0;
           for (i=0;i<n;++i)
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-              if (i!=config.iHp)
+              if (i!=config.iHp and i!=config.iHp)
                 inorganion-=surrogate[i].molality*surrogate[i].charge;
       
-          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp,1.0e-15);
+          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))+(1.0-factor)*chp,1.0e-15);
         }
     }
   
@@ -2461,10 +2463,10 @@ void error_saturation_ssh(model_config &config, vector<species>& surrogate,
           double inorganion=0.0;
           for (i=0;i<n;++i)
             if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
-              if (i!=config.iHp)
+              if (i!=config.iHp and i!=config.iHp)
                 inorganion-=surrogate[i].molality*surrogate[i].charge;
       
-          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke,0.5))+(1.0-factor)*chp,1.0e-15);
+          chp=max(factor*0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iOHm].gamma_aq/surrogate[config.iHp].gamma_aq,0.5))+(1.0-factor)*chp,1.0e-15);
         }
     }
 

@@ -1,4 +1,3 @@
-
 //!!-----------------------------------------------------------------------
 //!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
 //!!     SSH-aerosol is distributed under the GNU General Public License v3
@@ -31,6 +30,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   config.iNO3m=-1;
   config.iClm=-1;
   config.iHp=-1;
+  config.iOHm=-1;
   config.iNH4p=-1;  
   config.iHCl=-1;
   config.iHNO3=-1;
@@ -81,6 +81,8 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
         config.iH2O=i;
       else if (surrogate[i].name=="H")
         config.iHp=i;
+      else if (surrogate[i].name=="OH")
+        config.iOHm=i;
       else if (surrogate[i].name=="H2SO4")
         config.iH2SO4=i;
       else if (surrogate[i].name=="HSO4")
