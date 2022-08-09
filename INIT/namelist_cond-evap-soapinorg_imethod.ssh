@@ -107,7 +107,7 @@ activity_model = 3,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 soap_inorg=1,
-imethod=0
+imethod=1
 /
 
 &physic_nucleation
