@@ -179,12 +179,25 @@ contains
     ! **** output_directory/gas/
     ! save gas concentration results over each time step
     do s = 1, n_gas
-          output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
-          open(unit=100,file=output_filename, status='old', position = "append")
-	       write(100,*) concentration_gas_all(s) 
-          close(100)
+       output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
+       open(unit=100,file=output_filename, status='old', position = "append")
+       write(100,*) concentration_gas_all(s) 
+       close(100)
     enddo
 
+    ! **** output_directory/number/
+    ! save number concentration results over each time step
+    do b = 1, N_size
+       output_filename = trim(output_directory) // "/aero/pH_" // trim(str(b)) // trim(out_type(output_type))
+       open(unit=100,file=output_filename, status="old", position = "append")
+       conc_save=7.d0      
+       if (lwc_Nsize(b)>0.d0.and.proton_Nsize(b)>0.d0) then          
+          conc_save=-log10(proton_Nsize(b)/lwc_Nsize(b)*1.0e3)   
+       endif
+       write(100,*) conc_save
+       close(100)
+    end do
+       
      ! **** output_directory/number/
      ! save number concentration results over each time step
      do b = 1, N_size
@@ -391,6 +404,20 @@ contains
 
     ! number
     do b = 1, N_size
+       output_filename = trim(output_directory) // "/aero/pH_"// trim(str(b)) // trim(out_type(output_type))
+       ! Remove if output files exist
+       inquire (file = output_filename, exist = file_exists)
+       if (file_exists) then
+          open(unit=100, file = output_filename, status='old', iostat=stat)
+          if (stat == 0) close(100, status='delete')
+       endif
+       ! creative new empty file 
+       open(unit=100,file=output_filename, status="new")
+       close(100)
+    end do
+
+    ! number
+    do b = 1, N_size
        output_filename = trim(output_directory) // "/number/NUMBER_"// trim(str(b)) // trim(out_type(output_type))
        ! Remove if output files exist
        inquire (file = output_filename, exist = file_exists)
@@ -528,6 +555,19 @@ contains
           if (conc_value .eq. 0.0) close(100, status='delete')
           if (conc_value .ne. 0.0) close(100)
        end do
+    enddo
+
+    ! pH
+    do b = 1, N_size
+       output_filename = trim(output_directory) // "/aero/pH_"// trim(str(b)) // trim(out_type(output_type))
+       open(unit=100, file = output_filename, status='old', iostat=stat)
+          conc_value = 0.0
+          do while(stat .eq. 0)
+             read(100, *,iostat=stat) conc_value
+             if (conc_value .gt. 0.0) exit
+          end do
+       if (conc_value .eq. 0.0) close(100, status='delete')
+       if (conc_value .ne. 0.0) close(100)
     enddo
 
     ! number

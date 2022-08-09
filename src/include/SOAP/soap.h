@@ -12,7 +12,7 @@
 using namespace ssh_soap;
 
 void soap_main_ssh(double LWC, double RH, double Temperature, 
-		   double ionic, double chp, double& LWCorg,
+		   double ionic, double& chp, double& LWCorg,
 		   double& deltat,
 		   double DSD[], double csol[], double liquid[],
 		   int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qaq[], 

@@ -253,8 +253,8 @@ contains
 
              if (soap_inorg==0) then
                 call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize,ICUT_org)
-             else
-                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT_org)
+             else                
+                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT_org)                
                 call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize,ICUT_org)
              endif
           endif

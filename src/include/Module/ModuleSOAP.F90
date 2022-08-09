@@ -138,8 +138,7 @@ contains
       if (soap_inorg==1) then
          lwc=aero(EH2O)
          proton = chp * lwc / 1.0e3
-      endif
-      
+      endif      
       
     END SUBROUTINE SSH_SOAP_EQ
 

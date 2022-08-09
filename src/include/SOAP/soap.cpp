@@ -20,7 +20,7 @@ using namespace blitz;
 //////////////
 
 extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, 
-			       double* ionic, double* chp, double& LWCorg,
+			       double* ionic, double& chp, double& LWCorg,
 			       double& deltat, double* DSD, double* csol, double* liquid,
 			       int* ns_aer, int* ns_aer_layers, int* neq, double* q, double* qaero, 
 			       double* qaq, double* qgas, double* lwc_Nsize,
@@ -37,7 +37,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 			       int* N_inert, int* N_inorganic, int* with_oligomerization){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, 
-		       *ionic, *chp, LWCorg, 
+		       *ionic, chp, LWCorg, 
 		       deltat,DSD,csol, liquid,
 		       *ns_aer, *ns_aer_layers, *neq, q, qaero, qaq, qgas,
 		       lwc_Nsize,ionic_Nsize,chp_Nsize,
@@ -63,7 +63,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature,
 */
 
 void soap_main_ssh(double LWC, double RH, double Temperature,
-		   double ionic, double chp, double& LWCorg,
+		   double ionic, double& chp, double& LWCorg,
 		   double& deltat, double DSD[], double csol[], double liquid[],
 		   int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qaq[],
 		   double qgas[],
@@ -409,7 +409,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
 
 	  //Multiply by gamma to output activity and compute pH. pH=-log10(activity(H+))
 	  chp=chp*surrogate[config.iHp].gamma_aq;
-	}
+	}     
 
       // Give back the concentrations
       for (i = 0; i < n; ++i)
