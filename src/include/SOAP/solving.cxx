@@ -3391,14 +3391,24 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
                   //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
                 }
        
+              /*
               for (i=0;i<n;i++)
                 if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iHp)
+                  if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
+                    {
+                      errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
+                      if (abs(errloc)>abs(vec_error_aq(index)))
+                        vec_error_compo(index)=errloc;                      
+                    }*/
+
+              for (i=0;i<n;i++)
+                if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm)
                   if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
                     {
                       /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
                         cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b) << " " << surrogate[i].gamma_aq_bins(b) << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << b << endl;*/
                       errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
-                      if (abs(errloc)>abs(vec_error_aq(index)))
+                      if (abs(errloc)>abs(vec_error_compo(index)))
                         vec_error_compo(index)=errloc;
                       /*
                         if (abs(errloc)>1.e20)
@@ -3408,8 +3418,20 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
                         }*/
                       
                     }
-              
-            }
+	    }
+	      
+
+          for (i=0;i<n;i++)
+	    if (surrogate[i].hydrophobic)
+	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		  if (surrogate[i].Ap_layer(b,ilayer,iphase)>config.Vlayer(ilayer)*config.MOmin)
+		    {
+		      errloc=(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer(b,ilayer,iphase))/surrogate[i].Ap_layer(b,ilayer,iphase)/factor_old;
+		      if (abs(errloc)>abs(vec_error_compo(index)))
+			vec_error_compo(index)=errloc;
+		    }
+      
      
           AQinit(b)=max(AQ(b),config.MOmin);       
 
@@ -3624,6 +3646,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
   for (i=0;i<n;i++)
     {
+      surrogate[i].gamma_aq_bins=1.;          
       if (surrogate[i].hydrophilic==false)
 	surrogate[i].Aaq_bins_init=0;
       if (surrogate[i].hydrophobic==false)
@@ -4018,7 +4041,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
             conc_org(b)=max(conc_org(b),config.MOmin);
 
 	    compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-                                        organion(b), ionic_organic(b), conc_org(b), factor);
+                                        organion(b), ionic_organic(b), conc_org(b), factor, 1.e-14);
 
 	    /*
 		  
@@ -4088,7 +4111,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
       surrogate[i].Jdn=0.;
       surrogate[i].k1=0.;   
       surrogate[i].Jdn_aq=0.;
-      surrogate[i].k1_aq=0.;
+      surrogate[i].k1_aq=0.;      
     }
   MO=MOinit;
   AQ=AQinit;
@@ -4103,6 +4126,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
   for (b=0;b<config.nbins;++b)	
     surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)*LWC(b)/1000.;
+
+
   /*
     for (i=0;i<n;i++)
     if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)>0.)

@@ -1282,7 +1282,7 @@ void compute_ionic_strenght2_ssh(model_config &config, vector<species>& surrogat
 				 double &Temperature,
 				 double &AQinit, double &conc_inorganic,
 				 double &ionic, double &chp,
-				 double &organion, double &ionic_organic, double &conc_org, double factor)
+				 double &organion, double &ionic_organic, double &conc_org, double factor, double Keloc)
 {
   //same as compute_ionic_strenth but does not recompute the pH
   int i;
@@ -1313,8 +1313,8 @@ void compute_ionic_strenght2_ssh(model_config &config, vector<species>& surrogat
               }
 	    else if (i==config.iOHm)
 	      {                                
-                surrogate[i].Aaq=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq/1000.*surrogate[i].MM*conc_org;
-		surrogate[i].molality=config.Ke/chp/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq; 
+                surrogate[i].Aaq=Keloc/chp/1000.*surrogate[i].MM*conc_org;
+		surrogate[i].molality=Keloc/chp; 
               }
             ionic=ionic+0.5*surrogate[i].molality*pow(surrogate[i].charge,2);
             conc_inorganic+=surrogate[i].Aaq;
@@ -2163,7 +2163,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
         config.molality(surrogate[i].index_ion)=surrogate[i].molality;
         //charges_ions(surrogate[i].index_ion)=surrogate[i].charge;      
         //molality(0)=0.0;
-        //cout << surrogate[i].name << " " << surrogate[i].index_ion << endl;
+        //cout << surrogate[i].name << " " << surrogate[i].molality << endl;
       }
   if (config.compute_inorganic)
     iH=-1;
@@ -2229,6 +2229,7 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
         jH2O=j;
     }
 
+  //double save_mr_h2o=config.gamma_MR_solvents(surrogate[config.iH2O].index_gamma_aiomfac);
   //Call of aiomfac
   aiomfac_ssh(config.X_aiomfac, config.gamma_LR_solvents,config.gamma_MR_solvents,config.molar_mass_solvents,config.molar_mass_groups,
 	      config.molality,config.gamma_LR_ions,config.gamma_MR_ions,config.charges_ions,
@@ -2256,6 +2257,12 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
         surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_solvents(surrogate[i].index_gamma_aiomfac);       
         surrogate[i].gamma_aq*=config.gamma_LR_solvents(surrogate[i].index_gamma_aiomfac)*
           config.gamma_MR_solvents(surrogate[i].index_gamma_aiomfac);
+        /*
+        if (i==config.iH2O and surrogate[config.iH2O].gamma_aq<1.e-2)
+          {
+            cout << surrogate[i].gamma_aq << " " << config.gamma_MR_solvents(surrogate[i].index_gamma_aiomfac) << " " << save_mr_h2o << " " << surrogate[config.iOHm].molality << endl;
+            exit(1);
+          }*/
       } 
 
 }

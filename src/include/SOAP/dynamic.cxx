@@ -2981,7 +2981,7 @@ void activity_coefficients_dyn_aq_bins_ssh(model_config &config, vector<species>
 	  	
   //config.rho_aqueous=config.AQrho(b);
   compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ, conc_inorganic(b), ionic(b), chp(b),
-                              organion(b), ionic_organic(b), conc_org, factor);                    
+                              organion(b), ionic_organic(b), conc_org, factor, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));                    
           
   activity_coefficients_aq_ssh(config,surrogate,Temperature,0.0,MMaq(b),XH2O, conc_org);
 
@@ -3407,7 +3407,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
         }
 
       compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-                                  organion(b), ionic_organic(b), conc_org, 1.0);
+                                  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
     }
   
   for (b=0;b<config.nbins;b++)
@@ -3894,7 +3894,7 @@ void twostep_aqorg_repart_ssh(model_config &config, vector<species>& surrogate, 
     }
 
   compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-                              organion(b), ionic_organic(b), conc_org, 1.0);
+                              organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
 
       
   if (compute_activity_coefficients)
@@ -5507,7 +5507,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
               
 	      //config.rho_aqueous=config.AQrho(b);
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-					  organion(b), ionic_organic(b), conc_org, 1.0);
+					  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
 	      error_chp=max(error_chp,abs(chp0(b)-chp(b))/chp0(b));
 	      chp0(b)=chp(b);	      
 	    }      
@@ -5714,7 +5714,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);	      	      
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-					  organion(b), ionic_organic(b), conc_org, 1.0);	   
+					  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));	   
 	      error_chp=max(error_chp,abs(chp1(b)-chp(b))/chp1(b));
 	      chp1(b)=chp(b);	      
 	    } 
@@ -6113,7 +6113,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
 
 	  //config.rho_aqueous=config.AQrho(b);
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);	 	  
+				      organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));	 	  
 	}    
     }
 }
@@ -6173,7 +6173,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-					  organion(b), ionic_organic(b), conc_org, 1.0);
+					  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
 	      error_chp=max(error_chp,abs(chp0(b)-chp(b))/chp0(b));
 	      chp0(b)=chp(b);	      
 	    }      
@@ -6277,7 +6277,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 	  
 	  //config.rho_aqueous=config.AQrho(b);
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org, 1.0);
+				      organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
 
 	}      
     }
@@ -6308,7 +6308,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
 
 	      //config.rho_aqueous=config.AQrho(b);	      	      
 	      compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit2(b), conc_inorganic(b), ionic(b), chp(b),
-					  organion(b), ionic_organic(b), conc_org, 1.0);	   
+					  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));	   
 	      error_chp=max(error_chp,abs(chp1(b)-chp(b))/chp1(b));
 	      chp1(b)=chp(b);	      
 	    } 
@@ -6514,7 +6514,7 @@ void dynamic_aq_ssh(model_config &config, vector<species>& surrogate,
                   conc_org+=surrogate[i].Aaq_bins(b);
           conc_org=max(conc_org,1.0e-5*AQinit(b));
 	  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQ(b), conc_inorganic(b), ionic(b), chp(b),
-				      organion(b), ionic_organic(b), conc_org,1.0);	 	  
+				      organion(b), ionic_organic(b), conc_org,1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));	 	  
 	}    
     }
 }

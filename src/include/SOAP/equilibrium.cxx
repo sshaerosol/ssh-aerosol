@@ -950,7 +950,7 @@ void error_inorg_aq_ssh(model_config &config, vector<species>& surrogate,
   double conc_org=LWC;
   compute_conc_org_eq_ssh(config, surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, conc_org);
   
-  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org,factor);
+  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org,factor,config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq);
 
   //initialize AQ
   AQ=0.0;
@@ -1163,7 +1163,7 @@ void error_aq_ssh(model_config &config, vector<species>& surrogate,
   double conc_org=LWC;
   compute_conc_org_eq_ssh(config, surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, conc_org);
   
-  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org,factor);
+  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org,factor,config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq);
 
   //initialize AQ
   AQ=0.0;
@@ -1409,7 +1409,7 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
   compute_conc_org_eq_ssh(config, surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, conc_org);
   
   compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp2,
-                          organion, ionic_organic, conc_org, factor);
+                              organion, ionic_organic, conc_org, factor, config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq);
 
   if (config.solids)
     {
@@ -1763,7 +1763,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
   compute_conc_org_eq_ssh(config, surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, conc_org);
   
   compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp2,
-                          organion, ionic_organic, conc_org, factor);
+                              organion, ionic_organic, conc_org, factor, config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq);
   if (config.solids)
     {
       solidification_ssh(config,surrogate, Temperature, conc_org, MMaq, AQinit, chp, ionic, LWC, factor);
@@ -2419,7 +2419,7 @@ void error_saturation_ssh(model_config &config, vector<species>& surrogate,
   double conc_org=LWC;
   compute_conc_org_eq_ssh(config, surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, conc_org);
 
-  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org, factor);  
+  compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit, conc_inorganic, ionic, chp, organion, ionic_organic, conc_org, factor, config.Ke/surrogate[config.iHp].gamma_aq/surrogate[config.iOHm].gamma_aq);  
   
   for (i=0;i<nphase+1;++i)
     {
