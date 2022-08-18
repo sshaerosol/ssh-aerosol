@@ -1315,8 +1315,8 @@ void compute_ionic_strenght2_ssh(model_config &config, vector<species>& surrogat
               }
 	    else if (i==config.iOHm)
 	      {                                
-                surrogate[i].Aaq=Keloc/chp/1000.*surrogate[i].MM*conc_org;
-		surrogate[i].molality=Keloc/chp; 
+                surrogate[i].Aaq=min(Keloc/chp,10.)/1000.*surrogate[i].MM*conc_org;
+		surrogate[i].molality=min(Keloc/chp,10.);  //limit OH concentrations to 10 mol/L to avoid numerical issues
               }
             ionic=ionic+0.5*surrogate[i].molality*pow(surrogate[i].charge,2);
             conc_inorganic+=surrogate[i].Aaq;
