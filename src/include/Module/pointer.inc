@@ -14,7 +14,7 @@
           ,SNa2SO4,SNH42S4,SNaHSO4,SNH4HS4
 !C*****
       INTEGER ENa,ESO4,ENH4,ENO3,ECl,&
-          EH2O,EH2O_layers
+          EH2O,EH2O_layers,ECO3
       PARAMETER (IH   =1,&
           INa  =2,&
           INH4 =3,&

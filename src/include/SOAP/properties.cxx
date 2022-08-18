@@ -488,6 +488,8 @@ void tau_kmt_ssh(model_config &config,vector<species>& surrogate, double &temper
 	else
 	  surrogate[i].tau_air(b)=1.0e19; 
     }
+
+  
 }
 
 void tau_dif_ssh(model_config &config, vector<species>& surrogate,
@@ -2428,7 +2430,7 @@ double species::Kequilibrium_ssh(double &Temperature)
   double T0=298.15;
   K0=0.0;
   deltaH_over_RT0=0.0;
-  deltaCp0_over_R=0.0;
+  deltaCp0_over_R=0.0;  
   if (name=="H2SO4")
     {
       K0=1.015e-2;  //mol/kg
@@ -2454,14 +2456,20 @@ double species::Kequilibrium_ssh(double &Temperature)
       deltaH_over_RT0=0.0;
       deltaCp0_over_R=0.0;
     }
-  else 
+  else if (name!="CO2")
     cout << "error: inorganic precursor " << name << " not defined. " << endl;
 
   value=K0*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature));
   return value;
 }
 
-void Kp_inorganic_ssh(model_config &config, vector<species>& surrogate, double& Temperature, double& chp, double& MMaq)
+void Kequilibrium_co2_ssh(model_config &config, vector<species>& surrogate, double& Temperature)
+{
+  surrogate[config.iCO2].keq=exp(-8.204327e2-1.402727e-1*Temperature+5.027549e4/298+1.268339e2*log(Temperature)-3.879660e6/Temperature/Temperature);
+  surrogate[config.iCO2].keq2=exp(-2.484192e2-0.748996e-1*Temperature+1.186243e4/298+0.389256e2*log(Temperature)-1.297999e6/Temperature/Temperature);   
+}
+
+void Kp_inorganic_ssh(model_config &config, vector<species>& surrogate, double& Temperature, double& chp, double& MMaq, double &RH)
 {
   //int n=surrogate.size();
   int i;
@@ -2493,7 +2501,16 @@ void Kp_inorganic_ssh(model_config &config, vector<species>& surrogate, double& 
   deltaCp0_over_R=-19.91;
   surrogate[i].Kaq_inorg=surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
     *R*Temperature/(rho_h2o*1.0e6*1.013e5)*MH2O/MMaq
-    *(1.0+surrogate[i].Kequilibrium_ssh(Temperature)/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iClm].gamma_aq));          	          
+    *(1.0+surrogate[i].Kequilibrium_ssh(Temperature)/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iClm].gamma_aq));
+
+  if (config.iCO2>0)
+    {
+      i=config.iCO2;
+      surrogate[i].Kaq_inorg=exp(2.50E+02+0.0457081*Temperature-1.59e+04/298-4.05E+01*log(Temperature)+1.54E+06/Temperature/Temperature)
+	*R*Temperature/(1000.*1.0e6*1.013e5)
+	*RH*(surrogate[config.iCO2].keq/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iHCO3m].gamma_aq))*
+	(1.+surrogate[config.iCO2].keq2/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iCO3mm].gamma_aq/surrogate[config.iHCO3m].gamma_aq));
+    }
 }
 
 void Kpideal_inorganic_ssh(model_config &config, vector<species>& surrogate, double& Temperature)
@@ -2525,10 +2542,15 @@ void Kpideal_inorganic_ssh(model_config &config, vector<species>& surrogate, dou
   deltaCp0_over_R=-19.91;
   surrogate[i].kpi=surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1+log(T0/Temperature)-T0/Temperature))
     *R*Temperature/(1000.*1.0e6*1.013e5);
-          	          
+
+  if (config.iCO2>0)
+    {
+      i=config.iCO2;
+      surrogate[i].kpi=exp(2.50e2+0.0457081*Temperature-1.59e4/298-4.05e1*log(Temperature)+1.54e6/Temperature/Temperature)*R*Temperature/(1000.*1.0e6*1.013e5);
+    }
 }
  
-void Kpreal_inorganic_ssh(model_config &config, vector<species>& surrogate, double& chp)
+void Kpreal_inorganic_ssh(model_config &config, vector<species>& surrogate, double& chp, double &RH)
 {
   //int n=surrogate.size();
   //int i;
@@ -2545,5 +2567,12 @@ void Kpreal_inorganic_ssh(model_config &config, vector<species>& surrogate, doub
   surrogate[config.iHNO3].Kaq_inorg=surrogate[config.iHNO3].kpi*(1.0+surrogate[config.iHNO3].keq/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iNO3m].gamma_aq));
 
   surrogate[config.iHCl].Kaq_inorg=surrogate[config.iHCl].kpi*(1.0+surrogate[config.iHCl].keq/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iClm].gamma_aq));
+
+  if (config.iCO2>0)
+    {
+      surrogate[config.iCO2].Kaq_inorg=surrogate[config.iCO2].kpi*RH*(surrogate[config.iCO2].keq/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iHCO3m].gamma_aq))*
+	(1.+(surrogate[config.iCO2].keq2/(chp*surrogate[config.iHp].gamma_aq*surrogate[config.iCO3mm].gamma_aq/surrogate[config.iHCO3m].gamma_aq)));
+      surrogate[config.iCO2].Kaq_inorg=surrogate[config.iCO2].kpi*RH*(surrogate[config.iCO2].keq/chp*(1.+(surrogate[config.iCO2].keq2/(chp))));
+    }
   
 }

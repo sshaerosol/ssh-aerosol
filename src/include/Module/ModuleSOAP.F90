@@ -101,7 +101,7 @@ contains
          endif
       endif
       
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn2, &
@@ -134,12 +134,12 @@ contains
             endif
          ENDIF        
       ENDDO
-     
+
       if (soap_inorg==1) then
          lwc=aero(EH2O)
          proton = chp * lwc / 1.0e3
-      endif      
-      
+      endif
+       
     END SUBROUTINE SSH_SOAP_EQ
 
 
@@ -290,7 +290,7 @@ contains
 
       ! FCo: force this routine to be used only for organics. Condensation of inorganics have to be computed in the subroutine SSH_SOAP_DYN_ICUT
       soap_inorg_loc2=0      
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, &
@@ -485,7 +485,7 @@ contains
       lwcorg=0.
 
            
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize(ICUT_org+1:N_size), ionic_Nsize(ICUT_org+1:N_size), chp_Nsize(ICUT_org+1:N_size), &

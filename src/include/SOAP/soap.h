@@ -11,7 +11,7 @@
 #include "solving.cxx"
 using namespace ssh_soap;
 
-void soap_main_ssh(double LWC, double RH, double Temperature, 
+void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_ppm,
 		   double ionic, double& chp, double& LWCorg,
 		   double& deltat,
 		   double DSD[], double csol[], double liquid[],

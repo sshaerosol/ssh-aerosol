@@ -79,6 +79,7 @@ module aInitialization
   integer, save :: with_nucl   !Tag nucleation
   integer, save :: nucl_model_binary, nucl_model_ternary, nucl_model_hetero
   double precision, save :: scal_ternary, scal_hetero
+  double precision, save :: co2_conc_ppm
   integer, save :: nesp_org_h2so4_nucl
   integer, dimension(2), save :: org_h2so4_nucl_species
   character (len=40), dimension(2) :: name_org_h2so4_nucl_species
@@ -268,6 +269,7 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
   double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
@@ -435,7 +437,7 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water
+         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water,co2_conc_ppm
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
@@ -1059,6 +1061,7 @@ contains
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation
     imethod=0 !ROS2 explicit method in SOAP
+    co2_conc_ppm=410.d0 !Default CO2 concentrations set to 460 ppm
     soap_inorg=0
     niter_eqconc=1
     niter_water=1
@@ -1406,6 +1409,8 @@ contains
     allocate(mass_density(N_aerosol))
     allocate(inon_volatile(N_aerosol))
     allocate(smiles(N_aerosol))
+    allocate(aerosol_hydrophilic(N_aerosol))
+    allocate(aerosol_hydrophobic(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))    
     
@@ -1472,6 +1477,19 @@ contains
           smiles(s)=smiles_tmp
           saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
           enthalpy_vaporization(s)=enthalpy_vaporization_tmp
+
+          aerosol_hydrophilic(s)=0
+          if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophilic(s)=1
+          endif
+          if (aerosol_type(s)==3) then
+             aerosol_hydrophilic(s)=1
+          endif
+
+          aerosol_hydrophobic(s)=0
+          if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophobic(s)=1
+          endif
 
           if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
              write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
@@ -1599,6 +1617,7 @@ contains
        endif
     end do
 
+    ECO3=-1
     do s = 1, N_aerosol
        ! For non-organic species.
        if (s <= N_nonorganics) then
@@ -1611,6 +1630,7 @@ contains
           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
+          if (aerosol_species_name(s) .eq. "PCO3") ECO3 = s
 
           do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
@@ -2102,6 +2122,8 @@ contains
     allocate(smiles(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))
+    allocate(aerosol_hydrophilic(N_aerosol))
+    allocate(aerosol_hydrophobic(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
     
@@ -2125,6 +2147,20 @@ contains
             surface_tension(s), accomodation_coefficient(s), &
             mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
             saturation_vapor_pressure(s),enthalpy_vaporization(s)
+
+       aerosol_hydrophilic(s)=0
+       if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
+          aerosol_hydrophilic(s)=1
+       endif
+       if (aerosol_type(s)==3) then
+          aerosol_hydrophilic(s)=1
+       endif
+
+       aerosol_hydrophobic(s)=0
+       if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
+          aerosol_hydrophobic(s)=1
+       endif
+
         if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
             stop
@@ -2230,7 +2266,8 @@ contains
           aec_species(js) = s
        endif
     end do
-    
+
+    ECO3=-1
     do s = 1, N_aerosol
        ! For non-organic species.
        if (s <= N_nonorganics) then
@@ -2243,6 +2280,7 @@ contains
           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
+          if (aerosol_species_name(s) .eq. "PCO3") ECO3 = s
 
           do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
@@ -2997,6 +3035,8 @@ contains
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
     if (allocated(partitioning)) deallocate(partitioning, stat=ierr)
     if (allocated(smiles)) deallocate(smiles, stat=ierr)
+    if (allocated(aerosol_hydrophilic)) deallocate(aerosol_hydrophilic, stat=ierr)
+    if (allocated(aerosol_hydrophobic)) deallocate(aerosol_hydrophobic, stat=ierr) 
     if (allocated(saturation_vapor_pressure))  deallocate(saturation_vapor_pressure, stat=ierr)
     if (allocated(enthalpy_vaporization))  deallocate(enthalpy_vaporization, stat=ierr)    
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)

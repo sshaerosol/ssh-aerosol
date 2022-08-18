@@ -36,6 +36,9 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   config.iHNO3=-1;
   config.iNH3=-1;
   config.iH2SO4=-1;
+  config.iHCO3m=-1;
+  config.iCO3mm=-1;
+  config.iCO2=-1;
   for (i=0;i<n;++i)
     {
       surrogate[i].aqt=-1;
@@ -109,6 +112,12 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
         config.iNH3=i;
       else if (surrogate[i].name=="HNO3")
         config.iHNO3=i;
+      else if (surrogate[i].name=="CO2")
+	config.iCO2=i;
+       else if (surrogate[i].name=="HCO3")
+        config.iHCO3m=i;
+       else if (surrogate[i].name=="CO3")
+        config.iCO3mm=i;
 
       surrogate[i].ioligo=-1;
 

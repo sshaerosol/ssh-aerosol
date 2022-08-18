@@ -43,6 +43,7 @@ namespace ssh_soap
 	int iClm;        
         int iNa,iCa,iMg,iK;
         int iHCl,iHNO3,iNH3,iH2SO4;
+        int iCO2,iHCO3m,iCO3mm;        
 
 	double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
 	double Ke, moligo;
@@ -158,7 +159,7 @@ namespace ssh_soap
 	//Xaq: molar fraction in the aqueous phase
         //Waq: mass fraction in the aqueous phase
 	//Xorg: molar fraction in the organic phase
-	double kpi,keq,keqi,kaqi,fioni1,fioni2;
+	double kpi,keq,keq2,keqi,kaqi,fioni1,fioni2;
 	double Ap,Ag,Aaq,Atot,Atot0,Atot1,Xaq,Xorg,Waq;
 	double Aaq_save;
 	double gamma_aq_old,Aaq_old,Xaq_old,Ag_old,Ap_old;

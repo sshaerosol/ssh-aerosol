@@ -3739,6 +3739,11 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
               *R*Temperature/(1000.*1.0e6*1.013e5);
             surrogate[i].keqi=surrogate[i].Kequilibrium_ssh(Temperature);
           }
+	else if (i==config.iCO2)
+	  {
+	    surrogate[i].kaqi=exp(2.50E+02+0.0457081*Temperature-1.59e+04/298-4.05E+01*log(Temperature)+1.54E+06/Temperature/Temperature)*R*Temperature/(1000.*1.0e6*1.013e5);
+	    Kequilibrium_co2_ssh(config, surrogate, Temperature);	      
+	  }
         else if (i==config.iHCl)
           {
             
@@ -4053,7 +4058,7 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 	      else
 	      surrogate[config.iH2O].gamma_aq_bins(b)=surrogate[config.iH2O].gamma_aq;*/	   	   
             
-	    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq, b, b+1);
+	    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, AQinit, MMaq, b, b+1);
 	    /*
 	      temp=surrogate[config.iH2O].Aaq_bins_init(b);
 	      surrogate[config.iH2O].Aaq_bins_init(b)=surrogate[config.iH2O].Atot*surrogate[config.iH2O].Kaq(b)*AQinit(b)/(1.0+surrogate[config.iH2O].Kaq(b)*AQinit(b));
@@ -4211,7 +4216,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   tau_kmt_ssh(config, surrogate, Temperature, number);
   compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
   if (LWCtot>config.LWClimit)
-    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, MMaq, 0, config.nbins);
+    compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, AQinit, MMaq, 0, config.nbins);
 
   if (config.imethod==0)
     {

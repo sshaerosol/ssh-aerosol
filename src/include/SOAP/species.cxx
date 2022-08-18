@@ -3113,129 +3113,313 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
       }
   surrogate.push_back(Cl);
 
-      species H2SO4;
-      H2SO4.name="H2SO4";
-      H2SO4.nonvolatile=true;
-      H2SO4.is_organic=false;
-      H2SO4.is_inorganic_precursor=true;
-      H2SO4.Henry=1.0e13;     // Enthalpy of vaporization (kJ/mol)
-      H2SO4.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-      H2SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
-      H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
-      H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-      H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-      //H2SO4.KDiffusion_air=1.07e-5;
-      H2SO4.viscosity=1.0;
-      H2SO4.is_solid=false;
-  
-      // Find the number in the aerosol species list
-      H2SO4.soap_ind = -1;
-      H2SO4.soap_ind_aero = -1;
-      for (int i = 0; i < nsp; ++i)
-	if (species_list_aer[i].substr(1,-1) == "SO4")
-	  {
-	    H2SO4.soap_ind = i;
-	    H2SO4.soap_ind_aero = i;
-	    H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
-	    H2SO4.accomodation_coefficient = accomodation_coefficient[i];
-	    H2SO4.KDiffusion_air = diffusion_coef[i];
-	  }
-      surrogate.push_back(H2SO4);
+  species HCO3;
+  HCO3.name="HCO3";
+  HCO3.is_inorganic_precursor=false;
+  HCO3.MM=73.0;           // Molar mass (g/mol)
+  HCO3.is_organic=false;  // Is the compound organic?
+  HCO3.hydrophilic=true; // Does the species condense on the aqueous phase?
+  HCO3.hydrophobic=false;  // Does the species condense on the organic phase?
+  HCO3.nonvolatile=false;
+  HCO3.kp_from_experiment=false;
+  HCO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  HCO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  HCO3.charge=-1.0;
+  HCO3.index_ion_aiomfac=15;
+  HCO3.rho=1300.0; // 1400.0;
+  HCO3.KDiffusion_air=1.0e-5;
+  HCO3.accomodation_coefficient=0.5;
+  HCO3.viscosity=1.0;
+  HCO3.soap_ind = -1;
+  HCO3.soap_ind_aero = -1;
+  HCO3.is_solid=false;
+  HCO3.is_monomer=false;
+  HCO3.rion=false;
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "CO3")
+      surrogate.push_back(HCO3);
 
-      species NH3;
-      NH3.name="NH3";
-      //  NH3.MM=17.0;
-      NH3.is_organic=false;
-      NH3.nonvolatile=false;
-      NH3.is_inorganic_precursor=true;
-      NH3.Henry=57.64;     // Enthalpy of vaporization (kJ/mol)
-      NH3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-      NH3.hydrophilic=true; // Does the species condense on the aqueous phase?
-      NH3.hydrophobic=false;  // Does the species condense on the organic phase?
-      NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-      NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-      //  NH3.accomodation_coefficient=0.5;
-      NH3.KDiffusion_air=2.17e-5;
-      NH3.viscosity=1.0;
-      NH3.is_solid=false;
-  
-      // Find the number in the aerosol species list
-      NH3.soap_ind = -1;
-      NH3.soap_ind_aero = -1;
-      for (int i = 0; i < nsp; ++i)
-	if (species_list_aer[i].substr(1,-1) == "NH4")
-	  {
-	    NH3.soap_ind = i;
-	    NH3.soap_ind_aero = i;
-	    NH3.MM =  molecular_weight_aer[i] / 1.e6;
-	    NH3.accomodation_coefficient = accomodation_coefficient[i];
-	    NH3.KDiffusion_air = diffusion_coef[i];
-	  }
-      surrogate.push_back(NH3);
+  species CO3;
+  CO3.name="CO3";
+  CO3.is_inorganic_precursor=false;
+  CO3.MM=72.0;           // Molar mass (g/mol)
+  CO3.is_organic=false;  // Is the compound organic?
+  CO3.hydrophilic=true; // Does the species condense on the aqueous phase?
+  CO3.hydrophobic=false;  // Does the species condense on the organic phase?
+  CO3.nonvolatile=false;
+  CO3.kp_from_experiment=false;
+  CO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  CO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  CO3.charge=-2.0;
+  CO3.index_ion_aiomfac=16;
+  CO3.rho=1300.0; // 1400.0;
+  CO3.KDiffusion_air=1.0e-5;
+  CO3.accomodation_coefficient=0.5;
+  CO3.viscosity=1.0;
+  CO3.soap_ind = -1;
+  CO3.soap_ind_aero = -1;
+  CO3.is_solid=false;
+  CO3.is_monomer=false;
+  CO3.rion=false;
 
-      species HNO3;
-      HNO3.name="HNO3";
-      //  HNO3.MM=63.0;
-      HNO3.nonvolatile=false;
-      HNO3.is_organic=false;
-      HNO3.is_inorganic_precursor=true;
-      HNO3.Henry=2.1e5;     // Enthalpy of vaporization (kJ/mol)
-      HNO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-      HNO3.hydrophilic=true; // Does the species condense on the aqueous phase?
-      HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
-      HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-      HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-      //  HNO3.accomodation_coefficient=0.5;
-      HNO3.KDiffusion_air=1.47e-5;
-      HNO3.viscosity=1.0;
-      HNO3.is_solid=false;
-  
-      // Find the number in the aerosol species list
-      HNO3.soap_ind = -1;
-      HNO3.soap_ind_aero = -1;
-      for (int i = 0; i < nsp; ++i)
-	if (species_list_aer[i].substr(1,-1) == "NO3")
-	  {
-	    HNO3.soap_ind = i;
-	    HNO3.soap_ind_aero = i;
-	    HNO3.MM =  molecular_weight_aer[i] / 1.e6;
-	    HNO3.accomodation_coefficient = accomodation_coefficient[i];
-	    HNO3.KDiffusion_air = diffusion_coef[i];
-	  }
-      surrogate.push_back(HNO3);
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "CO3")
+      {
+        CO3.soap_ind = i;
+        CO3.soap_ind_aero = i;
+	surrogate.push_back(CO3);
+      }
 
-      species HCl;
-      HCl.name="HCl";
-      //  HCl.MM=36.5;
-      HCl.nonvolatile=false;
-      HCl.is_organic=false;
-      HCl.is_inorganic_precursor=true;
-      HCl.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
-      HCl.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
-      HCl.hydrophilic=true; // Does the species condense on the aqueous phase?
-      HCl.hydrophobic=false;  // Does the species condense on the organic phase?
-      HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
-      HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
-      //  HCl.accomodation_coefficient=0.5;
-      HCl.KDiffusion_air=1.72e-5;
-      HCl.viscosity=1.0;
-      HCl.is_solid=false;
+  species Ca;
+  Ca.name="Ca";
+  Ca.is_inorganic_precursor=false;
+  Ca.MM=40.078;           // Molar mass (g/mol)
+  Ca.is_organic=false;  // Is the compound organic?
+  Ca.hydrophilic=true; // Does the species condense on the aqueous phase?
+  Ca.hydrophobic=false;  // Does the species condense on the organic phase?
+  Ca.nonvolatile=false;
+  Ca.kp_from_experiment=false;
+  Ca.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  Ca.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  Ca.charge=2.0;
+  Ca.index_ion_aiomfac=6;
+  Ca.rho=1300.0; // 1400.0;
+  Ca.KDiffusion_air=1.0e-5;
+  Ca.accomodation_coefficient=0.5;
+  Ca.viscosity=1.0;
+  Ca.soap_ind = -1;
+  Ca.soap_ind_aero = -1;
+  Ca.is_solid=false;
+  Ca.is_monomer=false;
+  Ca.rion=false;
+
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "Ca")
+      {
+        Ca.soap_ind = i;
+        Ca.soap_ind_aero = i;
+	surrogate.push_back(Ca);
+      }
+
+  species Mg;
+  Mg.name="Mg";
+  Mg.is_inorganic_precursor=false;
+  Mg.MM=24.305;           // Molar mass (g/mol)
+  Mg.is_organic=false;  // Is the compound organic?
+  Mg.hydrophilic=true; // Does the species condense on the aqueous phase?
+  Mg.hydrophobic=false;  // Does the species condense on the organic phase?
+  Mg.nonvolatile=false;
+  Mg.kp_from_experiment=false;
+  Mg.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  Mg.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  Mg.charge=2.0;
+  Mg.index_ion_aiomfac=5;
+  Mg.rho=1300.0; // 1400.0;
+  Mg.KDiffusion_air=1.0e-5;
+  Mg.accomodation_coefficient=0.5;
+  Mg.viscosity=1.0;
+  Mg.soap_ind = -1;
+  Mg.soap_ind_aero = -1;
+  Mg.is_solid=false;
+  Mg.is_monomer=false;
+  Mg.rion=false;
+
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "Mg")
+      {
+        Mg.soap_ind = i;
+        Mg.soap_ind_aero = i;
+	surrogate.push_back(Mg);
+      }
+
+  species K;
+  K.name="K";
+  K.is_inorganic_precursor=false;
+  K.MM=39.0983;           // Molar mass (g/mol)
+  K.is_organic=false;  // Is the compound organic?
+  K.hydrophilic=true; // Does the species condense on the aqueous phase?
+  K.hydrophobic=false;  // Does the species condense on the organic phase?
+  K.nonvolatile=false;
+  K.kp_from_experiment=false;
+  K.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  K.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  K.charge=1.0;
+  K.index_ion_aiomfac=3;
+  K.rho=1300.0; // 1400.0;
+  K.KDiffusion_air=1.0e-5;
+  K.accomodation_coefficient=0.5;
+  K.viscosity=1.0;
+  K.soap_ind = -1;
+  K.soap_ind_aero = -1;
+  K.is_solid=false;
+  K.is_monomer=false;
+  K.rion=false;
+
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "K")
+      {
+        K.soap_ind = i;
+        K.soap_ind_aero = i;
+	surrogate.push_back(K);
+      }
+
+  species H2SO4;
+  H2SO4.name="H2SO4";
+  H2SO4.nonvolatile=true;
+  H2SO4.is_organic=false;
+  H2SO4.is_inorganic_precursor=true;
+  H2SO4.Henry=1.0e13;     // Enthalpy of vaporization (kJ/mol)
+  H2SO4.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+  H2SO4.hydrophilic=true; // Does the species condense on the aqueous phase?
+  H2SO4.hydrophobic=false;  // Does the species condense on the organic phase?
+  H2SO4.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  H2SO4.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  //H2SO4.KDiffusion_air=1.07e-5;
+  H2SO4.viscosity=1.0;
+  H2SO4.is_solid=false;
   
-      // Find the number in the aerosol species list
-      HCl.soap_ind = -1;
-      HCl.soap_ind_aero = -1;
-      for (int i = 0; i < nsp; ++i)
-	if (species_list_aer[i].substr(1,-1) == "HCL")
-	  {
-	    HCl.soap_ind = i;
-	    HCl.soap_ind_aero = i;
-	    HCl.MM =  molecular_weight_aer[i] / 1.e6;
-	    HCl.accomodation_coefficient = accomodation_coefficient[i];
-	    HCl.KDiffusion_air = diffusion_coef[i];
-	  }
+  // Find the number in the aerosol species list
+  H2SO4.soap_ind = -1;
+  H2SO4.soap_ind_aero = -1;
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "SO4")
+      {
+	H2SO4.soap_ind = i;
+	H2SO4.soap_ind_aero = i;
+	H2SO4.MM =  molecular_weight_aer[i] / 1.e6;
+	H2SO4.accomodation_coefficient = accomodation_coefficient[i];
+	H2SO4.KDiffusion_air = diffusion_coef[i];
+      }
+  surrogate.push_back(H2SO4);
+
+  species NH3;
+  NH3.name="NH3";
+  //  NH3.MM=17.0;
+  NH3.is_organic=false;
+  NH3.nonvolatile=false;
+  NH3.is_inorganic_precursor=true;
+  NH3.Henry=57.64;     // Enthalpy of vaporization (kJ/mol)
+  NH3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+  NH3.hydrophilic=true; // Does the species condense on the aqueous phase?
+  NH3.hydrophobic=false;  // Does the species condense on the organic phase?
+  NH3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  NH3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  //  NH3.accomodation_coefficient=0.5;
+  NH3.KDiffusion_air=2.17e-5;
+  NH3.viscosity=1.0;
+  NH3.is_solid=false;
   
-      surrogate.push_back(HCl);
-    
+  // Find the number in the aerosol species list
+  NH3.soap_ind = -1;
+  NH3.soap_ind_aero = -1;
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "NH4")
+      {
+	NH3.soap_ind = i;
+	NH3.soap_ind_aero = i;
+	NH3.MM =  molecular_weight_aer[i] / 1.e6;
+	NH3.accomodation_coefficient = accomodation_coefficient[i];
+	NH3.KDiffusion_air = diffusion_coef[i];
+      }
+  surrogate.push_back(NH3);
+
+  species HNO3;
+  HNO3.name="HNO3";
+  //  HNO3.MM=63.0;
+  HNO3.nonvolatile=false;
+  HNO3.is_organic=false;
+  HNO3.is_inorganic_precursor=true;
+  HNO3.Henry=2.1e5;     // Enthalpy of vaporization (kJ/mol)
+  HNO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+  HNO3.hydrophilic=true; // Does the species condense on the aqueous phase?
+  HNO3.hydrophobic=false;  // Does the species condense on the organic phase?
+  HNO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  HNO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  //  HNO3.accomodation_coefficient=0.5;
+  HNO3.KDiffusion_air=1.47e-5;
+  HNO3.viscosity=1.0;
+  HNO3.is_solid=false;
+  
+  // Find the number in the aerosol species list
+  HNO3.soap_ind = -1;
+  HNO3.soap_ind_aero = -1;
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "NO3")
+      {
+	HNO3.soap_ind = i;
+	HNO3.soap_ind_aero = i;
+	HNO3.MM =  molecular_weight_aer[i] / 1.e6;
+	HNO3.accomodation_coefficient = accomodation_coefficient[i];
+	HNO3.KDiffusion_air = diffusion_coef[i];
+      }
+  surrogate.push_back(HNO3);
+
+  species HCl;
+  HCl.name="HCl";
+  //  HCl.MM=36.5;
+  HCl.nonvolatile=false;
+  HCl.is_organic=false;
+  HCl.is_inorganic_precursor=true;
+  HCl.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
+  HCl.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+  HCl.hydrophilic=true; // Does the species condense on the aqueous phase?
+  HCl.hydrophobic=false;  // Does the species condense on the organic phase?
+  HCl.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  HCl.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  //  HCl.accomodation_coefficient=0.5;
+  HCl.KDiffusion_air=1.72e-5;
+  HCl.viscosity=1.0;
+  HCl.is_solid=false;
+  
+  // Find the number in the aerosol species list
+  HCl.soap_ind = -1;
+  HCl.soap_ind_aero = -1;
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "HCL")
+      {
+	HCl.soap_ind = i;
+	HCl.soap_ind_aero = i;
+	HCl.MM =  molecular_weight_aer[i] / 1.e6;
+	HCl.accomodation_coefficient = accomodation_coefficient[i];
+	HCl.KDiffusion_air = diffusion_coef[i];
+      }
+  
+  surrogate.push_back(HCl);
+
+  species CO2;
+  CO2.name="CO2";
+  CO2.MM=44.0;
+  CO2.nonvolatile=false;
+  CO2.is_organic=false;
+  CO2.is_inorganic_precursor=true;
+  CO2.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
+  CO2.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+  CO2.hydrophilic=true; // Does the species condense on the aqueous phase?
+  CO2.hydrophobic=false;  // Does the species condense on the organic phase?
+  CO2.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+  CO2.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+  //  CO2.accomodation_coefficient=0.5;
+  CO2.KDiffusion_air=1.72e-5;
+  CO2.viscosity=1.0;
+  CO2.is_solid=false;
+  
+  // Find the number in the aerosol species list
+  CO2.soap_ind = -1;
+  CO2.soap_ind_aero = -1;       
+  CO2.accomodation_coefficient = 0.1;
+  /*
+    for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "H2CO3")
+    {	   
+    CO2.accomodation_coefficient = accomodation_coefficient[i];
+    CO2.KDiffusion_air = diffusion_coef[i];
+    }*/
+  for (int i = 0; i < nsp; ++i)
+    if (species_list_aer[i].substr(1,-1) == "CO3")
+      {
+	CO2.soap_ind=i;
+	surrogate.push_back(CO2);
+      }
 }
 
 #endif
