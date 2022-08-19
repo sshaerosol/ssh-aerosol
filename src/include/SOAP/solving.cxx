@@ -2765,7 +2765,9 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
       
       tau_dif_ssh(config, surrogate, number, Vsol);
       tau_kmt_ssh(config, surrogate, Temperature, number);
-      
+      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+      if (LWCtot>config.LWClimit)
+	characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
 
       //compute the new diameters of particle due to the growth of particles by condensation
       compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
@@ -2851,6 +2853,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                       errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
                       if (abs(errloc)>abs(vec_error_compo(index)))
                         vec_error_compo(index)=errloc;
+		      
                       /*
                         if (abs(errloc)>1.e20)
                         {
@@ -2998,11 +3001,14 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
         cout << "avant" << AQinit << endl;
         cout << "apres" << MO << endl;
         cout << "apres" << AQ << endl;*/
+      cout << "chp: " << chp << " " << chp_save << endl;
+      cout << surrogate[config.iHp].gamma_aq_bins << endl;
+      
       for (i=0;i<n;i++)
         {
           if (sum(surrogate[i].Aaq_bins_init)>1.0e-10)
             //if (surrogate[i].Atot>0.) 
-            cout << surrogate[i].name << " " << surrogate[i].Aaq_bins_init << " " << surrogate[i].Ag << endl;
+            cout << surrogate[i].name << " " << surrogate[i].Aaq_bins_init << " " << surrogate[i].Aaq_bins << endl;
           if (config.compute_organic)
             if (sum(surrogate[i].Ap_layer_init)>1.0e-10)
               cout << surrogate[i].name << " " << surrogate[i].Ap_layer_init << " " << surrogate[i].Ag << endl;
@@ -3351,7 +3357,9 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
       
           tau_dif_ssh(config, surrogate, number, Vsol);
           tau_kmt_ssh(config, surrogate, Temperature, number);
-      
+	  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+	  if (LWCtot>config.LWClimit)
+	    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
 
           //compute the new diameters of particle due to the growth of particles by condensation
           compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
@@ -4129,16 +4137,11 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
   config.gamma_MR_ions_bins=-1.0;
 
-  for (b=0;b<config.nbins;++b)	
-    surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)*LWC(b)/1000.;
-
-
-  /*
-    for (i=0;i<n;i++)
-    if (surrogate[i].Ag+sum(surrogate[i].Aaq_bins_init)>0.)
-    cout << surrogate[i].name << " init2 " << surrogate[i].Ag << " " << sum(surrogate[i].Aaq_bins_init) << endl;  
-    cout << chp << endl;
-    cout << LWC << endl;*/
+  for (b=0;b<config.nbins;++b)
+    if (chp(b)>0)
+      surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)*LWC(b)/1000.;
+    else
+      surrogate[config.iOHm].Aaq_bins_init(b)=0.;
   
 }
 
@@ -4178,9 +4181,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   chp1.resize(config.nbins);
   chp0.resize(config.nbins);
   int icycle;
- 
-  if (config.imethod>=1)
-    config.tequilibrium=0;
+
+  /*
+  if (config.imethod>=1)    
+    config.tequilibrium=0;*/
 
   for (b=0;b<config.nbins;++b)		  
     for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -4218,28 +4222,25 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   if (LWCtot>config.LWClimit)
     compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, AQinit, MMaq, 0, config.nbins);
 
-  if (config.imethod==0)
-    {
-      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
-      if (LWCtot>config.LWClimit)
-        characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
-    }
+  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+  if (LWCtot>config.LWClimit)
+    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);    
   
   if (config.imethod>=1)    
-    {     
+    {          
+      if (config.compute_saturation and config.compute_organic)
+	{
+	  number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
+	  tau_dif_ssh(config, surrogate, number, Vsol);
+	  tau_kmt_ssh(config, surrogate, Temperature, number);
+	  compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+	  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+	  if (LWCtot>config.LWClimit)
+	    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
+	}
+	  
       if (config.imethod==1)
 	{
-	  if (config.compute_saturation and config.compute_organic)
-	    {
-	      number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-	      tau_dif_ssh(config, surrogate, number, Vsol);
-	      tau_kmt_ssh(config, surrogate, Temperature, number);
-	      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
-	      characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
-	      if (LWCtot>config.LWClimit)
-		characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
-	    }
-      
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, 0);
 	}
@@ -4255,7 +4256,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       while (t<deltatmax)
         {
 	  deltat1=min(deltatmax-t,deltat1);
-	  deltat2=deltat1;	  
+	  deltat2=deltat1;
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
 	  
