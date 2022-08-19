@@ -54,7 +54,7 @@ void compute_kp_org_bins_ssh(model_config &config, vector<species>& surrogate,
                   jphase=iphase;
 		
             if (i!=config.iH2O)
-              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+             for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 {
                   if (surrogate[i].nonvolatile)
                     surrogate[i].Kp(b,ilayer,iphase)=pow(10.0,5)*200.0/
@@ -174,7 +174,7 @@ void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
 		  surrogate[i].Kaq(b)=surrogate[i].kaqi
 		  *(1.0+surrogate[i].keqi/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iNO3m].gamma_aq_bins(b)));*/
 		  surrogate[i].Kaq(b)=surrogate[config.iCO2].kaqi*surrogate[config.iH2O].Aaq_bins_init(b)/surrogate[config.iH2O].MM*MMaq(b)/AQinit(b)*surrogate[config.iH2O].gamma_aq_bins(b)*(surrogate[config.iCO2].keq/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iHCO3m].gamma_aq_bins(b)))*
-		    (1.+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));
+		    (1.+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));		  
 		  //surrogate[i].Kaq(b)=surrogate[config.iCO2].kaqi*0.79*(surrogate[config.iCO2].keq/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iHCO3m].gamma_aq_bins(b)))*
 		  //  (1.+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));
 		  //surrogate[i].Kaq(b)=surrogate[config.iCO2].kaqi*(surrogate[config.iCO2].keq/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iHCO3m].gamma_aq_bins(b)))*
@@ -468,14 +468,41 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
               else if (i==config.iHCl)
                 conc_aq+=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM*surrogate[i].MM;
               Kaq=surrogate[i].Kaq(b);
-              if(Kaq<config.kp_low_volatility)
+              if(Kaq<config.kp_low_volatility)		
                 if (conc_aq>0.0)
                   surrogate[i].time_aq(b)=(Kaq*AQinit(b)*surrogate[i].tau_air(b))
                     /(1.0+Kaq*AQinit(b)/conc_aq*surrogate[i].Aaq);
                 else 
-                  surrogate[i].time_aq(b)=0.0*config.tequilibrium;
+                  surrogate[i].time_aq(b)=Kaq*AQinit(b)*surrogate[i].tau_air(b); //0.0*config.tequilibrium;
               else
                 surrogate[i].time_aq(b)=2.0*config.tequilibrium;
+
+	      /*if (i==config.iCO2)
+		{
+		  cout << Kaq << " " <<  config.kp_low_volatility << " " << surrogate[i].time_aq(b) << " " << Kaq*AQinit(b)*surrogate[i].tau_air(b) << endl;
+		  exit(0);
+		  }*/
+
+	      /*
+	      if (surrogate[i].time_aq(b)==0 and i==config.iCO2)
+		{
+		  cout << "time is zero" << " " << conc_aq << endl;
+		  cout << surrogate[config.iHCO3m].Aaq_bins_init << endl;
+		  cout << surrogate[config.iCO3mm].Aaq_bins_init << endl;
+		  exit(0);
+		}
+	      if (Kaq>=config.kp_low_volatility and i==config.iCO2)
+		{
+		  cout << "time is above" << " " << conc_aq << endl;
+		  cout << surrogate[config.iHCO3m].Aaq_bins_init << endl;
+		  cout << surrogate[config.iCO3mm].Aaq_bins_init << endl;
+		  cout << surrogate[i].Kaq(b) << endl;
+		  cout << chp << endl;
+		  cout << surrogate[config.iHp].gamma_aq_bins << endl;
+		  cout << surrogate[config.iCO3mm].gamma_aq_bins << endl;
+		  cout << surrogate[config.iHCO3m].gamma_aq_bins << endl;
+		  exit(0);
+		}*/
 
 	      	      
               if (i==config.iHCl or i==config.iHNO3 or i==config.iNH3 or i==config.iCO2)		
@@ -1252,7 +1279,7 @@ void prodloss_aq_ssh(model_config &config, vector<species>& surrogate, Array<dou
                 }
             }
           else if (surrogate[i].is_inorganic_precursor and config.compute_inorganic and surrogate[i].is_solid==false) //for inorganic compounds      
-            {     
+            {	     
               if (i==config.iH2SO4)
                 {		
                   surrogate[config.iSO4mm].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*surrogate[config.iSO4mm].MM/surrogate[i].MM;
@@ -1262,50 +1289,65 @@ void prodloss_aq_ssh(model_config &config, vector<species>& surrogate, Array<dou
                 }
               else if (i==config.iNH3)
                 {
+		  double tau_airloc=surrogate[i].tau_air(b);
+		  if (surrogate[i].time_aq(b)<config.tequilibrium)
+		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
                   Kaq=surrogate[i].Kaq(b);
                   //compute kinetic rate of absorption
                   conc_aq=surrogate[config.iNH4p].Aaq_bins_init(b)/surrogate[config.iNH4p].MM*surrogate[i].MM;
 
-                  surrogate[config.iNH4p].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iNH4p].MM/surrogate[i].MM;
-                  surrogate[config.iNH4p].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass;
+                  surrogate[config.iNH4p].kprod_aq(b)=surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iNH4p].MM/surrogate[i].MM;
+                  surrogate[config.iNH4p].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kloss_gas+=1.0/tau_airloc*AQinit(b)/sum_mass;
 
                 }
               else if (i==config.iHNO3)
                 {
+		  double tau_airloc=surrogate[i].tau_air(b);
+		  if (surrogate[i].time_aq(b)<config.tequilibrium)
+		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
                   Kaq=surrogate[i].Kaq(b);
                   //compute kinetic rate of absorption
                   conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM*surrogate[i].MM;
-                  surrogate[config.iNO3m].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iNO3m].MM/surrogate[i].MM;
-                  surrogate[config.iNO3m].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass;
+                  surrogate[config.iNO3m].kprod_aq(b)=surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iNO3m].MM/surrogate[i].MM;
+                  surrogate[config.iNO3m].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kloss_gas+=1.0/tau_airloc*AQinit(b)/sum_mass;
                 }
 	      else if (i==config.iCO2)
                 {
+		  double tau_airloc=surrogate[i].tau_air(b);
+		  if (surrogate[i].time_aq(b)<config.tequilibrium)
+		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
+		  if (tau_airloc==0.)
+		    cout << tau_airloc << " is zero" << endl;
+		  //cout << b << " 1 " << surrogate[i].tau_air(b) << " " << tau_airloc << " " << surrogate[i].time_aq(b) << endl;
                   Kaq=surrogate[i].Kaq(b);
 		  //cout << "Kaq " << surrogate[i].Kaq(b) << endl;
                   //compute kinetic rate of absorption
                   //conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM*surrogate[i].MM;
 		  double frac1=1.0/(1.0+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));
-                  surrogate[config.iHCO3m].kprod_aq(b)=frac1*surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iHCO3m].MM/surrogate[i].MM;
-		  surrogate[config.iCO3mm].kprod_aq(b)=(1.0-frac1)*surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iCO3mm].MM/surrogate[i].MM;
-                  surrogate[config.iHCO3m].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-		  surrogate[config.iCO3mm].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
+                  surrogate[config.iHCO3m].kprod_aq(b)=frac1*surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iHCO3m].MM/surrogate[i].MM;
+		  surrogate[config.iCO3mm].kprod_aq(b)=(1.0-frac1)*surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iCO3mm].MM/surrogate[i].MM;
+                  surrogate[config.iHCO3m].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+		  surrogate[config.iCO3mm].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
                   //surrogate[i].kprod_gas+=(surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iCO3mm].MM)*surrogate[i].MM/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
                   //surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass;
                 }
               else if (i==config.iHCl)
                 {
+		  double tau_airloc=surrogate[i].tau_air(b);
+		  if (surrogate[i].time_aq(b)<config.tequilibrium)
+		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
                   Kaq=surrogate[i].Kaq(b);
                   //compute kinetic rate of absorption
                   conc_aq=surrogate[config.iClm].Aaq_bins_init(b)/surrogate[config.iClm].MM*surrogate[i].MM;
 
-                  surrogate[config.iClm].kprod_aq(b)=surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)*surrogate[config.iClm].MM/surrogate[i].MM;
-                  surrogate[config.iClm].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-                  surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass;		
+                  surrogate[config.iClm].kprod_aq(b)=surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[i].fac_corr_ph(b)*surrogate[config.iClm].MM/surrogate[i].MM;
+                  surrogate[config.iClm].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kprod_gas+=conc_aq/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+                  surrogate[i].kloss_gas+=1.0/tau_airloc*AQinit(b)/sum_mass;		
                 }
 
 
@@ -1330,6 +1372,7 @@ void prodloss_aq_bins_ssh(model_config &config, vector<species>& surrogate, Arra
   double sumkpositive=0.0;
   double sumknegative=0.0;
 
+  //cout << surrogate[config.iCO2].time_aq << endl;
   if (sum(LWC)>config.LWClimit)   
     {
       //compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
@@ -1361,13 +1404,20 @@ void prodloss_aq_bins_ssh(model_config &config, vector<species>& surrogate, Arra
               }
 	    else if (i==config.iCO2)
               {
+		double tau_airloc=surrogate[i].tau_air(b);
+		  if (surrogate[i].time_aq(b)<config.tequilibrium)
+		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
+		  if (tau_airloc==0.)
+		    cout << tau_airloc << " is zero" << endl;
+		  //cout << b << " 2 " << surrogate[i].tau_air(b) << " " << tau_airloc << " " << surrogate[i].time_aq(b) << endl;
+		
 		//conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM*surrogate[i].MM;
 		Kaq=surrogate[i].Kaq(b);
 		double frac1=1.0/(1.0+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));
-		surrogate[config.iHCO3m].kprod_aq(b)=frac1*surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iHCO3m].MM/surrogate[i].MM;
-		surrogate[config.iCO3mm].kprod_aq(b)=(1.0-frac1)*surrogate[i].Ag/surrogate[i].tau_air(b)*AQinit(b)/sum_mass*surrogate[config.iCO3mm].MM/surrogate[i].MM;
-		surrogate[config.iHCO3m].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
-		surrogate[config.iCO3mm].kloss_aq(b)=1.0/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
+		surrogate[config.iHCO3m].kprod_aq(b)=frac1*surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iHCO3m].MM/surrogate[i].MM;
+		surrogate[config.iCO3mm].kprod_aq(b)=(1.0-frac1)*surrogate[i].Ag/tau_airloc*AQinit(b)/sum_mass*surrogate[config.iCO3mm].MM/surrogate[i].MM;
+		surrogate[config.iHCO3m].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
+		surrogate[config.iCO3mm].kloss_aq(b)=1.0/(Kaq*conc_org*tau_airloc)*AQinit(b)/sum_mass;
 		surrogate[i].kprod_gas+=(surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iCO3mm].MM)*surrogate[i].MM/(Kaq*conc_org*surrogate[i].tau_air(b))*AQinit(b)/sum_mass;
 		surrogate[i].kloss_gas+=1.0/surrogate[i].tau_air(b)*AQinit(b)/sum_mass;
 	      }
@@ -1880,8 +1930,11 @@ void flux_org_ssh(model_config &config, vector<species>& surrogate,
 			    }    
 		      kcond=surrogate[i].Ag-sum1/sum2;
 		    }
-		  
-		  kcond=(1.0-AQinit(b)/sum_mass)*(kcond)/surrogate[i].tau_air(b);	  	      
+
+		  if (sum_mass>0.)
+		    kcond=(1.0-AQinit(b)/sum_mass)*(kcond)/surrogate[i].tau_air(b);
+		  else
+		    kcond=(kcond)/surrogate[i].tau_air(b);
 		  b2=0.0;
 		  c2=0.0;
 		  if (eq_last_layer)
@@ -2370,32 +2423,65 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 	    else if (i==config.iCO2)
               {
 		//conc_aq=surrogate[config.iNO3m].Aaq_bins_init(b)/surrogate[config.iNO3m].MM*surrogate[i].MM;
-		double frac1=1.0/(1.0+(surrogate[config.iCO2].keq2/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))));
-		double dfrac1=surrogate[config.iCO2].keq2/(pow(chp(index_b),2)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))
-		  /pow(1.0+(surrogate[config.iCO2].keq2/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))),2);
-		Kaq=surrogate[i].Kaq(index_b);
-		double dKaq=-surrogate[i].Kaq(index_b)/chp(index_b)-surrogate[config.iCO2].kpi*surrogate[config.iH2O].Aaq_bins_init(index_b)/MMaq(index_b)*surrogate[config.iH2O].gamma_aq_bins(index_b)*(surrogate[config.iCO2].keq/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iHCO3m].gamma_aq_bins(index_b))*(surrogate[config.iCO2].keq2/(pow(chp(index_b),2)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))));
+		double A=surrogate[config.iCO2].keq2/(surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b));
+
+		//frac1: fraction of carbonates as HCO3-
+		double frac1=1.0/(1.0+A/chp(index_b));
+
+		//dfrac1: derivative of frac1. Set to as as it seems to lead to instabilities
+		double dfrac1=0.; //1.0/pow(1.0+A/chp(index_b),2.)*A/pow(chp(index_b),2);
+
+
+		
+		//double dfrac1=surrogate[config.iCO2].keq2/(pow(chp(index_b),2)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))
+		//  /pow(1.0+(surrogate[config.iCO2].keq2/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))),2);
+		//frac1=0.03;
+		//dfrac1=0;
+		
+		double temp=surrogate[config.iCO2].kaqi*surrogate[config.iH2O].Aaq_bins_init(index_b)/surrogate[config.iH2O].MM*MMaq(index_b)/AQinit(index_b)*surrogate[config.iH2O].gamma_aq_bins(index_b)*(surrogate[config.iCO2].keq/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iHCO3m].gamma_aq_bins(index_b)))*
+		    (1.+(surrogate[config.iCO2].keq2/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))));
+
+		double Keffect=surrogate[i].Kaq(index_b)/temp;
+		
+		/*surrogate[i].Kaq(b)=surrogate[config.iCO2].kaqi*surrogate[config.iH2O].Aaq_bins_init(b)/surrogate[config.iH2O].MM*MMaq(b)/AQinit(b)*surrogate[config.iH2O].gamma_aq_bins(b)*(surrogate[config.iCO2].keq/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iHCO3m].gamma_aq_bins(b)))*
+		  (1.+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));*/
+		
+		Kaq=surrogate[i].Kaq(index_b);		
+		double dKaq=-surrogate[i].Kaq(index_b)/chp(index_b)
+		  -Keffect*surrogate[config.iCO2].kaqi*surrogate[config.iH2O].Aaq_bins_init(index_b)/surrogate[config.iH2O].MM*MMaq(index_b)/AQinit(index_b)*surrogate[config.iH2O].gamma_aq_bins(index_b)*(surrogate[config.iCO2].keq/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iHCO3m].gamma_aq_bins(index_b))*(surrogate[config.iCO2].keq2/(pow(chp(index_b),2)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))));
 		
 		total=(surrogate[config.iHCO3m].Aaq_bins_init0(index_b)
                        +deltat*surrogate[config.iHCO3m].kprod_aq(index_b))
                   /(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))
                   /conc_org*1000./surrogate[config.iHCO3m].MM;
-		dtotal=total/(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))*deltat*surrogate[config.iHCO3m].kloss_aq(index_b)/(Kaq*conc_org*surrogate[i].tau_air(index_b))*dKaq;
+		double total1=total;
+		dtotal=total/(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))*deltat*surrogate[config.iHCO3m].kloss_aq(index_b)/Kaq*dKaq;
 		
 		double total2=(surrogate[config.iCO3mm].Aaq_bins_init0(index_b)
                        +deltat*surrogate[config.iCO3mm].kprod_aq(index_b))
                   /(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))
                   /conc_org*1000./surrogate[config.iCO3mm].MM;
 		total+=total2;
-		dtotal+=total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b)/(Kaq*conc_org*surrogate[i].tau_air(index_b))*dKaq;		
+		dtotal+=total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b)/Kaq*dKaq;
+		//dtotal+=total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b)/(Kaq*conc_org*surrogate[i].tau_air(index_b))*dKaq;		
 		total=total*(1.-frac1)*surrogate[config.iCO3mm].charge+total*frac1*surrogate[config.iHCO3m].charge;
 		dtotal=dtotal*(1.-frac1)*surrogate[config.iCO3mm].charge+dtotal*frac1*surrogate[config.iHCO3m].charge-total*dfrac1*surrogate[config.iCO3mm].charge+total*dfrac1*surrogate[config.iHCO3m].charge;
 
-		derivative+=dtotal;
+		derivative-=dtotal;
 		inorganion-=total;
-
+		//cout << frac1 << " " << dfrac1 << " " << A << " " << dtotal << " " << dtotal*(1.-frac1)*surrogate[config.iCO3mm].charge+dtotal*frac1*surrogate[config.iHCO3m].charge << endl;
+		//cout << "gamma" << surrogate[config.iHp].gamma_aq_bins(index_b) << " " << surrogate[config.iCO3mm].gamma_aq_bins(index_b) << " " << surrogate[config.iHCO3m].gamma_aq_bins(index_b) << endl;
+		//cout << "total: " << total << " " << Kaq << " " << frac1 << " " << dtotal << endl;
+		/*
+		if (abs(dtotal)>1.e10)
+		  {
+		    cout << "dtotal: " << chp(index_b) << " " << Kaq << " " << dtotal << " " << total << " " << dKaq << " " << endl;
+		    cout << "dK: " << total1/(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))*deltat*surrogate[config.iHCO3m].kloss_aq(index_b)/Kaq*dKaq << " " << total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b)/Kaq*dKaq << endl;
+		    cout << "total: " << total1 << " " << total2 << " " << total << endl;
+		    cout << total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b) << Kaq*dKaq << endl;
+		    cout << "dKaq " << Kaq << " " << Kaq/chp(index_b) << " " << temp << endl;
 		//cout << "illall: " << -total << " " << dtotal << endl;
-
+		}*/
 	      }	       	      
 	    else if (i==config.iHCl)
 	      {
@@ -2458,7 +2544,7 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
       if (config.iCa>=0) inorganion-=surrogate[config.iCa].Aaq_bins_init(index_b)/surrogate[config.iCa].MM/conc_org*1000.*surrogate[config.iCa].charge;  
       if (config.iK>=0) inorganion-=surrogate[config.iK].Aaq_bins_init(index_b)/surrogate[config.iK].MM/conc_org*1000.*surrogate[config.iK].charge;
 
-      //cout << inorganion << " " << derivative << " " << chp_new <<endl;
+      //cout << "in: "<< inorganion << " " << derivative << " " << endl;
 
     }
   else
@@ -2655,9 +2741,18 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
   if (config.iK>=0) inorganion-=surrogate[config.iK].Aaq_bins_init(index_b)/surrogate[config.iK].MM/conc_org(index_b)*1000.*surrogate[config.iK].charge;
     }
 
-  derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.0;
-  chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5));
-  //cout << inorganion << " " << derivative << " " << chp_new <<endl;
+  if (abs(inorganion+organion)>=0.)
+    {
+      derivative=derivative*0.5*(1.0+(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.0;
+      chp_new=0.5*(organion+inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5));
+    }
+  else
+    {
+      chp_new=config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b)/
+	(0.5*(-organion-inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5)));
+      derivative=(chp_new/(0.5*(-organion-inorganion+pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))))*0.5*derivative*(1.-(organion+inorganion)/pow(pow(organion+inorganion,2)+4*config.Ke/surrogate[config.iHp].gamma_aq_bins(index_b)/surrogate[config.iOHm].gamma_aq_bins(index_b),0.5))-1.;
+    }
+  //cout << "in2: " << inorganion << " " << derivative << " " << chp_new <<endl;
   error=chp_new-chp(index_b);
   //exit(0);
 }
@@ -3141,13 +3236,13 @@ void activity_coefficients_dyn_aq_bins_ssh(model_config &config, vector<species>
             {
               index++;
               chp_save2=chp_save;
-              chp_save=chp2(b);
-              compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp2, AQinit,MMaq, b, b+1);
+              chp_save=chp2(b);	    
+              compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp2, AQinit,MMaq, b, b+1);	      
               if (config.imethod>0)
-                prodloss_aq_bins_ssh(config, surrogate, AQinit, LWC, MMaq, chp2, ionic, MOinit, conc_org, index2, Temperature, deltat, b);
-              error_h_save=error_h;
-              error_ph_bins_ssh(config, surrogate, b, Temperature, chp2, error_h, derivative_h,AQinit,ionic,MMaq,LWC,chp_new,organion(b),deltat);
-              //cout << error_h << " " << chp2(b) << " " << chp_new << endl;
+                prodloss_aq_bins_ssh(config, surrogate, AQinit, LWC, MMaq, chp2, ionic, MOinit, conc_org, index2, Temperature, deltat, b);	      
+              error_h_save=error_h;	   
+              error_ph_bins_ssh(config, surrogate, b, Temperature, chp2, error_h, derivative_h,AQinit,ionic,MMaq,LWC,chp_new,organion(b),deltat);	     
+              //cout << index << " " << chp2(b) << " " << chp_new << ' ' << derivative_h << " " << chp2(b)-error_h/derivative_h << endl;
 
               if (chp2(b)==1.0e-14 and chp_new<=0.0)
                 error_h=0.0;
@@ -3172,16 +3267,23 @@ void activity_coefficients_dyn_aq_bins_ssh(model_config &config, vector<species>
                        
                 }
 
+	      //chp2(b)=chp_new;
               /*
                 if (abs(error_h)>abs(error_h_save))
                 factor2=max(factor2/2,0.1);*/
               if (abs(chp2(b)-chp_save2)/max(chp2(b),1.e-14)<1.0e-4 and abs(chp2(b)-chp_save)/max(chp2(b),1.0e-14)>1.0e-4)
                 factor2=max(factor2/2,0.1);
-                    
-                    
+
+	      chp2(b)=min(max(chp2(b),0.5*chp_save),2*chp_save);
+                    	     
               chp2(b)=min(max(factor2*chp2(b)+(1-factor2)*chp_save,1.e-14),100.);
               //cout << index << " " << chp2(b) << " " << factor2 << " " << error_h << " " << chp_new << " " << derivative_h << endl;
             }
+	  //cout << chp2(b) << " " << surrogate[config.iOHm].gamma_aq_bins(b) << " " << surrogate[config.iHp].gamma_aq_bins(b) << endl;
+	  //cout << b << " " << chp2(b) << endl;
+
+	  //if (index==50)
+	  //exit(0);
           if (abs((chp_save-chp2(b))/chp2(b))/factor2>1.0e-3)
             {
               //cout << chp2(b) << " " << error_h << endl;
