@@ -1856,7 +1856,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
         surrogate[i].time(b,ilayer,iphase)=0.0;*/
       surrogate[i].k1_gas.resize(2);
       surrogate[i].kprod_aq.resize(config.nbins);
-      surrogate[i].kloss_aq.resize(config.nbins);
+      surrogate[i].kloss_aq.resize(config.nbins);   
       surrogate[i].kloc.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].kprod.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].kloss.resize(config.nbins,config.nlayer,config.max_number_of_phases);

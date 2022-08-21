@@ -35,7 +35,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap, int* i_hydrophilic,
-			       int* N_inert, int* N_inorganic, int* with_oligomerization){
+			       int* N_inert, int* N_inorganic, int* with_oligomerization, int* NACL_IN_THERMODYNAMICS){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, *co2_conc_ppm,
 		       *ionic, chp, LWCorg, 
@@ -51,7 +51,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap, *i_hydrophilic,
-		       *N_inert, *N_inorganic, *with_oligomerization);
+		       *N_inert, *N_inorganic, *with_oligomerization, *NACL_IN_THERMODYNAMICS);
 }
 
 /*! \brief Main function of SOAP
@@ -78,7 +78,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic, int with_oligomerization)
+		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS)
 {
 
   /*** General parameters and options ***/
@@ -252,11 +252,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
   
   // If Na and Cl are included.
   bool NaCl;
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-  NaCl = false;
-#else
-  NaCl = true;
-#endif
+  if (NACL_IN_THERMODYNAMICS==0)
+     NaCl = false;
+  else 
+     NaCl = true;
 
 
   /*** Initialiation ***/

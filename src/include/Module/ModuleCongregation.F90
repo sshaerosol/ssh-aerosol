@@ -171,17 +171,12 @@ contains
                 !calculate the C/E kernal
                 do s=1, nesp_isorropia
                    jesp = isorropia_species(s)
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-                   IF (jesp.NE.ECl) THEN
-#endif
+                   IF (jesp.NE.ECl.or.NACL_IN_THERMODYNAMICS==1) THEN
                       ce_kernal_coef(j,jesp)=ce_kernal_coef_i(jesp)
                       if (jesp.NE.ESO4) then ! SO4 is computed either with non volatile species or in bulk equilibrium
                          dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(jesp)
                       endif
-
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
                    ENDIF
-#endif
                 enddo
              endif
           endif

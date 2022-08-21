@@ -193,14 +193,14 @@ contains
     ionic = 0.D0
     lwc = 0.D0
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    qaerona = qaero(ENa)
-    qaerocl = qaero(ECl)
-    qgascl = qgas(ECl)
-    qaero(ENa) = 0.D0
-    qaero(ECl) = 0.D0
-    qgas(ECl) = 0.D0
-#endif
+    if (NACL_IN_THERMODYNAMICS==0) then
+       qaerona = qaero(ENa)
+       qaerocl = qaero(ECl)
+       qgascl = qgas(ECl)
+       qaero(ENa) = 0.D0
+       qaero(ECl) = 0.D0
+       qgas(ECl) = 0.D0
+    endif
 
     if (soap_inorg==0) then
        call ssh_isoropia_drv(N_aerosol,&
@@ -213,11 +213,11 @@ contains
             Temperature, qaero, qgas, liquid, delta_t, qaq)
     endif
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    qaero(ENa) = qaerona
-    qaero(ECl) = qaerocl
-    qgas(ECl) = qgascl
-#endif
+    if (NACL_IN_THERMODYNAMICS==0) then
+       qaero(ENa) = qaerona
+       qaero(ECl) = qaerocl
+       qgas(ECl) = qgascl
+    endif
     
     qgas(EH2O)=0.0
     
@@ -250,18 +250,14 @@ contains
           jesp=isorropia_species(s)
           if(aerosol_species_interact(jesp).GT.0) then      
              qext(jesp)=qaero(jesp)
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-             if(jesp.ne.ECl) then
-#endif
+             if(jesp.ne.ECl.or.NACL_IN_THERMODYNAMICS==1) then
                 concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
                 if(qext(jesp).gt.0.d0) then
                    dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
                 else
                    dq(jesp)=-qextold(jesp)! compute delta aero conc
                 endif
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
              endif
-#endif	
           endif
        enddo
 
@@ -297,11 +293,11 @@ contains
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
             0,dqaq)
-#ifndef WITHOUT_NACL_IN_THERMODYNAMICS
-       if (ECO3>0) then
+
+       if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
           call ssh_redistribution_co3(qaero(ECO3),ICUT_org)
        endif
-#endif
+
        !do jesp=1,N_aerosol
        !   print*,aerosol_species_name(jesp),concentration_mass(1,jesp)          
        !enddo
@@ -368,9 +364,7 @@ contains
 
       if (aerosol_species_interact(jesp).GT.0) then
 	    ! compute total ce_kernal_coef coef (s-1)	
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-        IF (jesp.NE.ECl) THEN
-#endif
+        IF (jesp.NE.ECl.or.NACL_IN_THERMODYNAMICS==1) THEN
           do j =1, N_size
             if(concentration_index(j, 1) <= ICUT) then
 	      rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
@@ -400,9 +394,7 @@ contains
 !!			*(1.d0/(Kelvin_effect(j,jesp)-1.d0)) ! KS
             endif
           enddo
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
         ENDIF
-#endif
 !	endif
       endif
     enddo
@@ -444,11 +436,11 @@ contains
       qgasa = 0.d0
     endif
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-      qaero(ENa) = 0.D0
-      qaero(ECl) = 0.D0
-      qgas(ECl) = 0.D0
-#endif
+    if (NACL_IN_THERMODYNAMICS==0) then
+       qaero(ENa) = 0.D0
+       qaero(ECl) = 0.D0
+       qgas(ECl) = 0.D0
+    endif
 
     organion= 0.D0
     watorg = 0.D0
@@ -470,18 +462,14 @@ contains
       jesp=eq_species(s)
       if(aerosol_species_interact(jesp).GT.0) then      
 	qext(jesp)=qaero(jesp)
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-       if(jesp.ne.ECl) then
-#endif
+       if(jesp.ne.ECl.or.NACL_IN_THERMODYNAMICS==1) then
 	concentration_gas(jesp)=qgas(jesp)!new qgas is used in N_aerosol bin
 	if(qext(jesp).gt.0.d0) then
 	  dq(jesp)=qext(jesp)-qextold(jesp)! compute delta aero conc
         else
    	  dq(jesp)=-qextold(jesp)! compute delta aero conc
 	endif
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
  	endif
-#endif	
       endif
    enddo
    
@@ -542,9 +530,7 @@ contains
        endif
        if (aerosol_species_interact(jesp).GT.0) then
           if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-             IF (jesp.NE.ECl .and. jesp.ne.ENa) THEN
-#endif
+             IF ((jesp.NE.ECl .and. jesp.ne.ENa).or.NACL_IN_THERMODYNAMICS==1) THEN
                 iclip=0
                 iclipaq=0
 
@@ -615,9 +601,7 @@ contains
                       enddo
                    endif
                 endif
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
              ENDIF
-#endif
           endif
        endif
     enddo
@@ -669,10 +653,8 @@ contains
       if (aerosol_species_interact(jesp).GT.0) then
 
        if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-      IF (jesp.NE.ECl) THEN
-      IF (jesp.NE.ENa) THEN
-#endif
+      IF (jesp.NE.ECl.or.NACL_IN_THERMODYNAMICS==1) THEN
+      IF (jesp.NE.ENa.or.NACL_IN_THERMODYNAMICS==1) THEN
          iclip=0
          do j=1,end_bin!judgment
 	  if(ce_kernal_coef_tot(jesp).gt.0.d0) then
@@ -717,10 +699,8 @@ contains
 	  enddo
         endif
         endif
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
       ENDIF
       ENDIF
-#endif
       endif
     enddo
 

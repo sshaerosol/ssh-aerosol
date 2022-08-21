@@ -288,11 +288,11 @@ contains
           jesp=isorropia_species(2)
           qgas(jesp)=0.d0
           qgas(EH2O)=0.0
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-          qaero(ENa) = 0.d0
-          qaero(ECl) = 0.d0
-          qgas(ECl) = 0.d0
-#endif
+          if (NACL_IN_THERMODYNAMICS==0) then
+             qaero(ENa) = 0.d0
+             qaero(ECl) = 0.d0
+             qgas(ECl) = 0.d0
+          endif
           call ssh_isoropia_drv(N_aerosol,&
                qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
                liquid)

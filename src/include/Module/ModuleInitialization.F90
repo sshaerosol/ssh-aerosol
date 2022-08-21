@@ -89,7 +89,8 @@ module aInitialization
   integer, save :: output_type
   integer, save :: splitting
   integer, save :: soap_inorg,soap_inorg_loc
-  integer ,save :: niter_water,niter_eqconc
+  integer, save :: niter_water,niter_eqconc
+  integer, save :: NACL_IN_THERMODYNAMICS
   integer, dimension(:), allocatable, save :: iter_eqconc,iter_water
 
   ! cut-off diameter
@@ -437,7 +438,7 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water,co2_conc_ppm
+         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
@@ -1065,6 +1066,7 @@ contains
     soap_inorg=0
     niter_eqconc=1
     niter_water=1
+    NACL_IN_THERMODYNAMICS=0
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
