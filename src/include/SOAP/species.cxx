@@ -218,6 +218,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
 
+  int with_ca=0;
+  int with_co3=0;
+
   species BiA2D;
   BiA2D.name="BiA2D";
   BiA2D.is_inorganic_precursor=false;
@@ -3116,7 +3119,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   species HCO3;
   HCO3.name="HCO3";
   HCO3.is_inorganic_precursor=false;
-  HCO3.MM=73.0;           // Molar mass (g/mol)
+  HCO3.MM=61.0;           // Molar mass (g/mol)
   HCO3.is_organic=false;  // Is the compound organic?
   HCO3.hydrophilic=true; // Does the species condense on the aqueous phase?
   HCO3.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -3142,7 +3145,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   species CO3;
   CO3.name="CO3";
   CO3.is_inorganic_precursor=false;
-  CO3.MM=72.0;           // Molar mass (g/mol)
+  CO3.MM=60.0;           // Molar mass (g/mol)
   CO3.is_organic=false;  // Is the compound organic?
   CO3.hydrophilic=true; // Does the species condense on the aqueous phase?
   CO3.hydrophobic=false;  // Does the species condense on the organic phase?
@@ -3168,6 +3171,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
         CO3.soap_ind = i;
         CO3.soap_ind_aero = i;
 	surrogate.push_back(CO3);
+	with_co3=1;
       }
 
   species Ca;
@@ -3199,6 +3203,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
         Ca.soap_ind = i;
         Ca.soap_ind_aero = i;
 	surrogate.push_back(Ca);
+	with_ca=1;
       }
 
   species Mg;
@@ -3420,6 +3425,38 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 	CO2.soap_ind=i;
 	surrogate.push_back(CO2);
       }
+
+  if (with_ca==1 and with_co3==1)
+    {
+      config.solids=true;
+      
+      species CaCO3;
+      CaCO3.name="CaCO3";
+      CaCO3.MM=100.078;
+      CaCO3.nonvolatile=false;
+      CaCO3.is_organic=false;
+      CaCO3.is_solid=true;
+      CaCO3.is_inorganic_precursor=true;
+      //  CaCO3.Henry=2.5e3;     // Enthalpy of vaporization (kJ/mol)
+      //  CaCO3.deltaH=0.0;     // Henry's law constant at Tref (M/atm)
+      CaCO3.hydrophilic=false; // Does the species condense on the aqueous phase?
+      CaCO3.hydrophobic=false;  // Does the species condense on the organic phase?
+      CaCO3.compute_gamma_org=false;  // Compute the activity coefficients of the organic phase for this compound?
+      CaCO3.compute_gamma_aq=false;  // Compute the activity coefficients of the aqueous phase for this compound
+      CaCO3.KDiffusion_air=1.72e-5;
+      CaCO3.accomodation_coefficient=0.5;
+      CaCO3.Ksol=2.25e-8; //11.73003492;   //4.199e−17*2.1e5*57.64*1.805e−5/1.01e-14;
+      CaCO3.deltaH=0.; //8.16364555; //-74.735+29.17-1.5+13.79+22.52;
+      CaCO3.dCp=0.; //-71.6059517; //6.025+16.83+26.92-5.39-26.92; //
+      CaCO3.nion=2;
+      CaCO3.ion1="Ca";
+      CaCO3.pion1=1;
+      CaCO3.ion2="CO3";
+      CaCO3.pion2=1;
+      CaCO3.viscosity=1.;
+      surrogate.push_back(CaCO3);
+    }
+
 }
 
 #endif

@@ -274,7 +274,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       surrogate[i].Ag = 0.0;
       surrogate[i].fion1 = 0.0;
       surrogate[i].fion2 = 0.0;
-      surrogate[i].nion = 0;
       surrogate[i].gamma_aq=1.0;
       surrogate[i].gamma_org=1.0;
     }
@@ -401,12 +400,14 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       if (config.iCO2>0)
 	surrogate[config.iCO2].Ag = co2_conc_ppm *12.187e3*44./Temperature;
 
-      //cout << "CO3 in: " << surrogate[config.iCO3mm].Aaq+surrogate[config.iHCO3m].Aaq*surrogate[config.iCO3mm].MM/surrogate[config.iHCO3m].MM << " " << chp << endl;
-
       global_equilibrium_ssh(config,surrogate,
 			     MOinit,MOW,
 			     LWC, AQinit, ionic, chp,
 			     Temperature, RH, deltat);
+
+      /*for (i=0;i<n;i++)
+	if (surrogate[i].Aaq+surrogate[i].Ap>0.)
+	  cout << surrogate[i].name << " " << surrogate[i].Aaq+surrogate[i].Ap << endl;*/
 
       if (config.compute_inorganic)
 	{
@@ -492,7 +493,52 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		  
 		}
             }
-        }
+	}
+
+      
+      for (i = 0; i < n; ++i)
+	if (config.solids and surrogate[i].is_solid)
+	  for(int j=0;j<surrogate[i].nion;j++)
+	    {
+	      int iions,pions;
+	      if (j==0)
+		{
+		  iions=surrogate[i].iion1;
+		  pions=surrogate[i].pion1;
+		}
+	      else if (j==1)
+		{
+		  iions=surrogate[i].iion2;
+		  pions=surrogate[i].pion2;
+		}
+	      else
+		{
+		  iions=surrogate[i].iion3;
+		  pions=surrogate[i].pion3;
+		}
+	      
+	      int im=-1;
+	      if (iions==config.iSO4mm or iions==config.iHSO4m)
+		im=config.iH2SO4;
+	      else if (iions==config.iNO3m)
+		im=config.iHNO3;
+	      else if (iions==config.iNH4p)
+		im=config.iNH3;
+	      else if (iions==config.iClm)
+		im=config.iHCl;
+	      else if (iions==config.iHCO3m or iions==config.iCO3mm)
+		im=config.iCO2;
+	      
+	      if (im>=0)
+		{
+		  int iq2=surrogate[im].soap_ind;
+		  if (im==config.iCO2)
+		    qaero[iq2]+=surrogate[i].Ap*surrogate[config.iCO3mm].MM*pions/surrogate[i].MM;
+		  else
+		    qaero[iq2]+=surrogate[i].Ap*surrogate[im].MM*pions/surrogate[i].MM;
+		}
+	      
+	    }
     }
 
   /*** Use the dynamic approach ***/
@@ -510,6 +556,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	{
 	  surrogate[i].Ap_layer_init = 0.0;
 	  surrogate[i].Aaq_bins_init = 0.0;
+	  surrogate[i].Asol_bins_init = 0.0;
 	  surrogate[i].Ag = 0.0;
 	  surrogate[i].Ap = 0.0;
 	  surrogate[i].Aaq = 0.0;
@@ -785,11 +832,57 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       if (config.iCO2>0)
 	surrogate[config.iCO2].Ag = co2_conc_ppm *12.187e3*44./Temperature;
 
+      /*
+      for (i = 0; i < n; ++i)
+	if (sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init)+surrogate[i].Ag>0)
+	  cout << "INIT: " << surrogate[i].name << " " << sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init) << " " << surrogate[i].Ag << endl;*/
+
       dynamic_system_ssh(config,surrogate,
 			 MOinit_layer, MOW_layer,number,vsol,
 			 LWC_bins, AQinit_bins, ionic_bins, chp_bins,
 			 Temperature, RH, deltat);
+      /*
+      for (i = 0; i < n; ++i)
+	if (sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init)+surrogate[i].Ag>0)
+	  cout << "OUT: " << surrogate[i].name << " " << sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init) << " " << surrogate[i].Ag << endl;*/
+
+      /*cout << surrogate[config.iCa].Aaq_bins_init << endl;
+      cout << surrogate[config.iCO3mm].Aaq_bins_init << endl;
+      cout << surrogate[config.iHCO3m].Aaq_bins_init << endl;
+      cout << surrogate[config.iH2O].Aaq_bins_init << endl;
+      cout << chp_bins << endl;*/
+
+     
       //cout << "OUT: " << sum(surrogate[config.iCO3mm].Aaq_bins_init)+sum(surrogate[config.iHCO3m].Aaq_bins_init)/surrogate[config.iHCO3m].MM*surrogate[config.iCO3mm].MM << endl;
+
+      //For solid species, concentrations is put in the corresponding ion
+      for (b=0;b<config.nbins;b++)
+	for (i = 0; i < n; ++i)
+	  if (config.solids and surrogate[i].is_solid)
+	    {
+	      for(int j=0;j<surrogate[i].nion;j++)
+		{
+		  int iions,pions;
+		  if (j==0)
+		    {
+		      iions=surrogate[i].iion1;
+		      pions=surrogate[i].pion1;
+		    }
+		  else if (j==1)
+		    {
+		      iions=surrogate[i].iion2;
+		      pions=surrogate[i].pion2;
+		    }
+		  else
+		    {
+		      iions=surrogate[i].iion3;
+		      pions=surrogate[i].pion3;
+		    }
+		  surrogate[iions].Aaq_bins_init(b)+=surrogate[i].Asol_bins_init(b)*surrogate[iions].MM*pions/surrogate[i].MM;
+		}
+	      surrogate[i].Asol_bins_init(b)=0.;
+	    }
+      
 
       // Give back the concentrations
       for (i = 0; i < n; ++i)

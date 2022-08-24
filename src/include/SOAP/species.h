@@ -181,6 +181,7 @@ namespace ssh_soap
 	Array<double, 3> Ap_layer,Ap_layer_init,Ap_layer_init0,gamma_org_layer,gamma_org_layer0,Xinit;
 	Array<double, 3> Kp;
 	Array<double, 1> Aaq_bins,Aaq_bins_init,Aaq_bins_init0,time_aq,LR,SRMR,Kaq,dKaq;
+	Array<double, 1> Aaq_bins_init2,Asol_bins_init,Asol_bins_init2,Asol_bins_init0,Asol_bins;
 	Array<double, 1> gamma_aq_bins,gamma_aq_bins_old;
 	double KDiffusion_p,KDiffusion_air,accomodation_coefficient,Ag0,Aaq0;
 	Array<double, 3> tau_diffusion,time;

@@ -743,6 +743,14 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		    if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);
 		  }
 
+		
+		if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		  {
+		    total=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM;
+		    if(total>0.) ratio(config.iCO3mm)=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM/total;
+		    if(total>0.) ratio(config.iHCO3m)=surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM/total;
+		  }
+
 		if (excess(i)<0.) // and iion3<1)
 		  xmol=-surrogate[i].Ap2/surrogate[i].MM/conc_org*1000.; //0.; //-pow(Ke,1./3);
                   //xmol=max(xmol,-pow(-excess(i),1.0/(pion1+pion2+pion3)));
@@ -853,6 +861,14 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		    surrogate[config.iSO4mm].Aaq2=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
 		    surrogate[config.iHSO4m].Aaq2=total*surrogate[config.iHSO4m].MM*(1.-ratio(config.iSO4mm));
 		  }
+
+		
+		if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		  {
+		    total=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM;
+		    surrogate[config.iCO3mm].Aaq2=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
+		    surrogate[config.iHCO3m].Aaq2=total*surrogate[config.iHCO3m].MM*(1.-ratio(config.iCO3mm));
+		  }
               }
 
   
@@ -912,6 +928,14 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		    total=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq2/surrogate[config.iHSO4m].MM;
 		    surrogate[config.iSO4mm].Aaq2=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
 		    surrogate[config.iHSO4m].Aaq2=total*surrogate[config.iHSO4m].MM*ratio(config.iHSO4m);
+		  }
+
+		
+		if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		  {
+		    total=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM;
+		    surrogate[config.iCO3mm].Aaq2=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
+		    surrogate[config.iHCO3m].Aaq2=total*surrogate[config.iHCO3m].MM*ratio(config.iHCO3m);
 		  }
               }
    

@@ -1588,6 +1588,432 @@ void flux_aq_ssh(model_config &config, vector<species>& surrogate, Array<double,
 
 }
 
+
+void solidification_bins_ssh(model_config &config, vector<species>& surrogate, double &Temperature, Array<double, 1> &MMaq, Array<double,1> &AQinit, Array<double,1> &chp, Array<double,1> &ionic, Array<double,1> &LWC, double& factor)
+{
+  int n=surrogate.size();
+  int i,b;
+  Array <double, 1> excess,ratio;
+  double Ke,prod_conc,xmol,total;     
+  excess.resize(n);
+  ratio.resize(n);
+  /*
+  for (i=0;i<n;i++)
+    surrogate[i].Ag2=surrogate[i].Ag; */
+
+  for (b=0;b<config.nbins;b++)
+    {
+
+      excess=0.0; 
+      double sum_excess=0.0;
+      ratio=1.0;
+      double sum_error_ap=10;
+      double factor2=1.;
+      
+      double conc_org=0.;               
+
+      /*
+      for (i=0;i<n;i++)
+	if (i==config.iNa or i==config.iCa or i==config.iK or i==config.iMg)
+	  surrogate[i].Aaq_bins_init2(b)=surrogate[i].Aaq_bins_init0(b);
+	else
+	  {
+	    //surrogate[i].Ag2=surrogate[i].Ag;
+	    //surrogate[i].Asol_bins_init2(b)=0.;
+	    surrogate[i].Aaq_bins_init2(b)=surrogate[i].Aaq_bins_init(b);
+	    //surrogate[i].molality2=surrogate[i].molality;
+	    //if (surrogate[i].nion>2 and surrogate[i].Ap>config.MOmin)
+	    //  factor2=1.0; //0.5;
+	  }
+
+      if (config.solids)
+	for (int j=0;j<n;j++)
+	  if (surrogate[j].is_solid)
+	    {			
+	      for (int j2=0;j2<surrogate[j].nion;j2++)
+		{
+		  //cout << j2 << " " << surrogate[j].iion1 << " " << surrogate[j].iion2 << " " << config.iHCO3m << " " << condifendl;
+		  if (j2==0 and (surrogate[j].iion1==config.iNa or surrogate[j].iion1==config.iCa or surrogate[j].iion1==config.iK or surrogate[j].iion1==config.iMg))
+		    {
+		      surrogate[surrogate[j].pion1].Aaq_bins_init2(b)+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion1;		      
+		    }
+		  else if (j2==2 and (surrogate[j].iion2==config.iNa or surrogate[j].iion2==config.iCa or surrogate[j].iion2==config.iK or surrogate[j].iion2==config.iMg))
+		    {
+		      surrogate[surrogate[j].pion1].Aaq_bins_init2(b)+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion2;		      
+		    }
+		  else if (j2==2 and (surrogate[j].iion3==config.iNa or surrogate[j].iion3==config.iCa or surrogate[j].iion3==config.iK or surrogate[j].iion3==config.iMg))
+		    {
+		      surrogate[surrogate[j].pion1].Aaq_bins_init2(b)+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion3;		      
+		    }
+		}
+	      surrogate[j].Asol_bins_init2(b)=0.;
+	    }
+
+      compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
+      for (i=0;i<n;++i)
+	if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)      
+	surrogate[i].molality2=surrogate[i].Aaq_bins_init2(b)/surrogate[i].MM/conc_org*1000.0;     */
+
+      compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
+  
+      for (i=0;i<n;++i)
+	if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)      
+	  surrogate[i].molality=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0; 
+      
+      for (i=0;i<n;i++)	
+	{
+	  //surrogate[i].Ag2=surrogate[i].Ag;
+	  surrogate[i].Asol_bins_init2(b)=surrogate[i].Asol_bins_init(b);
+	  surrogate[i].Aaq_bins_init2(b)=surrogate[i].Aaq_bins_init(b);
+	  surrogate[i].molality2=surrogate[i].molality;	  
+	  
+	  //if (surrogate[i].nion>2 and surrogate[i].Ap>config.MOmin)
+	  //  factor2=1.0; //0.5;	  
+	}
+
+
+      
+      
+      /*
+      for (i=0;i<n;i++)       
+	{
+	  //surrogate[i].Ag2=surrogate[i].Ag;
+	  surrogate[i].Asol_bins_init2(b)=surrogate[i].Asol_bins_init(b);
+	  surrogate[i].Aaq_bins_init2(b)=surrogate[i].Aaq_bins_init(b);
+	  surrogate[i].molality2=surrogate[i].molality;
+	  //if (surrogate[i].nion>2 and surrogate[i].Ap>config.MOmin)
+	  //  factor2=1.0; //0.5;
+	}*/
+  
+      int k=0;
+      while (sum_error_ap/factor2>0.00001 and k<1)
+	{
+	  //double sum_error_ap_save=sum_error_ap;
+	  sum_error_ap=0;
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].is_solid)
+	      {
+		int iion1=surrogate[i].iion1;
+		int iion2=surrogate[i].iion2;
+		int pion1=surrogate[i].pion1;
+		int pion2=surrogate[i].pion2;
+		int iion3=surrogate[i].iion3;
+		int pion3=surrogate[i].pion3;
+		
+		prod_conc=pow(surrogate[iion1].molality2,pion1)*pow(surrogate[iion2].molality2,pion2);
+		xmol=-surrogate[i].Asol_bins_init2(b)/surrogate[i].MM/conc_org*1000.;            
+		Ke=surrogate[i].keq/(pow(surrogate[iion1].gamma_aq,pion1)*pow(surrogate[iion2].gamma_aq,pion2));
+				
+		if (surrogate[i].nion>2)
+		  {
+		    Ke=Ke/pow(surrogate[iion3].gamma_aq,pion3);
+		    prod_conc*=pow(surrogate[iion3].molality2,pion3);               
+		  }
+		else
+		  pion3=0.0;
+		excess(i)=prod_conc-Ke;
+        
+		//cout << "excess: " << excess(i) << endl; 
+		if ((excess(i)>0. and prod_conc>0.) or (excess(i)<0. and xmol<0.)) 
+		  {    
+
+		    //ratio=1.;
+		    /*
+		    if (iion1==config.iNH4p or iion2==config.iNH4p or iion3==config.iNH4p)
+		      {
+			total=surrogate[config.iNH3].Ag2/surrogate[config.iNH3].MM+surrogate[config.iNH4p].Aaq_bins_init2(b)/surrogate[config.iNH4p].MM;
+			if(total>0.) ratio(config.iNH4p)=surrogate[config.iNH4p].Aaq_bins_init2(b)/surrogate[config.iNH4p].MM/total;
+		      }
+
+		    if  (iion1==config.iNO3m or iion2==config.iNO3m or iion3==config.iNO3m)
+		      {
+			total=surrogate[config.iHNO3].Ag2/surrogate[config.iHNO3].MM+surrogate[config.iNO3m].Aaq_bins_init2(b)/surrogate[config.iNO3m].MM;
+			if(total>0.) ratio(config.iNO3m)=surrogate[config.iNO3m].Aaq_bins_init2(b)/surrogate[config.iNO3m].MM/total;
+		      }
+
+
+		    if (iion1==config.iClm or iion2==config.iClm or iion3==config.iClm)
+		      {
+			total=surrogate[config.iHCl].Ag2/surrogate[config.iHCl].MM+surrogate[config.iClm].Aaq_bins_init2(b)/surrogate[config.iClm].MM;
+			if(total>0.) ratio(config.iClm)=surrogate[config.iClm].Aaq_bins_init2(b)/surrogate[config.iClm].MM/total;
+		      }*/
+
+		    if (iion1==config.iSO4mm or iion1==config.iHSO4m or iion2==config.iSO4mm or iion2==config.iHSO4m or iion3==config.iSO4mm or iion3==config.iHSO4m)
+		      {
+			total=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init2(b)/surrogate[config.iHSO4m].MM;
+			if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM/total;
+			if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);
+		      }
+
+		    /*
+		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		      {
+			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+			if(total>0.)
+			  {
+			    ratio(config.iCO3mm)=(surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM/total);
+			    ratio(config.iHCO3m)=1.-ratio(config.iCO3mm); //surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM/total;
+			  }
+
+			
+			cout << ratio(config.iCO3mm) << endl;
+			cout << surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM << endl;
+			cout << surrogate[config.iCO3mm].Aaq_bins(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins(b)/surrogate[config.iHCO3m].MM << endl;
+			cout << surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM << endl;
+		      }*/
+
+		    if (excess(i)<0.) // and iion3<1)
+		      xmol=-surrogate[i].Asol_bins_init2(b)/surrogate[i].MM/conc_org*1000.; //0.; //-pow(Ke,1./3);
+		    //xmol=max(xmol,-pow(-excess(i),1.0/(pion1+pion2+pion3)));
+		    else
+		      xmol=0.;
+		    //xmol=max(xmol,pow(prod_conc-Ke,1.0/(pion1+pion2+pion3)));
+
+		    double error=100.;
+		    //double error_save=0.0;
+		    double derror=0.;
+		    int iter=0;
+		    //double xmol_save=xmol;
+		    while (abs(error)/max(Ke,1.0e-4)>1.0e-8 and iter<2000)
+		      {
+			double m1=surrogate[iion1].molality2-ratio(iion1)*xmol*pion1;
+			double m2=surrogate[iion2].molality2-ratio(iion2)*xmol*pion2;                                                
+			double m3=1.;                   
+			if (iion3>0) 
+			  m3=surrogate[iion3].molality2-ratio(iion3)*xmol*pion3;
+
+			//cout << "mol " << m1 << " " << m2 << " " << endl;
+			//cout << iter << endl;
+                           
+			error=pow(m1,pion1)*pow(m2,pion2);
+			derror=-ratio(iion1)*pion1*pow(m1,pion1-1)*pion1*pow(m2,pion2)*pow(m3,pion3)-ratio(iion2)*pion2*pion2*pow(m2,pion2-1)*pow(m1,pion1)*pow(m3,pion3);
+			if (iion3>0) 
+			  {
+			    derror-=ratio(iion3)*pion3*pion3*pow(m3,pion3-1)*pow(m2,pion2)*pow(m1,pion1);                   
+			    error*=pow(m3,pion3);
+			  }
+			error=error-Ke;                  
+			if (abs(derror)>0.)                      
+			  xmol=xmol-error/derror;
+     
+			iter++;
+			//cout << "error: " << error << " " << error/Ke << endl;
+			//xmol_save=xmol;
+			//cout << "X: " << iter << " " << xmol << " " << error << " " << derror << " " << Ke << " " << pow(m1,pion1)*pow(m2,pion2) << endl;                                                                       
+                             
+		      }		    
+
+		    excess(iion1)-=xmol*ratio(iion1)*pion1;
+		    excess(iion2)-=xmol*ratio(iion2)*pion2;	       
+		    excess(i)=xmol;
+		    //cout << xmol << " " << excess(iion1) << " " << excess(iion2) << endl;
+		  }             
+
+		if (prod_conc==0.0) excess(i)=0.0;             
+		if (xmol>0.) sum_excess+=xmol;
+
+		//if (xmol<0.) excess(i)=xmol_save;
+		//cout << surrogate[i].name << " " << excess(i) << " " << xmol << " " << surrogate[i].Ap << " " << surrogate[i].keq << endl;
+
+		if (iion1==config.iSO4mm or iion1==config.iHSO4m or iion2==config.iSO4mm or iion2==config.iHSO4m or iion3==config.iSO4mm or iion3==config.iHSO4m)
+		  {
+		    total=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init2(b)/surrogate[config.iHSO4m].MM;
+		    if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM/total;
+		    if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);       
+		  }
+
+		//excess*=factor2;
+		if (excess(i)!=excess(i)) exit(0);
+        
+		if (excess(i)<0.) //dissolution
+		  {		    
+		    excess(i)=factor2*max(-surrogate[i].Asol_bins_init2(b)/surrogate[i].MM/conc_org*1000,excess(i));		    
+		    //cout << "dissolution " << surrogate[i].Ap << " " << factor << " " << surrogate[config.iH2O].Aaq << " " << surrogate[i].gamma_aq << " "<< excess(i) << endl;
+		    //surrogate[i].Ap=factor*excess(i)*surrogate[i].MM*conc_org/1000.+surrogate[i].Ap;
+		    if (surrogate[i].Asol_bins_init2(b)>0.) sum_error_ap+=abs(excess(i)*surrogate[i].MM*conc_org/1000./surrogate[i].Asol_bins_init2(b));
+		    surrogate[i].Asol_bins_init2(b)=max(excess(i)*surrogate[i].MM*conc_org/1000.+surrogate[i].Asol_bins_init2(b),0.);
+		    //cout << surrogate[i].Ap << endl;            
+		    //int iion1=surrogate[i].iion1;
+		    //int pion1=surrogate[i].pion1;
+		    surrogate[iion1].Aaq_bins_init2(b)=-excess(i)*surrogate[iion1].MM*conc_org/1000.*pion1+surrogate[iion1].Aaq_bins_init2(b);
+		    //int iion2=surrogate[i].iion2;
+		    //int pion2=surrogate[i].pion2;
+		    surrogate[iion2].Aaq_bins_init2(b)=-excess(i)*surrogate[iion2].MM*conc_org/1000.*pion2+surrogate[iion2].Aaq_bins_init2(b);
+		    if (surrogate[i].nion>2)
+		      {
+			//int iion3=surrogate[i].iion3;
+			//int pion3=surrogate[i].pion3;
+			surrogate[iion3].Aaq_bins_init2(b)=-excess(i)*surrogate[iion3].MM*conc_org/1000.*pion3+surrogate[iion3].Aaq_bins_init2(b);
+		      }
+
+		    /*
+		    if (iion1==config.iNH4p or iion2==config.iNH4p or iion3==config.iNH4p)
+		      {
+			total=surrogate[config.iNH3].Ag2/surrogate[config.iNH3].MM+surrogate[config.iNH4p].Aaq_bins_init2(b)/surrogate[config.iNH4p].MM;
+			surrogate[config.iNH3].Ag2=total*surrogate[config.iNH3].MM*(1.0-ratio(config.iNH4p));
+			surrogate[config.iNH4p].Aaq_bins_init2(b)=total*surrogate[config.iNH4p].MM*ratio(config.iNH4p);
+		      }
+
+		    if (iion1==config.iNO3m or iion2==config.iNO3m or iion3==config.iNO3m)
+		      {
+			total=surrogate[config.iHNO3].Ag2/surrogate[config.iHNO3].MM+surrogate[config.iNO3m].Aaq_bins_init2(b)/surrogate[config.iNO3m].MM;
+			surrogate[config.iHNO3].Ag2=total*surrogate[config.iHNO3].MM*(1.0-ratio(config.iNO3m));
+			surrogate[config.iNO3m].Aaq_bins_init2(b)=total*surrogate[config.iNO3m].MM*ratio(config.iNO3m);
+		      }
+
+
+		    if (iion1==config.iClm or iion2==config.iClm or iion3==config.iClm)
+		      {
+			total=surrogate[config.iHCl].Ag2/surrogate[config.iHCl].MM+surrogate[config.iClm].Aaq_bins_init2(b)/surrogate[config.iClm].MM;
+			surrogate[config.iHCl].Ag2=total*surrogate[config.iHCl].MM*(1.0-ratio(config.iClm));
+			surrogate[config.iClm].Aaq_bins_init2(b)=total*surrogate[config.iClm].MM*ratio(config.iClm);
+		      }*/
+
+		    if (iion1==config.iSO4mm or iion1==config.iHSO4m or iion2==config.iSO4mm or iion2==config.iHSO4m or iion3==config.iSO4mm or iion3==config.iHSO4m)
+		      {
+			total=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init2(b)/surrogate[config.iHSO4m].MM;
+			surrogate[config.iSO4mm].Aaq_bins_init2(b)=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
+			surrogate[config.iHSO4m].Aaq_bins_init2(b)=total*surrogate[config.iHSO4m].MM*(1.-ratio(config.iSO4mm));
+		      }
+		    /*
+		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		      {
+			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+			surrogate[config.iCO3mm].Aaq_bins_init2(b)=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
+			surrogate[config.iHCO3m].Aaq_bins_init2(b)=total*surrogate[config.iHCO3m].MM*(1.-ratio(config.iCO3mm));
+			}*/
+		  }
+
+  
+		//cout << "avant " << min_excess << " " << max_excess << " " << 0.225*surrogate[42].Ap << " " << 0.225*surrogate[42].Ap+0.27272727*surrogate[43].Ap+surrogate[config.iNH3].Ag*18./17.+surrogate[config.iNH4p].Aaq << endl;
+
+		//cout << "prendant " << surrogate[config.iNa].Aaq << " " << surrogate[44].Ap*2*23./surrogate[44].MM+surrogate[config.iNa].Aaq << endl;
+        
+		if (excess(i)>0.) //solidification
+		  {		   
+		    //cout << "solid " << surrogate[i].Ap << " " << factor << " " << surrogate[config.iH2O].Aaq << " " << surrogate[config.iH2O].gamma_aq << " " << config.iH2O << endl;
+		    //surrogate[i].Ap=max(factor*excess(i)*surrogate[i].MM*conc_org/1000.+surrogate[i].Ap,0.)
+		    
+		    if (surrogate[i].Asol_bins_init2(b)>0.) sum_error_ap+=abs(excess(i)*surrogate[i].MM*conc_org/1000./surrogate[i].Asol_bins_init2(b));
+		    excess(i)*=factor2;
+		    surrogate[i].Asol_bins_init2(b)+=excess(i)*surrogate[i].MM*conc_org/1000.;
+		    //int iion1=surrogate[i].iion1;
+		    //int pion1=surrogate[i].pion1;		    
+		    surrogate[iion1].Aaq_bins_init2(b)-=excess(i)*surrogate[iion1].MM*conc_org/1000.*pion1;
+		    //int iion2=surrogate[i].iion2;
+		    //int pion2=surrogate[i].pion2;
+		    
+		    surrogate[iion2].Aaq_bins_init2(b)-=excess(i)*surrogate[iion2].MM*conc_org/1000.*pion2;
+		    //surrogate[config.iCO3mm].Aaq_bins_init2(b)-=excess(i)*surrogate[config.iCO3mm].MM*conc_org/1000.*pion2*ratio(config.iCO3mm);
+		    //surrogate[config.iHCO3m].Aaq_bins_init2(b)-=excess(i)*surrogate[config.iHCO3m].MM*conc_org/1000.*pion2*(1.-ratio(config.iCO3mm));
+		    if (surrogate[i].nion>2)
+		      {
+			//int iion3=surrogate[i].iion3;
+			//int pion3=surrogate[i].pion3;
+			surrogate[iion3].Aaq_bins_init2(b)=-excess(i)*surrogate[iion3].MM*conc_org/1000.*pion3+surrogate[iion3].Aaq_bins_init2(b);
+		      }
+
+		    //cout << "pendant " << min_excess << " " << max_excess << " " << 0.27272727*surrogate[43].Ap << " " << 0.27272727*surrogate[43].Ap+surrogate[config.iNH3].Ag*18./17.+surrogate[config.iNH4p].Aaq << endl;
+		    double total=0.0;
+		    //cout << surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM+surrogate[config.iNH4p].Aaq/surrogate[config.iNH4p].MM << endl;
+		    /*
+		    if (iion1==config.iNH4p or iion2==config.iNH4p or iion3==config.iNH4p)
+		      {
+			total=surrogate[config.iNH3].Ag2/surrogate[config.iNH3].MM+surrogate[config.iNH4p].Aaq_bins_init2(b)/surrogate[config.iNH4p].MM;
+			surrogate[config.iNH3].Ag2=max(total*surrogate[config.iNH3].MM*(1.0-ratio(config.iNH4p)),0.);
+			surrogate[config.iNH4p].Aaq_bins_init2(b)=total*surrogate[config.iNH4p].MM*ratio(config.iNH4p);
+		      }
+		    //cout << surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM << " " << surrogate[config.iNH4p].Aaq/surrogate[config.iNH4p].MM << endl;
+
+		    //cout << surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM+surrogate[config.iNH4p].Aaq/surrogate[config.iNH4p].MM << endl;
+		    if (iion1==config.iNO3m or iion2==config.iNO3m or iion3==config.iNO3m)
+		      {
+			total=surrogate[config.iHNO3].Ag2/surrogate[config.iHNO3].MM+surrogate[config.iNO3m].Aaq_bins_init2(b)/surrogate[config.iNO3m].MM;
+			surrogate[config.iHNO3].Ag2=max(total*surrogate[config.iHNO3].MM*(1.0-ratio(config.iNO3m)),0.);
+			surrogate[config.iNO3m].Aaq_bins_init2(b)=total*surrogate[config.iNO3m].MM*ratio(config.iNO3m);
+		      }
+
+
+		    if (iion1==config.iClm or iion2==config.iClm or iion3==config.iClm)
+		      {
+			total=surrogate[config.iHCl].Ag2/surrogate[config.iHCl].MM+surrogate[config.iClm].Aaq_bins_init2(b)/surrogate[config.iClm].MM;
+			surrogate[config.iHCl].Ag2=max(total*surrogate[config.iHCl].MM*(1.0-ratio(config.iClm)),0.);
+			surrogate[config.iClm].Aaq_bins_init2(b)=total*surrogate[config.iClm].MM*ratio(config.iClm);
+			}*/
+
+		    if (iion1==config.iSO4mm or iion1==config.iHSO4m or iion2==config.iSO4mm or iion2==config.iHSO4m or iion3==config.iSO4mm or iion3==config.iHSO4m)
+		      {
+			total=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init2(b)/surrogate[config.iHSO4m].MM;
+			surrogate[config.iSO4mm].Aaq_bins_init2(b)=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
+			surrogate[config.iHSO4m].Aaq_bins_init2(b)=total*surrogate[config.iHSO4m].MM*ratio(config.iHSO4m);
+		      }
+
+		    /*		    
+		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		      {
+			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+			surrogate[config.iCO3mm].Aaq_bins_init2(b)=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
+			surrogate[config.iHCO3m].Aaq_bins_init2(b)=total*surrogate[config.iHCO3m].MM*ratio(config.iHCO3m);
+			}*/
+		  }
+   
+		//cout << "fin " << min_excess << " " << max_excess << " " << 0.27272727*surrogate[43].Ap << " " << 0.27272727*surrogate[43].Ap+surrogate[config.iNH3].Ag*18./17.+surrogate[config.iNH4p].Aaq << endl;
+		//cout << surrogate[i].Ap << endl;
+		//cout << "la " << surrogate[i].Ap << " " << factor << " " << surrogate[config.iH2O].Aaq << " " << surrogate[config.iH2O].gamma_aq << " " << config.iH2O << endl;
+        
+		if (surrogate[i].Asol_bins_init2(b)<0. and surrogate[config.iH2O].Aaq_bins_init2(b)>1.0e4) exit(0);
+		int j;
+		for (j=0;j<n;++j)
+		  if (surrogate[j].is_organic==false and j!=config.iH2O and surrogate[j].is_inorganic_precursor==false)
+		    if (j!=config.iHp and j!=config.iOHm)
+		      {
+
+			//if (surrogate[j].Aaq>0.) cout << surrogate[j].name << " " << surrogate[j].Aaq << endl;
+			surrogate[j].molality2=surrogate[j].Aaq_bins_init2(b)/surrogate[j].MM/conc_org*1000.;
+			//if (surrogate[j].molality<0.) cout << surrogate[j].name << " " << surrogate[j].molality << " " << excess(i) << endl;
+			//if (surrogate[j].molality<0.) exit(0);
+		      }
+
+		//cout << "apres " << surrogate[config.iNa].Aaq << " " << surrogate[44].Ap*2*23./surrogate[44].MM+surrogate[config.iNa].Aaq << endl;
+
+	      }
+	  //cout << sum_error_ap/factor2 << endl;
+	  //if ((sum_error_ap_save-sum_error_ap)<1.e-4*sum_error_ap) factor2=max(factor2/2,0.5);
+	  k++;
+	}      
+            
+      for (i=0;i<n;i++)       
+	{	    
+	  surrogate[i].Asol_bins_init(b)=surrogate[i].Asol_bins_init2(b);
+	  surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init2(b);
+	}
+      /*
+      for (i=0;i<n;i++)
+	{
+	  //surrogate[i].Ag=factor*surrogate[i].Ag2+(1.-factor)*surrogate[i].Ag;
+	  surrogate[i].Asol_bins_init(b)=factor*surrogate[i].Asol_bins_init2(b)+(1.-factor)*surrogate[i].Asol_bins_init(b);
+	  surrogate[i].Aaq_bins_init(b)=factor*surrogate[i].Aaq_bins_init2(b)+(1.-factor)*surrogate[i].Aaq_bins_init(b);
+	  //surrogate[i].molality=factor*surrogate[i].molality2+(1.-factor)*surrogate[i].molality;
+	  if (surrogate[i].Aaq_bins_init(b)<=0. and surrogate[i].Aaq_bins(b)>0.)
+	    {
+	      cout << "error " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << surrogate[i].Aaq_bins_init2(b) << " " << surrogate[i].molality << " " << surrogate[i].molality2 << endl;
+	      exit(0);
+	    }
+	  
+	}*/
+    }
+
+  for (b=0;b<config.nbins;b++)
+    {
+      if (surrogate[config.iHCO3m].Aaq_bins_init(b)<0.)
+	{
+	  cout << "neg conc" << endl;
+	  exit(0);
+	}
+    }
+    
+}
+
 void compute_morphology_ssh(model_config &config, Array<double,1> &vsol, Array<double, 1> & Number)
 {
   int b,ilayer;
@@ -2449,15 +2875,48 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 		Kaq=surrogate[i].Kaq(index_b);		
 		double dKaq=-surrogate[i].Kaq(index_b)/chp(index_b)
 		  -Keffect*surrogate[config.iCO2].kaqi*surrogate[config.iH2O].Aaq_bins_init(index_b)/surrogate[config.iH2O].MM*MMaq(index_b)/AQinit(index_b)*surrogate[config.iH2O].gamma_aq_bins(index_b)*(surrogate[config.iCO2].keq/(chp(index_b)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iHCO3m].gamma_aq_bins(index_b))*(surrogate[config.iCO2].keq2/(pow(chp(index_b),2)*surrogate[config.iHp].gamma_aq_bins(index_b)*surrogate[config.iCO3mm].gamma_aq_bins(index_b)/surrogate[config.iHCO3m].gamma_aq_bins(index_b))));
+
+		double total2b=0.;
+		double total0=0.;
+		/*
+		if (config.solids)
+		  for (int j=0;j<n;j++)
+		    if (surrogate[j].is_solid)
+		      {			
+			for (int j2=0;j2<surrogate[j].nion;j2++)
+			  {
+			    //cout << j2 << " " << surrogate[j].iion1 << " " << surrogate[j].iion2 << " " << config.iHCO3m << " " << condifendl;
+			    if (j2==0 and (surrogate[j].iion1==config.iHCO3m or surrogate[j].iion1==config.iCO3mm))
+			      {
+				total0+=(surrogate[j].Asol_bins_init0(index_b))/surrogate[j].MM*surrogate[j].pion1;
+				total2b+=(surrogate[j].Asol_bins_init(index_b))/surrogate[j].MM*surrogate[j].pion1;
+			      }
+			    else if (j2==1 and (surrogate[j].iion2==config.iHCO3m or surrogate[j].iion2==config.iCO3mm))
+			      {			      
+				total0+=(surrogate[j].Asol_bins_init0(index_b))/surrogate[j].MM*surrogate[j].pion2;
+				total2b+=(surrogate[j].Asol_bins_init(index_b))/surrogate[j].MM*surrogate[j].pion2;
+			      }
+			    else if (j2==2 and (surrogate[j].iion3==config.iHCO3m or surrogate[j].iion3==config.iCO3mm))
+			      {
+				total0+=(surrogate[j].Asol_bins_init0(index_b))/surrogate[j].MM*surrogate[j].pion3;
+				total2b+=(surrogate[j].Asol_bins_init(index_b))/surrogate[j].MM*surrogate[j].pion3;
+			      }
+			  }
+			  }*/
 		
-		total=(surrogate[config.iHCO3m].Aaq_bins_init0(index_b)
+		double total1b=surrogate[config.iHCO3m].Aaq_bins_init(index_b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(index_b)/surrogate[config.iHCO3m].MM;
+		double frac2=(total1b)/(total2b+total1b);		
+		total=(frac2*(surrogate[config.iHCO3m].Aaq_bins_init0(index_b)+frac1*total0*surrogate[config.iHCO3m].MM)
                        +deltat*surrogate[config.iHCO3m].kprod_aq(index_b))
                   /(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))
                   /conc_org*1000./surrogate[config.iHCO3m].MM;
+
+
+		
 		double total1=total;
 		dtotal=total/(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))*deltat*surrogate[config.iHCO3m].kloss_aq(index_b)/Kaq*dKaq;
 		
-		double total2=(surrogate[config.iCO3mm].Aaq_bins_init0(index_b)
+		double total2=(frac2*(surrogate[config.iCO3mm].Aaq_bins_init0(index_b)+(1-frac1)*total0*surrogate[config.iCO3mm].MM)
                        +deltat*surrogate[config.iCO3mm].kprod_aq(index_b))
                   /(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))
                   /conc_org*1000./surrogate[config.iCO3mm].MM;
@@ -2469,19 +2928,6 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 
 		derivative-=dtotal;
 		inorganion-=total;
-		//cout << frac1 << " " << dfrac1 << " " << A << " " << dtotal << " " << dtotal*(1.-frac1)*surrogate[config.iCO3mm].charge+dtotal*frac1*surrogate[config.iHCO3m].charge << endl;
-		//cout << "gamma" << surrogate[config.iHp].gamma_aq_bins(index_b) << " " << surrogate[config.iCO3mm].gamma_aq_bins(index_b) << " " << surrogate[config.iHCO3m].gamma_aq_bins(index_b) << endl;
-		//cout << "total: " << total << " " << Kaq << " " << frac1 << " " << dtotal << endl;
-		/*
-		if (abs(dtotal)>1.e10)
-		  {
-		    cout << "dtotal: " << chp(index_b) << " " << Kaq << " " << dtotal << " " << total << " " << dKaq << " " << endl;
-		    cout << "dK: " << total1/(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(index_b))*deltat*surrogate[config.iHCO3m].kloss_aq(index_b)/Kaq*dKaq << " " << total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b)/Kaq*dKaq << endl;
-		    cout << "total: " << total1 << " " << total2 << " " << total << endl;
-		    cout << total2/(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(index_b))*deltat*surrogate[config.iCO3mm].kloss_aq(index_b) << Kaq*dKaq << endl;
-		    cout << "dKaq " << Kaq << " " << Kaq/chp(index_b) << " " << temp << endl;
-		//cout << "illall: " << -total << " " << dtotal << endl;
-		}*/
 	      }	       	      
 	    else if (i==config.iHCl)
 	      {
@@ -3622,7 +4068,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
         }
 
       compute_ionic_strenght2_ssh(config, surrogate, Temperature, AQinit(b), conc_inorganic(b), ionic(b), chp(b),
-                                  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));
+                                  organion(b), ionic_organic(b), conc_org, 1.0, config.Ke/surrogate[config.iHp].gamma_aq_bins(b)/surrogate[config.iOHm].gamma_aq_bins(b));     
     }
     
   for (b=0;b<config.nbins;b++)
@@ -3727,13 +4173,88 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	      {
 
 		double frac1=1.0/(1.0+(surrogate[config.iCO2].keq2/(chp(b)*surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iCO3mm].gamma_aq_bins(b)/surrogate[config.iHCO3m].gamma_aq_bins(b))));
-		double Kaq=surrogate[i].Kaq(b);	        
+		//cout << "frac1: " << b << " " << frac1 << " " << surrogate[config.iHCO3m].Aaq_bins_init(b) << " " << surrogate[config.iCO3mm].Aaq_bins_init(b) << endl;
+		//cout << "g: " << surrogate[config.iHp].gamma_aq_bins(b) << " " << surrogate[config.iCO3mm].gamma_aq_bins(b) << " " << surrogate[config.iHCO3m].gamma_aq_bins(b) << endl;
+		//cout << surrogate[config.iCO2].keq2 << " " << surrogate[config.iCO2].keq2/chp(b) << " " << chp(b) << endl;
+		double Kaq=surrogate[config.iCO2].Kaq(b);
+		//cout << Kaq << " " << Kaq*surrogate[config.iH2O].Aaq*surrogate[config.iCO2].Ag << " " << AQinit(b) << " " << surrogate[config.iH2O].Aaq_bins_init(b) << " " << surrogate[config.iHCO3m].Aaq_bins_init(b) <<  endl;
+
+		double total2=0.;
+		double total0=0.;
+		/*
+		if (config.solids)
+		  for (int j=0;j<n;j++)
+		    if (surrogate[j].is_solid)
+		      {			
+			for (int j2=0;j2<surrogate[j].nion;j2++)
+			  {
+			    //cout << j2 << " " << surrogate[j].iion1 << " " << surrogate[j].iion2 << " " << config.iHCO3m << " " << condifendl;
+			    if (j2==0 and (surrogate[j].iion1==config.iHCO3m or surrogate[j].iion1==config.iCO3mm))
+			      {
+				total0+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion1;
+				total2+=(surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion1;
+			      }
+			    else if (j2==1 and (surrogate[j].iion2==config.iHCO3m or surrogate[j].iion2==config.iCO3mm))
+			      {			      
+				total0+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion2;
+				total2+=(surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion2;
+			      }
+			    else if (j2==2 and (surrogate[j].iion3==config.iHCO3m or surrogate[j].iion3==config.iCO3mm))
+			      {
+				total0+=(surrogate[j].Asol_bins_init0(b))/surrogate[j].MM*surrogate[j].pion3;
+				total2+=(surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion3;
+			      }
+			  }
+		      }*/
+		
+		double total1=surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM;
+		double frac2=(total1)/(total2+total1);
+		total=(frac2*(surrogate[config.iHCO3m].Aaq_bins_init0(b)+frac1*total0*surrogate[config.iHCO3m].MM)+deltat*surrogate[config.iHCO3m].kprod_aq(b))
+                  /(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(b))/surrogate[config.iHCO3m].MM
+		  +(frac2*(surrogate[config.iCO3mm].Aaq_bins_init0(b)+(1-frac1)*total0*surrogate[config.iCO3mm].MM)+deltat*surrogate[config.iCO3mm].kprod_aq(b))
+                  /(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(b))/surrogate[config.iCO3mm].MM;		
+		
+		/*
+		double total2=0.;
+		if (config.solids)
+		  for (int j=0;j<n;j++)
+		    if (surrogate[j].is_solid)
+		      {			
+			for (int j2=0;j2<surrogate[j].nion;j2++)
+			  {
+			    //cout << j2 << " " << surrogate[j].iion1 << " " << surrogate[j].iion2 << " " << config.iHCO3m << " " << condifendl;
+			    if (j2==0 and (surrogate[j].iion1==config.iHCO3m or surrogate[j].iion1==config.iCO3mm))
+			      total2+=(surrogate[j].Asol_bins_init0(b)-surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion1;
+			    else if (j2==1 and (surrogate[j].iion2==config.iHCO3m or surrogate[j].iion2==config.iCO3mm))
+			      {
+				cout << "ok in: " << surrogate[j].Asol_bins_init0(b) << " " << surrogate[j].Asol_bins_init(b) << endl;
+				total2+=(surrogate[j].Asol_bins_init0(b)-surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion2;
+			      }
+			    else if (j2==2 and (surrogate[j].iion3==config.iHCO3m or surrogate[j].iion3==config.iCO3mm))
+			      total2+=(surrogate[j].Asol_bins_init0(b)-surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion3;
+			  }
+		      }
+
 		total=(surrogate[config.iHCO3m].Aaq_bins_init0(b)+deltat*surrogate[config.iHCO3m].kprod_aq(b))
                   /(1.0+deltat*surrogate[config.iHCO3m].kloss_aq(b))/surrogate[config.iHCO3m].MM
-		  +(surrogate[config.iCO3mm].Aaq_bins_init0(b)+deltat*surrogate[config.iCO3mm].kprod_aq(b))
+		  +(total2*surrogate[config.iCO3mm].MM+surrogate[config.iCO3mm].Aaq_bins_init0(b)+deltat*surrogate[config.iCO3mm].kprod_aq(b))
                   /(1.0+deltat*surrogate[config.iCO3mm].kloss_aq(b))/surrogate[config.iCO3mm].MM;
+		
+		//total+=total2;
+		cout << "rtota: " << total << " " << surrogate[config.iHCO3m].Aaq_bins_init(b)/61+surrogate[config.iCO3mm].Aaq_bins_init(b)/60 << " " << total2 << " " << total+total2 << endl;
+
+		if (total<0)
+		  {
+		    cout<< surrogate[config.iHCO3m].Aaq_bins_init0(b)/61+surrogate[config.iCO3mm].Aaq_bins_init0(b)/60 << endl;
+		    for (int j=0;j<n;j++)
+		      if (surrogate[j].is_solid)
+			cout << surrogate[j].Asol_bins_init0(b)/surrogate[j].MM << endl;
+		    
+		    exit(0);
+		  }*/
+		
 		surrogate[config.iHCO3m].Aaq_bins_init(b)=total*frac1*surrogate[config.iHCO3m].MM;
-		surrogate[config.iCO3mm].Aaq_bins_init(b)=total*(1.-frac1)*surrogate[config.iCO3mm].MM;
+		surrogate[config.iCO3mm].Aaq_bins_init(b)=total*(1.-frac1)*surrogate[config.iCO3mm].MM;		
 		//cout << "toal: " << b << " " << frac1 << "  " << total << " " << surrogate[config.iHCO3m].kprod_aq(b)+surrogate[config.iCO3mm].kprod_aq(b) << " " << surrogate[config.iHCO3m].kloss_aq(b) << endl;
 	      }      
 	
@@ -3745,6 +4266,12 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
           //  apnew=max(min(apnew,10.*surrogate[i].Ag),0.1*surrogate[i].Ag);
           surrogate[i].Ag=apnew; //factor*apnew+(1.-factor)*surrogate[i].Ag;
         }
+    }
+
+  if (config.solids)
+    {
+      solidification_bins_ssh(config,surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, factor);
+      //compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
     }
   //cout << "ici: " << surrogate[config.iCO3mm].Aaq_bins_init << endl;
   //cout << surrogate[config.iHCO3m].Aaq_bins_init << endl;
@@ -3900,7 +4427,6 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	      	  
 	  }
 
-
   for (i=0;i<n;i++)
     if (i!=config.iH2O)
       {
@@ -3915,9 +4441,11 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 	      if (surrogate[i].hydrophobic)
 		surrogate[i].Ap_layer_init(b,ilayer,iphase)=
 		  factor*surrogate[i].Ap_layer_init(b,ilayer,iphase)+(1.-factor)*surrogate[i].Ap_layer(b,ilayer,iphase);
+
+	for (b=0;b<config.nbins;b++)
+	  if (surrogate[i].is_solid)
+	    surrogate[i].Asol_bins_init(b)=factor*surrogate[i].Asol_bins_init(b)+(1.-factor)*surrogate[i].Asol_bins(b);
       }
-
-
   
   sum1=1.0;
   conceq=surrogate[config.iH2O].Ag;  

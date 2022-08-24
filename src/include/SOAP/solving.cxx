@@ -2107,6 +2107,10 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
               for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 surrogate[i].Ap_layer_init0(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase); 
         }
+      
+      if (surrogate[i].is_solid)
+	for(b=0;b<config.nbins;b++)
+	  surrogate[i].Asol_bins_init0(b)=surrogate[i].Asol_bins_init(b);
     }
 
   /*
@@ -2232,7 +2236,11 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
 			 
 		  if (surrogate[i].hydrophilic)
 		    for(b=0;b<config.nbins;b++)
-		      surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins(b);             
+		      surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins(b);
+
+		  if (config.solids and surrogate[i].is_solid)
+		    for(b=0;b<config.nbins;b++)
+		      surrogate[i].Asol_bins_init(b)=surrogate[i].Asol_bins(b);
 		}
 	      ++nh;
 	      factor=pow(0.5,nh-1);
@@ -2266,6 +2274,9 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
           
           for (b=0;b<config.nbins;++b)
             surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins_init(b);
+
+	  for (b=0;b<config.nbins;++b)
+            surrogate[i].Asol_bins(b)=surrogate[i].Asol_bins_init(b);
           
           surrogate[i].Ag1=surrogate[i].Ag;
           surrogate[i].Atot1=surrogate[i].Atot;
@@ -2552,7 +2563,9 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
           if (surrogate[i].hydrophobic)
             for (ilayer=0;ilayer<config.nlayer;++ilayer)
               for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-                surrogate[i].Ap_layer_init0(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase); 
+                surrogate[i].Ap_layer_init0(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+	  if (surrogate[i].is_solid)
+	    surrogate[i].Asol_bins_init0(b)=surrogate[i].Asol_bins_init(b);
         }
     }
 
@@ -2580,7 +2593,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
           if (non_convergence and nh<config.nh_max)
             { 
               if (abs(vec_error_org(index-1))>100.0 or abs(vec_error_aq(index-1))>100.0 or abs(vec_error_gas(index-1))>100.0)
-                {
+                {		  
                   for (i=0;i<n;i++)
                     {
 		      surrogate[i].Atot=surrogate[i].Atot1;
@@ -2592,7 +2605,12 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                               surrogate[i].Ap_layer_init(b,ilayer,iphase)=surrogate[i].Ap_layer(b,ilayer,iphase);          
                       if (surrogate[i].hydrophilic)
                         for(b=0;b<config.nbins;b++)
-                          surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins(b);             
+                          surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins(b);
+
+		      if (surrogate[i].is_solid)
+			for(b=0;b<config.nbins;b++)
+                          surrogate[i].Asol_bins_init(b)=surrogate[i].Asol_bins(b);
+		   
                     }
                   
                   for(b=0;b<config.nbins;b++)
@@ -2643,6 +2661,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
           {
             surrogate[i].Aaq_bins(b)=surrogate[i].Aaq_bins_init(b);
             surrogate[i].gamma_aq_bins_old(b)=surrogate[i].gamma_aq_bins(b);
+	    surrogate[i].Asol_bins(b)=surrogate[i].Asol_bins_init(b);
           }
 
       for (i=0;i<n;i++)
@@ -2685,6 +2704,8 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
           if (config.compute_saturation and config.compute_organic)
             phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);
         }
+      
+      //cout << surrogate[config.iCa].Aaq_bins_init << endl;
 
       if (iiter>200)
         {
@@ -2874,7 +2895,15 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 		      if (abs(errloc)>abs(vec_error_compo(index)))
 			vec_error_compo(index)=errloc;
 		    }
-	  
+
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].is_solid)
+	      if (surrogate[i].Asol_bins(b)>config.MOmin)
+		{
+		  errloc=(surrogate[i].Asol_bins_init(b)-surrogate[i].Asol_bins(b))/surrogate[i].Asol_bins(b)/factor_old;
+		  if (abs(errloc)>abs(vec_error_compo(index)))
+		    vec_error_compo(index)=errloc;
+		}
           //if (AQ(b)>1.0e-5)
           //  vec_error_chp(index)=max(vec_error_chp(index),abs(chp(b)-chp_save(b))/chp(b));
           //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
@@ -2968,6 +2997,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
       //if (config.imethod==3)
       //	error_tot=vec_error_gas(index);
       //else
+      
       error_tot=max(max(max(abs(vec_error_org(index)),abs(vec_error_aq(index))),abs(vec_error_gas(index))),abs(vec_error_compo(index)));
       //for (b=0;b<config.nbins;++b)
       // if (AQ(b)>1.e-5)
@@ -3667,6 +3697,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
           surrogate[i].LR(b)=1.0;
           surrogate[i].SRMR(b)=1.0;
         }
+      if (surrogate[i].is_solid==false)
+	surrogate[i].Asol_bins_init=0;
     }
   
   for (b=0;b<config.nbins;b++)
@@ -3762,6 +3794,10 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
             surrogate[i].keqi=surrogate[i].Kequilibrium_ssh(Temperature);
           }
       }
+
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_solid)
+      surrogate[i].keq=surrogate[i].Ksol*exp(-surrogate[i].deltaH*(298./Temperature-1.0)-surrogate[i].dCp*(1.+log(298./Temperature)-298/Temperature));
 
   double Pwater=surrogate[config.iH2O].Psat_ssh(Temperature)*RH;
   surrogate[config.iH2O].Atot=(Pwater/760.0*1.013e5)*surrogate[config.iH2O].MM*1.0e6/
@@ -4238,12 +4274,13 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	  if (LWCtot>config.LWClimit)
 	    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
 	}
-	  
-      if (config.imethod==1)
+
+      /*
+      if (config.imethod>=1)
 	{
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, 0);
-	}
+			     }*/
       
       deltat1=config.deltatmin;
       if (config.imethod>=2)

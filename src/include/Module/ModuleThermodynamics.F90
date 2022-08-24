@@ -714,17 +714,18 @@ contains
     end do
     ! compute liquid aerosol volume
     ! sodium volume
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    vil=vil + qext(ENa)/mass_density(ENa)
-#endif
-    ! 
-#ifndef WITHOUT_NACL_IN_THERMODYNAMICS
-    vil=vil + qinti(INa)/mass_density(ENa)
-#endif
-    ! 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    vil = vil + qext(ECl)/mass_density(ECl) ! HCl volume
-#endif
+
+    if (NACL_IN_THERMODYNAMICS==0) then 
+       vil=vil + qext(ENa)/mass_density(ENa)
+       vil = vil + qext(ECl)/mass_density(ECl) ! HCl volume
+    else   
+       vil=vil + qinti(INa)/mass_density(ENa)
+       vil=vil+( qinti(IHCl)&
+         +qinti(ICl)&
+         *1.02816901408D0&     ! mwhcl/mwicl
+         )/mass_density(ECl)           !  g. m-3
+    endif
+    
     ! ammonium volume
     vil=vil+( qinti(INH4)&
          +qinti(INH4)&
@@ -736,14 +737,7 @@ contains
          +qinti(INO3)&
          *1.01612903226D0&     ! mwhno3/mwino3
          )/mass_density(ENO3)          ! µg.µm-3
-
-    ! chlorhydric acid volume
-#ifndef WITHOUT_NACL_IN_THERMODYNAMICS
-    vil=vil+( qinti(IHCl)&
-         +qinti(ICl)&
-         *1.02816901408D0&     ! mwhcl/mwicl
-         )/mass_density(ECl)           ! µg.µm-3
-#endif
+    
     ! sulfuric acid volume
     vil=vil+( qinti(IHSO4)&
          *1.01030927835D0&     ! mwh2so4/mwihso4
@@ -764,12 +758,12 @@ contains
     ! correction for water
     sumint=sumint-qinti(IH2O)-qinti(IOH)+qext(EH2O)
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
     ! 			      ! correction when no NaCl in internal composition
-    sumint = sumint - qinti(INa) + qext(ENa)
-    sumint = sumint - qinti(IHCl) - qinti(ICl)*1.02816901408D0&
-         + qext(ECl)
-#endif
+    if (NACL_IN_THERMODYNAMICS==0) then
+       sumint = sumint - qinti(INa) + qext(ENa)
+       sumint = sumint - qinti(IHCl) - qinti(ICl)*1.02816901408D0&
+          + qext(ECl)
+    endif
 
     !!     dry organic volume and total internal mass
     do s=1,nesp_aec
@@ -849,10 +843,10 @@ contains
             /molecular_weight_aer(jesp)!&  ! µg.mol-1
     end do
 
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    wi(1) = 0.D0              !Do not consider sea salt in isoropia
-    wi(5) = 0.D0
-#endif
+    if (NACL_IN_THERMODYNAMICS==0) then
+       wi(1) = 0.D0              !Do not consider sea salt in isoropia
+       wi(5) = 0.D0
+    endif
 
     if (iter_eqconc(jbin)==0) then
        call ssh_ISOROPIA(wi,Relative_Humidity,Temperature,cntrl,w,gas,&
@@ -925,9 +919,11 @@ contains
     surface_equilibrium_conc(ENH4)=gas(1)*molecular_weight_aer(ENH4)
     surface_equilibrium_conc(ENO3)=gas(2)*molecular_weight_aer(ENO3)
     surface_equilibrium_conc(ECl) =gas(3)*molecular_weight_aer(ECl)
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-    surface_equilibrium_conc(ECl) = 0.d0 
-#endif
+
+    if (NACL_IN_THERMODYNAMICS==0) then
+       surface_equilibrium_conc(ECl) = 0.d0 
+    endif
+
     lwc = aerliq(IH2O) * imw(IH2O) ! microg.m-3 
 
     if (iter_eqconc(jbin)==niter_eqconc) iter_eqconc(jbin)=0
