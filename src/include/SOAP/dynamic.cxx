@@ -1716,7 +1716,7 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 		//cout << "excess: " << excess(i) << endl; 
 		if ((excess(i)>0. and prod_conc>0.) or (excess(i)<0. and xmol<0.)) 
 		  {    
-
+		    //cout << "in " << endl;
 		    //ratio=1.;
 		    /*
 		    if (iion1==config.iNH4p or iion2==config.iNH4p or iion3==config.iNH4p)
@@ -1745,7 +1745,7 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);
 		      }
 
-		    /*
+		    
 		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
 		      {
 			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
@@ -1755,12 +1755,14 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			    ratio(config.iHCO3m)=1.-ratio(config.iCO3mm); //surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM/total;
 			  }
 
-			
+			/*
 			cout << ratio(config.iCO3mm) << endl;
 			cout << surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM << endl;
 			cout << surrogate[config.iCO3mm].Aaq_bins(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins(b)/surrogate[config.iHCO3m].MM << endl;
-			cout << surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM << endl;
-		      }*/
+			cout << surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iCO3mm].MM << " " << surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM << endl;*/
+		      }
+
+		    
 
 		    if (excess(i)<0.) // and iion3<1)
 		      xmol=-surrogate[i].Asol_bins_init2(b)/surrogate[i].MM/conc_org*1000.; //0.; //-pow(Ke,1./3);
@@ -1792,16 +1794,28 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			    derror-=ratio(iion3)*pion3*pion3*pow(m3,pion3-1)*pow(m2,pion2)*pow(m1,pion1);                   
 			    error*=pow(m3,pion3);
 			  }
-			error=error-Ke;                  
+			error=error-Ke;
+			double xmol_s=xmol;
 			if (abs(derror)>0.)                      
 			  xmol=xmol-error/derror;
-     
+
+			xmol=min(xmol,surrogate[iion1].molality2/ratio(iion1)/pion1*0.999);
+			xmol=min(xmol,surrogate[iion2].molality2/ratio(iion2)/pion2*0.999);
+			if (iion3>0)
+			  xmol=min(xmol,surrogate[iion3].molality2/ratio(iion3)/pion3*0.999);
+			if (xmol==xmol_s)
+			  error=0;
 			iter++;
 			//cout << "error: " << error << " " << error/Ke << endl;
 			//xmol_save=xmol;
-			//cout << "X: " << iter << " " << xmol << " " << error << " " << derror << " " << Ke << " " << pow(m1,pion1)*pow(m2,pion2) << endl;                                                                       
+			//cout << "X: " << iter << " " << xmol << " " << error << " " << derror << " " << m1 << " " << m2 << " " << m3 << " " << surrogate[iion1].molality2 << endl; //Ke << " " << pow(m1,pion1)*pow(m2,pion2) << endl;
+			
                              
-		      }		    
+		      }
+		    if (iter==2000)
+		      {
+			xmol=0.99*xmol;
+		      }
 
 		    excess(iion1)-=xmol*ratio(iion1)*pion1;
 		    excess(iion2)-=xmol*ratio(iion2)*pion2;	       
@@ -1817,13 +1831,27 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 
 		if (iion1==config.iSO4mm or iion1==config.iHSO4m or iion2==config.iSO4mm or iion2==config.iHSO4m or iion3==config.iSO4mm or iion3==config.iHSO4m)
 		  {
-		    total=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init2(b)/surrogate[config.iHSO4m].MM;
-		    if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq_bins_init2(b)/surrogate[config.iSO4mm].MM/total;
+		    total=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM;
+		    if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM/total;
 		    if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);       
 		  }
 
+		if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+		  {
+		    total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+		    if(total>0.)
+		      {
+			ratio(config.iCO3mm)=(surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM/total);
+			ratio(config.iHCO3m)=surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM/total;
+		      }
+		  }
+
 		//excess*=factor2;
-		if (excess(i)!=excess(i)) exit(0);
+		if (excess(i)!=excess(i))
+		  {
+		    cout << "weird excess " << excess(i) << endl;
+		    exit(0);
+		  }
         
 		if (excess(i)<0.) //dissolution
 		  {		    
@@ -1875,13 +1903,15 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			surrogate[config.iSO4mm].Aaq_bins_init2(b)=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
 			surrogate[config.iHSO4m].Aaq_bins_init2(b)=total*surrogate[config.iHSO4m].MM*(1.-ratio(config.iSO4mm));
 		      }
-		    /*
+		    
 		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
 		      {
 			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+			//cout << "diss: " << total << " " <<  ratio(config.iCO3mm) << endl;
 			surrogate[config.iCO3mm].Aaq_bins_init2(b)=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
-			surrogate[config.iHCO3m].Aaq_bins_init2(b)=total*surrogate[config.iHCO3m].MM*(1.-ratio(config.iCO3mm));
-			}*/
+			surrogate[config.iHCO3m].Aaq_bins_init2(b)=total*surrogate[config.iHCO3m].MM*ratio(config.iHCO3m);
+			//cout << "diss2: " << 	surrogate[config.iCO3mm].Aaq_bins_init2(b) << " " << 	surrogate[config.iHCO3m].Aaq_bins_init2(b) << ' ' << total*surrogate[config.iHCO3m].MM*(1.-ratio(config.iCO3mm)) << " " << (1.-ratio(config.iCO3mm)) << " " << ratio(config.iHCO3m) << endl;
+		      }
 		  }
 
   
@@ -1890,7 +1920,9 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 		//cout << "prendant " << surrogate[config.iNa].Aaq << " " << surrogate[44].Ap*2*23./surrogate[44].MM+surrogate[config.iNa].Aaq << endl;
         
 		if (excess(i)>0.) //solidification
-		  {		   
+		  {
+		    //cout << "solid " << endl;
+		    //cout << "rat2: " << ratio(config.iCO3mm) << " " << ratio(config.iHCO3m) << endl;
 		    //cout << "solid " << surrogate[i].Ap << " " << factor << " " << surrogate[config.iH2O].Aaq << " " << surrogate[config.iH2O].gamma_aq << " " << config.iH2O << endl;
 		    //surrogate[i].Ap=max(factor*excess(i)*surrogate[i].MM*conc_org/1000.+surrogate[i].Ap,0.)
 		    
@@ -1900,6 +1932,7 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 		    //int iion1=surrogate[i].iion1;
 		    //int pion1=surrogate[i].pion1;		    
 		    surrogate[iion1].Aaq_bins_init2(b)-=excess(i)*surrogate[iion1].MM*conc_org/1000.*pion1;
+		    //cout << "Ca: " << surrogate[iion1].Aaq_bins_init2(b) << endl;
 		    //int iion2=surrogate[i].iion2;
 		    //int pion2=surrogate[i].pion2;
 		    
@@ -1947,14 +1980,16 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			surrogate[config.iSO4mm].Aaq_bins_init2(b)=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
 			surrogate[config.iHSO4m].Aaq_bins_init2(b)=total*surrogate[config.iHSO4m].MM*ratio(config.iHSO4m);
 		      }
-
-		    /*		    
+		    
 		    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
 		      {
 			total=surrogate[config.iCO3mm].Aaq_bins_init2(b)/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq_bins_init2(b)/surrogate[config.iHCO3m].MM;
+			//cout << "rat3: " << ratio(config.iCO3mm) << " " << ratio(config.iHCO3m) << " " << total << endl;
 			surrogate[config.iCO3mm].Aaq_bins_init2(b)=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
 			surrogate[config.iHCO3m].Aaq_bins_init2(b)=total*surrogate[config.iHCO3m].MM*ratio(config.iHCO3m);
-			}*/
+
+			//cout << "la " << surrogate[config.iCO3mm].Aaq_bins_init2(b) << " " << surrogate[config.iHCO3m].Aaq_bins_init2(b) << endl; 
+		      }
 		  }
    
 		//cout << "fin " << min_excess << " " << max_excess << " " << 0.27272727*surrogate[43].Ap << " " << 0.27272727*surrogate[43].Ap+surrogate[config.iNH3].Ag*18./17.+surrogate[config.iNH4p].Aaq << endl;
@@ -1974,12 +2009,24 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 			//if (surrogate[j].molality<0.) exit(0);
 		      }
 
+		
+
 		//cout << "apres " << surrogate[config.iNa].Aaq << " " << surrogate[44].Ap*2*23./surrogate[44].MM+surrogate[config.iNa].Aaq << endl;
 
 	      }
 	  //cout << sum_error_ap/factor2 << endl;
 	  //if ((sum_error_ap_save-sum_error_ap)<1.e-4*sum_error_ap) factor2=max(factor2/2,0.5);
 	  k++;
+	  
+	  for (i=0;i<n;i++)  
+	    if (surrogate[i].Aaq_bins_init2(b)<0.) // and surrogate[i].Aaq_bins(b)>0.)
+	      {
+		cout << "exit wtf " << endl;
+		cout << "error " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << surrogate[i].Aaq_bins_init2(b) << " " << surrogate[i].molality << " " << surrogate[i].molality2 << endl;
+		cout << "CO3mm " << surrogate[config.iCO3mm].Aaq_bins_init(b) << " " << surrogate[config.iCO3mm].Aaq_bins(b) << " " << surrogate[config.iCO3mm].Aaq_bins_init2(b) << " " << surrogate[config.iCO3mm].molality << " " << surrogate[config.iCO3mm].molality2 << endl;
+		cout << ratio(config.iCO3mm) << " " << ratio(config.iHCO3m) << endl;
+		exit(0);
+	      }
 	}      
             
       for (i=0;i<n;i++)       
@@ -1987,30 +2034,34 @@ void solidification_bins_ssh(model_config &config, vector<species>& surrogate, d
 	  surrogate[i].Asol_bins_init(b)=surrogate[i].Asol_bins_init2(b);
 	  surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init2(b);
 	}
-      /*
+      
       for (i=0;i<n;i++)
 	{
 	  //surrogate[i].Ag=factor*surrogate[i].Ag2+(1.-factor)*surrogate[i].Ag;
-	  surrogate[i].Asol_bins_init(b)=factor*surrogate[i].Asol_bins_init2(b)+(1.-factor)*surrogate[i].Asol_bins_init(b);
-	  surrogate[i].Aaq_bins_init(b)=factor*surrogate[i].Aaq_bins_init2(b)+(1.-factor)*surrogate[i].Aaq_bins_init(b);
+	  //surrogate[i].Asol_bins_init(b)=factor*surrogate[i].Asol_bins_init2(b)+(1.-factor)*surrogate[i].Asol_bins_init(b);
+	  //surrogate[i].Aaq_bins_init(b)=factor*surrogate[i].Aaq_bins_init2(b)+(1.-factor)*surrogate[i].Aaq_bins_init(b);
 	  //surrogate[i].molality=factor*surrogate[i].molality2+(1.-factor)*surrogate[i].molality;
-	  if (surrogate[i].Aaq_bins_init(b)<=0. and surrogate[i].Aaq_bins(b)>0.)
+	  if (surrogate[i].Aaq_bins_init(b)<0.) // and surrogate[i].Aaq_bins(b)>0.)
 	    {
 	      cout << "error " << surrogate[i].name << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << surrogate[i].Aaq_bins_init2(b) << " " << surrogate[i].molality << " " << surrogate[i].molality2 << endl;
+	      cout << "CO3mm " << surrogate[config.iCO3mm].Aaq_bins_init(b) << " " << surrogate[config.iCO3mm].Aaq_bins(b) << " " << surrogate[config.iCO3mm].Aaq_bins_init2(b) << " " << surrogate[config.iCO3mm].molality << " " << surrogate[config.iCO3mm].molality2 << endl;
+	      cout << ratio(config.iCO3mm) << " " << ratio(config.iHCO3m) << endl;
 	      exit(0);
 	    }
 	  
-	}*/
+	}
     }
 
+	  /*
   for (b=0;b<config.nbins;b++)
     {
       if (surrogate[config.iHCO3m].Aaq_bins_init(b)<0.)
 	{
+	  cout << surrogate[config.iHCO3m].Aaq_bins_init(b) << " " << surrogate[config.iHCO3m].Aaq_bins(b) << endl;	  
 	  cout << "neg conc" << endl;
 	  exit(0);
 	}
-    }
+	}*/
     
 }
 
@@ -2878,7 +2929,7 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 
 		double total2b=0.;
 		double total0=0.;
-		/*
+		
 		if (config.solids)
 		  for (int j=0;j<n;j++)
 		    if (surrogate[j].is_solid)
@@ -2902,7 +2953,7 @@ void error_ph_bins_ssh(model_config &config, vector<species> &surrogate, int ind
 				total2b+=(surrogate[j].Asol_bins_init(index_b))/surrogate[j].MM*surrogate[j].pion3;
 			      }
 			  }
-			  }*/
+		      }
 		
 		double total1b=surrogate[config.iHCO3m].Aaq_bins_init(index_b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(index_b)/surrogate[config.iHCO3m].MM;
 		double frac2=(total1b)/(total2b+total1b);		
@@ -4181,7 +4232,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 
 		double total2=0.;
 		double total0=0.;
-		/*
+		
 		if (config.solids)
 		  for (int j=0;j<n;j++)
 		    if (surrogate[j].is_solid)
@@ -4205,7 +4256,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 				total2+=(surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion3;
 			      }
 			  }
-		      }*/
+		      }
 		
 		double total1=surrogate[config.iHCO3m].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM+surrogate[config.iCO3mm].Aaq_bins_init(b)/surrogate[config.iHCO3m].MM;
 		double frac2=(total1)/(total2+total1);
@@ -4227,7 +4278,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 			      total2+=(surrogate[j].Asol_bins_init0(b)-surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion1;
 			    else if (j2==1 and (surrogate[j].iion2==config.iHCO3m or surrogate[j].iion2==config.iCO3mm))
 			      {
-				cout << "ok in: " << surrogate[j].Asol_bins_init0(b) << " " << surrogate[j].Asol_bins_init(b) << endl;
+				//cout << "ok in: " << surrogate[j].Asol_bins_init0(b) << " " << surrogate[j].Asol_bins_init(b) << endl;
 				total2+=(surrogate[j].Asol_bins_init0(b)-surrogate[j].Asol_bins_init(b))/surrogate[j].MM*surrogate[j].pion2;
 			      }
 			    else if (j2==2 and (surrogate[j].iion3==config.iHCO3m or surrogate[j].iion3==config.iCO3mm))

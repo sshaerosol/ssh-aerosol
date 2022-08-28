@@ -3008,7 +3008,18 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
       //cout << factor_max << " " << factor << " " << chp << endl;
       ++index;
       ++iiter;
+
+      /*
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_solid)
+	  {
+	    cout << surrogate[i].name << " " << surrogate[i].Asol_bins_init << endl;
+	    for (b=0;b<config.nbins;b++)
+	      cout << "error : " << b << " " << (surrogate[i].Asol_bins_init(b)-surrogate[i].Asol_bins(b))/factor << endl;
+	      }*/
     }
+  //cout << error_tot << endl;
+  //exit(0);
 
   //cout << index << " " << error_tot << endl;
   if (error_tot>config.relative_precision)

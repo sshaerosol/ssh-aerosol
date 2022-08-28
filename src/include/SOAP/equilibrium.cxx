@@ -740,7 +740,7 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		  {
 		    total=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq2/surrogate[config.iHSO4m].MM;
 		    if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM/total;
-		    if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);
+		    if(total>0.) ratio(config.iHSO4m)=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM/total;
 		  }
 
 		
@@ -779,15 +779,28 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 			derror-=ratio(iion3)*pion3*pion3*pow(m3,pion3-1)*pow(m2,pion2)*pow(m1,pion1);                   
 			error*=pow(m3,pion3);
 		      }
-		    error=error-Ke;                  
+		    error=error-Ke;
+		    double xmol_s=xmol;
 		    if (abs(derror)>0.)                      
 		      xmol=xmol-error/derror;
+
+		    xmol=min(xmol,surrogate[iion1].molality2/ratio(iion1)/pion1*0.999);
+		    xmol=min(xmol,surrogate[iion2].molality2/ratio(iion2)/pion2*0.999);
+		    if (iion3>0)
+		      xmol=min(xmol,surrogate[iion3].molality2/ratio(iion3)/pion3*0.999);
+		    if (xmol==xmol_s)
+		      error=0;
      
 		    iter++;
 		    //cout << "error: " << error << " " << error/Ke << endl;
 		    //xmol_save=xmol;
 		    //cout << "X: " << iter << " " << xmol << " " << error << " " << derror << " " << Ke << " " << pow(m1,pion1)*pow(m2,pion2) << endl;                                                                       
                              
+		  }
+
+		if (iter==2000)
+		  {
+		    xmol=0.99*xmol;
 		  }
 
 		excess(iion1)-=xmol*ratio(iion1)*pion1;
@@ -806,7 +819,14 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 	      {
 		total=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq2/surrogate[config.iHSO4m].MM;
 		if(total>0.) ratio(config.iSO4mm)=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM/total;
-		if(total>0.) ratio(config.iHSO4m)=1.0-ratio(config.iSO4mm);       
+		if(total>0.) ratio(config.iHSO4m)=surrogate[config.iHSO4m].Aaq2/surrogate[config.iHSO4m].MM/total;
+	      }
+
+	    if (iion1==config.iCO3mm or iion1==config.iHCO3m or iion2==config.iCO3mm or iion2==config.iHCO3m or iion3==config.iCO3mm or iion3==config.iHCO3m)
+	      {
+		total=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM;
+		if(total>0.) ratio(config.iCO3mm)=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM/total;
+		if(total>0.) ratio(config.iHCO3m)=surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM/total;
 	      }
 
             //excess*=factor2;
@@ -859,7 +879,7 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		  {
 		    total=surrogate[config.iSO4mm].Aaq2/surrogate[config.iSO4mm].MM+surrogate[config.iHSO4m].Aaq2/surrogate[config.iHSO4m].MM;
 		    surrogate[config.iSO4mm].Aaq2=total*surrogate[config.iSO4mm].MM*ratio(config.iSO4mm);
-		    surrogate[config.iHSO4m].Aaq2=total*surrogate[config.iHSO4m].MM*(1.-ratio(config.iSO4mm));
+		    surrogate[config.iHSO4m].Aaq2=total*surrogate[config.iHSO4m].MM*ratio(config.iHSO4m);
 		  }
 
 		
@@ -867,7 +887,7 @@ void solidification_ssh(model_config &config, vector<species>& surrogate, double
 		  {
 		    total=surrogate[config.iCO3mm].Aaq2/surrogate[config.iCO3mm].MM+surrogate[config.iHCO3m].Aaq2/surrogate[config.iHCO3m].MM;
 		    surrogate[config.iCO3mm].Aaq2=total*surrogate[config.iCO3mm].MM*ratio(config.iCO3mm);
-		    surrogate[config.iHCO3m].Aaq2=total*surrogate[config.iHCO3m].MM*(1.-ratio(config.iCO3mm));
+		    surrogate[config.iHCO3m].Aaq2=total*surrogate[config.iHCO3m].MM*ratio(config.iHCO3m);
 		  }
               }
 
