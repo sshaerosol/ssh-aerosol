@@ -395,22 +395,39 @@ contains
     character (len=400) :: namelist_out
 
     ! namelists to read namelist.ssh file 
+    if(ssh_standalone) then
+       namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
+            Humidity, Relative_Humidity, meteo_file
 
-    namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
-         Humidity, Relative_Humidity, meteo_file
+       namelist /setup_time/ initial_time, final_time, delta_t,time_emis
 
-    namelist /setup_time/ initial_time, final_time, delta_t,time_emis
+       namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
+            wet_diam_estimation, init_gas_conc_file,&
+            init_aero_conc_mass_file, init_aero_conc_num_file, &
+            cst_gas_file, cst_aero_file
 
-    namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
-         wet_diam_estimation, init_gas_conc_file,&
-         init_aero_conc_mass_file, init_aero_conc_num_file, &
-         cst_gas_file, cst_aero_file
-         
-    namelist /initial_diam_distribution/ diam_input
+       namelist /initial_diam_distribution/ diam_input
 
-    namelist /emissions/ tag_emis, with_emis_num, emis_gas_file, &
-         emis_aero_mass_file, emis_aero_num_file
+       namelist /emissions/ tag_emis, with_emis_num, emis_gas_file, &
+            emis_aero_mass_file, emis_aero_num_file
 
+       namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
+            time_update_photolysis, & 
+            with_heterogeneous, with_adaptive, &
+            adaptive_time_step_tolerance, min_adaptive_time_step, &
+            RO2_list_file, tag_RO2, &
+            photolysis_dir, photolysis_file, &
+            n_time_angle, time_angle_min, delta_time_angle, &
+            n_latitude, latitude_min, delta_latitude, &
+            n_altitude, altitude_photolysis_input, & 
+            tag_twostep
+
+       namelist /output/ output_directory, output_type, particles_composition_file
+
+    else
+       namelist /output/ particles_composition_file
+    endif
+    
     namelist /mixing_state/ tag_external, N_groups, N_frac, kind_composition
 
     namelist /fraction_distribution/ frac_input
@@ -419,33 +436,19 @@ contains
 
     namelist /aerosol_species/ aerosol_species_list_file,aerosol_structure_file
 
-    namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
-         time_update_photolysis, & 
-         with_heterogeneous, with_adaptive, &
-         adaptive_time_step_tolerance, min_adaptive_time_step, &
-	     RO2_list_file, tag_RO2, &
-         photolysis_dir, photolysis_file, &
-         n_time_angle, time_angle_min, delta_time_angle, &
-         n_latitude, latitude_min, delta_latitude, &
-         n_altitude, altitude_photolysis_input, & 
-         tag_twostep
-
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
 
     namelist /physic_coagulation/ with_coag, i_compute_repart, i_write_repart, Coefficient_file, Nmc
 
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
-         soap_inorg, nlayer,&
-         with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS
-
+            soap_inorg, nlayer,&
+            with_kelvin_effect, tequilibrium,&
+            dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
-         scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
+            scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
 
     namelist /physic_organic/ with_oligomerization
-
-    namelist /output/ output_directory, output_type, particles_composition_file
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
@@ -460,78 +463,76 @@ contains
 
     ! meteorological setup
     meteo_file = ""
-    read(10, nml = setup_meteo, iostat = ierr)
 
-    if (meteo_file == "") then
-       if (ssh_standalone) write(*,*) "File for meteorological data is not given."
-       if (ssh_logger) write(logfile,*) "File for meteorological data is not given."
-       imeteo = .false.
-    else
-       if (ssh_standalone) write(*,*) "File for meteorological data is read from file",trim(meteo_file)
-       if (ssh_logger) write(logfile,*) "File for meteorological data is read from file",trim(meteo_file)
-       imeteo = .true.
-    endif
 
-    if (ierr .ne. 0) then
-       write(*,*) "setup_meteo data can not be read."
-       stop
-    else ! default output meteo data to check
+    if(ssh_standalone) then
+       read(10, nml = setup_meteo, iostat = ierr)
 
-       ! if  (Relative_Humidity .gt. 0d0 ) then
-       !    if (      Relative_Humidity.lt.Threshold_RH_inf &
-       !         .or. Relative_Humidity.gt.Threshold_RH_sup) then
-       !       if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
-       !       if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
-       !       Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-       !    endif
-       !    call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
-       ! else
-       !    call compute_psat_rh(humidity, temperature, Pressure, pressure_sat, Relative_Humidity)
-       !    if (      Relative_Humidity.lt.Threshold_RH_inf &
-       !         .or. Relative_Humidity.gt.Threshold_RH_sup) then
-       !       if (ssh_standalone) write(*,*) 'Warning : clipping relative humidity.'
-       !       if (ssh_logger) write(logfile,*) 'Warning : clipping relative humidity.'
-       !       Relative_Humidity = DMIN1(DMAX1(Relative_Humidity, Threshold_RH_inf), Threshold_RH_sup)
-       !       call compute_psat_sh(Relative_Humidity, temperature, Pressure, pressure_sat, humidity)
-       !    endif
-       ! end if
+       if (meteo_file == "") then
+          if (ssh_standalone) write(*,*) "File for meteorological data is not given."
+          if (ssh_logger) write(logfile,*) "File for meteorological data is not given."
+          imeteo = .false.
+       else
+          if (ssh_standalone) write(*,*) "File for meteorological data is read from file",trim(meteo_file)
+          if (ssh_logger) write(logfile,*) "File for meteorological data is read from file",trim(meteo_file)
+          imeteo = .true.
+       endif
 
-       if (ssh_standalone) write(*,*) ''
-       if (ssh_logger) write(logfile,*) ''
-       if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
-       if (ssh_logger) write(logfile,*) '<<<< Meteorological setup >>>>'
-       if (ssh_standalone) write(*,*) 'location', latitude, 'N', longitude,'E'
-       if (ssh_logger) write(logfile,*) 'location', latitude, 'N', longitude,'E'
-       if (ssh_standalone) write(*,*) 'Temperature', Temperature, 'K'
-       if (ssh_logger) write(logfile,*) 'Temperature', Temperature, 'K'
-       if (ssh_standalone) write(*,*) 'Pressure', Pressure, 'Pa'
-       if (ssh_logger) write(logfile,*) 'Pressure', Pressure, 'Pa'
-       if (ssh_standalone) write(*,*) 'Relative Humidity', Relative_Humidity
-       if (ssh_logger) write(logfile,*) 'Relative Humidity', Relative_Humidity
-       if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
-       if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
+       if (ierr .ne. 0) then
+          write(*,*) "setup_meteo data can not be read."
+          stop
+       else ! default output meteo data to check
+
+          if (ssh_standalone) write(*,*) ''
+          if (ssh_logger) write(logfile,*) ''
+          if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
+          if (ssh_logger) write(logfile,*) '<<<< Meteorological setup >>>>'
+          if (ssh_standalone) write(*,*) 'location', latitude, 'N', longitude,'E'
+          if (ssh_logger) write(logfile,*) 'location', latitude, 'N', longitude,'E'
+          if (ssh_standalone) write(*,*) 'Temperature', Temperature, 'K'
+          if (ssh_logger) write(logfile,*) 'Temperature', Temperature, 'K'
+          if (ssh_standalone) write(*,*) 'Pressure', Pressure, 'Pa'
+          if (ssh_logger) write(logfile,*) 'Pressure', Pressure, 'Pa'
+          if (ssh_standalone) write(*,*) 'Relative Humidity', Relative_Humidity
+          if (ssh_logger) write(logfile,*) 'Relative Humidity', Relative_Humidity
+          if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
+          if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
+       end if
+    else ! when ssh aerosol is used coupled with a CTM, initialize meteo veriables as 0
+       latitude = 0.0d0
+       longitude = 0.0d0
+       Temperature = 0.0d0
+       Pressure = 0.0d0
+       Relative_Humidity = 0.0d0
+       Humidity = 0.0d0
     end if
-
     
     ! time setup
-    read(10, nml = setup_time, iostat = ierr)
-    if (ierr .ne. 0) then
-       write(*,*) "setup_time data can not be read."
-       stop
-    else
-       nt = int((final_time-initial_time) / delta_t) 
-       if (ssh_standalone) write(*,*) ''
-       if (ssh_logger) write(logfile,*) ''
-       if (ssh_standalone) write(*,*) '<<<< Simulation time setup >>>>'
-       if (ssh_logger) write(logfile,*) '<<<< Simulation time setup >>>>'
-       if (ssh_standalone) write(*,*) 'Begining time (from Jan. 1st)', initial_time, 's'
-       if (ssh_logger) write(logfile,*) 'Begining time (from Jan. 1st)', initial_time, 's'
-       if (ssh_standalone) write(*,*) 'Simulation Time', final_time,'s'
-       if (ssh_logger) write(logfile,*) 'Simulation Time', final_time,'s'
-       if (ssh_standalone) write(*,*) 'Initial Time Step', delta_t,'s'
-       if (ssh_logger) write(logfile,*) 'Initial Time Step', delta_t,'s'
-       if (ssh_standalone) write(*,*) 'Number of iterations:', nt
-       if (ssh_logger) write(logfile,*) 'Number of iterations:', nt
+    if(ssh_standalone) then
+       read(10, nml = setup_time, iostat = ierr)
+       if (ierr .ne. 0) then
+          write(*,*) "setup_time data can not be read."
+          stop
+       else
+          nt = int((final_time-initial_time) / delta_t) 
+          if (ssh_standalone) write(*,*) ''
+          if (ssh_logger) write(logfile,*) ''
+          if (ssh_standalone) write(*,*) '<<<< Simulation time setup >>>>'
+          if (ssh_logger) write(logfile,*) '<<<< Simulation time setup >>>>'
+          if (ssh_standalone) write(*,*) 'Begining time (from Jan. 1st)', initial_time, 's'
+          if (ssh_logger) write(logfile,*) 'Begining time (from Jan. 1st)', initial_time, 's'
+          if (ssh_standalone) write(*,*) 'Simulation Time', final_time,'s'
+          if (ssh_logger) write(logfile,*) 'Simulation Time', final_time,'s'
+          if (ssh_standalone) write(*,*) 'Initial Time Step', delta_t,'s'
+          if (ssh_logger) write(logfile,*) 'Initial Time Step', delta_t,'s'
+          if (ssh_standalone) write(*,*) 'Number of iterations:', nt
+          if (ssh_logger) write(logfile,*) 'Number of iterations:', nt
+       end if
+    else ! when ssh aerosol is used coupled with a CTM, initialize setup time veriables as 0
+       initial_time = 0.d0
+       final_time = 0.d0
+       delta_t = 1.d0
+       time_emis = 0.d0
     end if
 
     ! Allocate meteo data
@@ -546,50 +547,62 @@ contains
     ! init genoa files
     cst_gas_file= "---"
     cst_aero_file = "---"
-        
-    read(10, nml = initial_condition, iostat = ierr)
 
-    if (ierr .ne. 0) then
-       write(*,*) "initial_condition data can not be read."
-       stop
-    else
-       ! wet_diam_estimation = 1 by default
-       ! if it is not given in namelist
-       if (wet_diam_estimation == -999) then
-          wet_diam_estimation = 1
-       endif
-       
-       if (ssh_standalone) write(*,*) ''
-       if (ssh_logger) write(logfile,*) ''
-       if (ssh_standalone) write(*,*) '<<<< Inition condition >>>>'
-       if (ssh_logger) write(logfile,*) '<<<< Inition condition >>>>'
+    if(ssh_standalone) then
+       read(10, nml = initial_condition, iostat = ierr)
 
-       if (tag_init == 1) then 
-          write(*,*) ' Mixing state resolved aerosol species are provided for initial condition.' 
-          write(*,*) ' -- this option is not yet available.'
+       if (ierr .ne. 0) then
+          write(*,*) "initial_condition data can not be read."
           stop
        else
-          tag_init = 0 	    ! default tag_init == 0
-          if (ssh_standalone) write(*,*) 'Internally mixed aerosol species are provided for initial condition.'
-          if (ssh_logger) write(logfile,*) 'Internally mixed aerosol species are provided for initial condition.'
+          ! wet_diam_estimation = 1 by default
+          ! if it is not given in namelist
+          if (wet_diam_estimation == -999) then
+             wet_diam_estimation = 1
+          endif
+
+          if (ssh_standalone) write(*,*) ''
+          if (ssh_logger) write(logfile,*) ''
+          if (ssh_standalone) write(*,*) '<<<< Inition condition >>>>'
+          if (ssh_logger) write(logfile,*) '<<<< Inition condition >>>>'
+
+          if (tag_init == 1) then 
+             write(*,*) ' Mixing state resolved aerosol species are provided for initial condition.' 
+             write(*,*) ' -- this option is not yet available.'
+             stop
+          else
+             tag_init = 0 	    ! default tag_init == 0
+             if (ssh_standalone) write(*,*) 'Internally mixed aerosol species are provided for initial condition.'
+             if (ssh_logger) write(logfile,*) 'Internally mixed aerosol species are provided for initial condition.'
+          end if
+
+          if (ssh_standalone) write(*,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
+          if (ssh_logger) write(logfile,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
+          if (ssh_standalone) write(*,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
+          if (ssh_logger) write(logfile,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
+          if (with_init_num .eq. 1) then
+             if (ssh_standalone) write(*,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
+             if (ssh_logger) write(logfile,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
+          else 
+             with_init_num = 0  ! default with_init_num == 0
+             if (ssh_standalone) write(*,*) ' Aerosol number conc. is estimated from mass and diameter.' 
+             if (ssh_logger) write(logfile,*) ' Aerosol number conc. is estimated from mass and diameter.' 
+          end if
        end if
 
-       if (ssh_standalone) write(*,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
-       if (ssh_logger) write(logfile,*) 'Gas-phase conc. input file :', trim(init_gas_conc_file)
-       if (ssh_standalone) write(*,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
-       if (ssh_logger) write(logfile,*) 'Particle conc. input file :', trim(init_aero_conc_mass_file)
-       if (with_init_num .eq. 1) then
-          if (ssh_standalone) write(*,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
-          if (ssh_logger) write(logfile,*) 'Aerosol number conc. is read from file :', trim(init_aero_conc_num_file)
-       else 
-          with_init_num = 0  ! default with_init_num == 0
-          if (ssh_standalone) write(*,*) ' Aerosol number conc. is estimated from mass and diameter.' 
-          if (ssh_logger) write(logfile,*) ' Aerosol number conc. is estimated from mass and diameter.' 
-       end if
+       if (ssh_standalone) write(*,*) 'N_sizebin', N_sizebin
+       if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin
+
+    else !LL - when ssh aerosol is used coupled with a CTM, initialize initial conditions veriables as 0
+       with_init_num = 0
+       tag_init = 0
+       wet_diam_estimation = 0
+       tag_dbd = 1
+       N_sizebin = 50
+       init_gas_conc_file = "---"
+       init_aero_conc_mass_file = "---"
+       init_aero_conc_num_file = "---"
     end if
-
-    if (ssh_standalone) write(*,*) 'N_sizebin', N_sizebin
-    if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin    
 
     allocate(init_bin_number(N_sizebin))
     init_bin_number = 0.d0
@@ -604,63 +617,68 @@ contains
     end if
 
     ! initial_diam_distribution
-    read(10, nml = initial_diam_distribution, iostat = ierr)
-    if (ierr .ne. 0) then
-       write(*,*) "initial_diam_distribution data can not be read."
-       stop
-    else
-       if (tag_dbd == 1 .and. ssh_standalone) write(*,*) 'Diameter bin bounds are read.'
-       if (tag_dbd == 1 .and. ssh_logger) write(logfile,*) 'Diameter bin bounds are read.'
-       if (tag_dbd == 0 .and. ssh_standalone) write(*,*) &
-            'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
-       if (tag_dbd == 0 .and. ssh_logger) write(logfile,*) &
-            'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
-       if (ssh_standalone) write(*,*) 'diam_input', diam_input
-       if (ssh_logger) write(logfile,*) 'diam_input', diam_input
-    end if
+    if(ssh_standalone) then
 
-    ! emissions
-    read(10, nml = emissions, iostat = ierr)
-    if (ierr .ne. 0) then
-       write(*,*) "emissions data can not be read."
-       stop
-    else
-       if (ssh_standalone) write(*,*) ''
-       if (ssh_logger) write(logfile,*) ''
-       if (ssh_standalone) write(*,*) '<<<< Emissions >>>>'
-       if (ssh_logger) write(logfile,*) '<<<< Emissions >>>>'
-       if (tag_emis == 2) then
-          write(*,*) 'With externally-mixed emissions. -- this option is not yet available.'
+       read(10, nml = initial_diam_distribution, iostat = ierr)
+       if (ierr .ne. 0) then
+          write(*,*) "initial_diam_distribution data can not be read."
           stop
-       else if (tag_emis == 1) then
-          if (ssh_standalone) write(*,*) 'With internally-mixed emissions.'
-          if (ssh_logger) write(logfile,*) 'With internally-mixed emissions.'
        else
-          tag_emis = 0
-          if (ssh_standalone) write(*,*) 'Without emission.'  ! default tag_emis == 0
-          if (ssh_logger) write(logfile,*) 'Without emission.'  ! default tag_emis == 0
+          if (tag_dbd == 1 .and. ssh_standalone) write(*,*) 'Diameter bin bounds are read.'
+          if (tag_dbd == 1 .and. ssh_logger) write(logfile,*) 'Diameter bin bounds are read.'
+          if (tag_dbd == 0 .and. ssh_standalone) write(*,*) &
+               'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
+          if (tag_dbd == 0 .and. ssh_logger) write(logfile,*) &
+               'Lower and higher diameter boundary are read for auto-generated diameter bin bounds.'
+          if (ssh_standalone) write(*,*) 'diam_input', diam_input
+          if (ssh_logger) write(logfile,*) 'diam_input', diam_input
        end if
+    end if
+ 
+    ! emissions
+    allocate(emis_bin_number(N_sizebin))
+    emis_bin_number = 0.d0
 
-       allocate(emis_bin_number(N_sizebin))
-       emis_bin_number = 0.d0
-       if (tag_emis .ne. 0) then
-          if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
-          if (ssh_logger) write(logfile,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
-          if (ssh_standalone) write(*,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
-          if (ssh_logger) write(logfile,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
-          if (with_emis_num == 1) then
-             if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is read from file :', &
-                 trim(emis_aero_num_file)
-             if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is read from file :', &
-                 trim(emis_aero_num_file)
-          else  ! default with_emis_num == 0 
-             with_emis_num = 0
-             if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
-             if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
+    if(ssh_standalone) then
+       read(10, nml = emissions, iostat = ierr)
+       if (ierr .ne. 0) then
+          write(*,*) "emissions data can not be read."
+          stop
+       else
+          if (ssh_standalone) write(*,*) ''
+          if (ssh_logger) write(logfile,*) ''
+          if (ssh_standalone) write(*,*) '<<<< Emissions >>>>'
+          if (ssh_logger) write(logfile,*) '<<<< Emissions >>>>'
+          if (tag_emis == 2) then
+             write(*,*) 'With externally-mixed emissions. -- this option is not yet available.'
+             stop
+          else if (tag_emis == 1) then
+             if (ssh_standalone) write(*,*) 'With internally-mixed emissions.'
+             if (ssh_logger) write(logfile,*) 'With internally-mixed emissions.'
+          else
+             tag_emis = 0
+             if (ssh_standalone) write(*,*) 'Without emission.'  ! default tag_emis == 0
+             if (ssh_logger) write(logfile,*) 'Without emission.'  ! default tag_emis == 0
+          end if
+
+          if (tag_emis .ne. 0) then
+             if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
+             if (ssh_logger) write(logfile,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
+             if (ssh_standalone) write(*,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
+             if (ssh_logger) write(logfile,*) 'Particle conc. emission file :', trim(emis_aero_mass_file)
+             if (with_emis_num == 1) then
+                if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is read from file :', &
+                     trim(emis_aero_num_file)
+                if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is read from file :', &
+                     trim(emis_aero_num_file)
+             else  ! default with_emis_num == 0 
+                with_emis_num = 0
+                if (ssh_standalone) write(*,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
+                if (ssh_logger) write(logfile,*) 'Emitted aerosol number conc. is estimated from mass and diameter.'
+             end if
           end if
        end if
     end if
-
 
     ! mixing_state
     read(10, nml = mixing_state, iostat = ierr)
@@ -698,7 +716,7 @@ contains
           allocate(frac_input(2)) 
        end if
     end if
-    
+
     ! fraction_distribution
     allocate(frac_bound(N_frac+1))
     read(10, nml = fraction_distribution, iostat = ierr)
@@ -749,9 +767,9 @@ contains
        if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
        if (aerosol_structure_file.ne."---") then
           if (ssh_standalone) write(*,*) 'Read aerosol structure from file :', & 
-                trim(aerosol_structure_file)
+               trim(aerosol_structure_file)
           if (ssh_logger) write(logfile,*) 'Read aerosol structure from file :', & 
-                trim(aerosol_structure_file)
+               trim(aerosol_structure_file)
        endif
     end if
 
@@ -778,130 +796,131 @@ contains
     tag_RO2 = 0
     RO2_list_file="---"
 
-    read(10, nml = physic_gas_chemistry, iostat = ierr)
-    if (ierr .ne. 0) then
-       write(*,*) "physic_gas_chemistry data can not be read."
-       stop
-    else
-       ! attenuation = 1.d0 by default
-       ! if it is not given in namelist
-       if (attenuation == -999.d0) then
-          attenuation = 1.d0
-       endif
-       ! option_photolysis = 1 by default
-       ! if it is not given in namelist
-       if (option_photolysis == -999) then
-          option_photolysis = 1
-       endif
-       ! time_update_photolysis = 100000.d0 by default
-       ! if it is not given in namelist
-       if (time_update_photolysis == -999.d0) then
-          time_update_photolysis = 100000.d0
-       endif
-       ! with_adaptive = 1 by default
-       ! if it is not given in namelist
-       if (with_adaptive == -999) then
-          with_adaptive = 1
-       endif
-       ! adaptive_time_step_tolerance = 0.001 by default
-       ! if it is not given in namelist
-       if (adaptive_time_step_tolerance == -999.d0) then
-          adaptive_time_step_tolerance = 0.001
-       endif
-       ! min_adaptive_time_step = 0.001 by default
-       ! if it is not given in namelist
-       if (min_adaptive_time_step == -999.d0) then
-          min_adaptive_time_step = 0.001
-       endif
-       ! photolysis_dir = "./photolysis/" by default
-       ! if it is not given in namelist
-       if (trim(photolysis_dir) == "---") then
-          photolysis_dir = "./photolysis/"
-       endif
-       ! photolysis_file = "./photolysis/" by default
-       ! if it is not given in namelist
-       if (trim(photolysis_file) == "---") then
-          photolysis_file = "./photolysis/photolysis-cb05.dat"
-       endif       
-       ! n_time_angle = 9 by default
-       ! if it is not given in namelist
-       if (n_time_angle == -999) then
-          n_time_angle = 9
-       endif
-       ! time_angle_min = 0.d0 by default
-       ! if it is not given in namelist
-       if (time_angle_min == -999.d0) then
-          time_angle_min = 0.d0
-       endif
-       ! delta_time_angle = 1.d0 by default
-       ! if it is not given in namelist
-       if (delta_time_angle == -999.d0) then
-          delta_time_angle = 1.d0
-       endif
-       ! n_latitude = 10 by default
-       ! if it is not given in namelist
-       if (n_latitude == -999) then
-          n_latitude = 10
-       endif
-       ! latitude_min = 0.d0 by default
-       ! if it is not given in namelist
-       if (latitude_min == -999.d0) then
-          latitude_min = 0.d0
-       endif
-       ! delta_latitude = 10.d0 by default
-       ! if it is not given in namelist
-       if (delta_latitude == -999.d0) then
-          delta_latitude = 10.d0
-       endif
-       ! n_altitude = 9 by default
-       ! if it is not given in namelist
-       if (n_altitude == -999) then
-          n_altitude = 9
-       endif
-       ! altitude_photolysis_input by default
-       ! if it is not given in namelist
-       if (altitude_photolysis_input(1) == -999.d0) then
-          altitude_photolysis_input(1:9) = [0.0, 1000.0, 2000.0, 3000.0, &
-               4000.0, 5000.0, 10000.0, 15000.0, 20000.0]
-       endif       
-       
-       if (tag_chem == 0) then
-          if (ssh_standalone) write(*,*) ''
-          if (ssh_logger) write(logfile,*) ''
-          if (ssh_standalone) write(*,*) '<<<< Without Gas-phase chemistry >>>>'
-          if (ssh_logger) write(logfile,*) '<<<< Without Gas-phase chemistry >>>>'
+    if(ssh_standalone) then
+       read(10, nml = physic_gas_chemistry, iostat = ierr)
+       if (ierr .ne. 0) then
+          write(*,*) "physic_gas_chemistry data can not be read."
+          stop
        else
-          if (ssh_standalone) write(*,*) ''
-          if (ssh_logger) write(logfile,*) ''
-          if (ssh_standalone) write(*,*) '<<<< Gas-phase chemistry >>>>'
-          if (ssh_logger) write(logfile,*) '<<<< Gas-phase chemistry >>>>'
-          if (with_heterogeneous == 1) then
-             if (ssh_standalone) write(*,*) 'with heterogeneous reaction.'
-             if (ssh_logger) write(logfile,*) 'with heterogeneous reaction.'
-          else  ! default with_heterogeneous == 0
-             with_heterogeneous = 0
-             if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
-             if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
-          end if
-          if (with_adaptive == 1) then
-             if (ssh_standalone) write(*,*) 'with adaptive step.'
-             if (ssh_logger) write(logfile,*) 'with adaptive step.'
-             if (ssh_standalone) write(*,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
-             if (ssh_logger) write(logfile,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
-             if (ssh_standalone) write(*,*) 'min adaptive time step', min_adaptive_time_step
-             if (ssh_logger) write(logfile,*) 'min adaptive time step', min_adaptive_time_step
+          ! attenuation = 1.d0 by default
+          ! if it is not given in namelist
+          if (attenuation == -999.d0) then
+             attenuation = 1.d0
+          endif
+          ! option_photolysis = 1 by default
+          ! if it is not given in namelist
+          if (option_photolysis == -999) then
+             option_photolysis = 1
+          endif
+          ! time_update_photolysis = 100000.d0 by default
+          ! if it is not given in namelist
+          if (time_update_photolysis == -999.d0) then
+             time_update_photolysis = 100000.d0
+          endif
+          ! with_adaptive = 1 by default
+          ! if it is not given in namelist
+          if (with_adaptive == -999) then
+             with_adaptive = 1
+          endif
+          ! adaptive_time_step_tolerance = 0.001 by default
+          ! if it is not given in namelist
+          if (adaptive_time_step_tolerance == -999.d0) then
+             adaptive_time_step_tolerance = 0.001
+          endif
+          ! min_adaptive_time_step = 0.001 by default
+          ! if it is not given in namelist
+          if (min_adaptive_time_step == -999.d0) then
+             min_adaptive_time_step = 0.001
+          endif
+          ! photolysis_dir = "./photolysis/" by default
+          ! if it is not given in namelist
+          if (trim(photolysis_dir) == "---") then
+             photolysis_dir = "./photolysis/"
+          endif
+          ! photolysis_file = "./photolysis/" by default
+          ! if it is not given in namelist
+          if (trim(photolysis_file) == "---") then
+             photolysis_file = "./photolysis/photolysis-cb05.dat"
+          endif
+          ! n_time_angle = 9 by default
+          ! if it is not given in namelist
+          if (n_time_angle == -999) then
+             n_time_angle = 9
+          endif
+          ! time_angle_min = 0.d0 by default
+          ! if it is not given in namelist
+          if (time_angle_min == -999.d0) then
+             time_angle_min = 0.d0
+          endif
+          ! delta_time_angle = 1.d0 by default
+          ! if it is not given in namelist
+          if (delta_time_angle == -999.d0) then
+             delta_time_angle = 1.d0
+          endif
+          ! n_latitude = 10 by default
+          ! if it is not given in namelist
+          if (n_latitude == -999) then
+             n_latitude = 10
+          endif
+          ! latitude_min = 0.d0 by default
+          ! if it is not given in namelist
+          if (latitude_min == -999.d0) then
+             latitude_min = 0.d0
+          endif
+          ! delta_latitude = 10.d0 by default
+          ! if it is not given in namelist
+          if (delta_latitude == -999.d0) then
+             delta_latitude = 10.d0
+          endif
+          ! n_altitude = 9 by default
+          ! if it is not given in namelist
+          if (n_altitude == -999) then
+             n_altitude = 9
+          endif
+          ! altitude_photolysis_input by default
+          ! if it is not given in namelist
+          if (altitude_photolysis_input(1) == -999.d0) then
+             altitude_photolysis_input(1:9) = [0.0, 1000.0, 2000.0, 3000.0, &
+                  4000.0, 5000.0, 10000.0, 15000.0, 20000.0]
+          endif
+
+          if (tag_chem == 0) then
+             if (ssh_standalone) write(*,*) ''
+             if (ssh_logger) write(logfile,*) ''
+             if (ssh_standalone) write(*,*) '<<<< Without Gas-phase chemistry >>>>'
+             if (ssh_logger) write(logfile,*) '<<<< Without Gas-phase chemistry >>>>'
           else
-             with_adaptive = 0
-             if (ssh_standalone) write(*,*) 'without adaptive step.'
-             if (ssh_logger) write(logfile,*) 'without adaptive step.'
+             if (ssh_standalone) write(*,*) ''
+             if (ssh_logger) write(logfile,*) ''
+             if (ssh_standalone) write(*,*) '<<<< Gas-phase chemistry >>>>'
+             if (ssh_logger) write(logfile,*) '<<<< Gas-phase chemistry >>>>'
+             if (with_heterogeneous == 1) then
+                if (ssh_standalone) write(*,*) 'with heterogeneous reaction.'
+                if (ssh_logger) write(logfile,*) 'with heterogeneous reaction.'
+             else  ! default with_heterogeneous == 0
+                with_heterogeneous = 0
+                if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
+                if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
+             end if
+             if (with_adaptive == 1) then
+                if (ssh_standalone) write(*,*) 'with adaptive step.'
+                if (ssh_logger) write(logfile,*) 'with adaptive step.'
+                if (ssh_standalone) write(*,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
+                if (ssh_logger) write(logfile,*) 'adaptive time step tolerance', adaptive_time_step_tolerance
+                if (ssh_standalone) write(*,*) 'min adaptive time step', min_adaptive_time_step
+                if (ssh_logger) write(logfile,*) 'min adaptive time step', min_adaptive_time_step
+             else
+                with_adaptive = 0
+                if (ssh_standalone) write(*,*) 'without adaptive step.'
+                if (ssh_logger) write(logfile,*) 'without adaptive step.'
+             end if
           end if
+
+          if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
+          if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
+
        end if
-
-       if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
-       if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
-
     end if
-
     ! particle numerical issues
     dtaeromin = -999.d0
     with_fixed_density = -999
@@ -1272,43 +1291,46 @@ contains
             wet_diam_estimation = 0 ! Compute water content if full equilibrium
     endif
 
-    ! output
+s    ! output
     read(10, nml = output, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "output setting can not be read."
        stop
     else
-       if (ssh_standalone) write(*,*) ''
-       if (ssh_logger) write(logfile,*) ''
-       if (ssh_standalone) write(*,*) '<<<< Results output >>>>'
-       if (ssh_logger) write(logfile,*) '<<<< Results output >>>>'
-       if (output_type == 2) then
-          if (ssh_standalone) write(*,*) 'results are saved in binary files.'
-          if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
-       else
-          output_type = 1   ! default
-          if (ssh_standalone) write(*,*) 'results are saved in text files.'
-          if (ssh_logger) write(logfile,*) 'results are saved in text files.'
+       if (ssh_standalone) then
+          if (ssh_standalone) write(*,*) ''
+          if (ssh_logger) write(logfile,*) ''
+          if (ssh_standalone) write(*,*) '<<<< Results output >>>>'
+          if (ssh_logger) write(logfile,*) '<<<< Results output >>>>'
+          if (output_type == 2) then
+             if (ssh_standalone) write(*,*) 'results are saved in binary files.'
+             if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
+          else
+             output_type = 1   ! default
+             if (ssh_standalone) write(*,*) 'results are saved in text files.'
+             if (ssh_logger) write(logfile,*) 'results are saved in text files.'
+          end if
+          if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
+          if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
        end if
-       if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
-       if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
-       if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
-       if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
     end if
-
+    if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
+    if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
     close(10)
-
+    
     ! Write to namelist.out
-    write(nml_out, setup_meteo)
-    write(nml_out, setup_time)
-    write(nml_out, initial_condition)
-    write(nml_out, initial_diam_distribution)
-    write(nml_out, emissions)
+    if (ssh_standalone) then
+       write(nml_out, setup_meteo)
+       write(nml_out, setup_time)
+       write(nml_out, initial_condition)
+       write(nml_out, initial_diam_distribution)
+       write(nml_out, emissions)
+       write(nml_out, physic_gas_chemistry)
+    end if
     write(nml_out, mixing_state)
     write(nml_out, fraction_distribution)
     write(nml_out, gas_phase_species)
     write(nml_out, aerosol_species)
-    write(nml_out, physic_gas_chemistry)
     write(nml_out, physic_particle_numerical_issues)
     write(nml_out, physic_coagulation)
     write(nml_out, physic_condensation)
@@ -1673,116 +1695,125 @@ contains
     allocate(concentration_gas(N_aerosol))
     concentration_gas=0.d0
 
-    open(unit = 21, file = init_gas_conc_file, status = "old")
-    count = 0 
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(21, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-    count = count - 1 ! minus comment line
-
-    rewind 21
-
-    read(21,*)
-    do s= 1, count
-       read(21,*) ic_name, tmp
-       ind = 0
-       do js = 1, N_gas
-          if (species_name(js) .eq. ic_name) then
-             concentration_gas_all(js) = tmp
-             ind = 1
-          endif
-          if (ind == 1) exit
-       enddo
-       if (ind .eq. 0) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-       endif
-    enddo
-    close(21)
-    if (ssh_standalone) write(*,*) 'gas concentrations have been read'
-    if (ssh_logger) write(logfile,*) 'gas concentrations have been read'
-
-    if (tag_init == 0) then  ! change if species list and init are not in the same order
-       ! Read aerosol initial mass concentrations unit 22
-       ! internally mixed : mass for each sizebin of each species is given
-       open(unit = 22, file = init_aero_conc_mass_file, status = "old") 
-       count = 0
+    if (ssh_standalone) then
+       open(unit = 21, file = init_gas_conc_file, status = "old")
+       count = 0 
        ierr = 0
        do while(ierr .eq. 0)
-          read(22, *, iostat=ierr)
+          read(21, *, iostat=ierr)
           if (ierr == 0) count = count + 1
        end do
        count = count - 1 ! minus comment line
+
+       rewind 21
+
+       read(21,*)
+       do s= 1, count
+          read(21,*) ic_name, tmp
+          ind = 0
+          do js = 1, N_gas
+             if (species_name(js) .eq. ic_name) then
+                concentration_gas_all(js) = tmp
+                ind = 1
+             endif
+             if (ind == 1) exit
+          enddo
+          if (ind .eq. 0) then
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+                  trim(init_gas_conc_file), trim(ic_name)
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+                  trim(init_gas_conc_file), trim(ic_name)
+          endif
+       enddo
+       close(21)
+       if (ssh_standalone) write(*,*) 'gas concentrations have been read'
+       if (ssh_logger) write(logfile,*) 'gas concentrations have been read'
+
+       if (tag_init == 0) then  ! change if species list and init are not in the same order
+          ! Read aerosol initial mass concentrations unit 22
+          ! internally mixed : mass for each sizebin of each species is given
+          open(unit = 22, file = init_aero_conc_mass_file, status = "old") 
+          count = 0
+          ierr = 0
+          do while(ierr .eq. 0)
+             read(22, *, iostat=ierr)
+             if (ierr == 0) count = count + 1
+          end do
+          count = count - 1 ! minus comment line
+          allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
+          init_mass = 0.d0
+          allocate(init_bin_mass(N_sizebin,N_aerosol))
+          init_bin_mass = 0.d0
+          allocate(tmp_aero(N_sizebin))
+          tmp_aero = 0.d0
+          aero_total_mass = 0.d0
+          rewind 22
+
+          read(22,*)
+          do s= 1, count
+             read(22,*) ic_name, (tmp_aero(k), k = 1, N_sizebin)
+             ind = 0
+             do js = 1, N_aerosol
+                if (aerosol_species_name(js) .eq. ic_name) then
+                   do k=1, N_sizebin
+                      init_bin_mass(k,js) = tmp_aero(k)
+                      init_mass(js)=init_mass(js) + tmp_aero(k)
+                      aero_total_mass = aero_total_mass +  init_mass(js) !total mass
+                   enddo
+                   ind = 1
+                endif
+                if (ind  == 1) exit
+             enddo
+             if (ind .eq. 0) then
+                if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ", &
+                     trim(init_aero_conc_mass_file), trim(ic_name)
+                if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ", &
+                     trim(init_aero_conc_mass_file), trim(ic_name)
+             endif
+          enddo
+
+          close(22)
+
+          if (ssh_standalone) write(*,*) 'initial mass concentrations have been read'
+          if (ssh_logger) write(logfile,*) 'initial mass concentrations have been read'
+       else if (tag_init == 1) then ! mixing_state resolved
+          ! need to fill in the future
+          write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
+          stop
+       end if
+
+       ! Read aerosol initial number concentrations unit 23
+       ! auto-generate or read number and size bins distributions
+
+       if (with_init_num == 1) then
+          if (tag_init == 0) then
+             open(unit = 23, file = init_aero_conc_num_file, status = "old") 
+             read(23,*, iostat = ierr) ! read comment line
+             read(23,*, iostat = ierr) ic_name, init_bin_number
+             close(23)
+             if (ierr == 0) then
+                if (ssh_standalone) write(*,*) "Aerosol number conc. is read."
+                if (ssh_logger) write(logfile,*) "Aerosol number conc. is read."
+                if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
+                if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
+             else 
+                write(*,*) "Aerosol number conc. can not be read from file ",trim(init_aero_conc_num_file)
+                stop
+             end if
+          else if (tag_init == 1) then
+             write(*,*) 'with_init_num == 1 .and. tag_init == 1 - not yet build'
+             stop
+          end if
+       end if
+
+    else !initialize initial conditions as 0 when ssh-aerosol is used coupled with a CTM
        allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
        init_mass = 0.d0
        allocate(init_bin_mass(N_sizebin,N_aerosol))
        init_bin_mass = 0.d0
-       allocate(tmp_aero(N_sizebin))
-       tmp_aero = 0.d0
-       aero_total_mass = 0.d0
-       rewind 22
-
-       read(22,*)
-       do s= 1, count
-          read(22,*) ic_name, (tmp_aero(k), k = 1, N_sizebin)
-          ind = 0
-          do js = 1, N_aerosol
-             if (aerosol_species_name(js) .eq. ic_name) then
-                do k=1, N_sizebin
-                   init_bin_mass(k,js) = tmp_aero(k)
-                   init_mass(js)=init_mass(js) + tmp_aero(k)
-                   aero_total_mass = aero_total_mass +  init_mass(js) !total mass
-                enddo
-                ind = 1
-             endif
-             if (ind  == 1) exit
-          enddo
-          if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ", &
-                 trim(init_aero_conc_mass_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ", &
-                 trim(init_aero_conc_mass_file), trim(ic_name)
-          endif
-       enddo
-
-       close(22)
-
-       if (ssh_standalone) write(*,*) 'initial mass concentrations have been read'
-       if (ssh_logger) write(logfile,*) 'initial mass concentrations have been read'
-    else if (tag_init == 1) then ! mixing_state resolved
-       ! need to fill in the future
-       write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
-       stop
+       aero_total_mass = 1.d0
     end if
-
-    ! Read aerosol initial number concentrations unit 23
-    ! auto-generate or read number and size bins distributions
-
-    if (with_init_num == 1) then
-       if (tag_init == 0) then
-          open(unit = 23, file = init_aero_conc_num_file, status = "old") 
-          read(23,*, iostat = ierr) ! read comment line
-          read(23,*, iostat = ierr) ic_name, init_bin_number
-          close(23)
-          if (ierr == 0) then
-             if (ssh_standalone) write(*,*) "Aerosol number conc. is read."
-             if (ssh_logger) write(logfile,*) "Aerosol number conc. is read."
-             if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
-             if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
-          else 
-             write(*,*) "Aerosol number conc. can not be read from file ",trim(init_aero_conc_num_file)
-             stop
-          end if
-       else if (tag_init == 1) then
-          write(*,*) 'with_init_num == 1 .and. tag_init == 1 - not yet build'
-          stop
-       end if
-    end if
-
+    
     ! read aerosol structure file
     if (aerosol_structure_file.ne."---") then
       open(unit = 25, file = aerosol_structure_file, status = "old")
@@ -1825,118 +1856,120 @@ contains
       close(25)
     endif
 
-    ! ! ! ! ! ! 
-    if (tag_emis == 1) then  ! with internal emission 
+    ! ! ! ! ! !
+    allocate(emis_bin_mass(N_sizebin,N_aerosol))
+    emis_bin_mass = 0.d0
+    allocate(gas_emis(N_gas))
+    gas_emis = 0.d0
 
-       allocate(emis_bin_mass(N_sizebin,N_aerosol))
-       emis_bin_mass = 0.d0
-       allocate(gas_emis(N_gas))
-       gas_emis = 0.d0
-       ! read gas emission concentrations unit 31
-       open(unit=31, file = emis_gas_file, status = "old")
-       count = 0
-       ierr = 0
-       do while(ierr .eq. 0)
-          read(31, *, iostat=ierr)
-          if (ierr == 0) count = count + 1
-       end do
-       count = count - 1 ! minus comment line
-       if (ssh_standalone) write(*,*) "Number of emitted gas-phase species:", count
-       if (ssh_logger) write(logfile,*) "Number of emitted gas-phase species:", count
+    if(ssh_standalone) then
 
-       rewind 31
-       read(31,*)
-       do s = 1, count
-          read(31, *) ic_name, tmp
-          ind = 0
-          do js = 1, N_gas
-             if (species_name(js) .eq. ic_name) then
-                gas_emis(js) = tmp
-                ind = 1
-                !if (ssh_standalone) write(*,*) 'gas_emis', species_name(js), gas_emis(js)
-                !if (ssh_logger) write(logfile,*) 'gas_emis', species_name(js), gas_emis(js)
-             endif
-             if (ind == 1) exit
-          enddo
-          if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
-                 trim(init_gas_conc_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
-                 trim(init_gas_conc_file), trim(ic_name)
-          end if
-       end do
+       if (tag_emis == 1) then  ! with internal emission    
+          ! read gas emission concentrations unit 31
+          open(unit=31, file = emis_gas_file, status = "old")
+          count = 0
+          ierr = 0
+          do while(ierr .eq. 0)
+             read(31, *, iostat=ierr)
+             if (ierr == 0) count = count + 1
+          end do
+          count = count - 1 ! minus comment line
+          if (ssh_standalone) write(*,*) "Number of emitted gas-phase species:", count
+          if (ssh_logger) write(logfile,*) "Number of emitted gas-phase species:", count
 
-       close(31)
-
-       ! Read aerosol emission concentrations unit 32
-       tmp_aero = 0.d0
-       open(unit=32, file = emis_aero_mass_file, status = "old")
-       count = 0
-       ierr = 0
-       do while(ierr .eq. 0)
-          read(32, *, iostat=ierr)
-          if (ierr == 0) count = count + 1
-       end do
-       count = count - 1 ! minus comment line
-       if (ssh_standalone) write(*,*) "Number of emitted aerosols species:", count
-       if (ssh_logger) write(logfile,*) "Number of emitted aerosols species:", count
-
-       rewind 32
-       read(32,*)
-       if (Tag_init .eq. 0) then
-          do s=1, count
-             read(32,*, iostat = ierr) ic_name, (tmp_aero(k),k=1,N_sizebin)
-             if (ierr .ne. 0) then
-                write(*,*) "Error when reading ic_name."
-                stop
-             endif
+          rewind 31
+          read(31,*)
+          do s = 1, count
+             read(31, *) ic_name, tmp
              ind = 0
-             do js = 1, N_aerosol
-                if (aerosol_species_name(js) == ic_name) then
-                   do k = 1, N_sizebin
-                      emis_bin_mass(k,js) = tmp_aero(k)
-                   end do
+             do js = 1, N_gas
+                if (species_name(js) .eq. ic_name) then
+                   gas_emis(js) = tmp
                    ind = 1
-                end if
-                if (ind ==1) exit
-             end do
-             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', &
-                 trim(emis_aero_mass_file), trim(ic_name)
-             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', &
-                 trim(emis_aero_mass_file), trim(ic_name)
-          enddo
-          if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
-          if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
-       else if (tag_init .eq. 1) then ! external mixed
-          if (ssh_standalone) write(*,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
-          if (ssh_logger) write(logfile,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
-          tag_emis = 0
-       endif
-       close(32)
+                   !if (ssh_standalone) write(*,*) 'gas_emis', species_name(js), gas_emis(js)
+                   !if (ssh_logger) write(logfile,*) 'gas_emis', species_name(js), gas_emis(js)
+                endif
+                if (ind == 1) exit
+             enddo
+             if (ind .eq. 0) then
+                if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
+                     trim(init_gas_conc_file), trim(ic_name)
+                if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
+                     trim(init_gas_conc_file), trim(ic_name)
+             end if
+          end do
 
-       ! Read aerosol number emission concentrations unit 33 if need
-       if (with_emis_num == 1) then
-          open(unit=33, file = emis_aero_num_file, status = "old")
-          read(33,*, iostat=ierr)    
-          read(33,*, iostat=ierr) ic_name, emis_bin_number
-          close(33)
-          if (ierr .eq. 0) then
-	     if (ssh_standalone) write(*,*) "Emission number conc. has been read."
-	     if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
-	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
-	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
-          else 
-             write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
-             stop
+          close(31)
+
+          ! Read aerosol emission concentrations unit 32
+          tmp_aero = 0.d0
+          open(unit=32, file = emis_aero_mass_file, status = "old")
+          count = 0
+          ierr = 0
+          do while(ierr .eq. 0)
+             read(32, *, iostat=ierr)
+             if (ierr == 0) count = count + 1
+          end do
+          count = count - 1 ! minus comment line
+          if (ssh_standalone) write(*,*) "Number of emitted aerosols species:", count
+          if (ssh_logger) write(logfile,*) "Number of emitted aerosols species:", count
+
+          rewind 32
+          read(32,*)
+          if (Tag_init .eq. 0) then
+             do s=1, count
+                read(32,*, iostat = ierr) ic_name, (tmp_aero(k),k=1,N_sizebin)
+                if (ierr .ne. 0) then
+                   write(*,*) "Error when reading ic_name."
+                   stop
+                endif
+                ind = 0
+                do js = 1, N_aerosol
+                   if (aerosol_species_name(js) == ic_name) then
+                      do k = 1, N_sizebin
+                         emis_bin_mass(k,js) = tmp_aero(k)
+                      end do
+                      ind = 1
+                   end if
+                   if (ind ==1) exit
+                end do
+                if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', &
+                     trim(emis_aero_mass_file), trim(ic_name)
+                if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', &
+                     trim(emis_aero_mass_file), trim(ic_name)
+             enddo
+             if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
+             if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
+          else if (tag_init .eq. 1) then ! external mixed
+             if (ssh_standalone) write(*,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
+             if (ssh_logger) write(logfile,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
+             tag_emis = 0
+          endif
+          close(32)
+
+          ! Read aerosol number emission concentrations unit 33 if need
+          if (with_emis_num == 1) then
+             open(unit=33, file = emis_aero_num_file, status = "old")
+             read(33,*, iostat=ierr)    
+             read(33,*, iostat=ierr) ic_name, emis_bin_number
+             close(33)
+             if (ierr .eq. 0) then
+                if (ssh_standalone) write(*,*) "Emission number conc. has been read."
+                if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
+                if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
+                if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
+             else 
+                write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
+                stop
+             end if
           end if
+
+       else if  (tag_emis == 2) then
+          write(*,*) "Not yet build -- with externally-mixed emissions -- tag_emis = 2" 
+          ! 1 mixing_state resolved !! option 1 not yet available)
+          stop
        end if
-
-    else if  (tag_emis == 2) then
-       write(*,*) "Not yet build -- with externally-mixed emissions -- tag_emis = 2" 
-       ! 1 mixing_state resolved !! option 1 not yet available)
-       stop
     end if
-
     ! Initialize Vlayer  !! Need to be removed from SOAP
     if(nlayer == 1) then
        Vlayer(1)=1.0
@@ -1983,49 +2016,51 @@ contains
     allocate(photolysis_rate(n_photolysis))
     photolysis_rate = 0.d0
 
-    if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
-      open(unit = 34, file = photolysis_file, status = "old")
-      count = 0 
-      ierr = 0
-      nline = 0
-      do while(ierr .eq. 0)
-         read(34, *, iostat=ierr) tmp_name
-         if (ierr == 0) then
-            if (trim(tmp_name) .eq. "#") then
-               nline = nline + 1
-            else
-               count = count + 1
-            end if
-         end if
-      end do
-  
-      if (count .ne. n_photolysis) then
-         write(*,*) "Error: number of files for photolysis rate should be ", &
-              n_photolysis
-         write(*,*) "However, the number of given files is ", count
-         stop
-      end if
-         
-      rewind 34
-      do s = 1, nline
-         read(34, *) ! read comment lines.
-      end do
-      do s = 1, count
-         read(34, *) photolysis_name(s), photolysis_reaction_index(s)
-         if (photolysis_name(s) == "BiPER") then
-            ind_kbiper = s    ! photolysis index for BiPER
-         end if
-      end do
-      close(34)
-      
-    else
-      do s = 1, n_photolysis
-        photolysis_name(s) = "useless"
-        photolysis_reaction_index(s) = s
-      end do
-    
-    endif
+    if(ssh_standalone) then
+       if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
+          open(unit = 34, file = photolysis_file, status = "old")
+          count = 0 
+          ierr = 0
+          nline = 0
+          do while(ierr .eq. 0)
+             read(34, *, iostat=ierr) tmp_name
+             if (ierr == 0) then
+                if (trim(tmp_name) .eq. "#") then
+                   nline = nline + 1
+                else
+                   count = count + 1
+                end if
+             end if
+          end do
 
+          if (count .ne. n_photolysis) then
+             write(*,*) "Error: number of files for photolysis rate should be ", &
+                  n_photolysis
+             write(*,*) "However, the number of given files is ", count
+             stop
+          end if
+
+          rewind 34
+          do s = 1, nline
+             read(34, *) ! read comment lines.
+          end do
+          do s = 1, count
+             read(34, *) photolysis_name(s), photolysis_reaction_index(s)
+             if (photolysis_name(s) == "BiPER") then
+                ind_kbiper = s    ! photolysis index for BiPER
+             end if
+          end do
+          close(34)
+
+       else
+          do s = 1, n_photolysis
+             photolysis_name(s) = "useless"
+             photolysis_reaction_index(s) = s
+          end do
+
+       endif
+    endif
+ 
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
           !ifound = 0
