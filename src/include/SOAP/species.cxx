@@ -2437,8 +2437,12 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   ACIDMAL.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
   ACIDMAL.Koligo_org=0.0;
   //Parameters for the oligomerization of aldehyde in the aqueous phase as BiA0D:  
-  if(with_oligomerization) ACIDMAL.Koligo_aq = 0.1;
-  else ACIDMAL.Koligo_aq = 0.;
+  if(with_oligomerization == 1) {
+    ACIDMAL.Koligo_aq = 0.1;
+    ACIDMAL.aq_type="aldehyde";}
+  else {
+    ACIDMAL.Koligo_aq = 0.;
+    ACIDMAL.aq_type="none";}
   ACIDMAL.pHref = 6.0;
   ACIDMAL.beta = 1.91;
   ACIDMAL.rho=1300.0;
