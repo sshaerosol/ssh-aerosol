@@ -31,6 +31,13 @@ case $i in
     openmp="${i#*=}"
     shift
     ;;
+# Read the option to choose which compile mode is used.
+# Accepted values: fast, debug
+# Default: profile = fast    
+    -p=*|--profile=*)
+    profile="${i#*=}"
+    shift
+    ;;
 esac
 done
 
@@ -55,6 +62,11 @@ if [ -z $sharedlib ]; then
 fi
 echo "SharedLib: $sharedlib"
 
+if [ -z $profile ]; then                     
+    profile="fast"                
+fi
+echo "Compiling profile : $profile"
+
 file="ssh-aerosol"
 if [ -h $file ] 
 then
@@ -74,7 +86,7 @@ fi
 
 cd src
 #scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry nacl=$nacl openmp=no sharedlib=no
-scons -j8 chemistry=$chemistry nacl=$nacl openmp=$openmp sharedlib=$sharedlib
+scons -j8 profile=$profile chemistry=$chemistry nacl=$nacl openmp=$openmp sharedlib=$sharedlib
 
 cd ..
 ln -s src/ssh-aerosol-$chemistry ssh-aerosol

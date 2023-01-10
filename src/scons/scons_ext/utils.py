@@ -381,7 +381,7 @@ to highly recommended debugging and optimization options.
             preprocessor_defines.append("POLYPHEMUS_SINGLE_UNDERSCORE")
         elif ARGUMENTS["_"] == "2":
             preprocessor_defines.append("POLYPHEMUS_DOUBLE_UNDERSCORE")
-
+            
         #=== C++-specific compilation options.
         cpp_compilation_option = self.debug_flag("debug_cpp")
         # In case of GNU compilers, a few options are added.
@@ -456,7 +456,15 @@ to highly recommended debugging and optimization options.
         env.Replace(F77FLAGS = fortran_compilation_option)
         env.Replace(FORTRANFLAGS = fortran_compilation_option)
         env.Append(F90FLAGS = fortran_compilation_option)
-       
+
+        if not env.GetOption('clean'):
+            if (ARGUMENTS["profile"] == "debug"):
+                print("=== Compiling options ===")
+                print(" C compiler: ", env["CC"])
+                print(" CPP compiler: ", env["CXX"])
+                print(" fortran 77 compiler: ", env["F77"])
+                print(" fortran 90 compiler: ", env["F90"])
+
        
         ################
         # INCLUDE PATH #

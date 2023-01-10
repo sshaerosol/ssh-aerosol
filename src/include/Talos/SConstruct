@@ -1,17 +1,23 @@
 import distutils.sysconfig
 
-
 if ARGUMENTS["swig"] == None:
-   SWIGBIN = "swig"
+    # Please change the path to swig if neccessary.
+    SWIGBIN = "/usr/bin/swig"
 else:
-   SWIGBIN = ARGUMENTS["swig"]		
+    SWIGBIN = ARGUMENTS["swig"]		
 
 env = Environment(SWIGFLAGS = ['-c++', '-python'],
                   CPPPATH = [distutils.sysconfig.get_python_inc()],
                   SHLIBPREFIX = "",
-		  SWIG = SWIGBIN)
+		          SWIG = "/usr/bin/swig") # SWIGBIN)
 
 if ARGUMENTS["intel"] == "yes":
     cpp_compiler = "icpc"
 
+# Please change the path to C++ compiler if neccessary.    
+if env['CXX'] == None:
+    env['CXX'] = '/usr/bin/g++'
+
+
+env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME']=1
 env.SharedLibrary('_talos.so', ['Talos.cpp', 'talos.i'])
