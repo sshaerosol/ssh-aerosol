@@ -305,7 +305,8 @@ contains
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
             if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
-                 ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+           ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))&
+           .or.(aerosol_type(s)==9)) then
                concentration_mass(js, jesp) = q_soap(N_size + i)
             endif         
          enddo
