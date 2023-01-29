@@ -11,7 +11,7 @@ PROGRAM main
   INTEGER :: iemis
   INTEGER :: j,it
   DOUBLE PRECISION :: duration,lat,lon,temp,pres,relh
-  double precision,allocatable,dimension(:) :: Vlayers
+  double precision,allocatable,dimension(:) :: Vlayers,wet_density,wet_diam_out
   double precision,allocatable,dimension(:) :: number,diam_bins
   double precision,allocatable,dimension(:) :: gas_conc
   double precision,allocatable,dimension(:,:) :: aero_conc
@@ -20,7 +20,7 @@ PROGRAM main
   integer,allocatable,dimension(:) :: index_species_ssh
 
   itest=-2
-  do it=1,10*150*5
+  do it=1,150 !10*150*5
   if (itest==0) then
      ! Nucleation example
      print*,"Nucleation test case"    
@@ -46,6 +46,8 @@ PROGRAM main
      allocate(number(nbins))
      allocate(gas_conc(nspecies))
      allocate(aero_conc(nbins,naero))
+     allocate(wet_density(nbins))
+     allocate(wet_diam_out(nbins))
 
      number=0.d0
      gas_conc=0.d0
@@ -59,7 +61,7 @@ PROGRAM main
 
      !Launch SSH
      print*,"Launch SSH-aerosol for nucleation test case"
-     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
+     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)
      print*,"SSH-aerosol suceeded"
      !call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
      !print*,"C"
@@ -92,6 +94,8 @@ PROGRAM main
      allocate(number(nbins))
      allocate(gas_conc(nspecies))
      allocate(aero_conc(nbins,naero))
+     allocate(wet_density(nbins))
+     allocate(wet_diam_out(nbins))
 
      number=0.d0
      gas_conc=(/0.000000000000000E+000, 0.000000000000000E+000, 0.000000000000000E+000, 3.495667859019675E-009, 0.193554051627941, 0.682188148088399, 5.899831502131484E-017, 2.706750203251961E-006, 1.371970248259396E-005, 2.824084152604930E-016, 2.261325884880494E-016, 7.312047280308424E-010, 3.112308355005624E-009, 3.020204926436138E-006, 0.000000000000000E+000/)
@@ -108,7 +112,7 @@ PROGRAM main
      aero_conc(10,:)=(/1.660565472360303E-016,1.660565472360303E-016,3.819300586428696E-017,1.594142853465891E-016,2.989017850248545E-017,1.029550592863388E-016,5.895007426879075E-017,2.822961303012515E-016,2.789749993565308E-016,2.789749993565308E-016,2.258369042410012E-016,2.773144338841706E-016,3.918934514770315E-016,3.570215765574651E-016,2.989017850248545E-017/)
 
      print*,"Launch SSH-aerosol for nucleation test case"
-     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
+     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)
      print*,"SSH-aerosol suceeded"
 
   else if (itest==-1) then
@@ -144,6 +148,8 @@ PROGRAM main
      do j=1,nspecies
         print*,j,index_species_ssh(j),trim(name_input_species(j))
      enddo
+     allocate(wet_density(nbins))
+     allocate(wet_diam_out(nbins))
 
      number=0.d0
      gas_conc=0.d0
@@ -157,7 +163,7 @@ PROGRAM main
 
      !Launch SSH
      print*,"Launch SSH-aerosol for nucleation test case"
-     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
+     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)
      print*,"SSH-aerosol suceeded"
      !call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
      !print*,"C"
@@ -186,6 +192,8 @@ PROGRAM main
      allocate(number(nbins))
      allocate(gas_conc(nspecies))
      allocate(aero_conc(nbins,naero))
+     allocate(wet_density(nbins))
+     allocate(wet_diam_out(nbins))
 
      number=0.d0
      gas_conc=0.d0
@@ -197,7 +205,7 @@ PROGRAM main
      print*,aero_conc(1,93:97)
 
      print*,"Launch SSH-aerosol for nucleation test case"
-     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number)
+     call launch_ssh_aerosolonly(namelist_ssh,iemis,naero,nbins,nspecies,duration,temp,pres,relh,gas_conc,aero_conc,number,wet_density,wet_diam_out)
      print*,"SSH-aerosol suceeded"
 
      print*,"POAmP gas concentration: ",gas_conc(29)
@@ -211,6 +219,8 @@ PROGRAM main
   deallocate(name_input_species)
   deallocate(diam_bins)
   deallocate(index_species_ssh)
+  deallocate(wet_density)
+  deallocate(wet_diam_out)
   enddo
   
 END PROGRAM main

@@ -29,22 +29,26 @@ namespace ssh_soap
         bool compute_rho_aqueous;
         bool compute_aqueous_phase_properties;
 	bool explicit_representation;	
+        bool aqorg_repart;
         int number_of_org_inorg_cycles;
 	int max_number_of_phases; //maximal number of organic phases
 	string activity_model; // unifac or ideal
 	double LWClimit; //LWC under which all the compounds there is no aqueous phase 
 	double RHcoupling;
 	int max_iter; //maximal number of iterations for the newton raphson method
-	int iH2O,iHp; //indexes for water and H+
+	int iH2O,iHp,iOHm; //indexes for water, H+ and OH-
 	int iHSO4m,iSO4mm;
 	int iNH4p;
 	int iNO3m;
 	int iClm;        
         int iNa,iCa,iMg,iK;
         int iHCl,iHNO3,iNH3,iH2SO4;
+        int iCO2,iHCO3m,iCO3mm;        
 
 	double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
 	double Ke, moligo;
+
+        bool isorropia_ph; //is pH taken from isorropia
 
 	//equilibrium parameters:
 	double precision; //absolute precision under which the system has been solved 
@@ -108,6 +112,7 @@ namespace ssh_soap
         Array<double,1> molality,gamma_LR_ions,gamma_MR_ions, charges_ions,molar_mass_groups;
         Array<double,1> gamma_LR_solvents,gamma_MR_solvents,X_aiomfac,molar_mass_solvents;
 	Array<double,1> gamma_ions_inf;
+	Array<double,2> gamma_MR_ions_bins;
 
         int iiter;
 	int imethod;
@@ -115,6 +120,7 @@ namespace ssh_soap
     double chpinit,ionicinit,initAQ;
     double molalmax;
     bool to_be_rejected;
+    double wat_min;
 
   };
 
@@ -153,7 +159,7 @@ namespace ssh_soap
 	//Xaq: molar fraction in the aqueous phase
         //Waq: mass fraction in the aqueous phase
 	//Xorg: molar fraction in the organic phase
-	double kpi,keq,kaqi,fioni1,fioni2;
+	double kpi,keq,keq2,keqi,kaqi,fioni1,fioni2;
 	double Ap,Ag,Aaq,Atot,Atot0,Atot1,Xaq,Xorg,Waq;
 	double Aaq_save;
 	double gamma_aq_old,Aaq_old,Xaq_old,Ag_old,Ap_old;
@@ -175,7 +181,8 @@ namespace ssh_soap
 	Array<double, 3> Ap_layer,Ap_layer_init,Ap_layer_init0,gamma_org_layer,gamma_org_layer0,Xinit;
 	Array<double, 3> Kp;
 	Array<double, 1> Aaq_bins,Aaq_bins_init,Aaq_bins_init0,time_aq,LR,SRMR,Kaq,dKaq;
-	Array<double, 1> gamma_aq_bins,gamma_old;
+	Array<double, 1> Aaq_bins_init2,Asol_bins_init,Asol_bins_init2,Asol_bins_init0,Asol_bins;
+	Array<double, 1> gamma_aq_bins,gamma_aq_bins_old;
 	double KDiffusion_p,KDiffusion_air,accomodation_coefficient,Ag0,Aaq0;
 	Array<double, 3> tau_diffusion,time;
 	Array<double, 1> tau_air;

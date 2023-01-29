@@ -25,6 +25,7 @@ cp ../../CHEMISTRY/${chemistry}/spack_config ./
 cp ../../CHEMISTRY/${chemistry}/*.species ./species
 cp ../../CHEMISTRY/${chemistry}/*.reactions ./reactions
 ./generate_chem_files.sh species reactions
+cp species-list.dat ../../CHEMISTRY/${chemistry}/
 cp *.f90 ../../CHEMISTRY/common/
 
 cd ../../../../

@@ -11,8 +11,8 @@
 #include "solving.cxx"
 using namespace ssh_soap;
 
-void soap_main_ssh(double LWC, double RH, double Temperature, 
-		   double ionic, double chp, double& LWCorg,
+void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_ppm,
+		   double ionic, double& chp, double& LWCorg,
 		   double& deltat,
 		   double DSD[], double csol[], double liquid[],
 		   int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qaq[], 
@@ -26,4 +26,4 @@ void soap_main_ssh(double LWC, double RH, double Temperature,
                    double diffusion_coef[], int nlayer, int with_kelvin_effect,
 		   double tequilibrium, double dtaeromin, double dorg,
 		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic, int with_oligomerization);
+		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS);

@@ -331,4 +331,89 @@ void unifac_aq_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups,
     } 
 }
 
+void unifac_aq_ions_ssh(int &nmols, int &nions, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
+                   Array<double, 1> &Xions,
+                   Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
+                   Array<double,1> &RG, Array <double, 1> &QG,
+                   Array<double, 1> &Rparam, Array <double, 1> &Qparam, Array <double,1> &Lparam,
+                   Array <double, 2> &group_activity_mol,
+                   Array <double, 1> & RGions, Array <double, 1> & QGions, Array <double, 1> & Lions,
+                   Array <double, 1> &gamma_ions_inf,
+                   double &Z, double &Temperature, Array<double,1> &gamma, Array<double,1> &gamma_ions,
+                   bool temperature_dependancy, int &iHp)
+{ 
+  double xmin=1.0e-11;
+  double xtot=0.0;
+  int i,j,k;
+  for (i=0;i<nmols;i++)
+    {      
+      Xmol(i)=max(Xmol(i),xmin);
+      xtot+=Xmol(i);
+      gamma(i)=1.0;
+    }
+
+  for (i=0;i<nions;i++)
+    {      
+      Xions(i)=max(Xions(i),xmin);
+      xtot+=Xions(i);
+      gamma_ions(i)=1.0;
+    }
+  
+  if (xtot>0.0)
+    {
+      for (i=0;i<nmols;i++)
+        Xmol(i)/=xtot;
+      
+      for (i=0;i<nions;i++)
+        Xions(i)/=xtot;
+
+      //cout << Xmol << Xions << endl;
+  
+      static Array <double, 1> theta_ions,phi_ions;
+      
+      if (int(theta_ions.size())!=nions)
+        {
+           theta_ions.resize(nions);
+           phi_ions.resize(nions);          
+        }
+
+      double Lmean=0.0;
+      double sumtheta=0.0;
+      double sumphi=0.0;
+
+      for (i=0;i<nions;i++)
+        {
+          theta_ions(i)=Xions(i)*QGions(i);
+          sumtheta+=Xions(i)*QGions(i);
+          phi_ions(i)=Xions(i)*RGions(i);
+          sumphi+=Xions(i)*RGions(i);
+          Lmean+=Xions(i)*Lions(i);
+        }
+
+      for (i=0;i<nmols;i++)
+        {         
+          sumtheta+=Xmol(i)*Qparam(i);         
+          sumphi+=Xmol(i)*Rparam(i);
+          Lmean+=Xmol(i)*Lparam(i);
+        }
+
+      
+      for (i=0;i<nions;i++)
+        if (iHp<0 or i==iHp)
+          {
+            theta_ions(i)/=sumtheta;
+            phi_ions(i)/=sumphi;
+            gamma_ions(i)=exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean)/
+              gamma_ions_inf(i);
+            /*cout << i << " gamma " << gamma_ions(i) << " " << exp(log(phi_ions(i)/Xions(i))+Z/2*QGions(i)*log(theta_ions(i)/phi_ions(i))+Lions(i)-phi_ions(i)/Xions(i)*Lmean) << " "
+              << exp(log(RGions(i)/Rparam(nmols-1))+1.0-RGions(i)/Rparam(nmols-1)+Z/2*QGions(i)*(log(Rparam(nmols-1)*QGions(i)/RGions(i)/Qparam(nmols-1))
+              -1.0+RGions(i)*Qparam(nmols-1)/Rparam(nmols-1)/QGions(i))) 
+              << " " << Rparam(nmols-1) << endl;*/
+          }
+        else
+          gamma_ions(i)=1.;
+      
+    } 
+}
+
 #endif

@@ -88,6 +88,12 @@ contains
      if (ssh_logger) write(logfile,*)'tag_icut :',tag_icut,'Cut_dim :',Cut_dim
    endif
 
+    if (soap_inorg==1) then
+	ICUT_org=ICUT
+    else
+        ICUT_org = N_sizebin
+    endif
+
     IF(ICUT.GT.0.D0) THEN
        section_pass=concentration_index(ICUT,1)
     ELSE

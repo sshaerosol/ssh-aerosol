@@ -90,13 +90,18 @@ contains
       ! proton must not be negative,
       ! 'if' for proton  is added so that
       ! the program is not stopped.
-      if (lwc>0.d0 .and. proton > 0.d0) then
-         chp = proton / lwc * 1.0e3
+      if (soap_inorg==1) then
+         chp=1.e-7
+         lwc=0.d0
       else
-         chp= 1.0e-7
+         if (lwc>0.d0 .and. proton > 0.d0) then
+            chp = proton / lwc * 1.0e3
+         else
+            chp= 1.0e-7
+         endif
       endif
       
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg, &
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize,liquid_Nsize,N_size,isoapdyn2, &
@@ -106,7 +111,7 @@ contains
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization)
+           with_oligomerization, NACL_IN_THERMODYNAMICS)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -129,13 +134,12 @@ contains
             endif
          ENDIF        
       ENDDO
-     
+
       if (soap_inorg==1) then
          lwc=aero(EH2O)
          proton = chp * lwc / 1.0e3
       endif
-      
-      
+       
     END SUBROUTINE SSH_SOAP_EQ
 
 
@@ -179,7 +183,7 @@ contains
 !
 !     -- MODIFICATIONS
 !     2019: Take into account number of layers of particle - Karine Sartelet 
-!
+!     2022: This routine is only applied for the condensation of organics - Florian Couvidat
 !
 !------------------------------------------------------------------------
 !
@@ -199,6 +203,7 @@ contains
       DOUBLE PRECISION liquid(12)
 
       INTEGER jj,jesp,js,s
+      INTEGER soap_inorg_loc2
       double precision qaero(N_aerosol), qgas(N_aerosol)
       double precision deltat
       double precision DSD(N_size)
@@ -282,17 +287,20 @@ contains
       enddo
       
       lwcorg=0.
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
+
+      ! FCo: force this routine to be used only for organics. Condensation of inorganics have to be computed in the subroutine SSH_SOAP_DYN_ICUT
+      soap_inorg_loc2=0      
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize, ionic_Nsize, chp_Nsize, liquid_Nsize, N_size, isoapdyn, &
-           imethod, soap_inorg_loc, &
+           imethod, soap_inorg_loc2, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization)
+           with_oligomerization, NACL_IN_THERMODYNAMICS)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size
@@ -459,7 +467,7 @@ contains
         lwc = 1.d-19
       endif
 
-      do js = 1, N_size
+      do js = ICUT_org+1, N_size
         if (lwc_Nsize(js).GT.1.d-19) then
           chp_Nsize(js) = proton_Nsize(js) / lwc_Nsize(js) * 1.0e3
         else
@@ -478,7 +486,7 @@ contains
       lwcorg=0.
 
            
-      CALL soap_main_ssh(lwc, rh, temp, ionic, chp, lwcorg,&
+      CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &
            lwc_Nsize(ICUT_org+1:N_size), ionic_Nsize(ICUT_org+1:N_size), chp_Nsize(ICUT_org+1:N_size), &
@@ -488,7 +496,7 @@ contains
            aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization)
+           with_oligomerization, NACL_IN_THERMODYNAMICS)
 
       ! Get the calculated values from SOAP
       do js = ICUT_org+1, N_size

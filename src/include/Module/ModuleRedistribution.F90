@@ -238,13 +238,15 @@ contains
     inorg_total = 0.D0
     inorg_bin = 0.D0
  
-    do jesp=ENa,ECl
-      do js=1,N_size
-        if(concentration_index(js, 1) <= end_bin) then
-          inorg_total = inorg_total + concentration_mass(js, jesp)
-          inorg_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
-        endif
-      enddo
+    do jesp=1,N_aerosol
+       if (aerosol_type(jesp)==3) then
+          do js=1,N_size
+             if(concentration_index(js, 1) <= end_bin) then
+                inorg_total = inorg_total + concentration_mass(js, jesp)
+                inorg_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
+             endif
+          enddo
+       endif
     enddo
 
     do js=1,N_size
@@ -264,7 +266,7 @@ contains
     enddo
   end subroutine ssh_redistribution_lwc
   
-  subroutine ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+  subroutine ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize,endbin)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -281,7 +283,7 @@ contains
     implicit none
 
     double precision :: org_total, org_bin(N_size)
-    integer :: jesp, js, jesp2
+    integer :: jesp, js, jesp2, endbin
     double precision :: lwcorg,lwcorg_Nsize(N_size)
 
     org_total = 0.D0
@@ -289,13 +291,13 @@ contains
 
     do jesp=1,nesp_aec
        jesp2 = aec_species(jesp)
-       do js=1,N_size
+       do js=1,endbin
           org_total = org_total + concentration_mass(js, jesp2)
           org_bin(js) = org_bin(js) + concentration_mass(js, jesp2)
        enddo
     enddo
 
-    do js=1,N_size
+    do js=1,endbin
        if (org_total .gt. 0.D0) then
           concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &
                                       lwcorg * org_bin(js) / org_total
@@ -304,5 +306,81 @@ contains
     enddo
 
   end subroutine ssh_redistribution_lwcorg
+
+  subroutine ssh_redistribution_lwc_soapinorg(lwc,lwcorg,lwcorg_Nsize,ionic,proton,liquid,iredist,end_bin)
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine redistribute liquid water content (LWC)
+!     based on the fraction of inorganic aerosols.
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!    lwc: liquid water content (ug/m3)
+!
+!------------------------------------------------------------------------
+    implicit none
+
+    integer :: iredist
+    double precision :: inorg_total, inorg_bin(N_size),org_bin(N_size),org_total
+    integer :: jesp, js,lay,end_bin
+    double precision :: lwc,ionic, proton,liquid(12),lwcorg,lwcorg_Nsize(N_size)
+!    double precision :: lwc_Nsize(N_size),proton_Nsize(N_size)
+!    double precision :: proton_Nsize(N_size)
+
+!    double precision :: ionic_Nsize(N_size),liquid_Nsize(12,N_size)
+
+    inorg_total = 0.D0
+    inorg_bin = 0.D0
+    org_total = 0.D0
+    org_bin = 0.D0
+    
+    do jesp=1,N_aerosol
+       if (aerosol_hydrophilic(jesp)==1.and.jesp.ne.EH2O) then
+          do js=1,N_size
+             if(concentration_index(js, 1) <= end_bin) then
+                inorg_total = inorg_total + concentration_mass(js, jesp)
+                inorg_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
+             endif
+          enddo
+          !print*,jesp,aerosol_hydrophilic(jesp),aerosol_species_name(jesp),sum(concentration_mass(:,jesp))
+       endif
+       if (aerosol_hydrophobic(jesp)==1.and.jesp.ne.EH2O) then
+          do js=1,N_size
+             if(concentration_index(js, 1) <= end_bin) then
+                org_total = inorg_total + concentration_mass(js, jesp)
+                org_bin(js) = inorg_bin(js) + concentration_mass(js, jesp)
+             endif
+          enddo
+          !print*,jesp,aerosol_hydrophilic(jesp),aerosol_species_name(jesp),sum(concentration_mass(:,jesp))
+       endif
+    enddo
+
+    do js=1,N_size
+       if(concentration_index(js, 1) <= end_bin) then
+          concentration_mass(js, EH2O_layers) = 0.d0
+          if (inorg_total .gt. 0.D0) then
+             if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = lwc * inorg_bin(js)/inorg_total
+             lwc_Nsize(js) = lwc * inorg_bin(js) / inorg_total
+             proton_Nsize(js) = proton * inorg_bin(js) / inorg_total
+             ionic_Nsize(js) = ionic 
+             do jesp=1,12
+                liquid_Nsize(jesp,js) = liquid(jesp)
+             enddo
+          else
+             if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = 0.d0
+          end if
+          if (org_total .gt. 0.D0) then
+             concentration_mass(js, EH2O_layers) = concentration_mass(js, EH2O_layers) + &
+                  lwcorg * org_bin(js) / org_total
+             lwcorg_Nsize(js) = lwcorg * org_bin(js) / org_total
+          endif
+       endif
+    enddo
+  !print*,sum(concentration_mass(:, EH2O_layers)),lwc,iredist
+  end subroutine ssh_redistribution_lwc_soapinorg
+  
   
 end Module eRedistribution

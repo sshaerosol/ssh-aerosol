@@ -79,6 +79,7 @@ module aInitialization
   integer, save :: with_nucl   !Tag nucleation
   integer, save :: nucl_model_binary, nucl_model_ternary, nucl_model_hetero
   double precision, save :: scal_ternary, scal_hetero
+  double precision, save :: co2_conc_ppm
   integer, save :: nesp_org_h2so4_nucl
   integer, dimension(2), save :: org_h2so4_nucl_species
   character (len=40), dimension(2) :: name_org_h2so4_nucl_species
@@ -88,7 +89,8 @@ module aInitialization
   integer, save :: output_type
   integer, save :: splitting
   integer, save :: soap_inorg,soap_inorg_loc
-  integer ,save :: niter_water,niter_eqconc
+  integer, save :: niter_water,niter_eqconc
+  integer, save :: NACL_IN_THERMODYNAMICS
   integer, dimension(:), allocatable, save :: iter_eqconc,iter_water
 
   ! cut-off diameter
@@ -268,6 +270,7 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
   double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
 
@@ -435,7 +438,7 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water
+         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
@@ -1059,9 +1062,11 @@ contains
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation
     imethod=0 !ROS2 explicit method in SOAP
+    co2_conc_ppm=410.d0 !Default CO2 concentrations set to 460 ppm
     soap_inorg=0
     niter_eqconc=1
     niter_water=1
+    NACL_IN_THERMODYNAMICS=0
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
@@ -1406,6 +1411,8 @@ contains
     allocate(mass_density(N_aerosol))
     allocate(inon_volatile(N_aerosol))
     allocate(smiles(N_aerosol))
+    allocate(aerosol_hydrophilic(N_aerosol))
+    allocate(aerosol_hydrophobic(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))    
     
@@ -1472,6 +1479,19 @@ contains
           smiles(s)=smiles_tmp
           saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
           enthalpy_vaporization(s)=enthalpy_vaporization_tmp
+
+          aerosol_hydrophilic(s)=0
+          if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophilic(s)=1
+          endif
+          if (aerosol_type(s)==3) then
+             aerosol_hydrophilic(s)=1
+          endif
+
+          aerosol_hydrophobic(s)=0
+          if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophobic(s)=1
+          endif
 
           if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
              write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
@@ -1599,6 +1619,7 @@ contains
        endif
     end do
 
+    ECO3=-1
     do s = 1, N_aerosol
        ! For non-organic species.
        if (s <= N_nonorganics) then
@@ -1611,6 +1632,7 @@ contains
           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
+          if (aerosol_species_name(s) .eq. "PCO3") ECO3 = s
 
           do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
@@ -2040,71 +2062,35 @@ contains
     allocate(molecular_weight(N_gas))
     allocate(species_name(N_gas))
 
-    ! genoa !change it to read from file: species.spack.dat
-    count = index(species_list_file, 'species.spack.dat')
-    if (count .ne. 0) then
-        open(unit = 11, file = species_list_file, status = "old")
-        count = 0
-        ierr = 0
-        ind = 0
-        s = 0 ! index
-        do while(s.ne.N_gas)
-            if (ind.eq.0) then ! not find the start line
-                read(11, *, iostat=ierr) char1
-                if (ierr == 0) then
-                    count = count + 1 ! line number
-                    if (trim(char1).eq.'[molecular_weight]') ind = count !start to read
-                endif
-            else ! read species
-                s = s + 1
-                read(11, *) species_name(s), molecular_weight(s)
-                !print*, N_gas, s, species_name(s), molecular_weight(s)
-                if (molecular_weight(s).le. 0.d0) then
-                     print*,'Error: input MWs <= 0',s, species_name(s),&
-                                    molecular_weight(s)
-                     stop
-                endif
-            endif
-        end do
-        if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-        if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-
-        close(11)
-
-    ! normal read
-    else
-        open(unit = 11, file = species_list_file, status = "old")
-        count = 0
-        ierr = 0
-        do while(ierr .eq. 0)
-           read(11, *, iostat=ierr)
-           if (ierr == 0) count = count + 1
-        end do
-
-        
-        if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-        if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-        if (N_gas == count - 1) then   ! minus the first comment line
-           if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
-           if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
-        else 
-           write(*,*) 'Given gas-phase species list does not fit chem() setting.'
-           stop
-        end if
-        
-        
-        rewind 11
-        read(11, *)  ! read the first comment line
-        do s = 1, N_gas
-           read(11, *) species_name(s), molecular_weight(s)
-           if (molecular_weight(s).le. 0.d0) then
-             print*,'Error: input MWs <= 0',s, species_name(s),&
-                     molecular_weight(s)
-             stop
-           endif
-        enddo
-        close(11)
-    endif
+    open(unit = 11, file = species_list_file, status = "old")
+    count = 0
+    ierr = 0
+    do while(ierr .eq. 0)
+       read(11, *, iostat=ierr)
+       if (ierr == 0) count = count + 1
+    end do
+    
+    if (ssh_standalone) write(*,*) 'read gas-phase species list.'
+    if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
+    if (N_gas == count - 1) then   ! minus the first comment line
+       if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
+       if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
+    else 
+       write(*,*) 'Given gas-phase species list does not fit chem() setting.'
+       stop
+    end if
+    
+    rewind 11
+    read(11, *)  ! read the first comment line
+    do s = 1, N_gas
+       read(11, *) species_name(s), molecular_weight(s)
+       if (molecular_weight(s).le. 0.d0) then
+         print*,'Error: input MWs <= 0',s, species_name(s),&
+                 molecular_weight(s)
+         stop
+       endif
+    enddo
+    close(11)
     
     ! read aerosol species namelist ! unit = 12
     open(unit = 12, file = aerosol_species_list_file, status = "old")
@@ -2138,6 +2124,8 @@ contains
     allocate(smiles(N_aerosol))
     allocate(saturation_vapor_pressure(N_aerosol))
     allocate(enthalpy_vaporization(N_aerosol))
+    allocate(aerosol_hydrophilic(N_aerosol))
+    allocate(aerosol_hydrophobic(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
     
@@ -2161,6 +2149,20 @@ contains
             surface_tension(s), accomodation_coefficient(s), &
             mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
             saturation_vapor_pressure(s),enthalpy_vaporization(s)
+
+       aerosol_hydrophilic(s)=0
+       if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
+          aerosol_hydrophilic(s)=1
+       endif
+       if (aerosol_type(s)==3) then
+          aerosol_hydrophilic(s)=1
+       endif
+
+       aerosol_hydrophobic(s)=0
+       if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
+          aerosol_hydrophobic(s)=1
+       endif
+
         if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
             stop
@@ -2266,7 +2268,8 @@ contains
           aec_species(js) = s
        endif
     end do
-    
+
+    ECO3=-1
     do s = 1, N_aerosol
        ! For non-organic species.
        if (s <= N_nonorganics) then
@@ -2279,6 +2282,7 @@ contains
           if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
           if (aerosol_species_name(s) .eq. "PHCL") ECl = s
           if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
+          if (aerosol_species_name(s) .eq. "PCO3") ECO3 = s
 
           do ilayer=1,(nlayer + i_hydrophilic)
              index_species(s,ilayer) = s
@@ -2970,6 +2974,8 @@ contains
     else
         allocate(RO2index(nRO2_chem)) ! index of RO2
     endif
+    ! for twostep solver input
+    if (tag_twostep.eq.1 .and. .not.allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
 
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
@@ -3031,6 +3037,8 @@ contains
     if (allocated(accomodation_coefficient))  deallocate(accomodation_coefficient, stat=ierr)
     if (allocated(partitioning)) deallocate(partitioning, stat=ierr)
     if (allocated(smiles)) deallocate(smiles, stat=ierr)
+    if (allocated(aerosol_hydrophilic)) deallocate(aerosol_hydrophilic, stat=ierr)
+    if (allocated(aerosol_hydrophobic)) deallocate(aerosol_hydrophobic, stat=ierr) 
     if (allocated(saturation_vapor_pressure))  deallocate(saturation_vapor_pressure, stat=ierr)
     if (allocated(enthalpy_vaporization))  deallocate(enthalpy_vaporization, stat=ierr)    
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)

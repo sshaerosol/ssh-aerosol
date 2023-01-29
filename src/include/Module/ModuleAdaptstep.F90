@@ -66,7 +66,9 @@ contains
     iter_eqconc(:) = 0
     ratio_water(:)=0.d0
     ratio_eqconc(:,:)=0.d0   
-    iter_water(:) = 0    
+    iter_water(:) = 0
+    proton = 0.d0
+    lwc = 0.d0
 
     ! Initialize the density of aerosols
     if (with_fixed_density.eq.0) then
@@ -246,16 +248,14 @@ contains
           
           ! ******** equilibrium SOA even if inorganic aerosols are estimated dynamically
           if (ICUT_org>0) then
-
              call  ssh_bulkequi_org(nesp_aec,lwc,lwcorg,ionic,proton,liquid,delta_t)!equilibrium for organic
              !call ssh_mass_conservation(concentration_mass,concentration_number,&
              !     concentration_gas, total_mass)
 
              if (soap_inorg==0) then
-                call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
-             else
-                call ssh_redistribution_lwc(lwc,ionic,proton,liquid,0,ICUT_org)
-                call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize)
+                call ssh_redistribution_lwcorg(lwcorg,lwcorg_Nsize,ICUT_org)
+             else                
+                call ssh_redistribution_lwc_soapinorg(lwc,lwcorg,lwcorg_Nsize,ionic,proton,liquid,0,ICUT_org)                
              endif
           endif
 
@@ -288,11 +288,11 @@ contains
           jesp=isorropia_species(2)
           qgas(jesp)=0.d0
           qgas(EH2O)=0.0
-#ifdef WITHOUT_NACL_IN_THERMODYNAMICS
-          qaero(ENa) = 0.d0
-          qaero(ECl) = 0.d0
-          qgas(ECl) = 0.d0
-#endif
+          if (NACL_IN_THERMODYNAMICS==0) then
+             qaero(ENa) = 0.d0
+             qaero(ECl) = 0.d0
+             qgas(ECl) = 0.d0
+          endif
           call ssh_isoropia_drv(N_aerosol,&
                qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
                liquid)
