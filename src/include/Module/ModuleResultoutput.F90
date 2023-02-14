@@ -9,11 +9,21 @@ Module Resultoutput
 
   implicit none
 
-! out_aero : array of file names; outpout time variation of organic, inorganic, PM2.5, PM10 results
-  character(20), save :: out_aero(4) 
-  character(4), save :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
-
 contains
+
+!============================================================================================
+! could be usefull for ssh_write_output_netcdf
+
+  subroutine handle_err(status)
+    integer, intent(in) :: status
+    if(status /= nf90_noerr) then
+      print *, trim(nf90_strerror(status))
+      !stop "Stopped"
+    endif
+  end subroutine handle_err
+
+
+!============================================================================================
 
    subroutine ssh_save_report()
 !------------------------------------------------------------------------
@@ -130,15 +140,381 @@ contains
    end subroutine ssh_save_report
 
 
+!============================================================================================
+
+
+  subroutine ssh_init_output()
+    
+    implicit none
+    integer :: i,j,s,b
+    
+    allocate(output_time(nt+1))                  
+    allocate(output_gas(nt+1,N_gas))            
+    allocate(output_numb(nt+1,N_size+1))         
+    allocate(output_diam(nt+1,N_size))           
+    allocate(output_aero(nt+1,N_aerosol,N_size)) 
+    allocate(output_TM(nt+1,N_aerosol,3))        
+    allocate(output_special(nt+1,8))
+    allocate(output_pH(nt+1,N_size))      
+    
+    t_out = 0 
+    mixing_nb = N_size / N_sizebin ! 1 if internal, >1 if external
+
+    do b=1, N_sizebin+1
+      if (diam_bound(b) .le. 1.0d0 )  ipm1=b-1  ! ipm1 = last size bin number of PM 1 
+      if (diam_bound(b) .le. 2.5d0 )  ipm25=b-1 ! ipm25 = last size bin number of PM 2.5 
+      if (diam_bound(b) .le. 10.0d0 ) ipm10=b-1 ! ipm10 = last size bin number of PM 10 
+    enddo
+
+    ! initialization
+    do i=1, nt+1
+      output_time(i) = 0.0d0
+      do s=1, n_gas
+        output_gas(i,s) =  0.0d0
+      enddo
+      do b=1, N_size+1
+        output_numb(i,b) = 0.0d0
+      enddo
+      do b=1, N_size
+        output_diam(i,b) = 0.0d0
+        output_pH(i,b) = 7.0d0
+      enddo
+      do s=1, N_aerosol
+        do j=1, 3
+          output_TM(i,s,j) = 0.0d0
+        enddo
+        do b=1, N_size
+          output_aero(i,s,b) = 0.0d0
+        enddo
+      enddo
+      do j=1, 8
+        output_special(i,j) = 0.0d0
+      enddo
+    enddo
+    
+    ! maybe removal of previous reseults files should be called here?
+    
+  end subroutine ssh_init_output
+
+  
+!============================================================================================
+
+   
   subroutine ssh_save_concentration()
+  
+    implicit none
+    integer :: s, b, i, j, jesp
+    
+    t_out = t_out+1
+    output_time(t_out) = initial_time + (t_out - 1) * delta_t
+
+    do s = 1, n_gas
+      output_gas(t_out,s) =  concentration_gas_all(s) 
+    enddo
+
+    do b = 1, N_size   
+      output_numb(t_out,b)        = concentration_number(b)
+      output_numb(t_out,N_size+1) = output_numb(t_out,N_size+1) + concentration_number(b)
+      output_diam(t_out,b)        = cell_diam_av(b)
+      if (lwc_Nsize(b)>0.d0.and.proton_Nsize(b)>0.d0) then          
+        output_pH(t_out,b)=-log10(proton_Nsize(b)/lwc_Nsize(b)*1.0e3)   
+      endif
+    enddo
+     
+    do s = 1, N_aerosol
+      total_aero_mass(s) = 0.d0 
+      do b = 1, N_size
+        concentration_mass_tmp(b,s) = 0.d0
+      enddo
+    enddo
+
+    do b = 1, N_size
+      do s = 1, N_aerosol_layers
+        jesp = List_species(s)
+        total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(b,s)
+        concentration_mass_tmp(b,jesp) = concentration_mass_tmp(b,jesp) + concentration_mass(b,s)
+      enddo
+    enddo
+    
+    do s = 1, N_aerosol
+      do b = 1, N_size
+        output_aero(t_out,s,b) = concentration_mass_tmp(b,s)
+      enddo
+      output_TM(t_out,s,1) = total_aero_mass(s)
+      if (aerosol_species_interact(s) .gt. 0) then
+        output_TM(t_out,s,2) = concentration_gas_all(aerosol_species_interact(s))
+      endif
+      output_TM(t_out,s,3)  = output_TM(t_out,s,1) + output_TM(t_out,s,2)
+    enddo
+    
+
+    ! save organic, inorganic, PBC, Dust, PM2.5, PM10 results over each time step
+    do s=1, N_aerosol
+      if (aerosol_type(s).EQ.1) then 
+        output_special(t_out,1) = total_aero_mass(s)                       !Mineral Dust
+      elseif (aerosol_type(s).EQ.2) then
+        output_special(t_out,2) = total_aero_mass(s)                       !Black Carbon
+      elseif (aerosol_type(s).EQ.9) then
+        output_special(t_out,3) = total_aero_mass(s)                       !Water
+      elseif (aerosol_type(s).EQ.3) then 
+        output_special(t_out,4) = output_special(t_out,4) + total_aero_mass(s) !Inorganics
+      elseif (aerosol_type(s).EQ.4) then 
+        output_special(t_out,5) = output_special(t_out,5) + total_aero_mass(s) !Organics
+      endif
+    enddo
+   
+    do s=1, N_aerosol-1	! without water
+      if (ipm1 .GE. 1) then ! PM1
+        do b=1, ipm1*mixing_nb
+          output_special(t_out,6) = output_special(t_out,6) + concentration_mass_tmp(b,s)
+        enddo
+      endif
+      if (ipm25 .GE. 1) then ! PM2.5
+        do b=1, ipm25*mixing_nb
+          output_special(t_out,7) = output_special(t_out,7) + concentration_mass_tmp(b,s)
+        enddo
+      endif
+      if (ipm10 .GE. 1) then ! PM10
+        do b=1, ipm25*mixing_nb
+          output_special(t_out,8) = output_special(t_out,8) + concentration_mass_tmp(b,s)
+        enddo
+      endif
+    enddo
+      
+
+  end subroutine ssh_save_concentration
+       
+
+!============================================================================================
+
+  SUBROUTINE ssh_write_output()
+    IMPLICIT NONE
+      
+      if (ssh_standalone) write(*,*) ""
+      if (ssh_logger) write(logfile,*) ""
+      
+      if (output_type == 3) then
+        if (ssh_standalone) write(*,*) "====  Write Netcdf output files  ====="
+        if (ssh_logger) write(logfile,*) "====  Write Netcdf output files  ====="
+        call ssh_write_output_netcdf()
+      else
+        if (ssh_standalone) write(*,*) "====  Write bin/txt output files  ====="
+        if (ssh_logger) write(logfile,*) "====  Write bin/txt output files  ====="
+        call ssh_write_output_bintxt()
+      end if
+      
+      if (ssh_standalone) write(*,*) ""
+      if (ssh_logger) write(logfile,*) ""
+      
+  END SUBROUTINE ssh_write_output
+  
+
+!============================================================================================
+
+
+
+  SUBROUTINE ssh_write_output_netcdf()
+    USE netcdf
+    IMPLICIT NONE
+    
+    !file ID
+    INTEGER :: ncid
+    
+    !dimension IDs & vardim IDs
+    INTEGER :: tid, tvid  !temps
+    INTEGER :: pid, pvid  !layer
+    INTEGER :: sid, svid  !size
+    INTEGER :: lbid, hbid, emid, sbid  !lower and higher bound
+
+    !variable IDs
+    INTEGER :: concid(5000) !nb mx of var
+  
+    !local var
+    INTEGER :: s,b,i,j,k,m,isizmix 
+    INTEGER :: ncstat
+    CHARACTER(20) :: out_aero(8) 
+    DOUBLE PRECISION :: lb(N_size), hb(N_size)
+    INTEGER :: sb(N_size), em(N_size)
+
+    
+    out_aero(1) = 'Dust'
+    out_aero(2) = 'Black_Carbon'
+    out_aero(3) = 'Water'
+    out_aero(4) = 'Inorganic'
+    out_aero(5) = 'Organic'
+    out_aero(6) = 'PM1'
+    out_aero(7) = 'PM2.5'
+    out_aero(8) = 'PM10'
+    
+!   to add after "ncstat line" to have information on potential error: ";call handle_err(ncstat)"
+    
+!=======
+! gas file
+    ncstat = nf90_create(trim(output_directory) // "gas.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of gaseous species')  
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')    
+    do s = 1, n_gas
+      ncstat = nf90_def_var(ncid,trim(species_name(s)), NF90_DOUBLE,  (/ tid /), concid(s))
+      ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+    enddo
+    
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do s = 1, n_gas
+      ncstat = nf90_put_var(ncid, concid(s), output_gas(1:nt+1,s))
+    enddo
+    ncstat = nf90_close(ncid)
+!=======
+   
+    
+!=======
+! number file
+    ncstat = nf90_create(trim(output_directory) // "number.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: numbers of particles')  
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')        
+    isizmix = 0
+    do b=1, N_sizebin
+      do m=1, mixing_nb
+        isizmix = isizmix+1
+        ncstat = nf90_def_var(ncid,"sizemixbin_" // trim(str(isizmix)), NF90_DOUBLE,  (/ tid /), concid(isizmix))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'units', 'particles_m-3')
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'lower_boundary', diam_bound(b))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'higher_boundary', diam_bound(b+1))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'ext_mix', m)
+      enddo
+    enddo
+    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
+    ncstat = nf90_def_var(ncid,"total", NF90_DOUBLE,  (/ tid /), concid(N_size+1))
+    ncstat = nf90_put_att(ncid, concid(N_size+1), 'units', 'particles_m-3')
+    ncstat = nf90_put_att(ncid, concid(N_size+1), 'lower_boundary', diam_bound(1))
+    ncstat = nf90_put_att(ncid, concid(N_size+1), 'higher_boundary', diam_bound(N_sizebin+1))
+    
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do b = 1, N_size+1
+      ncstat = nf90_put_var(ncid, concid(b), output_numb(1:nt+1,b))
+    enddo
+    ncstat = nf90_close(ncid)
+!=======
+    
+    
+!=======
+! diameter file
+    ncstat = nf90_create(trim(output_directory) // "diameter.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: average diameters of particles')  
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')    
+    isizmix = 0
+    do b=1, N_sizebin
+      do m=1, mixing_nb
+        isizmix = isizmix+1
+        ncstat = nf90_def_var(ncid,"sizebin_" // trim(str(isizmix)), NF90_DOUBLE,  (/ tid /), concid(isizmix))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'units', 'micrometer')
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'lower_boundary', diam_bound(b))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'higher_boundary', diam_bound(b+1))
+        ncstat = nf90_put_att(ncid, concid(isizmix), 'ext_mix', m)
+      enddo
+    enddo
+    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
+    
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do b = 1, N_size
+      ncstat = nf90_put_var(ncid, concid(b), output_diam(1:nt+1,b))
+    enddo
+    ncstat = nf90_close(ncid)
+!=======
+   
+    
+!=======
+! TM file    
+    ncstat = nf90_create(trim(output_directory) // "TM.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of condensable species')  
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_dim(ncid,"Phase",3,pid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+    ncstat = nf90_def_var(ncid,"Phase", NF90_CHAR,  (/ pid /), pvid)
+    ncstat = nf90_put_att(ncid, pvid, 'phase', '1=aer 2=gas 3=tot')
+    do s = 1, N_aerosol
+      ncstat = nf90_def_var(ncid,aerosol_species_name(s), NF90_DOUBLE,  (/ tid , pid /), concid(s))
+      ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+    enddo
+
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do s = 1, N_aerosol
+      ncstat = nf90_put_var(ncid, concid(s), output_TM(1:nt+1,s,1:3))
+    enddo
+    ncstat = nf90_close(ncid)
+!=======
+
+
+!=======
+! aero file 
+    ncstat = nf90_create(trim(output_directory) // "aero.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of aerosol species')  
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_dim(ncid,"Size_mix",N_size,sid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+    
+    ncstat = nf90_def_var(ncid,"lower_boundary", NF90_DOUBLE,  (/ sid /), lbid)
+    ncstat = nf90_put_att(ncid, lbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"higher_boundary", NF90_DOUBLE,  (/ sid /), hbid)
+    ncstat = nf90_put_att(ncid, hbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"Sizebin", NF90_INT,  (/ sid /), sbid)
+    ncstat = nf90_put_att(ncid, sbid, 'title', 'Sizebin indice')
+    ncstat = nf90_def_var(ncid,"ext_mix", NF90_INT,  (/ sid /), emid)      
+    ncstat = nf90_put_att(ncid, emid, 'title', 'external mixing indice')
+    
+    isizmix = 0
+    do b=1, N_sizebin
+      do m=1, mixing_nb
+        isizmix = isizmix+1
+        lb(isizmix) = diam_bound(b)
+        hb(isizmix) = diam_bound(b+1)
+        sb(isizmix) = b
+        em(isizmix) = m
+      enddo
+    enddo         
+    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
+    
+    do s = 1, N_aerosol
+      ncstat = nf90_def_var(ncid,aerosol_species_name(s), NF90_DOUBLE,  (/ tid , sid /), concid(s))
+      ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+    enddo
+    do s = 1, 8
+      ncstat = nf90_def_var(ncid,out_aero(s), NF90_DOUBLE,  (/ tid /), concid(N_aerosol+s))
+      ncstat = nf90_put_att(ncid, concid(N_aerosol+s), 'units', 'microgram_m-3')
+    enddo
+    ncstat = nf90_def_var(ncid,"pH", NF90_DOUBLE,  (/ tid , sid /), concid(N_aerosol+8+1))
+    
+    ncstat = nf90_put_var(ncid, lbid, lb)
+    ncstat = nf90_put_var(ncid, hbid, hb)
+    ncstat = nf90_put_var(ncid, sbid, sb)
+    ncstat = nf90_put_var(ncid, emid, em)
+    
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do s = 1, N_aerosol
+      ncstat = nf90_put_var(ncid, concid(s), output_aero(1:nt+1,s,1:N_size))
+    enddo
+    do s = 1, 8
+      ncstat = nf90_put_var(ncid, concid(N_aerosol+s), output_special(1:nt+1,s))
+    enddo
+    ncstat = nf90_put_var(ncid, concid(N_aerosol+8+1), output_pH(1:nt+1,1:N_size))
+    ncstat = nf90_close(ncid)
+!=======
+  
+  END SUBROUTINE ssh_write_output_netcdf  
+  
+
+!============================================================================================
+
+
+  SUBROUTINE ssh_write_output_bintxt()
 !------------------------------------------------------------------------
-!
-!     -- DESCRIPTION
-!
-!     This subroutine records simulation results over each time step. 
-!
-!------------------------------------------------------------------------
-!
 !     -- OUTPUTS 
 !     Mass concentrations of each gas-phase species:
 !     >>> output_directory/gas/species name/".txt"(".bin")
@@ -168,266 +544,93 @@ contains
 !     mass concentration [ug/m3] 
 !     number concentration [#/m3]
 !     diameter [um]
-!
-!------------------------------------------------------------------------
-
-    logical :: iPM25, iPM10
-    integer :: s, b, i, j, jesp
-    double precision :: conc_save, out_conc(4) ! for out_aero
-    character (len=200) output_filename
-
-    ! **** output_directory/gas/
-    ! save gas concentration results over each time step
-    do s = 1, n_gas
-       output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
-       open(unit=100,file=output_filename, status='old', position = "append")
-       write(100,*) concentration_gas_all(s) 
-       close(100)
-    enddo
-
-    ! **** output_directory/number/
-    ! save number concentration results over each time step
-    do b = 1, N_size
-       output_filename = trim(output_directory) // "/aero/pH_" // trim(str(b)) // trim(out_type(output_type))
-       open(unit=100,file=output_filename, status="old", position = "append")
-       conc_save=7.d0      
-       if (lwc_Nsize(b)>0.d0.and.proton_Nsize(b)>0.d0) then          
-          conc_save=-log10(proton_Nsize(b)/lwc_Nsize(b)*1.0e3)   
-       endif
-       write(100,*) conc_save
-       close(100)
-    end do
-       
-     ! **** output_directory/number/
-     ! save number concentration results over each time step
-     do b = 1, N_size
-          output_filename = trim(output_directory) // "/number/NUMBER_" // trim(str(b)) // trim(out_type(output_type))
-          open(unit=100,file=output_filename, status="old", position = "append")
-               write(100,*) concentration_number(b)
-          close(100)
-     end do
-
-     ! save total number concentration of all particles
-	conc_save = 0.d0
-        do b = 1, N_size
-	   conc_save = conc_save + concentration_number(b)
-	end do
-
-        output_filename = trim(output_directory) // "/number/TNUM" //  trim(out_type(output_type))  
-        open(unit=100,file=output_filename, status="old", position = "append")
-             write(100,*) conc_save 
-        close(100)
-
-     ! **** output_directory/diameter/
-     ! save dry diacell_diam_av results over each time step
-     do b = 1, N_size
-        output_filename = trim(output_directory) // "/diameter/DIAMETER_" // trim(str(b)) &
-                          //trim(out_type(output_type))
-        open(unit=100,file=output_filename, status="old", position = "append")
-             write(100,*) cell_diam_av(b)
-        close(100)
-     end do
-
-    ! **** output_directory/TM/
-    ! re-new total_aero_mass(N_aerosol)
-        total_aero_mass = 0.d0
-	do s = 1, N_aerosol_layers
-           jesp = List_species(s)
-	   do j = 1,N_size
-              total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
-	   enddo
-	end do
-
-    ! save total mass for each aerosol species over each time step
-    do s = 1, N_aerosol
-       output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s))&
-                         //'_TM'// trim(out_type(output_type))  
-       open(unit=100,file=output_filename, status='old', position = "append")
-            write(100,*) total_aero_mass(s) 
-       close(100)
-       if (aerosol_species_interact(s) .gt. 0) then
-          output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s))&
-            //'_'//trim(species_name(aerosol_species_interact(s)))//'_TM'// trim(out_type(output_type))
-          open(unit=100,file=output_filename, status='old', position = "append")
-               conc_save = total_aero_mass(s) + concentration_gas_all(aerosol_species_interact(s))
-               write(100,*) conc_save
-          close(100)
-       end if
-    enddo
-
-    do s = 1, N_aerosol
-       do b = 1, N_size
-          concentration_mass_tmp(b ,s) = 0.d0
-       enddo
-    enddo
-    
-    do b = 1, N_size
-       do s = 1, N_aerosol_layers
-          jesp = List_species(s)
-          concentration_mass_tmp(b ,jesp) = concentration_mass_tmp(b ,jesp) + concentration_mass(b ,s)
-       enddo
-    enddo
-
-    ! **** output_directory/aero/
-    ! save aerosol concentration results over each time step
-    do s = 1, N_aerosol
-       do b = 1, N_size
-          output_filename = trim(output_directory) // "/aero/" // trim(aerosol_species_name(s)) &  
-                  // "_" // trim(str(b)) // trim(out_type(output_type))
-          open(unit=100,file=output_filename, status="old", position = "append")
-               write(100,*) concentration_mass_tmp(b, s)
-          close(100)
-       end do
-    end do
-
-
-    !** save organic, inorganic, PM2.5, PM10 per each time step
-    out_conc = 0.d0 ! init
-
-    do b = 1, N_size
-        ! check diameter for PM2.5 and PM10
-        s = concentration_index(b,1)! get index of size bins
-        if (diam_bound(s) .gt. 1d1) then ! d > 10
-            iPM10 = .false.
-            iPM25 = .false.
-        else if (diam_bound(s) .gt. 2.5d0) then ! 2.5 < d <= 10
-            iPM10 = .true.
-            iPM25 = .false.
-        else ! d <= 2.5
-            iPM10 = .true.
-            iPM25 = .true.
-        end if
-        ! compute concs
-        do s = 1, N_aerosol ! remove water and no-organics
-            ! OM and IM
-            if (aerosol_type(s).eq.3) then
-                out_conc(1)=out_conc(1)+concentration_mass_tmp(b,s)! add inorganics
-            else if (aerosol_type(s).eq.4) then
-                out_conc(2)=out_conc(2)+concentration_mass_tmp(b,s)! add organics
-            end if
-            ! PM2.5 and PM10
-            if (aerosol_type(s).ne.9) then
-                if (iPM25) out_conc(3)=out_conc(3)+concentration_mass_tmp(b,s)! add PM2.5
-                if (iPM10) out_conc(4)=out_conc(4)+concentration_mass_tmp(b,s)! add PM10
-            end if
-        end do
-    end do
-    ! save concs
-    do s = 1, 4
-        output_filename=trim(output_directory)//"/aero/"//trim(out_aero(s))//trim(out_type(output_type))
-        open(unit=100,file=output_filename,status="old",position="append")
-            write(100,*) out_conc(s)
-        close(100)
-    end do
-
-  end subroutine ssh_save_concentration
-
-
-
-  subroutine ssh_init_output_conc()
-!------------------------------------------------------------------------
-!
-!     -- DESCRIPTION
-!
-!     This subroutine initiailize output files, which should be called 
-!     before save_concentration()
-!
-!------------------------------------------------------------------------
-
-    integer :: stat, s, b
+!------------------------------------------------------------------------  
+    integer :: stat, s, b, t
     logical :: file_exists
-    character (len=200) output_filename
-    character (len=200) :: cmd
+    character (len=100) output_filename
+    character (len=80) :: cmd
     character (len=10) :: out_dir(5) 
+    
+    character(20) :: out_aero(8) 
+    character(4) :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
+    
     out_dir(1) = "/number/"
     out_dir(2) = "/gas/"	
     out_dir(3) = "/aero/"
     out_dir(4) = "/TM/"
     out_dir(5) = "/diameter/"
-    ! init ! do not change order
-    out_aero(1) = 'Inorganic'
-    out_aero(2) = 'Organic'
-    out_aero(3) = 'PM2.5'
-    out_aero(4) = 'PM10'
+    
+    out_aero(1) = 'Dust'
+    out_aero(2) = 'Black_Carbon'
+    out_aero(3) = 'Water'
+    out_aero(4) = 'Inorganic'
+    out_aero(5) = 'Organic.5'
+    out_aero(6) = 'PM1'
+    out_aero(7) = 'PM2.5'
+    out_aero(8) = 'PM10'
 
     ! Create directory if it does not exist.
     do s = 1, 5
-       	cmd = trim('mkdir -p '// trim(output_directory) // out_dir(s))
-       	call system(cmd)
+      cmd = trim('mkdir -p '// trim(output_directory) // out_dir(s))
+      call system(cmd)
     end do
+
 
     ! gas phase
     do s = 1, n_gas
-          output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
-          ! Remove if output file exist
-          inquire (file = output_filename, exist = file_exists)
-          if (file_exists) then
-             open(unit=100, file = output_filename, status='old', iostat=stat)
-             if (stat == 0) close(100, status='delete')
-          endif
-          ! creative new empty file 
-          open(unit=100,file=output_filename, status="new")
-          close(100)
-    enddo
-
-
-    ! organic, inorganic, PM2.5, PM10
-    do s = 1, 4
-          output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//trim(out_type(output_type))
-          ! Remove if output file exist
-          inquire (file = output_filename, exist = file_exists)
-          if (file_exists) then
-             open(unit=100, file = output_filename, status='old', iostat=stat)
-             if (stat == 0) close(100, status='delete')
-          endif
-          ! creative new empty file 
-          open(unit=100,file=output_filename, status="new")
-          close(100)
+      output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
+      ! Remove if output file exist
+      inquire (file = output_filename, exist = file_exists)
+      if (file_exists) then
+        open(unit=100, file = output_filename, status='old', iostat=stat)
+        if (stat == 0) close(100, status='delete')
+      endif
+      ! create new file 
+      open(unit=100,file=output_filename, status="new")
+      do t=1, nt+1
+        write(100,*) output_gas(t,s)                  ! concentrations only
+!        write(100,*) output_time(t),output_gas(t,s)   ! time + concentrations
+      enddo
+      close(100)
     enddo
 
     ! aerosols
     do s = 1, N_aerosol
-       do b = 1, N_size
-	  output_filename = trim(output_directory) // "/aero/" // trim(aerosol_species_name(s)) &
+      do b = 1, N_size
+        output_filename = trim(output_directory) // "/aero/" // trim(aerosol_species_name(s)) &
                   // "_" // trim(str(b)) // trim(out_type(output_type))
-          ! Remove if output files exist
-          inquire (file = output_filename, exist = file_exists)
-          if (file_exists) then
-             open(unit=100, file = output_filename, status='old', iostat=stat)
-             if (stat == 0) close(100, status='delete')
-          endif
-          ! creative new empty file 
-          open(unit=100,file=output_filename, status="new")
-          close(100)
-       end do
-    end do
+        ! Remove if output files exist
+        inquire (file = output_filename, exist = file_exists)
+        if (file_exists) then
+          open(unit=100, file = output_filename, status='old', iostat=stat)
+          if (stat == 0) close(100, status='delete')
+        endif
+        ! create new file 
+        open(unit=100,file=output_filename, status="new")
+        do t=1, nt+1
+          write(100,*) output_aero(t,s,b)                  ! concentrations only
+!          write(100,*) output_time(t),output_aero(t,s,b)   ! time + concentrations
+        enddo
+        close(100)
+      enddo
+    enddo
 
     ! number
     do b = 1, N_size
-       output_filename = trim(output_directory) // "/aero/pH_"// trim(str(b)) // trim(out_type(output_type))
-       ! Remove if output files exist
-       inquire (file = output_filename, exist = file_exists)
-       if (file_exists) then
-          open(unit=100, file = output_filename, status='old', iostat=stat)
-          if (stat == 0) close(100, status='delete')
-       endif
-       ! creative new empty file 
-       open(unit=100,file=output_filename, status="new")
-       close(100)
-    end do
-
-    ! number
-    do b = 1, N_size
-       output_filename = trim(output_directory) // "/number/NUMBER_"// trim(str(b)) // trim(out_type(output_type))
-       ! Remove if output files exist
-       inquire (file = output_filename, exist = file_exists)
-       if (file_exists) then
-          open(unit=100, file = output_filename, status='old', iostat=stat)
-          if (stat == 0) close(100, status='delete')
-       endif
-       ! creative new empty file 
-       open(unit=100,file=output_filename, status="new")
-       close(100)
+      output_filename = trim(output_directory) // "/number/NUMBER_"// trim(str(b)) // trim(out_type(output_type))
+      ! Remove if output files exist
+      inquire (file = output_filename, exist = file_exists)
+      if (file_exists) then
+        open(unit=100, file = output_filename, status='old', iostat=stat)
+        if (stat == 0) close(100, status='delete')
+      endif
+      ! create new file 
+      open(unit=100,file=output_filename, status="new")
+      do t=1, nt+1
+        write(100,*) output_numb(t,b)                  ! concentrations only
+!        write(100,*) output_time(t),output_numb(t,b)   ! time + concentrations
+      enddo
+      close(100)
     end do
 
     ! total number
@@ -435,155 +638,115 @@ contains
     ! Remove if output files exist
     inquire (file = output_filename, exist = file_exists)
     if (file_exists) then
-       open(unit=100, file = output_filename, status='old', iostat=stat)
-       if (stat == 0) close(100, status='delete')
-    endif    
+      open(unit=100, file = output_filename, status='old', iostat=stat)
+      if (stat == 0) close(100, status='delete')
+    endif   
+    ! create new file  
     open(unit=100,file=output_filename, status="new")
+    do t=1, nt+1
+      write(100,*) output_numb(t,N_size+1)                  ! concentrations only
+!      write(100,*) output_time(t),output_numb(t,N_size+1)   ! time + concentrations
+    enddo
     close(100)
           
     ! total_aero_mass for aerosols
     do s = 1, N_aerosol
-       output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s)) &
+      output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s)) &
                          //'_TM'//trim(out_type(output_type)) 
-       ! Remove if output files exist
-       inquire (file = output_filename, exist = file_exists)
-       if (file_exists) then
-          open(unit=100, file = output_filename, status='old', iostat=stat)
-          if (stat == 0) close(100, status='delete')
-       endif
-       open(unit=100,file=output_filename, status="new")
-       close(100)
-
-       if (aerosol_species_interact(s) .gt. 0) then
-          output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s))&
-            //'_'//trim(species_name(aerosol_species_interact(s)))//'_TM'// trim(out_type(output_type))
-          ! Remove if output files exist
-          inquire (file = output_filename, exist = file_exists)
-          if (file_exists) then
-             open(unit=100, file = output_filename, status='old', iostat=stat)
-             if (stat == 0) close(100, status='delete')
-          endif
-          open(unit=100,file=output_filename, status="new")
-          close(100)
-       end if
-    enddo
-
-    
-   ! cell_diam_av for aerosols
-   do b = 1, N_size
-      output_filename = trim(output_directory) // "/diameter/DIAMETER_"// &
-                        trim(str(b)) // trim(out_type(output_type))
       ! Remove if output files exist
       inquire (file = output_filename, exist = file_exists)
       if (file_exists) then
-         open(unit=100, file = output_filename, status='old', iostat=stat)
-         if (stat == 0) close(100, status='delete')
+        open(unit=100, file = output_filename, status='old', iostat=stat)
+        if (stat == 0) close(100, status='delete')
       endif
+      ! create new file  
       open(unit=100,file=output_filename, status="new")
+      do t=1, nt+1
+        write(100,*) output_TM(t,s,1)                  ! concentrations only
+!        write(100,*) output_time(t),output_TM(t,s,1)   ! time + concentrations
+      enddo
       close(100)
+
+      if (aerosol_species_interact(s) .gt. 0) then
+         output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s))&
+           //'_'//trim(species_name(aerosol_species_interact(s)))//'_TM'// trim(out_type(output_type))
+        ! Remove if output files exist
+        inquire (file = output_filename, exist = file_exists)
+        if (file_exists) then
+          open(unit=100, file = output_filename, status='old', iostat=stat)
+          if (stat == 0) close(100, status='delete')
+        endif
+        ! create new file  
+        open(unit=100,file=output_filename, status="new")
+        do t=1, nt+1
+          write(100,*) output_TM(t,s,3)                  ! concentrations only
+!          write(100,*) output_time(t),output_TM(t,s,3)   ! time + concentrations
+        enddo 
+        close(100)
+      endif
+    enddo
+
+   ! cell_diam_av for aerosols
+   do b = 1, N_size
+     output_filename = trim(output_directory) // "/diameter/DIAMETER_"// &
+                       trim(str(b)) // trim(out_type(output_type))
+     ! Remove if output files exist
+     inquire (file = output_filename, exist = file_exists)
+     if (file_exists) then
+       open(unit=100, file = output_filename, status='old', iostat=stat)
+       if (stat == 0) close(100, status='delete')
+     endif
+    ! create new file       
+     open(unit=100,file=output_filename, status="new")
+     do t=1, nt+1
+       write(100,*) output_diam(t,b)                  ! concentrations only
+!       write(100,*) output_time(t),output_diam(t,b)   ! time + concentrations
+     enddo
+     close(100)
    end do
 
-
-  end subroutine ssh_init_output_conc
-
-
-  subroutine ssh_delete_empty_file()
-!------------------------------------------------------------------------
-!
-!     -- DESCRIPTION
-!
-!     This subroutine delete output file in where all the values are zero.
-!
-!------------------------------------------------------------------------
-    integer :: stat, s, b
-    real :: conc_value
-    logical :: file_exists
-    character (len=200) output_filename
-    character (len=200) :: cmd
-    character (len=10) :: out_dir(5) 
-   ! gas phase
-    do s = 1, n_gas
-       output_filename = trim(output_directory) // "/gas/" // trim(species_name(s)) // trim(out_type(output_type))
-       open(unit=100, file = output_filename, status='old', iostat=stat)
-           conc_value = 0.0
-           do while(stat .eq. 0)
-              read(100, *,iostat=stat) conc_value
-              if (conc_value .gt. 0.0) exit
-           end do
-       if (conc_value .eq. 0.0) close(100, status='delete') ! if all values are zero, delete file
-       if (conc_value .ne. 0.0) close(100)
+   ! aero specials
+    do s=1, 8
+      output_filename = trim(output_directory) // "/aero/" // trim(out_aero(s))//trim(out_type(output_type))
+      ! Remove if output file exist
+      inquire (file = output_filename, exist = file_exists)
+      if (file_exists) then
+        open(unit=100, file = output_filename, status='old', iostat=stat)
+        if (stat == 0) close(100, status='delete')
+      endif
+      ! create new file  
+      open(unit=100,file=output_filename, status="new")
+      do t=1, nt+1
+        write(100,*) output_special(t,s)                  ! concentrations only
+!        write(100,*) output_time(t),output_special(t,s)   ! time + concentrations
+      enddo
+      close(100)
     enddo
-
-
-    do s = 1, N_aerosol
-    ! total_aero_mass for aerosols
-       output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s)) &
-                         //'_TM'//trim(out_type(output_type)) 
-       open(unit=100, file = output_filename, status='old', iostat=stat)
-           conc_value = 0.0
-           do while(stat .eq. 0)
-              read(100, *,iostat=stat) conc_value
-              if (conc_value .gt. 0.0) exit
-           end do
-       if (conc_value .eq. 0.0) close(100, status='delete')
-       if (conc_value .ne. 0.0) close(100)
-
-    ! total_mass for aerosols + precursor
-       if (aerosol_species_interact(s) .gt. 0) then
-          output_filename = trim(output_directory) // "/TM/" // trim(aerosol_species_name(s))&
-            //'_'//trim(species_name(aerosol_species_interact(s)))//'_TM'// trim(out_type(output_type))
-            open(unit=100, file = output_filename, status='old', iostat=stat)
-                conc_value = 0.0
-                do while(stat .eq. 0)
-                   read(100, *,iostat=stat) conc_value
-                   if (conc_value .gt. 0.0) exit
-                 end do
-            if (conc_value .eq. 0.0) close(100, status='delete')
-            if (conc_value .ne. 0.0) close(100)
-       end if
-
-    ! aerosols mass conc. of each cell
-       do b = 1, N_size
-	  output_filename = trim(output_directory) // "/aero/" // trim(aerosol_species_name(s)) &
-                  // "_" // trim(str(b)) // trim(out_type(output_type))
-          open(unit=100, file = output_filename, status='old', iostat=stat)
-              conc_value = 0.0
-              do while(stat .eq. 0)
-                 read(100, *,iostat=stat) conc_value
-                 if (conc_value .gt. 0.0) exit
-              end do
-          if (conc_value .eq. 0.0) close(100, status='delete')
-          if (conc_value .ne. 0.0) close(100)
-       end do
-    enddo
-
+    
     ! pH
-    do b = 1, N_size
-       output_filename = trim(output_directory) // "/aero/pH_"// trim(str(b)) // trim(out_type(output_type))
-       open(unit=100, file = output_filename, status='old', iostat=stat)
-          conc_value = 0.0
-          do while(stat .eq. 0)
-             read(100, *,iostat=stat) conc_value
-             if (conc_value .gt. 0.0) exit
-          end do
-       if (conc_value .eq. 0.0) close(100, status='delete')
-       if (conc_value .ne. 0.0) close(100)
+    do b=1, N_size
+      output_filename = trim(output_directory) // "/aero/pH_" // trim(str(b)) // trim(out_type(output_type))
+      ! Remove if output files exist
+      inquire (file = output_filename, exist = file_exists)
+      if (file_exists) then
+        open(unit=100, file = output_filename, status='old', iostat=stat)
+        if (stat == 0) close(100, status='delete')
+      endif
+      ! create new file 
+      open(unit=100,file=output_filename, status="new")
+      do t=1, nt+1
+        write(100,*) output_pH(t,b)                  ! concentrations only
+!        write(100,*) output_time(t),output_pH(t,b)   ! time + concentrations
+      enddo
+      close(100)
     enddo
+    
 
-    ! number
-    do b = 1, N_size
-       output_filename = trim(output_directory) // "/number/NUMBER_"// trim(str(b)) // trim(out_type(output_type))
-       open(unit=100, file = output_filename, status='old', iostat=stat)
-          conc_value = 0.0
-          do while(stat .eq. 0)
-             read(100, *,iostat=stat) conc_value
-             if (conc_value .gt. 0.0) exit
-          end do
-       if (conc_value .eq. 0.0) close(100, status='delete')
-       if (conc_value .ne. 0.0) close(100)
-    enddo
+  END SUBROUTINE ssh_write_output_bintxt
 
-  end subroutine ssh_delete_empty_file
+
+!============================================================================================
+
 
   character(len=20) function str(k)
     !   "Convert an integer to string."

@@ -58,7 +58,7 @@ PROGRAM SSHaerosol
 
   call ssh_init_distributions()  
 
-  call ssh_init_output_conc() 
+  call ssh_init_output() 
 
   call ssh_save_report()
 
@@ -219,7 +219,7 @@ PROGRAM SSHaerosol
        end if
     end do
 
-    call ssh_save_concentration()         ! Text or Binary format outout
+    call ssh_save_concentration()         ! Save outputs in arrays
 
     ! Time step is finished
     call cpu_time(t0)
@@ -227,7 +227,7 @@ PROGRAM SSHaerosol
 
   end do			! finsh simulation
 
-
+  call ssh_write_output()  !Creation of .txt .bin or .nc output files
   !call delete_empty_file() ! delete empty output files
 
   call ssh_free_allocated_memory()

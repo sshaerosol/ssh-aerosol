@@ -1671,7 +1671,7 @@ module SSHaerosolAPI
 
 ! =============================================================
 !
-! External code can call the init_output_conc subroutine
+! External code can call the init_output subroutine
 !         
 ! =============================================================
           
@@ -1682,13 +1682,13 @@ module SSHaerosolAPI
 
       implicit none
 
-      call ssh_init_output_conc()
+      call ssh_init_output()
 
     end subroutine ssh_api_call_ssh_initoutput
 
 ! =============================================================
 !
-! External code can call the save_concentration subroutine
+! External code can call the save_concentration subroutine (in arrays)
 !         
 ! =============================================================
           
@@ -1702,6 +1702,28 @@ module SSHaerosolAPI
       call ssh_save_concentration()
       
     end subroutine ssh_api_call_ssh_output
+
+! =============================================================
+!
+! External code can call the write_output subroutine
+!         
+! =============================================================
+          
+    subroutine ssh_api_call_ssh_writeoutput() bind(c, name='api_sshaerosol_writeoutput_')
+      
+      use iso_c_binding
+      use Resultoutput 
+
+      implicit none
+
+      call ssh_write_output()
+
+    end subroutine ssh_api_call_ssh_writeoutput   
+    
+    
+        
+    
+    
 
 ! =============================================================
 !

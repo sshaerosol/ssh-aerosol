@@ -353,7 +353,19 @@ module aInitialization
   ! This flag defines if SSH-aerosol is logging information to a file
   !   true if it is writing to a file
   !   false otherwise, default
-  !
+  
+  ! FINAL PART: OUTPUTS
+  Double precision, dimension(:), allocatable, save     :: output_time    !(nt+1)                  
+  Double precision, dimension(:,:), allocatable, save   :: output_gas     !(nt+1,N_gas)             
+  Double precision, dimension(:,:), allocatable, save   :: output_numb    !(nt+1,N_size+1)         
+  Double precision, dimension(:,:), allocatable, save   :: output_diam    !(nt+1,N_size)           
+  Double precision, dimension(:,:,:), allocatable, save :: output_aero    !(nt+1,N_aerosol,N_size) 
+  Double precision, dimension(:,:,:), allocatable, save :: output_TM      !(nt+1,N_aerosol,3)        
+  Double precision, dimension(:,:), allocatable, save   :: output_special !(nt+1,8) 
+  Double precision, dimension(:,:), allocatable, save   :: output_pH      !(nt+1,N_size)   
+  integer,save                                          :: t_out
+  integer,save                                          :: ipm1,ipm25,ipm10,mixing_nb
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!                                                                    !!!!!
 !!!!!                          IMPORTANT                                 !!!!!
@@ -1282,7 +1294,10 @@ contains
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Results output >>>>'
        if (ssh_logger) write(logfile,*) '<<<< Results output >>>>'
-       if (output_type == 2) then
+       if (output_type == 3) then
+          if (ssh_standalone) write(*,*) 'results are saved in netcdf files.'
+          if (ssh_logger) write(logfile,*) 'results are saved in netcdf files.'
+       elseif (output_type == 2) then
           if (ssh_standalone) write(*,*) 'results are saved in binary files.'
           if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
        else
@@ -3145,6 +3160,15 @@ contains
     if (allocated(humidity_array)) deallocate(humidity_array)
     if (allocated(relative_humidity_array)) deallocate(relative_humidity_array)
     
+    ! FINAL PART: OUTPUTS
+    if (allocated(output_time)) deallocate(output_time)       !(nt+1)                  
+    if (allocated(output_gas)) deallocate(output_gas)         !(nt+1,N_gas)             
+    if (allocated(output_numb)) deallocate(output_numb)       !(nt+1,N_size+1)         
+    if (allocated(output_diam)) deallocate(output_diam)       !(nt+1,N_size)           
+    if (allocated(output_aero)) deallocate(output_aero)       !(nt+1,N_aerosol,N_size) 
+    if (allocated(output_TM)) deallocate(output_TM)           !(nt+1,N_aerosol,3)        
+    if (allocated(output_special)) deallocate(output_special) !(nt+1,8)
+    if (allocated(output_pH)) deallocate(output_pH)           !(nt+1,N_size)
     
 
 
