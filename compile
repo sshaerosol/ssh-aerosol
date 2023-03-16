@@ -38,6 +38,14 @@ case $i in
     profile="${i#*=}"
     shift
     ;;
+# Read the option to choose whether the gas-phase chemistry
+# need to be combined with the h2o mechanism.
+# Accepted values: yes, no
+# Default: iscombining = no    
+    -b=*|--iscombining=*)
+    iscombining="${i#*=}"
+    shift
+    ;;
 esac
 done
 
@@ -67,6 +75,29 @@ if [ -z $profile ]; then
 fi
 echo "Compiling profile : $profile"
 
+if [ -z $iscombining ]; then                     
+    iscombining="no"                
+fi
+echo "Combining with H2O : $iscombining"
+
+# Make generate_chem_files.sh
+chem_script="generate_chem_files.sh"
+cd src/include/spack/src
+cp $chem_script.sed $chem_script
+if [ $iscombining == "yes" ]; then
+    # Check if a mechanism without h2o is used.
+    if [ $chemistry != "cb05-ozone" ]; then
+        echo "Please use cb05-ozone as the chemistry mechanism."
+        echo "compile -b=yes -c=cb05-ozone"
+        exit 0
+    else
+        sed -i 's/%is_combining%/1/g' $chem_script
+    fi
+else
+    sed -i 's/%is_combining%/0/g' $chem_script
+fi
+cd ../../../../
+
 file="ssh-aerosol"
 if [ -h $file ] 
 then
@@ -74,6 +105,7 @@ then
 fi
 
 ./cleantmp $chemistry
+
 
 # Path to blitz and netcdf libraries
 #export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH

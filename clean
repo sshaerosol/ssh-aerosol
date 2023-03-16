@@ -1,7 +1,24 @@
 #!/bin/bash
 
+for i in "$@"
+do
+case $i in
+# Read the option for Chemistry kinetic mechanism.
+# Accepted values: racm, racm2, cb05, melchior2
+# Default: chemistry=cb05
+    -c=*|--chemistry=*)
+    chemistry="${i#*=}"
+    shift
+    ;;
+esac
+done
+if [ -z $chemistry ]; then
+    chemistry="cb05"
+fi
+echo "Chemistry: $chemistry"
+
 cd src
-scons -c
+scons -c chemistry=$chemistry
 
 rm -f `find -iname "*.bck"` 
 rm -f `find -iname "*.o"`
@@ -45,6 +62,29 @@ fi
 
 cd species-list
 rm -f `find -iname "species-list.dat"` 
+cd ../
+
+# remove temporary files
+cd src/include/CHEMISTRY/$chemistry
+rm -f `find -iname "combined_*.dat"`
+cd ../../spack/src/
+rm -f `find -iname "generate_chem_files.sh"`
+cd ../../
+
+
+# file="combined_reactions.dat"
+# if [ -f $file ] 
+# then
+#     rm -f $file
+# fi
+# file="combined_species.dat"
+# if [ -f $file ] 
+# then
+#     rm -f $file
+# fi
+# cd ..
+
+
 
 
 # if [ "$1" = "all" ]; then
