@@ -6,7 +6,8 @@
 Module Resultoutput
   use aInitialization
   use dPhysicalbalance
-
+  USE netcdf
+  
   implicit none
 
 contains
