@@ -547,10 +547,10 @@ contains
     end if
 
     ! Allocate meteo data
-    allocate(temperature_array(nt))
-    allocate(pressure_array(nt))
-    allocate(humidity_array(nt))
-    allocate(relative_humidity_array(nt))
+    if ( .not. allocated(temperature_array)) allocate(temperature_array(nt))
+    if ( .not. allocated(pressure_array)) allocate(pressure_array(nt))
+    if ( .not. allocated(humidity_array)) allocate(humidity_array(nt))
+    if ( .not. allocated(relative_humidity_array)) allocate(relative_humidity_array(nt))
 
     ! initial_condition
     wet_diam_estimation = -999
@@ -603,15 +603,15 @@ contains
     if (ssh_standalone) write(*,*) 'N_sizebin', N_sizebin
     if (ssh_logger) write(logfile,*) 'N_sizebin', N_sizebin    
 
-    allocate(init_bin_number(N_sizebin))
+    if ( .not. allocated(init_bin_number)) allocate(init_bin_number(N_sizebin))
     init_bin_number = 0.d0
 
     if (tag_dbd == 1)  then  ! initialisation for sizebin
-       allocate(diam_input(N_sizebin+1))
+       if ( .not. allocated(diam_input)) allocate(diam_input(N_sizebin+1))
        diam_input = 0.d0
     else ! default read the boundary of sizebin (tag_dbd = 0)
        tag_dbd = 0
-       allocate(diam_input(2))
+       if ( .not. allocated(diam_input)) allocate(diam_input(2))
        diam_input = 0.d0
     end if
 
@@ -653,7 +653,7 @@ contains
           if (ssh_logger) write(logfile,*) 'Without emission.'  ! default tag_emis == 0
        end if
 
-       allocate(emis_bin_number(N_sizebin))
+       if ( .not. allocated(emis_bin_number)) allocate(emis_bin_number(N_sizebin))
        emis_bin_number = 0.d0
        if (tag_emis .ne. 0) then
           if (ssh_standalone) write(*,*) 'Gas-phase conc. emission file :', trim(emis_gas_file)
@@ -704,15 +704,15 @@ contains
        end if
 
        if (kind_composition == 1) then
-          allocate(frac_input(N_frac+1)) 
+          if ( .not. allocated(frac_input)) allocate(frac_input(N_frac+1)) 
        else
           kind_composition = 0 ! default
-          allocate(frac_input(2)) 
+          if ( .not. allocated(frac_input)) allocate(frac_input(2)) 
        end if
     end if
     
     ! fraction_distribution
-    allocate(frac_bound(N_frac+1))
+    if ( .not. allocated(frac_bound)) allocate(frac_bound(N_frac+1))
     read(10, nml = fraction_distribution, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "mixing_state data can not be read.",N_frac
@@ -1371,8 +1371,8 @@ contains
     index_species_ssh(:)=-1
 
     ! read gas-phase species namelist ! unit = 11
-    allocate(molecular_weight(N_gas))
-    allocate(species_name(N_gas))
+    if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
+    if ( .not. allocated(species_name)) allocate(species_name(N_gas))
 
     open(unit = 11, file = species_list_file, status = "old")
     count = 0
@@ -1412,30 +1412,31 @@ contains
     N_count = count - 1  ! minus the first comment line
     N_aerosol = nspecies
 
-    allocate(aerosol_species_name(N_aerosol))
+    if ( .not. allocated(aerosol_species_name)) allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
-    allocate(Index_groups(N_aerosol))
-    allocate(aerosol_type(N_aerosol))
-    allocate(index_species(N_aerosol,nlayer))
+    if ( .not. allocated(Index_groups)) allocate(Index_groups(N_aerosol))
+    if ( .not. allocated(aerosol_type)) allocate(aerosol_type(N_aerosol))
+    if ( .not. allocated(index_species)) allocate(index_species(N_aerosol,nlayer))
     ! initialize basic physical and chemical parameters
-    allocate(molecular_weight_aer(N_aerosol))
-    allocate(collision_factor_aer(N_aerosol))
-    allocate(molecular_diameter(N_aerosol)) 
-    allocate(surface_tension(N_aerosol))
-    allocate(accomodation_coefficient(N_aerosol))
-    allocate(mass_density(N_aerosol))
-    allocate(inon_volatile(N_aerosol))
-    allocate(smiles(N_aerosol))
-    allocate(aerosol_hydrophilic(N_aerosol))
-    allocate(aerosol_hydrophobic(N_aerosol))
-    allocate(saturation_vapor_pressure(N_aerosol))
-    allocate(enthalpy_vaporization(N_aerosol))    
+    if ( .not. allocated(molecular_weight_aer)) allocate(molecular_weight_aer(N_aerosol))
+    if ( .not. allocated(collision_factor_aer)) allocate(collision_factor_aer(N_aerosol))
+    if ( .not. allocated(molecular_diameter)) allocate(molecular_diameter(N_aerosol)) 
+    if ( .not. allocated(surface_tension)) allocate(surface_tension(N_aerosol))
+    if ( .not. allocated(accomodation_coefficient)) allocate(accomodation_coefficient(N_aerosol))
+    if ( .not. allocated(mass_density)) allocate(mass_density(N_aerosol))
+    if ( .not. allocated(inon_volatile)) allocate(inon_volatile(N_aerosol))
+    if ( .not. allocated(smiles)) allocate(smiles(N_aerosol))
+    if ( .not. allocated(aerosol_hydrophilic)) allocate(aerosol_hydrophilic(N_aerosol))
+    if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
+
+    if ( .not. allocated(saturation_vapor_pressure)) allocate(saturation_vapor_pressure(N_aerosol))
+    if ( .not. allocated(enthalpy_vaporization)) allocate(enthalpy_vaporization(N_aerosol))    
     
-    allocate(partitioning(N_aerosol))
+    if ( .not. allocated(partitioning)) allocate(partitioning(N_aerosol))
     
-    allocate(Vlayer(nlayer))    
+    if ( .not. allocated(Vlayer)) allocate(Vlayer(nlayer))    
     ! relation between Aerosol and GAS
-    allocate(aerosol_species_interact(N_aerosol))      
+    if ( .not. allocated(aerosol_species_interact)) allocate(aerosol_species_interact(N_aerosol))      
     aerosol_species_interact = 0
     inon_volatile = 0
 
@@ -1547,8 +1548,8 @@ contains
 
     
 
-    allocate(oligo_index(N_aerosol))
-    allocate(frac_oligo(N_aerosol))
+    if ( .not. allocated(oligo_index)) allocate(oligo_index(N_aerosol))
+    if ( .not. allocated(frac_oligo)) allocate(frac_oligo(N_aerosol))
     oligo_index=0
     do s=1,N_aerosol
        char1=aerosol_species_name(s)       
@@ -1611,13 +1612,13 @@ contains
     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
     N_aerosol_layers = N_organics * ((nlayer-1)+i_hydrophilic) + N_aerosol
     EH2O_layers = N_aerosol_layers
-    allocate(mass_density_layers(N_aerosol_layers))
-    allocate(List_species(N_aerosol_layers))
-    allocate(layer_number(N_aerosol_layers))
-    allocate(isorropia_species(nesp_isorropia))
-    allocate(isorropia_species_name(nesp_isorropia))
-    allocate(aec_species(nesp_aec))
-    allocate(aec_species_name(nesp_aec))
+    if ( .not. allocated(mass_density_layers)) allocate(mass_density_layers(N_aerosol_layers))
+    if ( .not. allocated(List_species)) allocate(List_species(N_aerosol_layers))
+    if ( .not. allocated(layer_number)) allocate(layer_number(N_aerosol_layers))
+    if ( .not. allocated(isorropia_species)) allocate(isorropia_species(nesp_isorropia))
+    if ( .not. allocated(isorropia_species_name)) allocate(isorropia_species_name(nesp_isorropia))
+    if ( .not. allocated(aec_species)) allocate(aec_species(nesp_aec))
+    if ( .not. allocated(aec_species_name)) allocate(aec_species_name(nesp_aec))
 
     ! Read aerosol species name.
     js = 0
@@ -1683,9 +1684,9 @@ contains
     endif
     ! read gas-phase initial concentrations unit 21
     ! no comment lines for initial & emitted data
-    allocate(concentration_gas_all(N_gas))
+    if ( .not. allocated(concentration_gas_all)) allocate(concentration_gas_all(N_gas))
     concentration_gas_all = 0.d0 ! set original value to 0
-    allocate(concentration_gas(N_aerosol))
+    if ( .not. allocated(concentration_gas)) allocate(concentration_gas(N_aerosol))
     concentration_gas=0.d0
 
     open(unit = 21, file = init_gas_conc_file, status = "old")
@@ -1732,11 +1733,11 @@ contains
           if (ierr == 0) count = count + 1
        end do
        count = count - 1 ! minus comment line
-       allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
+       if ( .not. allocated(init_mass)) allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
        init_mass = 0.d0
-       allocate(init_bin_mass(N_sizebin,N_aerosol))
+       if ( .not. allocated(init_bin_mass)) allocate(init_bin_mass(N_sizebin,N_aerosol))
        init_bin_mass = 0.d0
-       allocate(tmp_aero(N_sizebin))
+       if ( .not. allocated(tmp_aero)) allocate(tmp_aero(N_sizebin))
        tmp_aero = 0.d0
        aero_total_mass = 0.d0
        rewind 22
@@ -1821,7 +1822,7 @@ contains
         do s = 1, nline
            read(25, *) ! read comment lines.
         end do
-        allocate(tmp_fgls(60)) !read unifac founctional groups (60)
+        if ( .not. allocated(tmp_fgls)) allocate(tmp_fgls(60)) !read unifac founctional groups (60)
         do s= 1, count
            ! name, unifac groups
            read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
@@ -1843,9 +1844,9 @@ contains
     ! ! ! ! ! ! 
     if (tag_emis == 1) then  ! with internal emission 
 
-       allocate(emis_bin_mass(N_sizebin,N_aerosol))
+       if ( .not. allocated(emis_bin_mass)) allocate(emis_bin_mass(N_sizebin,N_aerosol))
        emis_bin_mass = 0.d0
-       allocate(gas_emis(N_gas))
+       if ( .not. allocated(gas_emis)) allocate(gas_emis(N_gas))
        gas_emis = 0.d0
        ! read gas emission concentrations unit 31
        open(unit=31, file = emis_gas_file, status = "old")
@@ -1993,9 +1994,9 @@ contains
     endif
 
     ! read input file for photolysis rate (unit 34)
-    allocate(photolysis_name(n_photolysis))
-    allocate(photolysis_reaction_index(n_photolysis))
-    allocate(photolysis_rate(n_photolysis))
+    if ( .not. allocated(photolysis_name)) allocate(photolysis_name(n_photolysis))
+    if ( .not. allocated(photolysis_reaction_index)) allocate(photolysis_reaction_index(n_photolysis))
+    if ( .not. allocated(photolysis_rate)) allocate(photolysis_rate(n_photolysis))
     photolysis_rate = 0.d0
 
     if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
@@ -2074,8 +2075,8 @@ contains
     character (len=40) :: ic_name, sname, tmp_name, char1, char2
 
     ! read gas-phase species namelist ! unit = 11
-    allocate(molecular_weight(N_gas))
-    allocate(species_name(N_gas))
+    if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
+    if ( .not. allocated(species_name)) allocate(species_name(N_gas))
 
     open(unit = 11, file = species_list_file, status = "old")
     count = 0
@@ -2120,31 +2121,31 @@ contains
     N_aerosol = count - 1  ! minus the first comment line
     
 
-    allocate(aerosol_species_name(N_aerosol))
+    if ( .not. allocated(aerosol_species_name)) allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
-    allocate(Index_groups(N_aerosol))
-    allocate(aerosol_type(N_aerosol))
-    allocate(index_species(N_aerosol,nlayer+i_hydrophilic))
+    if ( .not. allocated(Index_groups)) allocate(Index_groups(N_aerosol))
+    if ( .not. allocated(aerosol_type)) allocate(aerosol_type(N_aerosol))
+    if ( .not. allocated(index_species)) allocate(index_species(N_aerosol,nlayer+i_hydrophilic))
     ! initialize basic physical and chemical parameters
-    allocate(molecular_weight_aer(N_aerosol))
-    allocate(collision_factor_aer(N_aerosol))
-    allocate(molecular_diameter(N_aerosol)) 
-    allocate(surface_tension(N_aerosol))
-    allocate(accomodation_coefficient(N_aerosol))
-    allocate(mass_density(N_aerosol))
-    allocate(inon_volatile(N_aerosol))
-    allocate(Vlayer(nlayer))
+    if ( .not. allocated(molecular_weight_aer)) allocate(molecular_weight_aer(N_aerosol))
+    if ( .not. allocated(collision_factor_aer)) allocate(collision_factor_aer(N_aerosol))
+    if ( .not. allocated(molecular_diameter)) allocate(molecular_diameter(N_aerosol)) 
+    if ( .not. allocated(surface_tension)) allocate(surface_tension(N_aerosol))
+    if ( .not. allocated(accomodation_coefficient)) allocate(accomodation_coefficient(N_aerosol))
+    if ( .not. allocated(mass_density)) allocate(mass_density(N_aerosol))
+    if ( .not. allocated(inon_volatile)) allocate(inon_volatile(N_aerosol))
+    if ( .not. allocated(Vlayer)) allocate(Vlayer(nlayer))
     ! relation between Aerosol and GAS
-    allocate(aerosol_species_interact(N_aerosol))
-    allocate(smiles(N_aerosol))
-    allocate(saturation_vapor_pressure(N_aerosol))
-    allocate(enthalpy_vaporization(N_aerosol))
-    allocate(aerosol_hydrophilic(N_aerosol))
-    allocate(aerosol_hydrophobic(N_aerosol))
+    if ( .not. allocated(aerosol_species_interact)) allocate(aerosol_species_interact(N_aerosol))
+    if ( .not. allocated(smiles)) allocate(smiles(N_aerosol))
+    if ( .not. allocated(saturation_vapor_pressure)) allocate(saturation_vapor_pressure(N_aerosol))
+    if ( .not. allocated(enthalpy_vaporization)) allocate(enthalpy_vaporization(N_aerosol))
+    if ( .not. allocated(aerosol_hydrophilic)) allocate(aerosol_hydrophilic(N_aerosol))
+    if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
     aerosol_species_interact = 0
     inon_volatile = 0
     
-    allocate(partitioning(N_aerosol))
+    if ( .not. allocated(partitioning)) allocate(partitioning(N_aerosol))
 
     
     ! Read lines from aerosol species file.
@@ -2260,13 +2261,13 @@ contains
     N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
     N_aerosol_layers = N_organics * (nlayer-1 + i_hydrophilic) + N_aerosol
     EH2O_layers = N_aerosol_layers
-    allocate(mass_density_layers(N_aerosol_layers))
-    allocate(List_species(N_aerosol_layers))
-    allocate(layer_number(N_aerosol_layers))
-    allocate(isorropia_species(nesp_isorropia))
-    allocate(isorropia_species_name(nesp_isorropia))
-    allocate(aec_species(nesp_aec))
-    allocate(aec_species_name(nesp_aec))
+    if ( .not. allocated(mass_density_layers)) allocate(mass_density_layers(N_aerosol_layers))
+    if ( .not. allocated(List_species)) allocate(List_species(N_aerosol_layers))
+    if ( .not. allocated(layer_number)) allocate(layer_number(N_aerosol_layers))
+    if ( .not. allocated(isorropia_species)) allocate(isorropia_species(nesp_isorropia))
+    if ( .not. allocated(isorropia_species_name)) allocate(isorropia_species_name(nesp_isorropia))
+    if ( .not. allocated(aec_species)) allocate(aec_species(nesp_aec))
+    if ( .not. allocated(aec_species_name)) allocate(aec_species_name(nesp_aec))
 
     
     ! Read aerosol species name.
@@ -2330,8 +2331,8 @@ contains
        endif
     enddo
 
-    allocate(oligo_index(N_aerosol))
-    allocate(frac_oligo(N_aerosol))
+    if ( .not. allocated(oligo_index)) allocate(oligo_index(N_aerosol))
+    if ( .not. allocated(frac_oligo)) allocate(frac_oligo(N_aerosol))
     oligo_index=0
     do s=1,N_aerosol
        char1=aerosol_species_name(s)       
@@ -2348,9 +2349,9 @@ contains
     endif
     ! read gas-phase initial concentrations unit 21
     ! no comment lines for initial & emitted data
-    allocate(concentration_gas_all(N_gas))
+    if ( .not. allocated(concentration_gas_all)) allocate(concentration_gas_all(N_gas))
     concentration_gas_all = 0.d0 ! set original value to 0
-    allocate(concentration_gas(N_aerosol))
+    if ( .not. allocated(concentration_gas)) allocate(concentration_gas(N_aerosol))
     concentration_gas=0.d0
 
     open(unit = 21, file = init_gas_conc_file, status = "old")
@@ -2397,11 +2398,11 @@ contains
           if (ierr == 0) count = count + 1
        end do
        count = count - 1 ! minus comment line
-       allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
+       if ( .not. allocated(init_mass)) allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
        init_mass = 0.d0
-       allocate(init_bin_mass(N_sizebin,N_aerosol))
+       if ( .not. allocated(init_bin_mass)) allocate(init_bin_mass(N_sizebin,N_aerosol))
        init_bin_mass = 0.d0
-       allocate(tmp_aero(N_sizebin))
+       if ( .not. allocated(tmp_aero)) allocate(tmp_aero(N_sizebin))
        tmp_aero = 0.d0
        aero_total_mass = 0.d0
        rewind 22
@@ -2467,9 +2468,9 @@ contains
     ! ! ! ! ! ! 
     if (tag_emis == 1) then  ! with internal emission 
 
-       allocate(emis_bin_mass(N_sizebin,N_aerosol))
+       if ( .not. allocated(emis_bin_mass)) allocate(emis_bin_mass(N_sizebin,N_aerosol))
        emis_bin_mass = 0.d0
-       allocate(gas_emis(N_gas))
+       if ( .not. allocated(gas_emis)) allocate(gas_emis(N_gas))
        gas_emis = 0.d0
        ! read gas emission concentrations unit 31
        open(unit=31, file = emis_gas_file, status = "old")
@@ -2617,9 +2618,9 @@ contains
     endif
 
     ! read input file for photolysis rate (unit 34)
-    allocate(photolysis_name(n_photolysis))
-    allocate(photolysis_reaction_index(n_photolysis))
-    allocate(photolysis_rate(n_photolysis))
+    if ( .not. allocated(photolysis_name)) allocate(photolysis_name(n_photolysis))
+    if ( .not. allocated(photolysis_reaction_index)) allocate(photolysis_reaction_index(n_photolysis))
+    if ( .not. allocated(photolysis_rate)) allocate(photolysis_rate(n_photolysis))
     photolysis_rate = 0.d0
     
     if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
@@ -2743,8 +2744,8 @@ contains
 
         ! number of constant aerosol species
         ncst_aero = count
-        allocate(cst_aero_index(ncst_aero))
-        allocate(cst_aero(ncst_aero,N_sizebin,nt))
+        if ( .not. allocated(cst_aero_index)) allocate(cst_aero_index(ncst_aero))
+        if ( .not. allocated(cst_aero)) allocate(cst_aero(ncst_aero,N_sizebin,nt))
         if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
@@ -2814,7 +2815,7 @@ contains
         do s = 1, nline
            read(25, *) ! read comment lines.
         end do
-        allocate(tmp_fgls(60)) !read unifac founctional groups (60)
+        if ( .not. allocated(tmp_fgls)) allocate(tmp_fgls(60)) !read unifac founctional groups (60)
         do s= 1, count
            ! name, unifac groups
            read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
@@ -2863,8 +2864,8 @@ contains
 
         ! number of species that keep as constants
         ncst_gas =count
-        allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
-        allocate(cst_gas(ncst_gas,nt))
+        if ( .not. allocated(cst_gas_index)) allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
+        if ( .not. allocated(cst_gas)) allocate(cst_gas(ncst_gas,nt))
         if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
@@ -2919,8 +2920,8 @@ contains
         close(34)
     else
         !print*,'No input cst gas file.'
-        allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
-        allocate(cst_gas(ncst_gas,nt))
+        if ( .not. allocated(cst_gas_index)) allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
+        if ( .not. allocated(cst_gas)) allocate(cst_gas(ncst_gas,nt))
     endif
 
     ! species that keep conc. constants in the simulation
@@ -2946,7 +2947,7 @@ contains
         end do
 
         nRO2_chem = count
-        allocate(RO2index(nRO2_chem)) ! index of RO2
+        if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
 
         rewind 34
         do s = 1, nline
@@ -2987,7 +2988,7 @@ contains
               tag_RO2, " ",trim(RO2_list_file)
           stop
     else
-        allocate(RO2index(nRO2_chem)) ! index of RO2
+        if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
     endif
     ! for twostep solver input
     if (tag_twostep.eq.1 .and. .not.allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2

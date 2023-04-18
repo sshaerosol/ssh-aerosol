@@ -59,13 +59,13 @@ contains
     if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
 
     ! Allocate repartition coefficient
-    allocate(repartition_coefficient(N_size))
-    allocate(index1_repartition_coefficient(N_size))
-    allocate(index2_repartition_coefficient(N_size))
-    allocate(repartition_coefficient_tmp(Nalloc_tmp))
-    allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
-    allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
-    allocate(random_vector(2+2*N_groups))
+    if ( .not. allocated(repartition_coefficient)) allocate(repartition_coefficient(N_size))
+    if ( .not. allocated(index1_repartition_coefficient)) allocate(index1_repartition_coefficient(N_size))
+    if ( .not. allocated(index2_repartition_coefficient)) allocate(index2_repartition_coefficient(N_size))
+    if ( .not. allocated(repartition_coefficient_tmp)) allocate(repartition_coefficient_tmp(Nalloc_tmp))
+    if ( .not. allocated(index1_repartition_coefficient_tmp)) allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
+    if ( .not. allocated(index2_repartition_coefficient_tmp)) allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
+    if ( .not. allocated(random_vector)) allocate(random_vector(2+2*N_groups))
 
     ! set seed for random number generator
     seed(1:40) = 47281
@@ -221,9 +221,9 @@ contains
        ! Open the file.
        call ssh_check( nf90_open(file, NF90_NOWRITE, ncid) )
        ! Allocate memory.
-       allocate(index1_repartition_coefficient(N_size))
-       allocate(index2_repartition_coefficient(N_size))
-       allocate(repartition_coefficient(N_size))
+       if ( .not. allocated(index1_repartition_coefficient)) allocate(index1_repartition_coefficient(N_size))
+       if ( .not. allocated(index2_repartition_coefficient)) allocate(index2_repartition_coefficient(N_size))
+       if ( .not. allocated(repartition_coefficient)) allocate(repartition_coefficient(N_size))
       !OPEN(12,file='coeff_reff.txt')
       do i = 1, N_size
              write( cTemp,'(i4)' ) (i-1)

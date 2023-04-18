@@ -154,7 +154,7 @@ contains
     time_angle_min = 0.d0
     delta_time_angle = 1.d0
     n_time_angle = 9
-    allocate(time_angle_photolysis(n_time_angle))
+    if ( .not. allocated(time_angle_photolysis)) allocate(time_angle_photolysis(n_time_angle))
     do i = 1, n_time_angle    
        time_angle_photolysis(i) = time_angle_min + i * delta_time_angle
     end do
@@ -163,19 +163,19 @@ contains
     latitude_min = 0.d0
     delta_latitude = 10.d0
     n_latitude = 10
-    allocate(latitude_photolysis(n_latitude))
+    if ( .not. allocated(latitude_photolysis)) allocate(latitude_photolysis(n_latitude))
     do i = 1, n_latitude    
        latitude_photolysis(i) = latitude_min + i * delta_latitude
     end do
 
     ! Set altitude for photolysis rate
-    allocate(altitude_photolysis(n_altitude))
+    if ( .not. allocated(altitude_photolysis)) allocate(altitude_photolysis(n_altitude))
     do i = 1, n_altitude
        altitude_photolysis(i) = altitude_photolysis_input(i)
     end do
         
-    allocate(file_rates(n_photolysis, n_time_angle, n_latitude, n_altitude))
-    allocate(file_rates_real(n_time_angle, n_latitude, n_altitude))
+    if ( .not. allocated(file_rates)) allocate(file_rates(n_photolysis, n_time_angle, n_latitude, n_altitude))
+    if ( .not. allocated(file_rates_real)) allocate(file_rates_real(n_time_angle, n_latitude, n_altitude))
     
   end subroutine ssh_allocate_photolysis
 
