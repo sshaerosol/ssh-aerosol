@@ -85,6 +85,8 @@ SUBROUTINE SSH_REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
   !! Calcul of d(k) = dsqrt(dbound(k)*dbound(k+1))
   !! Reestimate d(k) from number and mass concentration BEFORE condensation/evaporation
 
+  alpha = 0.d0
+
   if(scheme.EQ.11) then
      call SSH_REDIST(ns,naer,N,Qesp,fixed_density,dbound,d_after_cond)
   else 
@@ -229,6 +231,8 @@ SUBROUTINE SSH_REDISTRIBUTION(ns, naer, EH2O, dbound, fixed_diameter, scheme, &
         endif
      endif
   endif
+
+
 END SUBROUTINE SSH_REDISTRIBUTION
 
 !**************************************************

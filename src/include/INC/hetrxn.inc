@@ -23,7 +23,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       DOUBLE PRECISION Gamma(4)
       DATA Gamma / 0.2d0,
-     &     0.0,
+     &     0.d0,
      &     1.d-3,
      &     0.03d0 /
       

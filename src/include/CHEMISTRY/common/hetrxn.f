@@ -119,7 +119,7 @@ C     Constants.
       ENDIF
 
 C     REACTION PROBABILITIES
-
+      ktot = 0.d0
       DO i=1,4
          ktot(i)=0.D0
          wmol_tmp = Wmol(ispeclost(i)+1)
@@ -128,36 +128,39 @@ C     REACTION PROBABILITIES
 
          call SSH_COMPUTE_QUADRATIC_MEAN_VELOCITY(TEMP,
      &        wmol_tmp,vi)
-
-         do js=1,Nbin_aer
-            IF ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
-               WetDiammeter(js) = 1.d-6 * WetDiam(js)
+         if (gamma(i) .eq. 0.d0) then
+            ktot(i) = 0.d0
+         else
+            do js=1,Nbin_aer
+               IF ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
+                  WetDiammeter(js) = 1.d-6 * WetDiam(js)
 
 C     CALCULATE k FOR EACH SECTION
 
-               A = PI*(WetDiammeter(js)**2.d0)*granulo(js) !surface * nb_aero
+                  A = PI*(WetDiammeter(js)**2.d0)*granulo(js) !surface * nb_aero
 
 C     CALCULATE k FOR AEROSOL DISTRIBUTION
 
+                  IF(Gamma(i).ne.0.d0) then
+                     ktot(i) = ktot(i)
+     &                    + (((WetDiammeter(js) / (2.d0 * DIFF))
+     &                    + 4.d0 / (vi * Gamma(i)))**(-1.d0)) * A ! rate constant for each rxn
+                  ENDIF
+               ENDIF
+            enddo
+         
+C     If we are in a cloud, then reactions on droplet surface for N2O5.
+            IF ((ICLOUD.EQ.1).and.(i.eq.4)) THEN
+               Ndroplet = lwctmp
+     &              / (RHOwater * 1.d3 !kg.m-3 -> g.m-3
+     &              * pi / 6.d0 * avdiammeter**3.d0)
+               A = PI * avdiammeter**2.d0 * Ndroplet !surface * nb_droplet
                IF(Gamma(i).ne.0.d0) then
-                  ktot(i) = ktot(i)
-     &                      + (((WetDiammeter(js) / (2.d0 * DIFF))
-     &                         + 4.d0 / (vi * Gamma(i)))**(-1.d0)) * A ! rate constant for each rxn
+                  ktot(i) = ktot(i) + ((avdiammeter / (2.d0 * DIFF) +
+     &                 4.d0 / (vi*Gamma(i)))**(-1.d0))*A ! rate constant for each rxn
                ENDIF
             ENDIF
-         enddo
-
-C     If we are in a cloud, then reactions on droplet surface for N2O5.
-         IF ((ICLOUD.EQ.1).and.(i.eq.4)) THEN
-            Ndroplet = lwctmp
-     &           / (RHOwater * 1.d3 !kg.m-3 -> g.m-3
-     &           * pi / 6.d0 * avdiammeter**3.d0)
-            A = PI * avdiammeter**2.d0 * Ndroplet !surface * nb_droplet
-            IF(Gamma(i).ne.0.d0) then
-               ktot(i) = ktot(i) + ((avdiammeter / (2.d0 * DIFF) +
-     &           4.d0 / (vi*Gamma(i)))**(-1.d0))*A ! rate constant for each rxn
-            ENDIF
-         ENDIF
+         endif
       enddo
 
       rkin1=ktot(1)
