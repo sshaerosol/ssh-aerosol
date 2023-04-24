@@ -262,6 +262,11 @@ contains
     if(.not.allocated(dqdt)) allocate(dqdt(N_size,N_aerosol_layers)) ! ModuleCongregation ModuleCondensation ModuleAdaptstep
     dqdt = 0.d0
 
+    if (.not. allocated(ratio_water)) allocate(ratio_water(N_size))
+    if (.not. allocated(ratio_eqconc)) allocate(ratio_eqconc(4,N_size))
+    if (.not. allocated(iter_water)) allocate(iter_water(N_size))
+    if (.not. allocated(iter_eqconc)) allocate(iter_eqconc(N_size))  
+    
     if (ssh_standalone) write(*,*) "=====================finish initialising parameters==================="
     if (ssh_logger) write(logfile,*) "=====================finish initialising parameters==================="
   end subroutine ssh_init_parameters
@@ -666,10 +671,6 @@ contains
     if (ssh_standalone) write(*,*)"=================================finish initial distribution==============================="
     if (ssh_logger) write(logfile,*)"=================================finish initial distribution==============================="
 
-    if (.not. allocated(ratio_water)) allocate(ratio_water(N_size))
-    if (.not. allocated(ratio_eqconc)) allocate(ratio_eqconc(4,N_size))
-    if (.not. allocated(iter_water)) allocate(iter_water(N_size))
-    if (.not. allocated(iter_eqconc)) allocate(iter_eqconc(N_size))  
 
   end subroutine ssh_Init_distributions
 
