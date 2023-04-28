@@ -1,0 +1,52 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File for gas-phase mechanism CB05
+%
+% Reference:CB05_Final_Report_120805
+%
+% Modifications:
+%
+% 2009/01/20(YK): Modification for the SOA model
+% 2009/09/19(YK): API/LIM reactions by NO3 added for SOA model
+%      Even if aerosol yields is zero by the two reactions
+%      They must be added for the proper loss of API and LIM
+% 2009/10/22(YK): Modification for SIREAM-AEC model
+% 2010/02/26(Youngseob KIM):
+% - The reaction no.20 is excluded by the recommendation of IUPAC
+%   (http://www.iupac-kinetic.ch.cam.ac.uk)
+% - The rate constant of the reaction no.19 is corrected
+%   by the recommendation of IUPAC from 2.50E-22 to 1.00E-22
+% 2010/03/03(YK): SOA formations modified to consider NOx dependency
+% - New species: TOLP and XYLP
+% - New reactions from RACM2 mechanism (R168-177)
+% 2010/03/18(YK): Two reactions are added for more consommation of TOLP
+%       and XYLP (reaction no. 173 and 174). The concentrations
+%      of the two radicals were higher in CB05 than in RACM2.
+%      They are supposed to be equal in the two mechanisms.
+%
+% 2011/07/27 (Youngseob KIM and Christian Seigneur):
+% - The reaction no.28 is updated from "Mollner et al., Rate of gas phase
+%   association of hydroxyl radical and nitrogen dioxide, Science, vol 330,
+%   2010"
+% - The rate constant of the reaction is changed as 0.885 x k_cb05
+% 2012: Modifications for H2O SOA model (Couvidat et al., 2012)
+% 2018: Modifications for organic nitrate and low-volatility highly oxygenated
+%       organic molecules (Chrit et al., 2018). 
+% 2019: Modifications for SOA precursors emitted by wildfires
+%       (Majdi et al., 2019)    
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+SET UNIT GAS MOLCM3
+SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
+%--------------------192--------------------
+POAlP        -> SOAlP 
+KINETIC ARR1   2.00E-10
+END
+
+
+
