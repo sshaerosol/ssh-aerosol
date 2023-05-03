@@ -2294,16 +2294,6 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    }
 	
       }
-
-
-  for (i=0;i<n;i++)
-    if (surrogate[i].is_organic)
-      if (surrogate[i].is_monomer)
-	{
-	  int j=surrogate[i].ioligo;	
-	  for (int igr=0;igr<60;igr++)
-	    surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
-	}
 }
 
 
