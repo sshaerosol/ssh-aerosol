@@ -3439,7 +3439,8 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 
   if (with_ca==1 and with_co3==1)
     {
-      config.solids=true;
+      if (config.compute_inorganic)
+	config.solids=true;
       
       species CaCO3;
       CaCO3.name="CaCO3";
