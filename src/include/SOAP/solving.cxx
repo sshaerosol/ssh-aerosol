@@ -4089,6 +4089,9 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
   compute_diameters_ssh(config, surrogate, Vsol, number, LWC, LWCtot);
   tau_kmt_ssh(config, surrogate, Temperature, number);
 
+  //Initialize Kaq to avoid initialization issues
+  for (i=0;i<n;i++)
+    surrogate[i].Kaq=config.kp_low_volatility*2;
   activity_coefficients_dyn_aq_ssh(config, surrogate, Temperature,AQinit,MOinit,
                                    conc_inorganic, ionic, ionic_organic,
                                    organion,chp,LWC,MMaq,0.0,0.,0);	   
