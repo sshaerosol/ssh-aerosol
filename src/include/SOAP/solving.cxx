@@ -3736,10 +3736,24 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 	      {
 		double gamma=pow(10,-0.511*pow(298.0/Temperature,1.5)*pow(ionic(b),0.5)/(1.0+pow(ionic(b),0.5)));
 		if (config.compute_aqueous_phase_properties or chp(b)==0.)
-		  surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);              
-		else
 		  if (surrogate[i].nonvolatile)
 		    surrogate[i].veckaqi(b)=1000.;
+		  else
+		    surrogate[i].veckaqi(b)=surrogate[i].Kpart_aq_ssh(Temperature,MOWloc);              
+		else
+		  if (surrogate[i].nonvolatile)
+		    {
+		      surrogate[i].veckaqi(b)=1000.;
+		      if (surrogate[i].aqt==2) //diacid
+			{
+			  surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(gamma*chp(b))*(1.0+surrogate[i].Kacidity2/(gamma*chp(b))));
+			  surrogate[i].vecfioni2(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))*(surrogate[i].Kacidity2/(gamma*chp(b)))/
+			    (1.0+surrogate[i].Kacidity1/(gamma*chp(b))*(1.0+surrogate[i].Kacidity2/(gamma*chp(b))));
+			}
+		      else if (surrogate[i].aqt==1) //monoacid
+			surrogate[i].vecfioni1(b)=(surrogate[i].Kacidity1/(gamma*chp(b)))/(1.0+surrogate[i].Kacidity1/(gamma*chp(b)));			  
+		    }
 		  else
 		    {		      
 		      if (surrogate[i].aqt==2) //diacid
