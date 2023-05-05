@@ -49,7 +49,21 @@ void initialisation_eq_ssh(model_config &config, vector<species>& surrogate, dou
                   surrogate[i].Ap=0.99*surrogate[i].Atot;
                   surrogate[i].Aaq=0.01*surrogate[i].Atot;
                 }
-	    //cout << surrogate[i].name << " " << surrogate[i].Ap << " " << surrogate[i].Aaq << endl;
+	    
+	    if ((surrogate[i].hydrophilic)) // and surrogate[i].Aaq > 1.e-15)
+	      {
+		surrogate[i].kaqi=1000.;
+		if (config.compute_aqueous_phase_properties==false)
+                  if (surrogate[i].aqt==2) //diacid
+                    {
+                      surrogate[i].fioni1=(surrogate[i].Kacidity1/(gamma*chp))/
+                        (1.0+surrogate[i].Kacidity1/(gamma*chp)*(1.0+surrogate[i].Kacidity2/(gamma*chp)));
+                      surrogate[i].fioni2=(surrogate[i].Kacidity1/(gamma*chp))*(surrogate[i].Kacidity2/(gamma*chp))/
+                        (1.0+surrogate[i].Kacidity1/(gamma*chp)*(1.0+surrogate[i].Kacidity2/(gamma*chp)));
+                    }
+                  else if (surrogate[i].aqt==1) //monoacid
+		    surrogate[i].fioni1=(surrogate[i].Kacidity1/(gamma*chp))/(1.0+surrogate[i].Kacidity1/(gamma*chp));	 
+		}
           }
         else
           {	    
