@@ -11,6 +11,11 @@
 
 go to https://cloud.enpc.fr/s/6GY57cakKtZtqd8 and click "Télécharger photolysis.tar.bz2 (42MB)" and downloading begins.
 
+For melchior2 mechanism user, the link is
+
+https://cloud.enpc.fr/s/sPZ6G8yRiD5wxcK
+
+
 2. Extract files to the current directory.
 
 > tar xjf photolysis.tar.bz2
