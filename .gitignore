@@ -41,6 +41,7 @@ user_manual/user_manual.toc
 user_manual/user_manual.bbl
 user_manual/user_manual.blg
 user_manual/user_manual.pdf
+*.sav
 
 ### Executables
 example_fortran/launch
@@ -57,6 +58,7 @@ src/include/CHEMISTRY/racm/*.f*
 src/include/CHEMISTRY/racm2/*.f*
 src/include/CHEMISTRY/*/species.spack.dat
 src/include/CHEMISTRY/*/species-list.dat
+src/include/CHEMISTRY/*/*.f*
 src/include/spack/src/LU_generator
 src/include/spack/src/find_perm
 src/include/spack/src/spack_generator
@@ -66,6 +68,7 @@ src/include/spack/src/mechanism/*
 src/include/spack/src/reactions
 src/include/spack/src/spack_config
 src/include/spack/src/species
+src/include/spack/src/generate_chem_files.sh
 
 ###
 src/include/common/*
@@ -86,3 +89,4 @@ example_using_so/ssh-aerosol.log
 example_using_so/simple_cpp
 example_using_so/results/*
 species-list/species-list.dat.bck
+
