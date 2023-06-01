@@ -269,6 +269,8 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: molecular_weight! (\B5g/mol) gas=phase
   double precision ,dimension(:), allocatable, save :: saturation_vapor_pressure! (in torr)
   double precision ,dimension(:), allocatable, save :: enthalpy_vaporization! (in kJ/mol)
+  double precision ,dimension(:), allocatable, save :: t_ref ! a reference temperature at which Henry's law constant is given (in K)
+  double precision ,dimension(:), allocatable, save :: henry ! Henry's law constant at t_ref (in M/atm)  
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
   integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
@@ -2074,6 +2076,32 @@ contains
     double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
     character (len=40) :: ic_name, sname, tmp_name, char1, char2
 
+    !! TEST namelist-style reading
+
+    type :: aerosol_species_type
+       character (len=40) :: aerosol_species_name_tmp
+       integer :: aerosol_type_tmp, Index_groups_tmp
+       double precision :: molecular_weight_aer_tmp
+       character (len=40) :: precursor_tmp
+       double precision :: collision_factor_aer_tmp
+       double precision :: molecular_diameter_tmp, surface_tension_tmp
+       double precision :: accomodation_coefficient_tmp, mass_density_tmp
+       integer :: inon_volatile_tmp       
+       character (len=4) :: partitioning_tmp
+       character (len=800) :: smiles_tmp
+       double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
+       double precision :: henry_tmp, t_ref_tmp
+    end type aerosol_species_type
+    
+    type (aerosol_species_type), allocatable :: aerosol_species_data(:)
+    integer :: max_species = 500
+    
+    namelist /aerosol_nml/ aerosol_species_data
+
+    allocate(aerosol_species_data(max_species), stat = ierr)
+    !! 
+    
+    
     ! read gas-phase species namelist ! unit = 11
     if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
     if ( .not. allocated(species_name)) allocate(species_name(N_gas))
@@ -2142,6 +2170,9 @@ contains
     if ( .not. allocated(enthalpy_vaporization)) allocate(enthalpy_vaporization(N_aerosol))
     if ( .not. allocated(aerosol_hydrophilic)) allocate(aerosol_hydrophilic(N_aerosol))
     if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
+    if ( .not. allocated(t_ref)) allocate(t_ref(N_aerosol))
+    if ( .not. allocated(henry)) allocate(henry(N_aerosol))
+    
     aerosol_species_interact = 0
     inon_volatile = 0
     
@@ -2151,20 +2182,35 @@ contains
     ! Read lines from aerosol species file.
     rewind 12
     count = 0
-    read(12, *) ! Read a header line (#)
+    read(12, *, iostat = ierr) ! Read a header line (#)
     
     do s = 1, N_aerosol
+
+
+       if ((aerosol_species_list_file == "species-list-aer-mcm-bcary.dat") .or. &
+            (aerosol_species_list_file == "species-list-aer-mcm-bcary-fgl.dat") .or. &
+            (aerosol_species_list_file == "species-list-aer-mcm-bacary-smiles.dat")) then
        
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-       read(12, *) aerosol_species_name(s), aerosol_type(s), &
-            Index_groups(s), molecular_weight_aer(s), &
-            precursor, &
-            collision_factor_aer(s), molecular_diameter(s), &
-            surface_tension(s), accomodation_coefficient(s), &
-            mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
-            saturation_vapor_pressure(s),enthalpy_vaporization(s)
+          read(12, *) aerosol_species_name(s), aerosol_type(s), &
+               Index_groups(s), molecular_weight_aer(s), &
+               precursor, &
+               collision_factor_aer(s), molecular_diameter(s), &
+               surface_tension(s), accomodation_coefficient(s), &
+               mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
+               saturation_vapor_pressure(s),enthalpy_vaporization(s)
+       else
+          read(12, *) aerosol_species_name(s), aerosol_type(s), &
+               Index_groups(s), molecular_weight_aer(s), &
+               precursor, &
+               collision_factor_aer(s), molecular_diameter(s), &
+               surface_tension(s), accomodation_coefficient(s), &
+               mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
+               saturation_vapor_pressure(s),enthalpy_vaporization(s), &
+               henry(s), t_ref(s)
+       endif
 
        aerosol_hydrophilic(s)=0
        if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
@@ -2208,6 +2254,26 @@ contains
        endif
     enddo
     close(12)
+    
+    
+    ! TEST use namelist-style (YK)
+    aerosol_species_data%aerosol_species_name_tmp = ''
+    
+    open(unit = 100, file = "./species-list/species-list-aer.nml", status = "old")
+    read(100, nml = aerosol_nml, iostat = ierr)
+
+    n_aerosol = 0
+    do i = 1, max_species
+       write(*,*) aerosol_species_data(i)%aerosol_species_name_tmp
+       if (aerosol_species_data(i)%aerosol_species_name_tmp == '') then
+          exit
+       else
+          n_aerosol = n_aerosol + 1
+       endif
+    enddo
+    !!    write (*,*) "Number of aerosol species:", n_aerosol
+    deallocate(aerosol_species_data)
+    !
     
     
     ! Safety check if index_groups is used
@@ -3062,6 +3128,8 @@ contains
     if (allocated(inon_volatile))  deallocate(inon_volatile, stat=ierr)
     if (allocated(layer_number))  deallocate(layer_number, stat=ierr)
     if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
+    if (allocated(t_ref))  deallocate(t_ref, stat=ierr)
+    if (allocated(henry))  deallocate(henry, stat=ierr)    
     !!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
     !!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
     if (allocated(List_species))  deallocate(List_species, stat=ierr)

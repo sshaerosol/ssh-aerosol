@@ -1,39 +1,39 @@
-# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap
-PMD	1    5    	28.0    --           1.000D10        1.000D10        0.D0      1.0     2.33D-06	    0           --            -       0.         0.
-PBC	2    4	        12.0    --           1.000D10        1.000D10        0.D0      1.0     2.25D-06     0           --            -       0.         0.
-PNA	3    1	        23.0    --           1.000D10        1.000D10        0.D0      1.0     0.97D-06	    0           --            -       0.         0.
-PSO4	3    1        	98.0    SULF         77.3d0          5.5d0           80.D-03   1.0    1.84D-06      1           --            -       0.         0.
-PNH4	3    1         	17.0	NH3          558.3d0         2.9d0           80.D-03   1.0    0.91D-06      0           --            -       0.         0.
-PNO3	3    1	        63.0    HNO3         475.9d0         3.3d0           80.D-03   1.0    1.50D-06      0           --            -       0.         0.
-PHCL	3    1	        36.5	HCL          344.7d0         3.339d0         80.D-03   1.0    1.15D-06      0           --            -       0.         0.
-PBiA2D	4    2	        186.0   BiA2D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiA1D	4    2	        170.0   BiA1D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiA0D	4    2	        168.0   BiA0D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiMT	4    2	        136.0   BiMT         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiPER	4    2	        168.0   BiPER        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiDER	4    2	        136.0	BiDER        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PBiMGA	4    2	        120.0   BiMGA        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PAnBlP	4    3	        167.0   AnBlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PAnBmP	4    3	        152.0	AnBmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PBiBlP	4    3	        298.0   BiBlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PBiBmP	4    3	        236.0   BiBmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PBiNGA	4    3	        165.0   BiNGA        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PBiNIT3	4    3	        272.0	BiNIT3       687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PBiNIT	4    3	        215.0   BiNIT        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PAnClP	4    3	        167.0   AnClP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PSOAlP	4    3	        392.0	SOAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.
-PSOAmP	4    3	        392.0   SOAmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PSOAhP	4    3	        392.0   SOAhP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PPOAlP	4    3	        280.0	POAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PPOAmP	4    3	        280.0   POAmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PPOAhP	4    3	        280.0   POAhP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.
-PMonomer 4   3	        278.0	Monomer      687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.
-PDimer	 4   3	        432.0   Dimer        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.
-PBiA3D	 4   2	        204.0   BiA3D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PACIDMAL 4   2          158.0   ACIDMAL      687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PDHMB    4   2          154.0   DHMB         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PPAHlN   4   2          198.0   PAHlN        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PPAHhN   4   2          166.0   PAHhN        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PPSYR    4   2          186.0   PSYR         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PGHDPerox 4  2          174.0   GHDPerox     687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
-PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
+PMD	1    5    	28.0    --           1.000D10        1.000D10        0.D0      1.0     2.33D-06	    0           --            -       0.        0.      0.      0.
+PBC	2    4	        12.0    --           1.000D10        1.000D10        0.D0      1.0     2.25D-06     0           --            -       0.         0.     0.      0.
+PNA	3    1	        23.0    --           1.000D10        1.000D10        0.D0      1.0     0.97D-06	    0           --            -       0.         0.     0.      0.
+PSO4	3    1        	98.0    SULF         77.3d0          5.5d0           80.D-03   1.0    1.84D-06      1           --            -       0.         0.     0.      0.
+PNH4	3    1         	17.0	NH3          558.3d0         2.9d0           80.D-03   1.0    0.91D-06      0           --            -       0.         0.     0.      0.
+PNO3	3    1	        63.0    HNO3         475.9d0         3.3d0           80.D-03   1.0    1.50D-06      0           --            -       0.         0.     0.      0.
+PHCL	3    1	        36.5	HCL          344.7d0         3.339d0         80.D-03   1.0    1.15D-06      0           --            -       0.         0.     0.      0.
+PBiA2D	4    2	        186.0   BiA2D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiA1D	4    2	        170.0   BiA1D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiA0D	4    2	        168.0   BiA0D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiMT	4    2	        136.0   BiMT         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiPER	4    2	        168.0   BiPER        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiDER	4    2	        136.0	BiDER        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PBiMGA	4    2	        120.0   BiMGA        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PAnBlP	4    3	        167.0   AnBlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PAnBmP	4    3	        152.0	AnBmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PBiBlP	4    3	        298.0   BiBlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PBiBmP	4    3	        236.0   BiBmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PBiNGA	4    3	        165.0   BiNGA        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PBiNIT3	4    3	        272.0	BiNIT3       687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PBiNIT	4    3	        215.0   BiNIT        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PAnClP	4    3	        167.0   AnClP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PSOAlP	4    3	        392.0	SOAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.     0.      0.
+PSOAmP	4    3	        392.0   SOAmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PSOAhP	4    3	        392.0   SOAhP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PPOAlP	4    3	        280.0	POAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PPOAmP	4    3	        280.0   POAmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PPOAhP	4    3	        280.0   POAhP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.
+PMonomer 4   3	        278.0	Monomer      687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.     0.      0.
+PDimer	 4   3	        432.0   Dimer        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.     0.      0.
+PBiA3D	 4   2	        204.0   BiA3D        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PACIDMAL 4   2          158.0   ACIDMAL      687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PDHMB    4   2          154.0   DHMB         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PPAHlN   4   2          198.0   PAHlN        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PPAHhN   4   2          166.0   PAHhN        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PPSYR    4   2          186.0   PSYR         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PGHDPerox 4  2          174.0   GHDPerox     687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
+PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.     0.      0.
