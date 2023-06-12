@@ -2075,32 +2075,7 @@ contains
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
     character (len=40) :: ic_name, sname, tmp_name, char1, char2
-
-    !! TEST namelist-style reading
-
-    type :: aerosol_species_type
-       character (len=40) :: aerosol_species_name_tmp
-       integer :: aerosol_type_tmp, Index_groups_tmp
-       double precision :: molecular_weight_aer_tmp
-       character (len=40) :: precursor_tmp
-       double precision :: collision_factor_aer_tmp
-       double precision :: molecular_diameter_tmp, surface_tension_tmp
-       double precision :: accomodation_coefficient_tmp, mass_density_tmp
-       integer :: inon_volatile_tmp       
-       character (len=4) :: partitioning_tmp
-       character (len=800) :: smiles_tmp
-       double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
-       double precision :: henry_tmp, t_ref_tmp
-    end type aerosol_species_type
-    
-    type (aerosol_species_type), allocatable :: aerosol_species_data(:)
-    integer :: max_species = 500
-    
-    namelist /aerosol_nml/ aerosol_species_data
-
-    allocate(aerosol_species_data(max_species), stat = ierr)
-    !! 
-    
+  
     
     ! read gas-phase species namelist ! unit = 11
     if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
@@ -2254,26 +2229,6 @@ contains
        endif
     enddo
     close(12)
-    
-    
-    ! TEST use namelist-style (YK)
-    aerosol_species_data%aerosol_species_name_tmp = ''
-    
-    open(unit = 100, file = "./species-list/species-list-aer.nml", status = "old")
-    read(100, nml = aerosol_nml, iostat = ierr)
-
-    n_aerosol = 0
-    do i = 1, max_species
-       write(*,*) aerosol_species_data(i)%aerosol_species_name_tmp
-       if (aerosol_species_data(i)%aerosol_species_name_tmp == '') then
-          exit
-       else
-          n_aerosol = n_aerosol + 1
-       endif
-    enddo
-    !!    write (*,*) "Number of aerosol species:", n_aerosol
-    deallocate(aerosol_species_data)
-    !
     
     
     ! Safety check if index_groups is used
