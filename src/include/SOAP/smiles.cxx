@@ -537,8 +537,10 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  }*/
 	//cout << carbon_alcool << endl;
 	if (ngr>=2)
-	  if (smile2.substr(ngr-2,2)=="CO")
-	    carbon_alcool(ngr-2)=1;
+	  if (smile2.substr(ngr-2,2)=="CO" and carbon_arom(ngr-2)==0)
+	    {
+	      carbon_alcool(ngr-2)=1;	      
+	    }
 	 
 		
 	/*
@@ -596,13 +598,18 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		len_group=15;
 		carbon_arom(sum_len_group)=0;
 	      }
-	    else if ((surrogate[i].smile.substr(0,4)=="C(O)" or surrogate[i].smile.substr(0,4)=="CO") and carbon_arom(sum_len_group)==1)
+	    else if (surrogate[i].smile.substr(0,4)=="C(O)" and carbon_arom(sum_len_group)==1)
 	      {			       
 		surrogate[i].groups[28]+=1;
 		len_group=4;
 		carbon_arom(sum_len_group)=0;
 	      }
-	    
+	    else if (surrogate[i].smile.substr(0,4)=="CO" and carbon_arom(sum_len_group)==1)
+	      {			       
+		surrogate[i].groups[28]+=1;
+		len_group=2;
+		carbon_arom(sum_len_group)=0;
+	      }
 	    else if (surrogate[i].smile.substr(0,3)=="C=O" or surrogate[i].smile.substr(0,3)=="O=C")
 	      {
 		//cout << "is aldehyde" << endl;
