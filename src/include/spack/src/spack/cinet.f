@@ -410,6 +410,30 @@ c     HETERO: heterogeneous reactions.
          call ssh_WHETERO90 (nr,ihetero(nr))
 !!!!!!!!!! 
 
+!!!!!!!!! ADDED BY VICTOR2021 :
+c     WALL
+      elseif (mot(i)(1:4).eq.'WALL') then
+         nb(nr)=4
+         call ssh_entier(ihetero(nr),mot(i+1),imot(i+1))
+         call ssh_reel(bp(2,nr),mot(i+2),imot(i+2))
+         call ssh_reel(bp(3,nr),mot(i+3),imot(i+3))
+         call ssh_reel(bp(4,nr),mot(i+4),imot(i+4))
+         call ssh_reel(bp(5,nr),mot(i+5),imot(i+5))
+c         call ssh_reel(bp(6,nr),mot(i+6),imot(i+6))
+c         call ssh_reel(bp(7,nr),mot(i+7),imot(i+7))
+c         call ssh_reel(bp(8,nr),mot(i+8),imot(i+8))
+c         call ssh_reel(bp(9,nr),mot(i+9),imot(i+9))
+c         call ssh_reel(bp(10,nr),mot(i+10),imot(i+10))
+c         call ssh_reel(bp(11,nr),mot(i+11),imot(i+11))
+         call ssh_WWALL90 (nr,ihetero(nr),bp(2,nr),bp(3,nr),bp(4,nr),
+     &        bp(5,nr))
+     
+      elseif (mot(i)(1:8).eq.'IRDICARB') then
+         nb(nr)=1
+         call ssh_entier(ihetero(nr),mot(i+1),imot(i+1))
+         call ssh_IRDICARB (nr,ihetero(nr))
+!!!!!!!!!! 
+
 c     EXTRA: specific reaction with corrected factors
 C     O3 -> 2. OH with corrected photolysis
       elseif (mot(i)(1:5).eq.'EXTRA') then

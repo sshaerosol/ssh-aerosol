@@ -204,10 +204,11 @@ C     aerosol formation ==============
       endif
 C ====================================
       write(nwrite,432)
- 432  format('  double precision rk(nr),temp,xlw,Press')
+ 432  format('  double precision rk(nr),temp,xlw,Press,',
+     2     'aw,cbar,cstar,Masmol')
       write(nwrite,433)
  433  format('  double precision Effko,Rapk,facteur,SumM,RO2,',
-     2     'azi,att,cosX,secX')
+     2     'azi,att,cosX,secX,Psat,kwon,denom,awc')
       write(nwrite,434)
  434  format('  double precision YlH2O')
       write(nwrite,4348)

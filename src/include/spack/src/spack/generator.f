@@ -658,7 +658,151 @@ C genoa add formula for '8.14E+9*EXP(-8591/TEMP)*EXP(1.00E+8/TEMP@3)'
       return
       end
 C      
-C      
+C   
+
+C------------------------------------------------------------------------
+      subroutine ssh_WWALL90 (nr,b1,b2,b3,b4,b5)
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     Write kinetic rates case for wall transfer.
+C     possible to consider only tranfer from gas toward wall or also from wall toward gas
+C     See Huang et al. (2018) for more informations (doi: 10.1021/acs.est.7b05575)
+C     
+C     WARNING: Should be implemented in SOAP and not here 
+C
+C     PARAMETERS:
+C
+C      options:
+C       - flag on(0)/off(1) wall  = b1
+C
+C      species depending:
+C       - Psat298K(i)             = b2
+C       - DHvap(i)                = b3
+C       - MW(i)                   = b5
+C
+C      chamber depending:
+C       - surface A [m2]
+C       - volume V [m3]
+C       - Mw equivalent of wall Mwall [g/mol]
+C       - activity coef in wall gammawall
+C       - concentration equivalent of wall Cwall [g/m3]
+C       - wall accomodation param1 avar
+C       - wall accomodation param2 bvar
+C       - eddy diffusivity ke (V) [s-1] = b4
+C       - AonV = A/V [m-1]
+C
+C      depending of both:
+C       - wall accomodation coef aw (Psat,dHvap,Mw,T,avar,bvar)
+C
+C      other:
+C        - diffusivity in gas Dgas [m2/s] 
+
+C
+C------------------------------------------------------------------------
+C
+C     -- AUTHOR(S)
+C
+C     VICTOR LANNUQUE, 2021.
+C
+C------------------------------------------------------------------------
+
+      include 'nficfort'
+      integer nr,b1
+      double precision b2,b3,b4,b5,Mwall,gammawall,Cwall
+      double precision AonV,cbar,Dgas,avar,bvar,aw
+      
+      Dgas = 5.0d-6
+
+c For barbara D'Anna AFT (A=0.5730m2  V=0.01719m3) :
+c   -Gas to wall
+      AonV = 33.33
+      avar = -2.744
+      bvar = -1.4066
+c   -Wall to gas (Ne pas utiliser tel quel, A REVOIR!!!)
+      Mwall = 200.
+      gammawall = 1.0
+      Cwall = 0.360
+
+
+C= gas vers wall kw,on      
+      If(b1.EQ.0) then
+         write(nficK90,11)b2,b3,b5,avar,bvar,b4,Dgas,AonV
+         write(nficK90,12)nr
+         
+C= wall vers gas kw,off
+      elseif(b1.EQ.1) then
+         write(nficK90,11)b2,b3,b5,avar,bvar,b4,Dgas,AonV
+         write(nficK90,13)Mwall,gammawall,Cwall
+         write(nficK90,14)nr         
+         
+      else
+         write(*,*) 'ERROR: unknown wall transfer reaction ',nr
+         stop 1
+      endif         
+               
+ 11   format('  Psat = ',D12.5,'/760.*exp(',D12.5,'*1000. &',/
+     & '    / 8.314*(1./298.-1./temp))',/
+     & '  Masmol = ',D12.5,' ',/
+     & '  cstar = Masmol*1d+6*Psat/(8.205d-5*temp)',/
+     & '  aw = 10**(',D12.5,')*cstar**(',D12.5,')',/
+     & '  cbar = (8000*8.314*temp/(3.14*Masmol))**0.5',/  
+     & '  awc = (aw*cbar/4.)',/
+     & '  denom = awc / ((',D12.5,'*',D12.5,')**0.5)',/
+     & '  kwon = ',D12.5,' * awc / (1.+1.5708*denom)')
+     
+ 12   format('  rk(',i4,') = kwon')     
+
+ 13   format('  facteur=',D12.5,'*',D12.5,'/(8.205d-5 * temp &',/
+     & '    * ',D12.5,')')
+ 
+ 14   format('  rk(',i4,') = kwon * Psat * facteur')      
+
+      return
+      end
+      
+
+
+
+C------------------------------------------------------------------------
+      subroutine ssh_IRDICARB (nr,b1)
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     Write kinetic rate corresponding to irreversible pathway for MGLY condensation.
+C     depending on RH
+C     
+C     See SI of Lannuque et al. (2023) for more informations
+C
+C
+C------------------------------------------------------------------------
+C
+C     -- AUTHOR(S)
+C
+C     VICTOR LANNUQUE, 2022.
+C
+C------------------------------------------------------------------------
+      include 'nficfort'
+      integer nr,b1
+
+      If(b1.EQ.-1) then
+         write(nficK90,11)nr
+      endif  
+
+ 11   format('  Psat = 611.2d0 * dexp(17.67d0 * (temp - 273.15d0) &',/
+     & '    /(temp - 29.65d0))',/
+     & '  facteur = xlw*Press / ((0.62197d0 * (1.d0-xlw)+xlw) &',/
+     & '  * Psat ) * 100.',/
+     & '  rk(',i4,') = 1d-9*facteur**3 - 1d-7*facteur**2 &',/
+     & '  + 3.0d-7*facteur + 0.0003 ') 
+     
+      return
+      end
+      
+
+   
 C------------------------------------------------------------------------
       subroutine ssh_WHETERO90 (nr,ihetero)
 C------------------------------------------------------------------------
