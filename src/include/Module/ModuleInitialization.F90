@@ -1709,6 +1709,7 @@ contains
        do js = 1, N_gas
           if (species_name(js) .eq. ic_name) then
              concentration_gas_all(js) = tmp
+             write(*,*) concentration_gas_all(js),'js',ic_name
              ind = 1
           endif
           if (ind == 1) exit
@@ -2047,16 +2048,17 @@ contains
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
           !ifound = 0
-          do i = 1,N_gas
-             write(*,*) species_name(i),name_org_h2so4_nucl_species(s)
-             if(species_name(i) == name_org_h2so4_nucl_species(s)) then
+          do i = 1,N_aerosol
+             write(*,*) aerosol_species_name(i),name_org_h2so4_nucl_species(s)
+             if(aerosol_species_name(i) == name_org_h2so4_nucl_species(s)) then
                 org_h2so4_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Nucl. species found",species_name(i)
-                if (ssh_logger) write(logfile,*) "Nucl. species found",species_name(i)
+                if (ssh_standalone) write(*,*) "Nucl. species found",aerosol_species_name(i),i
+                if (ssh_logger) write(logfile,*) "Nucl. species found",aerosol_species_name(i),i
            !     ifound = 1
              endif
            enddo
        enddo
+       STOP
     endif
 
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
@@ -2393,6 +2395,7 @@ contains
        do js = 1, N_gas
           if (species_name(js) .eq. ic_name) then
              concentration_gas_all(js) = tmp
+             write(*,*) 'initialize conc',ic_name,js,concentration_gas_all(js)
              ind = 1
           endif
           if (ind == 1) exit
@@ -2689,11 +2692,11 @@ contains
     
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
-          do i = 1,N_gas
-              if(species_name(i) == name_org_h2so4_nucl_species(s)) then
+          do i = 1,N_aerosol
+              if(aerosol_species_name(i) == name_org_h2so4_nucl_species(s)) then
                 org_h2so4_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Nucl. species found ",species_name(i)
-                if (ssh_logger) write(logfile,*) "Nucl. species found ",species_name(i)
+                if (ssh_standalone) write(*,*) "Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_logger) write(logfile,*) "Nucl. species found ",aerosol_species_name(i),i
              endif
            enddo
        enddo
