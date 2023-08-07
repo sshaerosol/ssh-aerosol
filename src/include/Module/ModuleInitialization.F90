@@ -84,7 +84,8 @@ module aInitialization
   integer, dimension(2), save :: org_h2so4_nucl_species
   character (len=40), dimension(2) :: name_org_h2so4_nucl_species
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
-  integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic 
+  integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic
+  integer, save :: SOAPlog     ! 0=no text output from SOAP, 1=on screen, 2=written on files
   integer, save :: with_oligomerization!IOLIGO
   integer, save :: output_type
   integer, save :: splitting
@@ -452,7 +453,8 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS
+         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS, &
+         SOAPlog
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
@@ -1076,6 +1078,7 @@ contains
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation
     imethod=0 !ROS2 explicit method in SOAP
+    SOAPlog=0
     co2_conc_ppm=410.d0 !Default CO2 concentrations set to 460 ppm
     soap_inorg=0
     niter_eqconc=1

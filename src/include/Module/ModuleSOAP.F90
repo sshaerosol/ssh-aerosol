@@ -111,7 +111,7 @@ contains
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -300,7 +300,7 @@ contains
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size
@@ -496,7 +496,7 @@ contains
            aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
 
       ! Get the calculated values from SOAP
       do js = ICUT_org+1, N_size

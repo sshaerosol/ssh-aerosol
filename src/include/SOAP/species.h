@@ -115,7 +115,7 @@ namespace ssh_soap
 	Array<double,2> gamma_MR_ions_bins;
 
         int iiter;
-	int imethod;
+	int imethod, SOAPlog;
 
     double chpinit,ionicinit,initAQ;
     double molalmax;

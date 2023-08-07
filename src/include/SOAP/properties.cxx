@@ -25,10 +25,12 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
   double tiny_henry=1.0e-10;
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
-  
-  string const nomFichier("henryfromSOAP.dat");
-  ofstream outFlux(nomFichier.c_str());
-  //Déclaration d'un flux permettant d'écrire dans un fichier.
+
+  std::ofstream outFlux;  
+  if (config.SOAPlog==2)
+    {
+      outFlux.open("henryfromSOAP.dat", ios::out);
+    }
 
   for (i=0;i<n;++i)
     if(surrogate[i].hydrophilic and surrogate[i].compute_gamma_aq)
@@ -81,7 +83,10 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
           if (surrogate[i].Henry <= tiny_henry)
             {
 	      surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
-	      outFlux << surrogate[i].name << " " << surrogate[i].Henry << endl;
+	      if (config.SOAPlog==1)
+		cout << surrogate[i].name << " " << surrogate[i].Henry << endl;
+	      else if (config.SOAPlog==2)
+		outFlux << surrogate[i].name << " " << surrogate[i].Henry << endl;
 	    }
         }
       else

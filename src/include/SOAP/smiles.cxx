@@ -13,12 +13,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
   
   // output flux: 1=screen, 2=file
   int outFlux;
-  outFlux=2;
+  outFlux=config.SOAPlog;
   
-  //if (outFlux==2)
-  //  {
-      //Déclaration d'un flux permettant d'écrire dans un fichier.
-  string const nomFichier("smile2UNIFAC.decomp");
   std::ofstream fileFlux;
   if (outFlux==2)
     fileFlux.open("smile2UNIFAC.decomp", ios::out);

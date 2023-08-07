@@ -108,7 +108,8 @@ epser = 0.01,                     ! relative error precision for time step adjus
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP
 soap_inorg = 1,
 co2_conc_ppm = 410, !CO2 concentrations
-NACL_IN_THERMODYNAMICS=1
+NACL_IN_THERMODYNAMICS=1,
+SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
 /
 
 &physic_nucleation
