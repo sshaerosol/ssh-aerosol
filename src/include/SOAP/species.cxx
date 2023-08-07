@@ -7497,14 +7497,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   for(int i = 0; i < size; ++i)
 	UD7000.groups[i] = group_tmp_UD7000[i];
 
-  // Search the species name in the aerosol species list 
-  // and add the species if its name matches with
-  // the given list.
   add_species_ssh(surrogate, UD7000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization,species_part,nlayer,i_hydrophilic,
-		  N_inert, N_inorganic);
-
-
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization,species_part,nlayer,i_hydrophilic,
+                  N_inert, N_inorganic);
 
 /* ==== UU7000 ==== */ 
 
@@ -7576,8 +7571,250 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   
 /* TOLexp SPECIES START */
  
+  species GLY;
+  GLY.name="GLY";
+  GLY.is_inorganic_precursor=false;
+  GLY.Psat_ref=17.2*100; // Saturation vapor pressure at Tref (torr)
+  GLY.Tref=298;         // Temperature of reference (K)
+  GLY.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
+  GLY.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  GLY.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
+  GLY.hydrophilic=true;   // Does the species condense on the aqueous phase?
+  GLY.hydrophobic=false;  // Does the species condense on the organic phase?
+  GLY.nonvolatile=false; // Is the compound nonvolatile?
+  GLY.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  GLY.is_organic=true;  // Is the compound organic?
+  GLY.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  GLY.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  GLY.Koligo_org=0.0;      //oligomeriation constant in the organic phase
+  GLY.rho=1300.0;  
+  GLY.is_monomer=false;
+  GLY.rion=false;
+  //GLY.KDiffusion_air=1.0e-5;
+  //  GLY.accomodation_coefficient=alpha;
+  GLY.viscosity=1.68e12;
+  GLY.is_solid=false;
+  GLY.is_generic=false;
+  /*GLY.nion=2;
+  GLY.rion_catalyzed=false;    
+  GLY.ion.resize(GLY.nion);
+  GLY.ion(0)="HSO4";
+  GLY.ion(1)="NO3";
+  GLY.kion.resize(GLY.nion);
+  GLY.kion(0)=1.53e-7;
+  GLY.kion(1)=1.53e-7;
+  GLY.rion_product.resize(GLY.nion);
+  GLY.rion_product(0)="GLY2";
+  GLY.rion_product(1)="GLY2";
+  GLY.rion_catalyzed(1)=false;
+  GLY.rion_catalyzed(2)=false;*/
+  GLY.Khyd=350.0;
+  GLY.hydrated_name="GLYOH";
+  
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients
+  //
+  double group_tmp_gly [] = {0.0,0.0,0.0,0.0, // group C
+			       0.0,0.0,0.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       0.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       2.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,    //group PAN
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
+  
+  size = sizeof(group_tmp_gly)/sizeof(double);
+  assert(size == 60);
+	
+  for(int i = 0; i < size; ++i)
+    GLY.groups[i] = group_tmp_gly[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species_ssh(surrogate, GLY, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization,species_part,nlayer,i_hydrophilic,
+		  N_inert, N_inorganic);
 
 
+  
+  species GLYOH;
+  GLYOH.name="GLYOH";
+  GLYOH.is_inorganic_precursor=false;
+  GLYOH.Psat_ref=1.54e-2*100; // Saturation vapor pressure at Tref (torr)
+  GLYOH.Tref=298;         // Temperature of reference (K)
+  GLYOH.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
+  GLYOH.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  GLYOH.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
+  GLYOH.hydrophilic=true;   // Does the species condense on the aqueous phase?
+  GLYOH.hydrophobic=false;  // Does the species condense on the organic phase?
+  GLYOH.nonvolatile=false; // Is the compound nonvolatile?
+  GLYOH.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  GLYOH.is_organic=true;  // Is the compound organic?
+  GLYOH.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  GLYOH.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  GLYOH.Koligo_org=0.0;      //oligomeriation constant in the organic phase
+  GLYOH.rho=1300.0;  
+  GLYOH.is_monomer=false;
+  GLYOH.rion=false;
+  //GLYOH.KDiffusion_air=1.0e-5;
+  //  GLYOH.accomodation_coefficient=alpha;
+  GLYOH.viscosity=1.68e12;
+  GLYOH.is_solid=false;
+  GLYOH.is_generic=false;
+  /*
+  GLYOH.nion=2;
+  GLYOH.rion_catalyzed=false;    
+  GLYOH.ion.resize(GLYOH.nion);
+  GLYOH.ion(0)="HSO4";
+  GLYOH.ion(1)="NO3";
+  GLYOH.kion.resize(GLYOH.nion);
+  GLYOH.kion(0)=1.53e-7;
+  GLYOH.kion(1)=1.53e-7;
+  GLYOH.rion_product.resize(GLYOH.nion);
+  GLYOH.rion_product(0)="GLYOH2";
+  GLYOH.rion_product(1)="GLYOH2";
+  GLYOH.rion_catalyzed(1)=false;
+  GLYOH.rion_catalyzed(2)=false;*/
+  GLYOH.Khyd=207.0;
+  GLYOH.hydrated_name="GLYOHOH";
+  
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients
+  //
+  double group_tmp_glyoh [] = {0.0,0.0,0.0,0.0, // group C
+			       0.0,0.0,1.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       2.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       1.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,    //group PAN
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
+  
+  size = sizeof(group_tmp_glyoh)/sizeof(double);
+  assert(size == 60);
+	
+  for(int i = 0; i < size; ++i)
+    GLYOH.groups[i] = group_tmp_glyoh[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species_ssh(surrogate, GLYOH, species_list_aer, molecular_weight_aer,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization,species_part,nlayer,i_hydrophilic,
+		  N_inert, N_inorganic);
+
+
+    
+  species GLYOHOH;
+  GLYOHOH.name="GLYOHOH";
+  GLYOHOH.is_inorganic_precursor=false;
+  GLYOHOH.Psat_ref=1.38e-5*100; // Saturation vapor pressure at Tref (torr)
+  GLYOHOH.Tref=298;         // Temperature of reference (K)
+  GLYOHOH.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
+  GLYOHOH.Henry=0.0;     // Henry's law constant at Tref (M/atm)
+  GLYOHOH.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
+  GLYOHOH.hydrophilic=true;   // Does the species condense on the aqueous phase?
+  GLYOHOH.hydrophobic=false;  // Does the species condense on the organic phase?
+  GLYOHOH.nonvolatile=false; // Is the compound nonvolatile?
+  GLYOHOH.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  GLYOHOH.is_organic=true;  // Is the compound organic?
+  GLYOHOH.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  GLYOHOH.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  GLYOHOH.Koligo_org=0.0;      //oligomeriation constant in the organic phase
+  GLYOHOH.rho=1300.0;  
+  GLYOHOH.is_monomer=false;
+  GLYOHOH.rion=false;
+  //GLYOHOH.KDiffusion_air=1.0e-5;
+  //  GLYOHOH.accomodation_coefficient=alpha;
+  GLYOHOH.viscosity=1.68e12;
+  GLYOHOH.is_solid=false;
+  GLYOHOH.is_generic=false;
+  /*
+  GLYOHOH.nion=2;
+  GLYOHOH.rion_catalyzed=false;    
+  GLYOHOH.ion.resize(GLYOHOH.nion);
+  GLYOHOH.ion(0)="HSO4";
+  GLYOHOH.ion(1)="NO3";
+  GLYOHOH.kion.resize(GLYOHOH.nion);
+  GLYOHOH.kion(0)=1.53e-7;
+  GLYOHOH.kion(1)=1.53e-7;
+  GLYOHOH.rion_product.resize(GLYOHOH.nion);
+  GLYOHOH.rion_product(0)="GLYOHOH2";
+  GLYOHOH.rion_product(1)="GLYOHOH2";
+  GLYOHOH.rion_catalyzed(1)=false;
+  GLYOHOH.rion_catalyzed(2)=false;*/
+  
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients
+  //
+  double group_tmp_glyohoh [] = {0.0,0.0,0.0,0.0, // group C
+			       0.0,0.0,2.0,0.0, //group C[OH]
+			       0.0,0.0,0.0,0.0, //group Calcohol
+			       0.0,0.0,0.0,0.0, //group Calcohol-tail
+			       0.0,0.0,0.0,0.0,0.0, //group C=C
+			       0.0,0.0, //group aromatic carbon (AC)
+			       0.0,0.0,0.0, // group //AC-C
+			       4.0,  //group OH
+			       0.0, //group H2O
+			       0.0, //group ACOH
+			       0.0,0.0, //group ketone
+			       0.0,   //group aldehyde  
+			       0.0,0.0, //group ester
+			       0.0,0.0,0.0, //group ether 
+			       0.0,  //group acid
+			       0.0,   //group ACNO2
+			       0.0,0.0,0.0, //group NO3
+			       0.0,0.0,0.0, //group CO-OH
+  			       0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+			       0.0,    //group PAN
+			       0.0,  //group CO-OOH
+			       0.0,  //group O=COC=O
+			       0.0,0.0,0.0}; //group CHxNO2
+  
+  size = sizeof(group_tmp_glyohoh)/sizeof(double);
+  assert(size == 60);
+	
+  for(int i = 0; i < size; ++i)
+    GLYOHOH.groups[i] = group_tmp_glyohoh[i];
+
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species_ssh(surrogate, GLYOHOH, species_list_aer, molecular_weight_aer,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization,species_part,nlayer,i_hydrophilic,
+		  N_inert, N_inorganic);
 
   /* ==== BiA1D ==== */ 
 

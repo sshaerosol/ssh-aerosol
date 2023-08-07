@@ -327,6 +327,186 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
     }
 }
 
+
+void hydratation(model_config &config, vector<species>& surrogate,double &RH, double &error_hyd, bool all_hydrophobic, bool with_saturation)
+{
+  int n=surrogate.size();
+  int i;  
+  Array <int, 1> ifound;
+  ifound.resize(n);
+  ifound=0;
+  error_hyd=0.0;
+  
+
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic)
+      if (surrogate[i].hydrophilic==false or all_hydrophobic)
+	{
+	  int j=surrogate[i].iHyd;
+	  if (j>-1 and ifound(i)==0)
+	    {
+	      int k=surrogate[j].iHyd;          
+	      if (k>-1)
+		{
+		  double Keq1=RH*surrogate[i].Khyd*surrogate[j].GAMMAinf/surrogate[i].GAMMAinf*surrogate[i].gamma_org/surrogate[j].gamma_org;
+		  double Keq2=RH*surrogate[j].Khyd*surrogate[k].GAMMAinf/surrogate[j].GAMMAinf*surrogate[j].gamma_org/surrogate[k].gamma_org;              
+		  if (with_saturation)
+		    {
+		      Keq1=RH*surrogate[i].Khyd*surrogate[j].GAMMAinf/surrogate[i].GAMMAinf*surrogate[i].gamma_org_sat(0)/surrogate[j].gamma_org_sat(0);
+		      Keq2=RH*surrogate[j].Khyd*surrogate[k].GAMMAinf/surrogate[j].GAMMAinf*surrogate[j].gamma_org_sat(0)/surrogate[k].gamma_org_sat(0);  
+		    }
+
+		  double ratio1=0.0;
+		  double ratio2=0.0;
+		  if (with_saturation)
+		    {
+		      if (surrogate[j].Ap_sat(0)>0.0 and surrogate[i].Ap_sat(0)>0.0)
+			ratio1=Keq1*(surrogate[j].Atot/surrogate[j].Ap_sat(0)/surrogate[i].Atot*surrogate[i].Ap_sat(0));
+		      else 
+			ratio1=Keq1;
+		      if (surrogate[j].Ap>0.0 and surrogate[k].Ap>0.0)
+			ratio2=Keq2*(surrogate[k].Atot/surrogate[k].Ap_sat(0)/surrogate[j].Atot*surrogate[j].Ap_sat(0));
+		      else 
+			ratio2=Keq2;
+		    }
+		  else
+		    {
+		      if (surrogate[j].Ap>0.0 and surrogate[i].Ap>0.0)
+			ratio1=Keq1*(surrogate[j].Atot/surrogate[j].Ap/surrogate[i].Atot*surrogate[i].Ap);
+		      else 
+			ratio1=Keq1;
+		      if (surrogate[j].Ap>0.0 and surrogate[k].Ap>0.0)
+			ratio2=Keq2*(surrogate[k].Atot/surrogate[k].Ap/surrogate[j].Atot*surrogate[j].Ap);
+		      else 
+			ratio2=Keq2;
+		    }
+		  double tot=surrogate[i].Atot/surrogate[i].MM+surrogate[j].Atot/surrogate[j].MM+surrogate[k].Atot/surrogate[k].MM;         
+		  double atot=surrogate[i].Atot;
+		  double btot=surrogate[j].Atot;
+		  double ctot=surrogate[k].Atot;
+		  surrogate[i].Atot=tot/(1/surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM);
+		  surrogate[j].Atot=tot/(1/surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM)*ratio1;
+		  surrogate[k].Atot=tot/(1/surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM)*ratio1*ratio2;
+                            
+		  if (atot>0.0)
+		    error_hyd=max(error_hyd,abs(surrogate[i].Atot-atot)/atot);
+		  if (btot>0.0)
+		    error_hyd=max(error_hyd,abs(surrogate[j].Atot-btot)/btot);
+		  if (ctot>0.0)
+		    error_hyd=max(error_hyd,abs(surrogate[k].Atot-ctot)/ctot);
+          
+		  ifound(i)=1;
+		  ifound(j)=1;
+		  ifound(k)=1;
+		}
+	      else
+		{
+		  double Keq=RH*surrogate[i].Khyd*surrogate[j].GAMMAinf/surrogate[i].GAMMAinf*surrogate[i].gamma_org/surrogate[j].gamma_org;
+		  double ratio=0.0;
+		  if (with_saturation)
+		    {
+		      Keq=RH*surrogate[i].Khyd*surrogate[j].GAMMAinf/surrogate[i].GAMMAinf*surrogate[i].gamma_org_sat(0)/surrogate[j].gamma_org_sat(0);
+		      if (surrogate[j].Ap_sat(0)>0.0 and surrogate[i].Ap_sat(0)>0.0)
+			ratio=Keq*(surrogate[j].Atot/surrogate[j].Ap_sat(0)/surrogate[i].Atot*surrogate[i].Ap_sat(0));
+		      else 
+			ratio=Keq;
+		    }
+		  else                    
+		    {
+		      if (surrogate[j].Ap>0.0 and surrogate[i].Ap>0.0)
+			ratio=Keq*(surrogate[j].Atot/surrogate[j].Ap/surrogate[i].Atot*surrogate[i].Ap);
+		      else 
+			ratio=Keq;
+		    }
+
+		  double ctot=surrogate[i].Atot/surrogate[i].MM+surrogate[j].Atot/surrogate[j].MM;
+		  double atot=surrogate[i].Atot;
+		  double btot=surrogate[j].Atot;
+		  surrogate[i].Atot=ctot/(1/surrogate[i].MM+ratio/surrogate[j].MM);
+		  surrogate[j].Atot=ctot/(1/surrogate[i].MM+ratio/surrogate[j].MM)*ratio;
+
+		  if (atot>0.0)
+		    error_hyd=max(error_hyd,abs(surrogate[i].Atot-atot)/atot);
+		  if (btot>0.0)
+		    error_hyd=max(error_hyd,abs(surrogate[j].Atot-btot)/btot);            
+		}
+	    }
+	}
+
+  if (all_hydrophobic==false)
+    {
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_organic)
+	  if (surrogate[i].hydrophilic)
+	    {
+	      int j=surrogate[i].iHyd;
+	      if (j>-1 and ifound(i)==0)
+		{
+	                
+		  ifound(i)=1;
+		  ifound(j)=1;
+		  int k=surrogate[j].iHyd;          
+		  if (k>-1)
+		    {
+		  
+		      double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_aq/surrogate[j].gamma_aq;
+		      double Keq2=RH*surrogate[j].Khyd*surrogate[j].gamma_aq/surrogate[k].gamma_aq;        
+                 
+		      double ratio1=0.0;
+		      double ratio2=0.0;
+		      if (surrogate[j].Aaq>0.0 and surrogate[i].Aaq>0.0)
+			ratio1=Keq1*(surrogate[j].Atot/surrogate[j].Aaq/surrogate[i].Atot*surrogate[i].Aaq);
+		      else 
+			ratio1=Keq1;
+		      if (surrogate[j].Aaq>0.0 and surrogate[k].Aaq>0.0)
+			ratio2=Keq2*(surrogate[k].Atot/surrogate[k].Aaq/surrogate[j].Atot*surrogate[j].Aaq);
+		      else 
+			ratio2=Keq2;
+       
+		      double tot=surrogate[i].Atot/surrogate[i].MM+surrogate[j].Atot/surrogate[j].MM+surrogate[k].Atot/surrogate[k].MM;         
+		      double atot=surrogate[i].Atot;
+		      double btot=surrogate[j].Atot;
+		      double ctot=surrogate[k].Atot;
+		      surrogate[i].Atot=tot/(1./surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM);
+		      surrogate[j].Atot=tot/(1./surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM)*ratio1;
+		      surrogate[k].Atot=tot/(1./surrogate[i].MM+ratio1/surrogate[j].MM+ratio2*ratio1/surrogate[k].MM)*ratio1*ratio2;
+         
+		      if (atot>0.0)
+			error_hyd=max(error_hyd,abs(surrogate[i].Atot-atot)/atot);
+		      if (btot>0.0)
+			error_hyd=max(error_hyd,abs(surrogate[j].Atot-btot)/btot);
+		      if (ctot>0.0)
+			error_hyd=max(error_hyd,abs(surrogate[k].Atot-ctot)/ctot);
+
+		      ifound(k)=1;
+		    }
+		  else
+		    {
+		      //cout << "nooonnnn" << endl;
+		      double Keq=RH*surrogate[i].Khyd*surrogate[i].gamma_aq/surrogate[j].gamma_aq;
+		      double ratio=0.0;
+		      if (surrogate[j].Aaq>0.0 and surrogate[i].Aaq>0.0)
+			ratio=Keq*(surrogate[j].Atot/surrogate[j].Aaq/surrogate[i].Atot*surrogate[i].Aaq);
+		      else 
+			ratio=Keq;
+
+		      double ctot=surrogate[i].Atot/surrogate[i].MM+surrogate[j].Atot/surrogate[j].MM;
+		      double atot=surrogate[i].Atot;
+		      double btot=surrogate[j].Atot;
+		      surrogate[i].Atot=ctot/(1./surrogate[i].MM+ratio/surrogate[j].MM);
+		      surrogate[j].Atot=ctot/(1./surrogate[i].MM+ratio/surrogate[j].MM)*ratio;
+
+		      if (atot>0.0)
+			error_hyd=max(error_hyd,abs(surrogate[i].Atot-atot)/atot);
+		      if (btot>0.0)
+			error_hyd=max(error_hyd,abs(surrogate[j].Atot-btot)/btot);            
+		    }
+		}
+	    }
+    }  
+}
+
+
 void error_ph_ssh(model_config &config, vector<species> &surrogate, double Temperature, double RH, double &chp, 
               double organion, double &error, double &derivative, double AQinit, double LWC, 
               double MMaq, double MOinit, double MOW, double conc_org)
@@ -3584,7 +3764,8 @@ void saturation_ssh(model_config &config, vector<species>& surrogate,
       bool compute_activity_coefficients=true;
       double error3=1000.0;
       double chp_old;
-      while ((index_iter < config.max_iter) and reached_precision==false)
+      double error_hyd=0;
+      while ((index_iter < config.max_iter) and (reached_precision==false or error_hyd>1.0e-3))
         {
           if (config.first_evaluation_activity_coefficients==false or index_iter==0)
             compute_activity_coefficients=true;
@@ -3623,6 +3804,8 @@ void saturation_ssh(model_config &config, vector<species>& surrogate,
             error_saturation_ssh(config,surrogate,MO_sat,MOW,MMaq,AQ_sat,LWC,conc_inorganic,
                              ionic,ionic_organic,chp,organion,Temperature,RH,
                              error_sat,Jacobian,1.0/nh, compute_activity_coefficients);
+
+	  hydratation(config,surrogate,RH,error_hyd,all_hydrophobic,true);
 
 	 
           if (config.compute_inorganic)

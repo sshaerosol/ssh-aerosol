@@ -68,12 +68,15 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
         else if (surrogate[i].aq_type=="monoacid")          
           surrogate[i].aqt=1;
         else if (surrogate[i].aq_type=="aldehyde")
-          surrogate[i].aqt=3;
+          surrogate[i].aqt=3;      
+        else if (surrogate[i].aq_type=="hydrate")
+          surrogate[i].aqt=0;      
         else if (surrogate[i].aq_type=="none") 
           surrogate[i].aqt=0;
         else
           {
             surrogate[i].aqt=0;
+	    cout << "wtf: " << endl;
             cout << "WARNING: aq_type "+surrogate[i].aq_type+" of species " +surrogate[i].name+ " not defined." << endl;
           }
 
@@ -143,8 +146,33 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
                   if (surrogate[j].name==surrogate[i].rion_product(jion))                
                     surrogate[i].iproduct(jion)=j;                    
                 }
-          }      
+          }
 
+      surrogate[i].iHyd=-1;
+      if (surrogate[i].is_organic)
+        {          
+          if(surrogate[i].aq_type=="hydrate")
+            for (j=0;j<n;++j)
+              if (surrogate[j].name==surrogate[i].hydrated_name)
+                //if (surrogate[i].hydrophilic and surrogate[i].compute_gamma_aq)
+		{
+		  surrogate[i].iHyd=j;
+		  if (surrogate[i].hydrophilic!=surrogate[j].hydrophilic)
+		    {
+		      cout << "hydrophylic must be the same between species " << surrogate[i].name << " and " << surrogate[j].name << endl;
+		      cout << "Exiting " << endl;
+		      exit(0);
+		    }
+		  
+		  if (surrogate[i].hydrophobic!=surrogate[j].hydrophobic)
+		    {
+		      cout << "hydrophobic must be the same between species " << surrogate[i].name << " and " << surrogate[j].name << endl;
+		      cout << "Exiting " << endl;
+		      exit(0);
+		    }
+		}
+	  
+	}
        
 
     }
@@ -1535,7 +1563,7 @@ void check_config_ssh(model_config &config, vector<species>& surrogate)
                   badly_formatted=true;
                 }
               if (surrogate[i].aq_type!="diacid" and surrogate[i].aq_type!="monoacid"
-                  and surrogate[i].aq_type!="aldehyde" and surrogate[i].aq_type!="none")
+                  and surrogate[i].aq_type!="aldehyde" and surrogate[i].aq_type!="none" and surrogate[i].aq_type!="hydrate")
                 {
                   cout << "WARNING: aq_type " << surrogate[i].aq_type << " of species "
                        << surrogate[i].name << " not defined." << endl;

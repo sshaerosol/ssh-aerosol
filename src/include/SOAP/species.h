@@ -220,6 +220,11 @@ namespace ssh_soap
         string smile;
         bool is_generic;
 	Array <double, 1> fac_corr_ph;
+
+        int iHyd;
+        double Khyd;
+        string hydrated_name;
+    
   };
   
 }

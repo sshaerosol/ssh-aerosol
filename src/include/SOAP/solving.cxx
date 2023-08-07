@@ -111,7 +111,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 
               double RHsave=RH;
               //RH=max(RH,0.2);
-              
+              double error_hyd=0.0;
+	      
               while ((index_iter < config.max_iter) and (abs(error1)/factor_old > config.precision or abs(error2)/factor_old > config.precision or
                                                          ((abs(error3)/factor_old>relprec  or abs(error4)/factor_old>relprec) and AQ>100*config.MOmin) or
                                                          config.first_evaluation_activity_coefficients==true or RH>RHsave))
@@ -177,9 +178,11 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                                           Temperature,RH,
                                           error1,deriv_error1_MO,deriv_error1_AQ,
                                           error2,deriv_error2_MO,deriv_error2_AQ,factor, compute_activity_coefficients);
+		  hydratation(config,surrogate,RH,error_hyd,false,false);
+		  
                                             
                   double var=0.;                    
-		  error4=0.0;
+		  error4=error_hyd;
                   error_spec=0.0;
 		  for (i=0;i<n;i++)
 		    {
@@ -347,8 +350,9 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	      double error1_save2=1000;
 	      double error2_save=1000;
 	      double error2_save2=1000;
+	      double error_hyd=0.0;
 	      while ((index_iter < max_iter2) and ((abs(error1)/factor > config.precision)
-						   or (abs(error2)/factor > config.precision)))
+						   or (abs(error2)/factor > config.precision) or error_hyd>1.0e-3))
 		{
 		  if (config.first_evaluation_activity_coefficients==false or index_iter==0)
 		    compute_activity_coefficients=true;
@@ -375,6 +379,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		  
 		  newton_raphson_coupled_ssh(MO,AQ,error1,deriv_error1_MO,deriv_error1_AQ,
 					     error2,deriv_error2_MO,deriv_error2_AQ);
+
+		  hydratation(config,surrogate,RH,error_hyd,false,false);
 		  
 		  error1_save2=error1_save;
 		  error1_save=error1;
@@ -478,6 +484,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 					Temperature,RH,
 					error1,deriv_error1_MO,deriv_error1_AQ,
 					error2,deriv_error2_MO,deriv_error2_AQ,factor, compute_activity_coefficients);
+		      hydratation(config,surrogate,RH,error_hyd,false,false);
                                                 
 		      double var=0.;                    
 		      int m=0;
@@ -500,7 +507,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 			      }
 			  }
 
-		      error4=0.0;
+		      error4=error_hyd;
 		      error_spec=0.0;
 		      for (i=0;i<n;i++)
 			{
@@ -635,8 +642,9 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
           double MO=MOinit;
           // minimize the function error with a method of newton raphson
           // error3 = MOinit - sum of concentrations of organic compounds in the organic phase
-          //           - hygroscopicity of the organic phase          
-          while ((index_iter < config.max_iter) and (abs(error3) > config.precision))
+          //           - hygroscopicity of the organic phase
+	  double error_hyd=0.;
+          while ((index_iter < config.max_iter) and (abs(error3) > config.precision or error_hyd>1.0e-3))
             {
               if (config.first_evaluation_activity_coefficients==false or index_iter==0)
                 compute_activity_coefficients=true;
@@ -645,6 +653,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
               
               error_org_ssh(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,1.0,
                             all_hydrophobic, compute_activity_coefficients);
+	      hydratation(config,surrogate,RH,error_hyd,true,false);
+	      
               //solve the system with a method of newton raphson
               if (derivative != 0.0 and MO-error3/derivative >= 0.0)
                 MO=MO-error3/derivative;
@@ -692,7 +702,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	  double min_error=error_save;
 	  int count_iter=0;
 	  //int index_iter=0;
-	  while ((index_iter < max_iter2) and (abs(error)/factor > config.precision))
+	  double error_hyd=0;
+	  while ((index_iter < max_iter2) and (abs(error)/factor > config.precision or error_hyd>1.0e-3))
 	    {
 	      if (config.first_evaluation_activity_coefficients==false or index_iter==0)
 		compute_activity_coefficients=true;
@@ -701,6 +712,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	      
 	      error_org_ssh(config,surrogate,MO,MOW,Temperature,error,derivative,RH,factor,
 			    all_hydrophobic, compute_activity_coefficients);
+	      hydratation(config,surrogate,RH,error_hyd,false,false);
 	      //solve the system with a method of newton raphson
 	      
 	      if (abs(error_save2-error)<0.01*abs(error) and error_save*error<0.)
@@ -797,6 +809,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 
 		  error_org_ssh(config,surrogate,MO,MOW,Temperature,error,derivative,RH,factor,
 				all_hydrophobic, compute_activity_coefficients);
+		  hydratation(config,surrogate,RH,error_hyd,false,false);
                                                 
 		  double var=0.;                    
 		  int m=0;
@@ -810,7 +823,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
                           }
                       }
 
-		  error4=0.0;
+		  error4=error_hyd;
 		  error_spec=0.0;
 		  for (i=0;i<n;i++)
 		    if (surrogate[i].hydrophobic)
@@ -949,6 +962,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	      //config.compute_organic=false; 
 
 	      double RHsave=RH;
+	      double error_hyd=0.;
 	      //RH=max(RH,0.2);
               
 	      while ((index_iter < config.max_iter) and (abs(error2)/factor_old > config.precision or
@@ -1002,7 +1016,8 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 
 		  error_inorg_aq_ssh(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
 				     Temperature,error2,derivative,RH,
-				     organion,ionic_organic,factor, compute_activity_coefficients);  
+				     organion,ionic_organic,factor, compute_activity_coefficients);
+		  hydratation(config,surrogate,RH,error_hyd,false,false);
                                             
 		  double var=0.;                    
 		  int m=0;
@@ -1016,7 +1031,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 			  }
 		      }
 
-		  error4=0.0;
+		  error4=error_hyd;
 		  error_spec=0.0;
 		  for (i=0;i<n;i++)
 		    if (surrogate[i].hydrophilic)
@@ -1127,9 +1142,10 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	      double error2_save2=1000;
 	      double factor=1.0;
 	      double error_min=1000;
+	      double error_hyd=0.;
 	      //int nmin=0;
 	      //double AQmin=AQ;
-	      while ((index_iter < max_iter2) and (abs(error2)/factor > config.precision))
+	      while ((index_iter < max_iter2) and (abs(error2)/factor > config.precision or error_hyd>1.0e-3))
 		{
 		  if (config.first_evaluation_activity_coefficients==false or index_iter==0)
 		    compute_activity_coefficients=true;
@@ -1139,6 +1155,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		  error_aq_ssh(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
 			       Temperature,error2,derivative,RH,
 			       organion,ionic_organic,factor,compute_activity_coefficients);
+		  hydratation(config,surrogate,RH,error_hyd,false,false);
 
 		  if (abs(error2_save2-error2)<0.01*abs(error2) and error2_save*error2<0.)
 		    {
@@ -1246,6 +1263,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		      error_aq_ssh(config,surrogate,AQ,LWC,conc_inorganic,ionic,chp,MMaq,
 				   Temperature,error2,derivative,RH,
 				   organion,ionic_organic,factor,compute_activity_coefficients);
+		      hydratation(config,surrogate,RH,error_hyd,false,false);
                                                 
 		      double var=0.;                    
 		      int m=0;
@@ -1259,7 +1277,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 			      }
 			  }
 
-		      error4=0.0;
+		      error4=error_hyd;
 		      error_spec=0.0;
 		      for (i=0;i<n;i++)
 			if (surrogate[i].hydrophilic)
@@ -1363,10 +1381,11 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 	  double error3=1000.0;
 	  double derivative=0.0;
 	  int index_iter=0;
+	  double error_hyd=0.;
 	  // minimize the function error with a method of newton raphson
 	  // error3 = MOinit - sum of concentrations of organic compounds in the organic phase
 	  //           - hygroscopicity of the organic phase  
-	  while ((index_iter < config.max_iter) and (abs(error3) > config.precision))
+	  while ((index_iter < config.max_iter) and (abs(error3) > config.precision or error_hyd>1.0e-3))
 	    {
 	      if (config.first_evaluation_activity_coefficients==false or index_iter==0)
 		compute_activity_coefficients=true;
@@ -1375,6 +1394,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
               
 	      error_org_ssh(config,surrogate,MO,MOW,Temperature,error3,derivative,RH,1.0,
 			    all_hydrophobic, compute_activity_coefficients);
+	      hydratation(config,surrogate,RH,error_hyd,true,false);
 	      if (derivative != 0.0 and MO-error3/derivative >= 0.0)
 		MO=MO-error3/derivative;
 	      else
@@ -2702,8 +2722,8 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                           ionic, ionic_organic, organion, chp, LWC, MOinit, MO,
                           MOW, Temperature, RH, MMaq, false, factor, t, deltat, index);
           if (config.compute_saturation and config.compute_organic)
-            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);
-        }
+            phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);	  
+        }    
       
       //cout << surrogate[config.iCa].Aaq_bins_init << endl;
 
@@ -4334,6 +4354,9 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		{
 		  wk=atol+rtol*surrogate[i].Ag;
 		  error_max=max(error_max,(surrogate[i].Ag-surrogate[i].Ag0)/wk);
+
+		  //if ((surrogate[i].Ag-surrogate[i].Ag0)/wk>0.63)
+		  //   cout << surrogate[i].name << " gas " << error_max << endl;
 		}
 
 	      if (surrogate[i].is_organic and surrogate[i].hydrophobic)
@@ -4343,6 +4366,9 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		      {
 			wk=atol+rtol*surrogate[i].Ap_layer_init(b,ilayer,iphase);
 			error_max=max(error_max,(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk);
+			//if ((surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk>0.63)
+			//if (surrogate[i].name=="GLYOHOH")
+			//  cout << surrogate[i].name << " org " << error_max << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[i].Ap_layer_init0(b,ilayer,iphase) << endl;
 		      }
 
 	      /*
@@ -4356,7 +4382,9 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		{
 		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
 		  error_max=max(error_max,(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk);
-		}
+		  //if ((surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk>0.63)
+		  //  cout << surrogate[i].name << " aq  " << error_max << endl;
+		}	
 	    }
 
 	  /*
@@ -4377,7 +4405,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	    }
 	  else
 	    deltat1=10*deltat1;
+
+	  //cout << error_max << " " << deltat1 << endl;
 	  deltat1=max(deltat1,config.deltatmin);
+	  
 	}
       for (i=0;i<n;i++)
 	{

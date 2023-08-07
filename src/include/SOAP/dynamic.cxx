@@ -210,6 +210,218 @@ void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
       }
 }
 
+
+
+void hydratation_dyn_ssh(model_config &config, vector<species>& surrogate, double &RH,Array<double, 1> &AQinit)  
+{
+  int n=surrogate.size();
+  int i,b,ilayer,iphase;  
+  Array <int, 1> ifound;
+  ifound.resize(n);
+  ifound=0;
+    
+  for (i=0;i<n;i++)    
+    {
+      int j=surrogate[i].iHyd;
+      if (j>-1 and ifound(i)==0)
+	{
+	  ifound(i)=1;
+	  ifound(j)=1;	 
+	  int k=surrogate[j].iHyd;          
+	  if (k>-1)
+	    {
+	      //cout << "before: " << surrogate[i].kprod_gas/surrogate[i].kloss_gas << endl;
+	      surrogate[i].kprod_gas=0.;
+	      surrogate[j].kprod_gas=0.;
+	      surrogate[k].kprod_gas=0.;
+	      if (surrogate[i].hydrophilic)
+		for (b=0;b<config.nbins;++b)
+		  {
+		    double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_aq_bins(b)/surrogate[j].gamma_aq_bins(b); //*surrogate[j].MM/surrogate[i].MM;
+		    double Keq2=RH*surrogate[j].Khyd*surrogate[j].gamma_aq_bins(b)/surrogate[k].gamma_aq_bins(b); //*surrogate[k].MM/surrogate[j].MM;
+		    //cout << Keq1 << " " << Keq2 << endl;
+		    
+		    double atot=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM+surrogate[k].Aaq_bins_init(b)/surrogate[k].MM;
+		    surrogate[i].Aaq_bins_init(b)=atot*surrogate[i].MM/(1+Keq1*(1+Keq2));
+		    surrogate[j].Aaq_bins_init(b)=atot*surrogate[j].MM/(1+Keq1*(1+Keq2))*Keq1;
+		    surrogate[k].Aaq_bins_init(b)=atot*surrogate[k].MM/(1+Keq1*(1+Keq2))*Keq1*Keq2;
+		    
+		    atot=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init0(b)/surrogate[j].MM+surrogate[k].Aaq_bins_init0(b)/surrogate[k].MM;
+		    surrogate[i].Aaq_bins_init0(b)=atot*surrogate[i].MM/(1+Keq1*(1+Keq2));
+		    surrogate[j].Aaq_bins_init0(b)=atot*surrogate[j].MM/(1+Keq1*(1+Keq2))*Keq1;
+		    surrogate[k].Aaq_bins_init0(b)=atot*surrogate[k].MM/(1+Keq1*(1+Keq2))*Keq1*Keq2;
+
+		    double prod=surrogate[i].kprod_aq(b)/surrogate[i].MM+surrogate[j].kprod_aq(b)/surrogate[j].MM+surrogate[k].kprod_aq(b)/surrogate[k].MM;
+		    if (surrogate[i].kprod_aq(b)>0.)
+		      surrogate[i].kloss_aq(b)=prod/(1+Keq1*(1+Keq2))*surrogate[i].MM*surrogate[i].kloss_aq(b)/surrogate[i].kprod_aq(b);
+		    //cout << surrogate[i].kprod_aq(b) << " " << surrogate[j].kprod_aq(b) << " " << surrogate[k].kprod_aq(b) << endl;
+		    if (surrogate[j].kprod_aq(b)>0.)
+		      surrogate[j].kloss_aq(b)=prod/(1+Keq1*(1+Keq2))*Keq1*surrogate[j].MM*surrogate[j].kloss_aq(b)/surrogate[j].kprod_aq(b);
+		    if (surrogate[k].kprod_aq(b)>0.)
+		      surrogate[k].kloss_aq(b)=prod/(1+Keq1*(1+Keq2))*Keq1*Keq2*surrogate[k].MM*surrogate[k].kloss_aq(b)/surrogate[k].kprod_aq(b);
+		   
+		    surrogate[i].kprod_aq(b)=prod/(1+Keq1*(1+Keq2))*surrogate[i].MM;
+		    surrogate[j].kprod_aq(b)=prod/(1+Keq1*(1+Keq2))*Keq1*surrogate[j].MM;
+		    surrogate[k].kprod_aq(b)=prod/(1+Keq1*(1+Keq2))*Keq1*Keq2*surrogate[k].MM;
+
+		    surrogate[i].kprod_gas+=surrogate[i].kloss_aq(b)*surrogate[i].Aaq_bins_init(b);
+		    surrogate[j].kprod_gas+=surrogate[j].kloss_aq(b)*surrogate[j].Aaq_bins_init(b);
+		    surrogate[k].kprod_gas+=surrogate[k].kloss_aq(b)*surrogate[k].Aaq_bins_init(b);
+		    
+		  }
+
+	      //cout << "after: " << surrogate[i].kprod_gas/surrogate[i].kloss_gas << endl;
+
+	      if (surrogate[i].hydrophobic)
+		for (b=0;b<config.nbins;++b)
+		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_org_layer(b,ilayer,iphase)/surrogate[i].GAMMAinf/surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].GAMMAinf;
+			double Keq2=RH*surrogate[j].Khyd*surrogate[j].gamma_org_layer(b,ilayer,iphase)/surrogate[j].GAMMAinf/surrogate[k].gamma_org_layer(b,ilayer,iphase)*surrogate[k].GAMMAinf;
+
+			double atot=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init(b,ilayer,iphase)/surrogate[j].MM+surrogate[k].Ap_layer_init(b,ilayer,iphase)/surrogate[k].MM;
+
+			surrogate[i].Ap_layer_init(b,ilayer,iphase)=atot*surrogate[i].MM/(1+Keq1*(1+Keq2));
+			surrogate[j].Ap_layer_init(b,ilayer,iphase)=atot*surrogate[j].MM/(1+Keq1*(1+Keq2))*Keq1;
+			surrogate[k].Ap_layer_init(b,ilayer,iphase)=atot*surrogate[k].MM/(1+Keq1*(1+Keq2))*Keq1*Keq2;
+
+			atot=surrogate[i].Ap_layer_init0(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init0(b,ilayer,iphase)/surrogate[j].MM+surrogate[k].Ap_layer_init0(b,ilayer,iphase)/surrogate[k].MM;
+			surrogate[i].Ap_layer_init0(b,ilayer,iphase)=atot*surrogate[i].MM/(1+Keq1*(1+Keq2));
+			surrogate[j].Ap_layer_init0(b,ilayer,iphase)=atot*surrogate[j].MM/(1+Keq1*(1+Keq2))*Keq1;
+			surrogate[k].Ap_layer_init0(b,ilayer,iphase)=atot*surrogate[k].MM/(1+Keq1*(1+Keq2))*Keq1*Keq2;		 
+
+			double prod=surrogate[i].kprod(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].kprod(b,ilayer,iphase)/surrogate[j].MM+surrogate[k].kprod(b,ilayer,iphase)/surrogate[k].MM;
+			if (surrogate[i].kprod(b,ilayer,iphase)>0.)
+			  surrogate[i].kloss(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*surrogate[i].MM*surrogate[i].kloss(b,ilayer,iphase)/surrogate[i].kprod(b,ilayer,iphase);
+			if (surrogate[j].kprod(b,ilayer,iphase)>0.)
+			  surrogate[j].kloss(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*Keq1*surrogate[j].MM*surrogate[j].kloss(b,ilayer,iphase)/surrogate[j].kprod(b,ilayer,iphase);
+			if (surrogate[k].kprod(b,ilayer,iphase)>0.)
+			  surrogate[k].kloss(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*Keq1*Keq2*surrogate[k].MM*surrogate[k].kloss(b,ilayer,iphase)/surrogate[k].kprod(b,ilayer,iphase);
+		   
+			surrogate[i].kprod(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*surrogate[i].MM;
+			surrogate[j].kprod(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*Keq1*surrogate[j].MM;
+			surrogate[k].kprod(b,ilayer,iphase)=prod/(1+Keq1*(1+Keq2))*Keq1*Keq2*surrogate[k].MM;
+
+			surrogate[i].kprod_gas+=surrogate[i].kloss(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			surrogate[j].kprod_gas+=surrogate[j].kloss(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase);
+			surrogate[k].kprod_gas+=surrogate[k].kloss(b,ilayer,iphase)*surrogate[k].Ap_layer_init(b,ilayer,iphase);
+
+
+			//cout << surrogate[i].Ag << " " << surrogate[j].Ag << " " << surrogate[k].Ag << endl;
+			//cout << b << " " << ilayer << " " << iphase << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[j].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[k].Ap_layer_init(b,ilayer,iphase) << endl;
+
+		      }
+
+	      //cout << surrogate[i].kprod_gas << " " << surrogate[j].kprod_gas << " " << surrogate[k].kprod_gas << endl;
+		
+	    }
+	  else
+	    {
+	      //cout << "nooon..." << endl;
+	      /*
+	      surrogate[i].kprod_gas=0.;
+	      surrogate[j].kprod_gas=0.;
+	      if (surrogate[i].hydrophilic)
+		for (b=0;b<config.nbins;++b)
+		  {
+		    double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_aq_bins(b)/surrogate[j].gamma_aq_bins(b); 
+		    //cout << Keq1 << " " << Keq2 << endl;
+		    
+		    double atot=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM;
+		    surrogate[i].Aaq_bins_init(b)=atot*surrogate[i].MM/(1+Keq1);
+		    surrogate[j].Aaq_bins_init(b)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+		    
+		    atot=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init0(b)/surrogate[j].MM;
+		    surrogate[i].Aaq_bins_init0(b)=atot*surrogate[i].MM/(1+Keq1);
+		    surrogate[j].Aaq_bins_init0(b)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+
+		    double prod=surrogate[i].kprod_aq(b)/surrogate[i].MM+surrogate[j].kprod_aq(b)/surrogate[j].MM;
+		    if (surrogate[i].kprod_aq(b)>0.)
+		      surrogate[i].kloss_aq(b)=prod/(1+Keq1)*surrogate[i].MM*surrogate[i].kloss_aq(b)/surrogate[i].kprod_aq(b);
+		    //cout << surrogate[i].kprod_aq(b) << " " << surrogate[j].kprod_aq(b) << " " << surrogate[k].kprod_aq(b) << endl;
+		    if (surrogate[j].kprod_aq(b)>0.)
+		      surrogate[j].kloss_aq(b)=prod/(1+Keq1)*Keq1*surrogate[j].MM*surrogate[j].kloss_aq(b)/surrogate[j].kprod_aq(b);
+		   
+		    surrogate[i].kprod_aq(b)=prod/(1+Keq1)*surrogate[i].MM;
+		    surrogate[j].kprod_aq(b)=prod/(1+Keq1)*Keq1*surrogate[j].MM;
+
+		    surrogate[i].kprod_gas+=surrogate[i].kloss_aq(b)*surrogate[i].Aaq_bins_init(b);
+		    surrogate[j].kprod_gas+=surrogate[j].kloss_aq(b)*surrogate[j].Aaq_bins_init(b); 
+		  }
+*/
+
+	      
+	      surrogate[i].kprod_gas=0.;
+	      surrogate[j].kprod_gas=0.;
+	      if (surrogate[i].hydrophilic)
+		for (b=0;b<config.nbins;++b)
+		  {
+		    double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_aq_bins(b)/surrogate[j].gamma_aq_bins(b);
+		    double atot=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM;
+		    surrogate[i].Aaq_bins_init(b)=atot*surrogate[i].MM/(1+Keq1);
+		    surrogate[j].Aaq_bins_init(b)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+
+		   
+		    atot=surrogate[i].Aaq_bins_init0(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init0(b)/surrogate[j].MM;
+		    surrogate[i].Aaq_bins_init0(b)=atot*surrogate[i].MM/(1+Keq1);
+		    surrogate[j].Aaq_bins_init0(b)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+
+		    double prod=surrogate[i].kprod_aq(b)/surrogate[i].MM+surrogate[j].kprod_aq(b)/surrogate[j].MM;
+		    if (surrogate[i].kprod_aq(b)>0.)
+		      surrogate[i].kloss_aq(b)=prod/(1+Keq1)*surrogate[i].MM*surrogate[i].kloss_aq(b)/surrogate[i].kprod_aq(b);
+		    if (surrogate[j].kprod_aq(b)>0.)
+		      surrogate[j].kloss_aq(b)=prod/(1+Keq1)*Keq1*surrogate[j].MM*surrogate[j].kloss_aq(b)/surrogate[j].kprod_aq(b);
+		   
+		    surrogate[i].kprod_aq(b)=prod/(1+Keq1)*surrogate[i].MM;
+		    surrogate[j].kprod_aq(b)=prod/(1+Keq1)*Keq1*surrogate[j].MM;		   
+
+		    surrogate[i].kprod_gas+=surrogate[i].kloss_aq(b)*surrogate[i].Aaq_bins_init(b);
+		    surrogate[j].kprod_gas+=surrogate[j].kloss_aq(b)*surrogate[j].Aaq_bins_init(b);
+		    
+		  }
+
+	      
+
+	      if (surrogate[i].hydrophobic)
+		for (b=0;b<config.nbins;++b)
+		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			double Keq1=RH*surrogate[i].Khyd*surrogate[i].gamma_org_layer(b,ilayer,iphase)/surrogate[i].GAMMAinf/surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].GAMMAinf;
+			
+			double atot=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init(b,ilayer,iphase)/surrogate[j].MM;
+			
+			surrogate[i].Ap_layer_init(b,ilayer,iphase)=atot*surrogate[i].MM/(1+Keq1);
+			surrogate[j].Ap_layer_init(b,ilayer,iphase)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+
+			atot=surrogate[i].Ap_layer_init0(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init0(b,ilayer,iphase)/surrogate[j].MM;
+			surrogate[i].Ap_layer_init0(b,ilayer,iphase)=atot*surrogate[i].MM/(1+Keq1);
+			surrogate[j].Ap_layer_init0(b,ilayer,iphase)=atot*surrogate[j].MM/(1+Keq1)*Keq1;
+
+			double prod=surrogate[i].kprod(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].kprod(b,ilayer,iphase)/surrogate[j].MM;
+			if (surrogate[i].kprod(b,ilayer,iphase)>0.)
+			  surrogate[i].kloss(b,ilayer,iphase)=prod/(1+Keq1)*surrogate[i].MM*surrogate[i].kloss(b,ilayer,iphase)/surrogate[i].kprod(b,ilayer,iphase);
+			if (surrogate[j].kprod(b,ilayer,iphase)>0.)
+			  surrogate[j].kloss(b,ilayer,iphase)=prod/(1+Keq1)*Keq1*surrogate[j].MM*surrogate[j].kloss(b,ilayer,iphase)/surrogate[j].kprod(b,ilayer,iphase);
+		   
+			surrogate[i].kprod(b,ilayer,iphase)=prod/(1+Keq1)*surrogate[i].MM;
+			surrogate[j].kprod(b,ilayer,iphase)=prod/(1+Keq1)*Keq1*surrogate[j].MM;
+
+			surrogate[i].kprod_gas+=surrogate[i].kloss(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			surrogate[j].kprod_gas+=surrogate[j].kloss(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase);
+		    
+		      }
+
+	      
+	    }
+	}
+    }
+
+  
+  
+}
+
 void characteristic_time_ssh(model_config &config, vector<species>& surrogate,
 			     Array <double, 3> &MOinit, Array <double, 1> &AQinit,
 			     double LWCtot)
@@ -439,9 +651,10 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
               
               Kaq=surrogate[i].Kaq(b);
               if(Kaq<config.kp_low_volatility)
-                if (surrogate[i].Aaq_bins_init(b)>0.0)
+                if (surrogate[i].Aaq_bins_init(b)>1.e-10)
 		  {
-		    AQ2=AQinit(b); 
+		    AQ2=AQinit(b);
+		    //cout << surrogate[i].name << " " << AQ2 << " " << surrogate[i].tau_air(b) << " " << Kaq << " " << surrogate[i].Aaq << " " << surrogate[i].Aaq_bins_init(b) << endl;
 		    surrogate[i].time_aq(b)=
 		      (AQ2+sumMO)/AQ2*
 		      (Kaq*AQ2*surrogate[i].tau_air(b))
@@ -551,7 +764,7 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 
               if (i==config.iH2SO4)
                 surrogate[i].time_aq(b)=2.0*config.tequilibrium;
-            } 
+            }
     }
   else
     for (i=0;i<n;++i)
@@ -4237,12 +4450,19 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
     else
       prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 1, deltat);
 
+  if (config.compute_organic)
+    hydratation_dyn_ssh(config, surrogate, RH, AQinit);
+
   if (config.chemistry)
-    prodloss_chem_ssh(config, surrogate, MOinit, MOW, AQinit, LWC, MMaq, chp, ionic, tiny, Temperature, 0);
+    prodloss_chem_ssh(config, surrogate, MOinit, MOW, AQinit, LWC, MMaq, chp, ionic, tiny, Temperature, 0);   
 
   double apnew;
+  Array <int, 1> ifound;
+  ifound.resize(n);
+  ifound=0;
+  
   for (i=0;i<n;++i)
-    {
+    {  
         
       if(surrogate[i].is_organic and config.compute_organic)
         if(surrogate[i].hydrophobic)
@@ -4256,14 +4476,14 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
                 }
 
       if (LWCtot>config.LWClimit)
-        if((surrogate[i].is_organic and config.compute_organic) or ((i==config.iClm or i==config.iNO3m or i==config.iNH4p) and config.compute_inorganic))
-          if (surrogate[i].hydrophilic)
-            for (b=0;b<config.nbins;++b)
-              {
-                apnew=(surrogate[i].Aaq_bins_init0(b)+deltat*surrogate[i].kprod_aq(b))
-                  /(1.0+deltat*surrogate[i].kloss_aq(b));
-                surrogate[i].Aaq_bins_init(b)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Aaq_bins_init(b);
-              }
+	    if((surrogate[i].is_organic and config.compute_organic) or ((i==config.iClm or i==config.iNO3m or i==config.iNH4p) and config.compute_inorganic))
+	      if (surrogate[i].hydrophilic)
+		for (b=0;b<config.nbins;++b)
+		  {
+		    apnew=(surrogate[i].Aaq_bins_init0(b)+deltat*surrogate[i].kprod_aq(b))
+		      /(1.0+deltat*surrogate[i].kloss_aq(b));
+		    surrogate[i].Aaq_bins_init(b)=apnew; //factor*apnew+(1.0-factor)*surrogate[i].Aaq_bins_init(b);
+		  }
 
       if (LWCtot>config.LWClimit)
         if (i==config.iSO4mm and config.compute_inorganic)
@@ -4283,6 +4503,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
               surrogate[config.iSO4mm].Aaq_bins_init(b)=total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq); //(1.0-factor)*surrogate[config.iSO4mm].Aaq_bins_init(b)+factor*total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq);
 		
             }
+
       
       if (LWCtot>config.LWClimit)
 	if (config.compute_inorganic)
@@ -4384,15 +4605,23 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
           //  apnew=max(min(apnew,10.*surrogate[i].Ag),0.1*surrogate[i].Ag);
           surrogate[i].Ag=apnew; //factor*apnew+(1.-factor)*surrogate[i].Ag;
         }
+
+      /*
+      if (surrogate[i].name=="GLY" or surrogate[i].name=="GLYOH" or surrogate[i].name=="GLYOHOH")
+	cout << "update: " <<  surrogate[i].name << " " << surrogate[i].Ag << " " << surrogate[i].MM << " " << surrogate[i].Aaq_bins_init(0) << " " << surrogate[i].Aaq_bins_init(0)/surrogate[i].Kaq(0)/AQinit(0) << endl;*/
+ 
     }
+  
 
   if (config.solids)
     {
       solidification_bins_ssh(config,surrogate, Temperature, MMaq, AQinit, chp, ionic, LWC, factor);
       //compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
     }
+  
   //cout << "ici: " << surrogate[config.iCO3mm].Aaq_bins_init << endl;
   //cout << surrogate[config.iHCO3m].Aaq_bins_init << endl;
+
 
   if (config.chemistry==true)
     {
@@ -4429,54 +4658,238 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 		surrogate[i].Atot+=sum(surrogate[config.iSO4mm].Aaq_bins_init)/surrogate[config.iSO4mm].MM*surrogate[i].MM+
 		  sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
 	    }
-    } 
-
+    }
+  
+  
   if (config.chemistry==false)
     if (config.compute_organic)
-      for (i=0;i<n;i++)
-	if (surrogate[i].is_organic)
-	  {
-	    double atot=0.; //surrogate[i].Ag;
-	    if (surrogate[i].hydrophobic)
-	      for (b=0;b<config.nbins;++b)
-		for (ilayer=0;ilayer<config.nlayer;++ilayer)
-		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		    atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+      {
+	Array <int, 1> ifound;
+	ifound.resize(n);
+	ifound=0;
+  
+	for (i=0;i<n;i++)
+	  if (surrogate[i].hydrophilic)
+	    {
+	      int j=surrogate[i].iHyd;
+	      if (j>-1 and ifound(i)==0)
+		{
+		  ifound(i)=1;
+		  ifound(j)=1;
+		  int k=surrogate[j].iHyd;		  
+		  if (k>-1)
+		    {
+		      double atot=surrogate[i].Atot0/surrogate[i].MM+surrogate[j].Atot0/surrogate[j].MM+surrogate[k].Atot0/surrogate[k].MM;
 
-	    if (surrogate[i].hydrophilic)
-	      for (b=0;b<config.nbins;++b)
-		atot+=surrogate[i].Aaq_bins_init(b);
+
+		      
+		      double atot2=surrogate[i].Ag/surrogate[i].MM+surrogate[j].Ag/surrogate[j].MM+surrogate[k].Ag/surrogate[k].MM;
+		      if (surrogate[i].hydrophilic)
+			for (b=0;b<config.nbins;++b)
+			  atot2+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM+surrogate[k].Aaq_bins_init(b)/surrogate[k].MM;
+
+		      if (surrogate[i].hydrophobic)
+			for (b=0;b<config.nbins;++b)
+			  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			      atot2+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init(b,ilayer,iphase)/surrogate[j].MM+surrogate[k].Ap_layer_init(b,ilayer,iphase)/surrogate[k].MM;
+
+		      //if (atot2<0.01*atot)
+		      //cout << "weird " << atot2 << " " << atot << endl;
+		      //atot2=atot;
+
+		      atot2=max(min(atot2,2.*atot),0.5*atot);
+		      atot2=atot;
+
+		      if (atot2>0.)
+			{			  
+			  surrogate[i].Ag=surrogate[i].Ag/atot2*atot;
+			  surrogate[j].Ag=surrogate[j].Ag/atot2*atot;
+			  surrogate[k].Ag=surrogate[k].Ag/atot2*atot;
+
+			  surrogate[i].Atot=surrogate[i].Ag;
+			  surrogate[j].Atot=surrogate[j].Ag;
+			  surrogate[k].Atot=surrogate[k].Ag;
+		      
+			  if (surrogate[i].hydrophilic)
+			    for (b=0;b<config.nbins;++b)
+			      {
+				surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init(b)/atot2*atot;
+				surrogate[j].Aaq_bins_init(b)=surrogate[j].Aaq_bins_init(b)/atot2*atot;
+				surrogate[k].Aaq_bins_init(b)=surrogate[k].Aaq_bins_init(b)/atot2*atot;
+
+				surrogate[i].Atot+=surrogate[i].Aaq_bins_init(b);
+				surrogate[j].Atot+=surrogate[j].Aaq_bins_init(b);
+				surrogate[k].Atot+=surrogate[k].Aaq_bins_init(b);
+			      }
+
+			  if (surrogate[i].hydrophobic)
+			    for (b=0;b<config.nbins;++b)
+			      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+				for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+				  {				  
+				    surrogate[i].Ap_layer_init(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+				    surrogate[j].Ap_layer_init(b,ilayer,iphase)=surrogate[j].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+				    surrogate[k].Ap_layer_init(b,ilayer,iphase)=surrogate[k].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+
+				    surrogate[i].Atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+				    surrogate[j].Atot+=surrogate[j].Ap_layer_init(b,ilayer,iphase);
+				    surrogate[k].Atot+=surrogate[k].Ap_layer_init(b,ilayer,iphase);
+				  }
+			}
+		    }
+		  else
+		    {
+		      double atot=surrogate[i].Atot0/surrogate[i].MM+surrogate[j].Atot0/surrogate[j].MM;
+		      double atot2=surrogate[i].Ag/surrogate[i].MM+surrogate[j].Ag/surrogate[j].MM;
+		      if (surrogate[i].hydrophilic)
+			for (b=0;b<config.nbins;++b)
+			  atot2+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM;
+
+		      if (surrogate[i].hydrophobic)
+			for (b=0;b<config.nbins;++b)
+			  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			      atot2+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init(b,ilayer,iphase)/surrogate[j].MM;
+
+		      //if (atot2<0.01*atot)
+		      //cout << "weird " << atot2 << " " << atot << endl;
+		      //atot2=atot;
+
+		      atot2=max(min(atot2,2.*atot),0.5*atot);
+		      atot2=atot;
+
+		      if (atot2>0.)
+			{			  
+			  surrogate[i].Ag=surrogate[i].Ag/atot2*atot;
+			  surrogate[j].Ag=surrogate[j].Ag/atot2*atot;
+
+			  surrogate[i].Atot=surrogate[i].Ag;
+			  surrogate[j].Atot=surrogate[j].Ag;
+			  
+			  if (surrogate[i].hydrophilic)
+			    for (b=0;b<config.nbins;++b)
+			      {
+				surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init(b)/atot2*atot;
+				surrogate[j].Aaq_bins_init(b)=surrogate[j].Aaq_bins_init(b)/atot2*atot;
+
+				surrogate[i].Atot+=surrogate[i].Aaq_bins_init(b);
+				surrogate[j].Atot+=surrogate[j].Aaq_bins_init(b);
+			      }
+
+			  if (surrogate[i].hydrophobic)
+			    for (b=0;b<config.nbins;++b)
+			      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+				for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+				  {				  
+				    surrogate[i].Ap_layer_init(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+				    surrogate[j].Ap_layer_init(b,ilayer,iphase)=surrogate[j].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+
+				    surrogate[i].Atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+				    surrogate[j].Atot+=surrogate[j].Ap_layer_init(b,ilayer,iphase);
+				  }
+			}
+		    }
+		  
+		  /*
+		  else
+		    {
+		      double atot=surrogate[i].Atot1/surrogate[i].MM+surrogate[j].Atot1/surrogate[j].MM;
+		      double atot2=surrogate[i].Ag/surrogate[i].MM+surrogate[j].Ag/surrogate[j].MM;
+		      if (surrogate[i].hydrophilic)
+			for (b=0;b<config.nbins;++b)
+			  atot2+=surrogate[i].Aaq_bins_init(b)/surrogate[i].MM+surrogate[j].Aaq_bins_init(b)/surrogate[j].MM;
+
+		      if (surrogate[i].hydrophobic)
+			for (b=0;b<config.nbins;++b)
+			  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			      atot2+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM+surrogate[j].Ap_layer_init(b,ilayer,iphase)/surrogate[j].MM;
+		      
+		      atot2=max(min(atot2,2.*atot),0.5*atot);
+		      atot2=atot;
+		      
+		      if (atot2>0.)
+			{
+
+			  surrogate[i].Ag=surrogate[i].Ag/atot2*atot;
+			  surrogate[j].Ag=surrogate[j].Ag/atot2*atot;
+
+			  surrogate[i].Atot=surrogate[i].Ag;
+			  surrogate[j].Atot=surrogate[j].Ag;		   
+
+			  if (surrogate[i].hydrophilic)
+			    for (b=0;b<config.nbins;++b)
+			      {
+				surrogate[i].Aaq_bins_init(b)=surrogate[i].Aaq_bins_init(b)/atot2*atot;
+				surrogate[j].Aaq_bins_init(b)=surrogate[j].Aaq_bins_init(b)/atot2*atot;			      
+
+				surrogate[i].Atot+=surrogate[i].Aaq_bins_init(b);
+				surrogate[j].Atot+=surrogate[j].Aaq_bins_init(b);			     
+			      }
+
+			  if (surrogate[i].hydrophobic)
+			    for (b=0;b<config.nbins;++b)
+			      for (ilayer=0;ilayer<config.nlayer;++ilayer)
+				for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+				  {				  
+				    surrogate[i].Ap_layer_init(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase)/atot2*atot;
+				    surrogate[j].Ap_layer_init(b,ilayer,iphase)=surrogate[j].Ap_layer_init(b,ilayer,iphase)/atot2*atot;				 
+
+				    surrogate[i].Atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+				    surrogate[j].Atot+=surrogate[j].Ap_layer_init(b,ilayer,iphase);				 
+				  }
+			}
+		    }*/
+		}
+	    }
 
 	
-	    if (atot<-surrogate[i].Atot)
-	      {
-		surrogate[i].Ag=surrogate[i].Atot-atot;
-	      }
-	    else if (surrogate[i].Atot>0)
-              {
-		atot+=surrogate[i].Ag;
-		if (atot==0.)
-		  {
-		    cout << "error " << surrogate[i].Ag << " " << surrogate[i].Atot << " " << surrogate[i].name << endl;
-		    exit(0);
-		  }
-		//cout << surrogate[i].name << endl;
+	for (i=0;i<n;i++)
+	  if (surrogate[i].is_organic)
+	    {
+	      double atot=0.; //surrogate[i].Ag;
+	      if (surrogate[i].hydrophobic)
+		for (b=0;b<config.nbins;++b)
+		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      atot+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
 
-		if (atot>0.)
-		  {
-		    surrogate[i].Ag*=surrogate[i].Atot/atot;
-		    if (surrogate[i].hydrophobic)
-		      for (b=0;b<config.nbins;++b)
-			for (ilayer=0;ilayer<config.nlayer;++ilayer)
-			  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-			    surrogate[i].Ap_layer_init(b,ilayer,iphase)*=surrogate[i].Atot/atot;
+	      if (surrogate[i].hydrophilic)
+		for (b=0;b<config.nbins;++b)
+		  atot+=surrogate[i].Aaq_bins_init(b);
+
+	
+	      if (atot<-surrogate[i].Atot)
+		{
+		  surrogate[i].Ag=surrogate[i].Atot-atot;
+		}
+	      else if (surrogate[i].Atot>0)
+		{
+		  atot+=surrogate[i].Ag;
+		  if (atot==0.)
+		    {
+		      cout << "error " << surrogate[i].Ag << " " << surrogate[i].Atot << " " << surrogate[i].name << endl;
+		      exit(0);
+		    }
+		  //cout << surrogate[i].name << endl;
+
+		  if (atot>0.)
+		    {
+		      surrogate[i].Ag*=surrogate[i].Atot/atot;
+		      if (surrogate[i].hydrophobic)
+			for (b=0;b<config.nbins;++b)
+			  for (ilayer=0;ilayer<config.nlayer;++ilayer)
+			    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			      surrogate[i].Ap_layer_init(b,ilayer,iphase)*=surrogate[i].Atot/atot;
 		  
-		    if (surrogate[i].hydrophilic)
-		      for (b=0;b<config.nbins;++b)
-			surrogate[i].Aaq_bins_init(b)*=surrogate[i].Atot/atot;
-		  }
-	      }
-	  }
+		      if (surrogate[i].hydrophilic)
+			for (b=0;b<config.nbins;++b)
+			  surrogate[i].Aaq_bins_init(b)*=surrogate[i].Atot/atot;
+		    }
+		}
+	    }
+      }
 
   
   if (config.chemistry==false)
