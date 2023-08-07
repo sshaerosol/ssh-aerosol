@@ -211,14 +211,22 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
     }
 
   config.aqorg_repart=false;
+  config.coupled_phases=false;
+  for (i=0;i<int(surrogate.size());i++)
+    if (surrogate[i].hydrophilic and surrogate[i].hydrophobic
+	and surrogate[i].is_organic)
+      config.coupled_phases=true;
+  
   if (config.coupled_phases and isoapdyn==1 and (config.imethod<3 or config.nlayer>1) and coupled_phases==0)
-    {
+    {   
       cout << "Some organic compounds are hydrophilic and hydrophobic. Aqueous phases must be track in the dynamic mode. coupled_phases must be equal to 1." << endl;
       throw string ("Exiting");
     }
   else if (config.coupled_phases and isoapdyn==1 and (config.imethod==3 or config.nlayer>1) and coupled_phases==0)
     config.aqorg_repart=true;
-  
+
+  if (config.chemistry)
+    config.coupled_phases=true;
   
   if (soap_inorg==0)
     {

@@ -177,8 +177,9 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 
     }
 
+  /*
   if (config.chemistry)
-    config.coupled_phases=true;
+    config.coupled_phases=true;*/
 
   get_smiles(config, surrogate);
   get_vectors(config, surrogate);
