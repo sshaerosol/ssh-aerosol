@@ -315,6 +315,12 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 
   /*** Use the global equilibrium approach ***/
   // Initialization for the equilibrium approach
+
+  config.solids=false;
+  if (config.compute_inorganic)
+    for (i = 0; i < n; ++i)
+      if (surrogate[i].name=="CaCO3")
+	config.solids=true;
   
   if (config.equilibrium)
     {     
@@ -411,7 +417,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	      if (config.iMg>0) surrogate[config.iMg].Aaq = qaero[surrogate[config.iMg].soap_ind];
 	      if (config.iCa>0)surrogate[config.iCa].Aaq = qaero[surrogate[config.iCa].soap_ind];
 	      if (config.iCO3mm>0) surrogate[config.iCO3mm].Aaq = qaero[surrogate[config.iCO3mm].soap_ind];
-	    }
+	    }	 
 	}
 
       // Set the total values in each phase. 
@@ -439,10 +445,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 			     MOinit,MOW,
 			     LWC, AQinit, ionic, chp,
 			     Temperature, RH, deltat);
-
-      /*for (i=0;i<n;i++)
-	if (surrogate[i].Aaq+surrogate[i].Ap>0.)
-	  cout << surrogate[i].name << " " << surrogate[i].Aaq+surrogate[i].Ap << endl;*/
 
       if (config.compute_inorganic)
 	{
