@@ -1080,7 +1080,7 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
 
 	  for (i=0;i<n;++i)
 	    {
-	      if (surrogate[i].index_gamma_org >=0)
+	      if (surrogate[i].index_gamma_org >=0 and surrogate[i].kp_from_experiment==false)
 		surrogate[i].gamma_org=gamma_unifac(surrogate[i].index_gamma_org);
 	      else
 		surrogate[i].gamma_org=1.0;
@@ -1097,7 +1097,7 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
 
 	  for (i=0;i<n;++i)
 	    {
-	      if (surrogate[i].index_gamma_tot >=0)
+	      if (surrogate[i].index_gamma_tot >=0 and surrogate[i].kp_from_experiment==false)
 		surrogate[i].gamma_org=gamma_unifac(surrogate[i].index_gamma_tot);
 	      else
 		surrogate[i].gamma_org=1.0;

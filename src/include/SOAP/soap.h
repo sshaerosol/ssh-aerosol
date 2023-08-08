@@ -23,7 +23,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[], double enthalpy_vaporization[],
-                   double diffusion_coef[], int nlayer, int with_kelvin_effect,
+                   double diffusion_coef[],
+		   double henry[], double t_ref[], char irreversible_name[], double k_irreversible[],
+		   int nlayer, int with_kelvin_effect,
 		   double tequilibrium, double dtaeromin, double dorg,
 		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic,
 		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS, int SOAPlog);

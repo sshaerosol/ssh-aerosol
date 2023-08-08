@@ -109,6 +109,7 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           henry, t_ref, irreversible_name, k_irreversible, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
@@ -298,6 +299,7 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           henry, t_ref, irreversible_name, k_irreversible,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
@@ -494,6 +496,7 @@ contains
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           henry, t_ref, irreversible_name, k_irreversible,&
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)

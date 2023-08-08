@@ -69,7 +69,10 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 double sum=1.0;
                 if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
                   {
-                    Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
+		    if (surrogate[i].kp_from_experiment)
+		      Kp=surrogate[i].kpi;
+		    else
+		      Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
                     sum+=Kp*MOinit;
                   }
  
@@ -114,7 +117,10 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 double sum=1.0;
                 if (surrogate[j].hydrophobic or LWC<=config.LWClimit)
                   {
-                    Kp=surrogate[j].kpi/MOW/surrogate[j].gamma_org;
+		    if (surrogate[j].kp_from_experiment)
+		      Kp=surrogate[j].kpi;
+		    else
+		      Kp=surrogate[j].kpi/MOW/surrogate[j].gamma_org;
                     sum+=Kp*MOinit;
                   }
 
@@ -184,6 +190,17 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 }
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
             }
+
+	if (surrogate[i].i_irreversible>=0)
+	  {
+	    double flux=0.;
+	    if (surrogate[i].hydrophilic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	     if (surrogate[i].hydrophobic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+	    surrogate[i].flux_chem_tot(index)+=-flux;
+	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	  }
       }
    
   for (i=0;i<n;++i)
@@ -259,7 +276,10 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 double sum=1.0;
                 if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
                   {
-                    Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
+		    if (surrogate[i].kp_from_experiment)
+		      Kp=surrogate[i].kpi;
+		    else
+		      Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
                     sum+=Kp*MOinit;
                   }
 
@@ -304,7 +324,10 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 double sum=1.0;
                 if (surrogate[j].hydrophobic or LWC<=config.LWClimit)
                   {
-                    Kp=surrogate[j].kpi/MOW/surrogate[j].gamma_org;
+		    if (surrogate[j].kp_from_experiment)
+		      Kp=surrogate[j].kpi;
+		    else
+		      Kp=surrogate[j].kpi/MOW/surrogate[j].gamma_org;
                     sum+=Kp*MOinit;
                   }
 
@@ -390,6 +413,22 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
               surrogate[i].flux_chem_tot(index)+=-flux; 
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
             }
+	
+	if (surrogate[i].i_irreversible>=0)
+	  {
+	    double flux=0.;
+	    if (surrogate[i].hydrophilic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	    if (surrogate[i].hydrophobic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;	    
+
+	    flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
+	    
+	    surrogate[i].flux_chem_tot(index)+=-flux;
+	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    
+	  }
+	
         
       }
 } 
@@ -478,7 +517,15 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
                   for (iphase=0;iphase<nphase;iphase++) 
                     {
-                      Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
+		      if (surrogate[i].kp_from_experiment)
+			{
+			  if (iphase==surrogate[i].jmain_phase)
+			    Kp(iphase)=surrogate[i].kpi;
+			  else
+			    Kp(iphase)=0.;
+			}
+		      else
+			Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
                       sum+=Kp(iphase)*MOinit(iphase);
                     }
  
@@ -533,7 +580,15 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 if (surrogate[j].hydrophobic or LWC<=config.LWClimit)
                   for (iphase=0;iphase<nphase;iphase++) 
                     {
-                      Kp(iphase)=surrogate[j].kpi/MOW(iphase)/surrogate[j].gamma_org_sat(iphase);
+		      if (surrogate[i].kp_from_experiment)
+			{
+			  if (iphase==surrogate[i].jmain_phase)
+			    Kp(iphase)=surrogate[j].kpi;
+			  else
+			    Kp(iphase)=0.;
+			}
+		      else
+			Kp(iphase)=surrogate[j].kpi/MOW(iphase)/surrogate[j].gamma_org_sat(iphase);
                       sum+=Kp(iphase)*MOinit(iphase);
                     }
  
@@ -607,6 +662,19 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 }
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
             }
+
+	if (surrogate[i].i_irreversible>=0)
+	  {
+	    double flux=0.;
+	    if (surrogate[i].hydrophilic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	     if (surrogate[i].hydrophobic)
+	       for (iphase=0;iphase<nphase;iphase++)
+		 flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+	    surrogate[i].flux_chem_tot(index)+=-flux;
+	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	  }
+	
       }
    
   for (i=0;i<n;++i)
@@ -696,7 +764,15 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
                   for (iphase=0;iphase<nphase;iphase++) 
                     {
-                      Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
+		      if (surrogate[i].kp_from_experiment)
+			{
+			  if (iphase==surrogate[i].jmain_phase)
+			    Kp(iphase)=surrogate[i].kpi;
+			  else
+			    Kp(iphase)=0.;
+			}
+		      else
+			Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
                       sum+=Kp(iphase)*MOinit(iphase);
                     }
  
@@ -751,7 +827,15 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 if (surrogate[j].hydrophobic or LWC<=config.LWClimit)
                   for (iphase=0;iphase<nphase;iphase++) 
                     {
-                      Kp(iphase)=surrogate[j].kpi/MOW(iphase)/surrogate[j].gamma_org_sat(iphase);
+		      if (surrogate[i].kp_from_experiment)
+			{
+			  if (iphase==surrogate[i].jmain_phase)
+			    Kp(iphase)=surrogate[j].kpi;
+			  else
+			    Kp(iphase)=0.;
+			}
+		      else
+			Kp(iphase)=surrogate[j].kpi/MOW(iphase)/surrogate[j].gamma_org_sat(iphase);
                       sum+=Kp(iphase)*MOinit(iphase);
                     }
  
@@ -841,6 +925,19 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
               surrogate[i].flux_chem_tot(index)+=-flux; 
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
             }
+
+	if (surrogate[i].i_irreversible>=0)
+	  {
+	    double flux=0.;
+	    if (surrogate[i].hydrophilic)
+	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	     if (surrogate[i].hydrophobic)
+	       for (iphase=0;iphase<nphase;iphase++)
+		 flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+	     flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);         
+	     surrogate[i].flux_chem_tot(index)+=-flux;
+	     surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;	    
+	  }
         
       }
 } 
@@ -965,7 +1062,8 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
     if(surrogate[i].is_organic) 
       {
 	conc_available=0.0;
-	sum_rates=0.0;	      
+	sum_rates=0.0;
+	
         surrogate[i].Atot=max(redmax*surrogate[i].Atot,surrogate[i].Atot+surrogate[i].flux_chem_tot(0));	     
         surrogate[i].Atot1=surrogate[i].Atot;
         if (surrogate[i].nonvolatile)
@@ -988,7 +1086,10 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
             double sum=1.0;
             if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
               {
-                Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
+		if (surrogate[i].kp_from_experiment)
+		  Kp=surrogate[i].kpi;
+		else
+		  Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
                 sum+=Kp*MOinit;
               }
 
@@ -1073,7 +1174,10 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
             double sum=1.0;
             if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
               {
-                Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
+		if (surrogate[i].kp_from_experiment)
+		  Kp=surrogate[i].kpi;
+		else
+		  Kp=surrogate[i].kpi/MOW/surrogate[i].gamma_org;
                 sum+=Kp*MOinit;
               }
 
@@ -1212,7 +1316,15 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
             double sum=1.0;
             if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
               {
-                Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
+		if (surrogate[i].kp_from_experiment)
+		  {
+		    if (iphase==surrogate[i].jmain_phase)
+		      Kp(iphase)=surrogate[i].kpi;
+		    else
+		      Kp(iphase)=0;
+		  }
+		else
+		  Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
                 sum+=Kp(iphase)*MOinit(iphase);
               }
 
@@ -1308,7 +1420,15 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
             double sum=1.0;
             if (surrogate[i].hydrophobic or LWC<=config.LWClimit)
               {
-                Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
+		if (surrogate[i].kp_from_experiment)
+		  {
+		    if (iphase==surrogate[i].jmain_phase)
+		      Kp(iphase)=surrogate[i].kpi;
+		    else
+		      Kp(iphase)=0;
+		  }
+		else
+		  Kp(iphase)=surrogate[i].kpi/MOW(iphase)/surrogate[i].gamma_org_sat(iphase);
                 sum+=Kp(iphase)*MOinit(iphase);
               }
 
@@ -1390,6 +1510,7 @@ void solve_chemistry_ssh(model_config &config, vector<species>& surrogate,
           dt1=min(deltat-t,dt1);	 
           dt2=dt1;            
           integer_chem_sat_ssh(config, surrogate, MOinit_sat, MOW_sat, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+	  
           //compute the new time step so that changes are small
           adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
           t+=dt2;     
@@ -1402,9 +1523,10 @@ void solve_chemistry_ssh(model_config &config, vector<species>& surrogate,
           dt1=min(deltat-t,dt1);	 
           dt2=dt1;            
           integer_chem_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+
           //compute the new time step so that changes are small
           adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
           t+=dt2;     
-        }
+	}
     }
 }

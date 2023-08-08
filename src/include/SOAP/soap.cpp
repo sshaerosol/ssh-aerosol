@@ -31,7 +31,9 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       char* species_name, int* name_len, double* molecular_weight_aer,
 			       double* accomodation_coefficient, int* aerosol_type, 
 			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
-			       double* enthalpy_vaporization, double *diffusion_coef, int* nlayer,
+			       double* enthalpy_vaporization, double *diffusion_coef,
+			       double* henry, double* t_ref, char* irreversible_name, double* k_irreversible,
+			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap, int* i_hydrophilic,
@@ -47,7 +49,9 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       species_name, *name_len, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       partitioning, smiles, saturation_vapor_pressure,
-		       enthalpy_vaporization, diffusion_coef, *nlayer,
+		       enthalpy_vaporization, diffusion_coef,
+		       henry, t_ref, irreversible_name, k_irreversible,
+		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap, *i_hydrophilic,
@@ -74,7 +78,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
-		   double enthalpy_vaporization[], double diffusion_coef[], int nlayer,
+		   double enthalpy_vaporization[], double diffusion_coef[],
+		   double henry[], double t_ref[], char irreversible_name[], double k_irreversible[],
+		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap, int i_hydrophilic,
@@ -97,6 +103,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
   vector<string> species_smiles;
+  vector<string> species_irreversible;
   vector<string> species_part;
   // Get aerosol species names.
   // conversion char to string
@@ -152,6 +159,24 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
         }
       species_smiles.push_back(tmp3);
     }
+
+  int irreversible_len=40;
+  string tmp2c;
+    for (i = 0; i < ns_aer * irreversible_len; i++)
+    {
+      tmp2c.push_back(irreversible_name[i]);
+    }
+    
+  for (i = 0; i < ns_aer; i++)
+    {
+      string tmp3(tmp2c.substr(i * irreversible_len, irreversible_len));      
+      for (int j = irreversible_len - 1; j >= 0; --j)
+        {
+          if(tmp3[j] == ' ')
+            tmp3.erase(j, 1);
+        }
+      species_irreversible.push_back(tmp3);
+    }
   
   config.SOAPlog=SOAPlog;
   config.nbins = nbin;
@@ -203,7 +228,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
-		     diffusion_coef, i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
+		     diffusion_coef, henry, t_ref, species_irreversible, k_irreversible,
+		     i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
       
       // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 

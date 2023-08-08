@@ -273,6 +273,8 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: t_ref ! a reference temperature at which Henry's law constant is given (in K)
   double precision ,dimension(:), allocatable, save :: henry ! Henry's law constant at t_ref (in M/atm)  
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
+  character(len=40),dimension(:), allocatable, save :: irreversible_name
+  double precision ,dimension(:), allocatable, save :: k_irreversible
   integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
@@ -1360,11 +1362,12 @@ contains
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero, tmp_fgls
-    character (len=40) :: ic_name, sname, tmp_name
+    character (len=40) :: ic_name, sname, tmp_name, irrerversible_name_tmp
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
-    double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp    
+    double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
+    double precision :: henry_tmp, t_ref_tmp, k_irreversible_tmp
     character (len=40),dimension(nspecies) :: name_input_species
     character (len=800) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp, char1,char2
@@ -1466,7 +1469,8 @@ contains
             collision_factor_aer_tmp, molecular_diameter_tmp, &
             surface_tension_tmp, accomodation_coefficient_tmp, &
             mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
-            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp       
+            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
+            henry_tmp, t_ref_tmp, irrerversible_name_tmp, k_irreversible_tmp
 
        found_spec=0
        do j=1,nspecies          
@@ -1500,6 +1504,10 @@ contains
           smiles(s)=smiles_tmp
           saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
           enthalpy_vaporization(s)=enthalpy_vaporization_tmp
+          henry(s)=henry_tmp
+          t_ref(s)=t_ref_tmp
+          irreversible_name(s)=irrerversible_name_tmp
+          k_irreversible(s)=k_irreversible_tmp
 
           aerosol_hydrophilic(s)=0
           if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
@@ -2152,6 +2160,8 @@ contains
     if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
     if ( .not. allocated(t_ref)) allocate(t_ref(N_aerosol))
     if ( .not. allocated(henry)) allocate(henry(N_aerosol))
+    if ( .not. allocated(irreversible_name)) allocate(irreversible_name(N_aerosol))
+    if ( .not. allocated(k_irreversible)) allocate(k_irreversible(N_aerosol))
     
     aerosol_species_interact = 0
     inon_volatile = 0
@@ -2181,6 +2191,10 @@ contains
                surface_tension(s), accomodation_coefficient(s), &
                mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
                saturation_vapor_pressure(s),enthalpy_vaporization(s)
+          t_ref(s)=0.
+          henry(s)=0.
+          k_irreversible(s)=0.
+          irreversible_name(s)="--"
        else
           read(12, *) aerosol_species_name(s), aerosol_type(s), &
                Index_groups(s), molecular_weight_aer(s), &
@@ -2189,7 +2203,7 @@ contains
                surface_tension(s), accomodation_coefficient(s), &
                mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
                saturation_vapor_pressure(s),enthalpy_vaporization(s), &
-               henry(s), t_ref(s)
+               henry(s), t_ref(s), irreversible_name(s), k_irreversible(s)
        endif
 
        aerosol_hydrophilic(s)=0
@@ -3090,7 +3104,9 @@ contains
     if (allocated(layer_number))  deallocate(layer_number, stat=ierr)
     if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
     if (allocated(t_ref))  deallocate(t_ref, stat=ierr)
-    if (allocated(henry))  deallocate(henry, stat=ierr)    
+    if (allocated(henry))  deallocate(henry, stat=ierr)
+    if (allocated(irreversible_name))  deallocate(irreversible_name, stat=ierr)
+    if (allocated(k_irreversible))  deallocate(k_irreversible, stat=ierr)
     !!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
     !!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
     if (allocated(List_species))  deallocate(List_species, stat=ierr)

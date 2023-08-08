@@ -224,6 +224,10 @@ namespace ssh_soap
         int iHyd;
         double Khyd;
         string hydrated_name;
+
+        double k_irreversible;
+        string irreversible_name;
+        int i_irreversible;
     
   };
   

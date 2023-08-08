@@ -192,7 +192,24 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 	  for (int igr=0;igr<60;igr++)
 	    surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
 	}
-  
+
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic)
+      {
+	surrogate[i].i_irreversible=-1;
+	if (surrogate[i].k_irreversible>0.)
+	  {	  
+	    int j;
+	    for (j=0;j<n;j++)	    
+	      if (surrogate[j].is_organic)
+		if (surrogate[j].name==surrogate[i].irreversible_name)
+		  {
+		    surrogate[i].i_irreversible=j;
+		    config.chemistry=true;
+		    //cout << surrogate[i].name << " " << surrogate[surrogate[i].i_irreversible].name << " " << surrogate[i].k_irreversible << endl;
+		  }
+	  }
+      }
 }
 
 void system_aiomfac_ssh(model_config &config, vector<species>& surrogate)
@@ -1933,8 +1950,9 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
-		    double enthalpy_vaporization[], double diffusion_coef[], int i_hydrophilic,
-		    int N_inert, int N_inorganic, int with_oligomerization)
+		    double enthalpy_vaporization[], double diffusion_coef[],
+		    double henry[], double t_ref[], vector<string> irreversible_name, double k_irreversible[],
+		    int i_hydrophilic, int N_inert, int N_inorganic, int with_oligomerization)
 {
   config.max_iter=10000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
@@ -2034,7 +2052,8 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
-		       diffusion_coef, species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
+		       diffusion_coef, henry, t_ref, irreversible_name, k_irreversible,
+		       species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
 		       N_inert, N_inorganic, with_oligomerization); 
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 

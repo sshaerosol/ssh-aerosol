@@ -963,26 +963,42 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
               xmin=1.0e-10;
 
               for (i=0;i<n;++i)
-                if (surrogate[i].is_organic and surrogate[i].hydrophobic) 
-                  if (surrogate[i].is_monomer)
-                    {
-                      j=surrogate[i].ioligo;                       
-                      double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-                      double flux=config.koligo*(surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono-surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2)*deltat;                                                       
-                      double fac=1.0;
-                      double fac2=1.0;                      
-                      if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
-                        if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
-                          fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase));                                                                              
+                if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		  {
+		    if (surrogate[i].is_monomer)
+		      {
+			j=surrogate[i].ioligo;                       
+			double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+			double flux=config.koligo*(surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono-surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2)*deltat;                                                       
+			double fac=1.0;
+			double fac2=1.0;                      
+			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase));                                                                              
                         
-                      if (surrogate[j].time(b,ilayer,iphase)<config.tequilibrium)                        
-                        if (surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase)>0.0)                                                                                       
-                          fac2=surrogate[j].Ap_layer_init(b,ilayer,iphase)/(surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase));  
-                      surrogate[i].flux_chem(b,ilayer,iphase,index)+=-fac*flux;
-                      surrogate[i].flux_chem_gas(index)+=-(1.0-fac)*flux;
-                      surrogate[j].flux_chem(b,ilayer,iphase,index)+=fac2*flux;			                      
-                      surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
-                    }
+			if (surrogate[j].time(b,ilayer,iphase)<config.tequilibrium)                        
+			  if (surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase)>0.0)                                                                                       
+			    fac2=surrogate[j].Ap_layer_init(b,ilayer,iphase)/(surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase));  
+			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-fac*flux;
+			surrogate[i].flux_chem_gas(index)+=-(1.0-fac)*flux;
+			surrogate[j].flux_chem(b,ilayer,iphase,index)+=fac2*flux;			                      
+			surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
+		      }
+		    	      
+		    if (surrogate[i].i_irreversible>=0)
+		      {
+			double flux=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			double fac=1.0;
+			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
+			
+			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
+			surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+			surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,iphase,index)+=flux;
+		      }
+
+		  }
             }
   
       for (b=0;b<config.nbins;++b)
@@ -1094,6 +1110,27 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                     surrogate[j].flux_chem_aq(b,index)+=fac2*(flux+flux2);		
                     surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*(flux+flux2);
                   }
+
+	      if (surrogate[i].is_organic)
+		if (surrogate[i].i_irreversible>=0)
+		  {
+		    double flux=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
+		    double fac=1.0;
+		    if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
+		      if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
+			fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
+		  
+		    surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
+		    surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+
+		    //cout << surrogate[i].name << " " << surrogate[i].i_irreversible << endl;
+		    if (surrogate[surrogate[i].i_irreversible].hydrophilic)
+		      surrogate[surrogate[i].i_irreversible].flux_chem_aq(b,index)+=flux;
+		    else
+		      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+		  }
+	      
             }    
         }
 
@@ -1196,26 +1233,42 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
               double xmin=1.0e-10;
 
               for (i=0;i<n;++i)
-                if (surrogate[i].is_organic and surrogate[i].hydrophobic) 
-                  if (surrogate[i].is_monomer)
-                    {
-                      j=surrogate[i].ioligo;                       
-                      double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-                      double flux=config.koligo*(surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono-surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2)*deltat;                                                       
-                      double fac=1.0;
-                      double fac2=1.0;                      
-                      if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
-                        if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
-                          fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase));                                                                              
+                if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		  {
+		    if (surrogate[i].is_monomer)
+		      {
+			j=surrogate[i].ioligo;                       
+			double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+			double flux=config.koligo*(surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono-surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2)*deltat;                                                       
+			double fac=1.0;
+			double fac2=1.0;                      
+			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase));                                                                              
                         
-                      if (surrogate[j].time(b,ilayer,iphase)<config.tequilibrium)                        
-                        if (surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase)>0.0)                                                                                      
-                          fac2=surrogate[j].Ap_layer_init(b,ilayer,iphase)/(surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase));         
-                      surrogate[i].flux_chem(b,ilayer,iphase,index)+=-fac*flux;
-                      surrogate[i].flux_chem_gas(index)+=-(1.0-fac)*flux;
-                      surrogate[j].flux_chem(b,ilayer,iphase,index)+=fac2*flux;			                      
-                      surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
-                    }
+			if (surrogate[j].time(b,ilayer,iphase)<config.tequilibrium)                        
+			  if (surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase)>0.0)                                                                                      
+			    fac2=surrogate[j].Ap_layer_init(b,ilayer,iphase)/(surrogate[j].Ag+surrogate[j].Ap_layer_init(b,ilayer,iphase));         
+			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-fac*flux;
+			surrogate[i].flux_chem_gas(index)+=-(1.0-fac)*flux;
+			surrogate[j].flux_chem(b,ilayer,iphase,index)+=fac2*flux;			                      
+			surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
+		      }
+
+		    if (surrogate[i].i_irreversible>=0)
+		      {
+			double flux=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			double fac=1.0;
+			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
+			
+			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
+			surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+			surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,iphase,index)+=flux;
+		      }
+		  
+		  }
             }
   
       for (b=0;b<config.nbins;++b)
@@ -1376,6 +1429,24 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                       surrogate[j].flux_chem_aq(b,index)+=fac2*(flux+flux2);		
                       surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*(flux+flux2);
                     }
+
+		if (surrogate[i].is_organic)
+		  if (surrogate[i].i_irreversible>=0)
+		    {
+		      double flux=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
+		      double fac=1.0;
+		      if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
+			if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
+			  fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
+		  
+		      surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
+		      surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+		      if (surrogate[surrogate[i].i_irreversible].hydrophilic)
+			surrogate[surrogate[i].i_irreversible].flux_chem_aq(b,index)+=flux;
+		      else
+			for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			  surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+		    }
     
               }
         } 
@@ -1410,19 +1481,29 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
               xmin=1.0e-10;
 
               for (i=0;i<n;++i)
-                if (surrogate[i].is_organic and surrogate[i].hydrophobic) 
-                  if (surrogate[i].is_monomer)
-                    {
-                      j=surrogate[i].ioligo;                       
-                      double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-                      double flux1=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono;
-		      double flux2=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2;
+                if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		  {
+		    if (surrogate[i].is_monomer)
+		      {
+			j=surrogate[i].ioligo;                       
+			double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+			double flux1=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono;
+			double flux2=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2;
 		      
-                      surrogate[i].kprod(b,ilayer,iphase)+=flux2;
-		      surrogate[j].kprod(b,ilayer,iphase)+=flux1;
-		      surrogate[i].kloss(b,ilayer,iphase)+=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*Xmono;
-		      surrogate[j].kloss(b,ilayer,iphase)+=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)/Keq2;                      
-                    }
+			surrogate[i].kprod(b,ilayer,iphase)+=flux2;
+			surrogate[j].kprod(b,ilayer,iphase)+=flux1;
+			surrogate[i].kloss(b,ilayer,iphase)+=config.koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*Xmono;
+			surrogate[j].kloss(b,ilayer,iphase)+=config.koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)/Keq2;                      
+		      }
+
+		    if (surrogate[i].i_irreversible>=0)
+		      {
+			double flux=surrogate[i].k_irreversible*surrogate[i].gamma_org_layer(b,ilayer,iphase);			
+			surrogate[i].kloss(b,ilayer,iphase)+=flux;			
+			surrogate[surrogate[i].i_irreversible].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+		      }
+		  
+		  }
             }
   
       for (b=0;b<config.nbins;++b)
@@ -1448,19 +1529,32 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
           for (i=0;i<n;++i)
             {
               if (surrogate[i].is_organic)
-                if (surrogate[i].is_organic and surrogate[i].hydrophilic) 
-                  if (surrogate[i].is_monomer)
-                    {
-                      j=surrogate[i].ioligo;                                        
-                      double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2Oaq,xmin),surrogate[i].moligo-1);                                            
-                      double flux1=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq;
-		      double flux2=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2;
+                if (surrogate[i].is_organic and surrogate[i].hydrophilic)
+		  {
+		    if (surrogate[i].is_monomer)
+		      {
+			j=surrogate[i].ioligo;                                        
+			double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2Oaq,xmin),surrogate[i].moligo-1);                                            
+			double flux1=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*surrogate[i].Aaq_bins_init(b)*Xmonoaq;
+			double flux2=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf*surrogate[j].Aaq_bins_init(b)/Kaq2;
 
-		      surrogate[i].kprod_aq(b)+=flux2;
-		      surrogate[j].kprod_aq(b)+=flux1;
-		      surrogate[i].kloss_aq(b)+=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*Xmonoaq;
-		      surrogate[j].kloss_aq(b)+=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf/Kaq2;                                            
-                    }
+			surrogate[i].kprod_aq(b)+=flux2;
+			surrogate[j].kprod_aq(b)+=flux1;
+			surrogate[i].kloss_aq(b)+=config.koligo*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf*Xmonoaq;
+			surrogate[j].kloss_aq(b)+=config.koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf/Kaq2;                                            
+		      }
+
+		    if (surrogate[i].i_irreversible>=0)
+		      {
+			double flux=surrogate[i].k_irreversible*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf;			
+			surrogate[i].kloss_aq(b)+=flux;
+			if (surrogate[surrogate[i].i_irreversible].hydrophilic)
+			  surrogate[surrogate[i].i_irreversible].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b);
+			else
+			  for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			    surrogate[surrogate[i].i_irreversible].kprod(b,ilayer,0)+=flux*surrogate[i].Aaq_bins_init(b)*config.Vlayer(ilayer);
+		      }
+		  }
 
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
                 for (jion=0;jion<surrogate[i].nion;jion++)
