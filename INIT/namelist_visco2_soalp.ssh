@@ -96,7 +96,7 @@ Nmc = 10000                             ! Number of Monte Carlo points if repart
 with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.0,             ! KCUT	ICUT = 0
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
-nlayer = 1,
+nlayer = 5,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
 tequilibrium = 0.001,                     ! time under which equilibrium is assumed.
 dorg = 1.e-18,                          ! diffusion coefficient in the organic phase.
