@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # Turn interactive plotting off
 plt.ioff()
-warnings.filterwarnings("ignore",category =RuntimeWarning)
+#warnings.filterwarnings("ignore",category =RuntimeWarning)
 
 ################### input parameters #################################"
 pcase = '../results/coag/'
