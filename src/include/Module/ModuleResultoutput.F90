@@ -44,9 +44,14 @@ contains
 !
 !------------------------------------------------------------------------
 
-   implicit none
-	integer :: j,stat
-        logical :: file_exists
+     implicit none
+     integer :: j,stat
+     logical :: file_exists
+     character (len=80) :: cmd
+
+     !Create output directory
+     cmd = trim('mkdir -p '// trim(output_directory))
+     call system(cmd)
 
     ! delete the old report file if it exists under the current saving directory
     inquire (file = trim(output_directory) // "/" // "report.txt", exist = file_exists)
