@@ -18,7 +18,7 @@ PROGRAM SSHaerosol
   
   implicit none
 
-  integer :: t, j, s,jesp,day
+  integer :: t, j, s,jesp,day  
   character (len=400) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
   ! need if use constant input concentrations
@@ -42,7 +42,7 @@ PROGRAM SSHaerosol
 
   call ssh_read_namelist(namelist_ssh)
 
-  call ssh_read_inputs()                                
+  call ssh_read_inputs(0)                                
 
   call ssh_read_meteo()
   

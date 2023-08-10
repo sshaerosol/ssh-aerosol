@@ -115,7 +115,7 @@ contains
        i_compute_repart = 1
        i_write_repart = 0
 
-       call ssh_read_inputs_spec(nspecies,name_input_species,index_species_ssh)
+       call ssh_read_inputs(nspecies,name_input_species,index_species_ssh)
 
        call ssh_init_parameters()
 

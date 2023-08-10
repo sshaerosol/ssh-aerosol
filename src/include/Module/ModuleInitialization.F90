@@ -1354,741 +1354,30 @@ contains
   ! 
   ! =============================================================
 
-  subroutine ssh_read_inputs_spec(nspecies,name_input_species,index_species_ssh)
+
+  subroutine ssh_read_inputs(nspecies,name_input_species,index_species_ssh)
 
 
     implicit none
-    integer:: nspecies
+    integer:: nspecies   !For chimere interface, number of aerosol species we want to select
+    character (len=40),dimension(nspecies),optional :: name_input_species !For Chimere interface, name of the species we want to select
+    integer,dimension(nspecies),optional :: index_species_ssh   !For Chimere interface, link between the index of species in CHIMERE and SSH-aerosol
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero, tmp_fgls
-    character (len=40) :: ic_name, sname, tmp_name, irrerversible_name_tmp
+    double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
+    character (len=40) :: ic_name, sname, tmp_name, irreversible_name_tmp
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
     double precision :: henry_tmp, t_ref_tmp, k_irreversible_tmp
-    character (len=40),dimension(nspecies) :: name_input_species
     character (len=800) :: smiles_tmp
-    character (len=40) :: aerosol_species_name_tmp, char1,char2
-    character (len=40) :: precursor_tmp
-    integer,dimension(nspecies) :: index_species_ssh
-    
+    character (len=40) :: aerosol_species_name_tmp, char1,char2        
     character (len=4) :: partitioning_tmp
 
-    index_species_ssh(:)=-1
-
-    ! read gas-phase species namelist ! unit = 11
-    if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
-    if ( .not. allocated(species_name)) allocate(species_name(N_gas))
-
-    open(unit = 11, file = species_list_file, status = "old")
-    count = 0
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(11, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-
-    if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-    if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-    if (N_gas == count - 1) then   ! minus the first comment line
-       if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
-       if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
-    else 
-       write(*,*) 'Given gas-phase species list does not fit chem() setting.'
-       stop
-    end if
-
-    rewind 11
-    read(11, *)  ! read the first comment line
-    do s = 1, N_gas
-       read(11, *) species_name(s), molecular_weight(s)
-    enddo
-    close(11)
-
-    ! read aerosol species namelist ! unit = 12
-    open(unit = 12, file = aerosol_species_list_file, status = "old")
-    count = 0
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(12, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-    if (ssh_standalone) write(*,*) 'read aerosol species list.'
-    if (ssh_logger) write(logfile,*) 'read aerosol species list.'
-    N_count = count - 1  ! minus the first comment line
-    N_aerosol = nspecies
-
-    if ( .not. allocated(aerosol_species_name)) allocate(aerosol_species_name(N_aerosol))
-    spec_name_len = len(aerosol_species_name(1))
-    if ( .not. allocated(Index_groups)) allocate(Index_groups(N_aerosol))
-    if ( .not. allocated(aerosol_type)) allocate(aerosol_type(N_aerosol))
-    if ( .not. allocated(index_species)) allocate(index_species(N_aerosol,nlayer))
-    ! initialize basic physical and chemical parameters
-    if ( .not. allocated(molecular_weight_aer)) allocate(molecular_weight_aer(N_aerosol))
-    if ( .not. allocated(collision_factor_aer)) allocate(collision_factor_aer(N_aerosol))
-    if ( .not. allocated(molecular_diameter)) allocate(molecular_diameter(N_aerosol)) 
-    if ( .not. allocated(surface_tension)) allocate(surface_tension(N_aerosol))
-    if ( .not. allocated(accomodation_coefficient)) allocate(accomodation_coefficient(N_aerosol))
-    if ( .not. allocated(mass_density)) allocate(mass_density(N_aerosol))
-    if ( .not. allocated(inon_volatile)) allocate(inon_volatile(N_aerosol))
-    if ( .not. allocated(smiles)) allocate(smiles(N_aerosol))
-    if ( .not. allocated(aerosol_hydrophilic)) allocate(aerosol_hydrophilic(N_aerosol))
-    if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
-
-    if ( .not. allocated(saturation_vapor_pressure)) allocate(saturation_vapor_pressure(N_aerosol))
-    if ( .not. allocated(enthalpy_vaporization)) allocate(enthalpy_vaporization(N_aerosol))    
-    
-    if ( .not. allocated(partitioning)) allocate(partitioning(N_aerosol))
-    
-    if ( .not. allocated(Vlayer)) allocate(Vlayer(nlayer))    
-    ! relation between Aerosol and GAS
-    if ( .not. allocated(aerosol_species_interact)) allocate(aerosol_species_interact(N_aerosol))      
-    aerosol_species_interact = 0
-    inon_volatile = 0
-
-    ! Read lines from aerosol species file.
-    rewind 12
-    count = 0
-    s = 0
-    read(12, *) ! Read a header line (#)
-    do icoun = 1, N_count     
-       ! Surface_tension for organic and aqueous phases of organic aerosols
-       ! is hardly coded in SOAP/parameters.cxx
-       ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-       !read(12, *) aerosol_species_name(s), aerosol_type(s), &
-       !     Index_groups(s), molecular_weight_aer(s), &
-       !     precursor, &
-       !     collision_factor_aer(s), molecular_diameter(s), &
-       !     surface_tension(s), accomodation_coefficient(s), &
-       !     mass_density(s), inon_volatile(s)
-       read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
-            Index_groups_tmp, molecular_weight_aer_tmp, &
-            precursor_tmp, &
-            collision_factor_aer_tmp, molecular_diameter_tmp, &
-            surface_tension_tmp, accomodation_coefficient_tmp, &
-            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
-            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
-            henry_tmp, t_ref_tmp, irrerversible_name_tmp, k_irreversible_tmp
-
-       found_spec=0
-       do j=1,nspecies          
-          if (name_input_species(j)=="H2SO4") name_input_species(j)="SO4"
-          if (name_input_species(j)=="NH3") name_input_species(j)="NH4"
-          if (name_input_species(j)=="HNO3") name_input_species(j)="NO3"
-          if (name_input_species(j)=="WATER") name_input_species(j)="H2O"
-          if (trim(aerosol_species_name_tmp)==trim(name_input_species(j)) &
-               .or.trim(aerosol_species_name_tmp)=="P"//trim(name_input_species(j))) then
-             found_spec=1
-             index_species_ssh(j)=s+1
-          endif
-       enddo
-       if (found_spec==0) then
-          !print*,trim(aerosol_species_name_tmp)," not found"
-       else
-          !print*,trim(aerosol_species_name_tmp)," found"
-          s=s+1
-          aerosol_species_name(s)=aerosol_species_name_tmp
-          aerosol_type(s)=aerosol_type_tmp
-          Index_groups(s)=Index_groups_tmp
-          molecular_weight_aer(s)=molecular_weight_aer_tmp
-          precursor=precursor_tmp
-          collision_factor_aer(s)=collision_factor_aer_tmp
-          molecular_diameter(s)=molecular_diameter_tmp
-          surface_tension(s)=surface_tension_tmp
-          accomodation_coefficient(s)=accomodation_coefficient_tmp
-          mass_density(s)=mass_density_tmp
-          inon_volatile(s)=inon_volatile_tmp
-          partitioning(s)=partitioning_tmp
-          smiles(s)=smiles_tmp
-          saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
-          enthalpy_vaporization(s)=enthalpy_vaporization_tmp
-          henry(s)=henry_tmp
-          t_ref(s)=t_ref_tmp
-          irreversible_name(s)=irrerversible_name_tmp
-          k_irreversible(s)=k_irreversible_tmp
-
-          aerosol_hydrophilic(s)=0
-          if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
-             aerosol_hydrophilic(s)=1
-          endif
-          if (aerosol_type(s)==3) then
-             aerosol_hydrophilic(s)=1
-          endif
-
-          aerosol_hydrophobic(s)=0
-          if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
-             aerosol_hydrophobic(s)=1
-          endif
-
-          if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
-             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
-             stop
-          endif
-          
-          if((partitioning(s).NE."HPHO").AND.(partitioning(s).NE."HPHI").AND.(partitioning(s).NE."BOTH").AND. &
-             (trim(partitioning(s)).NE."--")) then
-             write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
-             stop
-          endif
-          
-          ! Find pairs of aerosol species and its precursor.
-          ind = 0
-          do js = 1, N_gas
-             if (species_name(js) .eq. trim(precursor)) then
-                aerosol_species_interact(s) = js
-                count = count + 1
-                ind = 1
-             endif
-             if (ind == 1) exit
-          enddo
-          !! Check if a precursor name is found in the list of gas-phase species.
-          if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-                 trim(aerosol_species_list_file), trim(precursor)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-                 trim(aerosol_species_list_file), trim(precursor)
-             stop
-          endif
-       endif
-    enddo
-    close(12)
-
-    do s=1,nspecies
-       if (index_species_ssh(s)<0) print*,trim(name_input_species(s))," not found"
-    enddo
-
-    
-
-    if ( .not. allocated(oligo_index)) allocate(oligo_index(N_aerosol))
-    if ( .not. allocated(frac_oligo)) allocate(frac_oligo(N_aerosol))
-    oligo_index=0
-    do s=1,N_aerosol
-       char1=aerosol_species_name(s)       
-       do s2=1,N_aerosol
-          char2=aerosol_species_name(s2)
-          if (trim(char2(2:))=="Oligo"//trim(char1(2:))) then
-             oligo_index(s)=s2
-          endif
-       enddo
-    enddo       
-    
-    ! Safety check if index_groups is used
-    if (tag_external.eq.1) then
-       if (minval(Index_groups(1:N_aerosol_Layers-1)).lt.1) then
-          if (ssh_standalone) write(*,*) "Error: Incorrect group index in aerosol_species_list_file."    
-          if (ssh_logger) write(logfile,*) "Error: Incorrect group index in aerosol_species_list_file."  
-          stop
-       endif
-       if (maxval(Index_groups(1:N_aerosol_Layers-1)).gt.N_groups) then
-          if (ssh_standalone) write(*,*) "Error: Increase N_groups in namelist file."
-          if (ssh_logger) write(logfile,*) "Error: Increase N_groups in namelist file."
-          stop
-       endif
+    if (nspecies>0) then
+       index_species_ssh(:)=-1
     endif
-    if (ssh_standalone) write(*,*) "   --- Number of precursors: ", count 
-    if (ssh_logger) write(logfile,*) "   --- Number of precursors: ", count 
-    
-    ! Count the number of species for each type.
-    N_inert = 0
-    nesp_isorropia = 0
-    nesp_aec = 0
-    do s = 1, N_aerosol
-       ! Inert aerosols: BC and mineral dust
-       if (aerosol_type(s) == 1 .or. aerosol_type(s) == 2) then
-          N_inert = N_inert + 1
-       ! Inorganic species   
-       else if (aerosol_type(s) == 3) then
-          nesp_isorropia = nesp_isorropia + 1
-       ! Organic species   
-       else if (aerosol_type(s) == 4) then
-          nesp_aec = nesp_aec + 1
-       ! Water   
-       else if (aerosol_type(s) == 9) then
-          EH2O = s
-       end if
-    end do
-    N_inorganic = nesp_isorropia
-    N_organics = nesp_aec
-    
-    if (ssh_standalone) write(*,*) "   --- Number of inert species:", N_inert
-    if (ssh_logger) write(logfile,*) "   --- Number of inert species:", N_inert
-    if (ssh_standalone) write(*,*) "   --- Number of inorganic species:", N_inorganic
-    if (ssh_logger) write(logfile,*) "   --- Number of inorganic species:", N_inorganic
-    if (ssh_standalone) write(*,*) "   --- Number of organic species:", N_organics
-    if (ssh_logger) write(logfile,*) "   --- Number of organic species:", N_organics
-    if (ssh_standalone) write(*,*) "   --- Index for water:", EH2O
-    if (ssh_logger) write(logfile,*) "   --- Index for water:", EH2O
-
-    ! Allocate aerosol arrays
-    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    N_aerosol_layers = N_organics * ((nlayer-1)+i_hydrophilic) + N_aerosol
-    EH2O_layers = N_aerosol_layers
-    if ( .not. allocated(mass_density_layers)) allocate(mass_density_layers(N_aerosol_layers))
-    if ( .not. allocated(List_species)) allocate(List_species(N_aerosol_layers))
-    if ( .not. allocated(layer_number)) allocate(layer_number(N_aerosol_layers))
-    if ( .not. allocated(isorropia_species)) allocate(isorropia_species(nesp_isorropia))
-    if ( .not. allocated(isorropia_species_name)) allocate(isorropia_species_name(nesp_isorropia))
-    if ( .not. allocated(aec_species)) allocate(aec_species(nesp_aec))
-    if ( .not. allocated(aec_species_name)) allocate(aec_species_name(nesp_aec))
-
-    ! Read aerosol species name.
-    js = 0
-    i = 0
-    do s = 1, N_aerosol
-       if (aerosol_type(s) == 3) then
-          i = i + 1
-          isorropia_species_name(i) = aerosol_species_name(s)
-          isorropia_species(i) = s
-       else if (aerosol_type(s) == 4) then
-          js = js + 1
-          aec_species_name(js) = aerosol_species_name(s)
-          aec_species(js) = s
-       endif
-    end do
-
-    ECO3=-1
-    do s = 1, N_aerosol
-       ! For non-organic species.
-       if (s <= N_nonorganics) then
-          mass_density_layers(s) = mass_density(s)
-          molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
-          List_species(s) = s
-          if (aerosol_species_name(s) .eq. "PNA") ENa = s
-          if (aerosol_species_name(s) .eq. "PSO4") ESO4 = s
-          if (aerosol_species_name(s) .eq. "PNH4") ENH4 = s
-          if (aerosol_species_name(s) .eq. "PNO3") ENO3 = s
-          if (aerosol_species_name(s) .eq. "PHCL") ECl = s
-          if (aerosol_species_name(s) .eq. "PBiPER") ind_jbiper = s
-          if (aerosol_species_name(s) .eq. "PCO3") ECO3 = s
-
-          do ilayer=1,(nlayer + i_hydrophilic)
-             index_species(s,ilayer) = s
-          enddo
-          layer_number(s) = 1
-       ! For organic species
-       else
-          molecular_weight_aer(s) = molecular_weight_aer(s) * 1.0D06 ! g/mol to \B5g/mol  !!! change later
-          if(s.NE.N_aerosol) then !avoid water
-             do ilayer = 0,(nlayer-1 + i_hydrophilic)
-                esp_layer = (s-N_nonorganics-1) *(nlayer-1+i_hydrophilic) + s + ilayer
-                index_species(s,ilayer+1) = esp_layer
-                mass_density_layers(esp_layer) = mass_density(s)
-                List_species(esp_layer) = s
-                !               molecular_weight_aer(esp_layer) = molecular_weight_aer(s)
-                !!aerosol_species_name(esp_layer) = aerosol_species_name(s)
-                !Index_groups(esp_layer) = Index_groups(s)
-                !               mass_density(esp_layer) = mass_density(s)
-                layer_number(esp_layer) = ilayer
-             enddo
-          else
-             List_species(N_aerosol_layers) = s
-             do ilayer=1,(nlayer + i_hydrophilic)
-                index_species(N_aerosol,ilayer) = N_aerosol_layers 
-             enddo
-             layer_number(N_aerosol_layers) = 1
-          endif
-       endif
-    enddo
-
-    if(with_nucl.EQ.1) then
-          inon_volatile(ESO4) = 1 ! sulfate needs to be computed dynamically in case of nucleation
-    endif
-    ! read gas-phase initial concentrations unit 21
-    ! no comment lines for initial & emitted data
-    if ( .not. allocated(concentration_gas_all)) allocate(concentration_gas_all(N_gas))
-    concentration_gas_all = 0.d0 ! set original value to 0
-    if ( .not. allocated(concentration_gas)) allocate(concentration_gas(N_aerosol))
-    concentration_gas=0.d0
-
-    open(unit = 21, file = init_gas_conc_file, status = "old")
-    count = 0 
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(21, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-    count = count - 1 ! minus comment line
-
-    rewind 21
-
-    read(21,*)
-    do s= 1, count
-       read(21,*) ic_name, tmp
-       ind = 0
-       do js = 1, N_gas
-          if (species_name(js) .eq. ic_name) then
-             concentration_gas_all(js) = tmp
-             write(*,*) concentration_gas_all(js),'js',ic_name
-             ind = 1
-          endif
-          if (ind == 1) exit
-       enddo
-       if (ind .eq. 0) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-       endif
-    enddo
-    close(21)
-    if (ssh_standalone) write(*,*) 'gas concentrations have been read'
-    if (ssh_logger) write(logfile,*) 'gas concentrations have been read'
-
-    if (tag_init == 0) then  ! change if species list and init are not in the same order
-       ! Read aerosol initial mass concentrations unit 22
-       ! internally mixed : mass for each sizebin of each species is given
-       open(unit = 22, file = init_aero_conc_mass_file, status = "old") 
-       count = 0
-       ierr = 0
-       do while(ierr .eq. 0)
-          read(22, *, iostat=ierr)
-          if (ierr == 0) count = count + 1
-       end do
-       count = count - 1 ! minus comment line
-       if ( .not. allocated(init_mass)) allocate(init_mass(N_aerosol))   ! aerosol initial mass concentrations inti_mass for each species
-       init_mass = 0.d0
-       if ( .not. allocated(init_bin_mass)) allocate(init_bin_mass(N_sizebin,N_aerosol))
-       init_bin_mass = 0.d0
-       if ( .not. allocated(tmp_aero)) allocate(tmp_aero(N_sizebin))
-       tmp_aero = 0.d0
-       aero_total_mass = 0.d0
-       rewind 22
-
-       read(22,*)
-       do s= 1, count
-          read(22,*) ic_name, (tmp_aero(k), k = 1, N_sizebin)
-          ind = 0
-          do js = 1, N_aerosol
-             if (aerosol_species_name(js) .eq. ic_name) then
-                do k=1, N_sizebin
-                   init_bin_mass(k,js) = tmp_aero(k)
-                   init_mass(js)=init_mass(js) + tmp_aero(k)
-                   aero_total_mass = aero_total_mass +  init_mass(js) !total mass
-                enddo
-                ind = 1
-             endif
-             if (ind  == 1) exit
-          enddo
-          if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong aerosol species name is given ", &
-                 trim(init_aero_conc_mass_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong aerosol species name is given ", &
-                 trim(init_aero_conc_mass_file), trim(ic_name)
-          endif
-       enddo
-
-       close(22)
-
-       if (ssh_standalone) write(*,*) 'initial mass concentrations have been read'
-       if (ssh_logger) write(logfile,*) 'initial mass concentrations have been read'
-    else if (tag_init == 1) then ! mixing_state resolved
-       ! need to fill in the future
-       write(*,*) "Tag_init = 1, mixing_state resolved - not yet available"
-       stop
-    end if
-
-    ! Read aerosol initial number concentrations unit 23
-    ! auto-generate or read number and size bins distributions
-
-    if (with_init_num == 1) then
-       if (tag_init == 0) then
-          open(unit = 23, file = init_aero_conc_num_file, status = "old") 
-          read(23,*, iostat = ierr) ! read comment line
-          read(23,*, iostat = ierr) ic_name, init_bin_number
-          close(23)
-          if (ierr == 0) then
-             if (ssh_standalone) write(*,*) "Aerosol number conc. is read."
-             if (ssh_logger) write(logfile,*) "Aerosol number conc. is read."
-             if (ssh_standalone) write(*,*) "Aerosol initial number conc. distribution :", init_bin_number
-             if (ssh_logger) write(logfile,*) "Aerosol initial number conc. distribution :", init_bin_number
-          else 
-             write(*,*) "Aerosol number conc. can not be read from file ",trim(init_aero_conc_num_file)
-             stop
-          end if
-       else if (tag_init == 1) then
-          write(*,*) 'with_init_num == 1 .and. tag_init == 1 - not yet build'
-          stop
-       end if
-    end if
-
-    ! read aerosol structure file
-    if (aerosol_structure_file.ne."---") then
-      open(unit = 25, file = aerosol_structure_file, status = "old")
-        ! count comment lines and the number of input aerosol structures
-        count = 0 
-        ierr = 0
-        nline = 0
-        do while(ierr .eq. 0)
-           read(25, *, iostat=ierr) tmp_name
-           if (ierr == 0) then
-              ! read comment lines
-              if (trim(tmp_name) .eq. "#") then
-                 nline = nline + 1
-              else
-                 count = count + 1
-              end if
-           end if
-        end do
-        ! read
-        rewind 25
-        do s = 1, nline
-           read(25, *) ! read comment lines.
-        end do
-        if ( .not. allocated(tmp_fgls)) allocate(tmp_fgls(60)) !read unifac founctional groups (60)
-        do s= 1, count
-           ! name, unifac groups
-           read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
-           do js=1, N_aerosol
-              if (aerosol_species_name(js).eq.ic_name) then
-                 ! update smiles in the format &1.23E+02&1.00E+01&...
-                 smiles(js)='' !init
-                 do k=1, 60 !update
-                    write(char1,'(A1,ES8.2)') "&",tmp_fgls(k)
-                    smiles(js)=trim(smiles(js))//trim(char1)
-                 enddo
-                 !print*,aerosol_species_name(js),smiles(js)
-              endif
-           enddo
-        enddo
-      close(25)
-    endif
-
-    ! ! ! ! ! ! 
-    if (tag_emis == 1) then  ! with internal emission 
-
-       if ( .not. allocated(emis_bin_mass)) allocate(emis_bin_mass(N_sizebin,N_aerosol))
-       emis_bin_mass = 0.d0
-       if ( .not. allocated(gas_emis)) allocate(gas_emis(N_gas))
-       gas_emis = 0.d0
-       ! read gas emission concentrations unit 31
-       open(unit=31, file = emis_gas_file, status = "old")
-       count = 0
-       ierr = 0
-       do while(ierr .eq. 0)
-          read(31, *, iostat=ierr)
-          if (ierr == 0) count = count + 1
-       end do
-       count = count - 1 ! minus comment line
-       if (ssh_standalone) write(*,*) "Number of emitted gas-phase species:", count
-       if (ssh_logger) write(logfile,*) "Number of emitted gas-phase species:", count
-
-       rewind 31
-       read(31,*)
-       do s = 1, count
-          read(31, *) ic_name, tmp
-          ind = 0
-          do js = 1, N_gas
-             if (species_name(js) .eq. ic_name) then
-                gas_emis(js) = tmp
-                ind = 1
-                !if (ssh_standalone) write(*,*) 'gas_emis', species_name(js), gas_emis(js)
-                !if (ssh_logger) write(logfile,*) 'gas_emis', species_name(js), gas_emis(js)
-             endif
-             if (ind == 1) exit
-          enddo
-          if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
-                 trim(init_gas_conc_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
-                 trim(init_gas_conc_file), trim(ic_name)
-          end if
-       end do
-
-       close(31)
-
-       ! Read aerosol emission concentrations unit 32
-       tmp_aero = 0.d0
-       open(unit=32, file = emis_aero_mass_file, status = "old")
-       count = 0
-       ierr = 0
-       do while(ierr .eq. 0)
-          read(32, *, iostat=ierr)
-          if (ierr == 0) count = count + 1
-       end do
-       count = count - 1 ! minus comment line
-       if (ssh_standalone) write(*,*) "Number of emitted aerosols species:", count
-       if (ssh_logger) write(logfile,*) "Number of emitted aerosols species:", count
-
-       rewind 32
-       read(32,*)
-       if (Tag_init .eq. 0) then
-          do s=1, count
-             read(32,*, iostat = ierr) ic_name, (tmp_aero(k),k=1,N_sizebin)
-             if (ierr .ne. 0) then
-                write(*,*) "Error when reading ic_name."
-                stop
-             endif
-             ind = 0
-             do js = 1, N_aerosol
-                if (aerosol_species_name(js) == ic_name) then
-                   do k = 1, N_sizebin
-                      emis_bin_mass(k,js) = tmp_aero(k)
-                   end do
-                   ind = 1
-                end if
-                if (ind ==1) exit
-             end do
-             if (ind == 0 .and. ssh_standalone) write(*,*) 'Not find the emission species', &
-                 trim(emis_aero_mass_file), trim(ic_name)
-             if (ind == 0 .and. ssh_logger) write(logfile,*) 'Not find the emission species', &
-                 trim(emis_aero_mass_file), trim(ic_name)
-          enddo
-          if (ssh_standalone) write(*,*) "Emission mass conc. has been read."
-          if (ssh_logger) write(logfile,*) "Emission mass conc. has been read."
-       else if (tag_init .eq. 1) then ! external mixed
-          if (ssh_standalone) write(*,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
-          if (ssh_logger) write(logfile,*) "Not yet build -- tag_emis == 1 and tag_init == 1" 
-          tag_emis = 0
-       endif
-       close(32)
-
-       ! Read aerosol number emission concentrations unit 33 if need
-       if (with_emis_num == 1) then
-          open(unit=33, file = emis_aero_num_file, status = "old")
-          read(33,*, iostat=ierr)    
-          read(33,*, iostat=ierr) ic_name, emis_bin_number
-          close(33)
-          if (ierr .eq. 0) then
-	     if (ssh_standalone) write(*,*) "Emission number conc. has been read."
-	     if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
-	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
-	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
-          else 
-             write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
-             stop
-          end if
-       end if
-
-    else if  (tag_emis == 2) then
-       write(*,*) "Not yet build -- with externally-mixed emissions -- tag_emis = 2" 
-       ! 1 mixing_state resolved !! option 1 not yet available)
-       stop
-    end if
-
-    ! Initialize Vlayer  !! Need to be removed from SOAP
-    if(nlayer == 1) then
-       Vlayer(1)=1.0
-    else 
-       if(nlayer == 2) then
-          Vlayer(1)=0.99
-          Vlayer(2)=0.01
-       else 
-          if(nlayer == 3) then
-             Vlayer(1)=0.6
-             Vlayer(2)=0.39
-             Vlayer(3)=0.01
-          else 
-             if(nlayer == 4) then
-                Vlayer(1)=0.6
-                Vlayer(2)=0.26
-                Vlayer(3)=0.13
-                Vlayer(4)=0.01
-             else 
-                if (nlayer == 5) then
-                   Vlayer(1)=0.608
-                   Vlayer(2)=0.2184165
-                   Vlayer(3)=0.12102374
-                   Vlayer(4)=0.04255976
-                   Vlayer(5)=0.01
-                else
-                   if (ssh_standalone) write(*,*) "Number of layers not implemented in ssh"
-                   if (ssh_logger) write(logfile,*) "Number of layers not implemented in ssh"
-                endif
-             endif
-          endif
-       endif
-    endif
-   
-    if(nlayer > 1) then ! Consider non-volatile species in SOAP
-        do i = 1, N_aerosol
-           if(i.NE.ESO4) inon_volatile(i) = 0
-        enddo
-    endif
-
-    ! read input file for photolysis rate (unit 34)
-    if ( .not. allocated(photolysis_name)) allocate(photolysis_name(n_photolysis))
-    if ( .not. allocated(photolysis_reaction_index)) allocate(photolysis_reaction_index(n_photolysis))
-    if ( .not. allocated(photolysis_rate)) allocate(photolysis_rate(n_photolysis))
-    photolysis_rate = 0.d0
-
-    if (option_photolysis .ne. 1) then !do not read photolysis file if not needed     
-      open(unit = 34, file = photolysis_file, status = "old")
-      count = 0 
-      ierr = 0
-      nline = 0
-      do while(ierr .eq. 0)
-         read(34, *, iostat=ierr) tmp_name
-         if (ierr == 0) then
-            if (trim(tmp_name) .eq. "#") then
-               nline = nline + 1
-            else
-               count = count + 1
-            end if
-         end if
-      end do
-  
-      if (count .ne. n_photolysis) then
-         write(*,*) "Error: number of files for photolysis rate should be ", &
-              n_photolysis
-         write(*,*) "However, the number of given files is ", count
-         stop
-      end if
-         
-      rewind 34
-      do s = 1, nline
-         read(34, *) ! read comment lines.
-      end do
-      do s = 1, count
-         read(34, *) photolysis_name(s), photolysis_reaction_index(s)
-         if (photolysis_name(s) == "BiPER") then
-            ind_kbiper = s    ! photolysis index for BiPER
-         end if
-      end do
-      close(34)
-      
-    else
-      do s = 1, n_photolysis
-        photolysis_name(s) = "useless"
-        photolysis_reaction_index(s) = s
-      end do
-    
-    endif
-
-    if(nucl_model_hetero == 1) then
-       do s=1,nesp_org_h2so4_nucl
-          !ifound = 0
-          do i = 1,N_aerosol
-             write(*,*) aerosol_species_name(i),name_org_h2so4_nucl_species(s)
-             if(aerosol_species_name(i) == name_org_h2so4_nucl_species(s)) then
-                org_h2so4_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Nucl. species found",aerosol_species_name(i),i
-                if (ssh_logger) write(logfile,*) "Nucl. species found",aerosol_species_name(i),i
-           !     ifound = 1
-             endif
-           enddo
-       enddo
-       STOP
-    endif
-
-    if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
-    if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
-
-    if (allocated(tmp_aero))  deallocate(tmp_aero)
-    if (allocated(tmp_fgls))  deallocate(tmp_fgls)
-  end subroutine ssh_read_inputs_spec
-
-
-  subroutine ssh_read_inputs()
-
-
-    implicit none
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, s2
-    double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
-    character (len=40) :: ic_name, sname, tmp_name, char1, char2
-  
     
     ! read gas-phase species namelist ! unit = 11
     if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
@@ -2134,8 +1423,12 @@ contains
     end do
     if (ssh_standalone) write(*,*) 'read aerosol species list.'
     if (ssh_logger) write(logfile,*) 'read aerosol species list.'
-    N_aerosol = count - 1  ! minus the first comment line
-    
+    N_count = count - 1  ! minus the first comment line
+    if (nspecies>0) then
+       N_aerosol = nspecies
+    else
+       N_aerosol = N_count
+    endif
 
     if ( .not. allocated(aerosol_species_name)) allocate(aerosol_species_name(N_aerosol))
     spec_name_len = len(aerosol_species_name(1))
@@ -2173,9 +1466,9 @@ contains
     rewind 12
     count = 0
     read(12, *, iostat = ierr) ! Read a header line (#)
-    
-    do s = 1, N_aerosol
 
+    s=0
+    do icoun = 1, N_count       
 
        if ((aerosol_species_list_file == "species-list-aer-mcm-bcary.dat") .or. &
             (aerosol_species_list_file == "species-list-aer-mcm-bcary-fgl.dat") .or. &
@@ -2184,71 +1477,116 @@ contains
        ! Surface_tension for organic and aqueous phases of organic aerosols
        ! is hardly coded in SOAP/parameters.cxx
        ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-          read(12, *) aerosol_species_name(s), aerosol_type(s), &
-               Index_groups(s), molecular_weight_aer(s), &
-               precursor, &
-               collision_factor_aer(s), molecular_diameter(s), &
-               surface_tension(s), accomodation_coefficient(s), &
-               mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
-               saturation_vapor_pressure(s),enthalpy_vaporization(s)
-          t_ref(s)=0.
-          henry(s)=0.
-          k_irreversible(s)=0.
-          irreversible_name(s)="--"
+          read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
+            Index_groups_tmp, molecular_weight_aer_tmp, &
+            precursor, &
+            collision_factor_aer_tmp, molecular_diameter_tmp, &
+            surface_tension_tmp, accomodation_coefficient_tmp, &
+            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
+            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
+          t_ref_tmp=0.
+          henry_tmp=0.
+          k_irreversible_tmp=0.
+          irreversible_name_tmp="--"
        else
-          read(12, *) aerosol_species_name(s), aerosol_type(s), &
-               Index_groups(s), molecular_weight_aer(s), &
-               precursor, &
-               collision_factor_aer(s), molecular_diameter(s), &
-               surface_tension(s), accomodation_coefficient(s), &
-               mass_density(s), inon_volatile(s), partitioning(s), smiles(s), &
-               saturation_vapor_pressure(s),enthalpy_vaporization(s), &
-               henry(s), t_ref(s), irreversible_name(s), k_irreversible(s)
+          read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
+            Index_groups_tmp, molecular_weight_aer_tmp, &
+            precursor, &
+            collision_factor_aer_tmp, molecular_diameter_tmp, &
+            surface_tension_tmp, accomodation_coefficient_tmp, &
+            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
+            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
+            henry_tmp, t_ref_tmp, irreversible_name_tmp, k_irreversible_tmp
        endif
 
-       aerosol_hydrophilic(s)=0
-       if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
-          aerosol_hydrophilic(s)=1
-       endif
-       if (aerosol_type(s)==3) then
-          aerosol_hydrophilic(s)=1
+       if (nspecies==0) then
+          found_spec=1
+       else
+          found_spec=0
+          do j=1,nspecies          
+             if (name_input_species(j)=="H2SO4") name_input_species(j)="SO4"
+             if (name_input_species(j)=="NH3") name_input_species(j)="NH4"
+             if (name_input_species(j)=="HNO3") name_input_species(j)="NO3"
+             if (name_input_species(j)=="WATER") name_input_species(j)="H2O"
+             if (trim(aerosol_species_name_tmp)==trim(name_input_species(j)) &
+                  .or.trim(aerosol_species_name_tmp)=="P"//trim(name_input_species(j))) then
+                found_spec=1
+                index_species_ssh(j)=s+1
+             endif
+          enddo
        endif
 
-       aerosol_hydrophobic(s)=0
-       if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
-          aerosol_hydrophobic(s)=1
-       endif
+       if (found_spec>0) then
+          s=s+1
+          aerosol_species_name(s)=aerosol_species_name_tmp
+          aerosol_type(s)=aerosol_type_tmp
+          Index_groups(s)=Index_groups_tmp
+          molecular_weight_aer(s)=molecular_weight_aer_tmp
+          collision_factor_aer(s)=collision_factor_aer_tmp
+          molecular_diameter(s)=molecular_diameter_tmp
+          surface_tension(s)=surface_tension_tmp
+          accomodation_coefficient(s)=accomodation_coefficient_tmp
+          mass_density(s)=mass_density_tmp
+          inon_volatile(s)=inon_volatile_tmp
+          partitioning(s)=partitioning_tmp
+          smiles(s)=smiles_tmp
+          saturation_vapor_pressure(s)=saturation_vapor_pressure_tmp
+          enthalpy_vaporization(s)=enthalpy_vaporization_tmp
+          henry(s)=henry_tmp
+          t_ref(s)=t_ref_tmp
+          irreversible_name(s)=irreversible_name_tmp
+          k_irreversible(s)=k_irreversible_tmp
 
-        if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
-            write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
-            stop
-        endif
-        if((partitioning(s).NE."HPHO").AND.(partitioning(s).NE."HPHI").AND.(partitioning(s).NE."BOTH").AND. &
-           (trim(partitioning(s)).NE."--")) then
-           write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
-           stop
-        endif
-       ! Find pairs of aerosol species and its precursor.
-       ind = 0
-       do js = 1, N_gas
-          if (species_name(js) .eq. trim(precursor)) then
-             aerosol_species_interact(s) = js
-             count = count + 1
-             ind = 1
+          aerosol_hydrophilic(s)=0
+          if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophilic(s)=1
           endif
-          if (ind == 1) exit
-       enddo
-       !! Check if a precursor name is found in the list of gas-phase species.
-       if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-              trim(aerosol_species_list_file), trim(precursor)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-              trim(aerosol_species_list_file), trim(precursor)
-          stop
+          if (aerosol_type(s)==3) then
+             aerosol_hydrophilic(s)=1
+          endif
+
+          aerosol_hydrophobic(s)=0
+          if (trim(partitioning(s))=="HPHO".or.trim(partitioning(s))=="BOTH") then
+             aerosol_hydrophobic(s)=1
+          endif
+
+          if((inon_volatile(s).NE.1).AND.(inon_volatile(s).NE.0)) then
+             write(*,*) "non_volatile should be 0 or 1", inon_volatile(s),s
+             stop
+          endif
+          if((partitioning(s).NE."HPHO").AND.(partitioning(s).NE."HPHI").AND.(partitioning(s).NE."BOTH").AND. &
+               (trim(partitioning(s)).NE."--")) then
+             write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
+             stop
+          endif
+          ! Find pairs of aerosol species and its precursor.
+          ind = 0
+          do js = 1, N_gas
+             if (species_name(js) .eq. trim(precursor)) then
+                aerosol_species_interact(s) = js
+                count = count + 1
+                ind = 1
+             endif
+             if (ind == 1) exit
+          enddo
+          !! Check if a precursor name is found in the list of gas-phase species.
+          if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+                  trim(aerosol_species_list_file), trim(precursor)
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
+                  trim(aerosol_species_list_file), trim(precursor)
+             stop
+          endif
        endif
     enddo
     close(12)
-    
+
+    if (nspecies>0) then
+       do s=1,nspecies
+          if (index_species_ssh(s)<0) print*,trim(name_input_species(s))," not found"
+          stop
+       enddo
+    endif
     
     ! Safety check if index_groups is used
     if (tag_external.eq.1) then

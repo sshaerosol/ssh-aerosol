@@ -145,7 +145,7 @@ module SSHaerosolAPI
       
       ! Read inputs
       
-      call ssh_read_inputs()
+      call ssh_read_inputs(0)
       
       
       ! Read meteo
