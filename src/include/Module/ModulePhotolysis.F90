@@ -151,18 +151,13 @@ contains
     integer :: i
     
     ! Set time angle for photolysis rate
-    time_angle_min = 0.d0
-    delta_time_angle = 1.d0
-    n_time_angle = 9
+
     if ( .not. allocated(time_angle_photolysis)) allocate(time_angle_photolysis(n_time_angle))
     do i = 1, n_time_angle    
        time_angle_photolysis(i) = time_angle_min + i * delta_time_angle
     end do
 
     ! Set latitude for photolysis rate
-    latitude_min = 0.d0
-    delta_latitude = 10.d0
-    n_latitude = 10
     if ( .not. allocated(latitude_photolysis)) allocate(latitude_photolysis(n_latitude))
     do i = 1, n_latitude    
        latitude_photolysis(i) = latitude_min + i * delta_latitude
