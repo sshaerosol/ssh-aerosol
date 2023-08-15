@@ -25,6 +25,7 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
   double tiny_henry=1.0e-10;
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
+  double viscosity=0.;
 
   std::ofstream outFlux;  
   if (config.SOAPlog==2)
@@ -72,11 +73,11 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
           X_unifac(surrogate[config.iH2O].index_gamma_aq)=
 	    1.0-X_unifac(surrogate[i].index_gamma_aq);
           unifac_ssh(config.nmol_aq,config.nfunc_aq,config.groups_aq,
-		     X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
+		     X_unifac,config.Inter2_aq,config.logInter2_aq, //config.InterB_aq,config.InterC_aq,
 		     config.RG_aq,
 		     config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
 		     config.group_activity_molaq,
-		     config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);
+		     config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy,false,config.ln_eta0_aq,viscosity,config.param_aiomfac_viscaq);
           surrogate[i].GAMMAinf=gamma_unifac(surrogate[i].index_gamma_aq);
           
           //cout << "Ginf " << surrogate[i].name << " " << surrogate[i].GAMMAinf << endl;
@@ -371,7 +372,7 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
   int i,iphase;
   int n=surrogate.size();
 
-  if (config.constant_dorg) //the organic phase coefficient diffusion is assumed constant
+  if (config.compute_viscosity==false) //the organic phase coefficient diffusion is assumed constant
     {
       if (config.explicit_representation)
 	{
@@ -393,8 +394,8 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
   else
     {
       //In this method the organic phase coefficient diffusion is computed from the viscosity of the mixture
-      //The viscosity of the mixture is computed from the viscosity of each compound with a VBN method
-      double molecular_radius=1.0e-10;
+      //The viscosity of the mixture is computed from AIOMFAC-visc
+     
       double mo=0.0;
       for (i=0;i<n;++i)
 	if (surrogate[i].hydrophobic)
@@ -404,34 +405,68 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
       //double dorg;
       if (mo>config.MOmin*config.Vlayer(ilayer))
 	{
-	  double VBN=0.0;
 	  double volume=0.0;
+	  double visco=0.0;
+	  int b2;
+	  double radius=0.;
+	  double sum1=0.;
 	  for (i=0;i<n;++i)
-	    if (surrogate[i].hydrophobic)
-	      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		{
-		  VBN+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/mo*(14.534*log(log(surrogate[i].viscosity+0.8))+10.975);
-		  volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].rho;
-		}
+	    if (surrogate[i].is_organic or i==config.iH2O)
+	      if (surrogate[i].hydrophobic)
+		for (b2=b;b2<config.nbins;++b2)
+		  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		    {
+		      visco+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].rho*config.viscosity_layer(b,ilayer,iphase);
+		      volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].rho;
+		      radius+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM*surrogate[i].hydrodynamic_radius;
+		      sum1+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM;
+		    }
+	  
+	  if (visco>0)
+	    visco=visco/volume;
 
-	  double rho=mo/volume;
-	  double visco=(exp(exp((VBN-10.975)/14.534))-0.8)*1.0e-6*rho;
-	  if (config.explicit_representation)
-	    {
-	      for (i=0;i<n;++i)
-		if (surrogate[i].is_organic)
-		  surrogate[i].dif_org(b,ilayer)=1.38e-23*298.0/(6.0*3.14159*molecular_radius*visco);
-		else
-		  surrogate[i].dif_org(b,ilayer)=1.0e-12;
-	    }
+	  if (sum1>0)
+	    radius=radius/sum1;
 	  else
+	    radius=5.e-10;
+	  
+	  //cout << visco << endl;
+	  //cout << "radius: " << radius << endl;
+
+	  if (visco==0)
 	    {
-	      for (i=0;i<n;++i)
-		if (surrogate[i].is_organic)
-		  surrogate[i].KDiffusion_p=1.38e-23*298.0/(6.0*3.14159*molecular_radius*visco);
-		else
+	      if (config.explicit_representation)
+		for (i=0;i<n;++i)
+		  surrogate[i].dif_org(b,ilayer)=1.0e-12;
+	      else
+		for (i=0;i<n;++i)
 		  surrogate[i].KDiffusion_p=1.0e-12;
+		
+	      cout << "error visc is zero" << endl;
+	      exit(0);
 	    }
+	  else	  
+	    if (config.explicit_representation)
+	      {
+		for (i=0;i<n;++i)
+		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)		   
+		    surrogate[i].dif_org(b,ilayer)=1.38e-23*298.0/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
+		  else
+		    surrogate[i].dif_org(b,ilayer)=1.0e-12;
+	      }
+	    else
+	      {
+		for (i=0;i<n;++i)
+		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		    {
+		      surrogate[i].KDiffusion_p=1.38e-23*298.0/(6.0*3.14159*radius*visco);
+		      //cout << surrogate[i].name << " " << surrogate[i].KDiffusion_p << " " << endl;
+		    }
+		  else
+		    surrogate[i].KDiffusion_p=1.0e-12;
+		//cout << visco << " " << log10(visco) << endl;
+		//exit(0);
+	      }
 	}
       else
 	if (config.explicit_representation)
@@ -993,7 +1028,7 @@ double species::Kp_eff_aqreal_ssh(model_config &config,
 
 void activity_coefficients_org_ssh(model_config &config, vector<species>& surrogate,
 				   bool all_hydrophobic, double &Temperature,
-				   double &MOW)
+				   double &MOW, double &viscosity)
 {
   //compute the activity coefficients with UNIFAC (short range interactions) for the organic phase
   //MOW: mean molar mass of the organic phase
@@ -1037,6 +1072,8 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
               {
                 sumX_unifac+=surrogate[i].Xorg;
                 X_unifac(surrogate[i].index_gamma_org)+=surrogate[i].Xorg;
+		if (config.compute_viscosity)
+		   config.ln_eta0_org(surrogate[i].index_gamma_org)=surrogate[i].ln_eta0;
               }
           }
         else
@@ -1044,6 +1081,8 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
             {
               sumX_unifac+=surrogate[i].Xorg;
               X_unifac(surrogate[i].index_gamma_tot)+=surrogate[i].Xorg;
+	      if (config.compute_viscosity)
+		config.ln_eta0_tot(surrogate[i].index_gamma_tot)=surrogate[i].ln_eta0;
             }
       }
   
@@ -1072,11 +1111,12 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
       if (all_hydrophobic==false)
 	{
 	  unifac_ssh(config.nmol_org,config.nfunc_org,config.groups_org,
-		     X_unifac,config.Inter2_org, //config.InterB_org,config.InterC_org,
+		     X_unifac,config.Inter2_org,config.logInter2_org, //config.InterB_org,config.InterC_org,
 		     config.RG_org,
 		     config.QG_org,config.Rparam_org,config.Qparam_org,config.Lparam_org,                 
 		     config.group_activity_molorg,
-		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
+		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy,
+		     config.compute_viscosity,config.ln_eta0_org,viscosity,config.param_aiomfac_viscorg);
 
 	  for (i=0;i<n;++i)
 	    {
@@ -1089,11 +1129,12 @@ void activity_coefficients_org_ssh(model_config &config, vector<species>& surrog
       else
 	{
 	  unifac_ssh(config.nmol_tot,config.nfunc_tot,config.groups_tot,
-		     X_unifac,config.Inter2_tot, //config.InterB_tot,config.InterC_tot,
+		     X_unifac,config.Inter2_tot,config.logInter2_tot, //config.InterB_tot,config.InterC_tot,
 		     config.RG_tot,
 		     config.QG_tot,config.Rparam_tot,config.Qparam_tot,config.Lparam_tot,         
 		     config.group_activity_moltot,
-		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
+		     config.Z,Temperature,gamma_unifac,config.temperature_dependancy,
+		     config.compute_viscosity,config.ln_eta0_tot,viscosity,config.param_aiomfac_visctot);
 
 	  for (i=0;i<n;++i)
 	    {
@@ -1128,7 +1169,7 @@ void activity_coefficients_dyn_org_bins_ssh(model_config &config, vector<species
           surrogate[i].Ap=surrogate[i].Ap_layer_init(b,ilayer,iphase);
 	
         activity_coefficients_org_ssh(config, surrogate, false, Temperature,
-                                      MOW(b,ilayer,iphase));
+                                      MOW(b,ilayer,iphase), config.viscosity_layer(b,ilayer,iphase));
         for (i=0;i<n;++i)
           surrogate[i].gamma_org_layer(b,ilayer,iphase)=surrogate[i].gamma_org;
       }
@@ -1146,6 +1187,7 @@ void activity_coefficients_dyn_org_ssh(model_config &config, vector<species>& su
   Array<double, 1> X_unifac,gamma_unifac;
 
   int b,ilayer,iphase;
+  double viscosity;
   
   if (config.use_global_dynamic_parameters)
     {
@@ -1159,7 +1201,11 @@ void activity_coefficients_dyn_org_ssh(model_config &config, vector<species>& su
                 for (b=0;b<config.nbins;++b)
                   surrogate[i].Ap+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
             }
-          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOWtemp);
+          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOWtemp,viscosity);
+	  if (config.compute_viscosity)
+	    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	      for (b=0;b<config.nbins;++b)
+		config.viscosity_layer(b,ilayer,iphase)=viscosity;
 		  
           for (i=0;i<n;++i)
             for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -1189,6 +1235,7 @@ void activity_coefficients_dyn_sat_ssh(model_config &config, vector<species>& su
   Array<double, 1> X_unifac,gamma_unifac;
 
   int b,ilayer,iphase;
+  double viscosity;
   
   if (config.use_global_dynamic_parameters)
     {
@@ -1202,7 +1249,7 @@ void activity_coefficients_dyn_sat_ssh(model_config &config, vector<species>& su
                 for (b=0;b<config.nbins;++b)
                   surrogate[i].Ap+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
             }
-          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOWtemp);
+          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOWtemp, viscosity);
 		  
           for (i=0;i<n;++i)
             for (ilayer=0;ilayer<config.nlayer;++ilayer)
@@ -1222,7 +1269,7 @@ void activity_coefficients_dyn_sat_ssh(model_config &config, vector<species>& su
             surrogate[i].Ap=surrogate[i].Ap_layer_init(b2,ilayer2,iphase);
 		  
           activity_coefficients_org_ssh(config, surrogate, false, Temperature,
-					MOW(b2,ilayer2,iphase));
+					MOW(b2,ilayer2,iphase),viscosity);
           for (i=0;i<n;++i)
             surrogate[i].gamma_org_layer(b2,ilayer2,iphase)=surrogate[i].gamma_org;
         }
@@ -1353,7 +1400,7 @@ void compute_ionic_strenght2_ssh(model_config &config, vector<species>& surrogat
 
 void activity_coefficients_saturation_ssh(model_config &config, vector<species>& surrogate,
 					  bool all_hydrophobic,double &Temperature,
-					  Array <double, 1> &MOW)
+					  Array <double, 1> &MOW, double &viscosity)
 {
   //compute the activity coefficients with UNIFAC (short range interactions) for the organic phase
   //MOW: mean molar mass of the organic phase
@@ -1363,6 +1410,8 @@ void activity_coefficients_saturation_ssh(model_config &config, vector<species>&
   int nphase=MOW.size();
   double sum,sumX_unifac;
   Array<double, 1> X_unifac,gamma_unifac;
+
+  viscosity=0.;
 
   //initialization of X_unifac
   if (all_hydrophobic==false)
@@ -1399,6 +1448,8 @@ void activity_coefficients_saturation_ssh(model_config &config, vector<species>&
                   {
                     sumX_unifac+=surrogate[i].Xorg_sat(j);
                     X_unifac(surrogate[i].index_gamma_org)+=surrogate[i].Xorg_sat(j);
+		    if (config.compute_viscosity)
+		      config.ln_eta0_org(surrogate[i].index_gamma_org)=surrogate[i].ln_eta0;
                   }
               }
             else
@@ -1406,6 +1457,8 @@ void activity_coefficients_saturation_ssh(model_config &config, vector<species>&
                 {
                   sumX_unifac+=surrogate[i].Xorg_sat(j);
                   X_unifac(surrogate[i].index_gamma_tot)+=surrogate[i].Xorg_sat(j);
+		  if (config.compute_viscosity)
+		    config.ln_eta0_tot(surrogate[i].index_gamma_tot)=surrogate[i].ln_eta0;
                 }
           }
   
@@ -1435,11 +1488,12 @@ void activity_coefficients_saturation_ssh(model_config &config, vector<species>&
 	  if (all_hydrophobic==false)
 	    {
 	      unifac_ssh(config.nmol_org,config.nfunc_org,config.groups_org,
-			 X_unifac,config.Inter2_org, //config.InterB_org,config.InterC_org,
+			 X_unifac,config.Inter2_org,config.logInter2_org, //config.InterB_org,config.InterC_org,
 			 config.RG_org,
 			 config.QG_org,config.Rparam_org,config.Qparam_org,config.Lparam_org,
 			 config.group_activity_molorg,
-			 config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
+			 config.Z,Temperature,gamma_unifac,config.temperature_dependancy,
+			 config.compute_viscosity,config.ln_eta0_org,viscosity,config.param_aiomfac_viscorg);
 
 	      for (i=0;i<n;++i)
 		{
@@ -1452,11 +1506,12 @@ void activity_coefficients_saturation_ssh(model_config &config, vector<species>&
 	  else
 	    {
 	      unifac_ssh(config.nmol_tot,config.nfunc_tot,config.groups_tot,
-			 X_unifac,config.Inter2_tot, //config.InterB_tot,config.InterC_tot,
+			 X_unifac,config.Inter2_tot,config.logInter2_tot, //config.InterB_tot,config.InterC_tot,
 			 config.RG_tot,
 			 config.QG_tot,config.Rparam_tot,config.Qparam_tot,config.Lparam_tot,
 			 config.group_activity_moltot,
-			 config.Z,Temperature,gamma_unifac,config.temperature_dependancy);
+			 config.Z,Temperature,gamma_unifac,config.temperature_dependancy,
+			 config.compute_viscosity,config.ln_eta0_tot,viscosity,config.param_aiomfac_visctot);
               
 	      for (i=0;i<n;++i)
 		{
@@ -2022,6 +2077,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
 
   //Call of unifac
   int iHp=-1;
+  double viscosity=0.;
   if (sumX_unifac>0.0 and config.activity_model=="unifac")
     {
       if (config.SR_ions)
@@ -2092,11 +2148,12 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
       else
 	{
 	  unifac_ssh(config.nmol_aq,config.nfunc_aq,config.groups_aq,
-		     X_unifac,config.Inter2_aq, //config.InterB_aq,config.InterC_aq,
+		     X_unifac,config.Inter2_aq,config.logInter2_aq, //config.InterB_aq,config.InterC_aq,
 		     config.RG_aq,
 		     config.QG_aq,config.Rparam_aq,config.Qparam_aq,config.Lparam_aq,
 		     config.group_activity_molaq,
-		     config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy);          
+		     config.Z,surrogate[i].Tref,gamma_unifac,config.temperature_dependancy,
+		     false,config.ln_eta0_aq,viscosity,config.param_aiomfac_viscaq);          
 
 	  for (i=0;i<n;++i)
 	    {
@@ -2587,4 +2644,244 @@ void Kpreal_inorganic_ssh(model_config &config, vector<species>& surrogate, doub
       surrogate[config.iCO2].Kaq_inorg=surrogate[config.iCO2].kpi*RH*(surrogate[config.iCO2].keq/chp*(1.+(surrogate[config.iCO2].keq2/(chp))));
     }
   
+}
+
+
+void compute_Tg(model_config &config, vector<species>& surrogate)
+{
+  // Compute the glass transition temperature surrogate[i].Tg
+  // Computation of Tb according to AIOMFAC-visc (taken from the code on github)
+  double nCO = 12.13, bC = 10.95, bH = -41.82, bCH = 21.61, bO = 118.96, bCO = -24.38;
+  double nCO_k = 1.96, bC_k = 61.99, bH_k = -113.33, bCH_k = 28.74;
+  Array<int, 1> nc_group,no_group,nh_group,nn_group;
+
+  double default_structure[60]={0.69,12.74,0.0,0.0, // group C
+                                0.0,0.0,0.0,0.0, // group C[OH] 
+                                0.0,0.0,0.0,0.0, // group Clacohol
+				0.0,0.0,0.0,0.0, // group Clacohol-tail
+                                0.0,0.05,0.0,0.0,0.0, //group C=C
+                                1.42,0.86, //group aromatic carbon (AC)
+                                0.0,0.15,0.0, // group //AC-C
+                                0.0,  //group OH
+                                0.0, //group H2O
+                                0.15, //group ACOH
+                                0.15,0.0, //group ketone
+                                0.0,   //group aldehyde  
+                                0.0,0.0, //group ester
+                                0.30,0.0,0.0, //group ether
+                                1.01,  //group acid
+                                0.0,   //group ACNO2
+                                0.0,0.0,0.0, //group NO3
+                                0.0,0.0,0.0, //group CO-OH
+				0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				0.0, //group PAN
+                                0.0, //group peroxyacetyl acid
+                                0.0, //group O=COC=O
+                                0.0,0.0,0.0}; // CHxNO2
+  
+  nc_group.resize(60);
+  no_group.resize(60);
+  nn_group.resize(60);
+  nh_group.resize(60);  
+  nc_group=1;
+  no_group=0;
+  nh_group=0;
+  nn_group=0;
+  nh_group(0)=3;
+  nh_group(1)=2;
+  nh_group(2)=1;
+  nh_group(4)=3;
+  nh_group(5)=2;
+  nh_group(6)=1;
+  nh_group(8)=3;
+  nh_group(9)=2;
+  nh_group(10)=1;
+  nh_group(12)=3;
+  nh_group(13)=2;
+  nh_group(14)=1;
+  nc_group(16)=2;
+  nh_group(16)=3;
+  nc_group(17)=2;
+  nh_group(17)=2;
+  nh_group(18)=3;
+  nc_group(18)=2;
+  nh_group(19)=1;
+  nc_group(19)=2;
+  nc_group(20)=2;
+  nh_group(21)=1;
+  nh_group(23)=3;
+  nc_group(23)=2;
+  nh_group(24)=2;
+  nc_group(24)=2;
+  nh_group(25)=1;
+  nc_group(25)=2;
+  nh_group(26)=1;
+  nc_group(26)=0;
+  no_group(26)=1;
+  nc_group(27)=0;
+  no_group(28)=1;
+  nh_group(28)=1;
+  nc_group(29)=2;
+  no_group(29)=1;
+  nh_group(29)=3;
+  nc_group(30)=2;
+  no_group(30)=1;
+  nh_group(30)=2;
+  no_group(31)=1;
+  nh_group(31)=1;
+  nc_group(32)=2;
+  no_group(32)=2;
+  nh_group(32)=3;
+  nc_group(33)=2; 
+  no_group(33)=2;
+  nh_group(33)=2;
+  no_group(34)=1;
+  nh_group(34)=3;
+  no_group(35)=1;
+  nh_group(35)=2;
+  no_group(36)=1;
+  nh_group(36)=1;
+  no_group(37)=2;
+  nh_group(37)=1;
+  no_group(38)=2;
+  nn_group(38)=1;
+  no_group(39)=3;
+  nn_group(39)=1;
+  nh_group(39)=2;
+  no_group(40)=3;
+  nn_group(40)=1;
+  nh_group(40)=1;
+  no_group(41)=3;
+  nn_group(41)=1;
+  no_group(42)=2;
+  nh_group(42)=3;
+  no_group(43)=2;
+  nh_group(43)=2;
+  no_group(44)=2;
+  nh_group(44)=1;
+  no_group(45)=2;
+  nc_group(45)=2;
+  nh_group(45)=5;
+  no_group(46)=2;
+  nc_group(46)=2;
+  nh_group(46)=4;
+  no_group(47)=2;
+  nc_group(47)=2;
+  nh_group(47)=3;
+  no_group(48)=2;
+  nc_group(48)=2;
+  nh_group(48)=4;
+  no_group(49)=2;
+  nc_group(49)=2;
+  nh_group(49)=3;
+  no_group(50)=2;
+  nc_group(50)=2;
+  nh_group(50)=2;
+  no_group(51)=2;
+  nc_group(51)=2;
+  nh_group(51)=2;
+  no_group(52)=2;
+  nc_group(52)=2;
+  nh_group(52)=1;
+  no_group(53)=2;
+  nc_group(53)=2;
+  no_group(54)=5;
+  nn_group(54)=1;
+  no_group(55)=3;
+  nh_group(55)=1;
+  no_group(56)=3;
+  nc_group(56)=2;
+  no_group(57)=2;
+  nh_group(57)=3;
+  nn_group(57)=1;
+  no_group(58)=2;
+  nh_group(58)=2;
+  nn_group(58)=1;
+  no_group(59)=2;
+  nh_group(59)=1;
+  nn_group(59)=1;
+
+  int n=surrogate.size();
+  int i,igroup;
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic)
+      {
+	int nC=0;
+	int nH=0;
+	int nO=0;
+	for(igroup=0;igroup<60;igroup++)
+	  {
+	    nC+=surrogate[i].groups[igroup]*nc_group(igroup);
+	    nH+=surrogate[i].groups[igroup]*nh_group(igroup);
+	    nO+=surrogate[i].groups[igroup]*(no_group(igroup)+nn_group(igroup)); //AIOMFAC-visc does not for N in Tb computation. N are put in O
+	  }
+
+	if (nC+nH+nO==0)  //No given structure use the default structure
+	  for(igroup=0;igroup<60;igroup++)
+	    {
+	      nC+=default_structure[igroup]*nc_group(igroup);
+	      nH+=default_structure[igroup]*nh_group(igroup);
+	      nO+=default_structure[igroup]*(no_group(igroup)+nn_group(igroup)); //AIOMFAC-visc does not for N in Tb computation. N are put in O
+	    }
+
+	//choose the constants for the Tg model based on if the compound has oxygens or not
+	if (nO < 1.0) 
+	  surrogate[i].Tg = bC_k*(nCO_k + log(nC)) + bH_k*log(nH) + bCH_k*log(nC)*log(nH);
+	else
+	  //Shiraiwa et al. group model used to calculate Tg (DeRieux et al. 2018), eqn (2)
+	  surrogate[i].Tg = bC*(nCO + log(nC)) + bH*log(nH) + bCH*log(nC)*log(nH) + bO*log(nO) + bCO*log(nC)*log(nO);
+      }
+
+}
+
+void VogelTemperature(model_config &config, vector<species>& surrogate, double Temperature)
+{
+  /*
+Taken for AIOMFAC-visco git hub
+    Calculation of Tno in [K] using the Vogel-Tamman-Fulcher equation in the form      
+    used by DeRieux et al. 2018. Fragility (D) is determined by the temperature of the run.                                                                               *
+  */
+  int i,n;
+  n=surrogate.size();
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic)
+      {
+	if (Temperature<surrogate[i].Tg)
+	  surrogate[i].fragility_parameter=30.;
+	else
+	  surrogate[i].fragility_parameter=10.; //AIOMFAC-visc reasonable guess for organics (Shiraiwa et al., 2017)
+	surrogate[i].Tno=(surrogate[i].Tg*39.17)/(surrogate[i].fragility_parameter+39.17); //(DeRieux et al. 2018) eqn (7)
+      }
+}
+
+
+void compute_pure_viscosity(model_config &config, vector<species>& surrogate, double Temperature)
+{
+  /*
+Taken for AIOMFAC-visco git hub
+    Calculation of pure-component dynamic viscosity (eta0) in Pascal seconds [Pa.s]    
+     at a given temperature T [K]. Output is in form of ln(eta0/[Pa s]).                
+     [cP] = 0.01 [Poise] = 0.01 [g/(cm.s)] = 0.001 [Pa.s] = 0.001 [N.s/m^2]             
+    */
+  int i,n;
+  n=surrogate.size();
+  VogelTemperature(config, surrogate, Temperature);
+  for (i=0;i<n;i++)
+    if (surrogate[i].is_organic)
+      {
+	surrogate[i].ln_eta0 = log(10.)*( -5.0 + 0.434*(surrogate[i].fragility_parameter*surrogate[i].Tno/(Temperature - surrogate[i].Tno)));    //DeRieux et al. 2018, eqn (6)
+	//cout << surrogate[i].name << " visco " << exp(surrogate[i].ln_eta0) << " Pa/s" << " " << log10(exp(surrogate[i].ln_eta0)) << endl; 
+      }
+    else if (i==config.iH2O)
+      {
+	//slightly modified from AIOMFAC-visc for T<230K
+	double a = 225.66;
+	double b = 1.3788e-4;
+	double c = -1.6433;
+	//formula for T above 230K
+	surrogate[i].ln_eta0 = log(b) +c*log((max(Temperature,230.)/a) - 1.0);
+	//cout << surrogate[i].name << " visco " << exp(surrogate[i].ln_eta0) << " Pa/s" << endl; 
+      }
+  //exit(0);
+
 }

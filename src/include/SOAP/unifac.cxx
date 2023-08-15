@@ -7,15 +7,17 @@
 #define UNIFAC_CXX
 
 void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 1> &Xmol,
-	    Array<double, 2> &Inter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
+	    Array<double, 2> &Inter2,  Array<double, 2> &logInter2, //Array<double, 2> &InterB, Array<double, 2> &InterC, 
 	    Array<double,1> &RG, Array <double, 1> &QG,
 	    Array<double, 1> &Rparam, Array <double, 1> &Qparam, Array <double,1> &Lparam,
 	    Array <double, 2> &group_activity_mol,
 	    double &Z, double &Temperature, Array<double,1> &gamma, 
-	    bool temperature_dependancy)
+	    bool temperature_dependancy, bool compute_viscosity, Array<double,1> &ln_eta0, double &viscosity,
+		Array<double, 1> &param_aiomfac_visc)
 {  
   double xmin=1.0e-11;
   double xtot=0.0;
+  viscosity=0.;
   int i,j,k;
   
   for (i=0;i<nmols;i++)
@@ -67,7 +69,13 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
           theta_org(i)/=sumtheta;
           phi_org(i)/=sumphi;           
           gamma(i)=log(phi_org(i)/Xmol(i))+Z/2*Qparam(i)*log(theta_org(i)/phi_org(i))+Lparam(i)-phi_org(i)/Xmol(i)*Lmean; 
-        }      
+        }
+
+      if (compute_viscosity)
+	{
+	  for (i=0;i<nmols;i++)
+	    viscosity+=exp(gamma(i))*Xmol(i)*ln_eta0(i);
+	}
       
       //Compute surface fraction  
       double sum_surf=0.0;
@@ -108,7 +116,90 @@ void unifac_ssh(int &nmols, int &nfunc, Array<double, 2> &groups, Array<double, 
           gamma(i)+=sum1;	  
         }
       gamma=exp(gamma);
-      
+
+      if (compute_viscosity)
+	{
+	  double viscosity_tmp=0;
+	  static Array <double, 1> surface_fraction_pure,sum2_pure;
+
+	  if (int(surface_fraction_pure.size())!=nfunc)
+	    {
+	      surface_fraction_pure.resize(nfunc);
+	      sum2_pure.resize(nfunc);
+	    }
+
+	  
+	  double sum_vol=0.;
+	  for (i=0;i<nmols;i++)
+	    for (j=0;j<nfunc;j++)
+	      if (groups(j,i)>0.0)
+		{
+		  sum_vol+=RG(j)*groups(j,i)*Xmol(i);		    
+		}
+	  
+	  
+	  for (i=0;i<nmols;i++)
+	    {
+	      double residual_viscosity=0.;
+	      double residual_viscosity_pure=0.;
+	      surface_fraction_pure=0.;
+	      sum_surf=0.;
+	      for (j=0;j<nfunc;j++)
+		if (groups(j,i)>0.0)
+		  {
+		    surface_fraction_pure(j)+=QG(j)*groups(j,i);
+		    sum_surf+=QG(j)*groups(j,i);		    
+		  }
+	      
+	      for (j=0;j<nfunc;j++)      
+		surface_fraction_pure(j)/=sum_surf;
+
+	      for (j=0;j<nfunc;j++)
+		{
+		  sum2_pure(j)=0.0;
+		  for (k=0;k<nfunc;k++)
+		    sum2_pure(j)+=surface_fraction_pure(k)*Inter2(k,j);
+		}
+
+	      /*
+	      if (Xmol(i)>0)
+		{
+		  cout << surface_fraction_pure << " " << surface_fraction_org << endl;
+		  cout << sum2_pure << " " << sum2_org << endl;
+		  exit(0);
+		}*/
+	
+	      for (j=0;j<nfunc;j++)
+		if (groups(j,i)>0.0)
+		  {
+		    double param1=0.;
+		    for (k=0;k<nfunc;k++)
+		      param1+=surface_fraction_pure(k)*Inter2(k,j)/sum2_pure(j)*logInter2(k,j);
+		    residual_viscosity_pure+=groups(j,i)*QG(j)/RG(j)*QG(j)*param_aiomfac_visc(i)*param1;
+		  }      
+	      
+	      for (j=0;j<nfunc;j++)
+		if (groups(j,i)>0.0)
+		  {
+		    double param1=0.;
+		    for (k=0;k<nfunc;k++)
+		      param1+=surface_fraction_org(k)*Inter2(k,j)/sum2_org(j)*logInter2(k,j);   
+		    residual_viscosity+=groups(j,i)*QG(j)/RG(j)*QG(j)*param_aiomfac_visc(i)*param1;		  
+		  }
+
+	      double volume_fraction=0.;
+	      for (j=0;j<nfunc;j++)
+		if (groups(j,i)>0.0)
+		  {
+		    volume_fraction+=RG(j)*groups(j,i)*Xmol(i);		    
+		  }
+	      volume_fraction=volume_fraction/sum_vol;
+	      
+	      viscosity_tmp+=(residual_viscosity-residual_viscosity_pure)*volume_fraction;
+	    }
+	  viscosity=exp(viscosity+viscosity_tmp);
+
+	}
     }
 }
 

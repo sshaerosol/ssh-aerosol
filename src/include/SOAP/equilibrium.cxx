@@ -273,6 +273,7 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
   int i;
   double MO=0.0;
   double Kp;
+  double viscosity;
 
   MOinit=max(MOinit,config.MOmin);
 
@@ -280,7 +281,7 @@ void error_org_ssh(model_config &config, vector<species>& surrogate,double &MOin
   if(config.compute_organic)
     {
       if (compute_activity_coefficients)
-        activity_coefficients_org_ssh(config, surrogate, all_hydrophobic, Temperature, MOW);
+        activity_coefficients_org_ssh(config, surrogate, all_hydrophobic, Temperature, MOW, viscosity);
 
       derivative=1.0;
       for (i=0;i<n;++i)
@@ -1705,6 +1706,7 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
   double Kp;
   double XH2O;
   double chp2=chp;
+  double viscosity;
 
   //if (config.compute_rho_aqueous)
   //compute_density_aqueous_phase_ssh(config, surrogate, LWC, Temperature);
@@ -1738,7 +1740,7 @@ void error_coupled_ssh(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
+        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW, viscosity);
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O,conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -2075,6 +2077,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
   double Kp;
   double XH2O;
   double chp2=chp;
+  double viscosity;
   //double conc_org_save;
 
   //if (config.compute_rho_aqueous)
@@ -2110,7 +2113,7 @@ void error_coupled_inorg_ssh(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
+        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW, viscosity);
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -2740,6 +2743,7 @@ void error_saturation_ssh(model_config &config, vector<species>& surrogate,
   MO.resize(nphase);
   double Kp;
   double XH2O;
+  double viscosity;
 
   //initialize AQ and MO
   AQ=0.0;
@@ -2766,7 +2770,7 @@ void error_saturation_ssh(model_config &config, vector<species>& surrogate,
   //compute acitivity coefficients, MOW and MMaq
   if (compute_activity_coefficients)
     {
-      activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW);
+      activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW, viscosity);
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -3132,6 +3136,7 @@ void error_saturation_hydrophobic_ssh(model_config &config, vector<species>& sur
   Array <double, 1> MO;
   MO.resize(nphase);
   double Kp;
+  double viscosity;
 
   //initialize AQ and MO
   for (i=0;i<nphase;++i)
@@ -3149,7 +3154,7 @@ void error_saturation_hydrophobic_ssh(model_config &config, vector<species>& sur
   
   //compute acitivity coefficients and MOW
   if (compute_activity_coefficients)
-    activity_coefficients_saturation_ssh(config, surrogate, true, Temperature, MOW);
+    activity_coefficients_saturation_ssh(config, surrogate, true, Temperature, MOW, viscosity);
   
   Array<double, 1> Kp_org;
   Kp_org.resize(nphase);

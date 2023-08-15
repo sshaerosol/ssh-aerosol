@@ -182,6 +182,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
   config.nbins = nbin;
   config.tequilibrium = tequilibrium;
   config.dorg = dorg;
+  if (config.dorg>0 or nlayer==1)
+    config.compute_viscosity=false;
+  else
+    config.compute_viscosity=true;
   config.deltatmin = dtaeromin;
   config.EPSER = epser_soap;  
   config.nlayer=nlayer;

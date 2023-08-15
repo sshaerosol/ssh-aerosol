@@ -974,7 +974,7 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
   MOinit=0.0;
   AQinit=LWC;
   double fion1,fion2;
-  double XH2O;
+  double XH2O,viscosity;
 
   for (i=0;i<n;++i)
     {
@@ -995,9 +995,9 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
     {
       if (config.compute_organic)
         if (LWC>config.LWClimit)
-          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
+          activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW, viscosity);
         else
-          activity_coefficients_org_ssh(config, surrogate, true, Temperature, MOW);          
+          activity_coefficients_org_ssh(config, surrogate, true, Temperature, MOW, viscosity);          
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -1139,7 +1139,7 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW);
+        activity_coefficients_org_ssh(config, surrogate, false, Temperature, MOW, viscosity);
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -1241,6 +1241,7 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
   AQinit=LWC;
   double fion1,fion2;
   double XH2O;
+  double viscosity;
 
   for (i=0;i<n;++i)
     {
@@ -1262,9 +1263,9 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
     {
       if (config.compute_organic)
         if (LWC>config.LWClimit)
-          activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW);       
+          activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW, viscosity);       
         else
-          activity_coefficients_saturation_ssh(config, surrogate, true, Temperature, MOW); 
+          activity_coefficients_saturation_ssh(config, surrogate, true, Temperature, MOW, viscosity); 
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);
@@ -1377,7 +1378,7 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
   if (compute_activity_coefficients)
     {
       if (config.compute_organic)
-        activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW);
+        activity_coefficients_saturation_ssh(config, surrogate, false, Temperature, MOW, viscosity);
       activity_coefficients_aq_ssh(config, surrogate, Temperature, LWC, MMaq, XH2O, conc_org);
       if (config.compute_long_and_medium_range_interactions)
         activity_coefficients_LR_MR_ssh(config, surrogate, Temperature, LWC, ionic);

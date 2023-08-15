@@ -1156,19 +1156,41 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
       config.surface_fraction_molorg.resize(config.nfunc_org,config.nmol_org); 
       config.sum2mol_org.resize(config.nfunc_org,config.nmol_org);
       config.group_activity_molorg.resize(config.nfunc_org,config.nmol_org);
+      config.param_aiomfac_viscorg.resize(config.nmol_org);
       config.group_activity_molorg=0.;
       config.sum2mol_org=0.;
       config.surface_fraction_molorg=0.;
+      config.param_aiomfac_viscorg=0.;
+      config.ln_eta0_org.resize(config.nmol_org);
+     
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_organic)
+	  {
+	    surrogate[i].hydrodynamic_radius=pow(1./(1000.*surrogate[i].rho/surrogate[i].MM*6.02e23)*3./4/3.14159,1./3);
+	    //cout << surrogate[i].name << " " << surrogate[i].hydrodynamic_radius << endl;
+	  }
+	else if (i==config.iH2O)
+	  {
+	    //assumes that water creates cluster of 4 molecules
+	    surrogate[i].hydrodynamic_radius=pow(1./(1000.*surrogate[i].rho/surrogate[i].MM*6.02e23)*3./4/3.14159/4,1./3);
+	    //cout << surrogate[i].name << " " << surrogate[i].hydrodynamic_radius << endl;	    
+	  }
+      
       for (i=0;i<config.nmol_org;i++)
         {
           double sum_surf_mol=0.0;
+	  double volume_fraction=0.;
+	  double surface_fraction=0.;
           for (j=0;j<config.nfunc_org;j++)
             if (config.groups_org(j,i)>0.0)
               {                         
-                config.surface_fraction_molorg(j,i)+=config.QG_org(j)*config.groups_org(j,i);                
+                config.surface_fraction_molorg(j,i)+=config.QG_org(j)*config.groups_org(j,i);
+		volume_fraction+=config.RG_org(j)*config.groups_org(j,i);
+		surface_fraction+=config.QG_org(j)*config.groups_org(j,i); 
                 sum_surf_mol+=config.QG_org(j)*config.groups_org(j,i);  
               }
 
+	  config.param_aiomfac_viscorg(i)=(surface_fraction-volume_fraction)/2-(1-volume_fraction)/config.Z;
 	  /*
 	  cout << i << " " << sum_surf_mol << endl;
 	  if (sum_surf_mol==0.)
@@ -1328,15 +1350,23 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
       config.group_activity_molaq=0.;
       config.sum2mol_aq=0.;
       config.surface_fraction_molaq=0.;
+      config.param_aiomfac_viscaq.resize(config.nmol_aq);
+      config.param_aiomfac_viscaq=0.;
+      config.ln_eta0_tot.resize(config.nmol_aq);
       for (i=0;i<config.nmol_aq;i++)
         {
           double sum_surf_mol=0.0;
+	  double volume_fraction=0.0;
+	  double surface_fraction=0.0;
           for (j=0;j<config.nfunc_aq;j++)
             if (config.groups_aq(j,i)>0.0)
               {		
                 config.surface_fraction_molaq(j,i)+=config.QG_aq(j)*config.groups_aq(j,i);                
                 sum_surf_mol+=config.QG_aq(j)*config.groups_aq(j,i);  
+		volume_fraction+=config.RG_aq(j)*config.groups_aq(j,i);
+		surface_fraction+=config.QG_aq(j)*config.groups_aq(j,i); 
               }
+	  config.param_aiomfac_viscaq(i)=(surface_fraction-volume_fraction)/2-(1-volume_fraction)/config.Z;
 
           for (j=0;j<config.nfunc_aq;j++)      
             config.surface_fraction_molaq(j,i)/=sum_surf_mol;
@@ -1506,17 +1536,26 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
       config.sum2mol_tot.resize(config.nfunc_tot,config.nmol_tot);
       config.group_activity_moltot.resize(config.nfunc_tot,config.nmol_tot);
       config.group_activity_moltot=0.;
+      
       config.sum2mol_tot=0.;
       config.surface_fraction_moltot=0.;
+      config.param_aiomfac_visctot.resize(config.nmol_tot);
+      config.param_aiomfac_visctot=0.;
+      config.ln_eta0_tot.resize(config.nmol_tot);
       for (i=0;i<config.nmol_tot;i++)
         {
           double sum_surf_mol=0.0;
+	  double volume_fraction;
+	  double surface_fraction;
           for (j=0;j<config.nfunc_tot;j++)
             if (config.groups_tot(j,i)>0.0)
               {                         
                 config.surface_fraction_moltot(j,i)+=config.QG_tot(j)*config.groups_tot(j,i);                
-                sum_surf_mol+=config.QG_tot(j)*config.groups_tot(j,i);  
+                sum_surf_mol+=config.QG_tot(j)*config.groups_tot(j,i);         
+		volume_fraction+=config.RG_tot(j)*config.groups_tot(j,i);
+		surface_fraction+=config.QG_tot(j)*config.groups_tot(j,i); 
               }
+	  config.param_aiomfac_visctot(i)=(surface_fraction-volume_fraction)/2-(1-volume_fraction)/config.Z;
 
           for (j=0;j<config.nfunc_tot;j++)      
             config.surface_fraction_moltot(j,i)/=sum_surf_mol;
@@ -1528,6 +1567,9 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
   config.Inter2_aq.resize(config.nfunc_aq,config.nfunc_aq);
   config.Inter2_org.resize(config.nfunc_org,config.nfunc_org);
   config.Inter2_tot.resize(config.nfunc_tot,config.nfunc_tot);
+  config.logInter2_org.resize(config.nfunc_org,config.nfunc_org);
+  config.logInter2_tot.resize(config.nfunc_tot,config.nfunc_tot);
+  config.logInter2_aq.resize(config.nfunc_aq,config.nfunc_aq);
 }
 
 void check_config_ssh(model_config &config, vector<species>& surrogate)
@@ -1659,6 +1701,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
   int i;
   config.nphase.resize(config.nbins,config.nlayer);
   config.Vlayer.resize(config.nlayer);
+  config.viscosity_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
   config.alpha_layer.resize(config.nlayer);
   config.Alayer.resize(config.nlayer,4);
   if (config.explicit_representation)
@@ -2020,8 +2063,6 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
       //phase separation?
       config.use_global_dynamic_parameters=false; //Assume the same composition over all bins
       // and layers
-      
-      config.constant_dorg=true;
 
       config.explicit_representation=false;
       config.explicit_method=3;
@@ -2075,6 +2116,9 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
           surrogate[i].flux_chem_tot.resize(2);
         }
     }
+
+  if (config.compute_viscosity)
+    compute_Tg(config, surrogate);
 
 }
 

@@ -3713,6 +3713,10 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
       chp(b)=1.e-2;*/
   config.wat_min=0.;
 
+  config.viscosity_layer=0.;
+  if (config.compute_viscosity)
+    compute_pure_viscosity(config, surrogate, Temperature);
+
   for (i=0;i<n;i++)
     {
       surrogate[i].gamma_aq_bins=1.;          
@@ -3893,7 +3897,17 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
       else
 	for (j=0;j<config.nfunc_tot;j++)
 	  for (k=0;k<config.nfunc_tot;k++)          
-	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature); 
+	    config.Inter2_tot(j,k)=exp(-config.Inter_tot(j,k)/Temperature);
+
+      if (config.compute_viscosity)
+	if (config.temperature_dependancy)
+	  for (j=0;j<config.nfunc_tot;j++)
+	    for (k=0;k<config.nfunc_tot;k++)          
+	      config.logInter2_tot(j,k)=-config.Inter_tot(j,k)/Temperature+config.InterB_tot(j,k)*tval1+config.InterC_tot(j,k)*tval2;         
+	else
+	  for (j=0;j<config.nfunc_tot;j++)
+	    for (k=0;k<config.nfunc_tot;k++)          
+	      config.logInter2_tot(j,k)=-config.Inter_tot(j,k)/Temperature;
 
       for (i=0;i<config.nmol_tot;i++)
         for (j=0;j<config.nfunc_tot;j++)
@@ -3917,12 +3931,22 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
       if (config.temperature_dependancy)
 	for (j=0;j<config.nfunc_org;j++)
-	  for (k=0;k<config.nfunc_org;k++)          
+	  for (k=0;k<config.nfunc_org;k++)
 	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature+config.InterB_org(j,k)*tval1+config.InterC_org(j,k)*tval2);         
       else
 	for (j=0;j<config.nfunc_aq;j++)
 	  for (k=0;k<config.nfunc_aq;k++)          
-	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature); 
+	    config.Inter2_org(j,k)=exp(-config.Inter_org(j,k)/Temperature);
+
+      if (config.compute_viscosity)
+	if (config.temperature_dependancy)
+	  for (j=0;j<config.nfunc_org;j++)
+	    for (k=0;k<config.nfunc_org;k++)
+	      config.logInter2_org(j,k)=-config.Inter_org(j,k)/Temperature+config.InterB_org(j,k)*tval1+config.InterC_org(j,k)*tval2;         
+	else
+	  for (j=0;j<config.nfunc_aq;j++)
+	    for (k=0;k<config.nfunc_aq;k++)          
+	      config.logInter2_org(j,k)=-config.Inter_org(j,k)/Temperature;	
 
       for (i=0;i<config.nmol_org;i++)
         for (j=0;j<config.nfunc_org;j++)
@@ -4226,7 +4250,9 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
       surrogate[config.iOHm].Aaq_bins_init(b)=config.Ke/chp(b)*LWC(b)/1000.;
     else
       surrogate[config.iOHm].Aaq_bins_init(b)=0.;
-  
+
+  if (config.compute_viscosity)
+    activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
 }
 
 void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
