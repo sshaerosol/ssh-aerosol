@@ -218,7 +218,7 @@ namespace ssh_soap
 
     double Aginit,Aaqinit,Apinit;
     double deltat_exp;
-    double hydrodynamic_radius;
+    double hydrodynamic_radius,OoverC;
        
     int soap_ind; // Number in the aerosol species list
     int soap_ind_aero; // Number in the aerosol species list including layers

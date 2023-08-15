@@ -2824,6 +2824,8 @@ void compute_Tg(model_config &config, vector<species>& surrogate)
 	      nO+=default_structure[igroup]*(no_group(igroup)+nn_group(igroup)); //AIOMFAC-visc does not for N in Tb computation. N are put in O
 	    }
 
+	surrogate[i].OoverC=nO/nC;
+
 	//choose the constants for the Tg model based on if the compound has oxygens or not
 	if (nO < 1.0) 
 	  surrogate[i].Tg = bC_k*(nCO_k + log(nC)) + bH_k*log(nH) + bCH_k*log(nC)*log(nH);
@@ -2849,7 +2851,10 @@ Taken for AIOMFAC-visco git hub
 	if (Temperature<surrogate[i].Tg)
 	  surrogate[i].fragility_parameter=30.;
 	else
-	  surrogate[i].fragility_parameter=10.; //AIOMFAC-visc reasonable guess for organics (Shiraiwa et al., 2017)
+	  {
+	    surrogate[i].fragility_parameter=14.4-2.3*surrogate[i].OoverC; //https://doi.org/10.5194/acp-20-8201-2020 //10.; //AIOMFAC-visc reasonable guess for organics (Shiraiwa et al., 2017)
+	    //cout << surrogate[i].name << " " <<  surrogate[i].fragility_parameter << " " << surrogate[i].OoverC << endl;
+	  }
 	surrogate[i].Tno=(surrogate[i].Tg*39.17)/(surrogate[i].fragility_parameter+39.17); //(DeRieux et al. 2018) eqn (7)
       }
 }
