@@ -1746,7 +1746,7 @@ void solve_local_equilibriums_uncoupled_ssh(model_config config, vector<species>
       vec_error_aq(index)=error_aq;
 		  
       //Computation of characteristic times to reach equilibrium
-      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
       tau_kmt_ssh(config, surrogate, Temperature, number);
       /*      if (config.explicit_representation)
               compute_morphology_ssh(config, Vsol);*/
@@ -1762,9 +1762,9 @@ void solve_local_equilibriums_uncoupled_ssh(model_config config, vector<species>
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
       number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-      tau_dif_ssh(config, surrogate, number, Vsol);
+      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);  
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
       tau_kmt_ssh(config, surrogate, Temperature, number);
-      compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);     
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
       if (LWCtot>config.LWClimit)
         characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
@@ -2035,7 +2035,8 @@ void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &
       //cout << error_tot << " " << surrogate[config.iH2O].gamma_aq_bins << " " << chp << endl;
       //cout << config.gamma_MR_ions << endl;
       //Computation of characteristic times to reach equilibrium
-      tau_dif_ssh(config, surrogate, number, Vsol);
+      ; 
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
       tau_kmt_ssh(config, surrogate, Temperature, number);
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
@@ -2049,9 +2050,9 @@ void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
       number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-      tau_dif_ssh(config, surrogate, number, Vsol);
-      tau_kmt_ssh(config, surrogate, Temperature, number);
       compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
       if (LWCtot>config.LWClimit)
         characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
@@ -2331,7 +2332,7 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
 
       water_concentration_ssh(config, surrogate, Temperature, RH);
       
-      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
       tau_kmt_ssh(config, surrogate, Temperature, number);
       
 
@@ -2804,7 +2805,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 
       water_concentration_ssh(config, surrogate, Temperature, RH);
       
-      tau_dif_ssh(config, surrogate, number, Vsol);
+      tau_dif_ssh(config, surrogate, number, Vsol,Temperature);
       tau_kmt_ssh(config, surrogate, Temperature, number);
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
       if (LWCtot>config.LWClimit)
@@ -3416,7 +3417,7 @@ void solve_implicit_aqorg_repart_ssh(model_config config, vector<species> &surro
 
           water_concentration_ssh(config, surrogate, Temperature, RH);
       
-          tau_dif_ssh(config, surrogate, number, Vsol);
+          tau_dif_ssh(config, surrogate, number, Vsol,Temperature);
           tau_kmt_ssh(config, surrogate, Temperature, number);
 	  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
 	  if (LWCtot>config.LWClimit)
@@ -3682,9 +3683,9 @@ void solve_implicit_ssh(model_config config, vector<species> &surrogate,
   if (config.compute_saturation and config.first_evaluation_of_saturation==false and config.compute_organic)
     {
       number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-      tau_dif_ssh(config, surrogate, number, Vsol);
-      tau_kmt_ssh(config, surrogate, Temperature, number);
       compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+      tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
+      tau_kmt_ssh(config, surrogate, Temperature, number);
       characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
       if (LWCtot>config.LWClimit)
         characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
@@ -4326,7 +4327,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
     compute_morphology_ssh(config, Vsol, number);
 
   //Computation of characteristic times to reach equilibrium
-  tau_dif_ssh(config, surrogate, number, Vsol);
+  tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
   tau_kmt_ssh(config, surrogate, Temperature, number);
   compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
   if (LWCtot>config.LWClimit)
@@ -4341,7 +4342,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       if (config.compute_saturation and config.compute_organic)
 	{
 	  number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-	  tau_dif_ssh(config, surrogate, number, Vsol);
+	  tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
 	  tau_kmt_ssh(config, surrogate, Temperature, number);
 	  compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
 	  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
@@ -4475,9 +4476,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	if (config.compute_saturation and config.compute_organic)
 	  {
 	    number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-	    tau_dif_ssh(config, surrogate, number, Vsol);
-	    tau_kmt_ssh(config, surrogate, Temperature, number);
 	    compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+	    tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
+	    tau_kmt_ssh(config, surrogate, Temperature, number);
+	    
 	    characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
 	    if (LWCtot>config.LWClimit)
 	      characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);
@@ -4647,7 +4649,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		  compute_morphology_ssh(config, Vsol,number);
 
 		//Computation of characteristic times to reach equilibrium
-		tau_dif_ssh(config, surrogate, number, Vsol);
+		tau_dif_ssh(config, surrogate, number, Vsol,Temperature);
 		tau_kmt_ssh(config, surrogate, Temperature, number);
 		characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
 		if (LWCtot>config.LWClimit)
@@ -4694,9 +4696,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	if (config.compute_saturation and config.compute_organic)
 	  {
 	    number_org_phases_ssh(config,surrogate,Temperature,MOinit,MOW);
-	    tau_dif_ssh(config, surrogate, number, Vsol);
-	    tau_kmt_ssh(config, surrogate, Temperature, number);
 	    compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+	    tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
+	    tau_kmt_ssh(config, surrogate, Temperature, number);
+	    
 	    characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
 	    if (LWCtot>config.LWClimit)
 	      characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit); 
@@ -4868,7 +4871,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		  compute_morphology_ssh(config, Vsol, number);
 
 		//Computation of characteristic times to reach equilibrium
-		tau_dif_ssh(config, surrogate, number, Vsol);
+		tau_dif_ssh(config, surrogate, number, Vsol, Temperature);
 		tau_kmt_ssh(config, surrogate, Temperature, number);
 		characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot);
 		if (LWCtot>config.LWClimit)

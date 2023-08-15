@@ -367,7 +367,7 @@ void density_aqueous_phase_ssh(model_config &config, vector<species>& surrogate,
 }
 
 void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
-			   int &b, int &ilayer)
+			   int &b, int &ilayer, double &Temperature)
 {
   int i,iphase;
   int n=surrogate.size();
@@ -395,12 +395,11 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
     {
       //In this method the organic phase coefficient diffusion is computed from the viscosity of the mixture
       //The viscosity of the mixture is computed from AIOMFAC-visc
-     
-      double mo=0.0;
-      for (i=0;i<n;++i)
-	if (surrogate[i].hydrophobic)
-	  for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-	    mo+=surrogate[i].Ap_layer_init(b,ilayer,iphase);	       
+        double mo=0.0;
+	for (i=0;i<n;++i)
+	  if (surrogate[i].hydrophobic)
+	    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	      mo+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
       
       //double dorg;
       if (mo>config.MOmin*config.Vlayer(ilayer))
@@ -450,7 +449,7 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 	      {
 		for (i=0;i<n;++i)
 		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)		   
-		    surrogate[i].dif_org(b,ilayer)=1.38e-23*298.0/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
+		    surrogate[i].dif_org(b,ilayer)=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
 		  else
 		    surrogate[i].dif_org(b,ilayer)=1.0e-12;
 	      }
@@ -459,7 +458,7 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 		for (i=0;i<n;++i)
 		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)
 		    {
-		      surrogate[i].KDiffusion_p=1.38e-23*298.0/(6.0*3.14159*radius*visco);
+		      surrogate[i].KDiffusion_p=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
 		      //cout << surrogate[i].name << " " << surrogate[i].KDiffusion_p << " " << endl;
 		    }
 		  else
@@ -478,8 +477,7 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 	  {
 	    for (i=0;i<n;++i)
 	      surrogate[i].KDiffusion_p=1.0e-12;
-	  }
-      
+	  }      
     }
 }
 
@@ -540,7 +538,7 @@ void tau_kmt_ssh(model_config &config,vector<species>& surrogate, double &temper
 }
 
 void tau_dif_ssh(model_config &config, vector<species>& surrogate,
-		 Array<double, 1> &number, Array<double, 1> &Vsol)
+		 Array<double, 1> &number, Array<double, 1> &Vsol, double &Temperature)
 {
   //compute the characteristic time for diffusion in the organic phase
   int b,i,ilayer,iphase;
@@ -566,9 +564,11 @@ void tau_dif_ssh(model_config &config, vector<species>& surrogate,
 	for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 	  {
 	    if (ilayer==config.nlayer-1)
-	      for (i=0;i<n;++i)
-		surrogate[i].tau_diffusion(b,ilayer,iphase)=
-		  min(1.0e-5*config.tequilibrium,1.0e-20);		
+	      {
+		for (i=0;i<n;++i)
+		  surrogate[i].tau_diffusion(b,ilayer,iphase)=
+		    min(1.0e-5*config.tequilibrium,1.0e-20);
+	      }
 	    /* surrogate[i].tau_diffusion(b,ilayer,iphase)=min(
 	       pow(config.diameters(b)*1.0e-6,2)/
 	       (4.0*pi*pi*surrogate[i].KDiffusion_p*config.alpha_layer(ilayer)),0.1*config.tequilibrium);		*/
@@ -577,7 +577,7 @@ void tau_dif_ssh(model_config &config, vector<species>& surrogate,
 	    else
 	      {
 		//determine the organic phase coefficient diffusion
-		compute_viscosity_ssh(config, surrogate, b, ilayer);
+		compute_viscosity_ssh(config, surrogate, b, ilayer, Temperature);
 		
 		morphology_factor=1.0+config.Alayer(ilayer,0)*pow(fs,4)+config.Alayer(ilayer,1)*pow(fs,3)
 		  +config.Alayer(ilayer,2)*pow(fs,2)+config.Alayer(ilayer,3)*fs;

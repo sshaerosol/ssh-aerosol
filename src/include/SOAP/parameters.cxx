@@ -1545,8 +1545,8 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
       for (i=0;i<config.nmol_tot;i++)
         {
           double sum_surf_mol=0.0;
-	  double volume_fraction;
-	  double surface_fraction;
+	  double volume_fraction=0.;
+	  double surface_fraction=0.;
           for (j=0;j<config.nfunc_tot;j++)
             if (config.groups_tot(j,i)>0.0)
               {                         
@@ -1899,7 +1899,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 
   config.gamma_MR_ions_bins.resize(config.nbins,config.nion_aiomfac);
   for (i=0;i<n;++i)
-    {      
+    {
       surrogate[i].Ap_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       /*for (b=0;b<config.nbins;++b)		  
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
