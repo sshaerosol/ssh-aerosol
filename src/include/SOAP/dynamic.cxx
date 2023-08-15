@@ -3097,17 +3097,21 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
       if (config.nlayer>1)
 	{	  
 	  for (i=0;i<n;i++)
-	    for (b=0;b<config.nbins;b++)
-	      for (ilayer=0;ilayer<config.nlayer-1;ilayer++)
-		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		  {
-		    surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,config.nlayer-1,iphase)/(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
-		      *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
-		    surrogate[i].kloss(b,ilayer,iphase)+=1./max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
-		    surrogate[i].kprod(b,config.nlayer-1,iphase,index)+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
-		    surrogate[i].kloss(b,config.nlayer-1,iphase,index)+=1./(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
-		      *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
-		  }
+	    if (surrogate[i].is_organic or i==config.iH2O)
+	      if (surrogate[i].hydrophobic)
+		for (b=0;b<config.nbins;b++)
+		  for (ilayer=0;ilayer<config.nlayer-1;ilayer++)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			surrogate[i].kprod(b,ilayer,iphase)+=surrogate[i].Ap_layer_init(b,config.nlayer-1,iphase)/(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
+			  *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
+			surrogate[i].kloss(b,ilayer,iphase)+=1./max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
+		    
+			surrogate[i].kprod(b,config.nlayer-1,iphase)+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
+			surrogate[i].kloss(b,config.nlayer-1,iphase)+=1./(surrogate[i].Kp(b,config.nlayer-1,iphase)*MOinit(b,config.nlayer-1,iphase))
+			  *surrogate[i].Kp(b,ilayer,iphase)*MOinit(b,ilayer,iphase)/max(surrogate[i].tau_diffusion(b,ilayer,iphase),config.tequilibrium);
+			//cout << surrogate[i].kprod(b,config.nlayer-1,iphase) << endl;
+		      }
 	  
 	  for (b=0;b<config.nbins;++b)
 	    {	     
