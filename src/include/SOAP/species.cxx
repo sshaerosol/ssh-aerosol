@@ -52,6 +52,8 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
 
 	if (t_ref[i]>0.) 
 	  current_species.Tref = t_ref[i];
+	else
+	  current_species.Tref = 298.;
 
 	current_species.irreversible_name=irreversible_name[i];
 	current_species.k_irreversible=k_irreversible[i];
@@ -137,9 +139,9 @@ void add_generic_species_ssh(model_config &config,
 	    X.Psat_ref=saturation_vapor_pressure[i]; // Saturation vapor pressure at Tref (torr)
 	    X.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
 	    if (t_ref[i]>0.)
-	      X.Tref=298;         // Temperature of reference (K)
+	      X.Tref=t_ref[i];         // Temperature of reference (K)
 	    else
-	      X.Tref=t_ref[i];
+	      X.Tref=298.;
 	    X.irreversible_name=irreversible_name[i];
 	    X.k_irreversible=k_irreversible[i];
 	    if (X.k_irreversible==0.)
