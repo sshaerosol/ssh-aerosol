@@ -21,7 +21,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
 		      double saturation_vapor_pressure[],
 		      double enthalpy_vaporization[],
 		      double henry[],
-		      double t_ref[],
+		      double t_ref[], double mass_density[],
 		      vector<string> species_part,
 		      int nlayer, int i_hydrophilic,
 	              int N_inert, int N_inorganic)
@@ -42,6 +42,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
         current_species.accomodation_coefficient = accomodation_coefficient[i];
 	current_species.is_generic=false;
 	current_species.KDiffusion_air = 1.0e-5; //diffusion_coef[i];
+	current_species.rho = mass_density[i]*1e9; 
 	if (saturation_vapor_pressure[i]>0.) 
 	  current_species.Psat_ref = saturation_vapor_pressure[i];
 
@@ -98,7 +99,7 @@ void add_generic_species_ssh(model_config &config,
 			     double saturation_vapor_pressure[],
 			     double enthalpy_vaporization[],
 			     double henry[],
-			     double t_ref[],
+			     double t_ref[], double mass_density[],
 			     vector<string> species_part,
 			     int nlayer, int i_hydrophilic,
 	                     int N_inert, int N_inorganic)
@@ -176,7 +177,7 @@ void add_generic_species_ssh(model_config &config,
 	    X.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
 	    X.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
 	    X.Koligo_org=0.0;         //oligomeriation constant in the organic phase
-	    X.rho=1300.0;
+	    X.rho=mass_density[i]*1e9;
 	    X.is_monomer=false;
 	    X.rion=false;
 	    X.KDiffusion_air=1.0e-5;
@@ -245,7 +246,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			   int aerosol_type[],
 			   vector<string> species_smiles, double saturation_vapor_pressure[],
 			   double enthalpy_vaporization[], 
-			   double diffusion_coef[], double henry[], double t_ref[],
+			   double diffusion_coef[], double henry[], double t_ref[], double mass_density[],
 			   vector<string> species_part,
 			   int nlayer, int i_hydrophilic, bool compute_inorganic, int N_inert, int N_inorganic,
                            int with_oligomerization)
@@ -321,7 +322,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // the given list.
  
   add_species_ssh(surrogate, BiA2D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   /* TOLexp SPECIES START */
@@ -391,7 +392,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, A02000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -461,7 +462,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AA2000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -531,7 +532,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AA4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -601,7 +602,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AD2000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -671,7 +672,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AD4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -741,7 +742,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AD4001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -811,7 +812,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AD5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -881,7 +882,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AK3000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -951,7 +952,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AK5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1021,7 +1022,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0010, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1091,7 +1092,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0027, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1161,7 +1162,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0043, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1231,7 +1232,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0048, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1301,7 +1302,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0087, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1371,7 +1372,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0088, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1441,7 +1442,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0090, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1511,7 +1512,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0093, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1581,7 +1582,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0094, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1651,7 +1652,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0104, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1721,7 +1722,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0105, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1791,7 +1792,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0109, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1861,7 +1862,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0110, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -1931,7 +1932,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0113, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2001,7 +2002,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0115, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2071,7 +2072,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0124, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2141,7 +2142,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0127, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2211,7 +2212,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0128, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2281,7 +2282,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0130, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2351,7 +2352,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0132, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2421,7 +2422,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0134, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2491,7 +2492,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0138, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2561,7 +2562,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0140OOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2631,7 +2632,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0144, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2701,7 +2702,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AR0153, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2771,7 +2772,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2841,7 +2842,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2911,7 +2912,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -2981,7 +2982,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU50DN, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3051,7 +3052,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU6000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3121,7 +3122,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AU7000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3191,7 +3192,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BTOL3OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3261,7 +3262,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BTOL4OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3331,7 +3332,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BTOL5OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3401,7 +3402,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BZALDOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3471,7 +3472,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, C73K1OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3541,7 +3542,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DD3000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3611,7 +3612,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DD3001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3681,7 +3682,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DD5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3751,7 +3752,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DK3000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 /* ==== IRDK3000 ==== */ 
@@ -3821,7 +3822,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, IRDK3000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 /* ==== DK4000 ==== */ 
@@ -3889,7 +3890,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DK4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -3959,7 +3960,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DK4001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4029,7 +4030,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DK5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4099,7 +4100,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ED4001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4169,7 +4170,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ED5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4239,7 +4240,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ED5000OOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4309,7 +4310,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ED5002OOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4379,7 +4380,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FUROH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4449,7 +4450,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FURON, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4519,7 +4520,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FURR3, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4589,7 +4590,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FURR5, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4659,7 +4660,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FURR6, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4729,7 +4730,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, FURR6OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4799,7 +4800,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GH5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4869,7 +4870,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HD2000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -4939,7 +4940,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM1O, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5009,7 +5010,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM1ONO2, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5079,7 +5080,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM1OOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5149,7 +5150,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM2O, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5219,7 +5220,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM2ONO2, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5289,7 +5290,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, HOM2OOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5359,7 +5360,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MALAHY, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5429,7 +5430,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MBQN1K1OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5499,7 +5500,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MBQN1OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5569,7 +5570,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MBQN2OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5639,7 +5640,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MBQN3OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5709,7 +5710,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Me6Cy1U3K, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5779,7 +5780,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, MFUR, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5849,7 +5850,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, NTOL, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5919,7 +5920,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, P02000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -5989,7 +5990,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PH5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6059,7 +6060,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PH5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6129,7 +6130,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PH5004, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6199,7 +6200,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PK5001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6269,7 +6270,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PK5003, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6339,7 +6340,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PP4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6409,7 +6410,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PP4004, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6479,7 +6480,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PU5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6549,7 +6550,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PU5001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6619,7 +6620,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PU5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6689,7 +6690,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL2OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6759,7 +6760,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL3OH1NO2, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6829,7 +6830,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL3OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6899,7 +6900,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL3OHOOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -6969,7 +6970,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL4OH1NO2, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7039,7 +7040,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL4OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7109,7 +7110,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, TOL5OH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7179,7 +7180,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UD4000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7249,7 +7250,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UD5000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7319,7 +7320,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UD5001, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7389,7 +7390,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UD5002, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7459,7 +7460,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UD6000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7526,7 +7527,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 	UD7000.groups[i] = group_tmp_UD7000[i];
 
   add_species_ssh(surrogate, UD7000, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
 /* ==== UU7000 ==== */ 
@@ -7594,7 +7595,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, UU7000, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
 /* TOLexp SPECIES START */
@@ -7674,7 +7675,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GLY, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7755,7 +7756,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GLYOH, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
 
@@ -7837,7 +7838,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GLYOHOH, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   /* ==== BiA1D ==== */ 
@@ -7905,7 +7906,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA1D, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species BiA0D;
@@ -7979,7 +7980,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA0D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species BiMT;
@@ -8044,7 +8045,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.  
   add_species_ssh(surrogate, BiMT, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species BiPER;
@@ -8109,7 +8110,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiPER, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species BiDER;
@@ -8174,7 +8175,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiDER, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
   species BiMGA;
@@ -8241,7 +8242,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiMGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
   species AnBlP;
@@ -8306,7 +8307,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
   species AnBmP;
@@ -8371,7 +8372,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
   
   species BiBlP;
@@ -8436,7 +8437,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBlP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
   
   species BiBmP;
@@ -8501,7 +8502,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiBmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
   
   species AnClP;
@@ -8562,7 +8563,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, AnClP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
   species AnBOAhP;
@@ -8624,7 +8625,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
     AnBOAhP.groups[i] = group_tmp_anboahp[i];
 
   add_species_ssh(surrogate, AnBOAhP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   
@@ -8687,7 +8688,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
     AnBOAlP.groups[i] = group_tmp_anboalp[i];
 
   add_species_ssh(surrogate, AnBOAlP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
 
@@ -8750,7 +8751,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
     AnBOAmP.groups[i] = group_tmp_anboamp[i];
 
   add_species_ssh(surrogate, AnBOAmP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species AnBSOAhP;
@@ -8784,7 +8785,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
     AnBSOAhP.groups[i] = group_tmp_anboahp[i];
 
   add_species_ssh(surrogate, AnBSOAhP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species AnBSOAmP;
@@ -8821,7 +8822,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
     AnBSOAmP.groups[i] = group_tmp_anboamp[i];
 
   add_species_ssh(surrogate, AnBSOAmP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
 
   species BiNGA;
@@ -8887,7 +8888,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNGA, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
 
   species BiNIT3;
@@ -8952,7 +8953,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT3, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species BiNIT;
@@ -9017,7 +9018,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiNIT, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species POAlP;
@@ -9081,7 +9082,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species POAmP;
@@ -9143,7 +9144,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAmP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
   
   species POAhP;
@@ -9205,7 +9206,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, POAhP, species_list_aer, molecular_weight_aer,
-              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+              accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	      N_inert, N_inorganic);
   
   species SOAlP;
@@ -9267,7 +9268,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species SOAmP;
@@ -9329,7 +9330,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species SOAhP;
@@ -9391,7 +9392,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, SOAhP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	          N_inert, N_inorganic);
 
   //SOA species to account for non-reversible transformation into non-volatile species
@@ -9428,7 +9429,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, irrSOA, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   
@@ -9493,7 +9494,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BOAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
   	          N_inert, N_inorganic);
   
   species BOAmP;
@@ -9556,7 +9557,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BOAmP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
   
   species BOAhP;
@@ -9618,7 +9619,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BOAhP, species_list_aer, molecular_weight_aer,
-                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+                  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
                   N_inert, N_inorganic);
   
   species BSOAlP;
@@ -9681,7 +9682,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BSOAlP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
   	          N_inert, N_inorganic);
   
   species BSOAmP;
@@ -9744,7 +9745,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BSOAmP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	          N_inert, N_inorganic);
   
   species BSOAhP;
@@ -9807,7 +9808,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BSOAhP, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 	          N_inert, N_inorganic);
   
   species Monomer;
@@ -9872,7 +9873,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Monomer, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species Dimer;
@@ -9937,7 +9938,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, Dimer, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species BiA3D;
@@ -10004,7 +10005,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, BiA3D, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species ACIDMAL;
@@ -10077,7 +10078,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, ACIDMAL, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species DHMB;
@@ -10142,7 +10143,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, DHMB, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species PAHlN;
@@ -10209,7 +10210,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHlN, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species PAHhN;
@@ -10276,7 +10277,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PAHhN, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species PSYR;
@@ -10341,7 +10342,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, PSYR, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   species GHDPerox;
@@ -10406,11 +10407,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, GHDPerox, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
   add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
-			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, henry, t_ref,  
+			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, henry, t_ref, mass_density,  
 			  species_part,nlayer,i_hydrophilic,
 		          N_inert, N_inorganic);
 
@@ -10470,7 +10471,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   // and add the species if its name matches with
   // the given list.
   add_species_ssh(surrogate, H2O, species_list_aer, molecular_weight_aer,
-		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, species_part,nlayer,i_hydrophilic,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
   species SO4;

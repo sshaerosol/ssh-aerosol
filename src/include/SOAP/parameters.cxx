@@ -1291,13 +1291,13 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
 	if (surrogate[i].is_organic)
 	  {
 	    surrogate[i].hydrodynamic_radius=pow(1./(1000.*surrogate[i].rho/surrogate[i].MM*6.02e23)*3./4/3.14159,1./3);
-	    //cout << surrogate[i].name << " " << surrogate[i].hydrodynamic_radius << endl;
+	    cout << surrogate[i].name << " " << surrogate[i].rho << " " << surrogate[i].hydrodynamic_radius << endl;
 	  }
 	else if (i==config.iH2O)
 	  {
 	    //assumes that water creates cluster of 4 molecules
 	    surrogate[i].hydrodynamic_radius=pow(1./(1000.*surrogate[i].rho/surrogate[i].MM*6.02e23)*3./4/3.14159/4,1./3);
-	    //cout << surrogate[i].name << " " << surrogate[i].hydrodynamic_radius << endl;	    
+	    //cout << surrogate[i].name << " " << surrogate[i].rho << " " << surrogate[i].hydrodynamic_radius << endl;	    
 	  }
       
       for (i=0;i<config.nmol_org;i++)
@@ -2118,7 +2118,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
 		    double enthalpy_vaporization[], double diffusion_coef[],
-		    double henry[], double t_ref[], 
+		    double henry[], double t_ref[], double mass_density[],
 		    int i_hydrophilic, int N_inert, int N_inorganic, int with_oligomerization)
 {
   config.max_iter=10000;  //maximal number of iterations for the newton raphson method
@@ -2212,7 +2212,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
-		       diffusion_coef, henry, t_ref,
+		       diffusion_coef, henry, t_ref, mass_density,
 		       species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
 		       N_inert, N_inorganic, with_oligomerization);
 

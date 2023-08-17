@@ -32,7 +32,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       double* accomodation_coefficient, int* aerosol_type, 
 			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
 			       double* enthalpy_vaporization, double *diffusion_coef,
-			       double* henry, double* t_ref,
+			       double* henry, double* t_ref, double* mass_density,
 			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
@@ -50,7 +50,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       accomodation_coefficient, aerosol_type,
 		       partitioning, smiles, saturation_vapor_pressure,
 		       enthalpy_vaporization, diffusion_coef,
-		       henry, t_ref, 
+		       henry, t_ref, mass_density,
 		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
@@ -79,7 +79,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
 		   double enthalpy_vaporization[], double diffusion_coef[],
-		   double henry[], double t_ref[], 
+		   double henry[], double t_ref[], double mass_density[], 
 		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
@@ -222,7 +222,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
-		     diffusion_coef, henry, t_ref, 
+		     diffusion_coef, henry, t_ref, mass_density, 
 		     i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
       
       // Compute the activity coefficients at infinite dilution 
