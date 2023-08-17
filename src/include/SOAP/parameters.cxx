@@ -1291,7 +1291,7 @@ void param_unifac_ssh(model_config &config, vector<species> &surrogate)
 	if (surrogate[i].is_organic)
 	  {
 	    surrogate[i].hydrodynamic_radius=pow(1./(1000.*surrogate[i].rho/surrogate[i].MM*6.02e23)*3./4/3.14159,1./3);
-	    cout << surrogate[i].name << " " << surrogate[i].rho << " " << surrogate[i].hydrodynamic_radius << endl;
+	    //cout << surrogate[i].name << " " << surrogate[i].rho << " " << surrogate[i].hydrodynamic_radius << " " << surrogate[i].KDiffusion_air << endl;
 	  }
 	else if (i==config.iH2O)
 	  {

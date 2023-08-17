@@ -41,7 +41,7 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
         current_species.MM =  molecular_weight_aer[i] / 1.e6;
         current_species.accomodation_coefficient = accomodation_coefficient[i];
 	current_species.is_generic=false;
-	current_species.KDiffusion_air = 1.0e-5; //diffusion_coef[i];
+	current_species.KDiffusion_air = diffusion_coef[i];
 	current_species.rho = mass_density[i]*1e9; 
 	if (saturation_vapor_pressure[i]>0.) 
 	  current_species.Psat_ref = saturation_vapor_pressure[i];
@@ -94,6 +94,7 @@ void add_generic_species_ssh(model_config &config,
 			     vector<string> species_list_aer,
 			     double molecular_weight_aer[],
 			     double accomodation_coefficient[],
+			     double diffusion_coef[],
 			     int aerosol_type[],
 			     vector<string> species_smiles,
 			     double saturation_vapor_pressure[],
@@ -180,7 +181,7 @@ void add_generic_species_ssh(model_config &config,
 	    X.rho=mass_density[i]*1e9;
 	    X.is_monomer=false;
 	    X.rion=false;
-	    X.KDiffusion_air=1.0e-5;
+	    X.KDiffusion_air=diffusion_coef[i];
 	    // BiA2D.accomodation_coefficient=alpha;
 	    X.viscosity=1.68e12;
 	    X.is_solid=false;	  
@@ -10410,7 +10411,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
-  add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient,
+  add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient, diffusion_coef,
 			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, henry, t_ref, mass_density,  
 			  species_part,nlayer,i_hydrophilic,
 		          N_inert, N_inorganic);
