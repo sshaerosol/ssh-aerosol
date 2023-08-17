@@ -144,7 +144,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
   no_group(59)=2;
   
   for (i=0;i<n;i++)
-    if (surrogate[i].smile!="" and surrogate[i].smile[0]!='&')
+    if (surrogate[i].smile!="" and surrogate[i].smile[0]!='&' and surrogate[i].smile!="-")
       {
 	if (outFlux==1)
 	  {
@@ -2983,12 +2983,13 @@ void get_vectors(model_config &config, vector<species>& surrogate)
 	      }
 
         // same as in smiles function
+	/*
         if (surrogate[i].is_monomer and surrogate[i].is_organic)
 	    {
 	      int j=surrogate[i].ioligo;	
 	      for (int igr=0;igr<60;igr++)
 	        surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
-	    }
+	    }*/
       }
 }
 

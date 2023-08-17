@@ -109,6 +109,7 @@ epser = 0.01,                     ! relative error precision for time step adjus
 epser_soap = 0.001,                 ! relative difference of ros2 in SOAP  
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
 IMETHOD=0,
+reaction_soap_file="species-list/REACTIONS.particle.soap"
 /
 
 &physic_nucleation

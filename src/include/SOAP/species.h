@@ -46,7 +46,7 @@ namespace ssh_soap
     int iCO2,iHCO3m,iCO3mm;        
 
     double rho_organic,rho_aqueous; //volumic masses of the organic phase and the aqueous phase
-    double Ke, moligo;
+    double Ke;
 
     bool isorropia_ph; //is pH taken from isorropia
 
@@ -101,8 +101,6 @@ namespace ssh_soap
     int ntemp; 
     bool SR_ions;
     bool temperature_dependancy;
-    double koligo; //s-1
-    double Keq_oligo;
     int nt;
     double dtchem_min;
     bool chemistry,solids;
@@ -123,6 +121,9 @@ namespace ssh_soap
     bool to_be_rejected;
     double wat_min;
     bool compute_viscosity;
+    double chp_org_ref;
+
+    string reaction_file;
 
   };
 
@@ -203,7 +204,8 @@ namespace ssh_soap
     Array<double, 1> kprod_aq,kloss_aq,k1_gas;
     double kprod_gas,kloss_gas;
     double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
-    double moligo;
+    double moligo,koligo;
+    double Keq_oligo;
     bool is_monomer;
     bool is_ion,is_solvent;
     string name_oligomer;
@@ -233,6 +235,7 @@ namespace ssh_soap
     double k_irreversible;
     string irreversible_name;
     int i_irreversible;
+    bool catalyzed_ph;
     
   };
   

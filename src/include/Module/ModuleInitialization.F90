@@ -111,6 +111,7 @@ module aInitialization
   character (len=800), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
   character (len=800), save :: cst_gas_file ! File for species that need to be keep as constants.
   character (len=800), save :: cst_aero_file ! File for constant aerosol species.
+  character (len=800), save :: reaction_soap_file
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
@@ -273,8 +274,6 @@ module aInitialization
   double precision ,dimension(:), allocatable, save :: t_ref ! a reference temperature at which Henry's law constant is given (in K)
   double precision ,dimension(:), allocatable, save :: henry ! Henry's law constant at t_ref (in M/atm)  
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
-  character(len=40),dimension(:), allocatable, save :: irreversible_name
-  double precision ,dimension(:), allocatable, save :: k_irreversible
   integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
   integer ,dimension(:), allocatable, save :: inon_volatile 
@@ -456,7 +455,7 @@ contains
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
          dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS, &
-         SOAPlog
+         SOAPlog, reaction_soap_file
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
@@ -1081,6 +1080,7 @@ contains
     set_icut = 1 !default fix ICUT in the simulation
     imethod=0 !ROS2 explicit method in SOAP
     SOAPlog=0
+    reaction_soap_file="--"
     co2_conc_ppm=410.d0 !Default CO2 concentrations set to 460 ppm
     soap_inorg=0
     niter_eqconc=1
@@ -1365,12 +1365,12 @@ contains
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
-    character (len=40) :: ic_name, sname, tmp_name, irreversible_name_tmp
+    character (len=40) :: ic_name, sname, tmp_name
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
-    double precision :: henry_tmp, t_ref_tmp, k_irreversible_tmp
+    double precision :: henry_tmp, t_ref_tmp
     character (len=800) :: smiles_tmp
     character (len=40) :: aerosol_species_name_tmp, char1,char2        
     character (len=4) :: partitioning_tmp
@@ -1453,8 +1453,6 @@ contains
     if ( .not. allocated(aerosol_hydrophobic)) allocate(aerosol_hydrophobic(N_aerosol))
     if ( .not. allocated(t_ref)) allocate(t_ref(N_aerosol))
     if ( .not. allocated(henry)) allocate(henry(N_aerosol))
-    if ( .not. allocated(irreversible_name)) allocate(irreversible_name(N_aerosol))
-    if ( .not. allocated(k_irreversible)) allocate(k_irreversible(N_aerosol))
     
     aerosol_species_interact = 0
     inon_volatile = 0
@@ -1486,8 +1484,6 @@ contains
             saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
           t_ref_tmp=0.
           henry_tmp=0.
-          k_irreversible_tmp=0.
-          irreversible_name_tmp="--"
        else
           read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
             Index_groups_tmp, molecular_weight_aer_tmp, &
@@ -1496,7 +1492,7 @@ contains
             surface_tension_tmp, accomodation_coefficient_tmp, &
             mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
             saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
-            henry_tmp, t_ref_tmp, irreversible_name_tmp, k_irreversible_tmp
+            henry_tmp, t_ref_tmp
        endif
 
        if (nspecies==0) then
@@ -1534,8 +1530,6 @@ contains
           enthalpy_vaporization(s)=enthalpy_vaporization_tmp
           henry(s)=henry_tmp
           t_ref(s)=t_ref_tmp
-          irreversible_name(s)=irreversible_name_tmp
-          k_irreversible(s)=k_irreversible_tmp
 
           aerosol_hydrophilic(s)=0
           if (trim(partitioning(s))=="HPHI".or.trim(partitioning(s))=="BOTH") then
@@ -2443,8 +2437,6 @@ contains
     if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
     if (allocated(t_ref))  deallocate(t_ref, stat=ierr)
     if (allocated(henry))  deallocate(henry, stat=ierr)
-    if (allocated(irreversible_name))  deallocate(irreversible_name, stat=ierr)
-    if (allocated(k_irreversible))  deallocate(k_irreversible, stat=ierr)
     !!	if (allocated(saturation_pressure))  deallocate(saturation_pressure, stat=ierr)
     !!	if (allocated(vaporization_enthalpy))  deallocate(vaporization_enthalpy, stat=ierr)
     if (allocated(List_species))  deallocate(List_species, stat=ierr)

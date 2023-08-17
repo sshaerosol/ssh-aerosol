@@ -12,6 +12,130 @@
 #include <fstream>
 
 using namespace ssh_soap;
+
+void read_reactions(model_config &config, vector<species>& surrogate)
+{
+  if (config.reaction_file.length()>5)
+    {
+      int n=surrogate.size();
+      ifstream inFlux(config.reaction_file.c_str());
+      if(inFlux)
+	{
+	  //Tout est prêt pour la lecture.
+	  //cout << config.reaction_file << "is open" << endl;
+	}
+      else
+	{
+	  cout << config.reaction_file << "not found" << endl;
+	  exit(0);
+	}
+
+      string line;
+      while(getline(inFlux, line))
+	{
+	  if (line[0]!='#')
+	    {
+	      // Read the line and separate it into paramloc
+	      char separator = ' ';
+	      char separator2 = '\t';
+	      int i,j;
+	  
+	      // Temporary string used to split the string.
+	      string s;
+	      vector<string> paramloc;	  
+	      for (i=0;i<int(line.length());i++)
+		{	      
+		  if (line[i] != separator and line[i] != separator2 )
+		    {
+		      // Append the char to the temp string.
+		      s += line[i]; 
+		    }
+		  else
+		    {
+		      paramloc.push_back(s);
+		      s="";
+		    }	   
+		}
+	      paramloc.push_back(s);
+
+	      /*for (i=0;i<int(paramloc.size());i++)	    
+		cout << paramloc[i] << " " ;
+		cout << endl;*/
+
+	      if (paramloc[0]=="0")  //irreversible reaction
+		{		  
+		  for (i=0;i<n;i++)
+		    if (surrogate[i].name==paramloc[1])
+		      {
+			for (j=0;j<n;j++)
+			  if (surrogate[j].name==paramloc[2])
+			    {
+			      surrogate[i].k_irreversible=atof(paramloc[3].c_str());
+			      surrogate[i].irreversible_name=paramloc[2];
+			    }
+
+		      }
+		}
+	      else if (paramloc[0]=="1")  //reversible bulk oligomerization
+		{		
+		  for (i=0;i<n;i++)
+		    if (surrogate[i].name==paramloc[1])
+		      {		
+			for (j=0;j<n;j++)
+			  if (surrogate[j].name==paramloc[2])
+			    {
+			      surrogate[i].koligo=atof(paramloc[3].c_str());
+			      surrogate[i].moligo=atof(paramloc[4].c_str());
+			      surrogate[i].Keq_oligo= atof(paramloc[5].c_str());
+			      surrogate[i].is_monomer=true;
+			      surrogate[i].name_oligomer=paramloc[2];
+			      if (paramloc[6]=="0")
+				surrogate[i].catalyzed_ph=false;
+			      else
+				surrogate[i].catalyzed_ph=true;
+			      for (int igr=0;igr<60;igr++)
+				surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
+
+			      if (surrogate[i].hydrophobic!=surrogate[j].hydrophobic or
+				  surrogate[i].hydrophilic!=surrogate[j].hydrophilic)
+				{
+				  cout << surrogate[i].name << " and " << surrogate[j].name << "must have the same types." << endl;
+				  exit(0);
+				}
+				
+			      config.chemistry=true;
+			    }
+
+		      }
+		}
+	      else if (paramloc[0]=="2")  //hydratation
+		{		 
+		  for (i=0;i<n;i++)
+		    if (surrogate[i].name==paramloc[1])
+		      {		    
+			for (j=0;j<n;j++)
+			  if (surrogate[j].name==paramloc[2])
+			    {
+			      surrogate[i].Khyd=atof(paramloc[3].c_str());
+			      surrogate[i].hydrated_name=paramloc[2];
+			      cout << surrogate[i].name << " " << surrogate[i].Khyd << endl;
+			      if (surrogate[i].hydrophobic!=surrogate[j].hydrophobic or
+				  surrogate[i].hydrophilic!=surrogate[j].hydrophilic)
+				{
+				  cout << surrogate[i].name << " and " << surrogate[j].name << "must have the same types." << endl;
+				  exit(0);
+				}
+			      
+			    }
+
+		      }
+		}	  
+	  
+	    }
+      
+	}
+    }
+}
   
 void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 {
@@ -1994,7 +2118,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
 		    double enthalpy_vaporization[], double diffusion_coef[],
-		    double henry[], double t_ref[], vector<string> irreversible_name, double k_irreversible[],
+		    double henry[], double t_ref[], 
 		    int i_hydrophilic, int N_inert, int N_inorganic, int with_oligomerization)
 {
   config.max_iter=10000;  //maximal number of iterations for the newton raphson method
@@ -2083,19 +2207,18 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   config.nh_org_init=1;
   config.nh_max=5;
   config.molalmax=70.; //Limit high values of molalities to prevent numerical issues
-
-  //parameters for oligomerization
-  config.moligo=2.;
-  config.koligo=2.2e-4; //s-1
-  config.Keq_oligo=2.94;
 	  
   //create the vector of species and the various parameters of the model
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
-		       diffusion_coef, henry, t_ref, irreversible_name, k_irreversible,
+		       diffusion_coef, henry, t_ref,
 		       species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
-		       N_inert, N_inorganic, with_oligomerization); 
+		       N_inert, N_inorganic, with_oligomerization);
+
+  read_reactions(config, surrogate);
+  config.chp_org_ref=pow(10.,-4.6);
+  
   system_coupling_ssh(config, surrogate);
   param_unifac_ssh(config, surrogate); 
   system_aiomfac_ssh(config, surrogate);

@@ -109,10 +109,10 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
-           henry, t_ref, irreversible_name, k_irreversible, &
+           henry, t_ref, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -299,10 +299,10 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
-           henry, t_ref, irreversible_name, k_irreversible,&
+           henry, t_ref, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size
@@ -496,10 +496,10 @@ contains
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
-           henry, t_ref, irreversible_name, k_irreversible,&
+           henry, t_ref, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog)
+           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog,reaction_soap_file)
 
       ! Get the calculated values from SOAP
       do js = ICUT_org+1, N_size

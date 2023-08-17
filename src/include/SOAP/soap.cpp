@@ -32,12 +32,12 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       double* accomodation_coefficient, int* aerosol_type, 
 			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
 			       double* enthalpy_vaporization, double *diffusion_coef,
-			       double* henry, double* t_ref, char* irreversible_name, double* k_irreversible,
+			       double* henry, double* t_ref,
 			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap, int* i_hydrophilic,
-			       int* N_inert, int* N_inorganic, int* with_oligomerization, int* NACL_IN_THERMODYNAMICS, int* SOAPlog){
+			       int* N_inert, int* N_inorganic, int* with_oligomerization, int* NACL_IN_THERMODYNAMICS, int* SOAPlog, char* soap_reaction_file){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, *co2_conc_ppm,
 		       *ionic, chp, LWCorg, 
@@ -50,12 +50,12 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       accomodation_coefficient, aerosol_type,
 		       partitioning, smiles, saturation_vapor_pressure,
 		       enthalpy_vaporization, diffusion_coef,
-		       henry, t_ref, irreversible_name, k_irreversible,
+		       henry, t_ref, 
 		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap, *i_hydrophilic,
-		       *N_inert, *N_inorganic, *with_oligomerization, *NACL_IN_THERMODYNAMICS, *SOAPlog);
+		       *N_inert, *N_inorganic, *with_oligomerization, *NACL_IN_THERMODYNAMICS, *SOAPlog, soap_reaction_file);
 }
 
 /*! \brief Main function of SOAP
@@ -79,12 +79,12 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
 		   double enthalpy_vaporization[], double diffusion_coef[],
-		   double henry[], double t_ref[], char irreversible_name[], double k_irreversible[],
+		   double henry[], double t_ref[], 
 		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS, int SOAPlog)
+		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS, int SOAPlog, char soap_reaction_file[])
 {
 
   /*** General parameters and options ***/
@@ -103,7 +103,6 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
   // The order of species should not be changed (YK).
   vector<string> species_list_aer;
   vector<string> species_smiles;
-  vector<string> species_irreversible;
   vector<string> species_part;
   // Get aerosol species names.
   // conversion char to string
@@ -160,24 +159,15 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       species_smiles.push_back(tmp3);
     }
 
-  int irreversible_len=40;
-  string tmp2c;
-    for (i = 0; i < ns_aer * irreversible_len; i++)
+  config.reaction_file="";
+  string tmp_string;
+  for (i = 0; i < 800; i++)
     {
-      tmp2c.push_back(irreversible_name[i]);
+      tmp_string=soap_reaction_file[i];
+      if (tmp_string!=" ")
+	config.reaction_file.push_back(soap_reaction_file[i]);
     }
-    
-  for (i = 0; i < ns_aer; i++)
-    {
-      string tmp3(tmp2c.substr(i * irreversible_len, irreversible_len));      
-      for (int j = irreversible_len - 1; j >= 0; --j)
-        {
-          if(tmp3[j] == ' ')
-            tmp3.erase(j, 1);
-        }
-      species_irreversible.push_back(tmp3);
-    }
-  
+   
   config.SOAPlog=SOAPlog;
   config.nbins = nbin;
   config.tequilibrium = tequilibrium;
@@ -232,7 +222,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
-		     diffusion_coef, henry, t_ref, species_irreversible, k_irreversible,
+		     diffusion_coef, henry, t_ref, 
 		     i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
       
       // Compute the activity coefficients at infinite dilution 

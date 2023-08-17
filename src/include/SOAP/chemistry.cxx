@@ -40,8 +40,8 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
         if (surrogate[i].is_monomer and surrogate[i].Ap+surrogate[i].Aaq>0.0)
           {
             j=surrogate[i].ioligo;  
-            double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
+            double Keq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
             //double K2=(surrogate[i].gamma_org*surrogate[i].Ap*Keq2+surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq*Kaq2)/
             //  (surrogate[i].gamma_org*surrogate[i].Ap+surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq);
             double fraci=0.0;
@@ -142,9 +142,14 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 else if (surrogate[j].hydrophilic)                
                   fracjaq=surrogate[j].GAMMAinf*surrogate[j].gamma_aq*Kaq*AQinit/sum*Xmonoaq;                                      
               }
-            
-            double flux=config.koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
-              config.koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;                                                                 
+
+	    double flux;
+	    if (surrogate[i].catalyzed_ph)
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+              surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    else
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+		surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;                                                                 
             surrogate[i].flux_chem_tot(index)+=-flux;                        
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }
@@ -248,8 +253,8 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
         if (surrogate[i].is_monomer and surrogate[i].Ap+surrogate[i].Aaq>0.0)
           {
             j=surrogate[i].ioligo;  
-            double Keq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
+            double Keq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
             //double K2=(surrogate[i].gamma_org*surrogate[i].Ap*Keq2+surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq*Kaq2)/
             //  (surrogate[i].gamma_org*surrogate[i].Ap+surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq);
             double fraci=0.0;
@@ -349,9 +354,14 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 else if (surrogate[j].hydrophilic)                
                   fracjaq=surrogate[j].GAMMAinf*surrogate[j].gamma_aq*Kaq*AQinit/sum*Xmonoaq;                                      
               }
-          
-            double flux=config.koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
-              config.koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;            
+
+	    double flux;
+	    if (surrogate[i].catalyzed_ph)
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+              surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+            else
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+              surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;            
 
             if (flux>0.0)                        
               flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);                                                  
@@ -478,8 +488,8 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
             Array <double, 1> Keq2;
             Keq2.resize(nphase);
             for (iphase=0;iphase<nphase;iphase++)
-              Keq2(iphase)=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono(iphase),xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
+              Keq2(iphase)=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono(iphase),xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
             Array <double, 1> fraci,fracj;
             fraci.resize(nphase);
             fracj.resize(nphase);
@@ -613,9 +623,12 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                   fraciaq=surrogate[j].GAMMAinf*surrogate[j].gamma_aq*Kaq*AQinit/sum*Xmonoaq;                                             
               }
             
-            double flux=config.koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;                                                                 
+            double flux=surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;
+	    if (surrogate[i].catalyzed_ph)
+	      flux=flux*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    
             for (iphase=0;iphase<nphase;iphase++) 
-              flux+=config.koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
+              flux+=surrogate[i].koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
 
             surrogate[i].flux_chem_tot(index)+=-flux;                        
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
@@ -725,8 +738,8 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
             Array <double, 1> Keq2;
             Keq2.resize(nphase);
             for (iphase=0;iphase<nphase;iphase++)
-              Keq2(iphase)=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono(iphase),xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
-            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(config.Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
+              Keq2(iphase)=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono(iphase),xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
+            double Kaq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmonoaq,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);  
             Array <double, 1> fraci,fracj;
             fraci.resize(nphase);
             fracj.resize(nphase);
@@ -860,9 +873,12 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                   fraciaq=surrogate[j].GAMMAinf*surrogate[j].gamma_aq*Kaq*AQinit/sum*Xmonoaq;                                             
               }
             
-            double flux=config.koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;                                                                 
+            double flux=surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;
+	    if (surrogate[i].catalyzed_ph)
+	      flux=flux*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    
             for (iphase=0;iphase<nphase;iphase++) 
-              flux+=config.koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
+              flux+=surrogate[i].koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
 
             if (flux>0.0)                        
               flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);                                                  
