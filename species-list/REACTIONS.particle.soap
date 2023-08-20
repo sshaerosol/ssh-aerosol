@@ -1,0 +1,96 @@
+#Type reaction 0: irreversible 1st order transformation
+# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, catalyzed by water?, catalyzed by pH?
+0 ASOA1	ANVSOA	3.e-4 0 0 1
+0 ASOA2	ANVSOA	3.e-4 0 0 1
+0 ASOA3	ANVSOA	3.e-4 0 0 1
+0 ASOA4	ANVSOA	3.e-4 0 0 1
+0 BSOA1	BNVSOA	3.e-4 0 0 1
+0 BSOA2	BNVSOA	3.e-4 0 0 1
+0 BSOA3	BNVSOA	3.e-4 0 0 1
+0 BSOA4	BNVSOA	3.e-4 0 0 1
+0 OPOA1	ONVSOA	3.e-4 0 0 1
+0 OPOA2	ONVSOA	3.e-4 0 0 1
+0 OPOA3	ONVSOA	3.e-4 0 0 1
+0 OPOA4	ONVSOA	3.e-4 0 0 1
+0 OPOA5	ONVSOA	3.e-4 0 0 1
+0 OPOA6	ONVSOA	3.e-4 0 0 1
+0 O2POA2	O2NVSOA	3.e-4 0 0 1
+0 O2POA3	O2NVSOA	3.e-4 0 0 1
+0 O2POA4	O2NVSOA	3.e-4 0 0 1
+0 O2POA5	O2NVSOA	3.e-4 0 0 1
+0 O2POA6	O2NVSOA	3.e-4 0 0 1
+0 O3POA1	O3NVSOA	3.e-4 0 0 1
+0 O3POA2	O3NVSOA	3.e-5 0 0 1
+0 O3POA3	O3NVSOA	3.e-4 0 0 1
+0 O3POA4	O3NVSOA	3.e-4 0 0 1
+0 O3POA5	O3NVSOA	3.e-4 0 0 1
+0 O3POA6	O3NVSOA	3.e-4 0 0 1
+0 BiA2D	irrSOA	3.e-4 0 0 1
+0 BiA1D	irrSOA	3.e-4 0 0 1
+0 BiA0D	irrSOA	3.e-4 0 0 1
+0 BiMT	irrSOA	3.e-4 0 0 1
+0 BiPER	irrSOA	3.e-4 0 0 1
+0 BiDER	irrSOA	3.e-4 0 0 1
+0 BiMGA	irrSOA	3.e-4 0 0 1
+0 AnBlP	irrSOA	3.e-4 0 0 1
+0 AnBmP	irrSOA	3.e-4 0 0 1
+0 BiBlP	irrSOA	3.e-4 0 0 1
+0 BiBmP	irrSOA	3.e-4 0 0 1
+0 BiNGA	irrSOA	3.e-4 0 0 1
+0 BiNIT3	irrSOA	3.e-4 0 0 1
+0 BiNIT	irrSOA	3.e-4 0 0 1
+0 AnClP	irrSOA	3.e-4 0 0 1
+0 SOAlP	irrSOA	3.e-4 0 0 1
+0 SOAmP	irrSOA	3.e-4 0 0 1
+0 SOAhP	irrSOA	3.e-4 0 0 1
+0 Monomer	irrSOA	3.e-4 0 0 1
+0 Dimer	irrSOA	3.e-4 0 0 1
+0 BiA3D	irrSOA	3.e-4 0 0 1
+0 ACIDMAL	irrSOA	3.e-4 0 0 1
+0 DHMB	irrSOA	3.e-4 0 0 1
+0 PAHlN	irrSOA	3.e-4 0 0 1
+0 PAHhN	irrSOA	3.e-4 0 0 1
+0 PPSYR	irrSOA	3.e-4 0 0 1
+0 IEPOX BiMT    0.05 1 1 0
+#Type reaction 1: reversible 2nd order bulk oligomerisation
+# Based on Couvidat et al. (2018),  https://doi.org/10.5194/acp-18-15743-2018
+# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, moligo (number of monomer block in monomers, equal to 2 for lowly oxidized compounds, 3.35 for others), Keq (equilibrium constant), is reaction catalyzed by H+ (0=no, 1=yes)
+1 BiA2D	OligoBiA2D	2.2e-4	2	2.94	0
+1 BiA1D	OligoBiA1D	2.2e-4	2	2.94	0
+1 BiA0D	OligoBiA0D	2.2e-4	2	2.94	0
+1 AGLY	OligoAGLY	2.2e-4	3.35	2.94	0
+1 AMGLY	OligoAMGLY	2.2e-4	3.35	2.94	0
+1 BiMT	OligoBiMT	2.2e-4	3.35	2.94	0
+1 BiPER	OligoBiPER	2.2e-4	3.35	2.94	0
+1 BiDER	OligoBiDER	2.2e-4	3.35	2.94	0
+1 BiMGA	OligoBiMGA	2.2e-4	3.35	2.94	0
+1 AnBlP	OligoAnBlP	2.2e-4	3.35	2.94	0
+1 AnBmP	OligoAnBmP	2.2e-4	3.35	2.94	0
+1 BiBlP	OligoBiBlP	2.2e-4	2	2.94	0
+1 BiBmP	OligoBiBmP	2.2e-4	2	2.94	0
+1 BiNGA	OligoBiNGA	2.2e-4	3.35	2.94	0
+1 BiNIT3	OligoBiNIT3	2.2e-4	3.35	2.94	0
+1 BiNIT	OligoBiNIT	2.2e-4	2	2.94	0
+1 AnClP	OligoAnClP	2.2e-4	3.35	2.94	0
+1 SOAlP	OligoSOAlP	2.2e-4	2	2.94	0
+1 SOAmP	OligoSOAmP	2.2e-4	2	2.94	0
+1 SOAhP	OligoSOAhP	2.2e-4	2	2.94	0
+1 Monomer	OligoMonomer	2.2e-4	3.35	2.94	0
+1 BiA3D	OligoBiA3D	2.2e-4	3.35	2.94	0
+1 ACIDMAL	OligoACIDMAL	2.2e-4	3.35	2.94	0
+1 DHMB	OligoDHMB	2.2e-4	3.35	2.94	0
+1 PAHlN	OligoPAHlN	2.2e-4	3.35	2.94	0
+1 PAHhN	OligoPAHhN	2.2e-4	3.35	2.94	0
+1 PSYR	OligoPSYR	2.2e-4	3.35	2.94	0
+1 GHDPerox	OligoGHDPerox	2.2e-4	3.35	2.94	0
+#Type reaction 2: hydratation
+# Parameters: 
+# number_of_the_reaction_type, name of the reacting species, name of the produced species, hydratation constant
+# example: hydrataion of aldehydes, aldehydes + H2O = diol
+2 GLY GLYOH 350.0
+2 GLYOH GLYOHOH 207.0
+#Type reaction 3: reaction with ions
+# number_of_the_reaction_type, name of the reacting species, name of the reaction ion, name of the produced species, kinetic (mol/L s-1), catalyzed by pH?, catalyzed by water?, catalyzed by the ion (if equal to 0 the ion is consumed, 1 not)?
+3 IEPOX NO3 BiMT 2.e-4 1 0 0
+3 IEPOX SO4 BiSULF 2.e-4 1 0 0
+3 IEPOX HSO4 BiSULF 7.3e-4 1 0 0
