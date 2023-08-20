@@ -17,6 +17,7 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 {
   if (config.reaction_file.length()>5)
     {
+      int i,j,k;
       int n=surrogate.size();
       ifstream inFlux(config.reaction_file.c_str());
       if(inFlux)
@@ -30,15 +31,23 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 	  exit(0);
 	}
 
+      config.inorganic_chemistry=false;
+      for (i=0;i<n;i++)
+	{
+	  surrogate[i].nion=0;
+	  surrogate[i].rion=false;
+	}
+      
       string line;
       while(getline(inFlux, line))
 	{
 	  if (line[0]!='#')
 	    {
+	      //cout << line << endl;
 	      // Read the line and separate it into paramloc
 	      char separator = ' ';
 	      char separator2 = '\t';
-	      int i,j;
+	      
 	  
 	      // Temporary string used to split the string.
 	      string s;
@@ -50,11 +59,13 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 		      // Append the char to the temp string.
 		      s += line[i]; 
 		    }
-		  else
+		  else if (s != "" and s != " " and s != "\t" )
 		    {
 		      paramloc.push_back(s);
 		      s="";
-		    }	   
+		    }
+		  else
+		    s="";
 		}
 	      paramloc.push_back(s);
 
@@ -72,6 +83,21 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			    {
 			      surrogate[i].k_irreversible=atof(paramloc[3].c_str());
 			      surrogate[i].irreversible_name=paramloc[2];
+			      if (paramloc[4]=="0")
+				surrogate[i].irr_catalyzed_pH=false;
+			      else
+				surrogate[i].irr_catalyzed_pH=true;
+			      if (paramloc[5]=="0")
+				surrogate[i].irr_catalyzed_water=false;
+			      else
+				surrogate[i].irr_catalyzed_water=true;
+
+			      if (paramloc[6]=="0")
+				surrogate[i].irr_mass_conserving=false;
+			      else
+				surrogate[i].irr_mass_conserving=true;
+			     
+			      //cout << surrogate[i].name << " irr " << surrogate[i].k_irreversible << " " << surrogate[i].irr_catalyzed_pH << " " << surrogate[i].irr_catalyzed_water << endl;
 			    }
 
 		      }
@@ -102,7 +128,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				  cout << surrogate[i].name << " and " << surrogate[j].name << "must have the same types." << endl;
 				  exit(0);
 				}
-				
+
+			      cout << surrogate[i].name << " and " << surrogate[j].name << endl;
 			      config.chemistry=true;
 			    }
 
@@ -115,7 +142,7 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 		      {		    
 			for (j=0;j<n;j++)
 			  if (surrogate[j].name==paramloc[2])
-			    {
+			    {			      
 			      surrogate[i].Khyd=atof(paramloc[3].c_str());
 			      surrogate[i].hydrated_name=paramloc[2];
 			      cout << surrogate[i].name << " " << surrogate[i].Khyd << endl;
@@ -129,7 +156,50 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			    }
 
 		      }
-		}	  
+		}
+	      else if (paramloc[0]=="3")  //reactions with ions
+		{		  
+		  for (i=0;i<n;i++)
+		    if (surrogate[i].name==paramloc[1])
+		      {		
+			for (j=0;j<n;j++)
+			  if (surrogate[j].name==paramloc[2])
+			    for (k=0;k<n;k++)
+			      if (surrogate[k].name==paramloc[3])
+				{
+				  surrogate[i].nion++;
+				  surrogate[i].rion=true;
+
+				  cout << surrogate[i].name << " " << surrogate[j].name << " " << surrogate[k].name << " " << surrogate[i].nion << endl;				  
+
+				  if (paramloc[7]=="1")
+				    {
+				      cout << "ok" << endl;
+				      surrogate[i].rion_catalyzed.push_back(true);
+				    }
+				  else
+				    surrogate[i].rion_catalyzed.push_back(false);
+
+				  if (paramloc[5]=="1")
+				    surrogate[i].rion_ph_catalyzed.push_back(true);
+				  else
+				    surrogate[i].rion_ph_catalyzed.push_back(false);
+
+				  if (paramloc[6]=="1")
+				    surrogate[i].rion_water_catalyzed.push_back(true);
+				  else
+				    surrogate[i].rion_water_catalyzed.push_back(false);
+
+				  surrogate[i].ion.push_back(paramloc[2]);
+				  surrogate[i].kion.push_back(atof(paramloc[4].c_str()));
+				  surrogate[i].rion_product.push_back(paramloc[3]);
+				  
+				  config.chemistry=true;
+				  config.inorganic_chemistry=true;
+				}
+
+		      }
+		}
 	  
 	    }
       
@@ -265,9 +335,9 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
             if (surrogate[i].rion)
               for (jion=0;jion<surrogate[i].nion;jion++)
                 {                
-                  if (surrogate[j].name==surrogate[i].ion(jion))
+                  if (surrogate[j].name==surrogate[i].ion[jion])
                     surrogate[i].iion(jion)=j;
-                  if (surrogate[j].name==surrogate[i].rion_product(jion))                
+                  if (surrogate[j].name==surrogate[i].rion_product[jion])                
                     surrogate[i].iproduct(jion)=j;                    
                 }
           }

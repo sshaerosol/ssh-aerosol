@@ -144,9 +144,12 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
               }
 
 	    double flux;
-	    if (surrogate[i].catalyzed_ph)
+	    if (surrogate[i].catalyzed_ph and config.isorropia_ph==false)
 	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
               surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    else if (surrogate[i].catalyzed_ph and config.isorropia_ph==true)
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+              surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp/config.chp_org_ref;
 	    else
 	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
 		surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;                                                                 
@@ -154,57 +157,96 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }
 
-        if (surrogate[i].rion and surrogate[i].Aaq>0.0 and config.compute_inorganic)
+        if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
           for (jion=0;jion<surrogate[i].nion;jion++)
             {            
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
-              double flux=surrogate[i].kion(jion)*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-              double flux2=0.0;
+              double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+
+	      if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==false)
+		flux=flux*chp*surrogate[config.iHp].gamma_aq;
+	      else if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==true)
+		flux=flux*chp;
+	      if (surrogate[i].rion_water_catalyzed[jion])
+		flux=flux*RH;
+
               surrogate[i].flux_chem_tot(index)+=-flux;                    
-              if (surrogate[i].rion_catalyzed(jion)==false and molality>0.)
+              if (surrogate[i].rion_catalyzed[jion]==false and molality>0.)
                 {
                   if (surrogate[i].iion(jion)==config.iHSO4m or surrogate[i].iion(jion)==config.iSO4mm)
                     {
                       double totsulf=surrogate[config.iHSO4m].Aaq/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq/surrogate[config.iSO4mm].MM;
                       surrogate[config.iHSO4m].flux_chem_tot(index)-=surrogate[config.iHSO4m].Aaq/totsulf*flux/surrogate[i].MM;
                       surrogate[config.iSO4mm].flux_chem_tot(index)-=surrogate[config.iSO4mm].Aaq/totsulf*flux/surrogate[i].MM;
-                      flux2-=surrogate[config.iHSO4m].flux_chem_tot(index)*surrogate[config.iSO4mm].MM/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].flux_chem_tot(index);
                     }
-                  if (surrogate[i].iion(jion)==config.iNO3m)
+                  if (surrogate[i].iion(jion)==config.iNO3m and config.compute_inorganic)
                     {
                       double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iNO3m].flux_chem_tot(index)-=surrogate[config.iNO3m].Aaq/totno3*flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iHNO3].flux_chem_tot(index)-=surrogate[config.iHNO3].Ag/totno3*flux/surrogate[i].MM*surrogate[config.iHNO3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                     }
-                  if (surrogate[i].iion(jion)==config.iClm)
+		  else if (surrogate[i].iion(jion)==config.iNO3m and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iNO3m].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
+                    }
+                  if (surrogate[i].iion(jion)==config.iClm and config.compute_organic)
                     {
                       double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
                       surrogate[config.iClm].flux_chem_tot(index)-=surrogate[config.iClm].Aaq/totcl*flux/surrogate[i].MM*surrogate[config.iClm].MM;
                       surrogate[config.iHCl].flux_chem_tot(index)-=surrogate[config.iHCl].Ag/totcl*flux/surrogate[i].MM*surrogate[config.iHCl].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
                     }
-                  if (surrogate[i].iion(jion)==config.iNH4p)
+		  else if (surrogate[i].iion(jion)==config.iClm and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iClm].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                    }
+                  if (surrogate[i].iion(jion)==config.iNH4p and config.compute_organic)
                     {
                       double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH4p].flux_chem_tot(index)-=surrogate[config.iNH4p].Aaq/totnh4*flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH3].flux_chem_tot(index)-=surrogate[config.iNH3].Ag/totnh4*flux/surrogate[i].MM*surrogate[config.iNH3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                    }
+		  else if (surrogate[i].iion(jion)==config.iNH4p and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iNH4p].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                     }
 
                 }
-              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
+              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
 	if (surrogate[i].i_irreversible>=0)
 	  {
 	    double flux=0.;
+	    double fluxloc=0.;
 	    if (surrogate[i].hydrophilic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-	     if (surrogate[i].hydrophobic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+	      {		
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
+		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
+		  fluxloc=fluxloc*chp;
+		flux+=fluxloc;
+	      }
+	    if (surrogate[i].hydrophobic)
+	      {
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH)
+		  fluxloc=fluxloc*config.chp_org_ref;
+		flux+=fluxloc;
+	      }
+	     
 	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    if (surrogate[i].irr_mass_conserving)
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    else
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
 	  }
       }
    
@@ -223,24 +265,55 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
           }
         else if (i==config.iNO3m)
           {
-            double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
-            if (totno3>0.0)
-              surrogate[i].Jdn_gas(index)=min((surrogate[config.iNO3m].flux_chem_tot(index)+surrogate[config.iHNO3].flux_chem_tot(index)/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM)/
-                                              totno3/deltat,0.0);            
+	    if (config.compute_inorganic)
+	      {
+		double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		if (totno3>0.0)
+		  surrogate[i].Jdn_gas(index)=min((surrogate[config.iNO3m].flux_chem_tot(index)+surrogate[config.iHNO3].flux_chem_tot(index)/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM)/
+						  totno3/deltat,0.0);
+	      }
+	    else if (config.inorganic_chemistry)
+	      {
+		double totno3=surrogate[config.iNO3m].Aaq;
+		if (totno3>0.0)
+		  surrogate[i].Jdn_gas(index)=min(surrogate[config.iNO3m].flux_chem_tot(index)*surrogate[i].aqratio/
+						  totno3/deltat,0.0);
+	      }
           }
         else if (i==config.iClm)
           {
-            double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
-            if (totcl>0.0)
-              surrogate[i].Jdn_gas(index)=min((surrogate[config.iClm].flux_chem_tot(index)+surrogate[config.iHCl].flux_chem_tot(index)/surrogate[config.iHCl].MM*surrogate[config.iClm].MM)/
-                                              totcl/deltat,0.0);            
+	    if (config.compute_inorganic)
+	      {
+		double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
+		if (totcl>0.0)
+		  surrogate[i].Jdn_gas(index)=min((surrogate[config.iClm].flux_chem_tot(index)+surrogate[config.iHCl].flux_chem_tot(index)/surrogate[config.iHCl].MM*surrogate[config.iClm].MM)/
+						  totcl/deltat,0.0);
+	      }
+	    else if (config.inorganic_chemistry)
+	      {
+		double totcl=surrogate[config.iClm].Aaq;
+		if (totcl>0.0)
+		  surrogate[i].Jdn_gas(index)=min(surrogate[config.iClm].flux_chem_tot(index)*surrogate[i].aqratio/totcl/deltat,0.0);
+	      }
+		
           }
         else if (i==config.iNH4p)
           {
-            double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
-            if (totnh4>0.0)
-              surrogate[i].Jdn_gas(index)=min((surrogate[config.iNH4p].flux_chem_tot(index)+surrogate[config.iNH3].flux_chem_tot(index)/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM)/
-                                              totnh4/deltat,0.0);            
+	    if (config.compute_inorganic)
+	      { 
+		double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
+		if (totnh4>0.0)
+		  surrogate[i].Jdn_gas(index)=min((surrogate[config.iNH4p].flux_chem_tot(index)+surrogate[config.iNH3].flux_chem_tot(index)/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM)/
+                                              totnh4/deltat,0.0);
+	      }
+	    else if (config.inorganic_chemistry)
+	      {
+		double totnh4=surrogate[config.iNH4p].Aaq;
+		if (totnh4>0.0)
+		  surrogate[i].Jdn_gas(index)=min(surrogate[config.iNH4p].flux_chem_tot(index)*surrogate[i].aqratio/
+						  totnh4/deltat,0.0);
+	      }
+		
           }
     }
 
@@ -356,9 +429,12 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
               }
 
 	    double flux;
-	    if (surrogate[i].catalyzed_ph)
+	    if (surrogate[i].catalyzed_ph and config.isorropia_ph==false)
 	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
               surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    else if (surrogate[i].catalyzed_ph and config.isorropia_ph==true)
+	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
+              surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat*chp/config.chp_org_ref;	    
             else
 	      flux=surrogate[i].koligo*(surrogate[i].Atot*fraci-surrogate[j].Atot*fracj/Keq2)*deltat+
               surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;            
@@ -371,13 +447,19 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
             surrogate[i].flux_chem_tot(index)+=-flux;                        
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }    
-        if (surrogate[i].rion and surrogate[i].Aaq>0.0 and config.compute_inorganic)
+        if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
           for (jion=0;jion<surrogate[i].nion;jion++)
             {              
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
-              double flux=surrogate[i].kion(jion)*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;    
-              double flux2=0.0;            
-              if (surrogate[i].rion_catalyzed(jion)==false and molality>0.)
+              double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	      if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==false)
+		flux=flux*chp*surrogate[config.iHp].gamma_aq;
+	      else if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==true)
+		flux=flux*chp;
+	      if (surrogate[i].rion_water_catalyzed[jion])
+		flux=flux*RH;
+             
+              if (surrogate[i].rion_catalyzed[jion]==false and molality>0.)
                 {
                   if (surrogate[i].iion(jion)==config.iHSO4m or surrogate[i].iion(jion)==config.iSO4mm)
                     {
@@ -386,34 +468,48 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                       double totsulf=surrogate[config.iHSO4m].Aaq/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq/surrogate[config.iSO4mm].MM;
                       surrogate[config.iHSO4m].flux_chem_tot(index)-=surrogate[config.iHSO4m].Aaq/totsulf*flux/surrogate[i].MM;
                       surrogate[config.iSO4mm].flux_chem_tot(index)-=surrogate[config.iSO4mm].Aaq/totsulf*flux/surrogate[i].MM;
-                      flux2-=surrogate[config.iHSO4m].flux_chem_tot(index)*surrogate[config.iSO4mm].MM/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].flux_chem_tot(index);
                     }
-                  else if (surrogate[i].iion(jion)==config.iNO3m)
+                  else if (surrogate[i].iion(jion)==config.iNO3m and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iNO3m].Jdn_gas(index)/surrogate[config.iNO3m].MM*surrogate[i].MM*deltat); 
                       double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iNO3m].flux_chem_tot(index)-=surrogate[config.iNO3m].Aaq/totno3*flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iHNO3].flux_chem_tot(index)-=surrogate[config.iHNO3].Ag/totno3*flux/surrogate[i].MM*surrogate[config.iHNO3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                     }
-                  else if (surrogate[i].iion(jion)==config.iClm)
+		  else if (surrogate[i].iion(jion)==config.iNO3m and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iNO3m].Jdn_gas(index)/surrogate[config.iNO3m].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iNO3m].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
+                    }
+                  else if (surrogate[i].iion(jion)==config.iClm and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iClm].Jdn_gas(index)/surrogate[config.iClm].MM*surrogate[i].MM*deltat); 
                       double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
                       surrogate[config.iClm].flux_chem_tot(index)-=surrogate[config.iClm].Aaq/totcl*flux/surrogate[i].MM*surrogate[config.iClm].MM;
                       surrogate[config.iHCl].flux_chem_tot(index)-=surrogate[config.iHCl].Ag/totcl*flux/surrogate[i].MM*surrogate[config.iHCl].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
                     }
-                  else if (surrogate[i].iion(jion)==config.iNH4p)
+		  else if (surrogate[i].iion(jion)==config.iClm and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iClm].Jdn_gas(index)/surrogate[config.iClm].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iClm].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                    }
+                  else if (surrogate[i].iion(jion)==config.iNH4p and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iNH4p].Jdn_gas(index)/surrogate[config.iNH4p].MM*surrogate[i].MM*deltat); 
                       double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH4p].flux_chem_tot(index)-=surrogate[config.iNH4p].Aaq/totnh4*flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH3].flux_chem_tot(index)-=surrogate[config.iNH3].Ag/totnh4*flux/surrogate[i].MM*surrogate[config.iNH3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                    }
+		  else if (surrogate[i].iion(jion)==config.iNH4p and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iNH4p].Jdn_gas(index)/surrogate[config.iNH4p].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iNH4p].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                     }
 
                 }
@@ -421,22 +517,41 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
 
               surrogate[i].flux_chem_tot(index)+=-flux; 
-              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
+              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 	
 	if (surrogate[i].i_irreversible>=0)
 	  {
 	    double flux=0.;
+	    double fluxloc=0.;
 	    if (surrogate[i].hydrophilic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+	      {		
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
+		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
+		  fluxloc=fluxloc*chp;
+		flux+=fluxloc;
+	      }
 	    if (surrogate[i].hydrophobic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;	    
+	      {
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH)
+		  fluxloc=fluxloc*config.chp_org_ref;
+		flux+=fluxloc;
+	      }	         
 
 	    flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
 	    
 	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
-	    
+	    if (surrogate[i].irr_mass_conserving)
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    else
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
 	  }
 	
         
@@ -624,8 +739,10 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
               }
             
             double flux=surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;
-	    if (surrogate[i].catalyzed_ph)
+	    if (surrogate[i].catalyzed_ph and config.isorropia_ph==false)
 	      flux=flux*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    else if (surrogate[i].catalyzed_ph and config.isorropia_ph==true)
+	      flux=flux*chp/config.chp_org_ref;
 	    
             for (iphase=0;iphase<nphase;iphase++) 
               flux+=surrogate[i].koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
@@ -634,58 +751,98 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }
 
-        if (surrogate[i].rion and surrogate[i].Aaq>0.0 and config.compute_inorganic)
+        if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
           for (jion=0;jion<surrogate[i].nion;jion++)
             {            
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
-              double flux=surrogate[i].kion(jion)*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-              double flux2=0.0;
-              surrogate[i].flux_chem_tot(index)+=-flux;                    
-              if (surrogate[i].rion_catalyzed(jion)==false and molality>0.)
+              double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;	      
+	      if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==false)
+		flux=flux*chp*surrogate[config.iHp].gamma_aq;
+	      else if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==true)
+		flux=flux*chp;
+	      if (surrogate[i].rion_water_catalyzed[jion])
+		flux=flux*RH;
+            
+              surrogate[i].flux_chem_tot(index)+=-flux;
+	      if (surrogate[i].rion_catalyzed[jion]==false and molality>0.)
                 {
                   if (surrogate[i].iion(jion)==config.iHSO4m or surrogate[i].iion(jion)==config.iSO4mm)
                     {
                       double totsulf=surrogate[config.iHSO4m].Aaq/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq/surrogate[config.iSO4mm].MM;
                       surrogate[config.iHSO4m].flux_chem_tot(index)-=surrogate[config.iHSO4m].Aaq/totsulf*flux/surrogate[i].MM;
                       surrogate[config.iSO4mm].flux_chem_tot(index)-=surrogate[config.iSO4mm].Aaq/totsulf*flux/surrogate[i].MM;
-                      flux2-=surrogate[config.iHSO4m].flux_chem_tot(index)*surrogate[config.iSO4mm].MM/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].flux_chem_tot(index);
                     }
-                  if (surrogate[i].iion(jion)==config.iNO3m)
+                  if (surrogate[i].iion(jion)==config.iNO3m and config.compute_inorganic)
                     {
                       double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iNO3m].flux_chem_tot(index)-=surrogate[config.iNO3m].Aaq/totno3*flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iHNO3].flux_chem_tot(index)-=surrogate[config.iHNO3].Ag/totno3*flux/surrogate[i].MM*surrogate[config.iHNO3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                     }
-                  if (surrogate[i].iion(jion)==config.iClm)
+		  else if (surrogate[i].iion(jion)==config.iNO3m and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iNO3m].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
+                    }
+                  if (surrogate[i].iion(jion)==config.iClm and config.compute_organic)
                     {
                       double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
                       surrogate[config.iClm].flux_chem_tot(index)-=surrogate[config.iClm].Aaq/totcl*flux/surrogate[i].MM*surrogate[config.iClm].MM;
                       surrogate[config.iHCl].flux_chem_tot(index)-=surrogate[config.iHCl].Ag/totcl*flux/surrogate[i].MM*surrogate[config.iHCl].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
                     }
-                  if (surrogate[i].iion(jion)==config.iNH4p)
+		  else if (surrogate[i].iion(jion)==config.iClm and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iClm].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                    }
+                  if (surrogate[i].iion(jion)==config.iNH4p and config.compute_organic)
                     {
                       double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH4p].flux_chem_tot(index)-=surrogate[config.iNH4p].Aaq/totnh4*flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH3].flux_chem_tot(index)-=surrogate[config.iNH3].Ag/totnh4*flux/surrogate[i].MM*surrogate[config.iNH3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                     }
+		  else if (surrogate[i].iion(jion)==config.iNH4p and config.inorganic_chemistry)
+		    {
+                      surrogate[config.iNH4p].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                      //flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                    }
+		}
 
-                }
-              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
+              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
 	if (surrogate[i].i_irreversible>=0)
 	  {
 	    double flux=0.;
+	    double fluxloc=0.;
 	    if (surrogate[i].hydrophilic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-	     if (surrogate[i].hydrophobic)
-	       for (iphase=0;iphase<nphase;iphase++)
-		 flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+	      {		
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
+		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
+		  fluxloc=fluxloc*chp;
+		flux+=fluxloc;
+	      }
+	    if (surrogate[i].hydrophobic)
+	      {
+		fluxloc=0.;
+		for (iphase=0;iphase<nphase;iphase++)
+		  fluxloc+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH)
+		  fluxloc=fluxloc*config.chp_org_ref;
+		flux+=fluxloc;
+	      }
+
 	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    if (surrogate[i].irr_mass_conserving)
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    else
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
 	  }
 	
       }
@@ -874,8 +1031,10 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
               }
             
             double flux=surrogate[i].koligo*(surrogate[i].Atot*fraciaq-surrogate[j].Atot*fracjaq/Kaq2)*deltat;
-	    if (surrogate[i].catalyzed_ph)
+	    if (surrogate[i].catalyzed_ph and config.isorropia_ph==false)
 	      flux=flux*chp*surrogate[config.iHp].gamma_aq/config.chp_org_ref;
+	    else if (surrogate[i].catalyzed_ph and config.isorropia_ph==true)
+	      flux=flux*chp/config.chp_org_ref;
 	    
             for (iphase=0;iphase<nphase;iphase++) 
               flux+=surrogate[i].koligo*(surrogate[i].Atot*fraci(iphase)-surrogate[j].Atot*fracj(iphase)/Keq2(iphase))*deltat;
@@ -889,13 +1048,20 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }
 
-        if (surrogate[i].rion and surrogate[i].Aaq>0.0 and config.compute_inorganic)
+        if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
           for (jion=0;jion<surrogate[i].nion;jion++)
             {              
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
-              double flux=surrogate[i].kion(jion)*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;    
-              double flux2=0.0;            
-              if (surrogate[i].rion_catalyzed(jion)==false and molality>0.)
+              double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;	      
+	      if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==false)
+		flux=flux*chp*surrogate[config.iHp].gamma_aq;
+	      else if (surrogate[i].rion_ph_catalyzed[jion] and config.isorropia_ph==true)
+		flux=flux*chp;
+	      
+	      if (surrogate[i].rion_water_catalyzed[jion])
+		flux=flux*RH;
+
+	                    if (surrogate[i].rion_catalyzed[jion]==false and molality>0.)
                 {
                   if (surrogate[i].iion(jion)==config.iHSO4m or surrogate[i].iion(jion)==config.iSO4mm)
                     {
@@ -904,34 +1070,48 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                       double totsulf=surrogate[config.iHSO4m].Aaq/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq/surrogate[config.iSO4mm].MM;
                       surrogate[config.iHSO4m].flux_chem_tot(index)-=surrogate[config.iHSO4m].Aaq/totsulf*flux/surrogate[i].MM;
                       surrogate[config.iSO4mm].flux_chem_tot(index)-=surrogate[config.iSO4mm].Aaq/totsulf*flux/surrogate[i].MM;
-                      flux2-=surrogate[config.iHSO4m].flux_chem_tot(index)*surrogate[config.iSO4mm].MM/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].flux_chem_tot(index);
                     }
-                  else if (surrogate[i].iion(jion)==config.iNO3m)
+                  else if (surrogate[i].iion(jion)==config.iNO3m and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iNO3m].Jdn_gas(index)/surrogate[config.iNO3m].MM*surrogate[i].MM*deltat); 
                       double totno3=surrogate[config.iNO3m].Aaq+surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iNO3m].flux_chem_tot(index)-=surrogate[config.iNO3m].Aaq/totno3*flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                       surrogate[config.iHNO3].flux_chem_tot(index)-=surrogate[config.iHNO3].Ag/totno3*flux/surrogate[i].MM*surrogate[config.iHNO3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
                     }
-                  else if (surrogate[i].iion(jion)==config.iClm)
+		  else if (surrogate[i].iion(jion)==config.iNO3m and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iNO3m].Jdn_gas(index)/surrogate[config.iNO3m].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iNO3m].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNO3m].MM;
+                    }
+                  else if (surrogate[i].iion(jion)==config.iClm and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iClm].Jdn_gas(index)/surrogate[config.iClm].MM*surrogate[i].MM*deltat); 
                       double totcl=surrogate[config.iClm].Aaq+surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
                       surrogate[config.iClm].flux_chem_tot(index)-=surrogate[config.iClm].Aaq/totcl*flux/surrogate[i].MM*surrogate[config.iClm].MM;
                       surrogate[config.iHCl].flux_chem_tot(index)-=surrogate[config.iHCl].Ag/totcl*flux/surrogate[i].MM*surrogate[config.iHCl].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iClm].MM;
                     }
-                  else if (surrogate[i].iion(jion)==config.iNH4p)
+		  else if (surrogate[i].iion(jion)==config.iClm and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iClm].Jdn_gas(index)/surrogate[config.iClm].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iClm].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iClm].MM;
+                    }
+                  else if (surrogate[i].iion(jion)==config.iNH4p and config.compute_inorganic)
                     {
                       flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
                                  -gamma*surrogate[config.iNH4p].Jdn_gas(index)/surrogate[config.iNH4p].MM*surrogate[i].MM*deltat); 
                       double totnh4=surrogate[config.iNH4p].Aaq+surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH4p].flux_chem_tot(index)-=surrogate[config.iNH4p].Aaq/totnh4*flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                       surrogate[config.iNH3].flux_chem_tot(index)-=surrogate[config.iNH3].Ag/totnh4*flux/surrogate[i].MM*surrogate[config.iNH3].MM;
-                      flux2+=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
+                    }
+		  else if (surrogate[i].iion(jion)==config.iNH4p and config.inorganic_chemistry)
+                    {
+                      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat
+                                 -gamma*surrogate[config.iNH4p].Jdn_gas(index)/surrogate[config.iNH4p].MM*surrogate[i].MM*deltat); 
+                      surrogate[config.iNH4p].flux_chem_tot(index)-=flux/surrogate[i].MM*surrogate[config.iNH4p].MM;
                     }
 
                 }
@@ -939,20 +1119,43 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                 flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
 
               surrogate[i].flux_chem_tot(index)+=-flux; 
-              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux+flux2;
+              surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
 	if (surrogate[i].i_irreversible>=0)
 	  {
 	    double flux=0.;
+	    double fluxloc=0.;
 	    if (surrogate[i].hydrophilic)
-	      flux+=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-	     if (surrogate[i].hydrophobic)
-	       for (iphase=0;iphase<nphase;iphase++)
-		 flux+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
-	     flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);         
-	     surrogate[i].flux_chem_tot(index)+=-flux;
-	     surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;	    
+	      {		
+		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
+		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
+		  fluxloc=fluxloc*chp;
+		flux+=fluxloc;
+	      }
+	    if (surrogate[i].hydrophobic)
+	      {
+		fluxloc=0.;
+		for (iphase=0;iphase<nphase;iphase++)
+		  fluxloc+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+
+		if (surrogate[i].irr_catalyzed_water)
+		  fluxloc=fluxloc*RH;
+		if (surrogate[i].irr_catalyzed_pH)
+		  fluxloc=fluxloc*config.chp_org_ref;
+		flux+=fluxloc;
+	      }
+	     
+	    flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);         
+	    surrogate[i].flux_chem_tot(index)+=-flux;
+	    if (surrogate[i].irr_mass_conserving)
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
+	    else
+	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
 	  }
         
       }
@@ -1128,10 +1331,13 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
               surrogate[i].Aaq=surrogate[i].Atot*Kaq*AQinit/sum;                                             
           }                                 
       }
-    else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)      
-      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq,surrogate[i].Aaq+surrogate[i].flux_chem_tot(0));
+    else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)
+      {
+	surrogate[i].Aaq=max(redmax*surrogate[i].Aaq,surrogate[i].Aaq+surrogate[i].flux_chem_tot(0)*surrogate[i].aqratio);
+	//cout << "computed " << surrogate[i].name << " " << surrogate[i].Aaq << " " << surrogate[i].Aaq0 << endl;
+      }
     else if (i==config.iHNO3 or i==config.iHCl or i==config.iNH3)      
-      surrogate[i].Ag=max(redmax*surrogate[i].Ag,surrogate[i].Ag+surrogate[i].flux_chem_tot(0));      
+      surrogate[i].Ag=max(redmax*surrogate[i].Ag,surrogate[i].Ag+surrogate[i].flux_chem_tot(0)*surrogate[i].aqratio);      
       
 
   MOinit=0.0;
@@ -1217,10 +1423,12 @@ void integer_chem_ssh(model_config &config, vector<species>& surrogate,
                              
           }        
       }
-    else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)         
-      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq0,surrogate[i].Aaq0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1)));               
+    else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)
+      {
+	surrogate[i].Aaq=max(redmax*surrogate[i].Aaq0,surrogate[i].Aaq0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1))*surrogate[i].aqratio);
+      }
     else if (i==config.iHNO3 or i==config.iHCl or i==config.iNH3)      
-      surrogate[i].Ag=max(redmax*surrogate[i].Ag0,surrogate[i].Ag0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1)));      
+      surrogate[i].Ag=max(redmax*surrogate[i].Ag0,surrogate[i].Ag0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1))*surrogate[i].aqratio);      
 }
 
 
@@ -1367,9 +1575,9 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
           }        
       }    
     else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)      
-      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq,surrogate[i].Aaq+surrogate[i].flux_chem_tot(0));
+      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq,surrogate[i].Aaq+surrogate[i].flux_chem_tot(0)*surrogate[i].aqratio);
     else if (i==config.iHNO3 or i==config.iHCl or i==config.iNH3)      
-      surrogate[i].Ag=max(redmax*surrogate[i].Ag,surrogate[i].Ag+surrogate[i].flux_chem_tot(0));      
+      surrogate[i].Ag=max(redmax*surrogate[i].Ag,surrogate[i].Ag+surrogate[i].flux_chem_tot(0)*surrogate[i].aqratio);      
   
   
   MOinit=0.0;
@@ -1471,9 +1679,9 @@ void integer_chem_sat_ssh(model_config &config, vector<species>& surrogate,
           }        
       }        
     else if (i==config.iHSO4m or i==config.iSO4mm or i==config.iSO4mm or i==config.iNO3m or i==config.iClm or i==config.iNH4p)         
-      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq0,surrogate[i].Aaq0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1)));               
+      surrogate[i].Aaq=max(redmax*surrogate[i].Aaq0,surrogate[i].Aaq0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1))*surrogate[i].aqratio);               
     else if (i==config.iHNO3 or i==config.iHCl or i==config.iNH3)      
-      surrogate[i].Ag=max(redmax*surrogate[i].Ag0,surrogate[i].Ag0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1)));      
+      surrogate[i].Ag=max(redmax*surrogate[i].Ag0,surrogate[i].Ag0+0.5*(surrogate[i].flux_chem_tot(0)+surrogate[i].flux_chem_tot(1))*surrogate[i].aqratio);      
 }
 
 
@@ -1503,7 +1711,7 @@ void adapstep_chem_ssh(model_config &config, vector<species>& surrogate, double 
   deltat1=min(tend-t,deltat1);
 }
 
-
+/*
 void solve_chemistry_ssh(model_config &config, vector<species>& surrogate,
                      double &MOinit,double &MOW,
                      double &LWC, double &AQinit, double &ionic, double &chp,
@@ -1542,8 +1750,9 @@ void solve_chemistry_ssh(model_config &config, vector<species>& surrogate,
           integer_chem_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
 
           //compute the new time step so that changes are small
-          adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
+          adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);
+	  
           t+=dt2;     
 	}
     }
-}
+    }*/

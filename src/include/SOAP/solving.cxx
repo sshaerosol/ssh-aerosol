@@ -1438,6 +1438,7 @@ void solve_system_ssh(model_config &config, vector<species>& surrogate,
   //double MMaq;  
   int i,it;
   
+  
   int n=surrogate.size();
   for (i=0;i<n;++i)
     if (surrogate[i].is_organic==false and i!=config.iH2O)
@@ -1450,13 +1451,61 @@ void solve_system_ssh(model_config &config, vector<species>& surrogate,
     initialisation_eq_ssh(config,surrogate,Temperature,RH,ionic,chp,AQinit,LWC,true);   
   
   if (config.chemistry)
+    {
+        double t=0;
+	double dt2=config.dtchem_min;
+	double dt1=dt2;
+	double MMaq;
+	int nphase=1;
+	if (config.compute_saturation)        
+	  nphase=surrogate[0].Ap_sat.size();
+
+	if (config.compute_saturation and nphase>1)
+	  {
+	    Array <double, 1> MOinit_sat,MOW_sat;
+	    MOinit_sat.resize(nphase);
+	    MOW_sat.resize(nphase);      
+	    while (t<deltat)
+	      {
+		solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
+                              Temperature, RH);
+		
+		dt1=min(deltat-t,dt1);	 
+		dt2=dt1;            
+		integer_chem_sat_ssh(config, surrogate, MOinit_sat, MOW_sat, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+	  
+		//compute the new time step so that changes are small
+		adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
+		t+=dt2;     
+	      }
+	  }
+	else
+	  {
+	    while (t<deltat)
+	      {
+		solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
+                              Temperature, RH);
+		
+		dt1=min(deltat-t,dt1);	 
+		dt2=dt1;            
+		integer_chem_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
+
+		//compute the new time step so that changes are small
+		adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);
+	  
+		t+=dt2;     
+	      }
+	  }
+
+	/*
     for (it=0;it<config.nt;it++)
       { 
         solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                               Temperature, RH);
         solve_chemistry_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                             Temperature, RH, deltat/config.nt, compute_activity_coefficients);
-      }
+      }*/
+    }
  
   solve_equilibrium_ssh(config, surrogate, MOinit,MOW, LWC, AQinit, ionic, chp,
                         Temperature, RH);
@@ -4523,11 +4572,11 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	    config.to_be_rejected=false;
 	    if (config.first_evaluation_activity_coefficients==false)
 	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
-			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,RH,
 			      deltat1,tequilibrium,true);
 	    else
 	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
-			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,RH,
 			      deltat1,tequilibrium,false); 
 
 	    //compute the new time step so that changes are small
@@ -4748,11 +4797,11 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      }*/
 	    if (config.first_evaluation_activity_coefficients==false)
 	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
-			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,RH,
 			      deltat1,config.tequilibrium,true);
 	    else
 	      dynamic_tot_ssh(config,surrogate,MOinit,MO,MOW,AQinit,AQ,conc_inorganic,
-			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,
+			      ionic,ionic_organic,organion,chp,chp1,chp0,LWC,MMaq,Temperature,RH,
 			      deltat1,config.tequilibrium,false); 
           
 		  

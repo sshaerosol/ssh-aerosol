@@ -33,7 +33,7 @@ contains
     integer::j,jesp,iter,s,k
     integer ::nesp_eq!number of species at equilibirum    
     double precision::dq(N_aerosol),qext(N_aerosol),qextold(N_aerosol)
-    double precision::qaero(N_aerosol),qgas(N_aerosol)
+    double precision::qaero(N_aerosol),qgas(N_aerosol),qgasold(N_aerosol)
     double precision:: Kelvin_effect(N_size,N_aerosol)
     double precision::ce_kernal_coef_tot(N_aerosol)
     double precision organion, watorg, proton, lwc, d_ms
@@ -41,7 +41,7 @@ contains
     integer :: eq_species(nesp_eq)! species compute with equilibrium
     integer :: eq_species2(nesp_eq+nesp_isorropia)
     double precision:: total_ms(N_aerosol)
-    double precision:: delta_t 
+    double precision:: delta_t, produced, tot_mass
 
     !**** SOAP ****
     double precision :: liquid(12), ionic
@@ -57,7 +57,8 @@ contains
 !!     ******zero init
     do jesp=1,(N_aerosol-1)
 	dq(jesp)=0.D0
-	qgas(jesp)=0.d0
+        qgas(jesp)=0.d0
+        qgasold(jesp)=0.d0 
 	qext(jesp)=0.D0
 	qextold(jesp)=0.D0
 	qaero(jesp)=0.d0
@@ -208,10 +209,67 @@ contains
             liquid)
     endif
 
+    if (soap_inorg==0) then
+       do s=1,nesp_isorropia
+          jesp=isorropia_species(s)
+          qextold(jesp)=qaero(jesp)
+          qgasold(jesp)=qgas(jesp)
+       enddo
+    endif
+
     if (ISOAPDYN.eq.0.or.soap_inorg==1) then
        call ssh_soap_eq(watorg, lwc, Relative_Humidity, ionic, proton, &
             Temperature, qaero, qgas, liquid, delta_t, qaq)
     endif
+
+    if (soap_inorg==0) then
+       do s=1,nesp_isorropia
+          jesp=isorropia_species(s)
+          produced=qaero(jesp)-qextold(jesp)+qgas(jesp)-qgasold(jesp)
+          !print*,qgas
+          !print*,produced,qaero(jesp),qextold(jesp)
+          !print*,"gas avant: ",concentration_gas(jesp),qgasold(jesp)
+          !if (produced.ne.0.) then
+          !if(aerosol_species_interact(jesp).GT.0) then
+          !   if (inon_volatile(jesp).EQ.0) then
+          !      concentration_gas(jesp)=max(concentration_gas(jesp)+qgas(jesp)-qgasold(jesp),0.)
+          !   endif   
+          !endif
+          !print*,"gas apres: ",concentration_gas(jesp)
+          tot_mass=0.
+          if(aerosol_species_interact(jesp).GT.0) then
+             if (inon_volatile(jesp).EQ.0) then
+                tot_mass=concentration_gas(jesp) !+qgas(jesp)-qgasold(jesp),0.)
+             endif   
+          endif
+          do j=1,N_size
+             !if(concentration_index(j, 1) <= ICUT_org) then
+             tot_mass=tot_mass+concentration_mass(j,jesp)
+             !endif
+          enddo
+          !print*,produced,qgas(jesp)-qgasold(jesp),produced+qgas(jesp)-qgasold(jesp)
+          !if (produced+tot_mass<0.) then
+          !   print*,"err: ",produced,tot_mass,produced+tot_mass
+          !   stop
+          !endif
+          produced=max(produced,-tot_mass)
+
+          if (tot_mass>0) then
+             if(aerosol_species_interact(jesp).GT.0) then
+                if (inon_volatile(jesp).EQ.0) then
+                   concentration_gas(jesp)=concentration_gas(jesp)*(1.d0+produced/tot_mass) !qgas(jesp)-qgasold(jesp),0.)
+                endif
+             endif
+             do j=1,N_size
+                !if(concentration_index(j, 1) <= ICUT_org) then
+                concentration_mass(j,jesp)=concentration_mass(j,jesp)*(1.d0+produced/tot_mass) !*concentration_mass(j,jesp)
+                !endif
+             enddo
+          endif
+          !endif
+       enddo
+    endif
+    
 
     if (NACL_IN_THERMODYNAMICS==0) then
        qaero(ENa) = qaerona

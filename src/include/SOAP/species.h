@@ -124,6 +124,7 @@ namespace ssh_soap
     double chp_org_ref;
 
     string reaction_file;
+    bool inorganic_chemistry;
 
   };
 
@@ -212,9 +213,9 @@ namespace ssh_soap
     int ioligo;
     bool rion;           
     int nion;
-    Array<string, 1> ion,rion_product;
-    Array<bool, 1> rion_catalyzed;
-    Array<double, 1> kion;
+    vector <string> ion,rion_product;
+    vector <bool> rion_catalyzed,rion_ph_catalyzed,rion_water_catalyzed;
+    vector <double> kion;
     Array<int, 1> iion,iproduct;
     double velocity,knui;
 
@@ -236,7 +237,8 @@ namespace ssh_soap
     string irreversible_name;
     int i_irreversible;
     bool catalyzed_ph;
-    
+    bool irr_catalyzed_water,irr_catalyzed_pH,irr_mass_conserving;
+    double aqratio;
   };
   
 }

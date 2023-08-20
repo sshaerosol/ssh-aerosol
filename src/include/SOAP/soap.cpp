@@ -305,6 +305,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       surrogate[i].fion2 = 0.0;
       surrogate[i].gamma_aq=1.0;
       surrogate[i].gamma_org=1.0;
+      surrogate[i].aqratio=1;
     }
 
   /*** Use the global equilibrium approach ***/
@@ -323,7 +324,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  int iq = surrogate[i].soap_ind;
 	  //cout << surrogate[i].name << " " << iq << endl;
 	  if (iq != -1)
-	    {
+	    { 
 	      if (surrogate[i].is_organic)
 		{
 		  surrogate[i].Ag = qgas[iq];
@@ -352,16 +353,35 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		    {
 		      surrogate[config.iSO4mm].Aaq=qaero[iq]/surrogate[config.iH2SO4].MM*surrogate[config.iSO4mm].MM;
 		      surrogate[config.iHSO4m].Aaq=0.0;
+		      surrogate[config.iSO4mm].aqratio=1.;
+		      surrogate[config.iHSO4m].aqratio=1.;
 		    }
 		  if (i==config.iHNO3)
 		    {
 		      surrogate[config.iNO3m].Aaq=qaero[iq]/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		      if (surrogate[i].Ag+surrogate[config.iNO3m].Aaq>0)
+			surrogate[config.iNO3m].aqratio=surrogate[config.iNO3m].Aaq/(surrogate[i].Ag/surrogate[i].MM*surrogate[config.iNO3m].MM+surrogate[config.iNO3m].Aaq);
+		      else
+			surrogate[config.iNO3m].aqratio=1.;
 		      //cout << qaero[iq] << " " << config.iNO3m << " " << surrogate[config.iNO3m].Aaq << " " << surrogate[config.iNO3m].MM << " " << surrogate[config.iHNO3].MM << endl;
 		    }
 		  if (i==config.iNH3)
-		    surrogate[config.iNH4p].Aaq=qaero[iq]/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
+		    {
+		      surrogate[config.iNH4p].Aaq=qaero[iq]/surrogate[config.iNH3].MM*surrogate[config.iNH4p].MM;
+		      if (surrogate[i].Ag+surrogate[config.iNH4p].Aaq>0)
+			surrogate[config.iNH4p].aqratio=surrogate[config.iNH4p].Aaq/(surrogate[i].Ag/surrogate[i].MM*surrogate[config.iNH4p].MM+surrogate[config.iNH4p].Aaq);
+		      else
+			surrogate[config.iNH4p].aqratio=1.;
+		      
+		    }
 		  if (i==config.iHCl)
-		    surrogate[config.iClm].Aaq=qaero[iq]/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
+		    {
+		      surrogate[config.iClm].Aaq=qaero[iq]/surrogate[config.iHCl].MM*surrogate[config.iClm].MM;
+		      if (surrogate[i].Ag+surrogate[config.iClm].Aaq>0)
+			surrogate[config.iClm].aqratio=surrogate[config.iClm].Aaq/(surrogate[i].Ag/surrogate[i].MM*surrogate[config.iClm].MM+surrogate[config.iClm].Aaq);
+		      else
+			surrogate[config.iClm].aqratio=1.;
+		    }
 		}
 	      /*
 		else if (config.compute_inorganic)
@@ -440,7 +460,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 			     LWC, AQinit, ionic, chp,
 			     Temperature, RH, deltat);
 
-      if (config.compute_inorganic)
+      if (config.compute_inorganic or config.inorganic_chemistry)
 	{
 	  liquid[1]=0.;
 	  liquid[3]=0.;
@@ -449,7 +469,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  liquid[6]=surrogate[config.iNO3m].Aaq/1.0e6/62.0; // NO3-
 	  liquid[2]=surrogate[config.iNH4p].Aaq/1.0e6/18.0; // NH4+
 	  liquid[0]=surrogate[config.iHp].Aaq/1.0e6; // H+
-
+ 
 	  //Multiply by gamma to output activity and compute pH. pH=-log10(activity(H+))
 	  chp=chp*surrogate[config.iHp].gamma_aq;
 	}     
@@ -485,20 +505,38 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		    LWCorg = surrogate[i].Ap + surrogate[i].Aaq;
                 }
 	      
-	      if (config.compute_inorganic)
+	      if (config.compute_inorganic or config.inorganic_chemistry)
 		{
 		  if (surrogate[i].is_inorganic_precursor) //inorganic gas concentrations
 		    {		      
 		      qgas[iq]=surrogate[i].Ag ;
 		      if (i==config.iH2SO4)
-			qaero[iq]=surrogate[config.iSO4mm].Aaq*surrogate[config.iH2SO4].MM/surrogate[config.iSO4mm].MM+
-			  surrogate[config.iHSO4m].Aaq*surrogate[config.iH2SO4].MM/surrogate[config.iHSO4m].MM ;
+			{
+			  qaero[iq]=surrogate[config.iSO4mm].Aaq*surrogate[config.iH2SO4].MM/surrogate[config.iSO4mm].MM+
+			    surrogate[config.iHSO4m].Aaq*surrogate[config.iH2SO4].MM/surrogate[config.iHSO4m].MM ;
+			}
 		      if (i==config.iHNO3)
-			qaero[iq]=surrogate[config.iNO3m].Aaq*surrogate[config.iHNO3].MM/surrogate[config.iNO3m].MM;
+			{
+			  qaero[iq]=surrogate[config.iNO3m].Aaq*surrogate[config.iHNO3].MM/surrogate[config.iNO3m].MM;
+			  
+			  if (config.inorganic_chemistry and config.compute_inorganic==false)
+			    if (surrogate[config.iNO3m].aqratio>0)
+			      qgas[iq]=qaero[iq]/surrogate[config.iNO3m].aqratio*(1-surrogate[config.iNO3m].aqratio);
+			}
 		      if (i==config.iNH3)
-			qaero[iq]=surrogate[config.iNH4p].Aaq*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
+			{
+			  qaero[iq]=surrogate[config.iNH4p].Aaq*surrogate[config.iNH3].MM/surrogate[config.iNH4p].MM;
+			  if (config.inorganic_chemistry and config.compute_inorganic==false)
+			    if (surrogate[config.iNH4p].aqratio>0)
+			      qgas[iq]=qaero[iq]/surrogate[config.iNH4p].aqratio*(1-surrogate[config.iNH4p].aqratio);
+			}
 		      if (i==config.iHCl)
-			qaero[iq]=surrogate[config.iClm].Aaq*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
+			{
+			  qaero[iq]=surrogate[config.iClm].Aaq*surrogate[config.iHCl].MM/surrogate[config.iClm].MM;
+			  if (config.inorganic_chemistry and config.compute_inorganic==false)
+			    if (surrogate[config.iClm].aqratio>0)
+			      qgas[iq]=qaero[iq]/surrogate[config.iClm].aqratio*(1-surrogate[config.iClm].aqratio);
+			}
 		      if (i==config.iCO2)
 			{
 			  qaero[iq]=surrogate[config.iCO3mm].Aaq+
