@@ -10,15 +10,33 @@ case $i in
     chemistry="${i#*=}"
     shift
     ;;
+# for genoa
+# Default: genoa = no    
+    -g=*|--genoa=*)
+    genoa="${i#*=}"
+    shift
+    ;;
 esac
 done
+
+# for genoa
+if [ -z $genoa ]; then                     
+    genoa="no"
+elif [[ $genoa == "fast" || $genoa == "complete" ]]; then             
+
+    # active tag
+    echo "GENOA version : $genoa"
+    # default to use genoa folder
+    chemistry="genoa"
+fi
+
 if [ -z $chemistry ]; then
     chemistry="cb05"
 fi
 echo "Chemistry: $chemistry"
 
 cd src
-scons -c chemistry=$chemistry
+scons -c chemistry=$chemistry genoa=$genoa
 
 rm -f `find -iname "*.bck"` 
 rm -f `find -iname "*.o"`
@@ -60,17 +78,45 @@ then
     rm -f $file
 fi
 
-cd species-list
-rm -f `find -iname "species-list.dat"` 
-cd ../
+if [[ $genoa != "fast" && $genoa != "complete" ]]; then
+    # default
+    cd species-list
+    rm -f `find -iname "species-list.dat"` 
+    cd ../
+    # remove temporary files
+    cd src/include/CHEMISTRY/$chemistry
+    rm -f `find -iname "combined_*.dat"`
+    cd ../../spack/src/
+    rm -f `find -iname "generate_chem_files.sh"`
+    cd ../../
+fi
 
-# remove temporary files
-cd src/include/CHEMISTRY/$chemistry
-rm -f `find -iname "combined_*.dat"`
-cd ../../spack/src/
-rm -f `find -iname "generate_chem_files.sh"`
-cd ../../
+# deep clean if fast mode
+if [[ $genoa == "fast" ]]; then
 
+    # Check if needs a deep clean
+    if [[ -d "src/include/CHEMISTRY" ]]; then
+        # List of files/folders to exclude
+        excluded=("clean" "cleantmp" "src" "compile")
+
+        # Loop through all items in the current directory
+        for item in *; do
+            # Check if the item should be excluded
+            if ! [[ "${excluded[@]}" =~ "$item" ]]; then
+                # Remove the item (file or directory)
+                rm -r "$item"
+                echo "Removed: $item"
+            fi
+        done
+    
+        rm -rf "src/include/CHEMISTRY"
+        echo "Removed: src/include/CHEMISTRY"
+
+        rm -rf "src/include/spack"
+        echo "Removed: src/include/spack"
+    fi
+    
+fi
 
 # file="combined_reactions.dat"
 # if [ -f $file ] 

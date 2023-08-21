@@ -1,0 +1,62 @@
+# Copyright (C) 2014, ENPC - INRIA - EDF R&D
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+polyphemus_path = "../../../../"
+
+utils = SConscript(polyphemus_path + 'scons/utils')(globals())
+
+
+################
+# C++ programs #
+################
+
+# Include paths: put the absolute paths, the relative paths or the paths into
+# the Polyphemus directory.
+include_path = """include/Talos
+                  include/SeldonData
+                  """
+
+# [Optional] Compiled library paths: put absolute paths, relative paths or
+# paths that are in the Polyphemus directory. Put the list of paths to
+# compiled libraries that may not be installed in your system root.
+library_path = None
+
+utils.create_programs()
+
+####################
+# Fortran programs #
+####################
+
+# Avoids library checking messages since they don't change.
+utils.run.quiet(True)
+
+# Forcibly sets the linker for older GCC versions.
+if ARGUMENTS["intel"] == "yes":
+    linker = "ifort"
+else:
+    linker = "gfortran"
+
+include_path = "./spack"
+target_list = ["spack_generator.f"]
+
+utils.create_programs()
+

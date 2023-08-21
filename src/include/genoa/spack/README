@@ -1,0 +1,26 @@
+
+Spack: Spack Chemical Model Generator 
+=====================================
+
+For generating the chemistry models
+------------------------------------
+
+$ cd SparseLU
+$ get_chem_files NAMSPECIES REACTIONS (for the gas-phase chemistry)
+$ get_chem_files-siream NAMSPECIES REACTIONS (for the aerosol chemistry)
+
+where NAMSPECIES and REACTIONS are resp. the list of species and reactions to be computed (see in the Spack/Mechanism/ directory).
+
+Then you have in the fortran_codes/ directory all the routines in fortran you need for Polair3D chemistry)..
+
+
+Note
+-----
+Spack comes with Talos and SeldonData libraries included.
+If there is a need to get the latest release of these libraries,
+they can be fetched with:
+$ cd include
+$ rm -fr Talos
+$ git clone http://git.gitorious.org/polyphemus/talos.git ./Talos
+$ rm -fr SeldonData
+$ git clone http://git.gitorious.org/polyphemus/seldondata.git ./SeldonData

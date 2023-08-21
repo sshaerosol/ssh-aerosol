@@ -1,0 +1,24 @@
+      double precision petit
+      parameter (petit = 1.D-30)
+
+C	Labels for files kinetic.f, fexchem.f and jacdchemdc.f
+C	Label for non_zero.dat
+C	Labels for fexprod.f, fexloss.f,rates.f,dratedc.f
+C 	Label for dimensions.f
+
+      integer nficK,nficF,nficJ,nficnz,nficloss,nficprod
+      integer nficw,nficdw
+      integer nficdim
+      common/labfiles/nfick,nficf,nficj,nficnz,nficloss,nficprod,
+     &      nficw,nficdw,nficdim
+      integer nficK90,nficF90,nficJ90,nficnz90,nficloss90,nficprod90
+      integer nficw90,nficdw90
+      integer nficdim90
+      common/labfiles90/nfick90,nficf90,nficj90,nficnz90,nficloss90,
+     &      nficprod90,nficw90,nficdw90,nficdim90
+
+C
+C	Current free label
+      integer ipiste
+      common/piste/ipiste
+

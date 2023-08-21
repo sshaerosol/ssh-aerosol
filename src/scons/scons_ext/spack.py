@@ -31,7 +31,8 @@ class Spack:
     def __init__(self, utils):
         self.utils = utils
 
-    def dependency(self, path, exclude_dependency, build_dir=None):
+    # modified to use genoa
+    def dependency(self, path, exclude_dependency, build_dir=None, genoa=False):
         path = os.path.abspath(path)
         species_file = glob.glob(os.path.join(path, "*.species")) + \
                        glob.glob(os.path.join(path, "species"))
@@ -72,19 +73,36 @@ class Spack:
 
         spack_fortran_output = []
 
-        for filename in ["dimensions.f90", "dratedc.f90", "fexchem.f90",
+        # assign files & path
+        if genoa: # for genoa
+            # use in two-step time numerical solver
+            filenames = ["dimensions.f90", "dratedc.f90", "kinetic.f90",
+                         "rates.f90", "fexloss.f90", "fexprod.f90"]
+
+            # folder to spack files
+            foldername = "include/genoa/spack/src/generate_chem_files.sh"
+            
+        else: # default
+            # files need to be compiled
+            filenames = ["dimensions.f90", "dratedc.f90", "fexchem.f90",
                          "jacdchemdc.f90", "kinetic.f90", "rates.f90",
                          "LU_decompose.f90", "LU_solve.f90", "LU_solve_tr.f90",
                          # use in two-step time numerical solver
-                         "fexloss.f90", "fexprod.f90"]:
+                         "fexloss.f90", "fexprod.f90"]
+            
+            # folder to spack files
+            foldername = "include/spack/src/generate_chem_files.sh"
+        
+        # read files            
+        for filename in filenames:
 
             fortran_file = os.path.join(path, filename)
             spack_fortran_output.append(fortran_file)
 
         spack_config_output = os.path.join(path, "species.spack.dat")
 
-        spack_exe = os.path.join(self.utils.polyphemus_path,
-                                "include/spack/src/generate_chem_files.sh")
+        spack_exe = os.path.join(self.utils.polyphemus_path, foldername)
+                                
         spack_arg = [os.path.basename(p)
                      for p in species_file + reactions_file]
         spack_input = [spack_config] + species_file + reactions_file

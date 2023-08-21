@@ -17,13 +17,6 @@ case $i in
     sharedlib="${i#*=}"        
     shift                       
     ;;                              
-# Read the option to choose whether Na and Cl are taken into account.
-# Accepted values: yes or no
-# Default: nacl = no
-    -n=*|--nacl=*)
-    nacl="${i#*=}"
-    shift
-    ;;
 # Read the option to choose whether openmp is taken into account.
 # Accepted values: yes or no
 # Default: openmp = no
@@ -46,67 +39,19 @@ case $i in
     iscombining="${i#*=}"
     shift
     ;;
+    
+# Read the option to use genoa
+# Accepted values: fast, complete, no
+# Default: genoa = no    
+    -g=*|--genoa=*)
+    genoa="${i#*=}"
+    shift
+    ;;
+
 esac
 done
 
-
-if [ -z $chemistry ]; then
-    chemistry="cb05"
-fi
-echo "Chemistry: $chemistry"
-
-if [ -z $nacl ]; then
-    nacl="no"
-fi
-echo "NaCl: $nacl"
-
-if [ -z $openmp ]; then
-    openmp="no"
-fi
-echo "OpenMP: $openmp"
-
-if [ -z $sharedlib ]; then                     
-    sharedlib="no"                
-fi
-echo "SharedLib: $sharedlib"
-
-if [ -z $profile ]; then                     
-    profile="fast"                
-fi
-echo "Compiling profile : $profile"
-
-if [ -z $iscombining ]; then                     
-    iscombining="no"                
-fi
-echo "Combining with H2O : $iscombining"
-
-# Make generate_chem_files.sh
-chem_script="generate_chem_files.sh"
-cd src/include/spack/src
-cp $chem_script.sed $chem_script
-if [ $iscombining == "yes" ]; then
-    # Check if a mechanism without h2o is used.
-    if [ $chemistry != "cb05-ozone" ]; then
-        echo "Please use cb05-ozone as the chemistry mechanism."
-        echo "compile -b=yes -c=cb05-ozone"
-        exit 0
-    else
-        sed -i 's/%is_combining%/1/g' $chem_script
-    fi
-else
-    sed -i 's/%is_combining%/0/g' $chem_script
-fi
-cd ../../../../
-
-file="ssh-aerosol"
-if [ -h $file ] 
-then
-    rm -f $file
-fi
-
-./cleantmp $chemistry
-
-
+#ulimit -s unlimited
 # Path to blitz and netcdf libraries
 #export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH
 # Path to blitz and netcdf files
@@ -116,20 +61,108 @@ fi
 # path to swig
 #export SWIG=/home/cereaadm/usr/local/bin/swig
 
+if [[ $genoa == "fast" || $genoa == "complete" ]]; then
+    # used for genoa 
+    # some changes are irreversible
+
+    # active tag
+    echo "GENOA version : $genoa"
+    
+    # default paramters to use genoa - change here
+    chemistry="genoa"
+    openmp="no"
+    sharedlib="no"                
+    profile="fast"                
+    iscombining="no"
+    
+    # Check folder exists
+    if [ ! -d "src/include/genoa" ]; then
+        echo "Error: Folder 'src/include/genoa' does not exist."
+        exit 1
+    fi
+    
+else # default no genoa
+
+    # default not use genoa settings                  
+    genoa="no"
+
+    # check if it is used to compile genoa before
+    # check folder exists
+    if [[ ! -d "src/include/CHMISTRY" || ! -d "src/include/spack" ]]; then
+        echo "Error: 'src/include/CHMISTRY' or 'src/include/spack' does not exist."
+        echo "Please recompile it with -g=fast or -g=complete option."
+        exit 1
+    fi
+
+    # not used for genoa 
+    if [ -z $chemistry ]; then
+        chemistry="cb05"
+    fi
+    echo "Chemistry: $chemistry"
+
+    if [ -z $openmp ]; then
+        openmp="no"
+    fi
+    echo "OpenMP: $openmp"
+
+    if [ -z $sharedlib ]; then                     
+        sharedlib="no"                
+    fi
+    echo "SharedLib: $sharedlib"
+
+    if [ -z $profile ]; then                     
+        profile="fast"                
+    fi
+    echo "Compiling profile : $profile"
+
+    if [ -z $iscombining ]; then                     
+        iscombining="no"                
+    fi
+    echo "Combining with H2O : $iscombining"
+
+    # Make generate_chem_files.sh
+    chem_script="generate_chem_files.sh"
+    cd src/include/spack/src
+    cp $chem_script.sed $chem_script
+    if [ $iscombining == "yes" ]; then
+        # Check if a mechanism without h2o is used.
+        if [ $chemistry != "cb05-ozone" ]; then
+            echo "Please use cb05-ozone as the chemistry mechanism."
+            echo "compile -b=yes -c=cb05-ozone"
+            exit 0
+        else
+            sed -i 's/%is_combining%/1/g' $chem_script
+        fi
+    else
+        sed -i 's/%is_combining%/0/g' $chem_script
+    fi
+    cd ../../../../
+fi
+
+file="ssh-aerosol"
+if [ -h $file ] 
+then
+    rm -f $file
+fi
+
+./cleantmp $chemistry
+
 cd src
-#scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry nacl=$nacl openmp=no sharedlib=no
-scons -j8 profile=$profile chemistry=$chemistry nacl=$nacl openmp=$openmp sharedlib=$sharedlib
+#scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry openmp=no sharedlib=no genoa=no
+scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$sharedlib genoa=$genoa
 
 cd ..
 ln -s src/ssh-aerosol-$chemistry ssh-aerosol
 
 
-# Make a link to "species-list.dat" containing the species list.
-# This file is automatically generated by SPACK.
-cd species-list
-file="species-list.dat"
-if [ -h $file ] 
-then
-    mv $file $file.bck
+if [[ $genoa != "fast" && $genoa != "complete" ]]; then # not used for genoa to save time
+    # Make a link to "species-list.dat" containing the species list.
+    # This file is automatically generated by SPACK.
+    cd species-list
+    file="species-list.dat"
+    if [ -h $file ] 
+    then
+        mv $file $file.bck
+    fi
+    ln -s ../src/include/CHEMISTRY/$chemistry/$file
 fi
-ln -s ../src/include/CHEMISTRY/$chemistry/$file

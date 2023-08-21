@@ -1,0 +1,8 @@
+========== 
+- See "parametre" to choose a chemical mechanism that will be used.
+There are three mechanisms disponible (RACM, CB05 and RACM2).
+
+- If you use different chemcial mechanisms, please make sure that the heterogeneous reaction numbers "HR" are right in "write_header-siream.f".
+
+Last modifications by Youngseob KIM (2010/02/23)
+==========
