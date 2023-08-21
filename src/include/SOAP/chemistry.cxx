@@ -158,7 +158,7 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
           }
 
         if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
-          for (jion=0;jion<surrogate[i].nion;jion++)
+          for (jion=0;jion<surrogate[i].nion_chem;jion++)
             {            
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
               double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
@@ -448,7 +448,7 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
             surrogate[j].flux_chem_tot(index)+=flux;			                                          
           }    
         if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
-          for (jion=0;jion<surrogate[i].nion;jion++)
+          for (jion=0;jion<surrogate[i].nion_chem;jion++)
             {              
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
               double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
@@ -752,7 +752,7 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
           }
 
         if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
-          for (jion=0;jion<surrogate[i].nion;jion++)
+          for (jion=0;jion<surrogate[i].nion_chem;jion++)
             {            
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
               double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;	      
@@ -1049,7 +1049,7 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
           }
 
         if (surrogate[i].rion and surrogate[i].Aaq>0.0) // and config.compute_inorganic)
-          for (jion=0;jion<surrogate[i].nion;jion++)
+          for (jion=0;jion<surrogate[i].nion_chem;jion++)
             {              
               double molality=surrogate[surrogate[i].iion(jion)].gamma_aq*surrogate[surrogate[i].iion(jion)].Aaq/surrogate[i].MM/conc_org*1000.0;
               double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;	      

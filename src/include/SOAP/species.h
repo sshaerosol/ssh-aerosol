@@ -213,6 +213,7 @@ namespace ssh_soap
     int ioligo;
     bool rion;           
     int nion;
+    int nion_chem;
     vector <string> ion,rion_product;
     vector <bool> rion_catalyzed,rion_ph_catalyzed,rion_water_catalyzed;
     vector <double> kion;

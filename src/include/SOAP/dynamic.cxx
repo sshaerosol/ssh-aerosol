@@ -1052,7 +1052,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                     }
 
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
-                for (jion=0;jion<surrogate[i].nion;jion++)
+                for (jion=0;jion<surrogate[i].nion_chem;jion++)
                   {            
                     double molality=surrogate[surrogate[i].iion(jion)].gamma_aq_bins(b)*surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;
                     double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
@@ -1363,7 +1363,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                     }
 
                 if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
-                  for (jion=0;jion<surrogate[i].nion;jion++)
+                  for (jion=0;jion<surrogate[i].nion_chem;jion++)
                     {            
                       double molality=surrogate[surrogate[i].iion(jion)].gamma_aq_bins(b)*surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;
                       double flux=surrogate[i].kion[jion]*molality*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
@@ -1623,7 +1623,7 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 		  }
 
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
-                for (jion=0;jion<surrogate[i].nion;jion++)
+                for (jion=0;jion<surrogate[i].nion_chem;jion++)
                   {            
                     double molality=surrogate[surrogate[i].iion(jion)].gamma_aq_bins(b)*surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;
                     double flux=surrogate[i].kion[jion]*molality*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b);

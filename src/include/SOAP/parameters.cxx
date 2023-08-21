@@ -15,10 +15,19 @@ using namespace ssh_soap;
 
 void read_reactions(model_config &config, vector<species>& surrogate)
 {
+  int i,j,k;
+  int n=surrogate.size();
+  config.chemistry=false;
+  config.inorganic_chemistry=false;
+  for (i=0;i<n;i++)
+    {
+      surrogate[i].nion_chem=0;
+      surrogate[i].rion=false;
+    }
+  
   if (config.reaction_file.length()>5)
     {
-      int i,j,k;
-      int n=surrogate.size();
+
       ifstream inFlux(config.reaction_file.c_str());
       if(inFlux)
 	{
@@ -31,12 +40,7 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 	  exit(0);
 	}
 
-      config.inorganic_chemistry=false;
-      for (i=0;i<n;i++)
-	{
-	  surrogate[i].nion=0;
-	  surrogate[i].rion=false;
-	}
+
       
       string line;
       while(getline(inFlux, line))
@@ -168,10 +172,10 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			    for (k=0;k<n;k++)
 			      if (surrogate[k].name==paramloc[3])
 				{
-				  surrogate[i].nion++;
+				  surrogate[i].nion_chem++;
 				  surrogate[i].rion=true;
 
-				  cout << surrogate[i].name << " " << surrogate[j].name << " " << surrogate[k].name << " " << surrogate[i].nion << endl;				  
+				  cout << surrogate[i].name << " " << surrogate[j].name << " " << surrogate[k].name << " " << surrogate[i].nion_chem << endl;				  
 
 				  if (paramloc[7]=="1")
 				    {
@@ -336,8 +340,8 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 
       if (surrogate[i].is_organic and surrogate[i].rion)
         {
-          surrogate[i].iion.resize(surrogate[i].nion);
-          surrogate[i].iproduct.resize(surrogate[i].nion);
+          surrogate[i].iion.resize(surrogate[i].nion_chem);
+          surrogate[i].iproduct.resize(surrogate[i].nion_chem);
           surrogate[i].iion=-1;
           surrogate[i].iproduct=-1;
         }
@@ -349,7 +353,7 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
               if (surrogate[j].name==surrogate[i].name_oligomer)
                 surrogate[i].ioligo=j;
             if (surrogate[i].rion)
-              for (jion=0;jion<surrogate[i].nion;jion++)
+              for (jion=0;jion<surrogate[i].nion_chem;jion++)
                 {                
                   if (surrogate[j].name==surrogate[i].ion[jion])
                     surrogate[i].iion(jion)=j;
