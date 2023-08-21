@@ -102,7 +102,7 @@ module aInitialization
 
   ! genoa add to run chemistry with constant profile
   integer, save :: ncst_gas, nRO2_chem, ncst_aero ! number of species
-  integer, save :: iRO2, iRO2_cst ! RO2 pool index in gas species list
+  integer, save :: iRO2, iRO2_cst, keep_gp ! RO2 pool index in gas species list
   integer, save :: tag_RO2 ! treat for RO2-RO2 reaction: 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   integer, dimension(:), allocatable, save :: cst_gas_index, RO2index, cst_aero_index ! index
   double precision, dimension(:,:), allocatable, save :: cst_gas  ! unchanged conc. for gas phase species
@@ -443,7 +443,7 @@ contains
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
-         tag_twostep
+         tag_twostep, keep_gp ! genoa
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -786,7 +786,10 @@ contains
     delta_latitude = -999.d0
     n_altitude = -999
     altitude_photolysis_input = -999.d0
+
+    ! default genoa related paramters
     tag_twostep = 0
+    keep_gp = 0
 
     ! init genoa files: RO2 reaction
     tag_RO2 = 0

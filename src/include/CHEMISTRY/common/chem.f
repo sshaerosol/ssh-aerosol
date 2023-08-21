@@ -461,7 +461,8 @@ C     Storage in the array of chemical concentrations.
      $     ,option_photolysis,jBiPER,kBiPER,INUM,IDENS
      $     ,DLnumconc_aer,mass_density_aer
      $     ,ncst_gas, cst_gas, cst_gas_index !genoa use constant gas conc.
-     $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index) ! for RO2-RO2 reaction
+     $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index  ! for RO2-RO2 reaction
+     $     ,aerosol_species_interact) ! add to compute keep_gp
 
 C------------------------------------------------------------------------
 C     
@@ -570,6 +571,12 @@ C     genoa for RO2-RO2 reaction and constant profile
       INTEGER cst_gas_index(ncst_gas), RO2index(nRO2_chem)
       DOUBLE PRECISION RO2,cst_gas(ncst_gas),ZC_cst(ncst_gas)
 
+C     genoa keep_gp: gas-particle partitioning
+      integer s, keep_gp ! used for genoa with large timestep
+      integer aerosol_species_interact(Ns)
+      DOUBLE PRECISION toadd, ZCtot_save(ns)
+      DOUBLE PRECISION ratio_gas(ns),ZCtot(NS),DLconc_save(ns)
+
 C     Aerosol density converted in microg / microm^3.
       RHOA = fixed_density_aer * 1.D-09
 C     Aerosol discretization converted in microm.
@@ -657,15 +664,46 @@ C     Projection.
 !     Conversion mug/m3 to molecules/cm3.
       DO Jsp=1,Ns
          ZC(Jsp) = DLconc(Jsp)* convers_factor(Jsp)
+         ! genoa keep_gp
+         DLconc_save(Jsp)=DLconc(Jsp)
+         ZCtot(Jsp)=ZC(Jsp)
+         ratio_gas(Jsp)=1.d0
       ENDDO
+
+      ! genoa keep_gp
+      if (keep_gp==1) then
+         do s = 1, Ns_aer
+            Jsp=aerosol_species_interact(s)
+            !print*,s,Jsp
+            if (Jsp>0.) then
+               conc_tot=0.0D0
+               DO Jb=1,Nbin_aer
+                  conc_tot = conc_tot + DLconc_aer(Jb,s) 
+               ENDDO
+               
+               ZCtot(Jsp) = (DLconc(Jsp)+conc_tot)*convers_factor(Jsp)
+               if ( ZCtot(Jsp)>0.d0) then
+                  ratio_gas(Jsp)= ZC(Jsp)/ZCtot(Jsp)
+               else
+                  ratio_gas(Jsp)= 1.d0
+               endif
+            endif
+         ENDDO
+      endif
+      !print*,maxval(ratio_gas)
 
 C!  input constant concentration genoa
       if (ncst_gas.gt.0) then
         do i1=1,ncst_gas
            ZC_cst(i1)=cst_gas(i1)* convers_factor(cst_gas_index(i1))
            ZC(cst_gas_index(i1))=ZC_cst(i1)
+           ! genoa keep_gp
+           ZCtot(cst_gas_index(i1))=ZC_cst(i1)
+           ZCtot_save(cst_gas_index(i1))=ZCtot(cst_gas_index(i1))
+           ratio_gas(i1)=1.d0
         enddo
       endif
+      ZCtot_save(:)=ZCtot(:) ! genoa keep_gp
 
 C     Initialization of granulo for kinetic cte of heterogeneous rxns
       DO Jb=1,Nbin_aer
@@ -697,8 +735,8 @@ C     two-step solver starts
 
       ! init conc.
       do Jsp=1,NS
-        concii(Jsp)=ZC(Jsp) 
-        conci(Jsp)=ZC(Jsp)  
+         concii(Jsp)=ZCtot(Jsp) ! genoa keep_gp
+         conci(Jsp)=ZCtot(Jsp)  ! genoa keep_gp
       enddo
 
       !premier calcul de l'ordre 1
@@ -741,6 +779,7 @@ C     two-step solver starts
         if (ncst_gas.gt.0) then
             do i1=1,ncst_gas
                ZC(cst_gas_index(i1))=ZC_cst(i1)
+               ZCtot(cst_gas_index(i1))=ZC_cst(i1)! genoa keep_gp
             enddo
         endif
 
@@ -755,29 +794,33 @@ C     two-step solver starts
         call ssh_fexloss(Nr,Ns,dw,chlo0)
 
         do Jsp=1,NS
-        if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
+          if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
             !init
-            ratloss=chlo0(Jsp)
-            ZC(Jsp)=(conci(Jsp)+tstep*chpr0(Jsp))
-     &                    /(dun+tstep*ratloss)
-                  ! clip
-                  if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
-            endif
-             enddo
+            ratloss=chlo0(Jsp)*ratio_gas(Jsp) ! genoa keep_gp
+            ZCtot(Jsp)=(conci(Jsp)+tstep*chpr0(Jsp))
+     &                 /(dun+tstep*ratloss)
+            ZC(Jsp)=ratio_gas(Jsp)*ZCtot(Jsp)
+              ! clip
+            if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
+            if(ZCtot(Jsp)<dzero) ZCtot(Jsp)=dzero
+          endif
+        enddo
       enddo
 
       ! keep inorganic constant
       if (ncst_gas.gt.0) then
         do i1=1,ncst_gas
            ZC(cst_gas_index(i1))=ZC_cst(i1)
+           ZCtot(cst_gas_index(i1))=ZC_cst(i1) ! genoa keep_gp
         enddo
       endif
 
       ! calculate error
       error_max=0.d0 
       do Jsp=1,NS
-        wk=atol+rtol*ZC(Jsp)
-        error_max=max(error_max,abs(ZC(Jsp)-conci(Jsp))/wk)
+         wk=atol+rtol*ZCtot(Jsp)*ratio_gas(Jsp) ! genoa keep_gp
+         error_max=max(error_max,
+     s        ratio_gas(Jsp)*abs(ZCtot(Jsp)-conci(Jsp))/wk)
       enddo
 
       ! set the current time
@@ -787,7 +830,7 @@ C     two-step solver starts
 
       ! assgin the conc. after 1st order calculation
       do Jsp=1,NS
-        conci(Jsp)=ZC(Jsp)
+         conci(Jsp)=ZCtot(Jsp)
       enddo
 
       ! pour evider diviser par zero
@@ -846,6 +889,7 @@ C     two-step solver starts
             if (ncst_gas.gt.0) then
                do i1=1,ncst_gas
                   ZC(cst_gas_index(i1))=ZC_cst(i1)
+                  ZCtot(cst_gas_index(i1))=ZC_cst(i1) ! genoa keep_gp
                enddo
             endif
 
@@ -860,16 +904,19 @@ C     two-step solver starts
             call ssh_fexloss(Nr,Ns,dw,chlo0)
 
             do Jsp=1,NS
-            if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
-             ratloss=chlo0(Jsp)
+               if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
+                  ratloss=chlo0(Jsp)*ratio_gas(Jsp)
 
-                        ! concc(Jsp)=((c+1)*(c+1)*conci(Jsp)-concii(Jsp))/(c*c+2*c)
-                        ZC(Jsp)=(((c+dun)*(c+dun)*conci(Jsp)-
-     &                concii(Jsp))/(c*c+2.d0*c)+gam*tstep*
-     &                chpr0(Jsp))/(dun+gam*tstep*ratloss)
-                        ! clip
-                        if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
-                   endif
+                  ! concc(Jsp)=((c+1)*(c+1)*conci(Jsp)-concii(Jsp))/(c*c+2*c)
+                  ! genoa keep_gp
+                  ZCtot(Jsp)=(((c+dun)*(c+dun)*conci(Jsp)-
+     &                  concii(Jsp))/(c*c+2.d0*c)+gam*tstep*
+     &                 chpr0(Jsp))/(dun+gam*tstep*ratloss)
+                  ZC(Jsp)=ratio_gas(Jsp)*ZCtot(Jsp)
+                  ! clip
+                  if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
+                  if(ZCtot(Jsp)<dzero) ZCtot(Jsp)=dzero
+               endif
             enddo
         enddo
 
@@ -877,16 +924,19 @@ C     two-step solver starts
         if (ncst_gas.gt.0) then
             do i1=1,ncst_gas
                ZC(cst_gas_index(i1))=ZC_cst(i1)
+               ZCtot(cst_gas_index(i1))=ZC_cst(i1) ! genoa keep_gp
             enddo
         endif
 
-        error_max=0 
-        do Jsp=1,NS
-            wk=atol+rtol*abs(ZC(Jsp))
-            error_max=max(error_max,abs(2.0d0*(c*ZC(Jsp)-
-     &                (dun+c)*conci(Jsp)+concii(Jsp))/
-     &                (c*(c+dun)*wk)))
-        enddo
+         error_max=0.d0
+         do Jsp=1,NS ! genoa keep_gp
+            wk=atol+rtol*abs(ZCtot(Jsp))*ratio_gas(Jsp)
+            error_max=max(error_max,
+     &           abs(2.0d0*(c*ratio_gas(Jsp)*ZCtot(Jsp)-
+     &           (dun+c)*ratio_gas(Jsp)*conci(Jsp)+
+     &           ratio_gas(Jsp)*concii(Jsp))/
+     &           (c*(c+dun)*wk)))
+         enddo
 
         do while (error_max>10.0d0 .and. tstep>tstep_min)
             tstep=max(tstep_min,max(dun/alpha,min(alpha,
@@ -899,7 +949,8 @@ C     two-step solver starts
             endif
             gam=(c+1)/(c+2.d0)
             do Jsp=1,NS
-                ZC(Jsp)=conci(Jsp)
+               ZCtot(Jsp)=conci(Jsp) !FCo ! genoa keep_gp
+               ZC(Jsp)=ratio_gas(Jsp)*ZCtot(Jsp)
             enddo
 
           do j=1,m
@@ -940,6 +991,7 @@ C     two-step solver starts
             if (ncst_gas.gt.0) then
                 do i1=1,ncst_gas
                    ZC(cst_gas_index(i1))=ZC_cst(i1)
+                     ZCtot(cst_gas_index(i1))=ZC_cst(i1) ! genoa keep_gp
                 enddo
             endif
 
@@ -953,33 +1005,38 @@ C     two-step solver starts
             call ssh_dratedc(Ns,Nr,DLRKi,ZC,dw)
             call ssh_fexloss(Nr,Ns,dw,chlo0)
 
-            do Jsp=1,NS
-              if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
-                ratloss=chlo0(Jsp)
+               do Jsp=1,NS ! genoa keep_gp
+                  if (chpr0(Jsp)>dzero.or.chlo0(Jsp)>dzero) then
+                     ratloss=chlo0(Jsp)*ratio_gas(Jsp)
 
-                ! concc(Jsp)=((c+1)*(c+1)*conci(Jsp)-concii(Jsp))/(c*c+2*c)
-                ZC(Jsp)=(((c+dun)*(c+dun)*conci(Jsp)-
-     &          concii(Jsp))/(c*c+2.d0*c)+gam*tstep*
-     &          chpr0(Jsp))/(dun+gam*tstep*ratloss)
-                ! clip
-                if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
-              endif
-            enddo
+                     ! concc(Jsp)=((c+1)*(c+1)*conci(Jsp)-concii(Jsp))/(c*c+2*c)
+                     ZCtot(Jsp)=(((c+dun)*(c+dun)*conci(Jsp)-
+     &                        concii(Jsp))/(c*c+2.d0*c)+gam*tstep*
+     &                    chpr0(Jsp))/(dun+gam*tstep*ratloss)
+                     ZC(Jsp)=ratio_gas(Jsp)*ZCtot(Jsp)
+                     ! clip
+                     if(ZCtot(Jsp)<dzero) ZCtot(Jsp)=dzero
+                     if(ZC(Jsp)<dzero) ZC(Jsp)=dzero
+                  endif
+               enddo
           enddo
 
           ! keep inorganic constant
           if (ncst_gas.gt.0) then
             do i1=1,ncst_gas
                ZC(cst_gas_index(i1))=ZC_cst(i1)
+               ZCtot(cst_gas_index(i1))=ZC_cst(i1) ! genoa keep_gp
             enddo
           endif
 
-          error_max=0 
-          do Jsp=1,NS
-            wk=atol+rtol*abs(ZC(Jsp))
-            error_max=max(error_max,abs(2.0d0*(c*ZC(Jsp)-
-     &                (dun+c)*conci(Jsp)+concii(Jsp))/
-     &                (c*(c+dun)*wk)))
+          error_max=0.d0
+          do Jsp=1,NS ! genoa keep_gp
+               wk=atol+rtol*abs(ZCtot(Jsp))*ratio_gas(Jsp)
+               error_max=max(error_max,
+     &              abs(2.0d0*(c*ZCtot(Jsp)*ratio_gas(Jsp)-
+     &              (dun+c)*ratio_gas(Jsp)*conci(Jsp)
+     &              +ratio_gas(Jsp)*concii(Jsp))/
+     &              (c*(c+dun)*wk)))
           enddo
         enddo
         !save timestep
@@ -1005,17 +1062,18 @@ C     two-step solver starts
 
         do Jsp=1,NS
             concii(Jsp)=conci(Jsp)
-            conci(Jsp)=ZC(Jsp)
+            conci(Jsp)=ZCtot(Jsp) ! genoa keep_gp
             ! keep inorganic constant
             if (ncst_gas.gt.0) then
                do i1=1,ncst_gas
                   concii(cst_gas_index(i1))=ZC_cst(i1)
                   conci(cst_gas_index(i1))=ZC_cst(i1)
                   ZC(cst_gas_index(i1))=ZC_cst(i1)
+                  ZCtot(cst_gas_index(i1))=ZC_cst(i1)
                enddo
             endif
         enddo
-
+        !print*,'      timestep',tstep,tschem
       enddo
 
 C     two-step solver end
@@ -1033,6 +1091,41 @@ C     Storage in the array of chemical concentrations.
           ! Conversion molecules/cm3 to mug/m3.
           DLconc(Jsp) = ZC(Jsp)/convers_factor(Jsp)
                ENDDO
+
+      if (keep_gp==1) then
+         do s = 1, Ns_aer
+            Jsp=aerosol_species_interact(s)
+            if (Jsp>0) then
+               !if(ratio_gas(Jsp)<1.d0) then
+                  conc_tot=0.0D0
+                  DO Jb=1,Nbin_aer
+                     conc_tot=conc_tot+DLconc_aer(Jb,s) !*convers_factor(Jsp) 
+                  ENDDO
+               
+                  toadd=(ZCtot(Jsp)-ZCtot_save(Jsp))/convers_factor(Jsp)
+                  if (DLconc_save(Jsp)+toadd>=0.d0) then
+                     DLconc(Jsp)=DLconc_save(Jsp)+toadd
+                  else          !Not enough mass in the gas phase, have to be taken from the particle phase
+!                     print*,toadd,DLconc_save(Jsp)+conc_tot,
+!     s                    ZCtot(Jsp)/convers_factor(Jsp),
+!     s                    ZCtot_save(Jsp)/convers_factor(Jsp)
+                     toadd=(conc_tot+toadd+DLconc_save(Jsp))/conc_tot
+                     DLconc(Jsp)=0.d0
+                     DO Jb=1,Nbin_aer
+                        DLconc_aer(Jb,s) = DLconc_aer(Jb,s)*toadd 
+                     ENDDO
+                  endif
+
+                  conc_tot=0.d0
+                  DO Jb=1,Nbin_aer
+                     conc_tot=conc_tot+DLconc_aer(Jb,s) 
+                  ENDDO
+!                  print*,conc_tot+DLconc(Jsp)
+!     s                 ,ZCtot(Jsp)/convers_factor(Jsp)
+               !endif
+            endif
+         ENDDO
+      endif
 
       ! keep inorganic constant
       if (ncst_gas.gt.0) then
