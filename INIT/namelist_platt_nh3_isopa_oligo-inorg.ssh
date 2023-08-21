@@ -117,11 +117,6 @@ reaction_soap_file="species-list/REACTIONS.particle.soap",
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
 /
 
-
-&physic_organic
-with_oligomerization = 1      
-/
-
 &output
 output_directory = "results/aerosol-platt-nh3-isopa-oligo-inorg/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary

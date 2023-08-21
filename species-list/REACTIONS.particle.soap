@@ -94,3 +94,6 @@
 3 IEPOX NO3 BiMT 2.e-4 1 0 0
 3 IEPOX SO4 BiSULF 2.e-4 1 0 0
 3 IEPOX HSO4 BiSULF 7.3e-4 1 0 0
+#Type reaction 4: Pun and Seigneur (2007) parameterization for BiAOD
+4 BiA0D 0.1 1.91 6
+4 ACIDMAL 0.1 1.91 6

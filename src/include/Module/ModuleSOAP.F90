@@ -112,7 +112,7 @@ contains
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
+           NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
 !     In case there is no gas-phase species.
 !     For instance, CB05 mechanism doesn't have GLY for PGLY.
@@ -302,7 +302,7 @@ contains
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
+           NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
       ! Get the calculated values from SOAP
       do js = 1, N_size
@@ -499,7 +499,7 @@ contains
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
-           with_oligomerization, NACL_IN_THERMODYNAMICS, SOAPlog,reaction_soap_file)
+           NACL_IN_THERMODYNAMICS, SOAPlog,reaction_soap_file)
 
       ! Get the calculated values from SOAP
       do js = ICUT_org+1, N_size

@@ -111,15 +111,11 @@ co2_conc_ppm = 410, !CO2 concentrations
 imethod =2,
 NACL_IN_THERMODYNAMICS=1,
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
+reaction_soap_file="species-list/REACTIONS.particle.soap",
 /
 
 &physic_nucleation
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
-/
-
-
-&physic_organic
-with_oligomerization = 1      
 /
 
 &output

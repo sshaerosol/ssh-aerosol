@@ -201,6 +201,21 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 
 		      }
 		}
+	       
+	      else if (paramloc[0]=="4")  //Pun and Seigneur (2007) modified equilibrium for aldehyde
+		{		  
+		  for (i=0;i<n;i++)
+		    if (surrogate[i].name==paramloc[1])
+		      {
+			surrogate[i].aq_type="aldehyde";
+			surrogate[i].Koligo_aq=atof(paramloc[2].c_str());
+			surrogate[i].beta=atof(paramloc[3].c_str());
+			surrogate[i].pHref=atof(paramloc[4].c_str());
+			cout << surrogate[i].name << " Pun and Seigneur" << endl;
+		      }
+
+		}
+	      
 	  
 	    }
       
@@ -2190,7 +2205,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
 		    double enthalpy_vaporization[], double diffusion_coef[],
 		    double henry[], double t_ref[], double mass_density[],
-		    int i_hydrophilic, int N_inert, int N_inorganic, int with_oligomerization)
+		    int i_hydrophilic, int N_inert, int N_inorganic)
 {
   config.max_iter=10000;  //maximal number of iterations for the newton raphson method
   config.hygroscopicity=true; //Does hygroscopicity has to be computed?
@@ -2285,7 +2300,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
 		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
 		       diffusion_coef, henry, t_ref, mass_density,
 		       species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
-		       N_inert, N_inorganic, with_oligomerization);
+		       N_inert, N_inorganic);
 
   read_reactions(config, surrogate);
   config.chp_org_ref=pow(10.,-4.6);

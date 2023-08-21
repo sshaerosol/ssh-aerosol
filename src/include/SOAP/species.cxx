@@ -249,8 +249,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			   double enthalpy_vaporization[], 
 			   double diffusion_coef[], double henry[], double t_ref[], double mass_density[],
 			   vector<string> species_part,
-			   int nlayer, int i_hydrophilic, bool compute_inorganic, int N_inert, int N_inorganic,
-                           int with_oligomerization)
+			   int nlayer, int i_hydrophilic, bool compute_inorganic, int N_inert, int N_inorganic)
 {
   int nsp = species_list_aer.size();
   // double alpha = 1.0; //0.01; // accommodation coefficient
@@ -7925,13 +7924,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   BiA0D.is_organic=true;  // Is the compound organic?
   BiA0D.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   BiA0D.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
-  //Parameters for the oligomerization of aldehyde in the aqueous phase:
-  if(with_oligomerization == 1) {
-         BiA0D.Koligo_aq=0.1;     
-         BiA0D.aq_type="aldehyde";} // "none","diacid","monoacid" or "aldehyde"
-  else {
-         BiA0D.Koligo_aq=0.;     
-         BiA0D.aq_type="none"; }// "none","diacid","monoacid" or "aldehyde"
+  BiA0D.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   BiA0D.Koligo_org=0.0;
   BiA0D.pHref=6.0;
   BiA0D.beta=1.91;
@@ -10025,14 +10018,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   ACIDMAL.is_organic=true;  // Is the compound organic?
   ACIDMAL.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
   ACIDMAL.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound
+  ACIDMAL.aq_type="none"; // "none","diacid","monoacid" or "aldehyde"
   ACIDMAL.Koligo_org=0.0;
   //Parameters for the oligomerization of aldehyde in the aqueous phase as BiA0D:  
-  if(with_oligomerization == 1) {
-    ACIDMAL.Koligo_aq = 0.1;
-    ACIDMAL.aq_type="aldehyde";}
-  else {
-    ACIDMAL.Koligo_aq = 0.;
-    ACIDMAL.aq_type="none";}
   ACIDMAL.pHref = 6.0;
   ACIDMAL.beta = 1.91;
   ACIDMAL.rho=1300.0;

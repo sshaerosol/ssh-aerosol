@@ -28,4 +28,4 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   int nlayer, int with_kelvin_effect,
 		   double tequilibrium, double dtaeromin, double dorg,
 		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS, int SOAPlog, char reaction_soap_file[]);
+		   int N_inert, int N_inorganic, int NACL_IN_THERMODYNAMICS, int SOAPlog, char reaction_soap_file[]);

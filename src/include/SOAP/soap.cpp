@@ -37,7 +37,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
 			       int* activity_model, double* epser_soap, int* i_hydrophilic,
-			       int* N_inert, int* N_inorganic, int* with_oligomerization, int* NACL_IN_THERMODYNAMICS, int* SOAPlog, char* soap_reaction_file){
+			       int* N_inert, int* N_inorganic, int* NACL_IN_THERMODYNAMICS, int* SOAPlog, char* soap_reaction_file){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, *co2_conc_ppm,
 		       *ionic, chp, LWCorg, 
@@ -55,7 +55,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
 		       *activity_model, *epser_soap, *i_hydrophilic,
-		       *N_inert, *N_inorganic, *with_oligomerization, *NACL_IN_THERMODYNAMICS, *SOAPlog, soap_reaction_file);
+		       *N_inert, *N_inorganic, *NACL_IN_THERMODYNAMICS, *SOAPlog, soap_reaction_file);
 }
 
 /*! \brief Main function of SOAP
@@ -84,7 +84,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
 		   int activity_model, double epser_soap, int i_hydrophilic,
-		   int N_inert, int N_inorganic, int with_oligomerization, int NACL_IN_THERMODYNAMICS, int SOAPlog, char soap_reaction_file[])
+		   int N_inert, int N_inorganic, int NACL_IN_THERMODYNAMICS, int SOAPlog, char soap_reaction_file[])
 {
 
   /*** General parameters and options ***/
@@ -223,7 +223,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
 		     saturation_vapor_pressure, enthalpy_vaporization,
 		     diffusion_coef, henry, t_ref, mass_density, 
-		     i_hydrophilic,N_inert,N_inorganic,with_oligomerization);
+		     i_hydrophilic,N_inert,N_inorganic);
       
       // Compute the activity coefficients at infinite dilution 
       // and the Henry's law constant 

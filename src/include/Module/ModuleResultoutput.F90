@@ -136,7 +136,6 @@ contains
 		write(unit=10,FMT=*)  'Without nucleation'
 	end if
 	write(unit=10,FMT=*)  'DTAEROMIN', DTAEROMIN, '	','redistribution_method', redistribution_method
-	write(unit=10,FMT=*)  'Method',dynamic_solver, '	 with_oligomerization', with_oligomerization
 	write(unit=10,FMT=*)  'with_fixed_density', with_fixed_density,'	', 'fixed_density', fixed_density, 'kg/m^3'
 	write(unit=10,FMT=*)
 	write(unit=10,FMT=*) 'output directory :', trim(output_directory),'/'

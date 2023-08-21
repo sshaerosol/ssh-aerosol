@@ -86,7 +86,6 @@ module aInitialization
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic
   integer, save :: SOAPlog     ! 0=no text output from SOAP, 1=on screen, 2=written on files
-  integer, save :: with_oligomerization!IOLIGO
   integer, save :: output_type
   integer, save :: splitting
   integer, save :: soap_inorg,soap_inorg_loc
@@ -459,8 +458,6 @@ contains
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
-
-    namelist /physic_organic/ with_oligomerization
 
     namelist /output/ output_directory, output_type, particles_composition_file
 
@@ -1263,22 +1260,6 @@ contains
       endif
     endif
 
-    ! organic
-    read(10, nml = physic_organic, iostat = ierr)
-    if (ierr .ne. 0) then
-       write(*,*) "physic_organic data can not be read."
-       stop
-    else
-       if (with_oligomerization == 1) then
-          if (ssh_standalone) write(*,*) 'with oligomerization of aldehydes.'
-          if (ssh_logger) write(logfile,*) 'with oligomerization of aldehydes.'
-       else
-          with_oligomerization = 0   ! default
-          if (ssh_standalone) write(*,*) 'without oligomerization of aldehydes.'
-          if (ssh_logger) write(logfile,*) 'without oligomerization of aldehydes.'
-       end if
-    end if
-
     if((ISOAPDYN == 0).AND.nlayer > 1) then
        print*, 'Organics can not be at equilibrium if several aerosol layers.'
        stop
@@ -1335,7 +1316,6 @@ contains
     write(nml_out, physic_coagulation)
     write(nml_out, physic_condensation)
     write(nml_out, physic_nucleation)
-    write(nml_out, physic_organic)
     write(nml_out, output)
     close(nml_out)
 

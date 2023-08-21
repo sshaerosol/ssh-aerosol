@@ -104,6 +104,7 @@ activity_model = 2,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
 epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
+reaction_soap_file="species-list/REACTIONS.particle.soap",
 /
 
 &physic_nucleation
@@ -115,10 +116,6 @@ nucl_model_hetero = 0,         ! Tag of heteromolecular nucleation (0=none, 1=ye
 scal_hetero = 1,             ! Scaling factor for heteromolecular nucleation rate
 nesp_org_h2so4_nucl = 2,      ! number of organics involved in heteromolecular nucleation
 name_org_h2so4_nucl_species = 'Monomer' 'Dimer',                  ! Species names involved in heteromolecular nucleation
-/
-
-&physic_organic
-with_oligomerization = 1      
 /
 
 &output
