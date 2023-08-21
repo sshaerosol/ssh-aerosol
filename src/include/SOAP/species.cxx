@@ -7608,7 +7608,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   GLY.Tref=298;         // Temperature of reference (K)
   GLY.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   GLY.Henry=0.0;     // Henry's law constant at Tref (M/atm)
-  GLY.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
+  //GLY.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
   GLY.hydrophilic=true;   // Does the species condense on the aqueous phase?
   GLY.hydrophobic=false;  // Does the species condense on the organic phase?
   GLY.nonvolatile=false; // Is the compound nonvolatile?
@@ -7688,7 +7688,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   GLYOH.Tref=298;         // Temperature of reference (K)
   GLYOH.deltaH=50.0;     // Enthalpy of vaporization (kJ/mol)
   GLYOH.Henry=0.0;     // Henry's law constant at Tref (M/atm)
-  GLYOH.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
+  //GLYOH.aq_type="hydrate"; // "none","diacid","monoacid" or "aldehyde"
   GLYOH.hydrophilic=true;   // Does the species condense on the aqueous phase?
   GLYOH.hydrophobic=false;  // Does the species condense on the organic phase?
   GLYOH.nonvolatile=false; // Is the compound nonvolatile?

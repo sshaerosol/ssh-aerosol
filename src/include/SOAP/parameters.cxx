@@ -145,7 +145,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			    {			      
 			      surrogate[i].Khyd=atof(paramloc[3].c_str());
 			      surrogate[i].hydrated_name=paramloc[2];
-			      cout << surrogate[i].name << " " << surrogate[i].Khyd << endl;
+			      surrogate[i].aq_type="hydrate";
+				//cout << surrogate[i].name << " " << surrogate[i].Khyd << endl;
 			      if (surrogate[i].hydrophobic!=surrogate[j].hydrophobic or
 				  surrogate[i].hydrophilic!=surrogate[j].hydrophilic)
 				{
