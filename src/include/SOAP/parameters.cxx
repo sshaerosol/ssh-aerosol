@@ -101,7 +101,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			      else
 				surrogate[i].irr_mass_conserving=true;
 			     
-			      //cout << surrogate[i].name << " irr " << surrogate[i].k_irreversible << " " << surrogate[i].irr_catalyzed_pH << " " << surrogate[i].irr_catalyzed_water << endl;
+			      if (config.SOAPlog==1)
+				cout << "Activated irreversible reaction for :" << surrogate[i].name << " with " << surrogate[i].k_irreversible << " " << surrogate[i].irr_catalyzed_pH << " " << surrogate[i].irr_catalyzed_water << endl;
 			    }
 
 		      }
@@ -133,7 +134,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				  exit(0);
 				}
 
-			      cout << surrogate[i].name << " and " << surrogate[j].name << endl;
+			      if (config.SOAPlog==1)
+				cout << "Activated bulk oligomerization between " << surrogate[i].name << " and " << surrogate[j].name << endl;
 			      config.chemistry=true;
 			    }
 
@@ -158,6 +160,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				  exit(0);
 				}
 			      
+			      if (config.SOAPlog==1)
+				cout << "Activated hydratation between " << surrogate[i].name << " and " << surrogate[j].name << " with " << surrogate[i].Khyd << endl;
 			    }
 
 		      }
@@ -175,7 +179,8 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				  surrogate[i].nion_chem++;
 				  surrogate[i].rion=true;
 
-				  cout << surrogate[i].name << " " << surrogate[j].name << " " << surrogate[k].name << " " << surrogate[i].nion_chem << endl;				  
+				  if (config.SOAPlog==1)
+				    cout << "Activated reaction between " << surrogate[i].name << " and " << surrogate[j].name << endl;				  
 
 				  if (paramloc[7]=="1")
 				    {
@@ -215,7 +220,9 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			surrogate[i].Koligo_aq=atof(paramloc[2].c_str());
 			surrogate[i].beta=atof(paramloc[3].c_str());
 			surrogate[i].pHref=atof(paramloc[4].c_str());
-			cout << surrogate[i].name << " Pun and Seigneur" << endl;
+
+			if (config.SOAPlog==1)
+			  cout << "Activated Pun and Seigneur parameterization for " << surrogate[i].name << endl;
 		      }
 
 		}
