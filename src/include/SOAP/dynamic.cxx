@@ -919,7 +919,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			   Array<double, 1> &chp, Array<double, 1> &ionic, double &deltat, double &tiny, double &Temperature, int index, double &RH)
 {    
   int n=surrogate.size();
-  int i,j,b,ilayer,iphase,jion;
+  int i,j,b,ilayer,iphase,jion,jmol;
   double gamma=1.+0.5*pow(2,0.5);  
   double sum_flux_gas=0.0;
   double Xmono=0.0;          
@@ -984,27 +984,28 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			surrogate[j].flux_chem(b,ilayer,iphase,index)+=fac2*flux;			                      
 			surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
 		      }
-		    	      
-		    if (surrogate[i].i_irreversible>=0)
-		      {
-			double flux=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
-			if (surrogate[i].irr_catalyzed_water)
-			  flux=flux*RH;
-			if (surrogate[i].irr_catalyzed_pH)
-			  flux=flux*config.chp_org_ref;	    
+
+		    for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		      if (surrogate[i].i_irreversible[jmol]>=0)
+			{
+			  double flux=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			  if (surrogate[i].irr_catalyzed_water[jmol])
+			    flux=flux*RH;
+			  if (surrogate[i].irr_catalyzed_pH[jmol])
+			    flux=flux*config.chp_org_ref;	    
 			
-			double fac=1.0;
-			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
-			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
-			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
+			  double fac=1.0;
+			  if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			    if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			      fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
 			
-			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
-			surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-			if (surrogate[i].irr_mass_conserving)
-			  surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,iphase,index)+=flux;
-			else
-			  surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-		      }
+			  surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
+			  surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+			  if (surrogate[i].irr_mass_conserving[jmol])
+			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+			  else
+			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			}
 
 		  }
             }
@@ -1125,32 +1126,33 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                   }
 
 	      if (surrogate[i].is_organic)
-		if (surrogate[i].i_irreversible>=0)
-		  {
-		    double flux=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
-		    if (surrogate[i].irr_catalyzed_water)
-		      flux=flux*RH;
-		    if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-		      flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
-		    else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-		      flux=flux*chp(b);
+		for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		  if (surrogate[i].i_irreversible[jmol]>=0)
+		    {
+		      double flux=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
+		      if (surrogate[i].irr_catalyzed_water[jmol])
+			flux=flux*RH;
+		      if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+			flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
+		      else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+			flux=flux*chp(b);
 		    
-		    double fac=1.0;
-		    if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
-		      if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
-			fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
+		      double fac=1.0;
+		      if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
+			if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
+			  fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
 		  
-		    surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
-		    surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+		      surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
+		      surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
 
-		    if (surrogate[i].irr_mass_conserving==false)
-		      flux=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-		    if (surrogate[surrogate[i].i_irreversible].hydrophilic)
-		      surrogate[surrogate[i].i_irreversible].flux_chem_aq(b,index)+=flux;
-		    else
-		      for (ilayer=0;ilayer<config.nlayer;ilayer++)
-			surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
-		  }
+		      if (surrogate[i].irr_mass_conserving[jmol]==false)
+			flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+		      if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophilic)
+			surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+		      else
+			for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+		    }
 	      
             }    
         }
@@ -1276,24 +1278,25 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;	                    
 		      }
 
-		    if (surrogate[i].i_irreversible>=0)
-		      {
-			double flux=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
-			if (surrogate[i].irr_catalyzed_water)
-			  flux=flux*RH;
-			if (surrogate[i].irr_catalyzed_pH)
-			  flux=flux*config.chp_org_ref;
-			double fac=1.0;
-			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
-			  if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
-			    fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
+		    for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		      if (surrogate[i].i_irreversible[jmol]>=0)
+			{
+			  double flux=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			  if (surrogate[i].irr_catalyzed_water[jmol])
+			    flux=flux*RH;
+			  if (surrogate[i].irr_catalyzed_pH[jmol])
+			    flux=flux*config.chp_org_ref;
+			  double fac=1.0;
+			  if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)                                                  
+			    if (surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)>0.0)                        
+			      fac=surrogate[i].Ap_layer_init(b,ilayer,iphase)/(surrogate[i].Ag+surrogate[i].Ap_layer_init(b,ilayer,iphase)); 
 			
-			surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
-			surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-			if (surrogate[i].irr_mass_conserving==false)
-			  flux=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-			surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,iphase,index)+=flux;
-		      }
+			  surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
+			  surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+			  if (surrogate[i].irr_mass_conserving[jmol]==false)
+			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+			}
 		  
 		  }
             }
@@ -1463,31 +1466,32 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                     }
 
 		if (surrogate[i].is_organic)
-		  if (surrogate[i].i_irreversible>=0)
-		    {
-		      double flux=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
-		      if (surrogate[i].irr_catalyzed_water)
-			flux=flux*RH;
-		      if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-			flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
-		      else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-			flux=flux*chp(b);
+		  for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		    if (surrogate[i].i_irreversible[jmol]>=0)
+		      {
+			double flux=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq_bins(b)*surrogate[i].Aaq_bins_init(b);
+			if (surrogate[i].irr_catalyzed_water[jmol])
+			  flux=flux*RH;
+			if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+			  flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
+			else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+			  flux=flux*chp(b);
 		      
-		      double fac=1.0;
-		      if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
-			if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
-			  fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
+			double fac=1.0;
+			if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
+			  if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
+			    fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
 		  
-		      surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
-		      surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-		      if (surrogate[i].irr_mass_conserving==false)
-			flux=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-		      if (surrogate[surrogate[i].i_irreversible].hydrophilic)
-			surrogate[surrogate[i].i_irreversible].flux_chem_aq(b,index)+=flux;
-		      else
-			for (ilayer=0;ilayer<config.nlayer;ilayer++)
-			  surrogate[surrogate[i].i_irreversible].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
-		    }
+			surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
+			surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
+			if (surrogate[i].irr_mass_conserving[jmol]==false)
+			  flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophilic)
+			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+			else
+			  for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+		      }
     
               }
         } 
@@ -1502,7 +1506,7 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
                        Array<double, 1> &chp, Array<double, 1> &ionic, double &tiny, double &Temperature, int index, double &RH)
 {    
   int n=surrogate.size();
-  int i,j,b,ilayer,iphase,jion; 
+  int i,j,b,ilayer,iphase,jion,jmol; 
   double Xmono=0.0;          
   double XH2O;
   double xmin=1.0e-10;
@@ -1537,19 +1541,20 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			surrogate[j].kloss(b,ilayer,iphase)+=surrogate[i].koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)/Keq2;                      
 		      }
 
-		    if (surrogate[i].i_irreversible>=0)
-		      {
-			double flux=surrogate[i].k_irreversible*surrogate[i].gamma_org_layer(b,ilayer,iphase);
-			if (surrogate[i].irr_catalyzed_water)
-			  flux=flux*RH;
-			if (surrogate[i].irr_catalyzed_pH)
-			  flux=flux*config.chp_org_ref;
+		    for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		      if (surrogate[i].i_irreversible[jmol]>=0)
+			{
+			  double flux=surrogate[i].k_irreversible[jmol]*surrogate[i].gamma_org_layer(b,ilayer,iphase);
+			  if (surrogate[i].irr_catalyzed_water[jmol])
+			    flux=flux*RH;
+			  if (surrogate[i].irr_catalyzed_pH[jmol])
+			    flux=flux*config.chp_org_ref;
 			
-			surrogate[i].kloss(b,ilayer,iphase)+=flux;
-			if (surrogate[i].irr_mass_conserving==false)
-			  flux=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-			surrogate[surrogate[i].i_irreversible].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
-		      }
+			  surrogate[i].kloss(b,ilayer,iphase)+=flux;
+			  if (surrogate[i].irr_mass_conserving[jmol]==false)
+			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			  surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			}
 		  
 		  }
             }
@@ -1601,25 +1606,26 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			surrogate[j].kloss_aq(b)+=surrogate[i].koligo*surrogate[j].gamma_aq_bins(b)*surrogate[j].GAMMAinf/Kaq2;                                            
 		      }
 
-		    if (surrogate[i].i_irreversible>=0)
-		      {
-			double flux=surrogate[i].k_irreversible*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf;
-			if (surrogate[i].irr_catalyzed_water)
-			  flux=flux*RH;
-			if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-			  flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
-			else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-			  flux=flux*chp(b);
+		    for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+		      if (surrogate[i].i_irreversible[jmol]>=0)
+			{
+			  double flux=surrogate[i].k_irreversible[jmol]*surrogate[i].gamma_aq_bins(b)*surrogate[i].GAMMAinf;
+			  if (surrogate[i].irr_catalyzed_water[jmol])
+			    flux=flux*RH;
+			  if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+			    flux=flux*chp(b)*surrogate[config.iHp].gamma_aq_bins(b);
+			  else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+			    flux=flux*chp(b);
 			
-			surrogate[i].kloss_aq(b)+=flux;
-			if (surrogate[i].irr_mass_conserving==false)
-			  flux=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-			if (surrogate[surrogate[i].i_irreversible].hydrophilic)
-			  surrogate[surrogate[i].i_irreversible].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b);
-			else
-			  for (ilayer=0;ilayer<config.nlayer;ilayer++)
-			    surrogate[surrogate[i].i_irreversible].kprod(b,ilayer,0)+=flux*surrogate[i].Aaq_bins_init(b)*config.Vlayer(ilayer);
-		      }
+			  surrogate[i].kloss_aq(b)+=flux;
+			  if (surrogate[i].irr_mass_conserving[jmol]==false)
+			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			  if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophilic)
+			    surrogate[surrogate[i].i_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b);
+			  else
+			    for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			      surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,0)+=flux*surrogate[i].Aaq_bins_init(b)*config.Vlayer(ilayer);
+			}
 		  }
 
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)

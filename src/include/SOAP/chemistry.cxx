@@ -9,7 +9,7 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
                 double &Temperature, double &RH, double &deltat, int index)
 {
   int n=surrogate.size();
-  int i,j,jion;
+  int i,j,jion,jmol;
   double gamma=1.+0.5*pow(2,0.5);  
   double tiny=0.; 
   for (i=0;i<n;++i)        
@@ -217,37 +217,38 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
-	if (surrogate[i].i_irreversible>=0)
-	  {
-	    double flux=0.;
-	    double fluxloc=0.;
-	    if (surrogate[i].hydrophilic)
-	      {		
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
-		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-		  fluxloc=fluxloc*chp;
-		flux+=fluxloc;
-	      }
-	    if (surrogate[i].hydrophobic)
-	      {
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH)
-		  fluxloc=fluxloc*config.chp_org_ref;
-		flux+=fluxloc;
-	      }
+	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+	  if (surrogate[i].i_irreversible[jmol]>=0)
+	    {
+	      double flux=0.;
+	      double fluxloc=0.;
+	      if (surrogate[i].hydrophilic)
+		{		
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+		    fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		  else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+		    fluxloc=fluxloc*chp;
+		  flux+=fluxloc;
+		}
+	      if (surrogate[i].hydrophobic)
+		{
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol])
+		    fluxloc=fluxloc*config.chp_org_ref;
+		  flux+=fluxloc;
+		}
 	     
-	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    if (surrogate[i].irr_mass_conserving)
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
-	    else
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-	  }
+	      surrogate[i].flux_chem_tot(index)+=-flux;
+	      if (surrogate[i].irr_mass_conserving[jmol])
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux;
+	      else
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+	    }
       }
    
   for (i=0;i<n;++i)
@@ -519,40 +520,41 @@ void kinetic_ssh(model_config &config, vector<species>& surrogate,
               surrogate[i].flux_chem_tot(index)+=-flux; 
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
-	
-	if (surrogate[i].i_irreversible>=0)
-	  {
-	    double flux=0.;
-	    double fluxloc=0.;
-	    if (surrogate[i].hydrophilic)
-	      {		
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
-		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-		  fluxloc=fluxloc*chp;
-		flux+=fluxloc;
-	      }
-	    if (surrogate[i].hydrophobic)
-	      {
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH)
-		  fluxloc=fluxloc*config.chp_org_ref;
-		flux+=fluxloc;
-	      }	         
 
-	    flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
+	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+	  if (surrogate[i].i_irreversible[jmol]>=0)
+	    {
+	      double flux=0.;
+	      double fluxloc=0.;
+	      if (surrogate[i].hydrophilic)
+		{		
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+		    fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		  else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+		    fluxloc=fluxloc*chp;
+		  flux+=fluxloc;
+		}
+	      if (surrogate[i].hydrophobic)
+		{
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org*surrogate[i].Ap;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol])
+		    fluxloc=fluxloc*config.chp_org_ref;
+		  flux+=fluxloc;
+		}	         
+
+	      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);
 	    
-	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    if (surrogate[i].irr_mass_conserving)
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
-	    else
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-	  }
+	      surrogate[i].flux_chem_tot(index)+=-flux;
+	      if (surrogate[i].irr_mass_conserving[jmol])
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux;
+	      else
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+	    }
 	
         
       }
@@ -565,7 +567,7 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
                  double &Temperature, double &RH, double &deltat, int index)
 {
   int n=surrogate.size();
-  int i,iphase,j,jion;
+  int i,iphase,j,jion,jmol;
   double gamma=1.+0.5*pow(2,0.5);  
   double tiny=0.;  
   for (i=0;i<n;++i)        
@@ -810,40 +812,41 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
-	if (surrogate[i].i_irreversible>=0)
-	  {
-	    double flux=0.;
-	    double fluxloc=0.;
-	    if (surrogate[i].hydrophilic)
-	      {		
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
-		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-		  fluxloc=fluxloc*chp;
-		flux+=fluxloc;
-	      }
-	    if (surrogate[i].hydrophobic)
-	      {
-		fluxloc=0.;
-		for (iphase=0;iphase<nphase;iphase++)
-		  fluxloc+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+	  if (surrogate[i].i_irreversible[jmol]>=0)
+	    {
+	      double flux=0.;
+	      double fluxloc=0.;
+	      if (surrogate[i].hydrophilic)
+		{		
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+		    fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		  else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+		    fluxloc=fluxloc*chp;
+		  flux+=fluxloc;
+		}
+	      if (surrogate[i].hydrophobic)
+		{
+		  fluxloc=0.;
+		  for (iphase=0;iphase<nphase;iphase++)
+		    fluxloc+=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
 
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH)
-		  fluxloc=fluxloc*config.chp_org_ref;
-		flux+=fluxloc;
-	      }
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol])
+		    fluxloc=fluxloc*config.chp_org_ref;
+		  flux+=fluxloc;
+		}
 
-	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    if (surrogate[i].irr_mass_conserving)
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
-	    else
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-	  }
+	      surrogate[i].flux_chem_tot(index)+=-flux;
+	      if (surrogate[i].irr_mass_conserving[jmol])
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux;
+	      else
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+	    }
 	
       }
    
@@ -1122,41 +1125,42 @@ void kinetic_sat_ssh(model_config &config, vector<species>& surrogate,
               surrogate[surrogate[i].iproduct(jion)].flux_chem_tot(index)+=flux*surrogate[surrogate[i].iproduct(jion)].MM/surrogate[i].MM;
             }
 
-	if (surrogate[i].i_irreversible>=0)
-	  {
-	    double flux=0.;
-	    double fluxloc=0.;
-	    if (surrogate[i].hydrophilic)
-	      {		
-		fluxloc=surrogate[i].k_irreversible*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==false)
-		  fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
-		else if (surrogate[i].irr_catalyzed_pH and config.isorropia_ph==true)
-		  fluxloc=fluxloc*chp;
-		flux+=fluxloc;
-	      }
-	    if (surrogate[i].hydrophobic)
-	      {
-		fluxloc=0.;
-		for (iphase=0;iphase<nphase;iphase++)
-		  fluxloc+=surrogate[i].k_irreversible*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
+	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+	  if (surrogate[i].i_irreversible[jmol]>=0)
+	    {
+	      double flux=0.;
+	      double fluxloc=0.;
+	      if (surrogate[i].hydrophilic)
+		{		
+		  fluxloc=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].GAMMAinf*surrogate[i].gamma_aq*surrogate[i].Aaq;
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==false)
+		    fluxloc=fluxloc*chp*surrogate[config.iHp].gamma_aq;
+		  else if (surrogate[i].irr_catalyzed_pH[jmol] and config.isorropia_ph==true)
+		    fluxloc=fluxloc*chp;
+		  flux+=fluxloc;
+		}
+	      if (surrogate[i].hydrophobic)
+		{
+		  fluxloc=0.;
+		  for (iphase=0;iphase<nphase;iphase++)
+		    fluxloc+=surrogate[i].k_irreversible[jmol]*deltat*surrogate[i].gamma_org*surrogate[i].Ap_sat(iphase);
 
-		if (surrogate[i].irr_catalyzed_water)
-		  fluxloc=fluxloc*RH;
-		if (surrogate[i].irr_catalyzed_pH)
-		  fluxloc=fluxloc*config.chp_org_ref;
-		flux+=fluxloc;
-	      }
+		  if (surrogate[i].irr_catalyzed_water[jmol])
+		    fluxloc=fluxloc*RH;
+		  if (surrogate[i].irr_catalyzed_pH[jmol])
+		    fluxloc=fluxloc*config.chp_org_ref;
+		  flux+=fluxloc;
+		}
 	     
-	    flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);         
-	    surrogate[i].flux_chem_tot(index)+=-flux;
-	    if (surrogate[i].irr_mass_conserving)
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux;
-	    else
-	      surrogate[surrogate[i].i_irreversible].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible].MM/surrogate[i].MM;
-	  }
+	      flux=flux/(1.0-gamma*surrogate[i].Jdn_gas(index)*deltat);         
+	      surrogate[i].flux_chem_tot(index)+=-flux;
+	      if (surrogate[i].irr_mass_conserving[jmol])
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux;
+	      else
+		surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_tot(index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+	    }
         
       }
 } 

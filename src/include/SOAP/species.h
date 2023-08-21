@@ -234,11 +234,12 @@ namespace ssh_soap
     double Khyd;
     string hydrated_name;
 
-    double k_irreversible;
-    string irreversible_name;
-    int i_irreversible;
+    int n_irreversible;
+    vector <double> k_irreversible;
+    vector <string> irreversible_name;
+    vector <int> i_irreversible;
     bool catalyzed_ph;
-    bool irr_catalyzed_water,irr_catalyzed_pH,irr_mass_conserving;
+    vector <bool> irr_catalyzed_water,irr_catalyzed_pH,irr_mass_conserving;
     double aqratio;
   };
   

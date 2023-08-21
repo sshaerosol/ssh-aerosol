@@ -23,6 +23,7 @@ void read_reactions(model_config &config, vector<species>& surrogate)
     {
       surrogate[i].nion_chem=0;
       surrogate[i].rion=false;
+      surrogate[i].n_irreversible=0;
     }
   
   if (config.reaction_file.length()>5)
@@ -85,24 +86,25 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 			for (j=0;j<n;j++)
 			  if (surrogate[j].name==paramloc[2])
 			    {
-			      surrogate[i].k_irreversible=atof(paramloc[3].c_str());
-			      surrogate[i].irreversible_name=paramloc[2];
+			      surrogate[i].k_irreversible.push_back(atof(paramloc[3].c_str()));
+			      surrogate[i].irreversible_name.push_back(paramloc[2]);
 			      if (paramloc[4]=="0")
-				surrogate[i].irr_catalyzed_pH=false;
+				surrogate[i].irr_catalyzed_pH.push_back(false);
 			      else
-				surrogate[i].irr_catalyzed_pH=true;
+				surrogate[i].irr_catalyzed_pH.push_back(true);
 			      if (paramloc[5]=="0")
-				surrogate[i].irr_catalyzed_water=false;
+				surrogate[i].irr_catalyzed_water.push_back(false);
 			      else
-				surrogate[i].irr_catalyzed_water=true;
+				surrogate[i].irr_catalyzed_water.push_back(true);
 
 			      if (paramloc[6]=="0")
-				surrogate[i].irr_mass_conserving=false;
+				surrogate[i].irr_mass_conserving.push_back(false);
 			      else
-				surrogate[i].irr_mass_conserving=true;
+				surrogate[i].irr_mass_conserving.push_back(true);
 			     
 			      if (config.SOAPlog==1)
-				cout << "Activated irreversible reaction for :" << surrogate[i].name << " with " << surrogate[i].k_irreversible << " " << surrogate[i].irr_catalyzed_pH << " " << surrogate[i].irr_catalyzed_water << endl;
+				cout << "Activated irreversible reaction for " << surrogate[i].name << " with " << surrogate[i].k_irreversible[surrogate[i].n_irreversible] << endl; 
+			      surrogate[i].n_irreversible++;
 			    }
 
 		      }
@@ -414,21 +416,25 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
 	    surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
 	}
 
+  int jmol;
   for (i=0;i<n;i++)
     if (surrogate[i].is_organic)
       {
-	surrogate[i].i_irreversible=-1;
-	if (surrogate[i].k_irreversible>0.)
-	  {	  
-	    int j;
-	    for (j=0;j<n;j++)	    
-	      if (surrogate[j].is_organic)
-		if (surrogate[j].name==surrogate[i].irreversible_name)
-		  {
-		    surrogate[i].i_irreversible=j;
-		    config.chemistry=true;
-		    //cout << surrogate[i].name << " " << surrogate[surrogate[i].i_irreversible].name << " " << surrogate[i].k_irreversible << endl;
-		  }
+	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
+	  {
+	    surrogate[i].i_irreversible.push_back(-1);	   
+	    if (surrogate[i].k_irreversible[jmol]>0.)
+	      {	  
+		int j;
+		for (j=0;j<n;j++)	    
+		  if (surrogate[j].is_organic)
+		    if (surrogate[j].name==surrogate[i].irreversible_name[jmol])
+		      {
+			surrogate[i].i_irreversible[jmol]=j;
+			config.chemistry=true;
+			//cout << surrogate[i].name << " " << surrogate[surrogate[i].i_irreversible].name << " " << surrogate[i].k_irreversible << endl;
+		      }
+	      }
 	  }
       }
 }
