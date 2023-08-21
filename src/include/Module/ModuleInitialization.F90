@@ -1448,32 +1448,14 @@ contains
     s=0
     do icoun = 1, N_count       
 
-       if ((aerosol_species_list_file == "species-list-aer-mcm-bcary.dat") .or. &
-            (aerosol_species_list_file == "species-list-aer-mcm-bcary-fgl.dat") .or. &
-            (aerosol_species_list_file == "species-list-aer-mcm-bacary-smiles.dat")) then
-       
-       ! Surface_tension for organic and aqueous phases of organic aerosols
-       ! is hardly coded in SOAP/parameters.cxx
-       ! And Unit used in SOAP is different to surface_tension (N/m) by 1.e3.
-          read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
-            Index_groups_tmp, molecular_weight_aer_tmp, &
-            precursor, &
-            collision_factor_aer_tmp, molecular_diameter_tmp, &
-            surface_tension_tmp, accomodation_coefficient_tmp, &
-            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
-            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
-          t_ref_tmp=0.
-          henry_tmp=0.
-       else
-          read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
-            Index_groups_tmp, molecular_weight_aer_tmp, &
-            precursor, &
-            collision_factor_aer_tmp, molecular_diameter_tmp, &
-            surface_tension_tmp, accomodation_coefficient_tmp, &
-            mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
-            saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
-            henry_tmp, t_ref_tmp
-       endif
+      read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
+        Index_groups_tmp, molecular_weight_aer_tmp, &
+        precursor, &
+        collision_factor_aer_tmp, molecular_diameter_tmp, &
+        surface_tension_tmp, accomodation_coefficient_tmp, &
+        mass_density_tmp, inon_volatile_tmp, partitioning_tmp, smiles_tmp, &
+        saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp, &
+        henry_tmp, t_ref_tmp
 
        if (nspecies==0) then
           found_spec=1
