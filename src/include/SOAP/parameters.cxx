@@ -79,15 +79,43 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 		cout << endl;*/
 
 	      if (paramloc[0]=="0")  //irreversible reaction
-		{		  
+		{
 		  for (i=0;i<n;i++)
 		    if (surrogate[i].name==paramloc[1])
 		      {
+			
+			char separator3 = '+';
+	      
+			// Temporary string used to split the string.
+			string paramloc_tmp=paramloc[2];
+			string s2;
+			vector<string> out_species;
+			//cout << line << endl;
+			
+			for (int i2=0;i2<int(paramloc_tmp.length());i2++)
+			  {	      
+			    if (paramloc_tmp[i2] != separator3)
+			      {
+				// Append the char to the temp string.
+				s2 += paramloc_tmp[i2]; 
+			      }
+			    else
+			      {
+				out_species.push_back(s2);
+				s2="";
+			      }
+			  }
+			out_species.push_back(s2);
+			
 			for (j=0;j<n;j++)
-			  if (surrogate[j].name==paramloc[2])
+			  if (surrogate[j].name==out_species[0])
 			    {
 			      surrogate[i].k_irreversible.push_back(atof(paramloc[3].c_str()));
-			      surrogate[i].irreversible_name.push_back(paramloc[2]);
+			      surrogate[i].irreversible_name.push_back(out_species[0]);
+			      if (int(out_species.size())>1)
+				surrogate[i].irreversible_other.push_back(out_species[1]);
+			      else
+				surrogate[i].irreversible_other.push_back("");
 			      if (paramloc[4]=="0")
 				surrogate[i].irr_catalyzed_pH.push_back(false);
 			      else
@@ -101,9 +129,15 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				surrogate[i].irr_mass_conserving.push_back(false);
 			      else
 				surrogate[i].irr_mass_conserving.push_back(true);
+
+			      if (int(out_species.size())>1)
+				surrogate[i].irr_mass_conserving.push_back(false);
 			     
 			      if (config.SOAPlog==1)
-				cout << "Activated irreversible reaction for " << surrogate[i].name << " with " << surrogate[i].k_irreversible[surrogate[i].n_irreversible] << endl; 
+				if (int(out_species.size())>1)
+				  cout << "Activated irreversible reaction for " << surrogate[i].name << " producing " << surrogate[i].irreversible_name[surrogate[i].n_irreversible] << " and " << surrogate[i].irreversible_other[surrogate[i].n_irreversible] << endl;
+				else
+				  cout << "Activated irreversible reaction for " << surrogate[i].name << " producing " << surrogate[i].irreversible_name[surrogate[i].n_irreversible] << endl;
 			      surrogate[i].n_irreversible++;
 			    }
 
@@ -186,7 +220,7 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 
 				  if (paramloc[7]=="1")
 				    {
-				      cout << "ok" << endl;
+				      //cout << "ok" << endl;
 				      surrogate[i].rion_catalyzed.push_back(true);
 				    }
 				  else
@@ -419,21 +453,27 @@ void system_coupling_ssh(model_config &config, vector<species>& surrogate)
   int jmol;
   for (i=0;i<n;i++)
     if (surrogate[i].is_organic)
-      {
+      {       
 	for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
 	  {
-	    surrogate[i].i_irreversible.push_back(-1);	   
+	    surrogate[i].i_irreversible.push_back(-1);
+	    surrogate[i].iother_irreversible.push_back(-1);
 	    if (surrogate[i].k_irreversible[jmol]>0.)
 	      {	  
 		int j;
 		for (j=0;j<n;j++)	    
-		  if (surrogate[j].is_organic)
-		    if (surrogate[j].name==surrogate[i].irreversible_name[jmol])
-		      {
-			surrogate[i].i_irreversible[jmol]=j;
-			config.chemistry=true;
-			//cout << surrogate[i].name << " " << surrogate[surrogate[i].i_irreversible].name << " " << surrogate[i].k_irreversible << endl;
-		      }
+		  if (surrogate[j].name==surrogate[i].irreversible_name[jmol])
+		    {
+		      surrogate[i].i_irreversible[jmol]=j;
+		      config.chemistry=true;
+		      //cout << surrogate[i].name << " ici " << surrogate[surrogate[i].i_irreversible[jmol]].name << " " << surrogate[i].irreversible_other[jmol] << endl;
+		    }		
+		  else if (surrogate[j].name==surrogate[i].irreversible_other[jmol])
+		    {
+		      surrogate[i].iother_irreversible[jmol]=j;
+		      config.chemistry=true;
+		      //cout << surrogate[i].name << " found " << surrogate[surrogate[i].iother_irreversible[jmol]].name << endl;
+		    }
 	      }
 	  }
       }
@@ -2332,7 +2372,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   if (config.chemistry and config.equilibrium)
     {
       config.nt=1;  //number of coupling times between the equilibrium partitioning and the chemistry
-      config.dtchem_min=1.0; //minimal time step for chemistry integration in the equilibrium approach   
+      config.dtchem_min=0.01; //minimal time step for chemistry integration in the equilibrium approach   
 
       int n=surrogate.size();
       int i;

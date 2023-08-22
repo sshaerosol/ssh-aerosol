@@ -1475,7 +1475,8 @@ void solve_system_ssh(model_config &config, vector<species>& surrogate,
 		integer_chem_sat_ssh(config, surrogate, MOinit_sat, MOW_sat, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
 	  
 		//compute the new time step so that changes are small
-		adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);      
+		adapstep_chem_ssh(config,surrogate,dt1,t,deltat,config.dtchem_min);
+		
 		t+=dt2;     
 	      }
 	  }
@@ -2403,6 +2404,49 @@ void solve_implicit_water_coupled_ssh(model_config config, vector<species> &surr
             if (abs(errloc)>abs(vec_error_gas(index)))
               vec_error_gas(index)=errloc;	
           }
+
+
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_ion)
+	  {
+	    double btot=sum(surrogate[i].Aaq_bins_init);
+	    double btot1=sum(surrogate[i].Aaq_bins);
+	    if (i==config.iNO3m)
+	      {
+		btot+=surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		btot1+=surrogate[config.iHNO3].Ag1/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+	      }
+	    else if (i==config.iClm)
+	      {
+		btot+=surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[i].MM;
+		btot1+=surrogate[config.iHCl].Ag1/surrogate[config.iHCl].MM*surrogate[i].MM;
+	      }
+	    else if (i==config.iNH4p)
+	      {
+		btot+=surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[i].MM;
+		btot1+=surrogate[config.iNH3].Ag1/surrogate[config.iNH3].MM*surrogate[i].MM;
+	      }
+	    else if (i==config.iSO4mm)
+	      {
+		btot+=sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
+		btot1+=sum(surrogate[config.iHSO4m].Aaq_bins)/surrogate[config.iHSO4m].MM*surrogate[i].MM;		
+	      }
+	    else
+	      btot1=0.;
+
+	    
+	    if (btot1>1.0e-10)
+              {
+		//Add strict convergence criteria on the total mass of inorganics when chemistry is accounted for to avoid numerical creation of loss of matter
+		// max(60./deltat,1.0) create a stricter parameter for lower time step
+                double errloc=(btot-btot1)/(1.0e-5)*max(60./deltat,1.0);
+                if (abs(errloc)>abs(vec_error_gas(index)))
+                  vec_error_gas(index)=errloc;
+              }
+	  }
+	
+
+      
       maxaq=0.;
       for (b=0;b<config.nbins;++b)
 	{
@@ -2757,7 +2801,8 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
             for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
               MOsave(b,ilayer,iphase)=MOinit(b,ilayer,iphase);
         }
-      
+      //cout << " AVANT " << sum(surrogate[config.iNO3m].Aaq_bins_init)+surrogate[config.iHNO3].Ag/63*62 << " " << surrogate[config.iHNO3].Ag << " " << surrogate[config.iNO3m].Aaq_bins_init <<  endl;
+       
       if (config.first_evaluation_activity_coefficients==false)
         {	  
           twostep_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
@@ -2889,6 +2934,47 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
               }
           }
       
+      for (i=0;i<n;i++)
+	if (surrogate[i].is_ion)
+	  {
+	    double btot=sum(surrogate[i].Aaq_bins_init);
+	    double btot1=sum(surrogate[i].Aaq_bins);
+	    if (i==config.iNO3m)
+	      {
+		btot+=surrogate[config.iHNO3].Ag/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+		btot1+=surrogate[config.iHNO3].Ag1/surrogate[config.iHNO3].MM*surrogate[config.iNO3m].MM;
+	      }
+	    else if (i==config.iClm)
+	      {
+		btot+=surrogate[config.iHCl].Ag/surrogate[config.iHCl].MM*surrogate[i].MM;
+		btot1+=surrogate[config.iHCl].Ag1/surrogate[config.iHCl].MM*surrogate[i].MM;
+	      }
+	    else if (i==config.iNH4p)
+	      {
+		btot+=surrogate[config.iNH3].Ag/surrogate[config.iNH3].MM*surrogate[i].MM;
+		btot1+=surrogate[config.iNH3].Ag1/surrogate[config.iNH3].MM*surrogate[i].MM;
+	      }
+	    else if (i==config.iSO4mm)
+	      {
+		btot+=sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
+		btot1+=sum(surrogate[config.iHSO4m].Aaq_bins)/surrogate[config.iHSO4m].MM*surrogate[i].MM;		
+	      }
+	    else
+	      btot1=0.;
+	      
+	    
+	    if (btot1>1.0e-10)
+              {
+		//Add strict convergence criteria on the total mass of inorganics when chemistry is accounted for to avoid numerical creation of loss of matter
+		// max(60./deltat,1.0) create a stricter parameter for lower time step
+                errloc=(btot-btot1)/(1.0e-5)/factor_old*max(60./deltat,1.0);
+                if (abs(errloc)>abs(vec_error_gas(index)))
+                  vec_error_gas(index)=errloc;
+              }
+	  }
+	
+
+	
       for (b=0;b<config.nbins;++b)
         {
           AQ(b)=max(AQ(b),config.MOmin);         
@@ -3079,6 +3165,8 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
       ++index;
       ++iiter;
 
+
+      //exit(0);
       /*
       for (i=0;i<n;i++)
 	if (surrogate[i].is_solid)
@@ -3088,8 +3176,6 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 	      cout << "error : " << b << " " << (surrogate[i].Asol_bins_init(b)-surrogate[i].Asol_bins(b))/factor << endl;
 	      }*/
     }
-  //cout << error_tot << endl;
-  //exit(0);
 
   //cout << index << " " << error_tot << endl;
   if (error_tot>config.relative_precision)
@@ -4417,9 +4503,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       while (t<deltatmax)
         {
 	  deltat1=min(deltatmax-t,deltat1);
-	  deltat2=deltat1;
+	  deltat2=deltat1;	  
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
+	  
 	  
 	  t+=deltat1;       
 

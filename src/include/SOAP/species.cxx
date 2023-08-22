@@ -10528,7 +10528,7 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
   species NO3;
   NO3.name="NO3";
   NO3.is_inorganic_precursor=false;
-  NO3.MM=62.0;           // Molar mass (g/mol)
+  NO3.MM=63.0;           // Molar mass (g/mol)
   NO3.is_organic=false;  // Is the compound organic?
   NO3.hydrophilic=true; // Does the species condense on the aqueous phase?
   NO3.hydrophobic=false;  // Does the species condense on the organic phase?

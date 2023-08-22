@@ -204,7 +204,7 @@ namespace ssh_soap
     Array<double, 3> kprod,kloss,kloc;
     Array<double, 1> kprod_aq,kloss_aq,k1_gas;
     double kprod_gas,kloss_gas;
-    double Ag1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
+    double Ag1,Aaq1,Agt,fion1,fion2,ktot1,ktot2,Jdn_tot;	
     double moligo,koligo;
     double Keq_oligo;
     bool is_monomer;
@@ -236,11 +236,10 @@ namespace ssh_soap
 
     int n_irreversible;
     vector <double> k_irreversible;
-    vector <string> irreversible_name;
-    vector <int> i_irreversible;
+    vector <string> irreversible_name,irreversible_other;
+    vector <int> i_irreversible,iother_irreversible;
     bool catalyzed_ph;
     vector <bool> irr_catalyzed_water,irr_catalyzed_pH,irr_mass_conserving;
-    double aqratio;
   };
   
 }

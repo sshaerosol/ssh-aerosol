@@ -1001,10 +1001,23 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			
 			  surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
 			  surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-			  if (surrogate[i].irr_mass_conserving[jmol])
-			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+			  cout << "aaaa111... " << endl;
+			  if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophobic)
+			    if (surrogate[i].irr_mass_conserving[jmol])
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+			    else
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
 			  else
-			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			    if (surrogate[i].irr_mass_conserving[jmol])
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+			    else
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+
+			  if (surrogate[i].iother_irreversible[jmol]>=0)
+			    if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophobic)
+			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
+			  else
+			    surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem_aq(b,index)+=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
 			}
 
 		  }
@@ -1152,6 +1165,18 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 		      else
 			for (ilayer=0;ilayer<config.nlayer;ilayer++)
 			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+
+		      cout << "ok1 " << endl;
+		      if (surrogate[i].iother_irreversible[jmol]>=0)
+			{
+			  flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			  if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophilic)
+			    surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+			  else
+			    for (ilayer=0;ilayer<config.nlayer;ilayer++)
+			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+			}
+		      
 		    }
 	      
             }    
@@ -1293,9 +1318,24 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			
 			  surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
 			  surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-			  if (surrogate[i].irr_mass_conserving[jmol]==false)
-			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
-			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+
+			  if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophobic)
+			    if (surrogate[i].irr_mass_conserving[jmol])
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
+			    else
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			  else
+			    if (surrogate[i].irr_mass_conserving[jmol])
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+			    else
+			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			  cout << "ok2 " << endl;
+			  if (surrogate[i].iother_irreversible[jmol]>=0)
+			    if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophobic)
+			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
+			    else
+			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem_aq(b,index)+=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
+			  
 			}
 		  
 		  }
@@ -1491,6 +1531,17 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			else
 			  for (ilayer=0;ilayer<config.nlayer;ilayer++)
 			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+
+			cout << "ok3 " << endl;
+			if (surrogate[i].iother_irreversible[jmol]>=0)
+			  {
+			    flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			    if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophilic)
+			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
+			    else
+			      for (ilayer=0;ilayer<config.nlayer;ilayer++)
+				surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
+			  }
 		      }
     
               }
@@ -1553,7 +1604,19 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			  surrogate[i].kloss(b,ilayer,iphase)+=flux;
 			  if (surrogate[i].irr_mass_conserving[jmol]==false)
 			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
-			  surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			  if (surrogate[i].hydrophobic)
+			    surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			  else
+			    surrogate[surrogate[i].i_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+
+			  if (surrogate[i].iother_irreversible[jmol]>=0)
+			    {
+			      flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			      if (surrogate[i].hydrophobic)
+				surrogate[surrogate[i].iother_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			      else
+				surrogate[surrogate[i].iother_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			    }
 			}
 		  
 		  }
@@ -1625,6 +1688,17 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			  else
 			    for (ilayer=0;ilayer<config.nlayer;ilayer++)
 			      surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,0)+=flux*surrogate[i].Aaq_bins_init(b)*config.Vlayer(ilayer);
+			
+			  if (surrogate[i].iother_irreversible[jmol]>=0)
+			    {
+			      ///
+			      flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			      if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophilic)
+				surrogate[surrogate[i].iother_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b);
+			      else
+				for (ilayer=0;ilayer<config.nlayer;ilayer++)
+				  surrogate[surrogate[i].iother_irreversible[jmol]].kprod(b,ilayer,0)+=flux*surrogate[i].Aaq_bins_init(b)*config.Vlayer(ilayer);
+			    }
 			}
 		  }
 
