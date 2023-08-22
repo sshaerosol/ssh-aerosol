@@ -26,6 +26,11 @@ PROGRAM SSHaerosol
 
   double precision :: t_since_update_photolysis, t0
 
+  ! genoa char to read index for initial set
+  character (len=10) :: ivoc0
+  ! genoa timestep for aerosol_dynamic used when keep_gp = 1
+  double precision :: delta_t2
+
   ! Initial time (seconds)
   call cpu_time(t0)
 
@@ -35,6 +40,12 @@ PROGRAM SSHaerosol
      stop
   else
      call getarg(1, namelist_ssh)
+     ! genoa read initial sets
+     if (iargc() == 2) then
+         call getarg(2, ivoc0)
+         read(ivoc0,'(I1)') tag_init_set ! read as integer, only allow one digit for now
+         !print*,'read tag_init_set: ', tag_init_set
+     endif
   end if
 
   ! Read the number of gas-phase species and chemical reactions

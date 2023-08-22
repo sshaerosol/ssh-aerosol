@@ -458,7 +458,7 @@ contains
     namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
          wet_diam_estimation, init_gas_conc_file,&
          init_aero_conc_mass_file, init_aero_conc_num_file, &
-         cst_gas_file, cst_aero_file
+         cst_gas_file, cst_aero_file, init_species_list ! genoa inputs
          
     namelist /initial_diam_distribution/ diam_input
 
@@ -505,16 +505,46 @@ contains
                       ref_soa_conc_file, pre_soa_conc_file !genoa inputs
 
 
+    ! update genoa tag from compile option
+#ifdef UNDER_GENOA_FAST_MODE
+    tag_genoa = 1
+    ! no print
+    ssh_standalone = .false.
+    ssh_logger = .false.
+    iout_round = .false.
+#endif
+
+#ifdef UNDER_GENOA_COMPLETE_MODE
+    tag_genoa = 2
+    ssh_standalone = .true.
+    ssh_logger = .false.
+    iout_round = .false.
+#endif
+
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
+
+    if (tag_init_set.ne.0) then
+        if (ssh_standalone) write(*,*) "read tag_init_set: ", tag_init_set
+        if (ssh_logger) write(logfile,*) "read tag_init_set: ", tag_init_set
+    endif
+
+    if (tag_genoa.ne.0) then
+        if (ssh_standalone) write(*,*) "Under GENOA mode! ", tag_genoa
+        if (ssh_logger) write(logfile,*) "Under GENOA mode! ", tag_genoa
+    endif
+    
     ! read namelist.ssh file !
     open(unit = 10, file = namelist_file, status = "old")
 
     ! Use default values if they are not given in namelist.ssh
-    ! And write to namelist.out
-    nml_out = 101
-    namelist_out = "namelist.out"
-    open(nml_out, file = namelist_out)
+
+    if (tag_genoa.ne.1) then !genoa
+        ! And write to namelist.out
+        nml_out = 101
+        namelist_out = "namelist.out"
+        open(nml_out, file = namelist_out)
+    endif !genoa
 
     ! meteorological setup
     meteo_file = ""
@@ -601,10 +631,12 @@ contains
     ! initial_condition
     wet_diam_estimation = -999
 
-    ! init genoa files
+    ! genoa init - section initial_condition
     cst_gas_file= "---"
     cst_aero_file = "---"
-        
+    init_species_list = "---"
+    init_species_file = "---"
+    
     read(10, nml = initial_condition, iostat = ierr)
 
     if (ierr .ne. 0) then
@@ -661,6 +693,35 @@ contains
        diam_input = 0.d0
     end if
 
+    ! genoa Read initial conditions
+    if (init_species_list .ne. "---") then
+        if (ssh_standalone) write(*,*) 'Read inital conditions for some speices: ',trim(init_species_list)
+        if (ssh_logger) write(logfile,*) 'Read inital conditions for some speices: ',trim(init_species_list)
+
+        ! in case in the format "1,[path]", get the number
+        ! find the position of the first comma
+        i = index(init_species_list, ',')
+
+        ! Extract the numeric part before the first comma
+        if (i > 1) then
+            read(init_species_list(:i-1), *, iostat=ierr) tag_init_set
+            if (ierr.ne.0) then
+                print*, "Error: can not read index from init_species_list. ", trim(init_species_list)
+                stop
+            endif
+            ! read path
+            init_species_file = trim(init_species_list(i+1:800))
+            ! print
+            if (ssh_standalone) write(*,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
+            if (ssh_logger) write(logfile,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
+        else ! no number, read by command: e.g., ssh-aerosol namelist 1
+            if (tag_init_set.ne.0) then
+                ! read from ssh-aerosol.f90
+                init_species_file = init_species_list
+            endif
+        end if
+    end if
+    
     ! initial_diam_distribution
     read(10, nml = initial_diam_distribution, iostat = ierr)
     if (ierr .ne. 0) then
@@ -943,6 +1004,27 @@ contains
              with_heterogeneous = 0
              if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
              if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
+          end if
+          if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
+            tag_twostep = 1 ! genoa
+            if (ssh_standalone) write(*,*) 'use two-step solver.' 
+            if (ssh_logger) write(logfile,*) 'use two-step solver.'
+          else
+            if (ssh_standalone) write(*,*) 'use ROS2 solver.'
+            if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
+          end if
+          if (tag_genoa.gt.0.or.keep_gp.eq.1) then
+            keep_gp = 1 ! genoa
+            if (ssh_standalone) write(*,*) 'keep_gp is activated' 
+            if (ssh_logger) write(logfile,*) 'keep_gp is activated' 
+            if (tag_twostep.eq.0) then
+                if (ssh_standalone) write(*,*) 'keep_gp is only available with two_step. Check namelist' 
+                if (ssh_logger) write(logfile,*) 'keep_gp is only available with two_step. Check namelist'
+                stop
+            endif
+          else
+            if (ssh_standalone) write(*,*) 'use ROS2 solver.'
+            if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
           end if
           if (with_adaptive == 1) then
              if (ssh_standalone) write(*,*) 'with adaptive step.'
@@ -1478,23 +1560,25 @@ contains
     
     close(10)
 
-    ! Write to namelist.out
-    write(nml_out, setup_meteo)
-    write(nml_out, setup_time)
-    write(nml_out, initial_condition)
-    write(nml_out, initial_diam_distribution)
-    write(nml_out, emissions)
-    write(nml_out, mixing_state)
-    write(nml_out, fraction_distribution)
-    write(nml_out, gas_phase_species)
-    write(nml_out, aerosol_species)
-    write(nml_out, physic_gas_chemistry)
-    write(nml_out, physic_particle_numerical_issues)
-    write(nml_out, physic_coagulation)
-    write(nml_out, physic_condensation)
-    write(nml_out, physic_nucleation)
-    write(nml_out, output)
-    close(nml_out)
+    if (tag_genoa.ne.1) then !genoa
+        ! Write to namelist.out
+        write(nml_out, setup_meteo)
+        write(nml_out, setup_time)
+        write(nml_out, initial_condition)
+        write(nml_out, initial_diam_distribution)
+        write(nml_out, emissions)
+        write(nml_out, mixing_state)
+        write(nml_out, fraction_distribution)
+        write(nml_out, gas_phase_species)
+        write(nml_out, aerosol_species)
+        write(nml_out, physic_gas_chemistry)
+        write(nml_out, physic_particle_numerical_issues)
+        write(nml_out, physic_coagulation)
+        write(nml_out, physic_condensation)
+        write(nml_out, physic_nucleation)
+        write(nml_out, output)
+        close(nml_out)
+    endif !genoa
 
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
@@ -1532,6 +1616,14 @@ contains
     character (len=40) :: aerosol_species_name_tmp, char1,char2        
     character (len=4) :: partitioning_tmp
 
+    ! currently only used for genoa
+    logical :: file_exists
+    character (len=40) :: ivoc0, ivoc1
+    character (len=800) :: tmp_string
+    double precision :: tmp_conc
+    integer, dimension(:), allocatable :: tmp_index ! (gas/aero, sps index, ref sps index)
+    double precision, dimension(:), allocatable :: tmp_read, tmp_fgls
+  
     if (nspecies>0) then
        index_species_ssh(:)=-1
     endif
@@ -2191,6 +2283,17 @@ contains
        enddo
     endif
 
+    !!!!!!!!!! genoa related treatments
+    !!!! genoa initial condition
+    if (tag_init_set.gt.0) then
+        ! get tag in char
+        write(ivoc0,'(I0)') tag_init_set
+        ! update output
+        output_directory = trim(output_directory)//'.'//trim(ivoc0)
+        if (ssh_standalone) write(*,*) 'Change output_directory to: ', output_directory
+        if (ssh_logger) write(logfile,*) 'Change output_directory to: ', output_directory
+    endif
+    
     ! genoa assign output aero index
     do s = 1, nout_aero
         do js = 1, N_aerosol
@@ -2293,7 +2396,90 @@ contains
         endif
     endif
 
-    !!!! add cst areo profiles unit 24
+    ! genoa read initial profiles
+    if (init_species_file.ne."---".and.tag_init_set.gt.0) then ! ivoc is used here
+
+      if (ssh_standalone) write(*,*) 'Initial sets file : ', trim(init_species_file)
+      if (ssh_logger) write(logfile,*) 'Initial sets file : ', trim(init_species_file)
+
+      open(unit = 20, file = init_species_file, status = "old")
+        ierr = 0 ! tag read line
+        ind = 0  ! tag index - 0/1
+        j = 0
+        write(ivoc1,'(I0)') tag_init_set+1 ! stop sign
+        
+        allocate(tmp_index(2)) ! index of sps/ref sps
+        tmp_index = 0
+
+        do while(ierr .eq. 0)
+            count = 0 ! default tag
+            read(20, '(A)', iostat=ierr) tmp_string ! read line
+            
+            if (trim(tmp_string).eq.trim(ivoc1)) then
+                exit
+            else if (trim(tmp_string).eq.trim(ivoc0)) then
+                ind = 1
+            else if(ind.eq.1.and.ierr.eq.0) then ! read line
+            
+                if (ssh_standalone) write(*,*) 'Read: ', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'Read: ', trim(tmp_string)
+                
+                read(tmp_string,*, iostat=j) ic_name, tmp_name, sname
+                if (j.eq.0) then
+                    count = 3
+                    ! get factor
+                    read(tmp_name,*, iostat=j) tmp_conc
+                    !print*,"read 3: ",j,trim(ic_name),tmp_conc, trim(sname)
+                else
+                    count = 2
+                    read(tmp_string,*, iostat=j) ic_name, tmp_conc
+                    !print*, "read 2:",j, trim(ic_name), tmp_conc
+                end if
+                if (j.ne.0) then
+                    print*, "Can not read line: ", trim(tmp_string)
+                endif
+            end if
+            
+            if (count.ne.0) then ! read line info
+                ! check species name and type
+                do js = 1, N_gas
+                    if (ic_name.eq.species_name(js)) then
+                        tmp_index(1) = js
+                        if (ssh_standalone) write(*,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
+                        if (ssh_logger) write(logfile,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
+                    endif
+                    if (count.eq.3.and.sname.eq.species_name(js)) then
+                        tmp_index(2) = js
+                        if (ssh_standalone) write(*,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
+                        if (ssh_logger) write(logfile,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
+                    endif
+                enddo
+
+                ! check
+                if (tmp_index(1).eq.0) then
+                    print*, "index of input species is not found", trim(ic_name)
+                    stop
+                else if (count.eq.3.and.tmp_index(2).eq.0) then
+                    print*, "index of reference species is not found", trim(sname)
+                    stop
+                endif
+                
+                ! change concentration
+                js = tmp_index(1) ! index in concentration_gas_all
+                tmp = concentration_gas_all(js) ! old concs
+                if (count.eq.2) then
+                    concentration_gas_all(js) = tmp_conc
+                else if (count.eq.3) then
+                    concentration_gas_all(js) = tmp_conc * concentration_gas_all(tmp_index(2))
+                endif
+                if (ssh_standalone) write(*,*) "Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                if (ssh_logger) write(logfile,*)"Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                
+            endif
+        end do
+    endif
+    
+    ! genoa read constant aerosol profiles
     ncst_aero = 0
     if (cst_aero_file .ne. "---") then ! with input cst aero file
 
@@ -2676,6 +2862,7 @@ contains
     ! genoa
     if (allocated(tmp_read))  deallocate(tmp_read)
     if (allocated(tmp_fgls))  deallocate(tmp_fgls)
+    if (allocated(tmp_index)) deallocate(tmp_index)
     
   end subroutine ssh_read_inputs
 
