@@ -201,7 +201,30 @@ contains
     
   end subroutine ssh_init_output
 
-  
+
+  ! add for nout_gas and nout_aero
+  subroutine ssh_init_output_genoa()
+    
+    implicit none
+    integer :: i,j,s,b
+    
+    ! timestep for output
+    t_out = 0
+    
+    ! save gas species
+    if (nout_gas .gt. 0) then                  
+        allocate(output_gas(nt+1,nout_gas))
+        output_gas = 0d0
+    endif
+    
+    ! save aerosol species
+    if (nout_aero .gt. 0) then                  
+        allocate(output_aero(nt+1,nout_aero,N_size))
+        output_aero = 0d0
+    endif
+    
+  end subroutine ssh_init_output_genoa
+
 !============================================================================================
 
    
@@ -289,7 +312,119 @@ contains
 
   end subroutine ssh_save_concentration
        
+  subroutine ssh_save_concentration_genoa()
+  
+    implicit none
+    integer :: s, b, i, j, jesp, t
+    
+    ! update timestep - default 0
+    t_out = t_out + 1
+    
+    ! save gas species concs
+    do i = 1, nout_gas
+      s = output_gas_index(i)
+      output_gas(t_out,i) = concentration_gas_all(s) 
+    enddo
+    
+    ! update aerosol concs at this timestep
+    concentration_mass_tmp = 0d0   
+    do b = 1, N_size
+      do s = 1, N_aerosol_layers
+        jesp = List_species(s)
+        concentration_mass_tmp(b,jesp) = concentration_mass_tmp(b,jesp) + concentration_mass(b,s)
+      enddo
+    enddo
+    
+    ! save aerosol species concs
+    do i = 1, nout_aero
+      s = output_aero_index(i)
+      do b = 1, N_size
+         output_aero(t_out,i,b) = concentration_mass_tmp(b, s)
+      enddo
+    enddo
 
+  end subroutine ssh_save_concentration_genoa
+  
+  subroutine ssh_save_total_soa_genoa()
+
+    implicit none
+    integer :: s, b, i, j, jesp, t
+    
+    ! time step has been updated in ssh_save_concentration()
+    
+    ! save gas species concs
+    do i = 1, nout_gas
+      s = output_gas_index(i)
+      output_gas(t_out,i) = concentration_gas_all(s) 
+    enddo
+    
+    ! update aerosol concs at this timestep
+    total_aero_mass = 0d0 
+    do b = 1, N_size
+      do s = 1, N_aerosol_layers
+        jesp = List_species(s)
+        total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(b,s)
+      enddo
+    enddo
+    
+  ! save species for error computation
+  ! index in total_soa: 1: total SOA + nout_err + nout_soa
+  
+  ! compute total SOA - index 1
+  total_soa(t_out,1) = 0d0
+  do s = 1, N_aerosol ! remove water and no-organics
+    !if (aerosol_species_name(s).eq.'PBiMT') cycle
+    !if (aerosol_species_name(s).eq.'PSOAlP') cycle
+    ! only keep organics from primary vocs
+    if (aerosol_type(s).ne.4.or.Index_groups(s).le.1) cycle
+    total_soa(t_out,1) = total_soa(t_out,1) + total_aero_mass(s)
+  end do
+      
+    ! index 2 - nout_err + 1
+    ! save species for error computation
+    do i = 1, nout_err
+        ! check gas
+        s = output_err_index(1,i) ! index for gas
+     if (s.ne.0) then
+        total_soa(t_out,1+i) = concentration_gas_all(s)
+     else ! check aerosol
+        s = output_err_index(2,i) ! index for aerosol
+        if (s.ne.0) then
+          total_soa(t_out,1+i) = total_aero_mass(s)
+        else ! not found index - stop
+          print*, "Output_err_index not found in both gas and aerosol list."
+          print*, "Check err_species_list in the namelist."
+          print*,i, output_err_index(1,i),output_err_index(2,i)
+          stop
+        endif
+     endif
+    enddo
+          
+    ! save group concentrations for aerosols
+    do i = 1, nout_soa
+      ! compute total SOA
+      total_soa(t_out,1+nout_err+i) = 0d0
+      
+      do s = 1, N_aerosol ! remove water and no-organics
+        if (aerosol_type(s).ne.4) cycle ! only keep organics from primary vocs
+        if (Index_groups(s).ne.i+1) cycle ! sum concs from same group - example
+        
+        total_soa(t_out,1+nout_err+i) = total_soa(t_out,1+nout_err+i) + total_aero_mass(s)
+      end do
+    end do
+
+    ! round values if need
+    if (iout_round) then
+        do i = 1, nout_total
+            if (total_soa(t_out,i).lt.1d7) then
+                j = anint(total_soa(t_out,i)*1d6)
+                total_soa(t_out,i) = j/1d6
+            end if
+        enddo
+    end if
+    
+  end subroutine ssh_save_total_soa_genoa
+  
 !============================================================================================
 
   SUBROUTINE ssh_write_output()
@@ -302,7 +437,7 @@ contains
         if (ssh_standalone) write(*,*) "====  Write Netcdf output files  ====="
         if (ssh_logger) write(logfile,*) "====  Write Netcdf output files  ====="
         call ssh_write_output_netcdf()
-      else
+      else if (output_type .ne. 0) then
         if (ssh_standalone) write(*,*) "====  Write bin/txt output files  ====="
         if (ssh_logger) write(logfile,*) "====  Write bin/txt output files  ====="
         call ssh_write_output_bintxt()
@@ -748,6 +883,105 @@ contains
     
 
   END SUBROUTINE ssh_write_output_bintxt
+
+
+
+  SUBROUTINE ssh_write_output_genoa()
+
+    integer :: stat, s, b, t
+    logical :: file_exists
+    character (len=200) output_filename
+    character (len=200) :: cmd
+    character(4) :: out_type(2) = (/".txt",".bin"/) ! 1: text, 2: binary
+        
+    ! add output for gas
+    if (nout_gas.gt.0.) then
+    
+      ! create folder
+      cmd = trim('mkdir -p '// trim(output_directory) //"/gas/")
+      call system(cmd)
+
+     do s = 1, nout_gas
+        output_filename = trim(output_directory) // "/gas/" &
+           //trim(output_gas_species(s))// trim(out_type(output_type))
+        
+        ! Remove if output file exist
+        inquire (file = output_filename, exist = file_exists)
+        if (file_exists) then
+          open(unit=100, file = output_filename, status='old', iostat=stat)
+          if (stat == 0) close(100, status='delete')
+          endif
+          ! create new file 
+          open(unit=100,file=output_filename, status="new")
+          do t=1, nt+1
+             write(100,*) output_gas(t,s)
+          enddo
+          close(100)
+      enddo
+    endif
+
+    ! output for aerosols
+    if (nout_aero.gt.0) then
+      ! Create directory if it does not exist.
+      cmd = trim('mkdir -p '// trim(output_directory) //"/aero/")
+      call system(cmd)
+
+      ! aerosols
+      do b = 1, N_size
+        do s = 1, nout_aero
+            output_filename = trim(output_directory) // "/aero/"&
+            //trim(output_aero_species(s)) &
+            //"_"//trim(str(b)) // trim(out_type(output_type))
+            ! Remove if output files exist
+            inquire (file = output_filename, exist = file_exists)
+            if (file_exists) then
+                open(unit=100, file = output_filename, status='old', iostat=stat)
+                if (stat == 0) close(100, status='delete')
+            endif
+            ! create new file 
+            open(unit=100,file=output_filename, status="new")
+            do t=1, nt+1
+              write(100,*) output_aero(t,s,b) ! concentrations only
+            enddo
+            close(100)
+        enddo
+      enddo
+    endif
+    
+    ! write concs.txt
+    if (output_type .ne. 0) then
+      ! Create directory if it does not exist.
+      cmd = trim('mkdir -p '// trim(output_directory))
+      call system(cmd)
+    
+      ! error computation - at least save total soa concs
+      output_filename = trim(output_directory) // "/concs" // trim(out_type(output_type))
+      ! Remove if output files exist
+      inquire (file = output_filename, exist = file_exists)
+      if (file_exists) then
+          open(unit=100, file = output_filename, status='old', iostat=stat)
+          if (stat == 0) close(100, status='delete')
+      endif
+      ! create new file
+      open(unit=100,file=output_filename, status="new")
+      if (iout_round) then
+        do t=1, nt+1
+          ! output total SOA
+          if (total_soa(t,1).lt.1d7) then ! round
+              write(100,'(999E15.6)') (total_soa(t,s), s=1, nout_total)
+          else ! no round
+              write(100,*) (total_soa(t,s), s=1, nout_total)
+          end if
+        enddo
+      else ! no round up
+        do t=1, nt+1
+          write(100,*) (total_soa(t,s), s=1, nout_total)
+        enddo
+      endif
+      close(100)
+    endif
+    
+  END SUBROUTINE ssh_write_output_genoa
 
 
 !============================================================================================

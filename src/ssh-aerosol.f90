@@ -58,12 +58,26 @@ PROGRAM SSHaerosol
 
   call ssh_init_distributions()  
 
-  call ssh_init_output() 
+  ! Initialize output
+  if (tag_genoa.eq.1.or.output_type.eq.0)  then  ! genoa fast
 
-  call ssh_save_report()
+     call ssh_init_output_genoa()
 
-  call ssh_save_concentration() 
+     call ssh_save_concentration_genoa()
 
+  else ! default settings
+
+     call ssh_init_output()
+     
+     call ssh_save_report()
+     
+     call ssh_save_concentration()
+
+  endif
+
+  ! save total soas in concs.txt (tag_genoa = 1/2)
+  if (tag_genoa.gt.0) call ssh_save_total_soa_genoa()
+  
   if ((tag_chem .ne. 0).AND.(option_photolysis.eq.2)) then
     ! Allocate arrays for photolysis
     call ssh_allocate_photolysis()    
@@ -72,6 +86,7 @@ PROGRAM SSHaerosol
     call ssh_init_photolysis() 
     call ssh_interpol_photolysis()
   endif
+  
   ! **** simulation starts 
   t_since_update_photolysis = 0.d0
 
@@ -282,7 +297,15 @@ PROGRAM SSHaerosol
        end if
     end do
 
-    call ssh_save_concentration()         ! Save outputs in arrays
+    ! Save outputs
+    if (tag_genoa.eq.1.or.output_type.eq.0) then ! genoa fast
+        call ssh_save_concentration_genoa() ! only output certain species
+    else  ! default
+        call ssh_save_concentration()
+    endif
+
+   ! save concentrations in concs.txt
+   if (tag_genoa.gt.0) call ssh_save_total_soa_genoa()
 
     ! Time step is finished
     call cpu_time(t0)
@@ -290,8 +313,10 @@ PROGRAM SSHaerosol
 
   end do			! finsh simulation
 
-  call ssh_write_output()  !Creation of .txt .bin or .nc output files
-  !call delete_empty_file() ! delete empty output files
+  ! Write outputs
+  if (tag_genoa.ne.1) call ssh_write_output()  !Creation of .txt .bin or .nc output files
+
+  if (tag_genoa.ge.1.or.output_type.eq.0) call ssh_write_output_genoa()
 
   call ssh_free_allocated_memory()
   IF (with_coag.EQ.1) call ssh_DeallocateCoefficientRepartition()

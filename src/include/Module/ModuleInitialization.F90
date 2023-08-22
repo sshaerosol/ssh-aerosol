@@ -100,18 +100,52 @@ module aInitialization
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
   double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.   
 
-  ! genoa add to run chemistry with constant profile
-  integer, save :: ncst_gas, nRO2_chem, ncst_aero ! number of species
-  integer, save :: iRO2, iRO2_cst, keep_gp ! RO2 pool index in gas species list
-  integer, save :: tag_RO2 ! treat for RO2-RO2 reaction: 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
-  integer, dimension(:), allocatable, save :: cst_gas_index, RO2index, cst_aero_index ! index
-  double precision, dimension(:,:), allocatable, save :: cst_gas  ! unchanged conc. for gas phase species
-  double precision, dimension(:,:,:), allocatable, save :: cst_aero  ! unchanged conc. for aerosol phase species
+  character (len=800), save :: reaction_soap_file
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!! genoa related parameters
+  ! tag for genoa, tag to use keep_gp in twostep
+  integer, save :: tag_genoa = 0, keep_gp
+  ! tag for error computation; tag to round output values
+  logical, save :: ierr_ref, ierr_pre, iout_round = .false.
+  ! tag for RO2 treatment
+  integer, save :: tag_RO2 ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
+  
+  ! numbers that needs in the error computation
+  integer, save :: nout_err ! individual species w err compute
+  integer, save :: nout_soa = 0 ! a group of species: total concs w err compute
+  integer, save :: nout_total ! total num for err computation! default total SOAs
+  ! number of output species
+  integer, save :: nout_gas, nout_aero
+  ! index of initial set - can be updated in ssh-aerosol.f90
+  integer, save :: tag_init_set = 0
+  ! number of species with constant profiles, RO2 species
+  integer, save :: ncst_gas, ncst_aero, nRO2_chem 
+  ! RO2 pool index in gas species list
+  integer, save :: iRO2, iRO2_cst
+  
+  ! index to find corresponding species
+  integer, dimension(:), allocatable, save :: output_gas_index, output_aero_index
+  integer, dimension(:), allocatable, save :: cst_gas_index, RO2index, cst_aero_index  
+  integer, dimension(:,:), allocatable, save :: output_err_index ! (gas/aero, index)
+
+  ! concentrations array
+  double precision, dimension(:,:), allocatable, save :: cst_gas  ! constant concs.
+  double precision, dimension(:,:), allocatable, save :: pre_soa, ref_soa, total_soa ! err compute
+  double precision, dimension(:,:,:), allocatable, save :: cst_aero ! constant concs.
+
+  ! file names
+  character (len=800), save :: ref_soa_conc_file, pre_soa_conc_file! reference/previous cases
   character (len=800), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
   character (len=800), save :: cst_gas_file ! File for species that need to be keep as constants.
   character (len=800), save :: cst_aero_file ! File for constant aerosol species.
-  character (len=800), save :: reaction_soap_file
+  character (len=800), save :: init_species_file ! File for initial sets of SOA precursors
+  
+  ! list of species name
+  character (len=40), dimension(:), allocatable, save :: output_err_sps
+  character (len=40), dimension(:), allocatable, save :: output_gas_species, output_aero_species
 
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
   Integer, save :: with_incloud_scav!IINCLD
@@ -409,6 +443,11 @@ contains
     character (len=400), intent(in) :: namelist_file
     character (len=400) :: namelist_out
 
+    ! genoa read input lists
+    character (len=100) :: tmp_string
+    character (len=800) :: output_aero_list, output_gas_list
+    character (len=800) :: err_species_list, init_species_list 
+
     ! namelists to read namelist.ssh file 
 
     namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
@@ -459,7 +498,10 @@ contains
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
          scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
 
-    namelist /output/ output_directory, output_type, particles_composition_file
+
+    namelist /output/ output_directory, output_type, particles_composition_file, &
+                      output_aero_list, output_gas_list, & ! genoa inputs
+
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
@@ -1274,7 +1316,11 @@ contains
     if((with_cond == 1).AND.(Cut_dim.GE.diam_input(N_sizebin+1))) then
             wet_diam_estimation = 0 ! Compute water content if full equilibrium
     endif
-
+    
+    ! genoa ! default values
+    output_aero_list  = "---"
+    output_gas_list   = "---"
+    
     ! output
     read(10, nml = output, iostat = ierr)
     if (ierr .ne. 0) then
@@ -1291,6 +1337,9 @@ contains
        elseif (output_type == 2) then
           if (ssh_standalone) write(*,*) 'results are saved in binary files.'
           if (ssh_logger) write(logfile,*) 'results are saved in binary files.'
+       elseif (output_type == 0) then
+          if (ssh_standalone) write(*,*) 'No results are output except for the species specified in the namelist.'
+          if (ssh_logger) write(logfile,*) 'No results are output except for the species specified in the namelist.'
        else
           output_type = 1   ! default
           if (ssh_standalone) write(*,*) 'results are saved in text files.'
@@ -1302,6 +1351,82 @@ contains
        if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
     end if
 
+    !!!!! genoa
+    ! Read output_aero_list, output_gas_list, err_species_list from the user
+    ! read a list of output aerosol species
+    if (output_aero_list .ne. "---") then
+        if (ssh_standalone) write(*,*) 'Read output aerosol speices: ',trim(output_aero_list)
+        if (ssh_logger) write(logfile,*) 'Read output aerosol speices: ',trim(output_aero_list)
+        
+        ! Remove trailing comma if present
+        if (output_aero_list /= "") then
+            if (output_aero_list(len_trim(output_aero_list):) == ",") then
+                output_aero_list = adjustl(output_aero_list(1:len_trim(output_aero_list)-1))
+            end if
+        end if
+        ! Count the number of substrings
+        nout_aero = 1
+        do i = 1, len(output_aero_list)
+            if (output_aero_list(i:i) == ",") then
+                nout_aero = nout_aero + 1
+            end if
+        end do
+        !print*,"Find number: ", nout_aero
+        
+        ! Allocate memory
+        allocate(output_aero_species(nout_aero))
+        allocate(output_aero_index(nout_aero))
+        output_aero_index = 0
+        
+        ! Separate and remove spaces from the input string
+        do i = 1, nout_aero
+            call get_token(output_aero_list, tmp_string,",")
+            output_aero_species(i) = trim(tmp_string)
+            !print*,i," now: ",output_aero_list," species taken: ",output_aero_species(i)
+        end do
+    else
+        nout_aero = 0
+        allocate(output_aero_species(1))
+        allocate(output_aero_index(1))
+    end if
+    
+    ! read a list of output gas-phase species - only used with tag_genoa = 1
+    if (output_gas_list .ne. "---") then
+        if (ssh_standalone) write(*,*) 'Read output gas speices: ',trim(output_gas_list)
+        if (ssh_logger) write(logfile,*) 'Read output gas speices: ',trim(output_gas_list)
+        
+        ! Remove trailing comma if present
+        if (output_gas_list /= "") then
+            if (output_gas_list(len_trim(output_gas_list):) == ",") then
+                output_gas_list = adjustl(output_gas_list(1:len_trim(output_gas_list)-1))
+            end if
+        end if
+        
+        ! Count the number of substrings
+        nout_gas = 1
+        do i = 1, len(output_gas_list)
+            if (output_gas_list(i:i) == ",") then
+                nout_gas = nout_gas + 1
+            end if
+        end do
+        !print*,"Find number: ", nout_gas
+        
+        ! Allocate memory
+        allocate(output_gas_species(nout_gas))
+        allocate(output_gas_index(nout_gas))
+        output_gas_index = 0
+        
+        ! Separate and remove spaces from the input string
+        do i = 1, nout_gas
+            call get_token(output_gas_list, tmp_string, ",")
+            output_gas_species(i) = trim(tmp_string)
+            !print*,i," now: ",output_gas_list," species taken: ",output_gas(i)
+        end do
+    else
+        nout_gas = 0
+        allocate(output_gas_species(1))
+        allocate(output_gas_index(1))
+    end if
     close(10)
 
     ! Write to namelist.out
@@ -1684,6 +1809,7 @@ contains
     if(with_nucl.EQ.1) then
           inon_volatile(ESO4) = 1 ! sulfate needs to be computed dynamically in case of nucleation
     endif
+    
     ! read gas-phase initial concentrations unit 21
     ! no comment lines for initial & emitted data
     if ( .not. allocated(concentration_gas_all)) allocate(concentration_gas_all(N_gas))
@@ -2015,7 +2141,39 @@ contains
            enddo
        enddo
     endif
-    
+
+    ! genoa assign output aero index
+    do s = 1, nout_aero
+        do js = 1, N_aerosol
+            if (aerosol_species_name(js) .eq. output_aero_species(s)) then
+                output_aero_index(s) = js
+                if (ssh_standalone) write(*,*) 'Output aerosol: ', trim(output_aero_species(s)), s, js
+                if (ssh_logger) write(logfile,*) 'Output aerosol: ', trim(output_aero_species(s)), s, js
+            endif
+        enddo
+        ! check
+        if (output_aero_index(s).eq.0) then
+            print*,'not found aero in species list: ', s, trim(output_aero_species(s))
+            stop
+        endif
+    enddo
+
+    ! assign output gas index
+    do s = 1, nout_gas
+        do js = 1, N_gas
+            if (species_name(js) .eq. output_gas_species(s)) then
+                output_gas_index(s) = js
+                if (ssh_standalone) write(*,*) 'Output gas: ', trim(output_gas_species(s)), s, js
+                if (ssh_logger) write(logfile,*) 'Output gas: ', trim(output_gas_species(s)), s, js
+            endif
+        enddo
+        ! check
+        if (output_gas_index(s).eq.0) then
+            print*,'not found gas in species list: ', s, trim(output_gas_species(s))
+            stop
+        endif
+    enddo
+
     iRO2 = 0 ! init index for RO2
     ! use RO2 if tag_RO2 is given
     if (tag_RO2.ne.0) then
@@ -2335,6 +2493,7 @@ contains
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
 
     if (allocated(tmp_aero))  deallocate(tmp_aero)
+    ! genoa
     if (allocated(tmp_read))  deallocate(tmp_read)
     if (allocated(tmp_fgls))  deallocate(tmp_fgls)
   end subroutine ssh_read_inputs
@@ -2350,12 +2509,23 @@ contains
 
     integer :: ierr = 0
 
-    ! genoa chemistry
+    ! genoa
     if (allocated(RO2index)) deallocate(RO2index)
     if (allocated(cst_gas_index)) deallocate(cst_gas_index)
     if (allocated(cst_aero_index)) deallocate(cst_aero_index)
+    if (allocated(output_gas_index)) deallocate(output_gas_index)
+    if (allocated(output_aero_index)) deallocate(output_aero_index)
+    if (allocated(output_err_index)) deallocate(output_err_index)
+        
     if (allocated(cst_gas)) deallocate(cst_gas)
     if (allocated(cst_aero)) deallocate(cst_aero)
+    if (allocated(ref_soa)) deallocate(ref_soa)
+    if (allocated(pre_soa)) deallocate(pre_soa)
+    if (allocated(total_soa)) deallocate(total_soa)
+    
+    if (allocated(output_aero_species)) deallocate(output_aero_species)
+    if (allocated(output_gas_species)) deallocate(output_gas_species)
+    if (allocated(output_err_sps)) deallocate(output_err_sps)
 
     ! read_namelist()
     if (allocated(init_bin_number))  deallocate(init_bin_number, stat=ierr)
@@ -2572,4 +2742,34 @@ contains
 
   end subroutine ssh_close_logger
 
+
+! ========================================================
+! genoa used for read strings from namelist
+
+subroutine get_token(input_string, token, delimiter)
+    character(*), intent(inout) :: input_string
+    character(*), intent(out) :: token
+    character(len=*), intent(in) :: delimiter
+    character(100) :: temp_string
+    integer :: comma_pos, space_pos, i
+
+    comma_pos = index(input_string, trim(delimiter))
+    if (comma_pos == 0) then
+        token = trim(input_string)
+        input_string = ""
+        return
+    end if
+
+    temp_string = input_string(1:comma_pos-1)
+    space_pos = len_trim(temp_string)
+    do i = space_pos, 1, -1
+        if (temp_string(i:i) /= ' ') exit
+    end do
+
+    token = temp_string(1:i)
+    input_string = input_string(comma_pos+1:)
+    
+end subroutine get_token
+
+! ===========================================
 end module aInitialization
