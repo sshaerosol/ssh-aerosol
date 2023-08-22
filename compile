@@ -88,8 +88,8 @@ else # default no genoa
 
     # check if it is used to compile genoa before
     # check folder exists
-    if [[ ! -d "src/include/CHMISTRY" || ! -d "src/include/spack" ]]; then
-        echo "Error: 'src/include/CHMISTRY' or 'src/include/spack' does not exist."
+    if [[ ! -d "src/include/CHEMISTRY" || ! -d "src/include/spack" ]]; then
+        echo "Error: 'src/include/CHEMISTRY' or 'src/include/spack' does not exist."
         echo "Please recompile it with -g=fast or -g=complete option."
         exit 1
     fi

@@ -1976,12 +1976,14 @@ contains
        do js = 1, N_gas
           if (species_name(js) .eq. ic_name) then
              concentration_gas_all(js) = tmp
-             write(*,*) 'initialize conc',ic_name,js,concentration_gas_all(js)
+             if (ssh_standalone) write(*,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
+             if (ssh_logger) write(logfile,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
              ind = 1
+             exit
           endif
-          if (ind == 1) exit
        enddo
-       if (ind .eq. 0) then
+
+       if (ind .ne. 1) then ! not found
           if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
               trim(init_gas_conc_file), trim(ic_name)
           if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
