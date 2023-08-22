@@ -313,6 +313,9 @@ PROGRAM SSHaerosol
 
   end do			! finsh simulation
 
+  ! Compute errors - genoa
+  if (ierr_ref.or.ierr_pre) call ssh_compute_error_genoa()
+
   ! Write outputs
   if (tag_genoa.ne.1) call ssh_write_output()  !Creation of .txt .bin or .nc output files
 

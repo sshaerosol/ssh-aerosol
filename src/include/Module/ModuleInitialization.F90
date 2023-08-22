@@ -501,6 +501,8 @@ contains
 
     namelist /output/ output_directory, output_type, particles_composition_file, &
                       output_aero_list, output_gas_list, & ! genoa inputs
+                      err_species_list, & ! genoa inputs
+                      ref_soa_conc_file, pre_soa_conc_file !genoa inputs
 
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
@@ -1318,8 +1320,13 @@ contains
     endif
     
     ! genoa ! default values
+    ref_soa_conc_file = "---"
+    pre_soa_conc_file = "---"
     output_aero_list  = "---"
     output_gas_list   = "---"
+    err_species_list  = "---"
+    ierr_ref = .false.
+    ierr_pre = .false.
     
     ! output
     read(10, nml = output, iostat = ierr)
@@ -1427,6 +1434,48 @@ contains
         allocate(output_gas_species(1))
         allocate(output_gas_index(1))
     end if
+    
+    ! read the list of species to compute reduction errors
+    if (err_species_list .ne. "---") then
+        if (ssh_standalone) write(*,*) 'Read output speices for error computation: ',trim(err_species_list)
+        if (ssh_logger) write(logfile,*) 'Read output speices for error computation: ',trim(err_species_list)
+
+        ! Remove trailing comma if present
+        if (err_species_list /= "") then
+            if (err_species_list(len_trim(err_species_list):) == ",") then
+                err_species_list = adjustl(err_species_list(1:len_trim(err_species_list)-1))
+            end if
+        end if
+        
+        ! Count the number of substrings
+        nout_err = 1
+        do i = 1, len(err_species_list)
+            if (err_species_list(i:i) == ",") then
+                nout_err = nout_err + 1
+            end if
+        end do
+        !print*,"Find number: ", nout_err
+        
+        ! Allocate memory
+        allocate(output_err_sps(nout_err))
+        allocate(output_err_index(2,nout_err)) ! 1: gas/ 2: aerosol
+        output_err_index = 0
+        
+        ! Separate and remove spaces from the input string
+        do i = 1, nout_err
+            call get_token(err_species_list, tmp_string, ",")
+            output_err_sps(i) = trim(tmp_string)
+            !print*,i," now: ",err_species_list," species taken: ",output_err(i)
+        end do
+    else
+        nout_err = 0
+        allocate(output_err_sps(1))
+        allocate(output_err_index(1,1))
+    end if
+    
+    ! total number of output - 1 for total SOAs
+    nout_total = 1 + nout_err + nout_soa
+    
     close(10)
 
     ! Write to namelist.out
@@ -1472,7 +1521,7 @@ contains
     integer,dimension(nspecies),optional :: index_species_ssh   !For Chimere interface, link between the index of species in CHIMERE and SSH-aerosol
     integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
     double precision :: tmp
-    double precision, dimension(:), allocatable :: tmp_aero, tmp_read, tmp_fgls
+    double precision, dimension(:), allocatable :: tmp_aero
     character (len=40) :: ic_name, sname, tmp_name
     integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
@@ -2174,8 +2223,36 @@ contains
         endif
     enddo
 
+    ! genoa assign output err species index
+    do s = 1, nout_err
+        count = 0
+        ! check gas speices
+        do js = 1, N_gas
+            if (species_name(js) .eq. output_err_sps(s)) then
+                output_err_index(1,s) = js
+                count = count + 1
+                if (ssh_standalone) write(*,*) 'Output species (aerosol) for error computation: ', trim(output_err_sps(s)), s, js
+                if (ssh_logger) write(logfile,*) 'Output species (aerosol) for error computation: ', trim(output_err_sps(s)), s, js
+            endif
+        enddo
+        ! check aerosol
+        do js = 1, N_aerosol
+            if (aerosol_species_name(js) .eq. output_err_sps(s)) then
+                output_err_index(2,s) = js
+                count = count + 1
+                if (ssh_standalone) write(*,*) 'Output species (gas) for error computation: ', trim(output_err_sps(s)), s, js
+                if (ssh_logger) write(logfile,*) 'Output species (gas) for error computation: ', trim(output_err_sps(s)), s, js
+            endif
+        enddo
+        ! check
+        if (count.ne.1 ) then
+            print*,'Not found error species in species list: ', s, trim(output_err_sps(s)), count
+            stop
+        endif
+    enddo
+    
+    ! genoa RO2 treatment settings
     iRO2 = 0 ! init index for RO2
-    ! use RO2 if tag_RO2 is given
     if (tag_RO2.ne.0) then
         if (ssh_standalone) write(*,*) "Treat RO2-RO2 reaction:"
         if (ssh_logger) write(logfile,*) "Treat RO2-RO2 reaction:"
@@ -2228,9 +2305,9 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(24, *, iostat=ierr) tmp_name
+           read(24, *, iostat=ierr) tmp_string
            if (ierr == 0) then
-              if (trim(tmp_name) .eq. "#") then
+              if (trim(tmp_string) .eq. "#") then
                  nline = nline + 1
               else
                  count = count + 1
@@ -2240,8 +2317,8 @@ contains
 
         ! number of constant aerosol species
         ncst_aero = count
-        if ( .not. allocated(cst_aero_index)) allocate(cst_aero_index(ncst_aero))
-        if ( .not. allocated(cst_aero)) allocate(cst_aero(ncst_aero,N_sizebin,nt))
+        if (.not.allocated(cst_aero_index)) allocate(cst_aero_index(ncst_aero))
+        if (.not.allocated(cst_aero)) allocate(cst_aero(ncst_aero,N_sizebin,nt))
         if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
@@ -2288,7 +2365,7 @@ contains
         close(24)
     endif
 
-    ! read aerosol structure file
+    ! genoa read aerosol structure file
     if (aerosol_structure_file.ne."---") then
       open(unit = 25, file = aerosol_structure_file, status = "old")
         ! count comment lines and the number of input aerosol structures
@@ -2296,10 +2373,10 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(25, *, iostat=ierr) tmp_name
+           read(25, *, iostat=ierr) tmp_string
            if (ierr == 0) then
               ! read comment lines
-              if (trim(tmp_name) .eq. "#") then
+              if (trim(tmp_string) .eq. "#") then
                  nline = nline + 1
               else
                  count = count + 1
@@ -2311,7 +2388,7 @@ contains
         do s = 1, nline
            read(25, *) ! read comment lines.
         end do
-        if ( .not. allocated(tmp_fgls)) allocate(tmp_fgls(60)) !read unifac founctional groups (60)
+        if (.not.allocated(tmp_fgls)) allocate(tmp_fgls(60)) !read unifac founctional groups (60)
         do s= 1, count
            ! name, unifac groups
            read(25,*) ic_name, (tmp_fgls(k), k = 1, 60)
@@ -2330,13 +2407,12 @@ contains
       close(25)
     endif
 
-    ! read input cst_gas file
     ! init
-    iRO2_cst = 0
+    iRO2_cst = 0 ! index of RO2 pool
     ncst_gas = 0 ! number of gas species that are constants
-    nRO2_chem = 0
-
-    ! species that keep conc. constants in the simulation
+    nRO2_chem = 0! number of RO2 species
+    
+    ! genoa read contant gasoes profile
     if (cst_gas_file.ne."---") then
         open(unit = 34, file = cst_gas_file, status = "old")
 
@@ -2347,10 +2423,10 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_name
+           read(34, *, iostat=ierr) tmp_string
            if (ierr == 0) then
               ! read comment lines
-              if (trim(tmp_name) .eq. "#") then
+              if (trim(tmp_string) .eq. "#") then
                  nline = nline + 1
               else
                  count = count + 1
@@ -2360,8 +2436,8 @@ contains
 
         ! number of species that keep as constants
         ncst_gas =count
-        if ( .not. allocated(cst_gas_index)) allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
-        if ( .not. allocated(cst_gas)) allocate(cst_gas(ncst_gas,nt))
+        if (.not.allocated(cst_gas_index)) allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
+        if (.not.allocated(cst_gas)) allocate(cst_gas(ncst_gas,nt))
         if (.not.allocated(tmp_read)) allocate(tmp_read(nt))
         tmp_read = 0.0
 
@@ -2420,7 +2496,7 @@ contains
         if ( .not. allocated(cst_gas)) allocate(cst_gas(ncst_gas,nt))
     endif
 
-    ! species that keep conc. constants in the simulation
+    ! genoa RO2 species list - build RO2pool
     if (RO2_list_file.ne."---") then
       if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then ! need to have the list
 
@@ -2432,9 +2508,9 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_name
+           read(34, *, iostat=ierr) tmp_string
            if (ierr == 0) then
-              if (trim(tmp_name) .eq. "#") then
+              if (trim(tmp_string) .eq. "#") then
                  nline = nline + 1
               else
                  count = count + 1
@@ -2486,8 +2562,112 @@ contains
     else
         if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
     endif
+
     ! for twostep solver input
     if (tag_twostep.eq.1 .and. .not.allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
+
+    ! genoa read ref and pre concentrations
+    if (ref_soa_conc_file.ne."---") then
+        if (tag_init_set.gt.0) then
+            ! Check if the file.[No.] exists
+            INQUIRE(FILE=trim(ref_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
+            if (file_exists) then
+                ref_soa_conc_file = trim(ref_soa_conc_file)//'.'//trim(ivoc0)
+                if (ssh_standalone) write(*,*) 'Update ref file: ',trim(ref_soa_conc_file)
+                if (ssh_logger) write(logfile,*) 'Update ref file: ',trim(ref_soa_conc_file)
+            endif
+        endif
+        open(unit = 35, file = ref_soa_conc_file, status = "old")
+        
+        ! check number of values in the list
+        count = 1 
+        ierr = 0
+        ! read ref conc
+        allocate(ref_soa(nout_total,nt)) ! save ref soa conc
+
+        read(35,*, iostat=ierr) ! read the init conc
+        do while(ierr.eq.0.and.count.le.nt) 
+           read(35,*, iostat=ierr) (ref_soa(k,count), k=1, nout_total)
+           if (ierr == 0) count = count + 1
+        enddo
+        
+        if (ierr.ne.0) then
+            write(*,*) "Error: can not read the ref conc. ", count," ",trim(ref_soa_conc_file)
+            stop
+        endif
+        ! check if count number == nt
+        if (nt.ne.count-1) then
+            write(*,*) "Error: not the same number in ref conc. ", nt, count, " ",trim(ref_soa_conc_file)
+            stop
+        endif
+
+        ierr_ref = .true.
+        
+        ! print info
+        if (ssh_standalone) write(*,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
+        if (ssh_logger) write(logfile,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
+        
+        close(35)
+    else
+        if (ssh_standalone) write(*,*) "ierr_ref = 0. Not read ref soa concentration."
+        if (ssh_logger) write(logfile,*) "ierr_ref = 0. Not read ref soa concentration."
+    endif
+           
+    if (pre_soa_conc_file.ne."---") then
+
+        if (tag_init_set.gt.0) then
+            ! Check if the file.[No.] exists
+            INQUIRE(FILE=trim(pre_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
+            if (file_exists) then
+                pre_soa_conc_file = trim(pre_soa_conc_file)//'.'//trim(ivoc0)
+                if (ssh_standalone) write(*,*) 'Update pre file: ',trim(pre_soa_conc_file)
+                if (ssh_logger) write(logfile,*) 'Update pre file: ',trim(pre_soa_conc_file)
+            endif
+        endif
+
+        open(unit = 35, file = pre_soa_conc_file, status = "old")
+        
+        ! check number of values in the list
+        count = 1 
+        ierr = 0
+        ! read ref conc
+        allocate(pre_soa(nout_total,nt)) ! save ref soa conc
+        read(35,*, iostat=ierr) ! read the init conc
+        do while(ierr.eq.0.and.count.le.nt) 
+           read(35,*, iostat=ierr) (pre_soa(k,count), k=1, nout_total)
+           if (ierr == 0) count = count + 1
+        enddo
+
+        if (ierr.ne.0) then
+            write(*,*) "Error: can not read the pre conc. ", count," ",trim(pre_soa_conc_file)
+            stop
+        endif
+        ! check if count number == nt
+        if (nt.ne.count-1) then
+            write(*,*) "Error: not the same number in pre conc. ", nt, count," ",trim(pre_soa_conc_file)
+            stop
+        endif
+
+        ierr_pre = .true.
+        
+        ! print info
+        if (ssh_standalone) write(*,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
+        if (ssh_logger) write(logfile,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
+        
+        close(35)
+    else
+        if (ssh_standalone) write(*,*) "ierr_pre = 0. Not read pre soa concentration."
+        if (ssh_logger) write(logfile,*) "ierr_pre = 0. Not read pre soa concentration."
+    endif
+    
+    ! save for error computation
+    if (tag_genoa.ne.0.or.nout_total.gt.0) then                  
+        allocate(total_soa(nt+1,nout_total))
+        total_soa = 0d0
+    endif
+    
+! genoa
+
 
     if (ssh_standalone) write(*,*) "=========================finish read inputs file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read inputs file======================"
@@ -2496,6 +2676,7 @@ contains
     ! genoa
     if (allocated(tmp_read))  deallocate(tmp_read)
     if (allocated(tmp_fgls))  deallocate(tmp_fgls)
+    
   end subroutine ssh_read_inputs
 
 
