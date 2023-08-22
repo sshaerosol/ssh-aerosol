@@ -1,5 +1,5 @@
 #Type reaction 0: irreversible 1st order transformation
-# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, catalyzed by water?, catalyzed by pH?
+# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, catalyzed by water?, catalyzed by pH?, is the reaction mass conserving (=1) or mol conserving (=0)
 0 ASOA1	ANVSOA	3.e-4 0 0 1
 0 ASOA2	ANVSOA	3.e-4 0 0 1
 0 ASOA3	ANVSOA	3.e-4 0 0 1
@@ -52,6 +52,8 @@
 0 PAHhN	irrSOA	3.e-4 0 0 1
 0 PPSYR	irrSOA	3.e-4 0 0 1
 0 IEPOX BiMT    0.05 1 1 0
+0 BiNO3 BiMT+NO3    1.85e-4 1 0 0
+0 BiSULF BiMT+SO4    1.85e-6 1 0 0   
 #Type reaction 1: reversible 2nd order bulk oligomerisation
 # Based on Couvidat et al. (2018),  https://doi.org/10.5194/acp-18-15743-2018
 # Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, moligo (number of monomer block in monomers, equal to 2 for lowly oxidized compounds, 3.35 for others), Keq (equilibrium constant), is reaction catalyzed by H+ (0=no, 1=yes)
@@ -91,7 +93,7 @@
 2 GLYOH GLYOHOH 207.0
 #Type reaction 3: reaction with ions
 # number_of_the_reaction_type, name of the reacting species, name of the reaction ion, name of the produced species, kinetic (mol/L s-1), catalyzed by pH?, catalyzed by water?, catalyzed by the ion (if equal to 0 the ion is consumed, 1 not)?
-3 IEPOX NO3 BiMT 2.e-4 1 0 0
+3 IEPOX NO3 BiNO3 2.e-4 1 0 0
 3 IEPOX SO4 BiSULF 2.e-4 1 0 0
 3 IEPOX HSO4 BiSULF 7.3e-4 1 0 0
 #Type reaction 4: Pun and Seigneur (2007) parameterization for BiAOD

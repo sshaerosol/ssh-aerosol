@@ -1,0 +1,4 @@
+# init gas conc of nh3, no3, cl, so4 (µg.m-3) COND
+HNO3    10.
+IEPOX   10.
+NH3 1.10

@@ -1,6 +1,6 @@
 File for chemical species CB05 (name and molar mass)
 # gaseous species # aqueous species
-115   0
+116   0
 ---Gas-phase----
 HC8     114.
 NH3    17.
@@ -117,3 +117,4 @@ PAHhN 166.
 irrSOA 250.
 IEPOX 118.
 BiSULF 215.
+BiNO3 181.
