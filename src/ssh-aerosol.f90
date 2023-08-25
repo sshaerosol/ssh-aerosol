@@ -118,6 +118,7 @@ PROGRAM SSHaerosol
 
      current_time = initial_time + (t - 1) * delta_t
      t_since_update_photolysis = t_since_update_photolysis +  delta_t
+     delta_t2 = delta_t
 
      if (ssh_standalone) write(*,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
      if (ssh_logger) write(logfile,*) "Performing iteration #" // trim(str(t)) // "/" // trim(str(nt))
@@ -227,6 +228,7 @@ PROGRAM SSHaerosol
             end do
 
             ! Aerosol dynamic
+            print*,"A ",0.001*delta_t
             CALL SSH_AERODYN(current_time,0.001*delta_t)
 
             ! update mass conc. of aerosol precursors
