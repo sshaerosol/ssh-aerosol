@@ -474,7 +474,7 @@ c     Third body.
             ittb(nr)=6
          else
             write(*,*)'ERROR: syntax for Third Body'
-            write(*,*)'M, O2, N2, H20 or H2 expected.'
+            write(*,*)'M, O2, N2, H2O, RO2, or H2 expected.'
             stop 1
          endif
          i=i+2

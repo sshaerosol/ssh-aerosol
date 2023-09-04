@@ -472,10 +472,11 @@ c     Third body.
             ittb(nr)=5
          elseif (mot(i+1)(1:3).eq.'RO2') then !genoa add RO2 in TB
             ittb(nr)=6
-         else
-            write(*,*)'ERROR: syntax for Third Body'
-            write(*,*)'M, O2, N2, H20 or H2 expected.'
-            stop 1
+         else ! read a ratio
+            call ssh_reel(ratio,mot(i+1),imot(i+1))
+            !read(mot(i+1)(1:6),*,IOSTAT=e) ratio
+            !if (e.ne.0) print*,'can not read TB ratio',nr
+            ittb(nr)=7
          endif
          i=i+2
       else
@@ -488,7 +489,7 @@ c     Modification BS/KS 21/05/2002
 c     Case of a third body reaction: need for kinetics.
 
       if ((ittb(nr).ne.0).and.(nb(nr).eq.0)) goto 100
-      if (ittb(nr).ne.0) call ssh_WTB90(nr,ittb(nr))
+      if (ittb(nr).ne.0) call ssh_WTB90(nr,ittb(nr),ratio) !genoa
 
 c     Update the chemical production term and the Jacobian matrix.
       call ssh_WFJ90(s,nr,jer)
