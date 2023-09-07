@@ -396,8 +396,9 @@ c         elseif (chem_mechanism.eq.3) then
             call ssh_WSPEC_MCM (nr,ispebp(nr))
          else
             write(*,*) nr, ispebp(nr)
-            write(*,*) 'Warning: specific reaction expression
-     &   is not given for ', mechanism_name
+            write(*,*) 'Error: specific reaction expression
+     &is not given for ', mechanism_name
+            stop 1
          endif
 
 c end of modif
