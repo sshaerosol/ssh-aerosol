@@ -64,6 +64,7 @@ def fast_portable(utils):
     """
     p = _warning(utils)
     p.flag_compiler += " -O2 -g3"
+
     return p
 
 
@@ -75,8 +76,10 @@ def fast(utils):
     compatible.
     """
     p = _warning(utils)
-    p.flag_compiler += " -Ofast"
-
+    p.flag_compiler += " -O2"
+    # It is required 
+    # p.flag_compiler += " -fPIC" 
+    
     # p.flag_compiler += " -march=native"
     # using -march=native leads to a more CPU time in polair3d simulations.
     # It is moved to the "debug" profile. Its using needs to be tested (YK).
@@ -173,7 +176,7 @@ def debug(utils):
         # Undefined behavior sanitizer, aka ubsan.
         # (This flag enables common ubsan functionalities.)
         # It is not working in old version (YK).
-       # "-fsanitize=undefined",
+        "-fsanitize=undefined",
 
         # Floating-point to integer conversion checking.
         # "-fsanitize=float-cast-overflow",
@@ -218,6 +221,9 @@ def debug(utils):
 
         # The run-time error 'recursive call to nonrecursive procedure' appears
         "-fcheck=all",
+        "-ffpe-summary=all",
+        "-finit-integer=-2147483647",
+        "-finit-real=snan",
         # "-fcheck=array-temps,bounds,do,mem,pointer",
         # Equivalent to "implicit none" in every procedure.
         #-fimplicit-none
@@ -228,7 +234,7 @@ def debug(utils):
     # GFortran can trap invalid operations and float overflow. It can also trap
     # float division by zero, but we rely on the sanitizer for this.
     if ARGUMENTS["float_overflow"] == "abort":
-        p.flag_fortran += " -ffpe-trap=invalid,overflow"
+        p.flag_fortran += " -ffpe-trap=invalid,zero,overflow"
     else:
         p.flag_fortran += " -ffpe-trap=invalid"
 

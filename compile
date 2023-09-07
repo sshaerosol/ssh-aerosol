@@ -147,8 +147,17 @@ fi
 
 ./cleantmp $chemistry
 
+#=== List of scons options ===
+# profile: fast, debug (default: fast)
+# intel: yes or no (default: no)
+# line: yes or no (default: no)
+# mode_cpp: strict or permissive (default: strict)
+# mode_fortran: strict or permissive (default: permissive)
+# openmp: yes or no (default: no)
+# mpi: yes or no (default: no)
+#=============================
+
 cd src
-#scons -j8 profile=debug mode_fortran=strict line=yes chemistry=$chemistry openmp=no sharedlib=no genoa=no
 scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$sharedlib genoa=$genoa
 
 cd ..

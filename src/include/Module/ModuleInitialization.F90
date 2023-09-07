@@ -596,8 +596,8 @@ contains
        if (ssh_logger) write(logfile,*) 'Pressure', Pressure, 'Pa'
        if (ssh_standalone) write(*,*) 'Relative Humidity', Relative_Humidity
        if (ssh_logger) write(logfile,*) 'Relative Humidity', Relative_Humidity
-       if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
-       if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
+       ! if (ssh_standalone) write(*,*) 'Specific Humidity', Humidity
+       ! if (ssh_logger) write(logfile,*) 'Specific Humidity', Humidity
     end if
 
     
