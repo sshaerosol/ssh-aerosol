@@ -42,6 +42,9 @@ include_path_template = """
     """
 
 # genoa - update include_path_template
+if 'genoa' not in ARGUMENTS:
+    ARGUMENTS["genoa"] = 'no'
+    
 if ARGUMENTS["genoa"] == "fast" or ARGUMENTS["genoa"] == "complete":
     include_path_template = """
         include/Talos
