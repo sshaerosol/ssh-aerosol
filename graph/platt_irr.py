@@ -69,7 +69,7 @@ plt.plot(time, irr2,'--b',label='Irreversible SOA (Dyn)')
 plt.plot(time, org3,'r',label='With irreversible SOA (Eq)')
 plt.plot(time, irr3,'--r',label='Irreversible SOA (Eq)')
 
-plt.ylabel("Isoprene SOA ($\mu g.m^{-3}$)", fontsize=18)
+plt.ylabel("Organic Aerosol ($\mu g.m^{-3}$)", fontsize=18)
 plt.xlabel("time [h]", fontsize=18)
 plt.legend(loc=4)
 plt.savefig("platt-irreversible.png",bbox_inches='tight')
