@@ -126,14 +126,13 @@ contains
             gas(j) = 0.0
          ENDIF
 
-         IF (oligo_index(j)>0) THEN
-             
-            if (aero(oligo_index(j))+aero(j)>0.d0) then
-               frac_oligo(j)=aero(oligo_index(j))/(aero(oligo_index(j))+aero(j))
-               aero(j)=aero(j)+aero(oligo_index(j))
-               aero(oligo_index(j))=0.               
-            endif
-         ENDIF        
+         !IF (oligo_index(j)>0) THEN
+         !   if (aero(oligo_index(j))+aero(j)>0.d0) then
+         !      frac_oligo(j)=aero(oligo_index(j))/(aero(oligo_index(j))+aero(j))
+         !      aero(j)=aero(j)+aero(oligo_index(j))
+         !      aero(oligo_index(j))=0.               
+         !   endif
+         !ENDIF        
       ENDDO
 
       if (soap_inorg==1) then

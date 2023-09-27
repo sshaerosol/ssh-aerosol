@@ -186,10 +186,6 @@ contains
 
     do jesp=1,N_aerosol
        total_aero_mass(jesp)=0.d0
-       if (frac_oligo(jesp)>0.) then
-          t_mass(jesp)=t_mass(jesp)+t_mass(oligo_index(jesp))
-          t_mass(oligo_index(jesp))=0.d0
-       endif
     enddo
     !bin_mass=0.d0
     !cell_mass=0.d0
@@ -286,21 +282,6 @@ contains
           enddo
        endif
     enddo
-    
-    do s=N_nonorganics+1, N_aerosol_layers-1
-       jesp = List_species(s)
-       if (frac_oligo(jesp)>0.) then          
-          do j=1,N_size             
-             c_mass(j,oligo_index(jesp))=frac_oligo(jesp)*c_mass(j,s)
-             c_mass(j,s)=(1.d0-frac_oligo(jesp))*c_mass(j,s)
-             t_mass(oligo_index(jesp))=t_mass(oligo_index(jesp))+c_mass(j,oligo_index(jesp))
-             t_mass(jesp)=t_mass(jesp)-c_mass(j,oligo_index(jesp))           
-          enddo
-       endif                     
-    enddo
-
-    
-    
 
   end subroutine ssh_mass_conservation
 
