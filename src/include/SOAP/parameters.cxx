@@ -116,11 +116,11 @@ void read_reactions(model_config &config, vector<species>& surrogate)
 				surrogate[i].irreversible_other.push_back(out_species[1]);
 			      else
 				surrogate[i].irreversible_other.push_back("");
-			      if (paramloc[4]=="0")
+			      if (paramloc[5]=="0")
 				surrogate[i].irr_catalyzed_pH.push_back(false);
 			      else
 				surrogate[i].irr_catalyzed_pH.push_back(true);
-			      if (paramloc[5]=="0")
+			      if (paramloc[4]=="0")
 				surrogate[i].irr_catalyzed_water.push_back(false);
 			      else
 				surrogate[i].irr_catalyzed_water.push_back(true);
