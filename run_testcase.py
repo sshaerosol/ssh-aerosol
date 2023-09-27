@@ -51,14 +51,15 @@ if __name__ == '__main__':
                 initfile = [f for f in os.listdir(ssh_dir+ 'INIT/') if re.search(keyword,f)]
 
             for i in range(len(initfile)):
-                print("run the case ", initfile[i])
+                if (initfile[i][-4:]==".ssh"):
+                        print("run the case ", initfile[i])
 
-                if (multiproc_run):
-                    p = multiprocessing.Process(target = multiprocessing_func, args = (initfile[i],))
-                    processes.append(p)
-                    p.start()
-                else:
-                    multiprocessing_func(initfile[i])
+                        if (multiproc_run):
+                                p = multiprocessing.Process(target = multiprocessing_func, args = (initfile[i],))
+                                processes.append(p)
+                                p.start()
+                        else:
+                                multiprocessing_func(initfile[i])
 
             if (multiproc_run):                    
                 for process in processes:
