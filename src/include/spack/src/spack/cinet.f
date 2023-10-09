@@ -388,7 +388,8 @@ c         elseif (chem_mechanism.eq.3) then
      &           mechanism_name .eq. "racm2-2020rad") then
             call ssh_WSPEC_RACM290 (nr,ispebp(nr))
             write(*,*) '   expressions in RACM2 mechanism are used'
-	 elseif (mechanism_name .eq. "MELCHIOR2") then
+	 elseif (mechanism_name .eq. "MELCHIOR2" .or.
+     &           mechanism_name .eq. "MELCHIOR2a") then
             write(*,*) nr, ispebp(nr)
 	    call ssh_WSPEC_MELCHIOR2 (nr, ispebp(nr))
 	    write(*,*) '   expressions in MELCHIOR2 mechanism are used'
