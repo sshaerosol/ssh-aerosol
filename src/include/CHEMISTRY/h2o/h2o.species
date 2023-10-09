@@ -1,11 +1,10 @@
 File for chemical species CB05 (name and molar mass)
 # gaseous species # aqueous species
-54   0
+57   0
 ---Gas-phase----
 HC8     114.
 NH3    17.
 HCL    36.5
-HUM    204.36
 BiBmP   236.
 BiBlP   298.
 POAlP 280.
@@ -26,15 +25,12 @@ RpO2 199.
 RelvocO2 295.
 Dimer 432.
 Monomer 278.
-API     136.
 BiNIT 215.
-LIM     136.
 BiA1D   170.
 BiA2D   186.
 AnBlP   167.
 AnBmP   152.
 BiA0D   168.
-BPI    136.
 AnClP   167.
 BiA3D 204.
 PHEN  94.
@@ -56,3 +52,10 @@ MNAPH 142.
 MNAPHP 141.
 PAHlN 198.
 PAHhN 166.
+RO2 199.
+TOLP   141.
+XYLP   155.
+ISOR   117.
+MACR   70.
+ISON   147.
+MPAN   148.

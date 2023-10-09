@@ -1,6 +1,6 @@
 File for chemical species CB05 (name and molar mass)
 # gaseous species # aqueous species
-58   0
+55   0
 ---Gas-phase----
 O1D 16.
 ETOH  46.07
@@ -23,27 +23,20 @@ MEPX  48.04
 PANX  120.04
 OPEN  48.04
 MGLY  72.06
-RO2 199.
 ETH   28.05
 FACD  46.03
-MPAN   148.
 OLE   27.05
 IOLE  56.11
 ROOH  47.03
 PACD  76.05
 CRES  108.14
 CRO   108.14
-ISON   147.
 ISOP  68.18
 ISPD  70.09
 NTR   77.04
 PAR   15.03
 ALDX  43.04
-TOLP   141.
-XYLP   155.
 HNO3  63.01
-ISOR   117.
-MACR   70.
 AACD  60.05
 CO    28.01
 XO2N  47.03
@@ -60,3 +53,7 @@ C2O3  75.04
 NO2 46.
 XO2   47.03
 NO  30.
+API 136.0
+BPI 136.0
+LIM 136.0
+HUM 204.36

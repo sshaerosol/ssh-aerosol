@@ -8,7 +8,7 @@ from __future__ import with_statement
 import os
 import string
 import sys
-
+from replacement_species import *
 
 Ns = None
 Ns_gas = None
@@ -50,7 +50,9 @@ with open(species_gas,'r') as f:
         species_weight.append(line[1])
 
 # Checks Ns even if it is not needed in this script.
-assert Ns_gas == len(species_name)
+if (Ns_gas != len(species_name)):
+    print("Error " + Ns_gas + " " + len(species_name))
+    sys.exit(1)
         
 
 with open(species_h2o,'r') as f:
@@ -69,7 +71,9 @@ with open(species_h2o,'r') as f:
 
 # Checks Ns even if it is not needed in this script.
 Ns = Ns_gas + Ns_h2o
-assert Ns == len(species_name)
+if (Ns != len(species_name)):
+    print("Error " + str(Ns) + " " + str(len(species_name)))
+    sys.exit(1)
 
 # ####################
 # # TODO For debugging purpose, an output of the photolysis reactions is done,
@@ -134,6 +138,9 @@ with open(reactions_gas,'r', encoding="UTF-8") as f1, open(reactions_out, 'w') a
             f2.write("\n")
 
 with open(reactions_h2o,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
+
+    species_matching = read_matching_file()
+    
     # Jumps the title line.
     f1.readline()
     for line in f1:
@@ -141,7 +148,14 @@ with open(reactions_h2o,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') a
         if not line or line[0] in "#%!-":
             continue # A comment,
 
-        f2.write(line)
+
+        # Replace the species names
+        # from those of the h2o mechanism
+        # to those of the given mechanism.
+        line_output = replacement_species(line,
+                                          species_matching)
+        
+        f2.write(line_output)
         f2.write("\n")
         
 

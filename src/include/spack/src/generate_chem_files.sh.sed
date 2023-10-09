@@ -54,15 +54,18 @@ if [ $is_combining -eq 1 ]
 then
 # Make new mechanism files from the chosen chemical kinetic mechanism (for ozone)
 # and H2O model (for SOA).
-
 echo "======= Making new mechanism files combining H2O and a given mechanism ======"
 echo $SPECIES
 echo $REACT
 
-$script_dir/combine_files.py $SPECIES $REACT 
+$script_dir/combine_files.py $SPECIES $REACT
+if [[ $? = 1 ]]; then
+    exit 1
+fi
 
 SPECIES="combined_species.dat"
 REACT="combined_reactions.dat"
+
 fi
 
 
