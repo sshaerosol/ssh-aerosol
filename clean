@@ -22,6 +22,7 @@ done
 # for genoa
 if [ -z $genoa ]; then                     
     genoa="no"
+
 elif [[ $genoa == "fast" || $genoa == "complete" ]]; then             
 
     # active tag
@@ -87,7 +88,8 @@ if [[ $genoa != "fast" && $genoa != "complete" ]]; then
     cd src/include/CHEMISTRY/$chemistry
     rm -f `find -iname "combined_*.dat"`
     cd ../../spack/src/
-    rm -f `find -iname "generate_chem_files.sh"`
+    # avoid deletion of files in genoa/
+    rm -f `find -iname "generate_chem_files.sh" ! -path "*/genoa/spack/src/generate_chem_files.sh"`
     cd ../../
 fi
 
