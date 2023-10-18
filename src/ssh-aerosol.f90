@@ -228,7 +228,7 @@ PROGRAM SSHaerosol
             end do
 
             ! Aerosol dynamic
-            print*,"A ",0.001*delta_t
+            !print*,"A ",0.001*delta_t
             CALL SSH_AERODYN(current_time,0.001*delta_t)
 
             ! update mass conc. of aerosol precursors
