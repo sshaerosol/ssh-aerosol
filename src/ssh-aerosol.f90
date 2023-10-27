@@ -15,14 +15,13 @@ PROGRAM SSHaerosol
   use gCoagulation
   use mod_photolysis
   use mod_meteo
+  use mod_sshchem, only: ssh_chem_twostep,ssh_chem
   
   implicit none
 
   integer :: t, j, s,jesp,day  
   character (len=400) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
-  ! need if use constant input concentrations
-  double precision, dimension(:), allocatable :: cst_gas_use
 
   double precision :: t_since_update_photolysis, t0
 
@@ -49,7 +48,7 @@ PROGRAM SSHaerosol
   end if
 
   ! Read the number of gas-phase species and chemical reactions
-  call ssh_dimensions(N_gas, n_reaction, n_photolysis)
+  !call ssh_dimensions(N_gas, n_reaction, n_photolysis)
 
   call ssh_read_namelist(namelist_ssh)
 
@@ -107,13 +106,6 @@ PROGRAM SSHaerosol
   call cpu_time(t0)
   timer(2) = t0
 
-  ! for constant concentrations
-  if (ncst_gas.gt.0) then
-     allocate(cst_gas_use(ncst_gas))
-  else
-     allocate(cst_gas_use(0))
-  endif
-
   do t = 1, nt
 
      current_time = initial_time + (t - 1) * delta_t
@@ -148,66 +140,13 @@ PROGRAM SSHaerosol
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
 
      if (tag_chem .ne. 0) then
-
-       ! update constant concentrations if exist
-       if (ncst_gas .gt. 0) then
-          cst_gas_use = 0.0
-          do s =1, ncst_gas !size(cst_gas_index)
-             cst_gas_use(s) = cst_gas(s,t)
-          enddo
-       endif
-
+       
        if (tag_twostep .ne. 1) then
-           call ssh_chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-              0, lwc_cloud_threshold, molecular_weight, &
-              current_time, attenuation, &
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, delta_t, attenuation,&
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, longitude,&
-              latitude, concentration_gas_all,&
-              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-              0.d0,&
-              diam_bound, fixed_density, &
-              wet_diameter, &
-              heterogeneous_reaction_index, &
-              concentration_mass,&
-              with_adaptive, adaptive_time_step_tolerance,&
-              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-              1, not(with_fixed_density), concentration_number, &
-              mass_density)
-
-          delta_t2 = delta_t ! same for ros2 solver
+           call ssh_chem()
        else
          if (t==1.and.keep_gp.eq.1) then
-            ! delta_1=0.001*delta_t
-            call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-               ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-               0, lwc_cloud_threshold, molecular_weight, &
-               current_time, attenuation, &
-               humidity, temperature,&
-               pressure, source, &
-               photolysis_rate, 0.001*delta_t, attenuation,&
-               humidity, temperature,&
-               pressure, source, &
-               photolysis_rate, longitude,&
-               latitude, concentration_gas_all,&
-               0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-               0.d0,&
-               diam_bound, fixed_density, &
-               wet_diameter, &
-               heterogeneous_reaction_index, &
-               concentration_mass,&
-               with_adaptive, adaptive_time_step_tolerance,&
-               min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-               1, not(with_fixed_density), concentration_number, &
-               mass_density, &
-               ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
-               tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-               aerosol_species_interact(:))
+         
+            call ssh_chem_twostep(current_time,0.001*delta_t,t) ! current time, timestep
 
             ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
             total_aero_mass = 0.d0
@@ -228,7 +167,6 @@ PROGRAM SSHaerosol
             end do
 
             ! Aerosol dynamic
-            !print*,"A ",0.001*delta_t
             CALL SSH_AERODYN(current_time,0.001*delta_t)
 
             ! update mass conc. of aerosol precursors
@@ -238,36 +176,14 @@ PROGRAM SSHaerosol
                   concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
                end if
             end do
+            
             delta_t2=0.999*delta_t
-         else
-            delta_t2=delta_t
+            
          endif
 
          ! solve chemistry with the two-step time numerical solver if tag_twostep .eq. 1
-         call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-              0, lwc_cloud_threshold, molecular_weight, &
-              current_time, attenuation, &
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, delta_t2, attenuation,&
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, longitude,&
-              latitude, concentration_gas_all,&
-              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-              0.d0,&
-              diam_bound, fixed_density, &
-              wet_diameter, &
-              heterogeneous_reaction_index, &
-              concentration_mass,&
-              with_adaptive, adaptive_time_step_tolerance,&
-              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-              1, not(with_fixed_density), concentration_number, &
-              mass_density, &
-              ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
-              tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-              aerosol_species_interact(:))
+         call ssh_chem_twostep(current_time,delta_t2,t)
+         
       end if
     end if ! finish chem
 
@@ -373,5 +289,4 @@ PROGRAM SSHaerosol
 
   ! Free memory
   if (allocated(timer)) deallocate(timer)
-  if (allocated(cst_gas_use)) deallocate(cst_gas_use) !genoa
 end PROGRAM SSHaerosol

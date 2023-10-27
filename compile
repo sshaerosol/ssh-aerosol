@@ -51,7 +51,7 @@ case $i in
 esac
 done
 
-#ulimit -s unlimited
+ulimit -s unlimited
 # Path to blitz and netcdf libraries
 #export LD_LIBRARY_PATH=/home/cereaadm/usr/local/lib:$LD_LIBRARY_PATH
 # Path to blitz and netcdf files
@@ -76,23 +76,15 @@ if [[ $genoa == "fast" || $genoa == "complete" ]]; then
     iscombining="no"
     
     # Check folder exists
-    if [ ! -d "src/include/genoa" ]; then
-        echo "Error: Folder 'src/include/genoa' does not exist."
-        exit 1
-    fi
+    #if [ ! -d "src/include/genoa" ]; then
+    #    echo "Error: Folder 'src/include/genoa' does not exist."
+    #    exit 1
+    #fi
     
 else # default no genoa
 
     # default not use genoa settings                  
     genoa="no"
-
-    # check if it is used to compile genoa before
-    # check folder exists
-    if [[ ! -d "src/include/CHEMISTRY" || ! -d "src/include/spack" ]]; then
-        echo "Error: 'src/include/CHEMISTRY' or 'src/include/spack' does not exist."
-        echo "Please recompile it with -g=fast or -g=complete option."
-        exit 1
-    fi
 
     # not used for genoa 
     if [ -z $chemistry ]; then
@@ -140,10 +132,7 @@ else # default no genoa
 fi
 
 file="ssh-aerosol"
-if [ -h $file ] 
-then
-    rm -f $file
-fi
+rm -f $file
 
 ./cleantmp $chemistry
 

@@ -29,7 +29,7 @@ contains
     
     ssh_standalone = .false.
 
-    call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
+    !call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
     call ssh_read_namelist(namelist_ssh)
 
@@ -93,7 +93,7 @@ contains
 
        ssh_standalone = .false.
 
-       call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
+       !call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
        call ssh_read_namelist(namelist_ssh)
 
@@ -306,7 +306,7 @@ contains
     ssh_standalone = .false.
 
     ! Read the number of gas-phase species and chemical reactions    
-    call ssh_dimensions(N_gas, n_reaction, n_photolysis)    
+    !call ssh_dimensions(N_gas, n_reaction, n_photolysis)    
 
     if (.not.allocated(init_bin_number)) call ssh_read_namelist(namelist_ssh)
 
