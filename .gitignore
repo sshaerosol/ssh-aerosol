@@ -81,6 +81,8 @@ src/include/AtmoData/*hxx
 ### Generated files
 namelist.out
 species-list/species-list.dat
+src/include/CHEMISTRY/*/combined_reactions.dat
+src/include/CHEMISTRY/*/combined_species.dat
 
 ### Temporary files in example_using_so
 example_using_so/graph/*png
@@ -88,4 +90,5 @@ example_using_so/ssh-aerosol.log
 example_using_so/simple_cpp
 example_using_so/results/*
 species-list/species-list.dat.bck
+
 

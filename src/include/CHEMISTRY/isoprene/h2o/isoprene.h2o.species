@@ -1,0 +1,15 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+10   0
+---Gas-phase----
+ISOR   117.
+MACR   70.
+ISON   147.
+MPAN   148.
+BiMGA  120.
+BiNGA  165.
+BiPER  168.
+BiDER  136.
+BiNIT3  272.
+BiMT  136.
+

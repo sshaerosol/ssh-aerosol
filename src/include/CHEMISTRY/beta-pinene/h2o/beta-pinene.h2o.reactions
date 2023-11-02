@@ -1,0 +1,32 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for alpha-pinene SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------189--------------------
+beta_pinene + hydroxyl ->  0.07 BiA0D + 0.08 BiA1D + 0.06 BiA2D + //
+             beta_pinene + hydroxyl
+KINETIC ARR2   2.38E-11    -357.0
+%
+%--------------------190--------------------
+beta_pinene +  nitrate_radical       ->  0.02 BiA0D + 0.21 BiNIT + //
+                     beta_pinene + nitrate_radical
+KINETIC ARR1   2.51E-12
+%
+%--------------------191--------------------
+beta_pinene +  ozone        ->   0.09 BiA0D + 0.13 BiA1D + 0.04 BiA2D + //
+                      beta_pinene + ozone
+KINETIC ARR1   1.50E-17
+%
+%
+END
+
+
+

@@ -1,0 +1,34 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for guaiacol SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------217-----------------
+GUAI + hydroxyl       -> 0.47 RADGUAI + hydroxyl
+KINETIC ARR1    7.53E-11    
+%
+%--------------------218-----------------
+RADGUAI + hydroperoxy   -> 0.27 GHDPerox + hydroperoxy
+KINETIC ARR2    2.91E-13         -1300.0
+%
+%--------------------219-----------------
+RADGUAI + nitric_oxide    -> 0.40 GHDPerox + nitric_oxide
+KINETIC ARR2    2.71E-12         -360.0
+%
+%--------------------220-----------------
+RADGUAI + nitrate_radical   -> 0.40 GHDPerox + nitrate_radical
+KINETIC ARR1    2.30E-12
+%
+%
+%
+END
+
+
+

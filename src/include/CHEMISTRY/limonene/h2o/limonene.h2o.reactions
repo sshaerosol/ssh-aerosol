@@ -1,0 +1,32 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for limonene SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------160--------------------
+limonene + hydroxyl ->  0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D + //
+             limonene + hydroxyl
+KINETIC ARR2   4.20E-11   -401.0
+%
+%--------------------161--------------------
+limonene + ozone ->  0.09 BiA0D + 0.10 BiA1D  + //
+             0.0002 RO2 +   0.9 RpO2 + //
+             limonene + ozone 
+KINETIC ARR2   2.95E-15   783.0
+%
+%--------------------162--------------------
+limonene + nitrate_radical ->  0.69 BiA0D + 0.28 BiNIT + //
+              limonene + nitrate_radical
+KINETIC ARR1   1.22E-11
+%
+END
+
+
+

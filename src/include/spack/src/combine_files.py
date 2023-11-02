@@ -9,10 +9,14 @@ import os
 import string
 import sys
 from replacement_species import *
+from user_defined_scheme import *
+import configparser
+
+config = configparser.ConfigParser()
 
 Ns = None
 Ns_gas = None
-Ns_h2o = None
+Ns_aerosol = None
 species_name=[]
 species_weight=[]
 
@@ -29,8 +33,77 @@ reactions_h2o = "../h2o/h2o.reactions"
 species_gas = sys.argv[1]
 reactions_gas = sys.argv[2]
 
-species_h2o = "../h2o/h2o.species"
-reactions_h2o = "../h2o/h2o.reactions"
+"""
+Selection of schemes
+"""
+
+is_user_defined = input(
+    "\n\
+    ****************************************************************\n\
+    SPACK is combining the ozone chemistry and the SOA chemistry.\n\
+    The default H2O chemistry is used if an user-defined SOA chemistry is not chosed.\n\
+    Do you want to use user-defined SOA chemistry? (y or n)\
+    ")
+
+is_user_defined = is_user_defined.lower()
+
+if is_user_defined == "y" or is_user_defined == "yes":
+    user_defined = True
+elif is_user_defined == "n" or is_user_defined == "no":
+    user_defined = False
+else:
+    sys.exit("Please type y (yes) or n (no).")
+    
+if user_defined == True:
+
+    config.read('user_defined_scheme.cfg')
+
+    list_schemes = config['schemes']
+
+    # Read the schemes
+    opt_tol = list_schemes.getboolean('toluene')
+    opt_xyl = list_schemes.getboolean('xylene')
+    opt_api = list_schemes.getboolean('alpha-pinene')
+    opt_bpi = list_schemes.getboolean('beta-pinene')
+    opt_lim = list_schemes.getboolean('limonene')
+    opt_iso = list_schemes.getboolean('isoprene')
+    opt_hum = list_schemes.getboolean('humulene')
+    opt_poa = list_schemes.getboolean('poa')
+    opt_ben = list_schemes.getboolean('benzene')
+    opt_cre = list_schemes.getboolean('cresol')
+    opt_syr = list_schemes.getboolean('syringol')
+    opt_gua = list_schemes.getboolean('guaiacol')
+    opt_nap = list_schemes.getboolean('naphthalene')
+    opt_mna = list_schemes.getboolean('methyl-naphthalene')
+    
+    options_list = {
+        "Toluene": opt_tol,
+        "Xylene": opt_xyl,
+        "Alpha-pinene": opt_api,
+        "Beta-pinene": opt_bpi,
+        "Limonene": opt_lim,
+        "Isoprene": opt_iso,
+        "Humulene": opt_hum,
+        "POA": opt_poa,
+        "Benzene": opt_ben,
+        "Cresol": opt_cre,
+        "Syringol": opt_syr,
+        "Guaiacol": opt_gua,
+        "Naphthalene": opt_nap,
+        "Methyl-naphthalene": opt_mna
+    }
+    
+    reactions_aerosol, species_aerosol = \
+        user_defined_scheme(options_list)
+
+
+else:
+    species_aerosol = "../h2o/h2o.species"
+    reactions_aerosol = "../h2o/h2o.reactions"
+
+print("Ozone species:", species_gas)
+print("SOA species:", species_aerosol)
+print("SOA reactions:", reactions_aerosol)
 
 species_out = "combined_species.dat"
 reactions_out = "combined_reactions.dat"
@@ -55,7 +128,7 @@ if (Ns_gas != len(species_name)):
     sys.exit(1)
         
 
-with open(species_h2o,'r') as f:
+with open(species_aerosol,'r') as f:
     # Jumps the title line.
     f.readline()
     for line in f:
@@ -63,14 +136,14 @@ with open(species_h2o,'r') as f:
         if not line or line[0] in "#%!-":
             continue # A comment,
         line=line.split()
-        if Ns_h2o is None:
-            Ns_h2o = int(line[0])
+        if Ns_aerosol is None:
+            Ns_aerosol = int(line[0])
             continue; # The first value is the number of species.
         species_name.append(line[0])
         species_weight.append(line[1])        
 
 # Checks Ns even if it is not needed in this script.
-Ns = Ns_gas + Ns_h2o
+Ns = Ns_gas + Ns_aerosol
 if (Ns != len(species_name)):
     print("Error " + str(Ns) + " " + str(len(species_name)))
     sys.exit(1)
@@ -137,7 +210,7 @@ with open(reactions_gas,'r', encoding="UTF-8") as f1, open(reactions_out, 'w') a
             f2.write(line)
             f2.write("\n")
 
-with open(reactions_h2o,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
+with open(reactions_aerosol,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
 
     species_matching = read_matching_file()
     
@@ -157,8 +230,10 @@ with open(reactions_h2o,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') a
         
         f2.write(line_output)
         f2.write("\n")
-        
 
+# End of file        
+with open(reactions_out, 'a') as f:
+    f.write("END")
 
 #with open("species.spack.dat","w") as f:
 #    f.write("[species]\n")

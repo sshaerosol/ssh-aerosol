@@ -1,0 +1,9 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+4   0
+---Gas-phase----
+NAPH 128.
+NAPHP 127. 
+PAHlN 198.
+PAHhN 166.
+

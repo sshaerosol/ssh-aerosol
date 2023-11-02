@@ -1,0 +1,38 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for XYLENE SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%-------
+xylene + hydroxyl -> 0.274 XYLP + xylene + hydroxyl
+KINETIC ARR2    1.7E-11    -116.0
+%--------------------168--------------------
+XYLP + hydroperoxy -> 0.71 AnClP + hydroperoxy
+KINETIC ARR2   3.75E-13   -980.
+%
+%--------------------169--------------------
+XYLP + methylperoxy -> 0.71 AnClP + methylperoxy
+KINETIC ARR2   3.56E-14   -708.
+%
+%--------------------170--------------------
+XYLP + acetylperoxy -> 0.71 AnClP + acetylperoxy
+KINETIC ARR2   7.40E-13   -765.
+%
+%--------------------171--------------------
+XYLP + nitric_oxide -> 0.063 AnBlP + 0.424 AnBmP + nitric_oxide
+KINETIC ARR2   2.70E-12   -360.
+%
+%--------------------172--------------------
+XYLP + nitrate_radical -> 0.063 AnBlP + 0.424 AnBmP + nitrate_radical
+KINETIC ARR1   1.20E-12
+%
+END
+
+
+

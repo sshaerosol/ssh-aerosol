@@ -1,0 +1,7 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+3   0
+---Gas-phase----
+SYR  154.
+RADSYR 171.
+PSYR 186. 

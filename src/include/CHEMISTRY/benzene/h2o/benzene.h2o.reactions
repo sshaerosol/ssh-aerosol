@@ -1,0 +1,29 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for benzene SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------208--------------------
+PHEN + hydroxyl       -> 0.75 CAT + hydroxyl
+KINETIC ARR2  4.70E-13   -1220.0
+%
+%--------------------209--------------------
+CAT + hydroxyl       -> 0.28 ACIDMAL + hydroxyl
+KINETIC ARR1  9.90E-10
+%
+%--------------------210--------------------
+BENZ + hydroxyl       -> 0.53 PHEN + hydroxyl
+KINETIC ARR2  2.30E-12    190.0
+%
+%
+END
+
+
+

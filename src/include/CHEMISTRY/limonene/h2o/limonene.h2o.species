@@ -1,0 +1,11 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+7   0
+---Gas-phase----
+BiA0D   168.
+BiA1D   170.
+BiA2D   186.
+BiNIT   215.
+RO2     199.
+RpO2    199.
+BiA3D   204.

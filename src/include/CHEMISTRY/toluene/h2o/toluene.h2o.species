@@ -1,0 +1,8 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+4   0
+---Gas-phase----
+AnBlP   167.
+AnBmP   152.
+AnClP   167.
+TOLP   141.

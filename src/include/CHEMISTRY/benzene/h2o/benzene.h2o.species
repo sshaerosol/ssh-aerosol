@@ -1,0 +1,9 @@
+File for chemical species CB05 (name and molar mass)
+# gaseous species # aqueous species
+4   0
+---Gas-phase----
+PHEN  94.
+CAT   110.
+ACIDMAL 158.
+BENZ  78.
+
