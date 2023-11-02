@@ -3,7 +3,7 @@ module mod_sshchemkinetic
   use aInitialization, only : attenuation, n_reaction, n_gas, &
                           humidity, temperature, pressure, &
                           photo_rcn, TB_rcn, fall_rcn, extra_rcn, &
-                          Nsps_rcn, index_RCT, index_PDT, &
+                          index_RCT, index_PDT, &
                           fall_coeff, extra_coeff, &
                           photo_ratio, Arrhenius, &
                           ratio_PDT, kinetic_rate, chem_prod, chem_loss, &
@@ -40,20 +40,19 @@ subroutine ssh_dratedc()
  
   implicit none
 
-  integer i,j,k,p,ind
+  integer i,j,k,ntot
   
   drv_knt_rate=0.d0
+  ntot = size(drv_knt_rate)
   
-  k = 0
-  do i=1, n_reaction ! reactions
-    p = Nsps_rcn(i,1) ! no.reactants
-    do j=1, p
-        k = k + 1 ! traverse products
-        ind = index_RCT(k) ! index in species list
-        drv_knt_rate(k) = kinetic_rate(i)*gas_yield(ind)
-    enddo
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k)
+  do i=1, ntot
+    j = index_RCT(i,1) ! ircn
+    k = index_RCT(i,2) ! isps
+    drv_knt_rate(i) = kinetic_rate(j)*gas_yield(k)
   enddo
-  
+!$OMP END PARALLEL DO
+
 END subroutine ssh_dratedc
 
 ! =================================================================
@@ -82,21 +81,20 @@ subroutine ssh_fexloss()
  
   implicit none
  
-  integer i,j,k,p,ind
+  integer i,j,k,ntot
 
 ! Chemical loss terms.
   chem_loss=0.d0
-  
-  k = 0
-  do i=1, n_reaction ! no.reactions
-    p = Nsps_rcn(i,1) ! no.reactants
-    do j=1, p
-        k = k + 1 ! traverse products
-        ind = index_RCT(k) ! index in species list
-        chem_loss(ind) = chem_loss(ind) + drv_knt_rate(k)
-    enddo
+  ntot = size(index_RCT,1)
+
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,k)
+  do i=1, ntot
+    !j = index_RCT(i,1) ! ircn
+    k = index_RCT(i,2) ! isps
+    chem_loss(k) = chem_loss(k) + drv_knt_rate(i)
   enddo
-  
+!$OMP END PARALLEL DO
+
 END subroutine ssh_fexloss
 
 subroutine ssh_fexprod()
@@ -123,24 +121,21 @@ subroutine ssh_fexprod()
  
   implicit none
 
-  integer i,j,k,ind,p
+  integer i,j,k,ntot
 
 ! Chemical production terms.
   chem_prod=0.d0
+  ntot = size(index_PDT,1)
 
-  k = 0
-  do i=1, n_reaction ! reactions
-    p = Nsps_rcn(i,2) ! no.products, default = 1
-
-    do j=1, p
-        k = k + 1 ! traverse products
-        ind = index_PDT(k) ! index in species list
-        if (ind /= 0) then ! remove nothing
-            chem_prod(ind) = chem_prod(ind) + rcn_rate(i) * ratio_PDT(k)
-        endif
-    enddo
-
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k)
+  do i=1, ntot
+    j = index_PDT(i,1) ! index in reaction list
+    k = index_PDT(i,2) ! index in species list
+    if (k /= 0) then ! remove 'NOTHING'
+        chem_prod(k) = chem_prod(k) + rcn_rate(j) * ratio_PDT(i)
+    endif
   enddo
+!$OMP END PARALLEL DO
 
 END subroutine ssh_fexprod
 
@@ -172,23 +167,19 @@ subroutine ssh_rates()
  
   implicit none
 
-  integer i,j,k,p,ind 
+  integer i,j,k,ntot 
 
-  rcn_rate=0.d0
+  rcn_rate = kinetic_rate  ! init
+  ntot = size(index_RCT,1) ! number of reactants
   
-  k = 0 ! index
-  do i=1, n_reaction ! reactions
-    
-    p = Nsps_rcn(i,1) ! no.reactants
-    rcn_rate(i) = kinetic_rate(i)
-    
-    do j=1, p
-        k = k + 1 ! traverse reactants
-        ind = index_RCT(k) ! index in species list
-        rcn_rate(i) = rcn_rate(i) * gas_yield(ind)
-    enddo
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k)
+  do i=1, ntot
+    j = index_RCT(i,1) ! ircn
+    k = index_RCT(i,2) ! index in species list
+    rcn_rate(j) = rcn_rate(j) * gas_yield(k)
   enddo
-  
+!$OMP END PARALLEL DO
+
 END subroutine ssh_rates
 
 ! =================================================================
@@ -235,11 +226,13 @@ subroutine ssh_kinetic(azi,RO2)
   double precision :: photo
 
   ! Arrhenius ! k = C1 * T**C2 * exp(-C3/T)
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
   do i=1, n_reaction ! reactions
     kinetic_rate(i) = Arrhenius(i,1)*(temperature**Arrhenius(i,2)) &
                       * dexp(-Arrhenius(i,3)/temperature)
   enddo
-  
+!$OMP END PARALLEL DO 
+
   ! TBs(6) = ["RO2", "O2 ", "H2O", "M  ", "N2 ", "H2 "]
   do i=1,size(TB_rcn,1) ! no.TB reactions
   

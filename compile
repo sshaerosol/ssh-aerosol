@@ -70,7 +70,12 @@ if [[ $genoa == "fast" || $genoa == "complete" ]]; then
     
     # default paramters to use genoa - change here
     chemistry="genoa"
-    openmp="no"
+    
+    if [ -z $openmp ]; then
+        openmp="no"
+    fi
+    echo "OpenMP: $openmp"
+
     sharedlib="no"                
     profile="fast"                
     iscombining="no"

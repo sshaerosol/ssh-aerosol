@@ -149,9 +149,9 @@ module aInitialization
 !!!! KINETIC RELATED - GENOA
   double precision, save :: SumMc ! M (in molec/cm3) - constant or change by pressure and temperature
   double precision, save :: YlH2O ! water concentration (molec/cm3) in the gas phase
-  integer, dimension(:,:), allocatable, save :: Nsps_rcn, photo_rcn, TB_rcn
+  integer, dimension(:,:), allocatable, save :: photo_rcn, TB_rcn
   integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn
-  integer, dimension(:),   allocatable, save :: index_RCT, index_PDT
+  integer, dimension(:,:),   allocatable, save :: index_RCT, index_PDT
   double precision, dimension(:), allocatable, save ::  ratio_PDT
   ! kinetics
   double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
@@ -2975,8 +2975,7 @@ contains
     n_photolysis = ipho
 
     ! allocate arrays
-    allocate(Nsps_rcn(ircn,2)) ! number of species 1: reactants, 2: products
-    allocate(index_RCT(irct), index_PDT(ipdt)) ! index of species in species_list
+    allocate(index_RCT(irct,2), index_PDT(ipdt,2)) ! index of species in species_list
     allocate(ratio_PDT(ipdt)) ! branching ratios
     
     ! kinetics
@@ -2997,7 +2996,6 @@ contains
     allocate(drv_knt_rate(irct))
     
     ! init
-    Nsps_rcn = 0
     index_RCT = 0
     index_PDT = 0    
     photo_rcn = 0
@@ -3035,8 +3033,6 @@ contains
             if (iarrow > 0) then
             
                 ircn = ircn + 1 ! reaction index
-                Nsps_rcn(ircn,1) = count_plus(line(1:iarrow - 1)) + 1 ! no.reactants
-                Nsps_rcn(ircn,2) = count_plus(line(iarrow + 2:)) + 1  ! no.products
 
                 ! Extract reactants
                 subline = line(1:iarrow-1)
@@ -3056,12 +3052,13 @@ contains
                     ! get index in species list
                     do js = 1, N_gas
                       if (species_name(js) .eq. sname) then
-                        index_RCT(irct)=js
+                        index_RCT(irct,1)=ircn ! no.reaction
+                        index_RCT(irct,2)=js ! no.species
                         exit
                       endif
                     enddo
                     ! check index
-                    if (index_RCT(irct) .eq. 0) then
+                    if (index_RCT(irct,1) .eq. 0) then
                         print*, 'reactants not found in species list: ',trim(sname)
                         stop
                     endif
@@ -3095,18 +3092,20 @@ contains
                         ! get index in species list
                         do js = 1, N_gas
                           if (species_name(js) .eq. sname) then
-                            index_PDT(ipdt)=js
+                            index_PDT(ipdt,1)=ircn
+                            index_PDT(ipdt,2)=js
                             exit
                           endif
                         enddo
                         ! check index
-                        if (index_PDT(ipdt) .eq. 0) then
+                        if (index_PDT(ipdt,1) .eq. 0) then
                             print*, trim(line)
                             print*, 'product not found in species list: ',trim(sname),' ',trim(tmp_line)
                             stop
                         endif
                     else ! update for NOTHING
-                        index_PDT(ipdt) = 0
+                        index_PDT(ipdt,1) = ircn
+                        index_PDT(ipdt,2) = 0
                         ratio_PDT(ipdt) = 0.d0
                     endif
                     
@@ -3454,7 +3453,6 @@ END subroutine ssh_SPL3
     if (allocated(output_err_sps)) deallocate(output_err_sps)
 
     ! genoa - kinetic
-    if (allocated(Nsps_rcn)) deallocate(Nsps_rcn)
     if (allocated(photo_rcn)) deallocate(photo_rcn)
     if (allocated(TB_rcn)) deallocate(TB_rcn)
     if (allocated(fall_rcn)) deallocate(fall_rcn)

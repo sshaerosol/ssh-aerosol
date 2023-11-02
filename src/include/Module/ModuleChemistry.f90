@@ -60,16 +60,7 @@ contains
       DOUBLE PRECISION Zangzen !solar zenith angle
       DOUBLE PRECISION ssh_muzero,DLmuzero 
       EXTERNAL ssh_muzero 
-                                                                      
-      INTEGER INUM, IDENS ! use: with_fixed_density
-      PARAMETER (INUM = 1)                                              
-      DOUBLE PRECISION RHOA 
-      double precision rho_dry(n_size) 
-      DOUBLE PRECISION MSF(n_size) 
-      DOUBLE PRECISION DSF(n_size) 
-      DOUBLE PRECISION DBF((n_size/n_fracmax)+1) 
-      INTEGER idx_bs(n_size) 
-                                                                        
+
 !     Parameters initialized for the two-step solver                    
       integer m,j,i1,Jsp,i,Jb, nstep
       DOUBLE PRECISION current_time, delta_t_now ! current time, use delta_t
@@ -104,78 +95,15 @@ contains
       DOUBLE PRECISION toadd, conc_tot, ZCtot_save(n_gas) 
       DOUBLE PRECISION ratio_gas(n_gas),ZCtot(n_gas),DLconc_save(n_gas) 
                                                                         
-      ! use: Nsps_rcn(:,:), photo_rcn(:,:), TB_rcn(:,:) 
+      ! use: photo_rcn(:,:), TB_rcn(:,:) 
       ! use: fall_rcn(:), extra_rcn(:) 
-      ! use: index_RCT(:), index_PDT(:) 
+      ! use: index_RCT(:,:), index_PDT(:,:) 
       ! kinetics    
       ! SumMc, YlH2O                                                    
       ! use: Arrhenius(:,:), fall_coeff(:,:), ratio_PDT(:) , photo_ratio(:,:,:) 
 
-                                                                        
-!     Aerosol density converted in microg / microm^3.                   
-      RHOA = fixed_density * 1.D-09 
-!     Aerosol discretization converted in microm.                       
-      DO Jb=1,(n_size/n_fracmax)+1 
-         DBF(Jb) = diam_bound(Jb) * 1.D06 
-      ENDDO 
-                                                                        
-!     relations between bin idx and size idx                            
-      DO Jb=1,n_size 
-      idx_bs(Jb)=(Jb-1)/n_fracmax+1 
-      ENDDO 
-                                                                        
-!     With real number concentration.                                   
-      IF (INUM.EQ.1) THEN
-         ! Compute aerosol density                                           
-         rho_dry = RHOA
-         IDENS = not(with_fixed_density)
-         ! for varying density                   
-         IF (IDENS.EQ.1) THEN 
-            DO Jb=1,n_size 
-               CALL SSH_COMPUTE_DENSITY(n_size,n_aerosol, n_aerosol, TINYM, &
-     &              concentration_mass,                                         &
-     &              mass_density,Jb,rho_dry(Jb))                    
-            ENDDO 
-         ENDIF
-         DO Jb = 1, n_size
-            conc_tot = 0.d0
-            DO Jsp = 1, n_aerosol
-               conc_tot = conc_tot + concentration_mass(Jb,Jsp)
-            ENDDO
-            
-!     Compute mass and diameter of each section                         
-            IF (concentration_number(Jb) .GT. 0.d0) THEN 
-               MSF(Jb) = conc_tot/concentration_number(Jb) 
-            ELSE 
-               MSF(Jb) = 0.d0 
-            ENDIF 
-                                                                        
-            if ((concentration_number(Jb).GT. TINYN .or.                       &
-     &           conc_tot.GT.TINYM)                                     &
-     &           .AND. IDENS .EQ. 1) then                               
-               DSF(Jb) = (MSF(Jb)/cst_PI6/rho_dry(Jb))**cst_FRAC3 
-                                                                        
-            else !sz   
-               DSF(Jb) = DSQRT(DBF(idx_bs(Jb))* DBF(idx_bs(Jb)+1)) 
-            endif 
-                                                                        
-            if (DSF(Jb) .LT. DBF(idx_bs(Jb)) .or.                       &
-     &          DSF(Jb) .GT. DBF(idx_bs(Jb)+1)) THEN                    
-               DSF(Jb) =  DSQRT(DBF(idx_bs(Jb)) * DBF(idx_bs(Jb)+1)) 
-            endif 
-                                                                        
-         ENDDO 
-                                                                        
-      ELSE 
-         DO Jb = 1, n_size 
-                                                                !sz     
-            DSF(Jb) = DSQRT(DBF(idx_bs(Jb)) * DBF(idx_bs(Jb)+1)) 
-            MSF(Jb) = RHOA * cst_pi6 * DSF(Jb)**3 
-         ENDDO 
-      ENDIF 
-
 !     Projection.                                                       
-!     Conversion mug/m3 to molecules/cm3.                               
+!     Conversion mug/m3 to molecules/cm3.
       DO Jsp=1,n_gas 
          gas_yield(Jsp) = concentration_gas_all(Jsp)* conversionfactor(Jsp) 
          ! genoa keep_gp                                                
@@ -183,7 +111,7 @@ contains
          ZCtot(Jsp)=gas_yield(Jsp) 
          ratio_gas(Jsp)=1.d0 
       ENDDO 
-                                                                        
+
       ! genoa keep_gp                                                   
       if (keep_gp==1) then 
          do s = 1, n_aerosol 
