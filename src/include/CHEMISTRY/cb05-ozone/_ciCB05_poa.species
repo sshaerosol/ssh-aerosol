@@ -1,6 +1,6 @@
 File for chemical species CB05 (name and molar mass)
 # gaseous species # aqueous species
-55   0
+57   0
 ---Gas-phase----
 O1D 16.
 ETOH  46.07
@@ -57,3 +57,5 @@ API 136.0
 BPI 136.0
 LIM 136.0
 HUM 204.36
+NH3    17.
+HCL    36.5
