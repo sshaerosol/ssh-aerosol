@@ -147,12 +147,14 @@ module aInitialization
 
 
 !!!! KINETIC RELATED - GENOA
+  double precision, save :: SumMc ! M (in molec/cm3) - constant or change by pressure and temperature
+  double precision, save :: YlH2O ! water concentration (molec/cm3) in the gas phase
   integer, dimension(:,:), allocatable, save :: Nsps_rcn, photo_rcn, TB_rcn
-  integer, dimension(:,:), allocatable, save :: fall_rcn, extra_rcn
+  integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn
   integer, dimension(:),   allocatable, save :: index_RCT, index_PDT
   double precision, dimension(:), allocatable, save ::  ratio_PDT
   ! kinetics
-  double precision, dimension(:,:), allocatable, save :: Arrhenius, fall_coeff ! coefficients for spec reactions
+  double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
   double precision, dimension(:), allocatable, save :: kinetic_rate, chem_prod, chem_loss
   double precision, dimension(:), allocatable, save :: rcn_rate, gas_yield, drv_knt_rate
   ! photolysis
@@ -885,7 +887,7 @@ contains
         end do
         
         ! get N_gas
-        N_gas = count - 1   ! minus the first comment line
+        N_gas = count - 4   ! minus the first four comment line
         
         if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
         if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
@@ -894,7 +896,11 @@ contains
         if ( .not. allocated(species_name)) allocate(species_name(N_gas))
 
         rewind 11
-        read(11, *)  ! read the first comment line
+        
+        do s = 1, 4
+            read(11, *)  ! read the first four comment line
+        enddo
+        
         do s = 1, N_gas
            read(11, *) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
@@ -2911,12 +2917,18 @@ contains
   integer :: i, j, k, js, ierr,iarrow
   integer :: ircn, irct, ipdt, ipho, itb, iext, ifall !counts
   integer :: start, finish, tag
-  double precision :: ratio 
+  double precision :: ratio, a_tmp(11)
   character (len=800) :: line, subline
   character (len=80) :: tmp_line
   character (len=80) :: sname
   character(3), parameter :: TBs(6) = ["RO2", "O2 ", "H2O", "M  ", "N2 ", "H2 "] ! do not change the order ! used in kinetic
 
+  ! set up parameters for gas-phase chem - GECKO
+  ! Use perfect gas law :sumc=(pres*6.022E+23)/(8.32*temp)
+  SumMc = 2.5E19 ! default
+  ! Water concentration (molec/cm3)
+  YlH2O = 0.d0
+  
   ! Open reactions file
   open(unit=11, file=reaction_list_file, status='old')
     ! get size
@@ -2940,6 +2952,7 @@ contains
                 ircn = ircn + 1 ! reaction
                 irct = count_plus(line(1:iarrow - 1)) + 1 + irct ! no.reactant
                 ipdt = count_plus(line(iarrow + 2:)) + 1 + ipdt ! no.product
+                
             ! find kinetics
             elseif (line(1:7) == "KINETIC") then ! read kinetics  
                 read(line(8:), '(A20)') sname ! keyword
@@ -2960,7 +2973,7 @@ contains
 
     n_reaction = ircn
     n_photolysis = ipho
-    
+
     ! allocate arrays
     allocate(Nsps_rcn(ircn,2)) ! number of species 1: reactants, 2: products
     allocate(index_RCT(irct), index_PDT(ipdt)) ! index of species in species_list
@@ -2970,9 +2983,10 @@ contains
     allocate(photo_rcn(ipho,2)) ! code of photolysis
     allocate(TB_rcn(itb,2))  ! TBs info 1. TB index; 2. reaction index
     allocate(Arrhenius(ircn,3)) ! kinetic rate contants
-    allocate(fall_rcn(ifall,2)) ! 1. spec index; 2: reaction index
-    allocate(fall_coeff(ifall,10)) ! coefficients for spec reactions
-    allocate(extra_rcn(iext,2)) ! code and reaction index for EXTRA type of reactions
+    allocate(fall_rcn(ifall)) ! 1. spec index; 2: reaction index
+    allocate(fall_coeff(ifall,8)) ! coefficients for troe reactions
+    allocate(extra_rcn(iext)) ! code and reaction index for EXTRA type of reactions
+    allocate(extra_coeff(iext,8)) ! coefficients for extra reactions
 
     ! for two-step: y,w,rk,prod,loss,dw
     allocate(gas_yield(n_gas))
@@ -2995,6 +3009,7 @@ contains
     
     Arrhenius = 0.d0
     fall_coeff = 0.d0
+    extra_coeff = 0.d0
 
     rewind(11)  ! Reset the file position
 
@@ -3009,17 +3024,17 @@ contains
     iext = 0 ! count the number of other types of reactions
     
     tag = 0 ! number of reactions that record kinetics
+    
     ! Read reactions and their rates
     do
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
-        if(line == 'END') exit ! end sign
-        if(line /= ' ' .and. line(1:1) /= '%') then ! read comments
+        if (line == 'END') exit ! end sign
+        if (line /= ' ' .and. line(1:1) /= '%') then ! read comments
             iarrow = index(line, '->') ! arrow position
             if (iarrow > 0) then
             
                 ircn = ircn + 1 ! reaction index
-                
                 Nsps_rcn(ircn,1) = count_plus(line(1:iarrow - 1)) + 1 ! no.reactants
                 Nsps_rcn(ircn,2) = count_plus(line(iarrow + 2:)) + 1  ! no.products
 
@@ -3028,7 +3043,7 @@ contains
                 start = 1
                 do
                     ! get sname
-                    finish = index(subline(start:), '+')
+                    finish = index(subline(start:), ' + ')
                     if (finish == 0) then ! last species
                         sname = trim(adjustl(subline(start:)))
                     else
@@ -3060,7 +3075,7 @@ contains
                 start = 1
                 do
                     ! get sname in the format "xxx" or "5E-2 xxx" 
-                    finish = index(subline(start:), '+')
+                    finish = index(subline(start:), ' + ')
                     if (finish == 0) then ! last species
                         tmp_line = trim(adjustl(subline(start:)))
                     else
@@ -3073,7 +3088,7 @@ contains
                     
                     ! get species num and index
                     call get_number_and_string(tmp_line, ratio, sname)
-                    
+
                     ratio_PDT(ipdt) = ratio ! ratio
                     
                     if (trim(sname) .ne. "NOTHING") then
@@ -3086,6 +3101,7 @@ contains
                         enddo
                         ! check index
                         if (index_PDT(ipdt) .eq. 0) then
+                            print*, trim(line)
                             print*, 'product not found in species list: ',trim(sname),' ',trim(tmp_line)
                             stop
                         endif
@@ -3168,23 +3184,52 @@ contains
                     
                     ipho = ipho + 1
                     photo_rcn(ipho,1) = ircn
+                    
                     read(subline(js:), *) photo_rcn(ipho,2), Arrhenius(ircn,1) ! index & ratio
-                    !print*, ipho, ircn, photo_rcn(ipho,2), Arrhenius(ircn,1)
+                    !print*,'ipho', ipho, ircn, photo_rcn(ipho,2), Arrhenius(ircn,1)
+                    !if (ipho.ge.10) then
+                    !    do i=1, 10
+                    !        print*, i, photo_rcn(i,1), photo_rcn(i,2)
+                    !    enddo
+                    !    print*,''
+                    !endif
                 elseif (trim(sname) == "FALLOFF") then
                 
                     ifall = ifall + 1
-                    fall_rcn(ifall,1) = ircn
+                    fall_rcn(ifall) = ircn
+
+                    ! read
+                    read(subline(js:), *) a_tmp
+
+                    ! assign
+                    do i=1, 3
+                        Arrhenius(ircn,i) = a_tmp(i)
+                    enddo
                     
-                    Arrhenius(ircn,1) = 1.0
-                    read(subline(js:), *) (fall_coeff(ifall,i), i = 1, 10)
-                    
+                    do i=1, 8
+                        fall_coeff(ifall,i) = a_tmp(i+3)
+                    enddo
+
                 elseif (trim(sname) == "EXTRA") then
                 
                     iext = iext + 1
-                    extra_rcn(iext,1) = ircn
-
-                    read(subline(js:), *) extra_rcn(iext,2), Arrhenius(ircn,1) ! index & ratio
-
+                    extra_rcn(iext) = ircn
+                    
+                    ! read
+                    read(subline(js:), *) a_tmp
+                    
+                    ! assign
+                    ! extra id
+                    extra_coeff(iext,1) = a_tmp(1)
+                    
+                    do i=1, 3
+                        Arrhenius(ircn,i) = a_tmp(i+1)
+                    enddo
+                    
+                    do i=2, 8
+                        extra_coeff(iext,i) = a_tmp(i+3)
+                    enddo
+                    
                else
                     print*,"Error: Unknown kinetic type detected: ",trim(sname)
                     stop
@@ -3195,14 +3240,16 @@ contains
 
     close(11)
     
-    print*,'Read reaction file. No.rcn: ',ircn,' No.rct: ',irct,' No.pdt: ',ipdt,' No.pho: ',ipho,' No.tb: ',itb
+    print*,'Read reaction file. No.rcn: ',ircn,' No.rct: ', &
+          irct,' No.pdt: ',ipdt,' No.pho: ',ipho,' No.tb: ', &
+          itb,' No.fall: ',ifall,' No.ext: ',iext
     
     ! check number
     if (tag .ne. ircn) then
         print*, 'the number of reactions not match the number of kinetics: ',ircn,' ',tag
         stop
     endif
-    
+
   end subroutine ssh_read_reaction_file
   
   subroutine ssh_read_photolysis_file()
@@ -3222,7 +3269,7 @@ contains
                                         5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
     integer, parameter :: nsza = 11! sza size
     
-    double precision :: tmps(nsza), tmp, tmp_inter(4,nsza)
+    double precision :: tmps(nsza), tmp, tmp_inter(4,nsza-1)
     
     ! orginize input id
     s = 0 ! size of current ratio_id
@@ -3232,13 +3279,14 @@ contains
         !check if contains - tag = 1, if not tag = 0
         tag = 0
         j = photo_rcn(i,2) ! photolysis index
+        !print*, i, s, j
         do k = 1, s
             if (j .eq. ratio_id(k)) then
                 tag = 1 ! find id
                 exit
             endif
         enddo
-        if (tag .eq.0) then ! record
+        if (tag.eq.0) then ! record
             s = s + 1
             ratio_id(s) = j
         endif
@@ -3246,7 +3294,7 @@ contains
     
     ! allocate
     nphos = s
-    allocate(photo_ratio(nphos,nsza,4))
+    allocate(photo_ratio(nphos,nsza-1,4))
 
     ! read photolysis from file
     n = 0 ! total read number
@@ -3281,18 +3329,20 @@ contains
                                 print*," sza not match: ",tmp, szas(j),j
                                 stop
                             endif
+                            ! set for search later
+                            ratio_id(s) = -1
                         enddo
                         
                         ! interpolation
                         call ssh_SPL3(nsza,szas,tmps,tmp_inter)
                         
                         ! save in photo_ratio
-                        do j=1, nsza
+                        do j=1, nsza-1
                           do k=1,4
                             photo_ratio(s,j,k) =  tmp_inter(k,j)
                           enddo
                         enddo
-                        
+
                         ! reset photo index in photo_rcn
                         tag = 0 ! no.reaction
                         do j=1,size(photo_rcn,1)
@@ -3316,6 +3366,9 @@ contains
     ! after reading, check numbers
     if (n.ne.nphos) then
         print*,"Photolysis: not found all points. find: ",n," need: ",nphos
+        do s=1, nphos
+          if (ratio_id(s) /= -1) print*, ratio_id(s)
+        enddo
         stop
     endif
     
@@ -3411,6 +3464,7 @@ END subroutine ssh_SPL3
     if (allocated(index_PDT)) deallocate(index_PDT)
     if (allocated(Arrhenius)) deallocate(Arrhenius)
     if (allocated(fall_coeff)) deallocate(fall_coeff)
+    if (allocated(extra_coeff)) deallocate(extra_coeff)
     if (allocated(ratio_PDT)) deallocate(ratio_PDT)
     if (allocated(photo_ratio)) deallocate(photo_ratio)
     if (allocated(gas_yield)) deallocate(gas_yield)
@@ -3702,14 +3756,14 @@ end subroutine get_number_and_string
 
 integer function count_plus(str) result(res)
     character(*), intent(in) :: str
-    integer :: i
+    integer :: i, n
     res = 0
-    do i = 1, len_trim(str)
-        if (str(i:i) == '+') then
+    n = len_trim(str)
+    do i = 1, n - 2 ! Adjusted loop boundary
+        if (str(i:i+2) == ' + ') then ! Check 3 characters at once
             res = res + 1
         end if
     end do
-
 end function count_plus
 
 ! ===========================================

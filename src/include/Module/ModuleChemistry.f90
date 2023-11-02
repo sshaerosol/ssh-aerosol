@@ -105,9 +105,10 @@ contains
       DOUBLE PRECISION ratio_gas(n_gas),ZCtot(n_gas),DLconc_save(n_gas) 
                                                                         
       ! use: Nsps_rcn(:,:), photo_rcn(:,:), TB_rcn(:,:) 
-      ! use: fall_rcn(:,:), extra_rcn(:,:) 
+      ! use: fall_rcn(:), extra_rcn(:) 
       ! use: index_RCT(:), index_PDT(:) 
-      ! kinetics                                                        
+      ! kinetics    
+      ! SumMc, YlH2O                                                    
       ! use: Arrhenius(:,:), fall_coeff(:,:), ratio_PDT(:) , photo_ratio(:,:,:) 
 
                                                                         
@@ -618,5 +619,36 @@ contains
             endif 
          enddo 
       enddo
-  END SUBROUTINE ssh_chem_twostep 
+  END SUBROUTINE ssh_chem_twostep
+  
+  SUBROUTINE compute_gas_phase_water(temp0, rh0, water)
+  
+  ! compute water in the gas phase - from GECKO BOXMODEL
+    IMPLICIT NONE
+
+    double precision, INTENT(IN) :: temp0       ! input temperature
+    double precision, INTENT(IN) :: rh0        ! input relative humidity
+    double precision, INTENT(OUT) :: water     ! output water concentration (molec/cm3)
+
+    ! Constants
+    double precision, PARAMETER :: avogadro=6.02214d23    ! avogadro number
+    double precision, PARAMETER :: Rgas=8.3144621d0 ! gas constant (J.K-1.mol-1)
+    double precision, PARAMETER :: c1 = 610.94d0, c2 = 17.625d0, c3 = 243.04d0  ! Magnus formula parameters
+
+    double precision :: TC, psat_H2O, p_H2O
+
+    ! Convert temperature to Celsius
+    TC = temp0 - 273.16d0
+
+    ! Calculate saturation water pressure
+    psat_H2O = c1 * dEXP(c2 * TC / (c3 + TC))
+
+    ! Calculate water pressure
+    p_H2O = psat_H2O * rh0 / 1d2
+
+    ! Calculate water concentration (molec/cm3)
+    water = p_H2O / (Rgas * temp0 * 1.d6 / avogadro)
+
+  END SUBROUTINE compute_gas_phase_water
+
 END module mod_sshchem                                 

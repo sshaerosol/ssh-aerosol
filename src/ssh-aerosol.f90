@@ -15,7 +15,8 @@ PROGRAM SSHaerosol
   use gCoagulation
   use mod_photolysis
   use mod_meteo
-  use mod_sshchem, only: ssh_chem_twostep,ssh_chem
+  use mod_sshchem, only: ssh_chem_twostep,ssh_chem, &
+                         compute_gas_phase_water
   
   implicit none
 
@@ -131,6 +132,16 @@ PROGRAM SSHaerosol
      pressure = pressure_array(t)
      humidity = humidity_array(t)
      relative_humidity = relative_humidity_array(t) 
+     
+     ! Compute sumM using ideal gas law
+     ! Compute third body.
+     ! Conversion = Avogadro*1d-6/Perfect gas constant.
+     SumMc = pressure * 7.243D16 / temperature
+     
+     ! Number of water molecules computed from the massic fraction
+! (absolute humidity)
+     YlH2O = 29.d0*SumMc*humidity/(18.d0+11.d0*humidity)
+     !call compute_gas_phase_water(temperature,relative_humidity,YlH2O)
 
      ! Gas-phase chemistry
 
