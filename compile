@@ -33,7 +33,7 @@ case $i in
     ;;
 # Read the option to choose whether the gas-phase chemistry
 # need to be combined with the h2o mechanism.
-# Accepted values: yes, no
+# Accepted values: h2o, user, no
 # Default: iscombining = no    
     -b=*|--iscombining=*)
     iscombining="${i#*=}"
@@ -116,22 +116,35 @@ else # default no genoa
     echo "Compiling profile : $profile"
 
     if [ -z $iscombining ]; then                     
-        iscombining="no"                
+        iscombining="no"
+    else
+        # Check whether the given option is accepted.
+        if [[ $iscombining != "h2o" && $iscombining != "user" ]]; then
+            echo "Accepted values are 'h2o' and 'user'."
+            echo "compile -b=h2O -c=cb05-ozone"
+            echo "compile -b=user -c=cb05-ozone"
+            exit 0                
+        fi
     fi
-    echo "Combining with H2O : $iscombining"
 
     # Make generate_chem_files.sh
     chem_script="generate_chem_files.sh"
     cd src/include/spack/src
     cp $chem_script.sed $chem_script
-    if [ $iscombining == "yes" ]; then
+    if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
         # Check if a mechanism without h2o is used.
         if [ $chemistry != "cb05-ozone" ]; then
             echo "Please use cb05-ozone as the chemistry mechanism."
-            echo "compile -b=yes -c=cb05-ozone"
+            echo "compile -b=$iscombining -c=cb05-ozone"
             exit 0
         else
-            sed -i 's/%is_combining%/1/g' $chem_script
+            if [ $iscombining == "h2o" ]; then
+                echo "Combining with H2O : $iscombining"
+                sed -i 's/%is_combining%/1/g' $chem_script
+            elif [ $iscombining == "user" ]; then
+                echo "Combining with H2O : $iscombining"                
+                sed -i 's/%is_combining%/2/g' $chem_script
+            fi
         fi
     else
         sed -i 's/%is_combining%/0/g' $chem_script

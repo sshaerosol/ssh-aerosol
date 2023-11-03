@@ -50,7 +50,7 @@ fi
 # is_combining: 0 if the combination is not necessary.
 is_combining=%is_combining%
 
-if [ $is_combining -eq 1 ]
+if [ $is_combining -gt 0 ]
 then
 # Make new mechanism files from the chosen chemical kinetic mechanism (for ozone)
 # and H2O model (for SOA).
@@ -58,7 +58,17 @@ echo "======= Making new mechanism files combining H2O and a given mechanism ===
 echo $SPECIES
 echo $REACT
 
-$script_dir/combine_files.py $SPECIES $REACT
+# Scheme to combine
+# 1: h2o
+# 2: user-defined
+if [ $is_combining == 1 ]; then
+    scheme=h2o
+elif [ $is_combining == 2 ]; then
+    scheme=user
+fi
+
+
+$script_dir/combine_files.py $SPECIES $REACT $scheme
 if [[ $? = 1 ]]; then
     exit 1
 fi

@@ -32,27 +32,33 @@ reactions_h2o = "../h2o/h2o.reactions"
 
 species_gas = sys.argv[1]
 reactions_gas = sys.argv[2]
+scheme = sys.argv[3]
 
 """
 Selection of schemes
 """
 
-is_user_defined = input(
-    "\n\
-    ****************************************************************\n\
-    SPACK is combining the ozone chemistry and the SOA chemistry.\n\
-    The default H2O chemistry is used if an user-defined SOA chemistry is not chosed.\n\
-    Do you want to use user-defined SOA chemistry? (y or n)\
-    ")
+# is_user_defined = input(
+#     "\n\
+#     ****************************************************************\n\
+#     SPACK is combining the ozone chemistry and the SOA chemistry.\n\
+#     The default H2O chemistry is used if an user-defined SOA chemistry is not chosed.\n\
+#     Do you want to use user-defined SOA chemistry? (y or n)\
+#     ")
 
-is_user_defined = is_user_defined.lower()
+# is_user_defined = is_user_defined.lower()
 
-if is_user_defined == "y" or is_user_defined == "yes":
-    user_defined = True
-elif is_user_defined == "n" or is_user_defined == "no":
+# if is_user_defined == "y" or is_user_defined == "yes":
+#     user_defined = True
+# elif is_user_defined == "n" or is_user_defined == "no":
+#     user_defined = False
+# else:
+#     sys.exit("Please type y (yes) or n (no).")
+
+if scheme == "h2o":
     user_defined = False
-else:
-    sys.exit("Please type y (yes) or n (no).")
+elif scheme == "user":
+    user_defined = True
     
 if user_defined == True:
 
