@@ -462,7 +462,7 @@ C     Storage in the array of chemical concentrations.
      $     ,DLnumconc_aer,mass_density_aer
      $     ,ncst_gas, cst_gas, cst_gas_index !genoa use constant gas conc.
      $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index  ! for RO2-RO2 reaction
-     $     ,aerosol_species_interact) ! add to compute keep_gp
+     $     ,aerosol_species_interact,keep_gp) ! add to compute keep_gp
 
 C------------------------------------------------------------------------
 C     

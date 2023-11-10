@@ -207,7 +207,7 @@ PROGRAM SSHaerosol
                mass_density, &
                ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
                tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-               aerosol_species_interact(:))
+               aerosol_species_interact(:), keep_gp)
 
             ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
             total_aero_mass = 0.d0
@@ -267,7 +267,7 @@ PROGRAM SSHaerosol
               mass_density, &
               ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
               tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-              aerosol_species_interact(:))
+              aerosol_species_interact(:), keep_gp)
       end if
     end if ! finish chem
 
@@ -281,7 +281,7 @@ PROGRAM SSHaerosol
       enddo
     endif
 
-	! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry  
+    ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry 
     total_aero_mass = 0.d0
     total_mass = 0.d0
     do s = 1, N_aerosol_layers
@@ -290,8 +290,8 @@ PROGRAM SSHaerosol
          total_aero_mass(jesp) = total_aero_mass(jesp) + concentration_mass(j,s)
        enddo
     enddo
-	! update mass conc. of aerosol precursors
-	! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
+    ! update mass conc. of aerosol precursors
+    ! concentration_gas_all(precursor_index) -> concentration_gas(n_aerosol)
     do s = 1, N_aerosol
        if (aerosol_species_interact(s) .gt. 0) then
           concentration_gas(s) = concentration_gas_all(aerosol_species_interact(s))
@@ -302,8 +302,8 @@ PROGRAM SSHaerosol
     ! Aerosol dynamic
     CALL SSH_AERODYN(current_time,delta_t2)
 
-	! update mass conc. of aerosol precursors
-	! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
+    ! update mass conc. of aerosol precursors
+    ! concentration_gas(n_aerosol) -> concentration_gas_all(precursor_index)
     do s = 1, N_aerosol
        if (aerosol_species_interact(s) .gt. 0) then
           concentration_gas_all(aerosol_species_interact(s)) = concentration_gas(s)
@@ -324,7 +324,7 @@ PROGRAM SSHaerosol
     call cpu_time(t0)
     timer(t+2) = t0
 
-  end do			! finsh simulation
+  end do ! finsh simulation
 
   ! Compute errors - genoa
   if (ierr_ref.or.ierr_pre) call ssh_compute_error_genoa()
