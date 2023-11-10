@@ -48,10 +48,6 @@ contains
                                                                         
                                                                         
       IMPLICIT NONE 
-                                                                        
-      INCLUDE 'CONST.INC' 
-      INCLUDE 'CONST_A.INC' 
-      INCLUDE 'paraero.inc'
       
       ! use humidity, temperature, pressure at this timestep
       
@@ -62,7 +58,7 @@ contains
       EXTERNAL ssh_muzero 
 
 !     Parameters initialized for the two-step solver                    
-      integer m,j,i1,Jsp,i,Jb, nstep
+      integer m,j,i1,Jsp,Jb,s, nstep
       DOUBLE PRECISION current_time, delta_t_now ! current time, use delta_t
       DOUBLE PRECISION tschem,tfchem,tstep,tstep_min ! use min_adaptive_time_step
       DOUBLE PRECISION :: wk,dtnsave,error_max,c,gam,ratloss
@@ -84,14 +80,14 @@ contains
      ! DLnumconc_aer: concentration_number
 
 !     genoa for RO2-RO2 reaction and constant profile                   
-      ! use: ncst_gas,nRO2_chem,iRO2,iRO2_cst,tag_RO2 
-      ! use: cst_gas_index(ncst_gas), RO2index(nRO2_chem), cst_gas
-      DOUBLE PRECISION RO2, ZC_cst(ncst_gas) 
+      ! use: ncst_gas,nRO2_chem,iRO2_cst,tag_RO2 
+      ! use: cst_gas_index(ncst_gas), RO2index(nRO2_chem,2), cst_gas
+      ! use: nRO2_group, RO2out_index
+      DOUBLE PRECISION ZC_cst(ncst_gas), RO2s(nRO2_group)
                                                                         
 !     genoa keep_gp: gas-particle partitioning                          
       ! used for genoa with large timestep           
-      integer s, keep_gp 
-      integer aerosol_species_interact(n_gas) 
+      !keep_gp, aerosol_species_interact(n_gas) 
       DOUBLE PRECISION toadd, conc_tot, ZCtot_save(n_gas) 
       DOUBLE PRECISION ratio_gas(n_gas),ZCtot(n_gas),DLconc_save(n_gas) 
                                                                         
@@ -104,6 +100,8 @@ contains
 
 !     Projection.                                                       
 !     Conversion mug/m3 to molecules/cm3.
+      gas_yield = 0.d0 !init
+
       DO Jsp=1,n_gas 
          gas_yield(Jsp) = concentration_gas_all(Jsp)* conversionfactor(Jsp) 
          ! genoa keep_gp                                                
@@ -121,8 +119,7 @@ contains
                conc_tot=0.0D0 
                DO Jb=1,n_size 
                   conc_tot = conc_tot + concentration_mass(Jb,s) 
-               ENDDO 
-                                                                        
+               ENDDO                                                
                ZCtot(Jsp) = (concentration_gas_all(Jsp)+conc_tot)*conversionfactor(Jsp) 
                if ( ZCtot(Jsp)>0.d0) then 
                   ratio_gas(Jsp)= gas_yield(Jsp)/ZCtot(Jsp) 
@@ -173,20 +170,16 @@ contains
                                                                         
          !computes chpr and chlo which are the vectors with all the terms
          ! compute RO2                                                  
-         RO2=0.d0 
-         if (tag_RO2.ne.0) then 
-           ! add background if tag = 2,3,4 (from ro2 file)              
-           if (tag_RO2.ge.2 .and. iRO2_cst.ne.0) then                                 
-             RO2 = RO2 + ZC_cst(iRO2_cst) 
-           endif 
-           ! add from primary VOCs (RO2 list) tag = 1,3                 
-           if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then
-             do Jsp =1,nRO2_chem 
-               RO2=RO2+gas_yield(RO2index(Jsp)) 
-             enddo 
-           endif 
-         endif 
-                                                                        
+         if (tag_RO2.eq.1.or.tag_RO2.eq.3) then
+            call ssh_compute_ro2(RO2s)
+         else
+            RO2s = 0d0
+         endif
+         ! add background RO2
+         if (tag_RO2.eq.2.or.tag_RO2.eq.3) then
+            RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
+         endif
+         
         ! kinetic rate                                                  
         ! Compute zenithal angles                                       
         DLmuzero=ssh_muzero(tschem,longitude,latitude) 
@@ -194,7 +187,7 @@ contains
         
           ! aerosol_formation = F ! to use T option, change file to chem
 
-          CALL SSH_Kinetic(Zangzen,RO2)                   
+          CALL SSH_Kinetic(Zangzen,RO2s)                   
                                                                         
             ! keep inorganic constant                                   
         if (ncst_gas.gt.0) then 
@@ -270,22 +263,16 @@ contains
         do j=1,m 
             !computes chpr and chlo which are the vectors with all the t
                                                                         
-            ! compute RO2 used in chem                                  
-            RO2=0.d0 
-            if (tag_RO2.ne.0) then 
-                ! add background tag = 2,3,4 (from ro2 file)            
-                if (tag_RO2.ge.2                                        &
-     &              .and.iRO2_cst.ne.0) then                            
-                   RO2 = RO2 + ZC_cst(iRO2_cst) 
-                endif 
-                ! add from primary VOCs (RO2 list) tag = 1,3            
-                if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3                  &
-     &              ) then                                              
-                   do Jsp =1,nRO2_chem 
-                     RO2=RO2+gas_yield(RO2index(Jsp)) 
-                   enddo 
-                endif 
-            endif 
+            ! compute RO2 used in chem 
+            if (tag_RO2.eq.1.or.tag_RO2.eq.3) then
+                call ssh_compute_ro2(RO2s)
+            else
+                RO2s = 0d0
+            endif
+            ! add background RO2
+            if (tag_RO2.eq.2.or.tag_RO2.eq.3) then
+                RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
+            endif
                                                                         
             ! kinetic rate                                              
             ! Compute zenithal angles                                   
@@ -293,7 +280,7 @@ contains
             Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI) 
 
           ! aerosol_formation = F                                       
-          CALL SSH_Kinetic(Zangzen,RO2)                   
+          CALL SSH_Kinetic(Zangzen,RO2s)                   
                                                                         
             ! keep inorganic constant                                   
             if (ncst_gas.gt.0) then 
@@ -359,20 +346,16 @@ contains
           do j=1,m 
             !computes chpr and chlo which are the vectors with all the t
                                                                         
-               ! compute RO2 used in chem                               
-               RO2=0.d0 
-               if (tag_RO2.ne.0) then 
-                   ! add background tag = 2,3,4 (from ro2 file)         
-                   if (tag_RO2.ge.2.and.iRO2_cst.ne.0) then                          
-                      RO2 = RO2 + ZC_cst(iRO2_cst) 
-                   endif 
-                   ! add from primary VOCs (RO2 list) tag = 1,3         
-                   if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then                                            
-                      do Jsp =1,nRO2_chem 
-                        RO2=RO2+gas_yield(RO2index(Jsp)) 
-                      enddo 
-                   endif 
-               endif 
+            ! compute RO2 used in chem 
+            if (tag_RO2.eq.1.or.tag_RO2.eq.3) then
+                call ssh_compute_ro2(RO2s)
+            else
+                RO2s = 0d0
+            endif
+            ! add background RO2
+            if (tag_RO2.eq.2.or.tag_RO2.eq.3) then
+                RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
+            endif
                                                                         
             ! kinetic rate                                              
             ! Compute zenithal angles                                   
@@ -380,7 +363,7 @@ contains
             Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI) 
 
           ! aerosol_formation = F                                       
-          CALL SSH_Kinetic(Zangzen,RO2)                   
+          CALL SSH_Kinetic(Zangzen,RO2s)                   
                                                                         
             ! keep inorganic constant                                   
             if (ncst_gas.gt.0) then 
@@ -517,27 +500,8 @@ contains
 !     s                 ,ZCtot(Jsp)/conversionfactor(Jsp)                 
            !endif                                                   
             endif 
-         ENDDO 
-      endif 
-                                                                        
-      ! keep inorganic constant                                         
-      if (ncst_gas.gt.0) then 
-         do i1=1,ncst_gas 
-            concentration_gas_all(cst_gas_index(i1))=   &
-     &                gas_yield(cst_gas_index(i1))/conversionfactor(cst_gas_index(i1))               
-         enddo 
-      endif 
-                                                                        
-      ! output RO2                                                      
-      if (iRO2.ne.0.and.tag_RO2.ne.0) then 
-            ! output only ro2 from list                                 
-            concentration_gas_all(iRO2)=0.d0 
-            do Jsp =1,nRO2_chem 
-               concentration_gas_all(iRO2)= concentration_gas_all(iRO2)+ &
-     &                  gas_yield(RO2index(Jsp))/conversionfactor(RO2index(Jsp))                   
-            enddo 
-      endif 
-                                                                        
+         ENDDO
+
       DO Jb=1,n_size 
          DO Jsp=1,n_aerosol 
             if (concentration_mass(jb,jsp) .ne. concentration_mass(jb,jsp)) then 
@@ -547,36 +511,32 @@ contains
             endif 
          enddo 
       enddo
+      
+      endif 
+                                                                        
+      ! keep inorganic constant                                         
+      if (ncst_gas.gt.0) then 
+         do i1=1,ncst_gas 
+            concentration_gas_all(cst_gas_index(i1))= cst_gas(i1,nstep)           
+         enddo 
+      endif 
+                                                                        
+      ! output RO2s
+      if (tag_RO2.ne.0) then
+        ! init
+        do Jb = 1, nRO2_group
+            i1 = RO2out_index(Jb) ! output id
+            concentration_gas_all(i1)=0.d0 
+        enddo    
+        
+        do Jsp =1,nRO2_chem
+          Jb = RO2index(Jsp,1)! isps
+          i1 = RO2index(Jsp,2)! igroup
+          concentration_gas_all(i1)= concentration_gas_all(i1)+ &
+     &                           concentration_gas_all(Jb)                  
+        enddo
+      endif
+                                                                        
   END SUBROUTINE ssh_chem_twostep
-  
-  SUBROUTINE compute_gas_phase_water(temp0, rh0, water)
-  
-  ! compute water in the gas phase - from GECKO BOXMODEL
-    IMPLICIT NONE
-
-    double precision, INTENT(IN) :: temp0       ! input temperature
-    double precision, INTENT(IN) :: rh0        ! input relative humidity
-    double precision, INTENT(OUT) :: water     ! output water concentration (molec/cm3)
-
-    ! Constants
-    double precision, PARAMETER :: avogadro=6.02214d23    ! avogadro number
-    double precision, PARAMETER :: Rgas=8.3144621d0 ! gas constant (J.K-1.mol-1)
-    double precision, PARAMETER :: c1 = 610.94d0, c2 = 17.625d0, c3 = 243.04d0  ! Magnus formula parameters
-
-    double precision :: TC, psat_H2O, p_H2O
-
-    ! Convert temperature to Celsius
-    TC = temp0 - 273.16d0
-
-    ! Calculate saturation water pressure
-    psat_H2O = c1 * dEXP(c2 * TC / (c3 + TC))
-
-    ! Calculate water pressure
-    p_H2O = psat_H2O * rh0 / 1d2
-
-    ! Calculate water concentration (molec/cm3)
-    water = p_H2O / (Rgas * temp0 * 1.d6 / avogadro)
-
-  END SUBROUTINE compute_gas_phase_water
 
 END module mod_sshchem                                 

@@ -8,11 +8,62 @@ module mod_sshchemkinetic
                           photo_ratio, Arrhenius, &
                           ratio_PDT, kinetic_rate, chem_prod, chem_loss, &
                           drv_knt_rate, rcn_rate, gas_yield, species_name, &
-                          concentration_gas_all, SumMc, YlH2O
+                          concentration_gas_all, SumMc, YlH2O, &
+                          szas, nsza, nRO2_group, RO2index, nRO2_chem
   
   implicit none
   
 contains
+
+subroutine ssh_compute_ro2(RO2s)
+
+! compute ro2 concentrations
+
+  implicit none
+
+  integer i,j,s
+  double precision,INTENT(OUT) :: RO2s(nRO2_group)
+  
+  RO2s = 0d0 ! init
+  do i = 1, nRO2_chem
+    s = RO2index(i,1)! isps
+    j = RO2index(i,2)! igroup
+    RO2s(j) = RO2s(j) + gas_yield(s)
+  enddo
+
+end subroutine ssh_compute_ro2
+
+
+SUBROUTINE ssh_gck_compute_gas_phase_water(temp0, rh0, water)
+  
+  ! compute water in the gas phase - from GECKO BOXMODEL
+    IMPLICIT NONE
+
+    double precision, INTENT(IN) :: temp0       ! input temperature
+    double precision, INTENT(IN) :: rh0        ! input relative humidity
+    double precision, INTENT(OUT) :: water     ! output water concentration (molec/cm3)
+
+    ! Constants
+    double precision, PARAMETER :: avogadro=6.02214d23    ! avogadro number
+    double precision, PARAMETER :: Rgas=8.3144621d0 ! gas constant (J.K-1.mol-1)
+    double precision, PARAMETER :: c1 = 610.94d0, c2 = 17.625d0, c3 = 243.04d0  ! Magnus formula parameters
+
+    double precision :: TC, psat_H2O, p_H2O
+
+    ! Convert temperature to Celsius
+    TC = temp0 - 273.16d0
+
+    ! Calculate saturation water pressure
+    psat_H2O = c1 * dEXP(c2 * TC / (c3 + TC))
+
+    ! Calculate water pressure
+    p_H2O = psat_H2O * rh0 / 1d2
+
+    ! Calculate water concentration (molec/cm3)
+    water = p_H2O / (Rgas * temp0 * 1.d6 / avogadro)
+
+END SUBROUTINE ssh_gck_compute_gas_phase_water
+
 
 subroutine ssh_dratedc()
  
@@ -40,16 +91,25 @@ subroutine ssh_dratedc()
  
   implicit none
 
-  integer i,j,k,ntot
+  integer i,j,k,s,js,ntot
   
   drv_knt_rate=0.d0
   ntot = size(drv_knt_rate)
   
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k)
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k,s,js)
   do i=1, ntot
     j = index_RCT(i,1) ! ircn
     k = index_RCT(i,2) ! isps
-    drv_knt_rate(i) = kinetic_rate(j)*gas_yield(k)
+    
+    drv_knt_rate(i) = kinetic_rate(j)
+
+    ! check for another reactant
+    do s = max(1,i-1), min(i+1,ntot)
+       if (s.ne.i .and. index_RCT(s,1).eq.j) then ! find
+         js = index_RCT(s,2) ! isps of s
+         drv_knt_rate(i) = drv_knt_rate(i) * gas_yield(js)
+       endif
+    enddo
   enddo
 !$OMP END PARALLEL DO
 
@@ -81,7 +141,7 @@ subroutine ssh_fexloss()
  
   implicit none
  
-  integer i,j,k,ntot
+  integer i,k,ntot !j
 
 ! Chemical loss terms.
   chem_loss=0.d0
@@ -184,7 +244,7 @@ END subroutine ssh_rates
 
 ! =================================================================
 
-subroutine ssh_kinetic(azi,RO2)
+subroutine ssh_kinetic(azi,RO2s)
      
 !------------------------------------------------------------------------
 !
@@ -213,47 +273,24 @@ subroutine ssh_kinetic(azi,RO2)
  
   implicit none
 
-  integer :: i,j,k,s,tag
-  double precision,INTENT(IN) :: RO2,azi
+  integer :: i,j,k,ik,s,tag
+  double precision,INTENT(IN) :: RO2s(nRO2_group),azi
 
   !integer,INTENT(IN) :: photo_rcn(:,:), TB_rcn(:,:)
   !integer,INTENT(IN) :: fall_rcn(:), extra_rcn(:)
 
   ! for photolysis
-  integer, parameter :: nsza = 11! sza size
-  double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
-                                      5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
-  double precision :: photo
+  ! nsza, szas(11)
+  double precision :: photo, zp
 
-  ! Arrhenius ! k = C1 * T**C2 * exp(-C3/T)
+  ! Arrhenius ! k = C1 * T**C2 * dEXP(-C3/T)
+
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
   do i=1, n_reaction ! reactions
     kinetic_rate(i) = Arrhenius(i,1)*(temperature**Arrhenius(i,2)) &
-                      * dexp(-Arrhenius(i,3)/temperature)
+                      * dEXP(-Arrhenius(i,3)/temperature)
   enddo
-!$OMP END PARALLEL DO 
-
-  ! TBs(6) = ["RO2", "O2 ", "H2O", "M  ", "N2 ", "H2 "]
-  do i=1,size(TB_rcn,1) ! no.TB reactions
-  
-    j = TB_rcn(i,1) ! reaction index
-    k = TB_rcn(i,2) ! TB index
-
-    select case (k)
-        case(1) !RO2
-            kinetic_rate(j) = kinetic_rate(j) * RO2
-        case(2) ! O2
-            kinetic_rate(j) = kinetic_rate(j) * SumMc * 0.2d0
-        case(3) ! H2O
-            kinetic_rate(j) = kinetic_rate(j) * YlH2O
-        case(4) ! M
-            kinetic_rate(j) = kinetic_rate(j) * SumMc
-        case(5) ! N2
-            kinetic_rate(j) = kinetic_rate(j) * SumMc * 0.8d0
-        case(6) ! H2
-            kinetic_rate(j) = kinetic_rate(j) * SumMc * 5.8d-7
-    end select
-  enddo
+!$OMP END PARALLEL DO
 
   ! Photolysis
   if (azi .lt. 9d1) then ! with photolysis
@@ -266,10 +303,18 @@ subroutine ssh_kinetic(azi,RO2)
 
         do s=1,nsza-1 ! get photolysis rate
             if (azi.ge.szas(s) .and. azi.lt.szas(s+1)) then ! find zone
-                photo = photo_ratio(k,s,4)
-                photo = photo_ratio(k,s,3) + (azi-szas(s))*photo
-                photo = photo_ratio(k,s,2) + (azi-szas(s))*photo
-                photo = photo_ratio(k,s,1) + (azi-szas(s))*photo
+                if (k.lt.0) then ! spack
+                    ik = -k
+                    photo = photo_ratio(ik,s,4)
+                    photo = photo_ratio(ik,s,3) + (azi-szas(s))*photo
+                    photo = photo_ratio(ik,s,2) + (azi-szas(s))*photo
+                    photo = photo_ratio(ik,s,1) + (azi-szas(s))*photo
+                else ! gck
+                    zp = (azi-szas(s))/(szas(s+1)-szas(s)) !zp=(xin-xp(i-1))/xp(i)-xp(i-1)
+                    photo =((zp*photo_ratio(k,s,1) + photo_ratio(k,s,2)) &
+                            *zp + photo_ratio(k,s,3))*zp + photo_ratio(k,s,4)
+                    photo = dabs(photo)
+                endif
                 tag = 1
                 exit
             endif
@@ -297,23 +342,72 @@ subroutine ssh_kinetic(azi,RO2)
   do i=1,size(fall_rcn)
   
     j = fall_rcn(i) ! reaction index
-
-    call akkfo(j,i)
-
+    call ssh_gck_forate(j,i)
   enddo
   
   ! extra reactions
   do i=1,size(extra_rcn)
   
     j = extra_rcn(i) ! reaction index
+    k = NINT(extra_coeff(i,1)) ! get kineitc label
+    
+    ! GECKO
+    if (k .ge. 100) then ! 100,200,500,501,502,550
 
-    call akkextra4(j,i)
+        call ssh_gck_extrarate(j,i,k) ! GECKO EXTRA reactions & ISOM
+
+    ! MCM
+    else if (k .ge. 90) then
+
+      if (k.eq.94) then ! KRO2: qfor = 1.26D-12 * RO2
+        ! in the format: KINETIC RO2 [n] EXTRA 94 1. 0. 0.
+        kinetic_rate(j) = 1.26D-12
+      else 
+        call ssh_MCM_rate(j,i,k,azi)
+      endif
+      
+    ! SPACK
+    else if (k .eq. 10) then
+    
+        call ssh_spack_spec(j,i,k)
+
+    else ! print label, ircn, iex
+        print*, "EXTRA type unknown: ",k,j,i
+        stop
+    endif
 
   enddo
+  
+  ! need to be computed LAST !!!
+  ! TBs(5) = ["O2 ", "H2O", "M  ", "N2 ", "H2 "]
+  do i=1,size(TB_rcn,1) ! no.TB reactions
+  
+    j = TB_rcn(i,1) ! reaction index
+    k = TB_rcn(i,2) ! TB (+) or RO2s (-) index
+
+    if (k.gt.0) then ! TB
+      select case (k)
+        case(1) ! O2
+            kinetic_rate(j) = kinetic_rate(j) * SumMc * 0.2d0
+        case(2) ! H2O
+            kinetic_rate(j) = kinetic_rate(j) * YlH2O
+        case(3) ! M
+            kinetic_rate(j) = kinetic_rate(j) * SumMc
+        case(4) ! N2
+            kinetic_rate(j) = kinetic_rate(j) * SumMc * 0.8d0
+        case(5) ! H2
+            kinetic_rate(j) = kinetic_rate(j) * SumMc * 5.8d-7
+      end select
+    else ! RO2-RO2 reaction & !KRO2
+        ik = -k
+        kinetic_rate(j) = kinetic_rate(j) * RO2s(ik)
+    endif
+  enddo
+
 END subroutine ssh_kinetic 
 ! =================================================================
 
-SUBROUTINE akkfo(ire,ifo)
+SUBROUTINE ssh_gck_forate(ire,ifo)
 
 !------------------------------------------------------------------------
 !
@@ -356,10 +450,10 @@ SUBROUTINE akkfo(ire,ifo)
 ! xkom: ko*M  (effective low pressure rate coef.) /// xki: k_infiny     
 ! JMLT: NOTE: Arrhenius(1) is NO LONGER used in log form by this point
 
-     xki = Arrhenius(ire,1)*((temperature/300.)**Arrhenius(ire,2)) &
-    &      *dexp(-Arrhenius(ire,3)/temperature)                                   
-     xkom = fall_coeff(ifo,1)*((temperature/300.)**fall_coeff(ifo,2)) &
-    &     * dexp(-fall_coeff(ifo,3)/temperature)*SumMc                               
+     xki = Arrhenius(ire,1)*((temperature/3d2)**Arrhenius(ire,2)) &
+    &      *dEXP(-Arrhenius(ire,3)/temperature)                                   
+     xkom = fall_coeff(ifo,1)*((temperature/3d2)**fall_coeff(ifo,2)) &
+    &     * dEXP(-fall_coeff(ifo,3)/temperature)*SumMc                               
       
      if (xki .ne. 0.d0) then
        kratio = xkom/xki
@@ -368,21 +462,21 @@ SUBROUTINE akkfo(ire,ifo)
        stop
      endif 
       
-     factor = 1./(1.+(dlog10(kratio))**2.) 
+     factor = 1./(1.+(dLOG10(kratio))**2.) 
                                                                         
      IF ((fall_coeff(ifo,4)/=0.d0) .AND. (fall_coeff(ifo,5)==0.d0)) THEN 
        qfor = (xkom/(1.+kratio)) * (fall_coeff(ifo,4)**factor) 
                                                                         
 ! The following IF use a different equation for MCM rates constant      
      ELSE IF ((fall_coeff(ifo,4)/=0.d0) .AND. (fall_coeff(ifo,5)==1.d0)) THEN 
-       factor2 = 1./(1.+(dlog10(kratio)/(0.75-1.27*dlog10(fall_coeff(ifo,4))))**2.)                                              
+       factor2 = 1./(1.+(dLOG10(kratio)/(0.75-1.27*dLOG10(fall_coeff(ifo,4))))**2.)                                              
        qfor = (xkom/(1.+kratio)) * (fall_coeff(ifo,4)**factor2) 
                                                                         
      ELSE IF ((fall_coeff(ifo,4)==0.d0) .AND. (fall_coeff(ifo,5)==204.) .AND. &
     &          (fall_coeff(ifo,6)==0.17) .AND. (fall_coeff(ifo,7)==51.)) THEN      
-       fcent = dexp(-temperature/fall_coeff(ifo,5)) + fall_coeff(ifo,6) &
-    &        + dexp(-fall_coeff(ifo,7)/temperature)                                  
-       factor2 = 1./(1.+(dlog10(kratio)/(0.75-1.27*dlog10(fcent)))**2.) 
+       fcent = dEXP(-temperature/fall_coeff(ifo,5)) + fall_coeff(ifo,6) &
+    &        + dEXP(-fall_coeff(ifo,7)/temperature)                                  
+       factor2 = 1./(1.+(dLOG10(kratio)/(0.75-1.27*dLOG10(fcent)))**2.) 
        qfor = (xkom/(1.+kratio)) * (fcent**factor2) 
      ELSE
        print*, fall_coeff(ifo,:)
@@ -394,9 +488,9 @@ SUBROUTINE akkfo(ire,ifo)
     
     !qln = log(qfor) 
                                                                         
-END SUBROUTINE akkfo                                  
+END SUBROUTINE ssh_gck_forate                                 
 
-subroutine akkextra4(ire, iex)
+subroutine ssh_gck_extrarate(ire, iex, label)
 
 !------------------------------------------------------------------------
 !
@@ -423,18 +517,25 @@ subroutine akkextra4(ire, iex)
 !
 !------------------------------------------------------------------------
 
+!=======================================================================
+! Purpose: Compute the rate coefficient for the reactions using the
+! keyword EXTRA in the mechanism, i.e.
+!      A + B + EXTRA => X +Y
+!              EXTRA /label data1 data2 .../
+! where data_x are used to compute these "special" reaction rate coef.
+!=======================================================================
+
     IMPLICIT NONE 
-    
-    integer :: label
+
     double precision :: kd, xk1, xk2, xk3, qfor
     double precision :: water_dimer
 
     ! INPUT                                                                 
-    INTEGER, INTENT(in) :: ire, iex
+    INTEGER, INTENT(in) :: ire, iex, label
 
 ! CASE SELECTOR FOR LABEL
 ! -----------------------------
-  label=NINT(extra_coeff(iex,1))
+!  label=NINT(extra_coeff(iex,1))
   qfor = kinetic_rate(ire) ! init
     
   SELECT CASE(label)
@@ -474,7 +575,7 @@ subroutine akkextra4(ire, iex)
       ! calculate water monomers vs dimers concentration                      
       ! dimerization constant [atm-1] according to Scribano et al., 2006      
       ! atm^(-1)          
-      kd = 4.7856E-4*exp(1851/temperature-5.10485E-3*temperature) 
+      kd = 4.7856E-4*dEXP(1851/temperature-5.10485E-3*temperature) 
       !convert atm-1 to molec-1 cm3                                           
       kd = kd*8.314*temperature*1E6/(1.01325E5*6.02E23)
       water_dimer = kd * (YlH2O**2.) 
@@ -496,19 +597,20 @@ subroutine akkextra4(ire, iex)
       xk3=extra_coeff(iex,5)*(temperature**extra_coeff(iex,6))* &
  &       dEXP(-extra_coeff(iex,7)/temperature)
       qfor = qfor + xk3*SumMc / (1.+ ((xk3*SumMc)/xk2) )
-! Add: ISOM
-    CASE (10) 
-      qfor = qfor*(extra_coeff(iex,2)*temperature**4 +  &
- &      extra_coeff(iex,3)*temperature**3 + &
- &      extra_coeff(iex,4)*temperature**2 + &
- &      extra_coeff(iex,5)*temperature + extra_coeff(iex,6))
-  
+
+! Add: ISOM for isomerisation reaction
+    CASE (200) 
+      qfor = qfor*(extra_coeff(iex,2)*(temperature**4) +  &
+ &      extra_coeff(iex,3) * (temperature**3) + &
+ &      extra_coeff(iex,4) * (temperature**2) + &
+ &      extra_coeff(iex,5) * temperature + extra_coeff(iex,6))
+
 !********************************************************               
 ! identificateur inconnu                                *               
 !********************************************************               
 ! unidentified label
     CASE DEFAULT
-      print*, '--error-- in akkextra. Type non-known: ', &
+      print*, '--error-- in akkextra. Type unknown: ', &
                 label,ire,iex
       STOP 
   END SELECT
@@ -516,7 +618,290 @@ subroutine akkextra4(ire, iex)
   ! add a ratio
   kinetic_rate(ire) = qfor * extra_coeff(iex,8)
   
-end subroutine akkextra4
+end subroutine ssh_gck_extrarate
+
+subroutine ssh_mcm_rate(ire,iex,label,azi)
+
+!C------------------------------------------------------------------------
+!C
+!C     -- DESCRIPTION: all types of MCM rate
+!C
+!C     with Arrihenis(ire,1) the ratio
+!C
+!C  Extracted from mcm_3-3-1_unix/mcm_3-3-1_fortran_complete.txt
+!C
+!C     WZZ 11/06/2023
+!C
+!C------------------------------------------------------------------------
+
+    IMPLICIT NONE 
+
+    ! INPUT                                                                 
+    INTEGER, INTENT(in) :: ire, iex, label
+    double precision, intent(in) :: azi
+    
+    integer :: ind
+    double precision :: ka, kb, kd, qfor
+
+  SELECT CASE(label)
+
+    CASE (91) ! Photolysis Rates
+!C------------------------------------------------------------------------
+!C
+!C  IN THE FORMAT J = l* cosX ** m *dEXP(-n*secX)
+!C
+!C------------------------------------------------------------------------
+        ka=0.d0 !init cosX
+        kb=0.d0 !init secsX
+
+        if (azi .lt. 9d2) then ! with photolysis
+          ka=max(0d0,dcos(azi/1.8D2* 3.14159265358979323846D0)) ! cosX
+          if (ka.gt.0d0) kb=1.0d+0/(ka+1.0D-30) !secX
+        endif
+      
+        if (ka .lt. 1.d-10) then
+            qfor = 1.0d-30
+        else
+            qfor = extra_coeff(iex,2)* ka**(extra_coeff(iex,3)) &
+                           * dEXP(-extra_coeff(iex,4)*kb)
+        endif
+        
+    CASE (92) ! Generic Rate Coefficients
+!C------------------------------------------------------------------------
+!C
+!C  https://mcm.york.ac.uk/MCM/rates/generic
+!C
+!C------------------------------------------------------------------------
+        ind = nint(extra_coeff(iex,2))
+        SELECT CASE(ind)
+          CASE (1) ! KRO2NO
+            qfor = 2.7D-12*dEXP(360/temperature)
+          CASE (2) ! KRO2HO2
+            qfor = 2.91D-13*dEXP(1300/temperature)
+          CASE (3) ! KAPHO2
+            qfor = 5.2D-13*dEXP(980/temperature)
+          CASE (4) ! KAPNO
+            qfor = 7.5D-12*dEXP(290/temperature)
+          CASE (5) ! KRO2NO3
+            qfor = 2.3D-12
+          CASE (6) ! KNO3AL
+            qfor = 1.44D-12*dEXP(-1862/temperature)
+          CASE (7) ! KDEC
+            qfor = 1.00D+06
+          CASE (8) ! KROPRIM
+            qfor = 2.50D-14*dEXP(-300/temperature)
+          CASE (9) ! KROSEC
+            qfor = 2.50D-14*dEXP(-300/temperature)
+          CASE (10) ! KCH3O2
+            qfor = 1.03D-13*dEXP(365/temperature)
+          CASE (11) ! K298CH3O2
+            qfor = 3.5D-13
+          CASE (12) ! K14ISOM1
+            qfor = 3.00D7*dEXP(-5300/temperature)
+        CASE DEFAULT
+          print*, 'Error: MCM Generic Rate Coefficients id non known: ', &
+                    label,ind,ire,iex
+          STOP
+        END SELECT
+        
+    CASE (93) ! Complex Rate Coefficients
+!C------------------------------------------------------------------------
+!C
+!C  https://mcm.york.ac.uk/MCM/rates/complex
+!C
+!C------------------------------------------------------------------------
+
+        ind = nint(extra_coeff(iex,2))
+        SELECT CASE(ind)
+
+        CASE(1)  ! KMT01
+            ka = 1.0D-31*SumMc*(temperature/3d2)**(-1.6d0)
+            kb = 5.0D-11*(temperature/3d2)**(-0.3)
+            kd = 1d1**(dLOG10(0.85d0)/(1.0D0+(dLOG10(ka/kb) &
+                    /(0.75D0-1.27D0*dLOG10(0.85d0)))**2D0))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(2)  ! KMT02
+            ka = 1.3D-31*SumMc*(temperature/3d2)**(-1.5d0)
+            kb = 2.3D-11*(temperature/3d2)**0.24
+            kd = 1d1**(dLOG10(0.6d0)/(1.0D0+(dLOG10(ka/kb) &
+                    /(0.75D0-1.27D0*dLOG10(0.6d0)))**2D0))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(3)  ! KMT03
+            ka = 3.6D-30*SumMc*(temperature/3d2)**(-4.1d0)
+            kb = 1.9D-12*(temperature/3d2)**0.2
+            kd = 1d1**(dLOG10(0.35d0)/(1.0D0+(dLOG10(ka/kb) &
+                    /(0.75D0-1.27D0*dLOG10(0.35d0)))**2D0))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(4)  ! KMT04
+            ka = 1.3D-3*SumMc*(temperature/3d2)**(-3.5d0) &
+                    *dEXP(-11d3/temperature)
+            kb = 9.7D+14*(temperature/3d2)**0.1 &
+                    *dEXP(-11080/temperature)
+            kd = 1d1**(dLOG10(0.35d0)/(1.0D0+(dLOG10(ka/kb) &
+                    /(0.75D0-1.27D0*dLOG10(0.35d0)))**2D0))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(5)  ! KMT05
+            ka = 1.44D-13
+            kb = (1+(SumMc/4.2D+19))
+            qfor = ka * kb
+        CASE(6)  ! KMT06
+            qfor = 1 + (1.40D-21*dEXP(2200/temperature)*YlH2O)
+        CASE(7)  ! KMT07
+            ka = 7.4D-31*SumMc*(temperature/3d2)**(-2.4d0)
+            kb = 3.3D-11*(temperature/3d2)**(-0.3d0)
+            kd = 1d1**(dLOG10(0.81d0)/(1.0D0+(dLOG10(ka/kb) &
+                    /(0.75D0-1.27D0*dLOG10(0.81d0)))**2D0))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(8)  ! KMT08
+            ka = 3.2D-30*SumMc*(temperature/3d2)**(-4.5d0)
+            kb = 3.0D-11
+            kd = 1d1**(dLOG10(0.41d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.41d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(9)  ! KMT09
+            ka = 1.4D-31*SumMc*(temperature/3d2)**(-3.1d0)
+            kb = 4.0D-12
+            kd = 1d1**(dLOG10(0.4d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.4d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(10)  ! KMT10
+            ka = 4.10D-05*SumMc*dEXP(-10650/temperature)
+            kb = 6.0D+15*dEXP(-11170/temperature)
+            kd = 1d1**(dLOG10(0.4d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.4d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(11)  ! KMT11
+            qfor = 2.40D-14*dEXP(460/temperature) + &
+                    (6.50D-34*dEXP(1335/temperature)*SumMc) &
+                    /(1+(6.50D-34*dEXP(1335/temperature)*SumMc) &
+                    /(2.70D-17*dEXP(2199/temperature)))
+        CASE(12)  ! KMT12
+            ka = 2.5D-31*SumMc*(temperature/3d2)**(-2.6d0)
+            kb = 2.0D-12
+            kd = 1d1**(dLOG10(0.53d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.53d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(13)  ! KMT13
+            ka = 2.5D-30*SumMc*(temperature/3d2)**(-5.5d0)
+            kb = 1.8D-11
+            kd = 1d1**(dLOG10(0.36d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.36d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(14)  ! KMT14
+            ka = 9.0D-5*dEXP(-9690/temperature)*SumMc
+            kb = 1.1D+16*dEXP(-10560/temperature)
+            kd = 1d1**(dLOG10(0.36d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.36d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(15)  ! KMT15
+            ka = 8.6D-29*SumMc*(temperature/3d2)**(-3.1d0)
+            kb = 9.0D-12*(temperature/3d2)**(-0.85d0)
+            kd = 1d1**(dLOG10(0.48d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.48d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(16)  ! KMT16
+            ka = 8D-27*SumMc*(temperature/3d2)**(-3.5d0)
+            kb = 3.0D-11*(temperature/3d2)**(-1d0)
+            kd = 1d1**(dLOG10(0.5d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.5d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(17)  ! KMT17
+            ka = 5.0D-30*SumMc*(temperature/3d2)**(-1.5d0)
+            kb = 1.0D-12
+            kd = 1d1**(dLOG10(0.17*dEXP(-51/temperature) &
+                +dEXP(-temperature/204))/(1+(dLOG10(ka/kb) &
+                /(0.75-1.27*(dLOG10(0.17*dEXP(-51/temperature) &
+                +dEXP(-temperature/204))))**2)))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE(18)  ! KMT18
+            ka = 9.5D-39*SumMc*2d-1*dEXP(5270/temperature) !O2
+            kb = 1+7.5D-29*SumMc*2d-1*dEXP(5610/temperature) !O2
+            qfor = ka/kb
+
+    !C------------------------------------------------------------------------
+    !C  Formation and decomposition of PAN
+    !C  IUPAC 2001
+    !C  Extracted from mcm_3-3-1_unix/mcm_3-3-1_fortran_complete.txt
+    !C------------------------------------------------------------------------
+        CASE (21) ! KFPAN 
+            ka = 1.10D-05*SumMc*dEXP(-101d2/temperature)
+            kb = 1.90D17*dEXP(-141d2/temperature)
+            kd = 10**(dLOG10(0.30d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.30d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE (22) ! KBPAN
+            ka = 3.28D-28*SumMc*(temperature/3d2)**(-6.87d0)
+            kb = 1.125D-11*(temperature/3d2)**(-1.105d0)
+            kd = 10**(dLOG10(0.30d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.30d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        CASE (23) ! KBPPN
+            ka = 1.7D-03*dEXP(-1128d1/temperature)*SumMc
+            kb = 8.3D+16*dEXP(-1394d1/temperature)
+            kd = 10**(dLOG10(0.36d0)/(1+(dLOG10(ka/kb) &
+                    /(0.75-1.27*(dLOG10(0.36d0))))**2))
+            qfor = (ka*kb)*kd/(ka+kb)
+        
+        !CASE (30) ! KRO2 => move to 94
+        !    qfor = 1.26D-12 * RO2
+            
+        CASE DEFAULT
+          print*, 'Error: MCM Complex Rate Coefficients id non known: ', &
+                    label,ind,ire,iex
+          STOP
+        END SELECT
+
+    CASE DEFAULT
+      print*, '--error-- in ssh_mcm_rate. Type unknown: ', &
+                label,ire,iex
+      STOP 
+
+  END SELECT
+  
+  ! add a ratio
+  kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
+  
+end subroutine ssh_mcm_rate
+
+subroutine ssh_spack_spec(ire, iex, label)
+
+    IMPLICIT NONE 
+
+    ! INPUT                                                                 
+    INTEGER, INTENT(in) :: ire, iex, label
+    
+    integer :: ind
+    double precision :: qfor
+
+    ! Label for different mechanisms
+    ! 10: cb05, 11: racm2, ... 
+    ind = nint(extra_coeff(iex,3)) ! 2nd level label
+    
+    qfor = 0.d0
+
+! need to complete
+
+    if (label .eq. 10) then ! CB05
+      SELECT CASE(ind)
+        CASE DEFAULT
+          print*, '--error-- in ssh_spack_spec. CB05 Type unknown: ', &
+                    label,ire,iex
+          STOP
+      END SELECT
+    elseif (label .eq. 20) then ! RACM2
+      SELECT CASE(ind)
+        CASE DEFAULT
+          print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
+                    label,ire,iex
+          STOP
+      END SELECT
+    end if
+  
+  ! add a ratio
+  kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
+   
+end subroutine ssh_spack_spec
+
 
 end module mod_sshchemkinetic
 

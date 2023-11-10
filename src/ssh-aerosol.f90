@@ -15,8 +15,8 @@ PROGRAM SSHaerosol
   use gCoagulation
   use mod_photolysis
   use mod_meteo
-  use mod_sshchem, only: ssh_chem_twostep,ssh_chem, &
-                         compute_gas_phase_water
+  use mod_sshchem, only: ssh_chem_twostep,ssh_chem
+  use mod_sshchemkinetic, only: ssh_gck_compute_gas_phase_water
   
   implicit none
 
@@ -141,7 +141,7 @@ PROGRAM SSHaerosol
      ! Number of water molecules computed from the massic fraction
 ! (absolute humidity)
      YlH2O = 29.d0*SumMc*humidity/(18.d0+11.d0*humidity)
-     !call compute_gas_phase_water(temperature,relative_humidity,YlH2O)
+     !call ssh_gck_compute_gas_phase_water(temperature,relative_humidity,YlH2O)
 
      ! Gas-phase chemistry
 
