@@ -1,0 +1,126 @@
+#-*-makefile-*-
+
+### This header file is automatically included in the secondary Makefiles.
+### Please tune it to your own installation
+
+### Specify where the headers and libraries of your netCDF package reside.
+# Example :
+#   if the file libnetcdf.a is located at
+#   /opt/netcdf-3.5.1-IFORT-64/lib/libnetcdf.a
+#   then NETCDFLIB=/opt/netcdf-3.5.1-IFORT-64/lib
+#
+#   if the file netcdf.mod is located at
+#   /opt/netcdf-3.5.1-IFORT-64/include/netcdf.mod
+#   then NETCDFINC=/opt/netcdf-3.5.1-IFORT-64/include
+#
+# To avoid trouble, netCDF should have been compiled with the
+# same compiler you use to build CHIMERE
+# In most Linux distributions, netCDF has been compiled using gfortran.
+# This may not be compatible with the f90 compilers required for CHIMERE.
+#
+NETCDFBIN_F	=       $(my_netcdfF90bin)
+NETCDFBIN_C	=       $(my_netcdfCbin)
+NETCDFLIB_C	=       $(my_netcdfClib)
+NETCDFLIB	=       $(my_netcdfF90lib) #LL - used in SSH
+NETCDFINC	=       $(my_netcdfF90inc) #LL used in SSH
+HDF5LIB		=       $(my_hdflib) #LL used in SSH
+HDF5INC		=       $(my_hdfinc)
+
+### If you want to build the ECMWF meteo interface, you need the ECMWF
+#   "GRIB_API" package and you must tell where to find it
+GRIBLIB		=	$(my_griblib)
+GRIBINC		=	$(my_gribinc)
+BLITZINC	=	$(my_blitzinc)
+
+### Where is your compiler located
+### You can get it by issuing the command "which gfortran"
+FC	=	${my_compilerF90}
+CC	=	${my_compilerCpp}
+
+
+FLAGS_STDCXX	=	-lstdc++
+
+### Where is your mpif77 wrapper located
+### You can get it by issuing the command "which mpif77"
+MPIFC	=	${my_mpif90}
+
+
+### Choose your execution mode { PROD | DEVEL }
+### PROD is fast, DEVEL allows for more checking and error tracking
+MODE	=	${my_mode}
+
+
+#########################################################################
+### In principle, you should not have to modify too many things below ...
+# NetCDF config for various possible cases (nc-config/nf-config, hdf5, etc.)
+INFCONFIG		=	$(shell [ -e $(NETCDFBIN_F)/nf-config ]&& echo yes)
+INCCONFIG		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& echo yes)
+ifeq ($(INFCONFIG),yes)
+	NCCONFIG          =       $(NETCDFBIN_F)/nf-config
+else ifeq ($(INCCONFIG),yes)
+	NCCONFIG          =       $(NETCDFBIN_C)/nc-config
+else
+	NCCONFIG          =       none
+endif
+#
+ifeq ($(NCCONFIG),none)
+	NCFLIB		=	$(shell [ -e $(NETCDFLIB)/libnetcdff.a ]&& echo twolibs)
+	CULIB		=	$(shell nm $(NETCDFLIB)/libnetcdf.a | grep -q curl && echo need_curl)
+	HDLIB		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& $(NETCDFBIN_C)/nc-config --has-hdf5)
+	CLIB		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& $(NETCDFBIN_C)/nc-config --libs)
+	ifeq ($(NCFLIB),twolibs)
+	CDFLIB          =       -lnetcdff -lnetcdf
+	else
+	CDFLIB          =       -lnetcdf
+	endif
+	ifeq ($(HDLIB),yes)
+	CDFLIB1          =       $(CDFLIB) -lhdf5 -lhdf5_hl
+	else
+	CDFLIB1          =       $(CDFLIB)
+	endif
+	ifeq ($(CULIB),need_curl)
+	CDFLIBS         =       $(CDFLIB1) -lcurl
+	else
+	CDFLIBS         =       $(CDFLIB1)
+	endif
+	NETCDFLIBS		=	$(CDFLIBS) -L${NETCDFLIB} -L${HDF5LIB} ${CLIB}
+else
+	NETCDFLIBS_F	=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')  
+	NETCDFLIBS_C	=	$(shell $(NETCDFBIN_C)/nc-config --libs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}') 
+    NETCDFLIBS		=	$(NETCDFLIBS_F) $(NETCDFLIBS_C)
+endif
+
+# End netcdf config
+
+
+##### IFORT #####
+FFLAGS_BASE = -fpe0 -fpp -ip -mp1 -prec_div -r8
+# For debug/development
+ifeq	($(MODE),DEVEL)
+FFLAGS_MODE = $(FFLAGS_BASE) -g -traceback -debug all  -O0  -ftrapuv -g  -check bounds  -traceback -DIFORT  \
+			  -warn unused # -real-size 64
+endif
+# for production
+ifeq	($(MODE),PROD)
+FFLAGS_MODE = $(FFLAGS_BASE) -lifcore -O3 -fp-model fast=2  -DIFORT  # -real-size 64
+endif
+
+# for profiling
+ifeq	($(MODE),PROF)
+FFLAGS_MODE = $(FFLAGS_BASE) -fpe0 -fpp -g -traceback -debug all -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8  -p # -real-size 64
+endif
+
+FFLAGS = $(FFLAGS_MODE) -free  -no-wrap-margin
+F77FLAGS = $(FFLAGS_MODE)
+
+
+
+
+# Misc. commands
+RM	=	/bin/rm -f
+AR	=	/usr/bin/ar
+CPP	=	/usr/bin/cpp
+LN	=	/bin/ln -sf
+CD	=	cd
+
+.SUFFIXES:

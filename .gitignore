@@ -1,5 +1,9 @@
 # -*-sh-*-
 
+### Symbolic links for compilation
+Makefile
+mymodules.sh
+
 ### Directories
 src/.build/*
 results/*

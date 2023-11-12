@@ -1,4 +1,4 @@
-include		../../../Makefile.hdr
+include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 #call_soap: soap.o unifac.o isofwd.o isorev.o isocom.o
@@ -14,7 +14,7 @@ libssh-talos.a:	$(OBJS)
 		$(AR) r libssh-talos.a $(OBJS)
 
 Talos.o: Talos.cpp
-	$(REALCC) -o Talos.o -c Talos.cpp -I $(BLITZLIB)
+	$(CC) -o Talos.o -c Talos.cpp -I $(BLITZINC)
 
 clean:
 	$(RM) $(RM_LIST)

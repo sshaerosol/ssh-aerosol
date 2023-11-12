@@ -1,7 +1,7 @@
 #-*-makefile-*-
 # iso
 
-include		../../../../Makefile.hdr
+include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
@@ -15,10 +15,10 @@ libssh-chem.a:	$(OBJS)
 		$(AR) r libssh-chem.a $(OBJS)
 
 %.o:		%.f
-		$(REALFC) -o $@ $(F77FLAGS) -I../../INC/ -c $<
+		$(FC) -o $@ $(F77FLAGS) -I../../INC/ -c $<
 
 %.o:            %.f90
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../../INC/ -c $<
 
 clean:
 		$(RM) $(RM_LIST)

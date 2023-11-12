@@ -1,4 +1,4 @@
-include		../../../Makefile.hdr
+include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 #call_soap: soap.o unifac.o isofwd.o isorev.o isocom.o
@@ -14,7 +14,7 @@ libssh-soap.a:	$(OBJS)
 		$(AR) r libssh-soap.a $(OBJS)
 
 soap.o: soap.cpp
-	$(REALCC) -o soap.o $(CCFLAGS) -c soap.cpp -I $(BLITZLIB)
+	$(CC) -o soap.o $(CCFLAGS) -c soap.cpp -I $(BLITZINC)
 
 clean:
 	$(RM) $(RM_LIST)

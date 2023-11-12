@@ -1,0 +1,128 @@
+#-*-makefile-*-
+SHELL := /bin/bash
+### This header file is automatically included in the secondary Makefiles.
+### Please tune it to your own installation
+
+### Specify where the headers and libraries of your netCDF package reside.
+# Example : 
+#   if the file libnetcdf.a is located at
+#   /opt/netcdf-3.5.1-IFORT/lib/libnetcdf.a
+#   then NETCDFLIB=/opt/netcdf-3.5.1-IFORT/lib
+#
+#   if the file netcdf.mod is located at
+#   /opt/netcdf-3.5.1-IFORT/include/netcdf.mod
+#   then NETCDFINC=/opt/netcdf-3.5.1-IFORT/include
+#
+# To avoid trouble, netCDF should have been compiled with the 
+# same compiler you use to build CHIMERE
+# In most Linux distributions, netCDF has been compiled using gfortran.
+# Thus you can use the systemwide netCDF library
+#
+NETCDFBIN_F	=       $(my_netcdfF90bin)
+NETCDFBIN_C	=       $(my_netcdfCbin)
+NETCDFLIB_C	=       $(my_netcdfClib)
+NETCDFLIB	=       $(my_netcdfF90lib) #LL - used in SSH
+NETCDFINC	=       $(my_netcdfF90inc) #LL used in SSH
+HDF5LIB		=       $(my_hdflib) #LL used in SSH
+HDF5INC		=       $(my_hdfinc)
+
+### If you want to build the ECMWF meteo interface, you need the ECMWF
+#   "GRIB_API" package and you must tell where to find it
+GRIBLIB		=	$(my_griblib)
+GRIBINC		=	$(my_gribinc)
+BLITZINC	=	$(my_blitzinc) #LL used in SSH-aerosol
+
+### Where is your compiler located
+### You can get it by issuing the command "which gfortran"
+FC	=	${my_compilerF90} #used in SSH
+
+CC	=	${my_compilerCpp}
+
+# Patch for prep_bc
+NORANGECHK	=	-fno-range-check
+
+# Patch for CentOS/g++ problem (bug?)
+FLAGS_STDCXX	=	-lstdc++
+
+### Where is your mpif90 wrapper located
+### You can get it bt issuing the command "which mpif90"
+MPIFC	=	${my_mpif90} #LL used in SSH
+
+### Choose your execution mode { PROD | DEVEL }
+### PROD is fast, DEVEL allows for more checking and error tracking
+MODE    =       ${my_mode}
+
+
+#########################################################################
+### In principle, you should not have to modify too many things below ...
+# NetCDF config for various possible cases (nc-config/nf-config, hdf5, etc.)
+INFCONFIG		=	$(shell [ -e $(NETCDFBIN_F)/nf-config ]&& echo yes)
+INCCONFIG		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& echo yes)
+ifeq ($(INFCONFIG),yes)
+	NCCONFIG          =       $(NETCDFBIN_F)/nf-config
+else ifeq ($(INCCONFIG),yes)
+	NCCONFIG          =       $(NETCDFBIN_C)/nc-config
+else
+	NCCONFIG          =       none
+endif
+#
+ifeq ($(NCCONFIG),none)
+	NCFLIB		=	$(shell [ -e $(NETCDFLIB)/libnetcdff.a ]&& echo twolibs)
+	CULIB		=	$(shell nm $(NETCDFLIB)/libnetcdf.a | grep -q curl && echo need_curl)
+	HDLIB		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& $(NETCDFBIN_C)/nc-config --has-hdf5)
+	CLIB		=	$(shell [ -e $(NETCDFBIN_C)/nc-config ]&& $(NETCDFBIN_C)/nc-config --libs) #LL used in SSH
+	ifeq ($(NCFLIB),twolibs)
+	CDFLIB          =       -lnetcdff -lnetcdf
+	else
+	CDFLIB          =       -lnetcdf
+	endif
+	ifeq ($(HDLIB),yes)
+	CDFLIB1          =       $(CDFLIB) -lhdf5 -lhdf5_hl #LL used in SSH
+	else
+	CDFLIB1          =       $(CDFLIB) #LL used in SSH
+	endif
+	ifeq ($(CULIB),need_curl)
+	CDFLIBS         =       $(CDFLIB1) -lcurl #LL used in SSH
+	else
+	CDFLIBS         =       $(CDFLIB1) #LL used in SSH
+	endif
+	NETCDFLIBS		=	$(CDFLIBS) -L${NETCDFLIB} -L${HDF5LIB} ${CLIB} #LL used in SSH
+else
+	NETCDFLIBS_F	=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')  #LL used in SSH
+	NETCDFLIBS_C	=	$(shell $(NETCDFBIN_C)/nc-config --libs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}') #LL used in SSH
+    NETCDFLIBS		=	$(NETCDFLIBS_F) $(NETCDFLIBS_C) #LL used in SSH
+endif
+
+# End netcdf config
+
+
+FFLAGS_BASE =  -fno-second-underscore -frecord-marker=4 -fdefault-real-8 -fdefault-double-8 -fopenmp #LL used in SSH
+# For debug/development
+ifeq	($(MODE),DEVEL)
+FFLAGS_MODE	=  $(FFLAGS_BASE) -g -O0 -fcheck=bounds -fbacktrace -fbounds-check -finit-integer=-100000 \
+                -finit-real=snan -ffpe-trap=zero,overflow,invalid -Waliasing -Wampersand -Wconversion \
+		-Wsurprising -Wintrinsics-std -Wintrinsic-shadow -Wline-truncation -Wreal-q-constant -Wunused \
+		-DGFORTRAN #LL used in SSH
+endif
+
+# for production
+ifeq	($(MODE),PROD)
+FFLAGS_MODE	= $(FFLAGS_BASE) -O3 -DGFORTRAN #LL used in SSH
+endif
+
+FFLAGS = $(FFLAGS_MODE) -ffree-form -ffree-line-length-none #LL used in SSH
+F77FLAGS = $(FFLAGS_MODE) -ffixed-form #used in SSH
+
+export CPPDEF=-Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+export CCFLAGS=$(CPPDEF) -I${NETCDF_INCLUDE} -I${GFORTRAN_INC_MOD}
+
+# Misc. commands
+RM	=	/bin/rm -f #LL used in SSH
+AR	=	/usr/bin/ar
+CPP	=	cpp
+LN	=	/bin/ln -sf
+CD	=	cd #LL used in SSH
+CP	=	/bin/cp
+
+.SUFFIXES:
+

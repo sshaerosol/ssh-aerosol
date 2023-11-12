@@ -1,7 +1,7 @@
 #-*-makefile-*-
 # iso
 
-include		../../../Makefile.hdr
+include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
@@ -49,7 +49,7 @@ discret.o:      ModuleDiscretization.F90
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
 
 %.o:		%.f
-		$(REALFC) -o $@ $(F77FLAGS) -c $<
+		$(FC) -o $@ $(F77FLAGS) -c $<
 
 %.o:		%.F90 init.o
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<

@@ -1,7 +1,7 @@
 #-*-makefile-*-
 # iso
 
-include		../../../Makefile.hdr
+include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
@@ -14,7 +14,7 @@ libssh-rdb.a:	$(OBJS)
 		$(AR) r libssh-rdb.a $(OBJS)
 
 %.o:		%.f
-		$(REALFC) -o $@ $(F77FLAGS) -c $<
+		$(FC) -o $@ $(F77FLAGS) -c $<
 
 %.o:		%.f90 
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
