@@ -37,7 +37,7 @@ BLITZINC	=	$(my_blitzinc)
 FC	=	${my_compilerF90}
 CC	=	${my_compilerCpp}
 
-
+# Patch for CentOS/g++ problem (bug?)
 FLAGS_STDCXX	=	-lstdc++
 
 ### Where is your mpif77 wrapper located
@@ -105,16 +105,8 @@ ifeq	($(MODE),PROD)
 FFLAGS_MODE = $(FFLAGS_BASE) -lifcore -O3 -fp-model fast=2  -DIFORT  # -real-size 64
 endif
 
-# for profiling
-ifeq	($(MODE),PROF)
-FFLAGS_MODE = $(FFLAGS_BASE) -fpe0 -fpp -g -traceback -debug all -DIFORT -D$(MPIFLAG) $(FC4_BUG) -r8  -p # -real-size 64
-endif
-
 FFLAGS = $(FFLAGS_MODE) -free  -no-wrap-margin
 F77FLAGS = $(FFLAGS_MODE)
-
-
-
 
 # Misc. commands
 RM	=	/bin/rm -f
