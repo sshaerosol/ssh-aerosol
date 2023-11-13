@@ -21,9 +21,9 @@
 NETCDFBIN_F	=       $(my_netcdfF90bin)
 NETCDFBIN_C	=       $(my_netcdfCbin)
 NETCDFLIB_C	=       $(my_netcdfClib)
-NETCDFLIB	=       $(my_netcdfF90lib) #LL - used in SSH
-NETCDFINC	=       $(my_netcdfF90inc) #LL used in SSH
-HDF5LIB		=       $(my_hdflib) #LL used in SSH
+NETCDFLIB	=       $(my_netcdfF90lib)
+NETCDFINC	=       $(my_netcdfF90inc)
+HDF5LIB		=       $(my_hdflib)
 HDF5INC		=       $(my_hdfinc)
 
 ### If you want to build the ECMWF meteo interface, you need the ECMWF
