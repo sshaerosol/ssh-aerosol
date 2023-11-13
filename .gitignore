@@ -1,7 +1,7 @@
 # -*-sh-*-
 
 ### Symbolic links for compilation
-Makefile
+Makefile.hdr
 mymodules.sh
 
 ### Directories
