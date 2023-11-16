@@ -78,11 +78,14 @@ module aInitialization
   integer, save :: with_cond   !Tag fCondensation
   integer, save :: with_nucl   !Tag nucleation
   integer, save :: nucl_model_binary, nucl_model_ternary, nucl_model_hetero
-  double precision, save :: scal_ternary, scal_hetero
+  integer, save :: nucl_model_org
+  double precision, save :: scal_ternary, scal_hetero, scal_org, nexp_org
   double precision, save :: co2_conc_ppm
-  integer, save :: nesp_org_h2so4_nucl
+  integer, save :: nesp_org_h2so4_nucl, nesp_org_nucl
   integer, dimension(2), save :: org_h2so4_nucl_species
   character (len=40), dimension(2) :: name_org_h2so4_nucl_species
+  integer, dimension(10), save :: org_nucl_species
+  character (len=40), dimension(10) :: name_org_nucl_species
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic
   integer, save :: SOAPlog     ! 0=no text output from SOAP, 1=on screen, 2=written on files
@@ -496,7 +499,9 @@ contains
          SOAPlog, reaction_soap_file
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
-         scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl,name_org_h2so4_nucl_species
+         scal_ternary, nucl_model_hetero, scal_hetero, nesp_org_h2so4_nucl, &
+         name_org_h2so4_nucl_species, nucl_model_org, scal_org, nexp_org,&
+         nesp_org_nucl, name_org_nucl_species 
 
 
     namelist /output/ output_directory, output_type, particles_composition_file, &
@@ -1330,6 +1335,11 @@ contains
     nesp_org_h2so4_nucl = 0
     name_org_h2so4_nucl_species(1) = 'none'
     name_org_h2so4_nucl_species(2) = 'none'
+    nucl_model_hetero = 0
+    scal_org = 0.1            
+    nesp_org_nucl = 0
+    !name_org_nucl_species(1) = 'none'
+    !name_org_nucl_species(2) = 'none'
 
     read(10, nml = physic_nucleation, iostat = ierr)
     if (ierr .ne. 0) then
@@ -1340,6 +1350,7 @@ contains
           if (nucl_model_binary == -999) nucl_model_binary = 0
           if (nucl_model_ternary == -999) nucl_model_ternary = 0
           if (nucl_model_hetero == -999) nucl_model_hetero = 0
+          if (nucl_model_org == -999) nucl_model_org = 0
              
           if (ssh_standalone) write(*,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
           if (ssh_logger) write(logfile,*) '! ! ! with nucleation. -- Need to have lower diameter about 1nm.'
@@ -1372,7 +1383,7 @@ contains
                endif
              endif
           endif
-           if (nucl_model_hetero == 0) then
+          if (nucl_model_hetero == 0) then
              if (ssh_standalone) write(*,*) ' No heteromolecular nucleation'
              if (ssh_logger) write(logfile,*) 'No heteromolecular nucleation'
           else
@@ -1384,6 +1395,23 @@ contains
                 endif   
                 if (ssh_standalone) write(*,*) 'nucleation model : heteromolecular',scal_hetero
                 if (ssh_logger) write(logfile,*) 'nucleation model : heteromolecular',scal_hetero
+             endif
+          endif
+          if (nucl_model_org == 0) then
+             name_org_nucl_species(1) = 'none'
+             if (ssh_standalone) write(*,*) ' No organic nucleation'
+             if (ssh_logger) write(logfile,*) 'No organic nucleation'
+          else
+             if(scal_org == -999.d0) scal_org = 1
+             if(nexp_org == -999.d0) nexp_org = 3
+             if (nucl_model_org == 1) then
+                write(*,*) nesp_org_nucl, 'nesp org nucl'
+                !if(nesp_org_nucl.GT.2) then
+                !  if (ssh_standalone) write(*,*) 'nucleation model : org - no more than 2 species',nesp_org_nucl
+                !  if (ssh_logger) write(logfile,*) 'nucleation model : org - no more than 2 species',nesp_org_nucl
+                !endif   
+                if (ssh_standalone) write(*,*) 'nucleation model : organic',scal_org,nexp_org
+                if (ssh_logger) write(logfile,*) 'nucleation model : organic',scal_org,nexp_org
              endif
           endif
       endif
@@ -2285,6 +2313,18 @@ contains
        enddo
     endif
 
+    if(nucl_model_org == 1) then
+       do s=1,nesp_org_nucl
+          do i = 1,N_aerosol
+              if(aerosol_species_name(i) == name_org_nucl_species(s)) then
+                org_nucl_species(s) = i
+                if (ssh_standalone) write(*,*) "Org. Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_logger) write(logfile,*) "Org. Nucl. species found ",aerosol_species_name(i),i
+             endif
+           enddo
+       enddo
+    endif
+
     !!!!!!!!!! genoa related treatments
     !!!! genoa initial condition
     if (tag_init_set.gt.0) then
@@ -3051,8 +3091,6 @@ contains
     if (allocated(output_special)) deallocate(output_special) !(nt+1,8)
     if (allocated(output_pH)) deallocate(output_pH)           !(nt+1,N_size)
     
-
-
   END subroutine ssh_free_allocated_memory
 
   ! =============================================================

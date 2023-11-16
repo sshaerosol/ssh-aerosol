@@ -496,6 +496,43 @@ contains
           endif
     endif
     
+    if(nucl_model_org.eq.1) then ! heteromolecular nucl'n (Org-H2SO4)
+          isection = 1
+          org_terp = 0.0
+          Do iterp = 1,nesp_org_nucl
+            org_terp_tmp(iterp) = c_gas(org_nucl_species(iterp))*1.D-06&    ! convert to ug.cm-3
+               /molecular_weight_aer(org_nucl_species(iterp))&     ! to mol.m-3
+                *Navog         ! to #molec.cm-3
+            org_terp = org_terp + org_terp_tmp(iterp)
+          Enddo
+          if (org_terp > 1.d5) then
+             Do iterp = 1,nesp_org_nucl
+               xterp(iterp) = org_terp_tmp(iterp)/org_terp
+             Enddo
+          !   if(org_terp > 1.d8) then ! Set max value to max observed value in experiments
+                org_terp = 1.d8
+          !   endif
+             jnucl = (org_terp)**nexp_org * scal_org ! in #.m-3 s-1 !!!SCALING FACTOR
+             if(jnucl.gt.1.d10) then ! Prevent nucleation rate from being too large
+               jnucl = 1.d10
+             endif
+             if(jnucl > 1.d-6) then
+               dpnucl = size_diam_av(isection) 
+               mass_nucl = 0.0 
+               Do iterp = 1,nesp_org_nucl
+                 mass_nucl = mass_nucl + xterp(iterp) * molecular_weight_aer(org_nucl_species(iterp))
+               Enddo
+               mass_density_nucl = mass_density(org_nucl_species(1))
+               dmdt = jnucl * PI/6.0 * mass_density_nucl * dpnucl**3
+               dndt(isection) = dndt(isection) +jnucl  ! #part.m-3.s-1
+               Do iterp = 1,nesp_org_nucl
+                 dqdt(isection,org_nucl_species(iterp)) = dqdt(isection,org_nucl_species(iterp)) &
+                     + dmdt * xterp(iterp) * &
+                      molecular_weight_aer(org_nucl_species(iterp)) / mass_nucl
+               Enddo
+             endif
+          endif
+    endif
   end subroutine ssh_fgde_nucl
 
 end module hCongregation
