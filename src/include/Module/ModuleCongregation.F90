@@ -476,8 +476,9 @@ contains
              if(jnucl > 1.d-6) then
                dpnucl = size_diam_av(isection) 
                mass_nucl1 = 2.D0 * molecular_weight_aer(ESO4)
+               mass_nucl2 = 0.D0
                Do iterp = 1,nesp_org_h2so4_nucl
-                 mass_nucl2 = xterp(iterp) * molecular_weight_aer(org_h2so4_nucl_species(iterp))
+                 mass_nucl2 = mass_nucl2 + xterp(iterp) * molecular_weight_aer(org_h2so4_nucl_species(iterp))
                Enddo
                mass_nucl = mass_nucl1 + mass_nucl2
                mass_density_nucl = mass_nucl /&
