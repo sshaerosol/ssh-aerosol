@@ -17,7 +17,7 @@ KINETIC ARR2   1.21E-11   -444.0
 %
 %--------------------158--------------------
 alpha_pinene + ozone ->  0.18 BiA0D + 0.16 BiA1D + 0.05 BiA2D + //
-             0.0002 RO2 +   0.9 RpO2 + //
+             0.3 RO2 +   0.6 RpO2 + //
              alpha_pinene + ozone
 KINETIC ARR2   5.00E-16   530.0
 %
@@ -47,19 +47,19 @@ KINETIC ARR1    1.0E-12
 %
 %----------------------203----------------------
 RO2 +  hydroperoxy  -> hydroperoxy
-KINETIC ARR1    2.7E-11
+KINETIC ARR1     1.0E-12
 %
 %----------------------204----------------------
 RO2 + nitric_oxide ->  0.995 RO2 + nitric_oxide
 KINETIC ARR1    4.7E-12
 %
 %----------------------205-----------------------
-RelvocO2 + RO2 -> 5.16 Monomer +  3.48 Dimer
-KINETIC ARR1    5.0E-11
+RelvocO2 + RO2 -> 0.6 Monomer +  0.4 Dimer
+KINETIC ARR1    1.0E-10
 %
 %----------------------206----------------------
-RelvocO2 + hydroperoxy -> 6.0 Monomer +  2.64 Dimer + hydroperoxy
-KINETIC ARR1    5.0E-11
+RelvocO2 + hydroperoxy -> 0.6 Monomer +  0.4 Dimer + hydroperoxy
+KINETIC ARR1    1.0E-10
 %
 %----------------------207----------------------
 BiA1D + hydroxyl -> 0.0061 BiA3D + hydroxyl
