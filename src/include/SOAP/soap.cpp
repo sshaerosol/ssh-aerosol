@@ -161,7 +161,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 
   config.reaction_file="";
   string tmp_string;
-  for (i = 0; i < 800; i++)
+  for (i = 0; i < 200; i++)
     {
       tmp_string=soap_reaction_file[i];
       if (tmp_string!=" ")

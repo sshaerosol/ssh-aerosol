@@ -531,7 +531,7 @@ contains
         
         do Jsp =1,nRO2_chem
           Jb = RO2index(Jsp,1)! isps
-          i1 = RO2index(Jsp,2)! igroup
+          i1 = RO2out_index(RO2index(Jsp,2))! igroup
           concentration_gas_all(i1)= concentration_gas_all(i1)+ &
      &                           concentration_gas_all(Jb)                  
         enddo

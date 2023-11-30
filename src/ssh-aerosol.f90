@@ -21,13 +21,13 @@ PROGRAM SSHaerosol
   implicit none
 
   integer :: t, j, s,jesp,day  
-  character (len=400) :: namelist_ssh  ! Configuration file
+  character (len=200) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
 
   double precision :: t_since_update_photolysis, t0
 
   ! genoa char to read index for initial set
-  character (len=10) :: ivoc0
+  character (len=20) :: ivoc0
   ! genoa timestep for aerosol_dynamic used when keep_gp = 1
   double precision :: delta_t2
 
@@ -39,12 +39,25 @@ PROGRAM SSHaerosol
      write(*,*) "usage: ssh-aerosol namelist.input"
      stop
   else
+     ! read for GENOA reduction
      call getarg(1, namelist_ssh)
+     initID = "-" ! init
+     chemID = "-" ! init
+     resID  = "-" ! init
      ! genoa read initial sets
-     if (iargc() == 2) then
+     if (iargc() .ge. 2) then ! init id
+         
          call getarg(2, ivoc0)
-         read(ivoc0,'(I1)') tag_init_set ! read as integer, only allow one digit for now
-         !print*,'read tag_init_set: ', tag_init_set
+         initID = trim(adjustl(ivoc0))
+         print*,'Read init ID: ', trim(initID)
+         
+         if (iargc().eq.4) then ! chem id & res id
+             call getarg(3,ivoc0)
+             chemID = trim(adjustl(ivoc0))
+             call getarg(4,ivoc0)
+             resID = trim(adjustl(ivoc0))
+             print*, 'Read chem & result IDs:',trim(chemID)," ",trim(resID) 
+         endif
      endif
   end if
 
@@ -141,7 +154,7 @@ PROGRAM SSHaerosol
      ! Number of water molecules computed from the massic fraction
 ! (absolute humidity)
      YlH2O = 29.d0*SumMc*humidity/(18.d0+11.d0*humidity)
-     !call ssh_gck_compute_gas_phase_water(temperature,relative_humidity,YlH2O)
+     !call compute_gas_phase_water(temperature,relative_humidity,YlH2O)
 
      ! Gas-phase chemistry
 

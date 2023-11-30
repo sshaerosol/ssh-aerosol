@@ -100,7 +100,7 @@ contains
             chp= 1.0e-7
          endif
       endif
-      
+
       CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
@@ -486,7 +486,6 @@ contains
 
       lwcorg=0.
 
-           
       CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
            N_aerosol, N_aerosol_layers, neq, q_soap, qaero, qaq, qgas, &

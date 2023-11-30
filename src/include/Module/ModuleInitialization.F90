@@ -100,7 +100,7 @@ module aInitialization
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
   double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.   
 
-  character (len=800), save :: reaction_soap_file
+  character (len=200), save :: reaction_soap_file
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!! genoa related parameters
@@ -118,7 +118,7 @@ module aInitialization
   ! number of output species
   integer, save :: nout_gas, nout_aero
   ! index of initial set - can be updated in ssh-aerosol.f90
-  integer, save :: tag_init_set = 0
+  integer, save :: tag_init_set
   ! number of species with constant profiles, RO2 species
   integer, save :: ncst_gas, ncst_aero, nRO2_chem, nRO2_group
   ! RO2 pool index in gas species list
@@ -136,11 +136,11 @@ module aInitialization
   double precision, dimension(:,:,:), allocatable, save :: cst_aero ! constant concs.
 
   ! file names
-  character (len=800), save :: ref_soa_conc_file, pre_soa_conc_file! reference/previous cases
-  character (len=800), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
-  character (len=800), save :: cst_gas_file ! File for species that need to be keep as constants.
-  character (len=800), save :: cst_aero_file ! File for constant aerosol species.
-  character (len=800), save :: init_species_file ! File for initial sets of SOA precursors
+  character (len=200), save :: ref_soa_conc_file, pre_soa_conc_file! reference/previous cases
+  character (len=200), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
+  character (len=200), save :: cst_gas_file ! File for species that need to be keep as constants.
+  character (len=200), save :: cst_aero_file ! File for constant aerosol species.
+  character (len=200), save :: init_species_file ! File for initial sets of SOA precursors
   
   ! list of species name
   character (len=40), dimension(:), allocatable, save :: output_err_sps
@@ -350,19 +350,20 @@ module aInitialization
   double precision, dimension(:,:), allocatable, save :: surface_equilibrium_conc_nsize 
 
   !! part 8: divers parameters (species, I/O)
-  character (len=800), save :: Coefficient_file ! repartition coefficient file
-  character (len=800), save :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
-  character (len=800), save :: init_aero_conc_num_file ! File for aerosols initial number concentrations
-  character (len=800), save :: init_gas_conc_file ! File for gas-phase initial conc.
-  character (len=800), save :: species_list_file ! File for species list.
-  character (len=800), save :: reaction_list_file ! File for species list.
-  character (len=800), save :: aerosol_species_list_file ! File for species list.
-  character (len=800), save :: aerosol_structure_file ! File for species list.
-  character (len=800), save :: namelist_species ! Namelist file for species list.
-  character (len=800), save :: particles_composition_file ! File for particles composition
-  character (len=800), save :: emis_gas_file
-  character (len=800), save :: emis_aero_mass_file
-  character (len=800), save :: emis_aero_num_file
+  character (len=200), save :: Coefficient_file ! repartition coefficient file
+  character (len=200), save :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
+  character (len=200), save :: init_aero_conc_num_file ! File for aerosols initial number concentrations
+  character (len=200), save :: init_gas_conc_file ! File for gas-phase initial conc.
+  character (len=200), save :: species_list_file  ! File for species list.
+  character (len=200), save :: reaction_list_file ! File for species list.
+  character (len=20) , save :: chemID,chemID2,resID,initID      ! IDs for chemistry/output
+  character (len=200), save :: aerosol_species_list_file ! File for species list.
+  character (len=200), save :: aerosol_structure_file ! File for species list.
+  character (len=200), save :: namelist_species ! Namelist file for species list.
+  character (len=200), save :: particles_composition_file ! File for particles composition
+  character (len=200), save :: emis_gas_file
+  character (len=200), save :: emis_aero_mass_file
+  character (len=200), save :: emis_aero_num_file
   character (len=80), dimension(:), allocatable, save :: isorropia_species_name
   character (len=80), dimension(:), allocatable, save :: aec_species_name
   character (len=40), save :: precursor
@@ -371,11 +372,11 @@ module aInitialization
   integer, save :: spec_name_len
   character (len=40), dimension(:), allocatable, save :: emis_gas_species_name
   character (len=40), dimension(:), allocatable, save :: emis_aer_species_name
-  character (len=100), save :: output_directory, output_dir2
+  character (len=200), save :: output_directory, output_conc_file
   
   ! Photolysis
-  character (len=800), save :: photolysis_file ! File for photolysis list.
-  character (len=800), save :: photolysis_dir ! Directory for photolysis list.
+  character (len=200), save :: photolysis_file ! File for photolysis list.
+  character (len=200), save :: photolysis_dir ! Directory for photolysis list.
   character (len=40), dimension(:), allocatable, save :: photolysis_name
   integer, save :: n_time_angle
   double precision, save :: time_angle_min, delta_time_angle
@@ -385,7 +386,7 @@ module aInitialization
   double precision, save :: altitude_photolysis_input(30)
 
   ! meteo
-  character (len=400) , save:: meteo_file
+  character (len=200) , save:: meteo_file
   logical, save :: imeteo 
   
   !!part 6: used in ssh-aerosol.f90 chem()
@@ -460,13 +461,14 @@ contains
 
     implicit none
     integer :: i,ierr,tag_file, nml_out, s ,count
-    character (len=400), intent(in) :: namelist_file
-    character (len=400) :: namelist_out
+    character (len=200), intent(in) :: namelist_file
+    character (len=200) :: namelist_out
 
     ! genoa read input lists
-    character (len=100) :: tmp_string
-    character (len=800) :: output_aero_list, output_gas_list
-    character (len=800) :: err_species_list, init_species_list 
+    character (len=20)  :: tmp0, tmp1
+    character (len=200) :: tmp_string
+    character (len=400) :: output_aero_list, output_gas_list
+    character (len=400) :: err_species_list 
 
     ! namelists to read namelist.ssh file 
 
@@ -478,7 +480,7 @@ contains
     namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
          wet_diam_estimation, init_gas_conc_file,&
          init_aero_conc_mass_file, init_aero_conc_num_file, &
-         cst_gas_file, cst_aero_file, init_species_list ! genoa inputs
+         cst_gas_file, cst_aero_file, init_species_file ! genoa inputs
          
     namelist /initial_diam_distribution/ diam_input
 
@@ -543,11 +545,6 @@ contains
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
-
-    if (tag_init_set.ne.0) then
-        if (ssh_standalone) write(*,*) "read tag_init_set: ", tag_init_set
-        if (ssh_logger) write(logfile,*) "read tag_init_set: ", tag_init_set
-    endif
 
     if (tag_genoa.ne.0) then
         if (ssh_standalone) write(*,*) "Under GENOA mode! ", tag_genoa
@@ -654,7 +651,6 @@ contains
     ! genoa init - section initial_condition
     cst_gas_file= "---"
     cst_aero_file = "---"
-    init_species_list = "---"
     init_species_file = "---"
     
     read(10, nml = initial_condition, iostat = ierr)
@@ -713,33 +709,24 @@ contains
        diam_input = 0.d0
     end if
 
-    ! genoa Read initial conditions
-    if (init_species_list .ne. "---") then
-        if (ssh_standalone) write(*,*) 'Read inital conditions for some speices: ',trim(init_species_list)
-        if (ssh_logger) write(logfile,*) 'Read inital conditions for some speices: ',trim(init_species_list)
-
-        ! in case in the format "1,[path]", get the number
-        ! find the position of the first comma
-        i = index(init_species_list, ',')
-
-        ! Extract the numeric part before the first comma
-        if (i > 1) then
-            read(init_species_list(:i-1), *, iostat=ierr) tag_init_set
-            if (ierr.ne.0) then
-                print*, "Error: can not read index from init_species_list. ", trim(init_species_list)
-                stop
-            endif
-            ! read path
-            init_species_file = trim(init_species_list(i+1:800))
-            ! print
-            if (ssh_standalone) write(*,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
-            if (ssh_logger) write(logfile,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
-        else ! no number, read by command: e.g., ssh-aerosol namelist 1
-            if (tag_init_set.ne.0) then
-                ! read from ssh-aerosol.f90
-                init_species_file = init_species_list
-            endif
-        end if
+    ! GENOA read tag_init_set from initID
+    if (trim(initID).ne."-") then
+        read(initID,*,iostat=ierr) tag_init_set ! read integer
+        if (ierr.ne.0) then
+            print*, "Error: can not read tag_init_set from initID: ",trim(initID)
+            stop
+        else
+            if (ssh_standalone) write(*,*)  "Read tag_init_set is ",tag_init_set
+            if (ssh_logger) write(logfile,*)"Read tag_init_set is ",tag_init_set
+        endif
+    else
+        tag_init_set = 0            
+    endif
+    
+    ! genoa read initial conditions    
+    if (init_species_file.ne."---" .and. tag_init_set.ne.0) then
+        if (ssh_standalone) write(*,*) 'Read inital conditions for some speices: ',trim(init_species_file)
+        if (ssh_logger) write(logfile,*) 'Read inital conditions for some speices: ',trim(init_species_file)
     end if
     
     ! initial_diam_distribution
@@ -875,6 +862,10 @@ contains
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Species lists >>>>'
        if (ssh_logger) write(logfile,*) '<<<< Species lists >>>>'
+
+       ! update species_list_file with chemID
+       if (chemID .ne. "-") species_list_file = trim(adjustl(species_list_file))//"/"//trim(chemID2)//".species"
+
        if (ssh_standalone) write(*,*) 'gas phase species file :', trim(species_list_file)
        if (ssh_logger) write(logfile,*) 'gas phase species file :', trim(species_list_file)
        
@@ -916,14 +907,20 @@ contains
         enddo
         close(11)
     
-       ! read reaction file
+       ! read & update reaction file
        if (reaction_list_file.ne."---") then
+
+          ! update reaction_list_file with chemID
+          if (chemID .ne. "-") reaction_list_file=trim(adjustl(reaction_list_file))//"/"//trim(chemID2)//".reactions"
+
           if (ssh_standalone) write(*,*) 'reaction list file:', trim(reaction_list_file)
           if (ssh_logger) write(logfile,*) 'reaction list file', trim(reaction_list_file)
           
           ! get n_reaction, n_photolysis from the first line
           ! call ssh_read_reaction_file()
-          
+       else
+         print*, "Not reaction file is provided: ", trim(reaction_list_file)
+         stop 
        endif   
     end if
 
@@ -933,6 +930,9 @@ contains
        write(*,*) "aerosol_species data can not be read."
        stop
     else
+       ! update aerosol_species_list_file with chemID
+       if (chemID .ne. "-") aerosol_species_list_file = trim(adjustl(aerosol_species_list_file))//"/"//trim(chemID2)//".aer.vec"
+       
        if (ssh_standalone) write(*,*) 'particle species file :', trim(aerosol_species_list_file)
        if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
        if (aerosol_structure_file.ne."---") then
@@ -1510,10 +1510,38 @@ contains
           if (ssh_standalone) write(*,*) 'results are saved in text files.'
           if (ssh_logger) write(logfile,*) 'results are saved in text files.'
        end if
+
+       output_directory = trim(adjustl(output_directory))
        if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
        if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
+
+       output_conc_file = trim(output_directory)//"/concs.txt"
+       
+       ! update output_conc_file and particles_composition_file with initID,chemID,resID
+       ! get suffix
+       if(trim(chemID).ne."-") then ! add chemID & resultID
+           tmp0 = "/"//trim(chemID)//"/"//trim(initID)//"."//trim(resID)
+           tmp1 = "/"//trim(initID)//"."//trim(resID)//".concs" ! for pre/ref files
+       else
+           tmp0 = "-"
+       endif
+       if (trim(tmp0).ne."-") then
+           particles_composition_file = trim(output_directory)//trim(tmp_string)//'.fac'
+           output_conc_file = trim(output_directory)//trim(tmp_string)//'.concs'
+           if (ref_soa_conc_file.ne."---") then
+             ref_soa_conc_file = trim(adjustl(ref_soa_conc_file))//trim(tmp1)
+           endif
+           if (pre_soa_conc_file.ne."---") then
+               pre_soa_conc_file = trim(adjustl(pre_soa_conc_file))//trim(tmp1)
+           endif
+       endif
+
        if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
        if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
+
+       if (ssh_standalone) write(*,*)   'Concs file : ', trim(output_conc_file)
+       if (ssh_logger) write(logfile,*) 'Concs file : ', trim(output_conc_file)
+       
     end if
 
     !!!!! genoa
@@ -1695,7 +1723,7 @@ contains
     ! currently only used for genoa
     logical :: file_exists
     character (len=40) :: ivoc0, ivoc1
-    character (len=800) :: tmp_string
+    character (len=200) :: tmp_string
     double precision :: tmp_conc
     integer, dimension(:), allocatable :: tmp_index ! (gas/aero, sps index, ref sps index)
     double precision, dimension(:), allocatable :: tmp_read, tmp_fgls
@@ -2331,17 +2359,7 @@ contains
     
    ! read photolysis files
    call ssh_read_photolysis_file()
-          
-    !!!! genoa initial condition
-    if (tag_init_set.gt.0) then
-        ! get tag in char
-        write(ivoc0,'(I0)') tag_init_set
-        ! update output
-        output_directory = trim(output_directory)//'.'//trim(ivoc0)
-        if (ssh_standalone) write(*,*) 'Change output_directory to: ', output_directory
-        if (ssh_logger) write(logfile,*) 'Change output_directory to: ', output_directory
-    endif
-    
+
     ! genoa assign output aero index
     do s = 1, nout_aero
         do js = 1, N_aerosol
@@ -2720,6 +2738,9 @@ contains
     endif
 
     ! genoa RO2 species list - build RO2pool
+    ! update species_list_file with chemID
+    if (RO2_list_file.ne."---".and.chemID.ne."-") RO2_list_file = trim(adjustl(RO2_list_file))//"/"//trim(chemID2)//".RO2"
+       
     if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then ! need to have the list
       if (RO2_list_file.ne."---") then
       
@@ -2839,15 +2860,10 @@ contains
     
     ! genoa read ref and pre concentrations
     if (ref_soa_conc_file.ne."---") then
-        if (tag_init_set.gt.0) then
-            ! Check if the file.[No.] exists
-            INQUIRE(FILE=trim(ref_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
-            if (file_exists) then
-                ref_soa_conc_file = trim(ref_soa_conc_file)//'.'//trim(ivoc0)
-                if (ssh_standalone) write(*,*) 'Update ref file: ',trim(ref_soa_conc_file)
-                if (ssh_logger) write(logfile,*) 'Update ref file: ',trim(ref_soa_conc_file)
-            endif
-        endif
+
+        if (ssh_standalone) write(*,*) 'Ref SOA file: ',trim(ref_soa_conc_file)
+        if (ssh_logger) write(logfile,*) 'Ref SOA file: ',trim(ref_soa_conc_file)
+
         open(unit = 35, file = ref_soa_conc_file, status = "old")
         
         ! check number of values in the list
@@ -2886,15 +2902,8 @@ contains
            
     if (pre_soa_conc_file.ne."---") then
 
-        if (tag_init_set.gt.0) then
-            ! Check if the file.[No.] exists
-            INQUIRE(FILE=trim(pre_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
-            if (file_exists) then
-                pre_soa_conc_file = trim(pre_soa_conc_file)//'.'//trim(ivoc0)
-                if (ssh_standalone) write(*,*) 'Update pre file: ',trim(pre_soa_conc_file)
-                if (ssh_logger) write(logfile,*) 'Update pre file: ',trim(pre_soa_conc_file)
-            endif
-        endif
+        if (ssh_standalone) write(*,*) 'Pre SOA file: ',trim(pre_soa_conc_file)
+        if (ssh_logger) write(logfile,*) 'Pre SOA file: ',trim(pre_soa_conc_file)
 
         open(unit = 35, file = pre_soa_conc_file, status = "old")
         
@@ -2961,7 +2970,7 @@ contains
   integer :: start, finish, tag
   double precision :: ratio
   
-  character (len=800) :: line, subline
+  character (len=400) :: line, subline
   character (len=80) :: tmp_line
   character (len=80) :: sname
   
@@ -3464,7 +3473,7 @@ contains
     integer :: i,j,k,s,n,ierr, isize
     integer :: npho_r,npho_t, npho_tot
     integer :: tag, ind
-    character (len=800) :: line
+    character (len=200) :: line
     character (len=40) :: ic_name, sname, tmp_name
     double precision :: a_tmp(nsza), tmp, tmp_inter(4,nsza-1)
     
@@ -3887,7 +3896,7 @@ subroutine get_token(input_string, token, delimiter)
     character(*), intent(inout) :: input_string
     character(*), intent(out) :: token
     character(len=*), intent(in) :: delimiter
-    character(100) :: temp_string
+    character(len=200) :: temp_string
     integer :: comma_pos, space_pos, i
 
     comma_pos = index(input_string, trim(delimiter))

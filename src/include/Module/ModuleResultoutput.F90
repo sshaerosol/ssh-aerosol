@@ -955,7 +955,7 @@ contains
       call system(cmd)
     
       ! error computation - at least save total soa concs
-      output_filename = trim(output_directory) // "/concs" // trim(out_type(output_type))
+      output_filename = trim(output_conc_file)
       ! Remove if output files exist
       inquire (file = output_filename, exist = file_exists)
       if (file_exists) then
