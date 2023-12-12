@@ -1335,8 +1335,9 @@ contains
     nesp_org_h2so4_nucl = 0
     name_org_h2so4_nucl_species(1) = 'none'
     name_org_h2so4_nucl_species(2) = 'none'
-    nucl_model_hetero = 0
+    nucl_model_org = 0
     scal_org = 0.1            
+    nexp_org = 0.1            
     nesp_org_nucl = 0
     !name_org_nucl_species(1) = 'none'
     !name_org_nucl_species(2) = 'none'
@@ -1509,8 +1510,8 @@ contains
     
     ! read a list of output gas-phase species - only used with tag_genoa = 1
     if (output_gas_list .ne. "---") then
-        if (ssh_standalone) write(*,*) 'Read output gas speices: ',trim(output_gas_list)
-        if (ssh_logger) write(logfile,*) 'Read output gas speices: ',trim(output_gas_list)
+        if (ssh_standalone) write(*,*) 'Read output gas species: ',trim(output_gas_list)
+        if (ssh_logger) write(logfile,*) 'Read output gas species: ',trim(output_gas_list)
         
         ! Remove trailing comma if present
         if (output_gas_list /= "") then
@@ -1608,6 +1609,7 @@ contains
         close(nml_out)
     endif !genoa
 
+    write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
 
