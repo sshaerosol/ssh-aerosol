@@ -745,11 +745,11 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
                   qnew(1,jesp) = qnew(1,jesp) + qesp(js2,jesp)
                   Qtotal = Qtotal + qnew(NS,jesp)
                END DO
+               if (with_fixed_density .eq. 0) then
+                  CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,1,rho(1))
+               endif
+               if(Qtotal.GT.TINYM) Nnew(1) =  Qtotal/CST/rho(1)/fixed_diameter(NS)**3
             endif
-           if (with_fixed_density .eq. 0) then
-              CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,1,rho(1))
-           endif
-           Nnew(1) =  Qtotal/CST/rho(1)/fixed_diameter(NS)**3
         ELSEIF (j1hi.GE.NS) THEN ! use Euler-Mass for the last section
            Qtotal = 0.D0
            DO jesp = 1,naer-1
