@@ -5,9 +5,9 @@ include		${SSH_dir}/Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
-LDFLAGS =       -L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I $(NETCDFINC)
+LDFLAGS =       -L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I$(NETCDFINC)
 
-OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o ModuleAdaptstep.o ModuleEmissions.o ModulePhotolysis.o compute_general.o ModuleMeteo.o
+OBJS =		init.o ModuleThermodynamics.o repartition.o balance.o redis.o condens.o coagu.o m_soap.o bulk.o congret.o result.o discret.o adapt.o ModuleEmissions.o ModulePhotolysis.o compute_general.o ModuleMeteo.o
 
 all:		libssh-modules.a
 
@@ -31,7 +31,10 @@ condens.o:      ModuleCondensation.F90
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
 
 coagu.o:        ModuleCoagulation.F90 
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ $(LDFLAGS) -c $<
+
+adapt.o:        ModuleAdaptstep.F90 
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ $(LDFLAGS) -c $<
 
 m_soap.o:       ModuleSOAP.F90 
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
@@ -40,13 +43,13 @@ bulk.o:         ModuleBulkequibrium.F90
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
 
 congret.o:      ModuleCongregation.F90 
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ $(LDFLAGS) -c $<
 
 result.o:       ModuleResultoutput.F90  
 		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
 
 discret.o:      ModuleDiscretization.F90   
-		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ -c $<
+		$(MPIFC) -I.. -I. -o $@ $(FFLAGS) -I../INC/ $(LDFLAGS) -c $<
 
 %.o:		%.f
 		$(FC) -o $@ $(F77FLAGS) -c $<
