@@ -322,7 +322,7 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		{
 
 		  config.iiter=0;
-		  cout << "inorg tot " << index_iter << " " << error1/factor_old << " " << error2/factor_old << " " << error3/factor_old  << " " << error4/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << AQ << " " << surrogate[config.iH2O].Ap << " " << surrogate[config.iH2O].Aaq << " " << factor_max << " " << factor << endl;
+		  //cout << "inorg tot " << index_iter << " " << error1/factor_old << " " << error2/factor_old << " " << error3/factor_old  << " " << error4/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << AQ << " " << surrogate[config.iH2O].Ap << " " << surrogate[config.iH2O].Aaq << " " << factor_max << " " << factor << endl;
 		  //throw string("Stop.");
 		}
               else
@@ -590,11 +590,11 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		    }
 		
 
-		  if (index_iter==config.max_iter)
-		    {
-		      cout << "coupled tot2 " << config.max_iter << " " << error1/factor_old << " " << error2/factor_old << " " << abs(error4)/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << AQ << " " << surrogate[config.iH2O].Ap << " " << surrogate[config.iH2O].Aaq << endl;
-		      //throw string("Stop.");
-		    }
+		  // if (index_iter==config.max_iter)
+		  //   {
+		  //     cout << "coupled tot2 " << config.max_iter << " " << error1/factor_old << " " << error2/factor_old << " " << abs(error4)/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << AQ << " " << surrogate[config.iH2O].Ap << " " << surrogate[config.iH2O].Aaq << endl;
+		  //     //throw string("Stop.");
+		  //   }
 		}
 	    }                         
 
@@ -861,11 +861,11 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		}
 		
 
-	      if (index_iter==config.max_iter)
-		{
-		  cout << "org " << config.max_iter << " " << error/factor_old << " " << abs(error4)/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << surrogate[config.iH2O].Ap << endl;
-		  //throw string("Stop.");
-		}
+	      // if (index_iter==config.max_iter)
+	      // 	{
+	      // 	  cout << "org " << config.max_iter << " " << error/factor_old << " " << abs(error4)/factor_old << " " << factor_old << " " << RH << " " << Temperature << " " << MO << " " << surrogate[config.iH2O].Ap << endl;
+	      // 	  //throw string("Stop.");
+	      // 	}
 	    }
 		  
 	  double error2=1000.0;
@@ -1322,15 +1322,15 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 		    }	      
 		}   
 
-	      if (index_iter==config.max_iter)
-		{
-		  cout << "aq " << index_iter << " " << error2 << " " << derivative << " " << RH << " " << Temperature << " " << AQ << " " ;
-		  for (i=0;i<n;i++)
-		    if (surrogate[i].hydrophilic)
-		      cout << surrogate[i].name << " " << surrogate[i].Aaq << " " << surrogate[i].Atot << " ";
-		  cout << config.precision << " " << endl; 
-		}
-	      //cout << index_iter << endl;
+	      // if (index_iter==config.max_iter)
+	      // 	{
+	      // 	  cout << "aq " << index_iter << " " << error2 << " " << derivative << " " << RH << " " << Temperature << " " << AQ << " " ;
+	      // 	  for (i=0;i<n;i++)
+	      // 	    if (surrogate[i].hydrophilic)
+	      // 	      cout << surrogate[i].name << " " << surrogate[i].Aaq << " " << surrogate[i].Atot << " ";
+	      // 	  cout << config.precision << " " << endl; 
+	      // 	}
+	      // //cout << index_iter << endl;
 	    }
 	}
       else
@@ -1359,14 +1359,14 @@ void solve_equilibrium_ssh(model_config &config, vector<species>& surrogate,
 
 	      ++index_iter;
 	    }
-	  if (index_iter==config.max_iter)
-	    {
-	      cout << "tot " << index_iter << " " << RH << " " << Temperature << " " << MO << " " ;
-	      for (i=0;i<n;i++)
-		if (surrogate[i].is_organic)
-		  cout << surrogate[i].name << " " << surrogate[i].Atot << " " ;
-	      cout << endl;
-	    }
+	  // if (index_iter==config.max_iter)
+	  //   {
+	  //     cout << "tot " << index_iter << " " << RH << " " << Temperature << " " << MO << " " ;
+	  //     for (i=0;i<n;i++)
+	  // 	if (surrogate[i].is_organic)
+	  // 	  cout << surrogate[i].name << " " << surrogate[i].Atot << " " ;
+	  //     cout << endl;
+	  //   }
           
 	  for (i=0;i<n;++i)
 	    if (surrogate[i].is_organic)
