@@ -107,9 +107,9 @@ module aInitialization
   ! tag for genoa, tag to use keep_gp in twostep
   integer, save :: tag_genoa = 0, keep_gp
   ! tag for error computation; tag to round output values
-  logical, save :: ierr_ref, ierr_pre, iout_round = .false.
+  logical, save :: iout_round = .false.
   ! tag for RO2 treatment
-  integer, save :: tag_RO2 ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
+  integer, save :: tag_RO2, nref_file ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   
   ! numbers that needs in the error computation
   integer, save :: nout_err ! individual species w err compute
@@ -131,16 +131,17 @@ module aInitialization
   integer, dimension(:,:), allocatable, save :: output_err_index ! (gas/aero, index)
 
   ! concentrations array
-  double precision, dimension(:,:), allocatable, save :: cst_gas  ! constant concs.
-  double precision, dimension(:,:), allocatable, save :: pre_soa, ref_soa, total_soa ! err compute
+  double precision, dimension(:,:), allocatable, save :: cst_gas, total_soa  ! constant concs.
+  double precision, dimension(:,:,:), allocatable, save :: ref_soa  ! err compute
   double precision, dimension(:,:,:), allocatable, save :: cst_aero ! constant concs.
 
   ! file names
-  character (len=200), save :: ref_soa_conc_file, pre_soa_conc_file! reference/previous cases
+  character (len=800), save :: ref_conc_files_in ! reference cases
   character (len=200), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
   character (len=200), save :: cst_gas_file ! File for species that need to be keep as constants.
   character (len=200), save :: cst_aero_file ! File for constant aerosol species.
   character (len=200), save :: init_species_file ! File for initial sets of SOA precursors
+  character (len=200), dimension(:), allocatable, save :: ref_conc_files
   
   ! list of species name
   character (len=40), dimension(:), allocatable, save :: output_err_sps
@@ -465,7 +466,7 @@ contains
     character (len=200) :: namelist_out
 
     ! genoa read input lists
-    character (len=20)  :: tmp0, tmp1
+    character (len=20)  :: tmpID0, tmpID1
     character (len=200) :: tmp_string
     character (len=400) :: output_aero_list, output_gas_list
     character (len=400) :: err_species_list 
@@ -524,7 +525,7 @@ contains
     namelist /output/ output_directory, output_type, particles_composition_file, &
                       output_aero_list, output_gas_list, & ! genoa inputs
                       err_species_list, & ! genoa inputs
-                      ref_soa_conc_file, pre_soa_conc_file !genoa inputs
+                      ref_conc_files_in !genoa inputs
 
 
     ! update genoa tag from compile option
@@ -1478,13 +1479,10 @@ contains
     endif
     
     ! genoa ! default values
-    ref_soa_conc_file = "---"
-    pre_soa_conc_file = "---"
+    ref_conc_files_in = "---"
     output_aero_list  = "---"
     output_gas_list   = "---"
     err_species_list  = "---"
-    ierr_ref = .false.
-    ierr_pre = .false.
     
     ! output
     read(10, nml = output, iostat = ierr)
@@ -1520,20 +1518,19 @@ contains
        ! update output_conc_file and particles_composition_file with initID,chemID,resID
        ! get suffix
        if(trim(chemID).ne."-") then ! add chemID & resultID
-           tmp0 = "/"//trim(chemID)//"/"//trim(initID)//"."//trim(resID)
-           tmp1 = "/"//trim(initID)//"."//trim(resID)//".concs" ! for pre/ref files
+           tmpID0 = "/"//trim(chemID)//"/"//trim(initID)//"."//trim(resID)
+           tmpID1 = "/"//trim(initID)//"."//trim(resID)//".concs" ! for pre/ref files
+       else if (trim(initID).ne."-") then ! incase only put initID
+           tmpID0 = "/"//trim(initID) 
+           tmpID1 = "/"//trim(initID)//".concs"
        else
-           tmp0 = "-"
+           tmpID0 = "-"
        endif
-       if (trim(tmp0).ne."-") then
-           particles_composition_file = trim(output_directory)//trim(tmp_string)//'.fac'
-           output_conc_file = trim(output_directory)//trim(tmp_string)//'.concs'
-           if (ref_soa_conc_file.ne."---") then
-             ref_soa_conc_file = trim(adjustl(ref_soa_conc_file))//trim(tmp1)
-           endif
-           if (pre_soa_conc_file.ne."---") then
-               pre_soa_conc_file = trim(adjustl(pre_soa_conc_file))//trim(tmp1)
-           endif
+       if (trim(tmpID0).ne."-") then
+           ! detail output by IDs in tmpID0
+           output_directory = trim(output_directory)//trim(tmpID0)
+           particles_composition_file = trim(output_directory)//'.fac'
+           output_conc_file = trim(output_directory)//'.concs'
        endif
 
        if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
@@ -1550,20 +1547,9 @@ contains
     if (output_aero_list .ne. "---") then
         if (ssh_standalone) write(*,*) 'Read output aerosol speices: ',trim(output_aero_list)
         if (ssh_logger) write(logfile,*) 'Read output aerosol speices: ',trim(output_aero_list)
-        
-        ! Remove trailing comma if present
-        if (output_aero_list /= "") then
-            if (output_aero_list(len_trim(output_aero_list):) == ",") then
-                output_aero_list = adjustl(output_aero_list(1:len_trim(output_aero_list)-1))
-            end if
-        end if
+
         ! Count the number of substrings
-        nout_aero = 1
-        do i = 1, len(output_aero_list)
-            if (output_aero_list(i:i) == ",") then
-                nout_aero = nout_aero + 1
-            end if
-        end do
+        call count_delimiter(output_aero_list, ",", nout_aero)
         !print*,"Find number: ", nout_aero
         
         ! Allocate memory
@@ -1588,20 +1574,8 @@ contains
         if (ssh_standalone) write(*,*) 'Read output gas speices: ',trim(output_gas_list)
         if (ssh_logger) write(logfile,*) 'Read output gas speices: ',trim(output_gas_list)
         
-        ! Remove trailing comma if present
-        if (output_gas_list /= "") then
-            if (output_gas_list(len_trim(output_gas_list):) == ",") then
-                output_gas_list = adjustl(output_gas_list(1:len_trim(output_gas_list)-1))
-            end if
-        end if
-        
         ! Count the number of substrings
-        nout_gas = 1
-        do i = 1, len(output_gas_list)
-            if (output_gas_list(i:i) == ",") then
-                nout_gas = nout_gas + 1
-            end if
-        end do
+        call count_delimiter(output_gas_list, ",", nout_gas)
         !print*,"Find number: ", nout_gas
         
         ! Allocate memory
@@ -1617,8 +1591,8 @@ contains
         end do
     else
         nout_gas = 0
-        allocate(output_gas_species(1))
         allocate(output_gas_index(1))
+        allocate(output_gas_species(1))
     end if
     
     ! read the list of species to compute reduction errors
@@ -1634,12 +1608,7 @@ contains
         end if
         
         ! Count the number of substrings
-        nout_err = 1
-        do i = 1, len(err_species_list)
-            if (err_species_list(i:i) == ",") then
-                nout_err = nout_err + 1
-            end if
-        end do
+        call count_delimiter(err_species_list, ",", nout_err)
         !print*,"Find number: ", nout_err
         
         ! Allocate memory
@@ -1658,9 +1627,42 @@ contains
         allocate(output_err_sps(1))
         allocate(output_err_index(1,1))
     end if
-    
+
     ! total number of output - 1 for total SOAs
     nout_total = 1 + nout_err + nout_soa
+
+    ! Update ref soa conc file lists
+    if (ref_conc_files_in .ne. "---") then
+    
+        ! Count number of ref files
+        call count_delimiter(ref_conc_files_in, ",", nref_file)
+        allocate(ref_conc_files(nref_file))
+    
+        count = 0 ! find output file    
+        ! Separate and remove spaces from the input string
+        do i = 1, nref_file
+            call get_token(ref_conc_files_in, tmp_string, ",")
+            
+            ! detail paths to references by IDs in tmpID1
+            if (trim(tmpID0).ne."-") then
+              ref_conc_files(i) = trim(adjustl(tmp_string))//trim(tmpID1)
+            else
+              ref_conc_files(i) = trim(tmp_string)
+            endif
+            !print*,i," now: ",ref_conc_files_in," species taken: ",ref_conc_files(i)
+
+            ! check if repeat file to output
+            if (trim(output_conc_file).eq.trim(ref_conc_files(i))) then
+                ref_conc_files(i) = "---" ! reset name
+                count = count + 1
+            endif
+            nref_file = nref_file - count ! update
+        end do
+        
+    else
+        nref_file = 0
+        allocate(ref_conc_files(1))
+    end if
     
     close(10)
 
@@ -2444,30 +2446,31 @@ contains
     ! genoa read initial profiles
     if (init_species_file.ne."---".and.tag_init_set.gt.0) then ! ivoc is used here
 
-      if (ssh_standalone) write(*,*) 'Initial sets file : ', trim(init_species_file)
-      if (ssh_logger) write(logfile,*) 'Initial sets file : ', trim(init_species_file)
+      if (ssh_standalone) write(*,*) 'Reading initial sets file ', trim(init_species_file)
+      if (ssh_logger) write(logfile,*) 'Reading initial sets file ', trim(init_species_file)
 
       open(unit = 20, file = init_species_file, status = "old")
         ierr = 0 ! tag read line
         ind = 0  ! tag index - 0/1
         j = 0
+        write(ivoc0,'(I0)') tag_init_set   ! start sign
         write(ivoc1,'(I0)') tag_init_set+1 ! stop sign
-        
+
         allocate(tmp_index(2)) ! index of sps/ref sps
         tmp_index = 0
 
         do while(ierr .eq. 0)
             count = 0 ! default tag
             read(20, '(A)', iostat=ierr) tmp_string ! read line
-            
-            if (trim(tmp_string).eq.trim(ivoc1)) then
+            if (trim(tmp_string).eq.trim(ivoc1)) then ! find the stop sign, exit
                 exit
-            else if (trim(tmp_string).eq.trim(ivoc0)) then
+            else if (trim(tmp_string).eq.trim(ivoc0)) then ! find the start sign, reading next line
                 ind = 1
+                if (ssh_standalone) write(*,*) '  Find sign:', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Find sign:', trim(tmp_string)
             else if(ind.eq.1.and.ierr.eq.0) then ! read line
-            
-                if (ssh_standalone) write(*,*) 'Read: ', trim(tmp_string)
-                if (ssh_logger) write(logfile,*)'Read: ', trim(tmp_string)
+                if (ssh_standalone) write(*,*) '  Read: ', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Read: ', trim(tmp_string)
                 
                 read(tmp_string,*, iostat=j) ic_name, tmp_name, sname
                 if (j.eq.0) then
@@ -2481,7 +2484,7 @@ contains
                     !print*, "read 2:",j, trim(ic_name), tmp_conc
                 end if
                 if (j.ne.0) then
-                    print*, "Can not read line: ", trim(tmp_string)
+                    print*, "  Can not read line: ", trim(tmp_string)
                 endif
             end if
             
@@ -2490,22 +2493,22 @@ contains
                 do js = 1, N_gas
                     if (ic_name.eq.species_name(js)) then
                         tmp_index(1) = js
-                        if (ssh_standalone) write(*,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
-                        if (ssh_logger) write(logfile,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
+                        if (ssh_standalone) write(*,*) '  Find gas (initial concs may change): ', trim(ic_name), ind, js
+                        if (ssh_logger) write(logfile,*) '  Find gas (initial concs may change): ', trim(ic_name), ind, js
                     endif
                     if (count.eq.3.and.sname.eq.species_name(js)) then
                         tmp_index(2) = js
-                        if (ssh_standalone) write(*,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
-                        if (ssh_logger) write(logfile,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
+                        if (ssh_standalone) write(*,*) '  Find gas (used to compute initial concs): ', trim(sname), ind, js
+                        if (ssh_logger) write(logfile,*) '  Find gas (used to compute initial concs): ', trim(sname), ind, js
                     endif
                 enddo
 
                 ! check
                 if (tmp_index(1).eq.0) then
-                    print*, "index of input species is not found", trim(ic_name)
+                    print*, "  index of input species is not found", trim(ic_name)
                     stop
                 else if (count.eq.3.and.tmp_index(2).eq.0) then
-                    print*, "index of reference species is not found", trim(sname)
+                    print*, "  index of reference species is not found", trim(sname)
                     stop
                 endif
                 
@@ -2517,8 +2520,8 @@ contains
                 else if (count.eq.3) then
                     concentration_gas_all(js) = tmp_conc * concentration_gas_all(tmp_index(2))
                 endif
-                if (ssh_standalone) write(*,*) "Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
-                if (ssh_logger) write(logfile,*)"Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                if (ssh_standalone) write(*,*) "  Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                if (ssh_logger) write(logfile,*)"  Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
                 
             endif
         end do
@@ -2859,85 +2862,49 @@ contains
     if ( .not. allocated(RO2out_index)) allocate(RO2out_index(nRO2_group))
     
     ! genoa read ref and pre concentrations
-    if (ref_soa_conc_file.ne."---") then
+    if (nref_file.gt.0) then
 
-        if (ssh_standalone) write(*,*) 'Ref SOA file: ',trim(ref_soa_conc_file)
-        if (ssh_logger) write(logfile,*) 'Ref SOA file: ',trim(ref_soa_conc_file)
+      allocate(ref_soa(nref_file,nout_total,nt)) ! save ref soa conc
+      ref_soa = 0.d0
+        
+      do ind = 1, nref_file
+        if (trim(ref_conc_files(ind)).ne."---") then
+            if (ssh_standalone) write(*,*) ind,'Read ref SOA file: ',trim(ref_conc_files(ind))
+            if (ssh_logger) write(logfile,*) ind,'Read ref SOA file: ',trim(ref_conc_files(ind))
+            
+            open(unit = 35, file = trim(ref_conc_files(ind)), status = "old")
 
-        open(unit = 35, file = ref_soa_conc_file, status = "old")
-        
-        ! check number of values in the list
-        count = 1 
-        ierr = 0
-        ! read ref conc
-        allocate(ref_soa(nout_total,nt)) ! save ref soa conc
+            ! check number of values in the list
+            count = 1 
+            ierr = 0
+            
+            read(35,*, iostat=ierr) ! read the init conc
+            do while(ierr.eq.0.and.count.le.nt) 
+               read(35,*, iostat=ierr) (ref_soa(ind,k,count), k=1, nout_total)
+               if (ierr == 0) count = count + 1
+            enddo
+            
+            if (ierr.ne.0) then
+                write(*,*) "Error: can not read the ref conc. ", count," ",trim(ref_conc_files(ind))
+                stop
+            endif
 
-        read(35,*, iostat=ierr) ! read the init conc
-        do while(ierr.eq.0.and.count.le.nt) 
-           read(35,*, iostat=ierr) (ref_soa(k,count), k=1, nout_total)
-           if (ierr == 0) count = count + 1
-        enddo
-        
-        if (ierr.ne.0) then
-            write(*,*) "Error: can not read the ref conc. ", count," ",trim(ref_soa_conc_file)
-            stop
-        endif
-        ! check if count number == nt
-        if (nt.ne.count-1) then
-            write(*,*) "Error: not the same number in ref conc. ", nt, count, " ",trim(ref_soa_conc_file)
-            stop
-        endif
-
-        ierr_ref = .true.
-        
-        ! print info
-        if (ssh_standalone) write(*,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
-        if (ssh_logger) write(logfile,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
-        
-        close(35)
+            ! check if count number == nt
+            if (nt.ne.count-1) then
+                write(*,*) "Error: not the same number in ref conc. ", nt, count, " ",trim(ref_conc_files(ind))
+                stop
+            endif
+            
+            ! print info
+            if (ssh_standalone) write(*,*) "Read ref soa concentration.", nt, count," ",trim(ref_conc_files(ind))
+            if (ssh_logger) write(logfile,*) "Read ref soa concentration.", nt, count," ",trim(ref_conc_files(ind))
+            
+            close(35)
+        end if
+      end do
     else
-        if (ssh_standalone) write(*,*) "ierr_ref = 0. Not read ref soa concentration."
-        if (ssh_logger) write(logfile,*) "ierr_ref = 0. Not read ref soa concentration."
-    endif
-           
-    if (pre_soa_conc_file.ne."---") then
-
-        if (ssh_standalone) write(*,*) 'Pre SOA file: ',trim(pre_soa_conc_file)
-        if (ssh_logger) write(logfile,*) 'Pre SOA file: ',trim(pre_soa_conc_file)
-
-        open(unit = 35, file = pre_soa_conc_file, status = "old")
-        
-        ! check number of values in the list
-        count = 1 
-        ierr = 0
-        ! read ref conc
-        allocate(pre_soa(nout_total,nt)) ! save ref soa conc
-        read(35,*, iostat=ierr) ! read the init conc
-        do while(ierr.eq.0.and.count.le.nt) 
-           read(35,*, iostat=ierr) (pre_soa(k,count), k=1, nout_total)
-           if (ierr == 0) count = count + 1
-        enddo
-
-        if (ierr.ne.0) then
-            write(*,*) "Error: can not read the pre conc. ", count," ",trim(pre_soa_conc_file)
-            stop
-        endif
-        ! check if count number == nt
-        if (nt.ne.count-1) then
-            write(*,*) "Error: not the same number in pre conc. ", nt, count," ",trim(pre_soa_conc_file)
-            stop
-        endif
-
-        ierr_pre = .true.
-        
-        ! print info
-        if (ssh_standalone) write(*,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
-        if (ssh_logger) write(logfile,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
-        
-        close(35)
-    else
-        if (ssh_standalone) write(*,*) "ierr_pre = 0. Not read pre soa concentration."
-        if (ssh_logger) write(logfile,*) "ierr_pre = 0. Not read pre soa concentration."
+        if (ssh_standalone) write(*,*) "Not read ref soa concentration."
+        if (ssh_logger) write(logfile,*) "Not read ref soa concentration."
     endif
     
     ! save for error computation
@@ -3007,8 +2974,10 @@ contains
             
             if(iarrow > 0) then ! find reaction
                 ircn = ircn + 1 ! reaction
-                irct = count_plus(line(1:iarrow - 1)) + 1 + irct ! no.reactant
-                ipdt = count_plus(line(iarrow + 2:)) + 1 + ipdt ! no.product
+                call count_delimiter(line(1:iarrow - 1), ' + ',i)
+                irct = i + irct ! no.reactant
+                call count_delimiter(line(iarrow + 2:), ' + ',i)
+                ipdt = i + ipdt ! no.product
                 
             ! find kinetics
             elseif (line(1:7) == "KINETIC") then ! read kinetics  
@@ -3202,7 +3171,7 @@ contains
                 TB_rcn(itb,1) = ircn
                 
                 ! read second input: for TB is a string, for RO2 is a number
-                subline = subline(js:)
+                subline = trim(adjustl(subline(js:)))
                 do js=1, len(subline)
                     if (subline(js:js) .eq. " ") exit ! found " " loc
                 enddo
@@ -3210,8 +3179,7 @@ contains
                 if (trim(sname) == "TB") then ! read TB
                     read(subline(1:js), '(A20)', iostat=ierr) sname
                     if (ierr /= 0) then
-                        print*, "Can not read TB name from line", trim(subline), &
-                                ircn
+                        print*, "Can not read TB name from line", trim(subline), ircn
                         stop
                     endif
                     ! get index in TBs
@@ -3233,8 +3201,8 @@ contains
                     iro2 = iro2 + 1
                     read(subline(1:js), *, iostat=ierr) j
                     if (ierr /= 0) then
-                        print*, "Can not read RO2 integer index from line", trim(subline), &
-                                ircn
+                        print*, "Can not read RO2 integer index from line", trim(subline(1:js)), &
+                              js
                         stop
                     endif
                     TB_rcn(itb, 2) = -j ! index of RO2 - negative!
@@ -3242,8 +3210,7 @@ contains
                 
                 ! read 2nd keyword
                 js = js + 1
-                subline = subline(js:)
-                
+                subline = trim(adjustl(subline(js:)))
                 do js=1, len(subline)
                     if (subline(js:js) .eq. " ") exit ! found " "
                 enddo
@@ -3644,13 +3611,13 @@ contains
     if (allocated(cst_gas)) deallocate(cst_gas)
     if (allocated(cst_aero)) deallocate(cst_aero)
     if (allocated(ref_soa)) deallocate(ref_soa)
-    if (allocated(pre_soa)) deallocate(pre_soa)
     if (allocated(total_soa)) deallocate(total_soa)
     
     if (allocated(output_aero_species)) deallocate(output_aero_species)
     if (allocated(output_gas_species)) deallocate(output_gas_species)
     if (allocated(output_err_sps)) deallocate(output_err_sps)
-
+    if (allocated(ref_conc_files)) deallocate(ref_conc_files)
+    
     ! genoa - kinetic
     if (allocated(photo_rcn)) deallocate(photo_rcn)
     if (allocated(TB_rcn)) deallocate(TB_rcn)
@@ -3952,17 +3919,25 @@ subroutine get_number_and_string(s, num_val, str_val)
     
 end subroutine get_number_and_string
 
-integer function count_plus(str) result(res)
+subroutine count_delimiter(str, delimiter, res)
     character(*), intent(in) :: str
-    integer :: i, n
-    res = 0
+    character(len=*), intent(in) :: delimiter
+    integer, intent(out) :: res
+    integer :: i, n, m
+
+    res = 1
     n = len_trim(str)
-    do i = 1, n - 2 ! Adjusted loop boundary
-        if (str(i:i+2) == ' + ') then ! Check 3 characters at once
-            res = res + 1
-        end if
-    end do
-end function count_plus
+    m = len_trim(delimiter)
+
+    if (n >= m .and. m > 0) then
+        do i = 1, n - m + 1
+            if (str(i:i+m-1) == delimiter) then
+                res = res + 1
+            end if
+        end do
+    end if
+
+end subroutine count_delimiter
 
 ! ===========================================
 end module aInitialization

@@ -43,6 +43,7 @@ PROGRAM SSHaerosol
      call getarg(1, namelist_ssh)
      initID = "-" ! init
      chemID = "-" ! init
+     chemID2= "-" ! init chemID2 = chemID/chemID
      resID  = "-" ! init
      ! genoa read initial sets
      if (iargc() .ge. 2) then ! init id
@@ -54,6 +55,7 @@ PROGRAM SSHaerosol
          if (iargc().eq.4) then ! chem id & res id
              call getarg(3,ivoc0)
              chemID = trim(adjustl(ivoc0))
+             chemID2 = trim(chemID)//"/"//trim(chemID)
              call getarg(4,ivoc0)
              resID = trim(adjustl(ivoc0))
              print*, 'Read chem & result IDs:',trim(chemID)," ",trim(resID) 
@@ -267,7 +269,7 @@ PROGRAM SSHaerosol
   end do			! finsh simulation
 
   ! Compute errors - genoa
-  if (ierr_ref.or.ierr_pre) call ssh_compute_error_genoa()
+  if (nref_file.gt.0) call ssh_compute_error_genoa()
 
   ! Write outputs
   if (tag_genoa.ne.1) call ssh_write_output()  !Creation of .txt .bin or .nc output files
