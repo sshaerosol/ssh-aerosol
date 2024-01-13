@@ -93,7 +93,7 @@ subroutine ssh_dratedc()
 
   integer i,j,k,s,js,ntot
   
-  drv_knt_rate=0.d0
+  drv_knt_rate = 0.d0
   ntot = size(drv_knt_rate)
   
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k,s,js)
@@ -144,7 +144,7 @@ subroutine ssh_fexloss()
   integer i,k,ntot !j
 
 ! Chemical loss terms.
-  chem_loss=0.d0
+  chem_loss = 0.d0
   ntot = size(index_RCT,1)
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,k)
@@ -184,7 +184,7 @@ subroutine ssh_fexprod()
   integer i,j,k,ntot
 
 ! Chemical production terms.
-  chem_prod=0.d0
+  chem_prod = 0.d0
   ntot = size(index_PDT,1)
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i,j,k)
@@ -290,7 +290,7 @@ subroutine ssh_kinetic(azi,RO2s)
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
   do i=1, n_reaction ! reactions
-    kinetic_rate(i) = Arrhenius(i,1)*(temperature**Arrhenius(i,2)) &
+    kinetic_rate(i) = Arrhenius(i,1) * (temperature**Arrhenius(i,2)) &
                       * dEXP(-Arrhenius(i,3)/temperature)
   enddo
 !$OMP END PARALLEL DO
@@ -298,13 +298,13 @@ subroutine ssh_kinetic(azi,RO2s)
   ! Photolysis
   if (azi .lt. 9d1) then ! with photolysis
 
-    do i=1,size(photo_rcn,1)
+    do i=1, size(photo_rcn,1)
         j = photo_rcn(i,1) ! reaction index
         k = photo_rcn(i,2) ! pholysis index
         
         tag = 0 ! tag for computing photolysis rate
 
-        do s=1,nsza-1 ! get photolysis rate
+        do s=1, nsza-1 ! get photolysis rate
             if (azi.ge.szas(s) .and. azi.lt.szas(s+1)) then ! find zone
                 if (k.lt.0) then ! spack
                     ik = -k
@@ -329,12 +329,12 @@ subroutine ssh_kinetic(azi,RO2s)
         endif
 
        ! Cloud attenuation.
-       kinetic_rate(j) = kinetic_rate(j)*max(photo*attenuation, 0.d0) ! add a ratio
+       kinetic_rate(j) = kinetic_rate(j) * max(photo*attenuation, 0.d0) ! add a ratio
     enddo
 
   else ! no photolysis
 
-    do i=1,size(photo_rcn,1) ! no.TB reactions
+    do i=1, size(photo_rcn,1) ! no.TB reactions
         j = photo_rcn(i,1) ! reaction index
         kinetic_rate(j) = 0.d0 ! set to zero
     enddo
@@ -342,14 +342,14 @@ subroutine ssh_kinetic(azi,RO2s)
   endif
 
   ! falloff reactions
-  do i=1,size(fall_rcn)
+  do i=1, size(fall_rcn)
   
     j = fall_rcn(i) ! reaction index
     call ssh_gck_forate(j,i)
   enddo
   
   ! extra reactions
-  do i=1,size(extra_rcn)
+  do i=1, size(extra_rcn)
   
     j = extra_rcn(i) ! reaction index
     k = NINT(extra_coeff(i,1)) ! get kineitc label
@@ -599,9 +599,9 @@ subroutine ssh_gck_extrarate(ire, iex, label)
 ! label 550: OH+HNO3 reaction: k=k0 + k3*M/(1+K3*M/K2)
     CASE (550)
 
-      xk2=extra_coeff(iex,2)*(temperature**extra_coeff(iex,3))* &
+      xk2 = extra_coeff(iex,2)*(temperature**extra_coeff(iex,3))* &
  &       dEXP(-extra_coeff(iex,4)/temperature)
-      xk3=extra_coeff(iex,5)*(temperature**extra_coeff(iex,6))* &
+      xk3 = extra_coeff(iex,5)*(temperature**extra_coeff(iex,6))* &
  &       dEXP(-extra_coeff(iex,7)/temperature)
       qfor = qfor + xk3*SumMc / (1.+ ((xk3*SumMc)/xk2) )
 
@@ -658,11 +658,11 @@ subroutine ssh_mcm_rate(ire,iex,label,azi)
 !C  IN THE FORMAT J = l* cosX ** m *dEXP(-n*secX)
 !C
 !C------------------------------------------------------------------------
-        ka=0.d0 !init cosX
-        kb=0.d0 !init secsX
+        ka = 0.d0 !init cosX
+        kb = 0.d0 !init secsX
 
         if (azi .lt. 9d2) then ! with photolysis
-          ka=max(0d0,dcos(azi/1.8D2* 3.14159265358979323846D0)) ! cosX
+          ka = max(0d0,dcos(azi/1.8D2* 3.14159265358979323846D0)) ! cosX
           if (ka.gt.0d0) kb=1.0d+0/(ka+1.0D-30) !secX
         endif
       
@@ -893,7 +893,7 @@ subroutine ssh_genoa_spec(ire, iex)
     double precision :: ka, kb, qfor
 
   ! Get label from extra_coeff
-  label = nint(extra_coeff(iex,3)) ! 2nd level label
+  label = nint(extra_coeff(iex, 2)) ! 2nd level label
   SELECT CASE(label)
 
     CASE (1) ! 3.8D-13*dexp(780/TEMP)*(1-1/(1+498*dexp(-1160/TEMP))) - MCM
@@ -935,7 +935,7 @@ subroutine ssh_genoa_spec(ire, iex)
     END SELECT
 
   ! Add a ratio
-  kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
+  kinetic_rate(ire) = qfor *  Arrhenius(ire, 1)
 
 end subroutine ssh_genoa_spec
 
@@ -951,7 +951,7 @@ subroutine ssh_spack_spec(ire, iex, label)
 
     ! Label for different mechanisms
     ! 10: cb05, 11: racm2, ... 
-    ind = nint(extra_coeff(iex,3)) ! 2nd level label
+    ind = nint(extra_coeff(iex, 2)) ! 2nd level label
     
     if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
       SELECT CASE(ind)

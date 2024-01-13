@@ -3403,7 +3403,8 @@ contains
                         stop
                     endif
                     
-                CASE(99) ! Additional calculations that can be updated by the user. Please ensure the label has not been used before if adding new labels. 
+                CASE(99) ! 99 C1 C2 (optional) 
+                  ! Additional calculations that can be updated by the user. Please ensure the label has not been used before if adding new labels. 
                   if (finish.eq.2 .or. finish.eq.3) then
                     extra_coeff(iext,2) = a_tmp(2)
                     ! ratio
