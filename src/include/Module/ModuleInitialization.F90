@@ -3346,7 +3346,7 @@ contains
                     stop
                   endif
                   
-                CASE(92,93) !MCM: 92 C1 C2(optional)
+                CASE(92, 93) !MCM: 92 C1 C2(optional)
                   if (finish.eq.2 .or. finish.eq.3) then
                     extra_coeff(iext,2) = a_tmp(2)
                     ! ratio
@@ -3361,7 +3361,7 @@ contains
                     stop
                   endif
 
-                CASE(100,200,500,501,510,502,550) ! GECKO
+                CASE(100, 200, 500, 501, 510, 502, 550) ! GECKO
                     start = finish ! get length - no. coff remain unread
                     if (finish.ge.4) then
                         do i = 2, 4
@@ -3403,8 +3403,23 @@ contains
                         stop
                     endif
                     
+                CASE(99) ! Additional calculations that can be updated by the user. Please ensure the label has not been used before if adding new labels. 
+                  if (finish.eq.2 .or. finish.eq.3) then
+                    extra_coeff(iext,2) = a_tmp(2)
+                    ! ratio
+                    if (finish.eq.3) then
+                        Arrhenius(ircn,1) = a_tmp(3)
+                    else ! default
+                        Arrhenius(ircn,1) = 1d0
+                    endif
+                  else
+                    print*, "Error: EXTRA 99 read no. not 2/3", &
+                             ircn,finish,a_tmp(1:finish)
+                    stop
+                  endif
+
                 CASE DEFAULT
-                  print*,"EXTRA label unknow: ",js
+                  print*,"EXTRA label unknown: ",js
                   STOP
                 END SELECT
             else

@@ -284,6 +284,9 @@ subroutine ssh_kinetic(azi,RO2s)
   double precision :: photo, zp
 
   ! Arrhenius ! k = C1 * T**C2 * dEXP(-C3/T)
+  ! Define labels for extra reactions
+  integer, PARAMETER ::geckoLabel(6) = (/100, 200, 500, 501, 502, 550/)
+  integer, PARAMETER ::mcmLabel(4) = (/91, 92, 93, 94/)
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
   do i=1, n_reaction ! reactions
@@ -352,12 +355,12 @@ subroutine ssh_kinetic(azi,RO2s)
     k = NINT(extra_coeff(i,1)) ! get kineitc label
     
     ! GECKO
-    if (k .ge. 100) then ! 100,200,500,501,502,550
+    if (any(k == geckoLabel)) then ! 100,200,500,501,502,550
 
         call ssh_gck_extrarate(j,i,k) ! GECKO EXTRA reactions & ISOM
 
     ! MCM
-    else if (k .ge. 90) then
+    else if (any(k == mcmLabel)) then ! 91,92,93,94
 
       if (k.eq.94) then ! KRO2: qfor = 1.26D-12 * RO2
         ! in the format: KINETIC RO2 [n] EXTRA 94 1. 0. 0.
@@ -365,8 +368,12 @@ subroutine ssh_kinetic(azi,RO2s)
       else 
         call ssh_MCM_rate(j,i,k,azi)
       endif
-      
-    ! SPACK
+    
+    ! Additional kinetic
+    else if (k .eq. 99) then
+        call ssh_genoa_spec(j,i)
+
+    ! From SPACK - need to be completed !!!
     else if (k .eq. 10) then
     
         call ssh_spack_spec(j,i,k)
@@ -863,6 +870,75 @@ subroutine ssh_mcm_rate(ire,iex,label,azi)
   
 end subroutine ssh_mcm_rate
 
+
+subroutine ssh_genoa_spec(ire, iex)
+
+!C------------------------------------------------------------------------
+!C
+!C     -- DESCRIPTION: Additional kientic rate compuration used in GENOA
+!C     or GENOA related mechanism
+!C
+!C     with Arrihenis(ire,1) the ratio
+!C
+!C
+!C     WZZ 01/12/2024
+!C
+!C------------------------------------------------------------------------
+
+    IMPLICIT NONE 
+
+    ! INPUT                                                                 
+    INTEGER, INTENT(in) :: ire, iex
+    integer :: label
+    double precision :: ka, kb, qfor
+
+  ! Get label from extra_coeff
+  label = nint(extra_coeff(iex,3)) ! 2nd level label
+  SELECT CASE(label)
+
+    CASE (1) ! 3.8D-13*dexp(780/TEMP)*(1-1/(1+498*dexp(-1160/TEMP))) - MCM
+        qfor = 3.8D-13*dexp(78d1/temperature)*(1d0-1d0/(1d0+498d0* &
+              dexp(-116d1/temperature)))
+    CASE (2) ! 3.8D-13*dexp(780/TEMP)*(1/(1+498*dexp(-1160/TEMP)))
+        qfor = 3.8D-13*dexp(78d1/temperature)*(1d0/(1d0+498d0* &
+              dexp(-116d1/temperature)))
+    CASE (3) ! 1.03D-13*math.dexp(365/TEMP)*(1-7.18*dexp(-885/TEMP))
+        qfor = 1.03D-13*dexp(365d0/temperature)*(1d0-7.18d0* &
+              dexp(-885d0/temperature))
+    CASE (4) ! 8.8D-12*dexp(-1320/TEMP) + 1.7D-14*dexp(423/TEMP)
+        qfor = 8.8D-12*dexp(-132d1/temperature) + 1.7D-14*dexp(423d0/temperature)
+    CASE (5) ! 5.00E-12*O2*3.2*(1-dexp(-550/TEMP)) - need to go with TB O2
+        qfor = 5.00E-12*3.2d0*(1d0-dexp(-550d0/temperature))
+    CASE (6) ! 1.03D-13*0.5*math.dexp(365/TEMP)*(1-7.18*dexp(-885/TEMP))
+        qfor = 1.03D-13*0.5d0*dexp(365d0/temperature)*(1d0-7.18d0* &
+              dexp(-885d0/temperature))
+    CASE (7) ! 2.20E+10*EXP(-8174/TEMP)*EXP(1.00E+8/TEMP@3)
+        qfor = 2.20E+10*dexp(-8174d0/temperature)*dexp(1d0+8d0/ &
+              temperature**3)
+    CASE (8) ! 8.14E+9*EXP(-8591/TEMP)*EXP(1.00E+8/TEMP@3)
+        qfor = 8.14E+9*dexp(-8591d0/temperature)*dexp(1d0+8d0/ &
+              temperature**3)
+
+    CASE (9) ! rewrite from ssh_IRDICARB 
+!C     Write kinetic rate corresponding to irreversible pathway for MGLY condensation.
+!C     depending on RH     
+!C     See SI of Lannuque et al. (2023) for more informations
+!C     Author: VICTOR LANNUQUE, 2022.
+        ka = 6.112d2 * dexp(1.767d1 * (temperature - 273.15d0) &
+             /(temperature - 29.65d0))
+        kb = humidity * pressure / ((0.62197d0 * (1.d0-humidity)+humidity) * ka ) * 100.
+        qfor = 1d-9*kb**3 - 1d-7*kb**2 + 3.0d-7*kb + 0.0003
+    CASE DEFAULT
+          print*, '--error-- in ssh_genoa_spec. Type unknown: ', &
+                    label, ire, iex
+          STOP
+    END SELECT
+
+  ! Add a ratio
+  kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
+
+end subroutine ssh_genoa_spec
+
 subroutine ssh_spack_spec(ire, iex, label)
 
     IMPLICIT NONE 
@@ -871,25 +947,71 @@ subroutine ssh_spack_spec(ire, iex, label)
     INTEGER, INTENT(in) :: ire, iex, label
     
     integer :: ind
-    double precision :: qfor
+    double precision :: ka, kb, kd, qfor
 
     ! Label for different mechanisms
     ! 10: cb05, 11: racm2, ... 
     ind = nint(extra_coeff(iex,3)) ! 2nd level label
     
-    qfor = 0.d0
-
-! need to complete
-
-    if (label .eq. 10) then ! CB05
+    if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
       SELECT CASE(ind)
+        CASE (1)
+            qfor = SumMc * 6.0d-34 * (temperature/3.d2) ** (-2.4d0)
+!C     YS 17/11/2008 values given by NASA/JPL 2003
+        CASE (2)
+            qfor = 2.3d-13 * dexp(600.0d0 / temperature) &
+                + 1.7d-33* SumMc * dexp(1000.0d0 / temperature)
+        CASE (3)
+            qfor = 3.22d-34 * dexp(2800.0d0 / temperature) &
+                + 2.38d-54 * SumMc * dexp(3200.0d0 / temperature)
+        CASE (4)
+            ka = 2.4d-14 * dexp(460.0d0 / temperature)
+            kb = 2.7d-17 * dexp(2199.0d0 / temperature)
+            kd = 6.5d-34 * dexp(1335.0d0 / temperature) * SumMc
+            qfor = ka + kd / (1d0 + kd / kb)
+!C     YS 17/11/2008 values given by NASA/JPL 2003
+        CASE (5)
+            qfor = 1.44d-13 * (1.0d0 + 2.381d-20 * SumMc)
+!C     YS 19/11/2008 value given by IUPAC 2005
+        CASE (6)
+            ka = 3.4d-30 * (300./temperature)**(3.2)*SumMc
+            kb = ka / (4.77D-11*(300./temperature)**1.4)
+            qfor = (ka / (1d0 + kb)) * 0.3d0 ** &
+                (1d0 / (1d0 + ((dlog10(kb) - 0.12d0) / 1.2d0) ** 2d0))
+        CASE (7)
+            qfor = 1.8d-39 * YlH2O * YlH2O
+!C     YS 26/11/2008 value given by IUPAC 2005
         CASE DEFAULT
           print*, '--error-- in ssh_spack_spec. CB05 Type unknown: ', &
                     label,ire,iex
           STOP
       END SELECT
-    elseif (label .eq. 20) then ! RACM2
-      SELECT CASE(ind)
+    elseif (label .eq. 20) then ! RACM2 - rewrite from ssh_WSPEC_RACM90
+     SELECT CASE(ind)
+        CASE (1)
+          qfor = sumMc * 6.0d-34 * (temperature/3.d2) ** (-2.3d0)
+!C     BS 05/02/2003 values given by RACM
+        CASE (2)
+          qfor = 2.3d-13 * dexp(6d2 / temperature) &
+               + 1.73d-33* SumMc * dexp(1d3/ temperature)
+        CASE (3)
+          qfor = 3.22d-34 * dexp(28d2 / temperature) &
+               + 2.38d-54 * SumMc * dexp(32d2 / temperature)
+!C      MODIF BS 06/06/2003 on the basis of CMAQ
+        CASE (4)
+          ka = 7.2d-15 * dexp(785d0 / temperature)
+          kb = 4.1d-16 * dexp(1440d0 / temperature)
+          kd = 1.9d-33 * dexp(725d0 / temperature) * SumMc
+          qfor = ka + kd / (1d0 + kd / kb)
+        CASE (5)
+          qfor = 1.5d-13 * (1.0d0 + 2.439d-20 * SumMc)
+        CASE (6)
+          ka = 3.4d-30 * (3d2 / temperature) ** (3.2d0) * SumMc
+          kb = ka / (4.77d-11 * (3d2 / temperature) ** 1.4d0)
+          qfor = (ka / (1d0 + kb)) * 3d-1 ** &
+               (1d0 / (1d0 + ((dlog10(kb) - 0.12d0) / 1.2d0) ** 2d0))
+        CASE (7)
+          qfor = 2.0d-39 * YlH2O * YlH2O
         CASE DEFAULT
           print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
                     label,ire,iex
