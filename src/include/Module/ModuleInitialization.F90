@@ -461,7 +461,7 @@ contains
     ! ============================================================= 
 
     implicit none
-    integer :: i,ierr,tag_file, nml_out, s ,count
+    integer :: i,ierr,tag_file, nml_out, s , count, icmt
     character (len=200), intent(in) :: namelist_file
     character (len=200) :: namelist_out
 
@@ -875,16 +875,22 @@ contains
 
         if (ssh_standalone) write(*,*) 'read gas-phase species list.'
         if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-            
-        count = 0
-        ierr = 0
-        do while(ierr .eq. 0)
-           read(11, *, iostat=ierr)
-           if (ierr == 0) count = count + 1
-        end do
         
-        ! get N_gas
-        N_gas = count - 4   ! minus the first four comment line
+        ierr = 0  ! reset ierr
+        count = 0 ! count gas-phase species
+        icmt = 0  ! count comment lines
+        do while(ierr .eq. 0)
+           read(11, *, iostat=ierr) tmp_string
+           if (ierr /= 0) exit ! no line to read
+           tmp_string = adjustl(tmp_string)
+           if (trim(tmp_string) == "" .or. tmp_string(1:1) == "%" .or. tmp_string(1:1) == "#") then
+             icmt = icmt + 1 ! read comment lines
+           else
+             count = count + 1 ! read gas-phase species
+           endif
+        end do
+
+        N_gas = count ! number of gas-phase species
         
         if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
         if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
@@ -894,10 +900,14 @@ contains
 
         rewind 11
         
-        do s = 1, 4
-            read(11, *)  ! read the first four comment line
-        enddo
-        
+        if (icmt .gt. 0) then ! read comment lines if needed
+            if (ssh_standalone) write(*,*) 'read comment lines from gas-phase species list',icmt
+            if (ssh_logger) write(logfile,*) 'read comment lines from gas-phase species list',icmt
+          do s = 1, icmt
+            read(11, *)
+          enddo
+        endif
+
         do s = 1, N_gas
            read(11, *) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
@@ -2968,36 +2978,36 @@ contains
     do
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
-        if(line == 'END') exit ! end sign
-        if(line /= ' ' .and. line(1:1) /= '%') then ! read comments
-            iarrow = index(line, '->') ! arrow position
-            
-            if(iarrow > 0) then ! find reaction
-                ircn = ircn + 1 ! reaction
-                call count_delimiter(line(1:iarrow - 1), ' + ',i)
-                irct = i + irct ! no.reactant
-                call count_delimiter(line(iarrow + 2:), ' + ',i)
-                ipdt = i + ipdt ! no.product
-                
-            ! find kinetics
-            elseif (line(1:7) == "KINETIC") then ! read kinetics  
-                read(line(8:), '(A20)') sname ! keyword
-                
-                if(index(sname,'PHOT') /= 0) then
-                    ipho = ipho + 1
-                    ! read in-line tabulation
-                    if(index(sname,'PHOTLYSIS') /= 0) ipho_t = ipho_t + 1
-                else if (index(sname,'TB') /= 0) then
-                    itb = itb + 1
-                else if (index(sname,'RO2') /= 0) then
-                    iro2 = iro2 + 1
-                else if(index(sname,'FALLOFF') /= 0) then
-                    ifall = ifall + 1
-                else if(index(sname,'EXTRA') /= 0) then
-                    iext = iext + 1
-                endif
-                
-            end if
+        line = adjustl(line)
+        if(trim(line) == 'END') exit ! end sign
+        if(trim(line) == '' .or. line(1:1) == '%' .or. line(1:1) == '#') cycle ! read comments
+        ! read reactions
+        iarrow = index(line, '->') ! arrow position
+        if(iarrow > 0) then
+            ircn = ircn + 1 ! no.reaction
+            call count_delimiter(line(1:iarrow - 1), ' + ',i)
+            irct = i + irct ! no.reactant
+            call count_delimiter(line(iarrow + 2:), ' + ',i)
+            ipdt = i + ipdt ! no.product
+        ! find all kinetic keywords
+        else if (line(1:7) == "KINETIC") then
+            read(line(8:), '(A20)') sname ! keywords
+            ! Check 1st keyword (two keywords in a line)
+            if (index(sname,'TB') /= 0) then
+                itb = itb + 1 ! third body
+            else if (index(sname,'RO2') /= 0) then ! RO2-RO2
+                iro2 = iro2 + 1
+            endif
+            ! Check 2nd keyword or the only keyword
+            if(index(sname,'PHOT') /= 0) then
+                ipho = ipho + 1
+                ! read in-line tabulation for photolysis
+                if(index(sname,'PHOTOLYSIS') /= 0) ipho_t = ipho_t + 1
+            else if(index(sname,'FALLOFF') /= 0) then ! falloff
+                ifall = ifall + 1
+            else if(index(sname,'EXTRA') /= 0) then ! extra and specified kinetics
+                iext = iext + 1
+            endif 
         end if
     end do
 
@@ -3061,11 +3071,11 @@ contains
     do
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
-        if (line == 'END') exit ! end sign
-        if (line /= ' ' .and. line(1:1) /= '%') then ! read comments
-          iarrow = index(line, '->') ! arrow position
-          if (iarrow > 0) then
-        
+        line = adjustl(line)
+        if(trim(line) == 'END') exit ! end sign
+        if(trim(line) == '' .or. line(1:1) == '%' .or. line(1:1) == '#') cycle ! read comments
+        iarrow = index(line, '->') ! arrow position
+        if (iarrow > 0) then ! read reactions
             ircn = ircn + 1 ! reaction index
 
             ! Extract reactants
@@ -3095,8 +3105,7 @@ contains
                 if (index_RCT(irct,1) .eq. 0) then
                     print*, 'reactants not found in species list: ',trim(sname)
                     stop
-                endif
-                
+                endif    
                 ! check exit
                 if (finish == 0) exit
             end do
@@ -3148,22 +3157,19 @@ contains
                 if (finish == 0) exit
             end do
                         
-          elseif (line(1:7) == "KINETIC") then ! read kinetics
-            
-            subline = trim(adjustl(line(8:)))
+        elseif (line(1:7) == "KINETIC") then ! read kinetics
 
-            ! find 1st keyword
+            subline = trim(adjustl(line(8:)))
             do js=1, len(subline)
-                if (subline(js:js) .eq. " ") exit ! found " "
+                if (subline(js:js) .eq. " ") exit ! found space to locate 1st keyword
             enddo 
             
-            read(subline(1:js), '(A20)', iostat=ierr) sname ! keyword
-            
+            read(subline(1:js), '(A20)', iostat=ierr) sname ! keyword            
             if (ierr.eq.0) tag = tag + 1
             
             js = js + 1 ! cursor position
             
-            ! read TB
+            ! read 1st keyword TBs & RO2s
             if (trim(sname) == "TB".or.trim(sname) == "RO2") then
             
                 ! read info related to TBs & RO2s
@@ -3214,9 +3220,7 @@ contains
                 do js=1, len(subline)
                     if (subline(js:js) .eq. " ") exit ! found " "
                 enddo
-                
                 read(subline(1:js), '(A20)', iostat=ierr) sname
-                
             end if
             
             ! Read all coefficients - up to No. ntmp
@@ -3237,7 +3241,7 @@ contains
                 endif
             enddo
             
-            ! check number of read coefficients
+            ! check no. read coefficients
             if (i-1.lt.1) then
                 print*, 'read no kinetic coefficient', ircn
                 stop
@@ -3245,10 +3249,9 @@ contains
                 finish = i - 1
             endif
             
-            ! assign values
+            ! assign values for different types of kinetics
             if (trim(sname) == "ARR") then
-            
-                ! read arrhenius contants
+                ! read arrhenius contants - can be 3 or 4 (with a ratio from GENOA reduction)
                 if (finish.eq.3 .or. finish.eq.4) then
                     do i = 1, 3
                         Arrhenius(ircn,i) = a_tmp(i)
@@ -3257,16 +3260,16 @@ contains
                         Arrhenius(ircn,1) = Arrhenius(ircn,1) * a_tmp(4)
                     endif
                 else
-                    print*, "Error:  ARR read no. coeff not 3 or 4", &
+                    print*, "Error:  ARR read no. coeff should be 3 or 4", &
                             ircn, finish, a_tmp(1:finish)
                     stop
                 endif
 
-             elseif (trim(sname) == "PHOT".or.trim(sname) == "PHOTLYSIS") then
-                
+             elseif (trim(sname) == "PHOT".or.trim(sname) == "PHOTOLYSIS") then
+                ! read photolysis
                 ipho = ipho + 1
                 photo_rcn(ipho,1) = ircn
-                
+
                 if (finish .eq. 2) then ! read only index & ratio
                     photo_rcn(ipho,2) = nint(a_tmp(1))
                     Arrhenius(ircn,1) = a_tmp(2)
@@ -3293,18 +3296,17 @@ contains
                     stop
                 endif
 
-
             elseif (trim(sname) == "FALLOFF") then
-            
+                ! read falloff 
                 ifall = ifall + 1
                 fall_rcn(ifall) = ircn
 
                 ! arrhenius(3) + FALLOFF(7) + ratio = 11
                 if (finish.eq.10 .or. finish.eq.11) then 
-                    do i = 1, 3
+                    do i = 1, 3 ! arrhenius coefficents
                         Arrhenius(ircn,i) = a_tmp(i)
                     enddo
-                    do i = 1, 7
+                    do i = 1, 7 ! falloff coefficents
                         fall_coeff(ifall,i) = a_tmp(i+3)
                     enddo
                     ! ratio
@@ -3314,20 +3316,20 @@ contains
                         fall_coeff(ifall,8) = 1d0
                     endif
                 else
-                    print*, "Error: FALLOFF read no. coeff not 11", ircn, &
-                            finish,a_tmp(1:finish)
+                    print*, "Error: FALLOFF read no.coeff should be 10 or 11", ircn, &
+                            finish, a_tmp(1:finish)
                     stop
                 endif
 
             elseif (trim(sname) == "EXTRA") then
-            
+              ! read extra or specified kinetics
               iext = iext + 1
               extra_rcn(iext) = ircn
                 
               js = nint(a_tmp(1)) ! get label
               extra_coeff(iext,1) =  js
 
-               SELECT CASE (js)
+              SELECT CASE (js)
 
                 CASE(91) !MCM: 91 C1 C2 C3 C4(optional)
                   if (finish.eq.4 .or. finish.eq.5) then
@@ -3341,7 +3343,7 @@ contains
                         Arrhenius(ircn,1) = 1d0
                     endif
                   else
-                    print*, "Error: EXTRA 91 read no. not 4/5", &
+                    print*, "Error: EXTRA 91 read no. not 4/5 for MCM photolysis", &
                              ircn,finish,a_tmp(1:finish)
                     stop
                   endif
@@ -3356,12 +3358,12 @@ contains
                         Arrhenius(ircn,1) = 1d0
                     endif
                   else
-                    print*, "Error: EXTRA 92,93 read no. not 2/3", &
+                    print*, "Error: EXTRA 92,93 read no. not 2/3 for MCM generic, complex rate coefficents", &
                              ircn,finish,a_tmp(1:finish)
                     stop
                   endif
 
-                CASE(100, 200, 500, 501, 510, 502, 550) ! GECKO
+                CASE(100, 200, 500, 501, 510, 502, 550) ! GECKO labels
                     start = finish ! get length - no. coff remain unread
                     if (finish.ge.4) then
                         do i = 2, 4
@@ -3398,13 +3400,14 @@ contains
                     
                     ! check if read all
                     if (start.ne.0) then
-                        print*, "Error: EXTRA GECKO read no. not match: ", &
+                        print*, "Error: EXTRA GECKO read no. coefs not match required: ", js, j, &
                                  ircn,finish,start,a_tmp(1:finish)
                         stop
                     endif
                     
-                CASE(99) ! 99 C1 C2 (optional) 
-                  ! Additional calculations that can be updated by the user. Please ensure the label has not been used before if adding new labels. 
+                CASE(99, 10) ! 99/10 C1 C2 (optional) 
+                  ! Additional calculations that can be updated by the user.
+                  ! Please ensure the label has not been used before if adding new labels. 
                   if (finish.eq.2 .or. finish.eq.3) then
                     extra_coeff(iext,2) = a_tmp(2)
                     ! ratio
@@ -3414,7 +3417,7 @@ contains
                         Arrhenius(ircn,1) = 1d0
                     endif
                   else
-                    print*, "Error: EXTRA 99 read no. not 2/3", &
+                    print*, "Error: EXTRA read no. coeffs not 2/3", js, &
                              ircn,finish,a_tmp(1:finish)
                     stop
                   endif
@@ -3422,13 +3425,16 @@ contains
                 CASE DEFAULT
                   print*,"EXTRA label unknown: ",js
                   STOP
-                END SELECT
+              END SELECT
+
             else
-              print*,"Error: Unknown kinetic type detected: ",trim(sname)
+              print*,"Error: Unknown kinetic keyword detected: ",trim(sname)
               stop
             END if
-          endif
-    end if
+        else ! neither reaction nor kinetics, not read
+            ! print to check
+            print*, 'Not read line from reaction file: ',trim(line)
+        endif
     end do
 
     close(11)
@@ -3438,7 +3444,7 @@ contains
           ,ipho_t ,' No.tb: ', itb-iro2,' No.fall: ',ifall, &
           ' No.ext: ',iext, ' No.RO2-RO2', iro2
     
-    ! check number
+    ! check number of reactions with kinetics
     if (tag .ne. ircn) then
         print*, 'the number of reactions not match the number of kinetics: ',ircn,' ',tag
         stop
