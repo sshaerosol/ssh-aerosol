@@ -2,14 +2,14 @@
 
 # Cuisine et dependances ...
 
-include		${SSH_dir}/Makefile.hdr
+include		../Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
 LDFLAGS =	-L. -lssh-modules -lssh-iso -lssh-atmo -lssh-chem -lssh-rdb -lssh-soap -lssh-talos -lnetcdff \
-			-L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I $(BLITZINC) -I $(NETCDFINC)
+			-L${NETCDFLIBS} $(CDFLIBS) -L${HDF5LIB} -I $(BLITZLIB) -I $(NETCDFINC)
 
-.PHONY:		all libssh-modules main libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos clean
+.PHONY:		all libssh-modules main libssh-iso libssh-atmo libssh-chem libssh-rdb libssh-soap libssh-talos
 
 all:		libssh-aerosol.a 
 #ssh-aerosol

@@ -30,24 +30,24 @@ HDF5INC		=       $(my_hdfinc)
 #   "GRIB_API" package and you must tell where to find it
 GRIBLIB		=	$(my_griblib)
 GRIBINC		=	$(my_gribinc)
-BLITZINC	=	$(my_blitzinc)
+JASPLIB		=	$(my_jasperlib)
+BLITZLIB	=	$(my_blitzinc)
 
 ### Where is your compiler located
 ### You can get it by issuing the command "which gfortran"
-FC	=	${my_compilerF90}
-CC	=	${my_compilerCpp}
+REALFC	=	${my_compilerF90}
+
+REALCC	=	${my_compilerCpp}
+
+# Patch for prep_bc
+NORANGECHK	=	-fno-range-check
 
 # Patch for CentOS/g++ problem (bug?)
 FLAGS_STDCXX	=	-lstdc++
 
 ### Where is your mpif90 wrapper located
 ### You can get it bt issuing the command "which mpif90"
-MPIFC	=	${my_mpif90}
-
-### Choose your execution mode { PROD | DEVEL }
-### PROD is fast, DEVEL allows for more checking and error tracking
-MODE    =       ${my_mode}
-
+MF90	=	${my_mpif90}
 
 #########################################################################
 ### In principle, you should not have to modify too many things below ...
@@ -84,33 +84,26 @@ ifeq ($(NCCONFIG),none)
 	endif
 	NETCDFLIBS		=	$(CDFLIBS) -L${NETCDFLIB} -L${HDF5LIB} ${CLIB}
 else
-	NETCDFLIBS_F	=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')
-	NETCDFLIBS_C	=	$(shell $(NETCDFBIN_C)/nc-config --libs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')
-    NETCDFLIBS		=	$(NETCDFLIBS_F) $(NETCDFLIBS_C)
+	NETCDFLIBS_F		=	$(shell $(NCCONFIG) --flibs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}')  
+	NETCDFLIBS_C		=	$(shell $(NETCDFBIN_C)/nc-config --libs | gawk '{for (i=1;i<=NF;i++) if(substr($$i,1,2)=="-L" || substr($$i,1,2)=="-l") st=st" "$$i}END{print st}') 
+        NETCDFLIBS		=	$(NETCDFLIBS_F) $(NETCDFLIBS_C)
 endif
 
 # End netcdf config
 
+MPIFC	=	$(MF90)
+FC	=	$(REALFC)
+MPIFLAG	=	MPI
 
-FFLAGS_BASE =  -fno-second-underscore -frecord-marker=4 -fdefault-real-8 -fdefault-double-8 -fopenmp
-# For debug/development
-ifeq	($(MODE),DEVEL)
-FFLAGS_MODE	=  $(FFLAGS_BASE) -g -O0 -fcheck=bounds -fbacktrace -fbounds-check -finit-integer=-100000 \
-                -finit-real=snan -ffpe-trap=zero,overflow,invalid -Waliasing -Wampersand -Wconversion \
-		-Wsurprising -Wintrinsics-std -Wintrinsic-shadow -Wline-truncation -Wreal-q-constant -Wunused \
-		-DGFORTRAN
-endif
+##### GFORTRAN #####
+COMPILO	=	BROKEN_CPP
+F77=$(FC)
 
-# for production
-ifeq	($(MODE),PROD)
-FFLAGS_MODE	= $(FFLAGS_BASE) -O3 -DGFORTRAN
-endif
+F77FLAGS_BIG = $(F77FLAGS1_BIG)
+F77FLAGS = $(F77FLAGS1)
 
-FFLAGS = $(FFLAGS_MODE) -ffree-form -ffree-line-length-none
-F77FLAGS = $(FFLAGS_MODE) -ffixed-form
-
-export CPPDEF=-Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
-export CCFLAGS=$(CPPDEF) -I${NETCDF_INCLUDE} -I${GFORTRAN_INC_MOD}
+FFLAGS_BIG = $(F77FLAGS_BIG) -ffree-form -ffree-line-length-none
+FFLAGS = -I${GRIBINC} $(F77FLAGS) -ffree-form -ffree-line-length-none
 
 # Misc. commands
 RM	=	/bin/rm -f

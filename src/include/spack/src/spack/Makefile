@@ -1,7 +1,7 @@
 #-*-makefile-*-
 # iso
 
-include		${SSH_dir}/Makefile.hdr
+include		../../../../../Makefile.hdr
 
 RM_LIST =	*.a *.o *.e *.mod core 
 
@@ -16,7 +16,7 @@ libspack.a:	$(OBJS)
 		$(AR) r libspack.a $(OBJS)
 
 %.o:		%.f
-		$(FC) -o $@ $(F77FLAGS) -c $<
+		$(REALFC) -o $@ $(F77FLAGS) -c $<
 clean:
 		$(RM) $(RM_LIST)
 

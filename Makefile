@@ -4,7 +4,7 @@ include		./Makefile.hdr
 
 LDFLAGS	=	 -L${NETCDFLIB} 
 
-.PHONY:		src clean
+.PHONY:		src
 
 RM_LIST =	*.a *.o *.e *.mod core 
 

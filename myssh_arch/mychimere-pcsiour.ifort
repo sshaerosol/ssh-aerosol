@@ -1,0 +1,99 @@
+#!/bin/bash
+source /opt/intel/parallel_studio_xe_2013_update4_intel64/bin/ifortvars.sh intel64
+source /opt/intel/parallel_studio_xe_2013_update4_intel64/mkl/bin/mklvars.sh intel64
+
+#---------------------------------------------------------------------------------
+#	Architecture file for compiling and running CHIMERE	
+#	Specify path to libraries, compilers and utilities 
+#---------------------------------------------------------------------------------
+
+
+#---------------------------------------------------------------------------------
+# 	Compilers
+#---------------------------------------------------------------------------------
+export my_compilerF90=/opt/intel/parallel_studio_xe_2013_update4_intel64/bin/ifort # Path to Fortran 90 compiler
+export my_compilerC=/opt/intel/parallel_studio_xe_2013_update4_intel64/bin/icc                      # Path to C compiler
+export my_compilerCpp=/opt/intel/parallel_studio_xe_2013_update4_intel64/bin/icpc                   # Path to C++ compiler
+
+
+#---------------------------------------------------------------------------------
+# 	MPI - parallel execution of chimere
+#---------------------------------------------------------------------------------
+export  my_mpiframe=openmpi                           # implementaion of MPI norm [ ompi / ccrt ] TO REMOVE
+export  my_ompiparams=""
+export  my_mpibin=/opt/openmpi-1.6.3-ifort-64_icc/bin        # Path to MPI binary directory
+export  my_mpirun=/opt/openmpi-1.6.3-ifort-64_icc/bin/mpirun # Path to mpirun to execute parallel job in MPI
+export  my_mpif90=/opt/openmpi-1.6.3-ifort-64_icc/bin/mpif90 # Wrapper to my_compilerF90 to link with MPI library
+export  my_mpicc=/opt/openmpi-1.6.3-ifort-64_icc/bin/mpicc   # Wrapper to my_compilerC to link with MPI library
+export  my_mpilib=/opt/openmpi-1.6.3-ifort-64_icc/lib        # Path to MPI libraries directory
+export  my_mpiinc=/opt/openmpi-1.6.3-ifort-64_icc/include    # Path to MPI include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	HDF5  - parallel version	
+#---------------------------------------------------------------------------------
+export my_hdflib=/opt/hdf5-ifort-openmpi-1.6.3/lib     # Path to HDF5 parallel library directory
+export my_hdfinc=/opt/hdf5-ifort-openmpi-1.6.3/include # Path to HDF5 parallel include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-C  - link with HDF5 parallel 
+#---------------------------------------------------------------------------------
+export my_netcdfCbin=/opt/netcdf-c-4.6.4_hdf5-ifort-64-parrallel/bin # Path to NETCDF-C (linked with HDF5 parallel) binaries directory
+export my_netcdfClib=/opt/netcdf-c-4.6.4_hdf5-ifort-64-parrallel/lib # Path to NETCDF-C (linked with HDF5 parallel) library directory
+export my_netcdfCinc=/opt/netcdf-c-4.6.4_hdf5-ifort-64-parrallel/include # Path to NETCDF-C (linked with HDF5 parallel) library directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-Fortran  - link with HDF5 parallel and NETCDF-C
+#---------------------------------------------------------------------------------
+export my_netcdfF90bin=/opt/netcdf-f-4.4.4_hdf5-ifort-64-parrallel/bin     # PATH to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) binaries  directory
+export my_netcdfF90lib=/opt/netcdf-f-4.4.4_hdf5-ifort-64-parrallel/lib     # Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) library  directory
+export my_netcdfF90inc=/opt/netcdf-f-4.4.4_hdf5-ifort-64-parrallel/include # Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) include files  directory
+
+
+#---------------------------------------------------------------------------------
+# 	GRIB  - link with jasper 
+#---------------------------------------------------------------------------------
+export my_griblib=/opt/grib_api-1.9.18-ifort-64/lib     # Path to GRIB library directory
+export my_gribinc=/opt/grib_api-1.9.18-ifort-64/include # Path to GRIB include files directory
+export my_jasperlib=/usr/lib64          # Path to JASPER library directory
+export my_jasperinc=/usr/include      # Path to JASPER include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	BLITZ
+#---------------------------------------------------------------------------------
+export my_blitzinc=/opt/blitz-0.10_icc/include	 # Path to BLITZ include files 
+export my_blitzlib=/opt/blitz-0.10_icc/lib	 # Path to BLITZ include files 
+
+
+#---------------------------------------------------------------------------------
+# 	Utilities	
+#---------------------------------------------------------------------------------
+export my_make=make                                                                            # Path to make
+export my_awk=awk                                                                              # Path to awk
+export my_ncdump=/opt/netcdf-4.1.3_hdf5-ifort-64/bin/ncdump # Path to ncdump
+
+
+#---------------------------------------------------------------------------------
+# 	Makefile header needed to compile CHIMERE and WRF 
+#	     - with this architecture configuration - 	
+#---------------------------------------------------------------------------------
+export my_hdr=Makefile.hdr.ifort-64-ompi           # Makefile header to compile CHIMERE in makefiles.hdr directory
+export configure_wrf_file_name=configure.wrf.ifort # Makefile header to compile WRF in config_wrf directory
+export configure_wps_file_name=configure_ifort.wps # Makefile header to compile WPS in config_wps directory
+export configure_xios_file_name=arch-ifort.fcm     # Makefile header (*.fcm) to compile XIOS in config_xios directory
+
+
+#---------------------------------------------------------------------------------
+#	Export of Shared Library to be available at run time 	
+#---------------------------------------------------------------------------------
+export LD_LIBRARY_PATH=${my_hdflib}:${my_netcdfF90lib}:${my_netcdfClib}:${my_griblib}:${my_mpilib}:${my_mpilib}/openmpi:$LD_LIBRARY_PATH
+
+#---------------------------------------------------------------------------------
+# 	SSH-aerosol	
+#---------------------------------------------------------------------------------
+export my_ssh=${chimere_root}/ssh-aerosol/src/
+
+

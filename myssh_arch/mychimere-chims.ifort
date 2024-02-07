@@ -1,0 +1,95 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------------
+#	Architecture file for compiling and running CHIMERE	
+#	Specify path to libraries, compilers and utilities 
+#---------------------------------------------------------------------------------
+
+
+#---------------------------------------------------------------------------------
+# 	Compilers
+#---------------------------------------------------------------------------------
+export my_compilerF90=/opt/intel/composer_xe_2013/bin/ifort # Path to Fortran 90 compiler
+export my_compilerC=/opt/intel/bin/icc                      # Path to C compiler
+export my_compilerCpp=/opt/intel/bin/icpc                   # Path to C++ compiler
+
+
+#---------------------------------------------------------------------------------
+# 	MPI - parallel execution of chimere
+#---------------------------------------------------------------------------------
+export  my_mpiframe=openmpi                           # implementaion of MPI norm [ ompi / ccrt ] TO REMOVE
+export  my_ompiparams="-mca btl self,sm,tcp -mca btl_tcp_eager_limit 4095 -x LD_LIBRARY_PATH"
+export  my_mpibin=/opt/openmpi-2.0.1-ifort/bin        # Path to MPI binary directory
+export  my_mpirun=/opt/openmpi-2.0.1-ifort/bin/mpirun # Path to mpirun to execute parallel job in MPI
+export  my_mpif90=/opt/openmpi-2.0.1-ifort/bin/mpif90 # Wrapper to my_compilerF90 to link with MPI library
+export  my_mpicc=/opt/openmpi-2.0.1-ifort/bin/mpicc   # Wrapper to my_compilerC to link with MPI library
+export  my_mpilib=/opt/openmpi-2.0.1-ifort/lib        # Path to MPI libraries directory
+export  my_mpiinc=/opt/openmpi-2.0.1-ifort/include    # Path to MPI include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	HDF5  - parallel version	
+#---------------------------------------------------------------------------------
+export my_hdflib=/home/rpennel/local/hdf5-1.8.20_opempi-2.0.1-ifort_parallel/lib     # Path to HDF5 parallel library directory
+export my_hdfinc=/home/rpennel/local/hdf5-1.8.20_opempi-2.0.1-ifort_parallel/include # Path to HDF5 parallel include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-C  - link with HDF5 parallel 
+#---------------------------------------------------------------------------------
+export my_netcdfCbin=/home/rpennel/local/netcdf-c-4.6.0_openmpi-2.0.1-ifort_hdf5-1.8.20/bin # Path to NETCDF-C (linked with HDF5 parallel) binaries directory
+export my_netcdfClib=/home/rpennel/local/netcdf-c-4.6.0_openmpi-2.0.1-ifort_hdf5-1.8.20/lib # Path to NETCDF-C (linked with HDF5 parallel) library directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-Fortran  - link with HDF5 parallel and NETCDF-C
+#---------------------------------------------------------------------------------
+export my_netcdfF90bin=/home/rpennel/local/netcdf-fortran-4.4.4_openmpi-2.0.1-ifort_netcdf-c_4.6.0/bin     # PATH to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) binaries  directory
+export my_netcdfF90lib=/home/rpennel/local/netcdf-fortran-4.4.4_openmpi-2.0.1-ifort_netcdf-c_4.6.0/lib     # Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) library  directory
+export my_netcdfF90inc=/home/rpennel/local/netcdf-fortran-4.4.4_openmpi-2.0.1-ifort_netcdf-c_4.6.0/include # Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) include files  directory
+
+
+#---------------------------------------------------------------------------------
+# 	GRIB  - link with jasper 
+#---------------------------------------------------------------------------------
+export my_griblib=/opt/grib_api-1.12.0-ifort/lib     # Path to GRIB library directory
+export my_gribinc=/opt/grib_api-1.12.0-ifort/include # Path to GRIB include files directory
+export my_jasperlib=/opt/jasper-1.900.1/lib          # Path to JASPER library directory
+export my_jasperinc=/opt/jasper-1.900.1/include      # Path to JASPER include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	BLITZ
+#---------------------------------------------------------------------------------
+export my_blitzinc=/home/fcouvidat/blitz-0.10/	 # Path to BLITZ include files 
+
+
+#---------------------------------------------------------------------------------
+# 	Utilities	
+#---------------------------------------------------------------------------------
+export my_make=make                                                                            # Path to make
+export my_awk=awk                                                                              # Path to awk
+export my_python3=/opt/anaconda3/2020.11/bin/python3
+export my_ncdump=/home/rpennel/local/netcdf-c-4.6.0_openmpi-2.0.1-ifort_hdf5-1.8.20/bin/ncdump # Path to ncdump
+
+
+#---------------------------------------------------------------------------------
+# 	Makefile header needed to compile CHIMERE and WRF 
+#	     - with this architecture configuration - 	
+#---------------------------------------------------------------------------------
+export my_hdr=Makefile.hdr.ifort-64-ompi           # Makefile header to compile CHIMERE in makefiles.hdr directory
+export configure_wrf_file_name=chimster_ifort.wrf  # Makefile header to compile WRF in config_wrf directory
+export configure_wps_file_name=configure_ifort.wps # Makefile header to compile WPS in config_wps directory
+
+
+#---------------------------------------------------------------------------------
+#	Export of Shared Library to be available at run time 	
+#---------------------------------------------------------------------------------
+export LD_LIBRARY_PATH=${my_hdflib}:${my_netcdfF90lib}:${my_netcdfClib}:${my_griblib}:${my_mpilib}:${my_mpilib}/openmpi:$LD_LIBRARY_PATH
+
+#---------------------------------------------------------------------------------
+# 	SSH-aerosol	
+#---------------------------------------------------------------------------------
+export my_ssh=${chimere_root}/ssh-aerosol/src/
+
+

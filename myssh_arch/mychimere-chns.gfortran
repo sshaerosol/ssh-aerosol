@@ -1,0 +1,116 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------------
+#	Architecture file for compiling and running CHIMERE	
+#	Specify path to libraries, compilers and utilities 
+#---------------------------------------------------------------------------------
+
+
+#---------------------------------------------------------------------------------
+# 	Compilers
+#---------------------------------------------------------------------------------
+dirCompil=/opt/rh/devtoolset-7/root/usr/bin/
+export my_compilerF90=${dirCompil}/gfortran				# Path to Fortran 90 compiler
+export my_compilerC=${dirCompil}/gcc				# Path to C compiler
+export my_compilerCpp=${dirCompil}/g++				# Path to C++ compiler
+
+
+#---------------------------------------------------------------------------------
+# 	MPI - parallel execution of chimere
+#---------------------------------------------------------------------------------
+export  my_mpiframe=openmpi  			# implementaion of MPI norm [ ompi / ccrt ] TO REMOVE
+dirMPI=/opt/spack_soft/openmpi/3.1.5/gcc-7.3.1
+export  my_mpibin=${dirMPI}/bin
+export  my_mpirun=${my_mpibin}/mpirun    			# Path to mpirun to execute parallel job in MPI
+export  my_mpif90=${my_mpibin}/mpif90    			# Wrapper to my_compilerF90 to link with MPI library
+export  my_mpicc=${my_mpibin}/mpicc     			# Wrapper to my_compilerC to link with MPI library
+export  my_mpilib=${dirMPI}/lib    			# Path to MPI libraries directory
+export  my_mpiinc=${dirMPI}/include    			# Path to MPI include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	HDF5  - parallel version	
+#---------------------------------------------------------------------------------
+dirHDF=/opt/spack_soft/hdf5/1.12.0/gcc-7.3.1
+export my_hdflib=${dirHDF}/lib		# Path to HDF5 parallel library directory
+export my_hdfinc=${dirHDF}/include		# Path to HDF5 parallel include files directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-C  - link with HDF5 parallel 
+#---------------------------------------------------------------------------------
+dirNCDFC=/opt/spack_soft/netcdf-c/4.7.3/gcc-7.3.1
+export my_netcdfCbin=${dirNCDFC}/bin 		# Path to NETCDF-C (linked with HDF5 parallel) binaries directory 
+export my_netcdfClib=${dirNCDFC}/lib		# Path to NETCDF-C (linked with HDF5 parallel) library directory
+export my_netcdfCinc=${dirNCDFC}/include		# Path to NETCDF-C (linked with HDF5 parallel) library directory
+
+
+#---------------------------------------------------------------------------------
+# 	NETCDF-Fortran  - link with HDF5 parallel and NETCDF-C
+#---------------------------------------------------------------------------------
+dirNCDFF=/opt/spack_soft/netcdf-fortran/4.5.2/gcc-7.3.1
+export my_netcdfF90bin=${dirNCDFF}/bin         # PATH to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) binaries  directory
+export my_netcdfF90lib=${dirNCDFF}/lib		# Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) library  directory
+export my_netcdfF90inc=${dirNCDFF}/include		# Path to NETCDF-Fortran (linked with HDF5 parallel and NETCDF-C) include files  directory
+
+
+#---------------------------------------------------------------------------------
+# 	GRIB  - link with jasper 
+#---------------------------------------------------------------------------------
+dirGRIB=/opt/spack_soft/eccodes/2.19.1/gcc-7.3.1
+export my_griblib=${dirGRIB}/lib64     			# Path to GRIB library directory
+export my_gribinc=${dirGRIB}/include 			    # Path to GRIB include files directory
+export my_jasperlib=/opt/spack_soft/jasper/2.0.16/gcc-7.3.1/lib64
+export my_jasperinc=/opt/spack_soft/jasper/2.0.16/gcc-7.3.1/include
+
+
+#---------------------------------------------------------------------------------
+# 	BLITZ
+#---------------------------------------------------------------------------------
+export my_blitzinc=/opt/spack_soft/blitz/1.0.1/gcc-7.3.1/include		 # Path to BLITZ include files 
+export my_blitzlib=/opt/spack_soft/blitz/1.0.1/gcc-7.3.1/lib		 # Path to BLITZ include files 
+
+
+#---------------------------------------------------------------------------------
+# 	Utilities	
+#---------------------------------------------------------------------------------
+export my_make=make 		# Path to make 
+export my_awk=awk			# Path to awk
+export my_python3=/opt/anaconda3/2020.11/bin/python3
+export my_ncdump=${dirNCDFC}/bin/ncdump		# Path to ncdump
+
+
+#---------------------------------------------------------------------------------
+# 	Makefile header needed to compile CHIMERE and WRF 
+#	     - with this architecture configuration - 	
+#---------------------------------------------------------------------------------
+export my_hdr=Makefile.hdr.gfortran-64-ompi             # Makefile header to compile CHIMERE in makefiles.hdr directory
+export configure_wrf_file_name=configure.wrf.gfortran   # Makefile header to compile WRF in config_wrf directory
+export configure_wps_file_name=configure_gfortran.wps  	# Makefile header to compile WPS in config_wps directory
+export configure_xios_file_name=arch-gfortran.fcm       # Makefile header (*.fcm) to compile XIOS in config_xios directory
+
+#---------------------------------------------------------------------------------
+# 	SSH-aerosol	
+#---------------------------------------------------------------------------------
+export my_ssh=${chimere_root}/ssh-aerosol/src/
+
+
+#---------------------------------------------------------------------------------
+# 	MUNICH	
+#---------------------------------------------------------------------------------
+export my_munich=${chimere_root}/munich/
+
+
+#---------------------------------------------------------------------------------
+# 	BLAS
+#---------------------------------------------------------------------------------
+export my_blasinc=/opt/spack_soft/openblas/0.3.10/gcc-7.3.1-dlatwb/include	 # Path to BLAS include files 
+export my_blaslib=/opt/spack_soft/openblas/0.3.10/gcc-7.3.1-dlatwb/lib		 # Path to BLAS library 
+
+
+
+#---------------------------------------------------------------------------------
+#	Export of Shared Library to be available at run time 	
+#---------------------------------------------------------------------------------
+export LD_LIBRARY_PATH=${my_hdflib}:${my_netcdfF90lib}:${my_netcdfClib}:${my_griblib}:${my_mpilib}:${my_mpilib}/openmpi:${my_jasperlib}:${my_blaslib}:$LD_LIBRARY_PATH
+
