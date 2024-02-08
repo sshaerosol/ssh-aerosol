@@ -48,11 +48,11 @@ module aInitialization
   !!part 2: parameters of system options
 
   integer, save :: with_fixed_density!IDENS
-  integer, save :: tag_init		! 0 internally mixed; 1 mixing_state resolved
-  integer, save :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
-  integer, save :: wet_diam_estimation	! 0 = isorropia ?
+  integer, save :: tag_init             ! 0 internally mixed; 1 mixing_state resolved
+  integer, save :: with_init_num        ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
+  integer, save :: wet_diam_estimation  ! 0 = isorropia ?
   integer, save :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
-  integer, save :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
+  integer, save :: tag_emis             ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
   integer, save :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
 
   integer, save :: tag_external  ! 0 for internally mixed, 1 for mixing-state resolved
@@ -112,8 +112,8 @@ module aInitialization
   integer, save :: tag_RO2, nref_file ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   
   ! numbers that needs in the error computation
-  integer, save :: nout_err ! individual species w err compute
-  integer, save :: nout_soa = 0 ! a group of species: total concs w err compute
+  integer, save :: nout_err   ! individual species w err compute
+  integer, save :: nout_soa   ! a group of species: total concs w err compute
   integer, save :: nout_total ! total num for err computation! default total SOAs
   ! number of output species
   integer, save :: nout_gas, nout_aero
@@ -153,8 +153,8 @@ module aInitialization
   double precision, save :: YlH2O ! water concentration (molec/cm3) in the gas phase
   integer, dimension(:,:), allocatable, save :: photo_rcn, TB_rcn
   integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn
-  integer, dimension(:,:),   allocatable, save :: index_RCT, index_PDT
-  double precision, dimension(:), allocatable, save ::  ratio_PDT
+  integer, dimension(:,:), allocatable, save :: index_RCT, index_PDT, index_PDT_ratio
+  double precision, dimension(:), allocatable, save :: ratio_PDT
   ! kinetics
   double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
   double precision, dimension(:), allocatable, save :: kinetic_rate, chem_prod, chem_loss
@@ -461,12 +461,12 @@ contains
     ! ============================================================= 
 
     implicit none
-    integer :: i,ierr,tag_file, nml_out, s , count, icmt
+    integer :: i,ierr, nml_out, s , count, icmt
     character (len=200), intent(in) :: namelist_file
     character (len=200) :: namelist_out
 
     ! genoa read input lists
-    character (len=20)  :: tmpID0, tmpID1
+    character (len=40)  :: tmpID0, tmpID1, tmp_name
     character (len=200) :: tmp_string
     character (len=400) :: output_aero_list, output_gas_list
     character (len=400) :: err_species_list 
@@ -524,7 +524,7 @@ contains
 
     namelist /output/ output_directory, output_type, particles_composition_file, &
                       output_aero_list, output_gas_list, & ! genoa inputs
-                      err_species_list, & ! genoa inputs
+                      err_species_list, nout_soa, & ! genoa inputs
                       ref_conc_files_in !genoa inputs
 
 
@@ -711,7 +711,7 @@ contains
     end if
 
     ! GENOA read tag_init_set from initID
-    if (trim(initID).ne."-") then
+    if (trim(initID).ne."-" .and. trim(initID).ne."0") then
         read(initID,*,iostat=ierr) tag_init_set ! read integer
         if (ierr.ne.0) then
             print*, "Error: can not read tag_init_set from initID: ",trim(initID)
@@ -865,7 +865,7 @@ contains
        if (ssh_logger) write(logfile,*) '<<<< Species lists >>>>'
 
        ! update species_list_file with chemID
-       if (chemID .ne. "-") species_list_file = trim(adjustl(species_list_file))//"/"//trim(chemID2)//".species"
+       if (trim(chemID) .ne. "-") species_list_file = trim(adjustl(species_list_file))//"/"//trim(chemID2)//".species"
 
        if (ssh_standalone) write(*,*) 'gas phase species file :', trim(species_list_file)
        if (ssh_logger) write(logfile,*) 'gas phase species file :', trim(species_list_file)
@@ -880,10 +880,10 @@ contains
         count = 0 ! count gas-phase species
         icmt = 0  ! count comment lines
         do while(ierr .eq. 0)
-           read(11, *, iostat=ierr) tmp_string
+           read(11, *, iostat=ierr) tmp_name
            if (ierr /= 0) exit ! no line to read
-           tmp_string = adjustl(tmp_string)
-           if (trim(tmp_string) == "" .or. tmp_string(1:1) == "%" .or. tmp_string(1:1) == "#") then
+           tmp_name = adjustl(tmp_name)
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. tmp_name(1:1) == "#") then
              icmt = icmt + 1 ! read comment lines
            else
              count = count + 1 ! read gas-phase species
@@ -922,7 +922,7 @@ contains
        if (reaction_list_file.ne."---") then
 
           ! update reaction_list_file with chemID
-          if (chemID .ne. "-") reaction_list_file=trim(adjustl(reaction_list_file))//"/"//trim(chemID2)//".reactions"
+          if (trim(chemID) .ne. "-") reaction_list_file=trim(adjustl(reaction_list_file))//"/"//trim(chemID2)//".reactions"
 
           if (ssh_standalone) write(*,*) 'reaction list file:', trim(reaction_list_file)
           if (ssh_logger) write(logfile,*) 'reaction list file', trim(reaction_list_file)
@@ -942,8 +942,9 @@ contains
        stop
     else
        ! update aerosol_species_list_file with chemID
-       if (chemID .ne. "-") aerosol_species_list_file = trim(adjustl(aerosol_species_list_file))//"/"//trim(chemID2)//".aer.vec"
-       
+       if (trim(chemID).ne."-") then
+         aerosol_species_list_file = trim(adjustl(aerosol_species_list_file))//"/"//trim(chemID2)//".aer.vec"
+       endif
        if (ssh_standalone) write(*,*) 'particle species file :', trim(aerosol_species_list_file)
        if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
        if (aerosol_structure_file.ne."---") then
@@ -1489,6 +1490,7 @@ contains
     endif
     
     ! genoa ! default values
+    nout_soa = 0 ! default no SOA groups
     ref_conc_files_in = "---"
     output_aero_list  = "---"
     output_gas_list   = "---"
@@ -1519,7 +1521,7 @@ contains
           if (ssh_logger) write(logfile,*) 'results are saved in text files.'
        end if
 
-       output_directory = trim(adjustl(output_directory))
+       output_directory = adjustl(output_directory)
        if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
        if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
 
@@ -1541,6 +1543,8 @@ contains
            output_directory = trim(output_directory)//trim(tmpID0)
            particles_composition_file = trim(output_directory)//'.fac'
            output_conc_file = trim(output_directory)//'.concs'
+           ! Create directory if it does not exist.
+           call system("mkdir -p "// trim(output_directory))
        endif
 
        if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
@@ -1569,8 +1573,8 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_aero
-            call get_token(output_aero_list, tmp_string,",")
-            output_aero_species(i) = trim(tmp_string)
+            call get_token(output_aero_list, tmp_name, ",")
+            output_aero_species(i) = tmp_name
             !print*,i," now: ",output_aero_list," species taken: ",output_aero_species(i)
         end do
     else
@@ -1595,8 +1599,8 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_gas
-            call get_token(output_gas_list, tmp_string, ",")
-            output_gas_species(i) = trim(tmp_string)
+            call get_token(output_gas_list, tmp_name, ",")
+            output_gas_species(i) = tmp_name
             !print*,i," now: ",output_gas_list," species taken: ",output_gas(i)
         end do
     else
@@ -1610,13 +1614,6 @@ contains
         if (ssh_standalone) write(*,*) 'Read output speices for error computation: ',trim(err_species_list)
         if (ssh_logger) write(logfile,*) 'Read output speices for error computation: ',trim(err_species_list)
 
-        ! Remove trailing comma if present
-        if (err_species_list /= "") then
-            if (err_species_list(len_trim(err_species_list):) == ",") then
-                err_species_list = adjustl(err_species_list(1:len_trim(err_species_list)-1))
-            end if
-        end if
-        
         ! Count the number of substrings
         call count_delimiter(err_species_list, ",", nout_err)
         !print*,"Find number: ", nout_err
@@ -1628,8 +1625,8 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_err
-            call get_token(err_species_list, tmp_string, ",")
-            output_err_sps(i) = trim(tmp_string)
+            call get_token(err_species_list, tmp_name, ",")
+            output_err_sps(i) = tmp_name
             !print*,i," now: ",err_species_list," species taken: ",output_err(i)
         end do
     else
@@ -1657,7 +1654,7 @@ contains
             if (trim(tmpID0).ne."-") then
               ref_conc_files(i) = trim(adjustl(tmp_string))//trim(tmpID1)
             else
-              ref_conc_files(i) = trim(tmp_string)
+              ref_conc_files(i) = tmp_string
             endif
             !print*,i," now: ",ref_conc_files_in," species taken: ",ref_conc_files(i)
 
@@ -1723,7 +1720,7 @@ contains
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
     character (len=40) :: ic_name, sname, tmp_name
-    integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
+    integer :: aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
@@ -1733,8 +1730,7 @@ contains
     character (len=4) :: partitioning_tmp
 
     ! currently only used for genoa
-    logical :: file_exists
-    character (len=40) :: ivoc0, ivoc1
+    character (len=2) :: ivoc0, ivoc1
     character (len=200) :: tmp_string
     double precision :: tmp_conc
     integer, dimension(:), allocatable :: tmp_index ! (gas/aero, sps index, ref sps index)
@@ -2066,10 +2062,10 @@ contains
        enddo
 
        if (ind .ne. 1) then ! not found
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given in file ",&
+              trim(init_gas_conc_file),": " ,trim(ic_name)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given in file ",&
+              trim(init_gas_conc_file),": " ,trim(ic_name)
        endif
     enddo
     close(21)
@@ -2188,9 +2184,9 @@ contains
              if (ind == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission ", &
                trim(init_gas_conc_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission ", &
                trim(init_gas_conc_file), trim(ic_name)
           end if
        end do
@@ -2320,8 +2316,9 @@ contains
       do while(ierr .eq. 0)
          read(34, *, iostat=ierr) tmp_name
          if (ierr == 0) then
-            if (trim(tmp_name) .eq. "#") then
-               nline = nline + 1
+            tmp_name = adjustl(tmp_name)
+            if (trim(tmp_name) == "" .or. tmp_name(1:1) == "#") then
+               nline = nline + 1 ! Comment line
             else
                count = count + 1
             end if
@@ -2464,7 +2461,7 @@ contains
         ind = 0  ! tag index - 0/1
         j = 0
         write(ivoc0,'(I0)') tag_init_set   ! start sign
-        write(ivoc1,'(I0)') tag_init_set+1 ! stop sign
+        write(ivoc1,'(I0)') tag_init_set + 1 ! stop sign
 
         allocate(tmp_index(2)) ! index of sps/ref sps
         tmp_index = 0
@@ -2472,18 +2469,17 @@ contains
         do while(ierr .eq. 0)
             count = 0 ! default tag
             read(20, '(A)', iostat=ierr) tmp_string ! read line
-            if (trim(tmp_string).eq.trim(ivoc1)) then ! find the stop sign, exit
-                exit
-            else if (trim(tmp_string).eq.trim(ivoc0)) then ! find the start sign, reading next line
-                ind = 1
-                if (ssh_standalone) write(*,*) '  Find sign:', trim(tmp_string)
-                if (ssh_logger) write(logfile,*)'  Find sign:', trim(tmp_string)
-            else if(ind.eq.1.and.ierr.eq.0) then ! read line
-                if (ssh_standalone) write(*,*) '  Read: ', trim(tmp_string)
-                if (ssh_logger) write(logfile,*)'  Read: ', trim(tmp_string)
-                
+            if (ierr /= 0) exit
+            tmp_string = adjustl(tmp_string)
+            s = len_trim(tmp_string) ! len
+            if (s == 0 .or. tmp_string(1:1) == '#') cycle ! Comment lines
+            if (s > 2 ) then
+                if (ind /= 1) cycle ! Read line in other set
+                ! Read line
+                if (ssh_standalone) write(*,*) '  Read init set info: ', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Read init set info: ', trim(tmp_string)
                 read(tmp_string,*, iostat=j) ic_name, tmp_name, sname
-                if (j.eq.0) then
+                if (j.eq.0) then ! Read line
                     count = 3
                     ! get factor
                     read(tmp_name,*, iostat=j) tmp_conc
@@ -2491,13 +2487,20 @@ contains
                 else
                     count = 2
                     read(tmp_string,*, iostat=j) ic_name, tmp_conc
-                    !print*, "read 2:",j, trim(ic_name), tmp_conc
+                    !print*, "read 2:",j, trim(ic_name), tmp_conc                 
                 end if
                 if (j.ne.0) then
-                    print*, "  Can not read line: ", trim(tmp_string)
-                endif
+                    count = 0
+                    print*, " Warning! Can not read line from initial sets file: ", trim(tmp_string)
+                endif 
+            else if (tmp_string(1:2) .eq. ivoc1) then ! find the stop sign, exit
+                exit
+            else if (tmp_string(1:2) .eq. ivoc0) then ! find the start sign, reading next line
+                ind = 1
+                if (ssh_standalone) write(*,*) '  Find sign:', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Find sign:', trim(tmp_string)
             end if
-            
+
             if (count.ne.0) then ! read line info
                 ! check species name and type
                 do js = 1, N_gas
@@ -2549,10 +2552,11 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(24, *, iostat=ierr) tmp_string
+           read(24, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2617,11 +2621,11 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(25, *, iostat=ierr) tmp_string
+           read(25, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              ! read comment lines
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2661,18 +2665,18 @@ contains
     if (cst_gas_file.ne."---") then
         open(unit = 34, file = cst_gas_file, status = "old")
 
-        if (ssh_standalone) write(*,*) 'Gas-phase concentration constant file : ', trim(cst_aero_file)
-        if (ssh_logger) write(logfile,*) 'Gas-phase concentration constant file : ', trim(cst_aero_file)
+        if (ssh_standalone) write(*,*) 'Gas-phase concentration constant file : ', trim(cst_gas_file)
+        if (ssh_logger) write(logfile,*) 'Gas-phase concentration constant file : ', trim(cst_gas_file)
 
         count = 0 
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_string
+           read(34, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              ! read comment lines
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2765,10 +2769,11 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_string
+           read(34, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2806,17 +2811,19 @@ contains
         close(34)
         
         ! check nRO2_group with reaction list
-        ind = minval(TB_rcn(:,2)) !number read from reaction list
-        if (ind.gt.0 .and. abs(ind).gt.nRO2_group) then
-          if (ssh_standalone) write(*,*)"Error: RO2 group no. < RO2 index read from reaction file", &
+        if (nRO2_chem.gt.0) then
+          ind = minval(TB_rcn(:,2)) !number read from reaction list
+          if (ind.gt.0 .and. abs(ind).gt.nRO2_group) then
+            if (ssh_standalone) write(*,*)"Error: RO2 group no. < RO2 index read from reaction file", &
                                  abs(ind), nRO2_group
-          if (ssh_logger) write(logfile,*) "Error: RO2 group no. < RO2 index read from reaction file", &
+            if (ssh_logger) write(logfile,*) "Error: RO2 group no. < RO2 index read from reaction file", &
                                  abs(ind), nRO2_group
-          stop
+            stop
+          endif
         endif
-        
+
         ! check nRO2_group with iRO2_cst
-        if (nRO2_group.gt.1.and.iRO2_cst.gt.0) then
+        if (tag_RO2.gt.1.and.nRO2_group.gt.1.and.iRO2_cst.gt.0) then
           if (ssh_standalone) write(*,*)   "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
           if (ssh_logger) write(logfile,*) "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
           stop
@@ -2861,8 +2868,8 @@ contains
           enddo
           ! check RO2 index - not found
           if ( RO2out_index(k) .eq. 0) then
-            if (ssh_standalone) write(*,*)   "Not found RO2 poll id in species list: ", k, trim(ic_name), trim(species_list_file)
-            if (ssh_logger) write(logfile,*) "Not found RO2 poll id in species list: ", k, trim(ic_name), trim(species_list_file)
+            if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
+            if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
           end if
         enddo
     endif
@@ -2942,12 +2949,13 @@ contains
   
   implicit none
       
-  integer :: i, j, k, js, ierr, iarrow
-  integer :: ircn, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2 !counts
-  integer :: start, finish, tag
-  double precision :: ratio
+  integer :: i, j, k, js, ierr, iarrow, nrct, npdt
+  integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2, ipdt_r, ipdt_f !counts
+  integer :: start, finish
   
-  character (len=400) :: line, subline
+  double precision, dimension(3) :: ratios ! use to read ratio function
+  
+  character (len=800) :: line, subline
   character (len=80) :: tmp_line
   character (len=80) :: sname
   
@@ -2967,7 +2975,9 @@ contains
     ircn = 0 ! count the number of reactions
     irct = 0 ! count the number of reactants
     ipdt = 0 ! count the number of products
-    
+    ipdt_r= 0 ! count the number of products with ratio
+    ipdt_f= 0 ! count the number of products with ratio as a function
+    iknc = 0  ! count the number of kinetics
     ipho  = 0 ! count the number of photolysis read from file
     ipho_t= 0 ! count the number of photolysis read from line
     itb   = 0 ! count the number of TB reactions
@@ -2979,18 +2989,20 @@ contains
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
         line = adjustl(line)
-        if(trim(line) == 'END') exit ! end sign
-        if(trim(line) == '' .or. line(1:1) == '%' .or. line(1:1) == '#') cycle ! read comments
-        ! read reactions
+        i = len_trim(line)
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
-        if(iarrow > 0) then
-            ircn = ircn + 1 ! no.reaction
+        if(iarrow > 0) then ! Find a reaction
+            ircn = ircn + 1     ! no.reaction
             call count_delimiter(line(1:iarrow - 1), ' + ',i)
-            irct = i + irct ! no.reactant
-            call count_delimiter(line(iarrow + 2:), ' + ',i)
-            ipdt = i + ipdt ! no.product
+            irct = i + irct     ! no.reactant
+            call count_products(line(iarrow + 2:), i, j, k)
+            ipdt = i + ipdt     ! no.product
+            ipdt_r = ipdt_r + j ! no.product w ratio
+            ipdt_f = ipdt_f + k ! no.ratio as a function
         ! find all kinetic keywords
         else if (line(1:7) == "KINETIC") then
+            iknc = iknc + 1 !no.kinetic
             read(line(8:), '(A20)') sname ! keywords
             ! Check 1st keyword (two keywords in a line)
             if (index(sname,'TB') /= 0) then
@@ -3014,16 +3026,23 @@ contains
     n_reaction = ircn
     n_photolysis = ipho
 
+    if (ssh_standalone) then
+        print*, "Finish 1st time reading reactions. Read No.reactions: ",n_reaction
+        if (ircn /= iknc) print*, "No.kinetics /= No.reactions: ", iknc
+    endif
+    
     ! allocate arrays
-    allocate(index_RCT(irct,2), index_PDT(ipdt,2)) ! index of species in species_list
-    allocate(ratio_PDT(ipdt)) ! branching ratios
+    allocate(index_RCT(irct,2))   ! index of species in species list and reaction list
+    allocate(index_PDT(ipdt,3))   ! index of species in species list, reaction list, ratio list
+    allocate(index_PDT_ratio(ipdt_f,3))
+    allocate(ratio_PDT(ipdt_r))   ! branching ratios
     
     ! kinetics
     allocate(photo_rcn(ipho,2)) ! code of photolysis
     allocate(photo_ratio_read(ipho_t,nsza)) ! read ratio
     
     allocate(TB_rcn(itb+iro2,2))  ! TBs & RO2-RO2 2. index(TB+,RO2-); 1. reaction index
-    allocate(Arrhenius(ircn,3))   ! kinetic rate contants
+    allocate(Arrhenius(iknc,3))   ! kinetic rate contants
     allocate(fall_rcn(ifall))     ! 1. spec index; 2: reaction index
     allocate(fall_coeff(ifall,8)) ! coefficients for troe reactions
     allocate(extra_rcn(iext))     ! code and reaction index for EXTRA type of reactions
@@ -3031,22 +3050,25 @@ contains
 
     ! for two-step: y,w,rk,prod,loss,dw
     allocate(gas_yield(n_gas))
-    allocate(rcn_rate(n_reaction))
-    allocate(kinetic_rate(n_reaction))
+    allocate(rcn_rate(iknc))
+    allocate(kinetic_rate(iknc))
     allocate(chem_prod(n_gas))
     allocate(chem_loss(n_gas))
     allocate(drv_knt_rate(irct))
     
+    if (ssh_standalone) print*, "Finish allocating arrays for reactions."
+
     ! init
     index_RCT = 0
-    index_PDT = 0    
+    index_PDT = 0
+    index_PDT_ratio = 0
+    ratio_PDT = 0.d0
+    
     photo_rcn = 0
     TB_rcn = 0
     fall_rcn = 0
     extra_rcn = 0
-
-    ratio_PDT = 1.d0
-    
+        
     Arrhenius = 0.d0
     fall_coeff = 0.d0
     extra_coeff = 0.d0
@@ -3055,28 +3077,33 @@ contains
 
     ! recount size
     ircn = 0 ! count the number of reactions
+    iknc = 0  ! count the number of kinetics
+
     irct = 0 ! count the number of reactants
     ipdt = 0 ! count the number of products
-    
+    ipdt_r =0 ! count the number of products with prodcut ratio
+    ipdt_f =0 ! count the number of products with prodcut ratio as a function
+
     ipho  = 0 ! count the number of photolysis read from a file
     ipho_t= 0 ! count the number of photolysis read from a tabulation
     itb   = 0 ! count the number of TB reactions
     iro2  = 0 ! count the number of RO2-RO2 reactions
     ifall = 0 ! count the number of falloff reactions 
     iext  = 0 ! count the number of other types of reactions
-    
-    tag = 0 ! number of reactions that record kinetics
-    
+
     ! Read reactions and their rates
     do
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
         line = adjustl(line)
-        if(trim(line) == 'END') exit ! end sign
-        if(trim(line) == '' .or. line(1:1) == '%' .or. line(1:1) == '#') cycle ! read comments
+        i = len_trim(line)
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
         if (iarrow > 0) then ! read reactions
             ircn = ircn + 1 ! reaction index
+            nrct = 0 ! Reset count reactants
+            npdt = 0 ! Reset count products
+            !if (ssh_standalone) print*, "Reading reaction: ", ircn, " / ", n_reaction
 
             ! Extract reactants
             subline = line(1:iarrow-1)
@@ -3085,19 +3112,20 @@ contains
                 ! get sname
                 finish = index(subline(start:), ' + ')
                 if (finish == 0) then ! last species
-                    sname = trim(adjustl(subline(start:)))
+                    sname = adjustl(subline(start:))
                 else
-                    sname = trim(adjustl(subline(start:start+finish-2)))
+                    sname = adjustl(subline(start:start+finish-2))
                     start = start + finish + 1
                 endif
                 
                 ! get sname index
                 irct = irct + 1 ! index in index_RCT
+                nrct = nrct + 1 ! count
                 ! get index in species list
                 do js = 1, N_gas
                   if (species_name(js) .eq. sname) then
                     index_RCT(irct,1)=ircn ! no.reaction
-                    index_RCT(irct,2)=js ! no.species
+                    index_RCT(irct,2)=js   ! no.species
                     exit
                   endif
                 enddo
@@ -3112,27 +3140,43 @@ contains
 
             ! Extract products & branching ratios
             subline = line(iarrow+2:)
+            ! If there is no product - continue
+            if (len_trim(subline) == 0 ) cycle
+
+            ! Start to process products
             start = 1
             do
                 ! get sname in the format "xxx" or "5E-2 xxx" 
                 finish = index(subline(start:), ' + ')
                 if (finish == 0) then ! last species
-                    tmp_line = trim(adjustl(subline(start:)))
+                    tmp_line = adjustl(subline(start:))
                 else
-                    tmp_line = trim(adjustl(subline(start:start+finish-2)))
+                    tmp_line = adjustl(subline(start:start+finish-2))
                     start = start + finish + 1
                 endif
-                
-                ! get sname index
-                ipdt = ipdt + 1 ! index in index_RCT
-                
-                ! get species num and index
-                call get_number_and_string(tmp_line, ratio, sname)
 
-                ratio_PDT(ipdt) = ratio ! ratio
-                
-                if (trim(sname) .ne. "NOTHING") then
-                    ! get index in species list
+                ipdt = ipdt + 1 ! index in index_RCT
+                npdt = npdt + 1 ! count
+                ! get species num and index
+                if (len_trim(tmp_line) == 0) then ! update for no product
+                    index_PDT(ipdt,1) = ircn
+                else ! get index in species list
+                    call get_prodcut_and_ratios(tmp_line, ratios, sname, i)
+                    if (i /= 0) then ! Find ratio
+                        ipdt_r = ipdt_r + 1 ! count
+                        ! update index
+                        if (i == 3) then ! Find ratio, k1, k2 - use a function
+                            ipdt_f = ipdt_f + 1 ! count function
+                            index_PDT(ipdt,3) = -ipdt_f  ! Record index
+                            index_PDT_ratio(ipdt_f,1) = ipdt_r ! ratio index
+                            index_PDT_ratio(ipdt_f,2) = INT(ratios(2))+ircn-1 ! k1
+                            index_PDT_ratio(ipdt_f,3) = INT(ratios(3))+ircn-1 ! k2
+                        else
+                            index_PDT(ipdt,3) = ipdt_r  ! ratio as a number
+                        endif
+                        ! update ratio
+                        ratio_PDT(ipdt_r) = ratios(1)
+                    endif
                     do js = 1, N_gas
                       if (species_name(js) .eq. sname) then
                         index_PDT(ipdt,1)=ircn
@@ -3147,26 +3191,33 @@ contains
                                 ' ',trim(tmp_line)
                         stop
                     endif
-                else ! update for NOTHING
-                    index_PDT(ipdt,1) = ircn
-                    index_PDT(ipdt,2) = 0
-                    ratio_PDT(ipdt) = 0.d0
                 endif
-                
                 ! check exit
                 if (finish == 0) exit
             end do
                         
         elseif (line(1:7) == "KINETIC") then ! read kinetics
 
-            subline = trim(adjustl(line(8:)))
-            do js=1, len(subline)
+            iknc = iknc + 1 ! Count kinetics
+            ! Update ircn if need
+            if (ircn /= iknc) then
+                !print*, 'Update index: ',ircn,iknc
+                ! Update ircn index in index_RCT & index_PDT
+                do js=1, nrct
+                    index_RCT(irct-nrct+js,1) = iknc
+                enddo
+                do js=1, npdt
+                    index_PDT(ipdt-npdt+js,1) = iknc
+                enddo
+                ircn = iknc
+            endif
+
+            subline = adjustl(line(8:))
+            do js=1, len_trim(subline)
                 if (subline(js:js) .eq. " ") exit ! found space to locate 1st keyword
             enddo 
             
-            read(subline(1:js), '(A20)', iostat=ierr) sname ! keyword            
-            if (ierr.eq.0) tag = tag + 1
-            
+            read(subline(1:js), '(A20)', iostat=ierr) sname ! keyword
             js = js + 1 ! cursor position
             
             ! read 1st keyword TBs & RO2s
@@ -3174,23 +3225,23 @@ contains
             
                 ! read info related to TBs & RO2s
                 itb = itb + 1 ! both TB & RO2
-                TB_rcn(itb,1) = ircn
+                TB_rcn(itb,1) = iknc
                 
                 ! read second input: for TB is a string, for RO2 is a number
-                subline = trim(adjustl(subline(js:)))
-                do js=1, len(subline)
+                subline = adjustl(subline(js:))
+                do js=1, len_trim(subline)
                     if (subline(js:js) .eq. " ") exit ! found " " loc
                 enddo
                 
                 if (trim(sname) == "TB") then ! read TB
                     read(subline(1:js), '(A20)', iostat=ierr) sname
                     if (ierr /= 0) then
-                        print*, "Can not read TB name from line", trim(subline), ircn
+                        print*, "Can not read TB name from line", trim(subline), iknc
                         stop
                     endif
                     ! get index in TBs
                     j = 0
-                    do i = 1, size(TBs)
+                    do i = 1, 5 ! Need to update here the size of TBs
                         if (trim(TBs(i)) == trim(sname)) then
                             j = i
                             exit
@@ -3216,8 +3267,8 @@ contains
                 
                 ! read 2nd keyword
                 js = js + 1
-                subline = trim(adjustl(subline(js:)))
-                do js=1, len(subline)
+                subline = adjustl(subline(js:))
+                do js=1, len_trim(subline)
                     if (subline(js:js) .eq. " ") exit ! found " "
                 enddo
                 read(subline(1:js), '(A20)', iostat=ierr) sname
@@ -3232,7 +3283,7 @@ contains
                 js = index(subline, ' ')
                 if (js /= 0) then ! find space
                     ! check length of str
-                    if (len(trim(adjustl(subline(1:js)))).eq.0) exit
+                    if (len_trim(adjustl(subline(1:js))).eq.0) exit
                     ! read number
                     read(subline(1:js), *, iostat=ierr) tmp_in
                     if (ierr .eq. 0) a_tmp(i) = tmp_in ! read
@@ -3243,7 +3294,7 @@ contains
             
             ! check no. read coefficients
             if (i-1.lt.1) then
-                print*, 'read no kinetic coefficient', ircn
+                print*, 'read no kinetic coefficient', iknc
                 stop
             else
                 finish = i - 1
@@ -3254,25 +3305,24 @@ contains
                 ! read arrhenius contants - can be 3 or 4 (with a ratio from GENOA reduction)
                 if (finish.eq.3 .or. finish.eq.4) then
                     do i = 1, 3
-                        Arrhenius(ircn,i) = a_tmp(i)
+                        Arrhenius(iknc,i) = a_tmp(i)
                     enddo
                     if (finish.eq.4) then ! multiply read ratio
-                        Arrhenius(ircn,1) = Arrhenius(ircn,1) * a_tmp(4)
+                        Arrhenius(iknc,1) = Arrhenius(iknc,1) * a_tmp(4)
                     endif
                 else
                     print*, "Error:  ARR read no. coeff should be 3 or 4", &
-                            ircn, finish, a_tmp(1:finish)
+                            iknc, finish, a_tmp(1:finish)
                     stop
                 endif
-
              elseif (trim(sname) == "PHOT".or.trim(sname) == "PHOTOLYSIS") then
                 ! read photolysis
                 ipho = ipho + 1
-                photo_rcn(ipho,1) = ircn
+                photo_rcn(ipho,1) = iknc
 
                 if (finish .eq. 2) then ! read only index & ratio
-                    photo_rcn(ipho,2) = nint(a_tmp(1))
-                    Arrhenius(ircn,1) = a_tmp(2)
+                    photo_rcn(ipho,2) = int(a_tmp(1))
+                    Arrhenius(iknc,1) = a_tmp(2)
                     
                 else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
                     ! id: negative in photo_ratio_read
@@ -3286,25 +3336,25 @@ contains
                     
                     ! ratio
                     if (finish.eq.nsza+1) then ! read
-                        Arrhenius(ircn,1) = a_tmp(nsza+1)
+                        Arrhenius(iknc,1) = a_tmp(nsza+1)
                     else ! default
-                        Arrhenius(ircn,1) = 1d0
+                        Arrhenius(iknc,1) = 1d0
                     endif
                 else
                     print*, "Error: PHOT read no. coeff not 2/nsza/nsza+1." &
-                            , ircn, finish, a_tmp(1:finish)
+                            , iknc, finish, a_tmp(1:finish)
                     stop
                 endif
 
             elseif (trim(sname) == "FALLOFF") then
                 ! read falloff 
                 ifall = ifall + 1
-                fall_rcn(ifall) = ircn
+                fall_rcn(ifall) = iknc
 
                 ! arrhenius(3) + FALLOFF(7) + ratio = 11
                 if (finish.eq.10 .or. finish.eq.11) then 
                     do i = 1, 3 ! arrhenius coefficents
-                        Arrhenius(ircn,i) = a_tmp(i)
+                        Arrhenius(iknc,i) = a_tmp(i)
                     enddo
                     do i = 1, 7 ! falloff coefficents
                         fall_coeff(ifall,i) = a_tmp(i+3)
@@ -3316,17 +3366,17 @@ contains
                         fall_coeff(ifall,8) = 1d0
                     endif
                 else
-                    print*, "Error: FALLOFF read no.coeff should be 10 or 11", ircn, &
-                            finish, a_tmp(1:finish)
+                    print*, "Error: FALLOFF read no.coeff should be 10 or 11", &
+                            iknc, finish, a_tmp(1:finish)
                     stop
                 endif
 
             elseif (trim(sname) == "EXTRA") then
               ! read extra or specified kinetics
               iext = iext + 1
-              extra_rcn(iext) = ircn
+              extra_rcn(iext) = iknc
                 
-              js = nint(a_tmp(1)) ! get label
+              js = int(a_tmp(1)) ! get label
               extra_coeff(iext,1) =  js
 
               SELECT CASE (js)
@@ -3338,13 +3388,13 @@ contains
                     enddo
                     ! ratio
                     if (finish.eq.5) then
-                        Arrhenius(ircn,1) = a_tmp(5)
+                        Arrhenius(iknc,1) = a_tmp(5)
                     else ! default
-                        Arrhenius(ircn,1) = 1d0
+                        Arrhenius(iknc,1) = 1d0
                     endif
                   else
                     print*, "Error: EXTRA 91 read no. not 4/5 for MCM photolysis", &
-                             ircn,finish,a_tmp(1:finish)
+                             iknc, finish,a_tmp(1:finish)
                     stop
                   endif
                   
@@ -3353,13 +3403,13 @@ contains
                     extra_coeff(iext,2) = a_tmp(2)
                     ! ratio
                     if (finish.eq.3) then
-                        Arrhenius(ircn,1) = a_tmp(3)
+                        Arrhenius(iknc,1) = a_tmp(3)
                     else ! default
-                        Arrhenius(ircn,1) = 1d0
+                        Arrhenius(iknc,1) = 1d0
                     endif
                   else
                     print*, "Error: EXTRA 92,93 read no. not 2/3 for MCM generic, complex rate coefficents", &
-                             ircn,finish,a_tmp(1:finish)
+                              iknc,finish,a_tmp(1:finish)
                     stop
                   endif
 
@@ -3367,12 +3417,12 @@ contains
                     start = finish ! get length - no. coff remain unread
                     if (finish.ge.4) then
                         do i = 2, 4
-                            Arrhenius(ircn,i-1) = a_tmp(i)
+                            Arrhenius(iknc,i-1) = a_tmp(i)
                         enddo
                         start = start - 4
                     else
                         print*, "Error: EXTRA GECKO read no. < 4", &
-                                 ircn,finish,a_tmp(1:finish)
+                                iknc,finish,a_tmp(1:finish)
                         stop
                     endif
                     
@@ -3401,7 +3451,7 @@ contains
                     ! check if read all
                     if (start.ne.0) then
                         print*, "Error: EXTRA GECKO read no. coefs not match required: ", js, j, &
-                                 ircn,finish,start,a_tmp(1:finish)
+                                 iknc,finish,start,a_tmp(1:finish)
                         stop
                     endif
                     
@@ -3412,13 +3462,13 @@ contains
                     extra_coeff(iext,2) = a_tmp(2)
                     ! ratio
                     if (finish.eq.3) then
-                        Arrhenius(ircn,1) = a_tmp(3)
+                        Arrhenius(iknc,1) = a_tmp(3)
                     else ! default
-                        Arrhenius(ircn,1) = 1d0
+                        Arrhenius(iknc,1) = 1d0
                     endif
                   else
                     print*, "Error: EXTRA read no. coeffs not 2/3", js, &
-                             ircn,finish,a_tmp(1:finish)
+                             iknc,finish,a_tmp(1:finish)
                     stop
                   endif
 
@@ -3433,22 +3483,18 @@ contains
             END if
         else ! neither reaction nor kinetics, not read
             ! print to check
-            print*, 'Not read line from reaction file: ',trim(line)
+            print*, 'Error: Can not read line from reaction file: ',trim(line)
+            stop
         endif
     end do
 
     close(11)
     
-    print*,'Read reaction file. No.rcn: ',ircn,' No.rct: ', &
-          irct,' No.pdt: ',ipdt,' No.pho: ',ipho,' No.pho_tab: ' &
-          ,ipho_t ,' No.tb: ', itb-iro2,' No.fall: ',ifall, &
-          ' No.ext: ',iext, ' No.RO2-RO2', iro2
-    
-    ! check number of reactions with kinetics
-    if (tag .ne. ircn) then
-        print*, 'the number of reactions not match the number of kinetics: ',ircn,' ',tag
-        stop
-    endif
+    print*,'Finished reading reaction file. Find No.rcn: ',ircn,' No.rct: ', &
+          irct,' No.pdt: ',ipdt, ' No.pdt w ratio: ',ipdt_r, &
+          ' No.pdt w ratio as a function: ', ipdt_f, &
+          ' No.pho: ',ipho,' No.pho_tab: ',ipho_t ,' No.tb: ', &
+          itb-iro2, ' No.fall: ',ifall, ' No.ext: ',iext, ' No.RO2-RO2: ', iro2
 
   end subroutine ssh_read_reaction_file
   
@@ -3463,7 +3509,7 @@ contains
     integer :: npho_r,npho_t, npho_tot
     integer :: tag, ind
     character (len=200) :: line
-    character (len=40) :: ic_name, sname, tmp_name
+    character (len=40) :: ic_name, sname
     double precision :: a_tmp(nsza), tmp, tmp_inter(4,nsza-1)
     
 
@@ -3648,6 +3694,7 @@ contains
     if (allocated(extra_rcn)) deallocate(extra_rcn)
     if (allocated(index_RCT)) deallocate(index_RCT)
     if (allocated(index_PDT)) deallocate(index_PDT)
+    if (allocated(index_PDT_ratio)) deallocate(index_PDT_ratio)
     if (allocated(Arrhenius)) deallocate(Arrhenius)
     if (allocated(fall_coeff)) deallocate(fall_coeff)
     if (allocated(extra_coeff)) deallocate(extra_coeff)
@@ -3835,7 +3882,6 @@ contains
     logical, intent(in) :: flag
 
     integer :: ierr
-    logical :: log_file_exists
 
     ssh_logger = flag
 
@@ -3881,65 +3927,61 @@ contains
 ! genoa used for read strings from namelist
 
 subroutine get_token(input_string, token, delimiter)
-    ! read an input string
+
     character(*), intent(inout) :: input_string
     character(*), intent(out) :: token
-    character(len=*), intent(in) :: delimiter
-    character(len=200) :: temp_string
-    integer :: comma_pos, space_pos, i
+    character(len=1), intent(in) :: delimiter
+    integer :: i ! comma position
 
-    comma_pos = index(input_string, trim(delimiter))
-    if (comma_pos == 0) then
+    input_string = adjustl(input_string)
+    i = index(input_string, delimiter) ! Find delimiter
+    if (i == 0) then ! No delimiter
         token = trim(input_string)
         input_string = ""
         return
     end if
 
-    temp_string = input_string(1:comma_pos-1)
-    space_pos = len_trim(temp_string)
-    do i = space_pos, 1, -1
-        if (temp_string(i:i) /= ' ') exit
-    end do
+    token = trim(input_string(1:i-1)) ! Get token before delimiter
+    input_string = input_string(i+1:) ! Update input_string
 
-    token = temp_string(1:i)
-    input_string = input_string(comma_pos+1:)
-    
 end subroutine get_token
 
-
-subroutine get_number_and_string(s, num_val, str_val)
+subroutine get_prodcut_and_ratios(s, numbers, str_val, nrt)
 
     character(len=*), intent(in) :: s
-    character(len=len(s)) :: trimmed, temp_str
-    double precision :: num_val
+    double precision, dimension(3) :: numbers
     character(len=len(s)) :: str_val
-    integer :: i, last_char, space_pos
+    integer :: i, ierr, nrt
 
-    ! Initial value
-    num_val = 1.0
-    str_val = s
+    numbers = 0.d0
+    nrt = 0 ! number of ratios <= 3
 
-    ! Trim the string from the right
-    last_char = len(s)
-
-    do while(s(last_char:last_char) == ' ' .and. last_char > 0)
-        last_char = last_char - 1
+    str_val = adjustl(s) ! Adjust the string
+    
+    i = 1  ! current position of a string
+    do while (i <= len_trim(str_val))
+        if (str_val(i:i) == ' '.and. i > 1) then ! Find a space (i) and a string (1:i-1)
+            nrt = nrt + 1
+            if (nrt <= 3) then ! Max. 3 ratios
+                read(str_val(1:i-1), *, iostat=ierr) numbers(nrt)
+                if (ierr == 0) then ! Read a number
+                    str_val = adjustl(str_val(i+1:)) ! Update the string
+                    i = 1 ! Reset the loop counter
+                else
+                    print*, nrt,'number can not read in line: ',trim(str_val),' from ',trim(s)
+                    stop
+                endif
+            else
+                print*, 'Too many numbers in line: ', trim(s)
+                stop
+            endif
+        endif
+        i = i + 1
     end do
-    trimmed = adjustl(s(:last_char))
-    
-    ! Find space in the middle
-    space_pos = index(trim(trimmed), ' ')
-    if (space_pos /= 0) then
-      ! Extract the numeric part and string part
-      read(trimmed(1:space_pos), *, iostat=i) num_val
-      if (i /= 0) num_val = 1.0 ! If conversion fails, set to default value
-      str_val = adjustl(trimmed(space_pos+1:))
-    else
-      str_val = trimmed
-    end if
-    !print*, trim(s)," after: ", trim(str_val)," ", num_val
-    
-end subroutine get_number_and_string
+
+    !print*, 'Finish reading ',trim(s)," find: ", numbers, nrt, trim(str_val)
+
+end subroutine get_prodcut_and_ratios
 
 subroutine count_delimiter(str, delimiter, res)
     character(*), intent(in) :: str
@@ -3960,6 +4002,47 @@ subroutine count_delimiter(str, delimiter, res)
     end if
 
 end subroutine count_delimiter
+
+subroutine count_products(s, count_pdt, count_ratio, count_set)
+    character(len=*), intent(in) :: s
+    character(len=len(s)) :: str_val
+    integer :: count, count_ratio, count_pdt, count_set, i, start, len_s
+    character(len=1) :: ch
+
+    str_val = adjustl(s)
+    len_s = len_trim(str_val)
+    count = 0       ! number of elements
+    count_pdt = 0   ! number of products (default one, incremented with '+')
+    count_ratio = 0 ! number of ratios
+    count_set = 0   ! number of ratios as a set of three numbers 
+    start = 1       ! start of the word
+
+    ! Process each character in the string
+    do i = 1, len_s
+        ch = str_val(i:i)
+        if (ch == ' '.or. i == len_s) then ! Find a space
+            if (i == len_s .and. ch /= ' ') count = count + 1 ! End of the list
+            if (i > start) then ! Find a valid string
+                if (i == len_s .or. (start == i-1 .and. str_val(start:start) == '+')) then
+                    count_pdt = count_pdt + 1 ! Add one product
+                    if (count > 1) then ! count == 1: sname
+                        count_ratio = count_ratio + 1
+                        if (count == 4) then ! count == 3: ratio, k1, k2, sname
+                            count_set = count_set + 1
+                        else if (count /= 2) then ! count == 2: ratio, sname
+                            print*, count, 'count number should be 1, 2, or 4. Check: ', trim(s)
+                            stop
+                        endif
+                    endif
+                    count = 0 ! Reset
+                else  ! Find an element: can be a ratio or species name
+                    count = count + 1
+                endif
+            endif
+            start = i + 1
+        endif
+    enddo
+end subroutine count_products
 
 ! ===========================================
 end module aInitialization

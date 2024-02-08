@@ -98,6 +98,7 @@ contains
       ! SumMc, YlH2O                                                    
       ! use: Arrhenius(:,:), fall_coeff(:,:), ratio_PDT(:) , photo_ratio(:,:,:) 
 
+      DOUBLE PRECISION, ALLOCATABLE :: ro2_basic_rate(:) ! compute in ssh_basic_kinetic
 !     Projection.                                                       
 !     Conversion mug/m3 to molecules/cm3.
       gas_yield = 0.d0 !init
@@ -164,7 +165,17 @@ contains
          concii(Jsp)=ZCtot(Jsp)
          conci(Jsp)=ZCtot(Jsp)
       enddo 
-                                                                        
+
+
+      s = 0 ! Count No.reactions with RO2
+      do i1 = 1, size(TB_rcn,1)
+        if (TB_rcn(i1, 2) .le. 0) s = s + 1 ! Find RO2 reactions
+      enddo
+      allocate(ro2_basic_rate(s))
+
+      ! Compute basic kinetics
+      CALL ssh_basic_kinetic(ro2_basic_rate, s)
+      
       !premier calcul de l'ordre 1                                      
       do j=1,m 
                                                                         
@@ -180,16 +191,25 @@ contains
             RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
          endif
          
-        ! kinetic rate                                                  
+        ! Update kinetic rate                                                  
+        ! aerosol_formation = F ! to use T option, change file to chem
         ! Compute zenithal angles                                       
         DLmuzero=ssh_muzero(tschem,longitude,latitude) 
         Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
-        
-          ! aerosol_formation = F ! to use T option, change file to chem
+        CALL ssh_update_kinetic_pho(Zangzen)
+        ! Update rate for RO2 reaction
+        if (tag_RO2.gt.0 .and. size(ro2_basic_rate).gt.0) then
+            s = 0 ! Count No.reactions with RO2
+            do i1=1, size(TB_rcn,1)
+                Jsp = TB_rcn(i1,2)
+                if (Jsp .le. 0) then
+                    s = s + 1
+                    kinetic_rate(TB_rcn(i1,1)) = ro2_basic_rate(s) * RO2s(abs(Jsp))
+                endif
+            enddo
+        endif
 
-          CALL SSH_Kinetic(Zangzen,RO2s)                   
-                                                                        
-            ! keep inorganic constant                                   
+        ! keep inorganic constant                                   
         if (ncst_gas.gt.0) then 
             do i1=1,ncst_gas 
                gas_yield(cst_gas_index(i1))=ZC_cst(i1)
@@ -274,14 +294,24 @@ contains
                 RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
             endif
                                                                         
-            ! kinetic rate                                              
-            ! Compute zenithal angles                                   
+            ! Update kinetic rate                                                  
+            ! aerosol_formation = F ! to use T option, change file to chem
+            ! Compute zenithal angles                                       
             DLmuzero=ssh_muzero(tschem,longitude,latitude) 
-            Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI) 
+            Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
+            CALL ssh_update_kinetic_pho(Zangzen)
+            ! Update rate for RO2 reaction
+            if (tag_RO2.gt.0 .and. size(ro2_basic_rate).gt.0) then
+                s = 0 ! Count No.reactions with RO2
+                do i1=1, size(TB_rcn,1)
+                    Jsp = TB_rcn(i1,2)
+                    if (Jsp .le. 0) then
+                        s = s + 1
+                        kinetic_rate(TB_rcn(i1,1)) = ro2_basic_rate(s) * RO2s(abs(Jsp))
+                    endif
+                enddo
+            endif
 
-          ! aerosol_formation = F                                       
-          CALL SSH_Kinetic(Zangzen,RO2s)                   
-                                                                        
             ! keep inorganic constant                                   
             if (ncst_gas.gt.0) then 
                do i1=1,ncst_gas 
@@ -355,16 +385,26 @@ contains
             ! add background RO2
             if (tag_RO2.eq.2.or.tag_RO2.eq.3) then
                 RO2s(1) = RO2s(1) + ZC_cst(iRO2_cst) 
-            endif
-                                                                        
-            ! kinetic rate                                              
-            ! Compute zenithal angles                                   
-            DLmuzero=ssh_muzero(tschem,longitude,latitude) 
-            Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI) 
+            endif              
 
-          ! aerosol_formation = F                                       
-          CALL SSH_Kinetic(Zangzen,RO2s)                   
-                                                                        
+            ! Update kinetic rate                                                  
+            ! aerosol_formation = F ! to use T option, change file to chem
+            ! Compute zenithal angles                                       
+            DLmuzero=ssh_muzero(tschem,longitude,latitude) 
+            Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
+            CALL ssh_update_kinetic_pho(Zangzen)
+            ! Update rate for RO2 reaction
+            if (tag_RO2.gt.0 .and. size(ro2_basic_rate).gt.0) then
+                s = 0 ! Count No.reactions with RO2
+                do i1=1, size(TB_rcn,1)
+                    Jsp = TB_rcn(i1,2)
+                    if (Jsp .le. 0) then
+                        s = s + 1
+                        kinetic_rate(TB_rcn(i1,1)) = ro2_basic_rate(s) * RO2s(abs(Jsp))
+                    endif
+                enddo
+            endif
+            
             ! keep inorganic constant                                   
             if (ncst_gas.gt.0) then 
                 do i1=1,ncst_gas 
@@ -536,7 +576,10 @@ contains
      &                           concentration_gas_all(Jb)                  
         enddo
       endif
-                                                                        
+
+      ! deallocate
+      if (allocated(ro2_basic_rate)) deallocate(ro2_basic_rate)
+
   END SUBROUTINE ssh_chem_twostep
 
 END module mod_sshchem                                 
