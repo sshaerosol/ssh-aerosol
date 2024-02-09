@@ -130,7 +130,7 @@ void add_generic_species_ssh(model_config &config,
 	    X.smile=species_smiles[i];
 	    if (species_smiles[i]=="-")
 	      for(int igr = 0; igr < 60; ++igr)
-		X.groups[i] = 0.;		
+		X.groups[igr] = 0.;		
 	    
 	    X.is_inorganic_precursor=false;
 	    X.nonvolatile=false; // Is the compound nonvolatile?
