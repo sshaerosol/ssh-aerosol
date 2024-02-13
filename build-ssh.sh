@@ -38,7 +38,7 @@ export my_mode=${compil_mode}
 if test -f myssh_arch/makefiles.hdr/Makefile.hdr.${compil}-64-ompi; then
     ln -sfn myssh_arch/makefiles.hdr/Makefile.hdr.${compil}-64-ompi Makefile.hdr
 else
-    echo "Error in architecture definition. The file ./makefiles.hdr/Makefile.hdr.${compil}-64-ompi does not exist. Please check --arch [architecture choice]"
+    echo "Error in architecture definition. The file myssh_arch/makefiles.hdr/Makefile.hdr.${compil}-64-ompi does not exist. Please check --arch [architecture choice]"
     exit 1
 fi
 
