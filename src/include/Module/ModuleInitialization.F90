@@ -1745,7 +1745,8 @@ contains
     read(12, *, iostat = ierr) ! Read a header line (#)
 
     s=0
-    do icoun = 1, N_count       
+    do icoun = 1, N_count
+       print*,icoun
 
       read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
         Index_groups_tmp, molecular_weight_aer_tmp, &
