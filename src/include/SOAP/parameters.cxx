@@ -1865,7 +1865,7 @@ void check_config_ssh(model_config &config, vector<species>& surrogate)
             }
           if (surrogate[i].deltaH<=tiny)
             {
-              //cout << "WARNING: bad input for deltaH of species " << surrogate[i].name << endl;
+              cout << "WARNING: bad input for deltaH of species " << surrogate[i].name << endl;
               badly_formatted=true;
             }
 		
@@ -1957,8 +1957,10 @@ void check_config_ssh(model_config &config, vector<species>& surrogate)
 		  
         }
   if(badly_formatted)
-    exit(0);
-  
+    {
+      cout << "badly formatted" << endl;
+      exit(0);
+    }
 }
 
 void init_transfert_parameters_ssh(model_config &config, vector<species>& surrogate)
