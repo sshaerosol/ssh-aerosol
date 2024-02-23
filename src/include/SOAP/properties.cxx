@@ -420,6 +420,8 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 		      radius+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM*surrogate[i].hydrodynamic_radius;
 		      sum1+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].MM;
 		    }
+
+	  double visco_water=surrogate[config.iH2O].eta0;
 	  
 	  if (visco>0)
 	    visco=visco/volume;
@@ -428,6 +430,8 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 	    radius=radius/sum1;
 	  else
 	    radius=5.e-10;
+
+	  
 	  
 	  //cout << visco << endl;
 	  //cout << "radius: " << radius << endl;
@@ -448,8 +452,12 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 	    if (config.explicit_representation)
 	      {
 		for (i=0;i<n;++i)
-		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)		   
-		    surrogate[i].dif_org(b,ilayer)=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
+		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		    {
+		      //10.1021/acsearthspacechem.0c00296
+		      double fractional_component=1.-0.73*exp(-1.79*surrogate[i].hydrodynamic_radius/radius);
+		      surrogate[i].dif_org(b,ilayer)=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco_water)*pow(visco_water/visco,fractional_component);
+		    }
 		  else
 		    surrogate[i].dif_org(b,ilayer)=1.0e-12;
 	      }
@@ -458,7 +466,9 @@ void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,
 		for (i=0;i<n;++i)
 		  if (surrogate[i].is_organic and surrogate[i].hydrophobic)
 		    {
-		      surrogate[i].KDiffusion_p=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco)*radius/surrogate[i].hydrodynamic_radius;
+		      //10.1021/acsearthspacechem.0c00296
+		      double fractional_component=1.-0.73*exp(-1.79*surrogate[i].hydrodynamic_radius/radius);
+		      surrogate[i].KDiffusion_p=1.38e-23*Temperature/(6.0*3.14159*surrogate[i].hydrodynamic_radius*visco_water)*pow(visco_water/visco,fractional_component);
 		      //cout << surrogate[i].name << " " << surrogate[i].KDiffusion_p << " " << endl;
 		    }
 		  else
@@ -2885,6 +2895,7 @@ Taken for AIOMFAC-visco git hub
 	double c = -1.6433;
 	//formula for T above 230K
 	surrogate[i].ln_eta0 = log(b) +c*log((max(Temperature,230.)/a) - 1.0);
+	surrogate[i].eta0=exp(surrogate[i].ln_eta0);
 	//cout << surrogate[i].name << " visco " << exp(surrogate[i].ln_eta0) << " Pa/s" << endl; 
       }
   //exit(0);

@@ -147,7 +147,7 @@ namespace ssh_soap
     //local equilibrium values
     double Kaq_inorg;
     double Tg;   //glass transition temperature
-    double Tno,fragility_parameter,ln_eta0;
+    double Tno,fragility_parameter,ln_eta0,eta0;
     double Psat_ssh(double&);  
     double Kpart_org_ssh(double&, double&);
     double Kpart_aq_ssh(double&, double&);
