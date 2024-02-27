@@ -557,16 +557,17 @@ void characteristic_time_ssh(model_config &config, vector<species>& surrogate,
 	      }
     }  
 
-  for (b=0;b<config.nbins;++b)	  
-    for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
-      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-	{
-	  for (i=0;i<n;i++)
-	    if (ilayer<config.nlayer-1 and surrogate[i].tau_diffusion(b,ilayer,iphase)<config.tequilibrium and surrogate[i].time(b,ilayer+1,iphase)<config.tequilibrium)
-	      surrogate[i].time(b,ilayer,iphase)=0.0;
-
-	  surrogate[config.iH2O].time(b,ilayer,iphase)=0.0; //H2O is force to be at equilibrium
-	}
+  if (config.imethod==0)
+    for (b=0;b<config.nbins;++b)	  
+      for (ilayer=config.nlayer-1;ilayer>=0;--ilayer)
+	for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	  {
+	    for (i=0;i<n;i++)
+	      if (ilayer<config.nlayer-1 and surrogate[i].tau_diffusion(b,ilayer,iphase)<config.tequilibrium and surrogate[i].time(b,ilayer+1,iphase)<config.tequilibrium)
+		surrogate[i].time(b,ilayer,iphase)=0.0;
+	    
+	    surrogate[config.iH2O].time(b,ilayer,iphase)=0.0; //H2O is force to be at equilibrium
+	  }
 }
 
 void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate, double &Temperature,
@@ -3282,7 +3283,10 @@ void prodloss_org_ssh(model_config &config, vector<species>& surrogate,
 		      {
 			double tau_airloc=surrogate[i].tau_air(b);
 			if (surrogate[i].time(b,ilayer,iphase)<config.tequilibrium)
-			  tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time(b,ilayer,iphase);
+			  {
+			    //cout << surrogate[i].name << " " << surrogate[i].time << endl;
+			    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time(b,ilayer,iphase);
+			  }
 			
 			sum=0.0;
 			for (jphase=0;jphase<config.nphase(b,ilayer);++jphase)
