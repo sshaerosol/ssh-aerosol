@@ -1544,8 +1544,17 @@ module SSHaerosolAPI
       implicit none
 
       double precision :: current_time_api
+      double precision, dimension(:), allocatable :: cst_gas_use
+      integer :: s
 
       current_time_api = current_time
+      ! for constant concentrations
+      if (ncst_gas.gt.0) then
+         allocate(cst_gas_use(ncst_gas))
+      else
+         allocate(cst_gas_use(0))
+      endif
+
 
       if (tag_chem .ne. 0) then
         if (tag_twostep .ne. 1) then
@@ -1571,6 +1580,14 @@ module SSHaerosolAPI
               1, not(with_fixed_density), concentration_number, &
               mass_density)
         else
+           ! update constant concentrations if exist
+           ! Temporary fix. 
+          if (ncst_gas .gt. 0) then
+             cst_gas_use = 0.0
+             !do s =1, ncst_gas !size(cst_gas_index)
+             !   cst_gas_use(s) = cst_gas(s,t)
+             !enddo
+          endif
           ! solve chemistry with the two-step time numerical solver if tag_twostep .eq. 1
           call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
               ns_source, source_index, conversionfactor, conversionfactorjacobian,&
@@ -1592,9 +1609,16 @@ module SSHaerosolAPI
               with_adaptive, adaptive_time_step_tolerance,&
               min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
               1, not(with_fixed_density), concentration_number, &
-              mass_density)
+              mass_density, &
+              ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
+              tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
+              aerosol_species_interact(:), keep_gp, concentration_wall, &
+              kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
+              enthalpy_vaporization, t_ref)
         endif
-      end if
+     end if
+
+     if (allocated(cst_gas_use)) deallocate(cst_gas_use) !genoa
       
     end subroutine ssh_api_call_ssh_gaschemistry
 

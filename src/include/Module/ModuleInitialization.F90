@@ -101,7 +101,8 @@ module aInitialization
   Integer, save :: set_icut  ! 0 = need to update ICUT, 1 = keep ICUT unchanged after initialization
   Integer, save :: tag_icut  ! 0 = fixed ICUT, icut is computed in the program using 1 = c/e timescale criteria, 2 = ETR criteria, 3 = QSSA criteria
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
-  double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.   
+  double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.
+  double precision, save :: kwall_gas, kwall_particle, Cwall
 
   character (len=800), save :: reaction_soap_file
 
@@ -232,6 +233,7 @@ module aInitialization
 
   DOUBLE PRECISION, dimension(:), allocatable, save :: concentration_gas_all
   Double precision,dimension(:), allocatable, save :: concentration_gas	! gas concentration of each species
+  Double precision,dimension(:), allocatable, save :: concentration_wall	! wall concentration of each species
   integer, dimension(:,:), allocatable, save :: concentration_index !matrix from grid index to size and composition index
   integer, dimension(:,:), allocatable, save :: concentration_index_iv !matrix from size and composition to grid index
   Double precision,dimension(:), allocatable, save :: concentration_number	!number concentration of each grid cell
@@ -485,7 +487,7 @@ contains
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
-         tag_twostep, keep_gp ! genoa
+         tag_twostep, keep_gp, kwall_gas, kwall_particle, Cwall ! genoa
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -896,11 +898,14 @@ contains
     delta_latitude = -999.d0
     n_altitude = -999
     altitude_photolysis_input = -999.d0
+    kwall_gas=0.d0
+    kwall_particle=0.d0
+    Cwall=0.d0
 
     ! default genoa related paramters
     tag_twostep = 0
     keep_gp = 0
-
+    
     ! init genoa files: RO2 reaction
     tag_RO2 = 0
     RO2_list_file="---"
@@ -910,6 +915,16 @@ contains
        write(*,*) "physic_gas_chemistry data can not be read."
        stop
     else
+       !Force to use twostep if wall losses are used
+       if (Cwall.eq.0.d0) then
+          kwall_gas=0.d0
+       else
+          tag_twostep=1
+       endif
+       if (kwall_particle>0.d0) then
+          tag_twostep=1
+       endif
+       
        ! attenuation = 1.d0 by default
        ! if it is not given in namelist
        if (attenuation == -999.d0) then
@@ -1047,7 +1062,6 @@ contains
 
        if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
-
     end if
 
     ! particle numerical issues
@@ -1746,8 +1760,6 @@ contains
 
     s=0
     do icoun = 1, N_count
-       print*,icoun
-
       read(12, *) aerosol_species_name_tmp, aerosol_type_tmp, &
         Index_groups_tmp, molecular_weight_aer_tmp, &
         precursor, &
@@ -1988,6 +2000,8 @@ contains
     concentration_gas_all = 0.d0 ! set original value to 0
     if ( .not. allocated(concentration_gas)) allocate(concentration_gas(N_aerosol))
     concentration_gas=0.d0
+    if ( .not. allocated(concentration_wall)) allocate(concentration_wall(N_gas))
+    concentration_wall = 0.d0 ! set original value to 0    
 
     open(unit = 21, file = init_gas_conc_file, status = "old")
     count = 0 

@@ -207,7 +207,9 @@ PROGRAM SSHaerosol
                mass_density, &
                ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
                tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-               aerosol_species_interact(:), keep_gp)
+               aerosol_species_interact(:), keep_gp, concentration_wall, &
+               kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
+               enthalpy_vaporization, t_ref)
 
             ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
             total_aero_mass = 0.d0
@@ -267,7 +269,9 @@ PROGRAM SSHaerosol
               mass_density, &
               ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
               tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-              aerosol_species_interact(:), keep_gp)
+              aerosol_species_interact(:), keep_gp, concentration_wall, &
+              kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
+              enthalpy_vaporization, t_ref)
       end if
     end if ! finish chem
 
