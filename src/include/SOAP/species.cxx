@@ -41,7 +41,10 @@ void add_species_ssh( vector<species>& surrogate, species current_species,
         current_species.MM =  molecular_weight_aer[i] / 1.e6;
         current_species.accomodation_coefficient = accomodation_coefficient[i];
 	current_species.is_generic=false;
-	current_species.KDiffusion_air = diffusion_coef[i];
+	if (current_species.is_organic or current_species.is_inorganic_precursor) 
+	  current_species.KDiffusion_air = diffusion_coef[i];
+	else
+	  current_species.KDiffusion_air = 1.e-5;
 	current_species.rho = mass_density[i]*1e9; 
 	if (saturation_vapor_pressure[i]>0.) 
 	  current_species.Psat_ref = saturation_vapor_pressure[i];
