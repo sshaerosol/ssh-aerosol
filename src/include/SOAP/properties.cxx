@@ -535,16 +535,16 @@ void tau_kmt_ssh(model_config &config,vector<species>& surrogate, double &temper
     {
       double diam2=pow(config.diameters(b)*1.0e-6,2.);	         
       for (i=0;i<n;++i)
-	if (number(b)>0.0)        
-	  surrogate[i].tau_air(b)=1.0/
-	    (2.0*pi*surrogate[i].KDiffusion_air*
-	     config.diameters(b)*1.0e-6*number(b)*
-	     surrogate[i].knudsen_function_ssh(temperature, config.diameters(b)*1.0e-6,diam2));	         
+	if (number(b)>0.0 and surrogate[i].KDiffusion_air>0)
+	  {
+	    surrogate[i].tau_air(b)=1.0/
+	      (2.0*pi*surrogate[i].KDiffusion_air*
+	       config.diameters(b)*1.0e-6*number(b)*
+	       surrogate[i].knudsen_function_ssh(temperature, config.diameters(b)*1.0e-6,diam2));
+	  }
 	else
 	  surrogate[i].tau_air(b)=1.0e19; 
     }
-
-  
 }
 
 void tau_dif_ssh(model_config &config, vector<species>& surrogate,
