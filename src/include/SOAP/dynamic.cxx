@@ -1002,7 +1002,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			
 			  surrogate[i].flux_chem(b,ilayer,iphase,index)+=-flux*fac;
 			  surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
-			  cout << "aaaa111... " << endl;
+			  //cout << "aaaa111... " << endl;
 			  if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophobic)
 			    if (surrogate[i].irr_mass_conserving[jmol])
 			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux;
@@ -1167,7 +1167,6 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			for (ilayer=0;ilayer<config.nlayer;ilayer++)
 			  surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
 
-		      cout << "ok1 " << endl;
 		      if (surrogate[i].iother_irreversible[jmol]>=0)
 			{
 			  flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
@@ -1185,6 +1184,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 
   
       for (i=0;i<n;++i)
+	if (surrogate[i].is_organic or i==config.iH2O)
         {
       
           double sum_flux_gas=0.;
@@ -1192,30 +1192,37 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
             sum_flux_gas=surrogate[i].flux_chem_gas(index)/surrogate[i].Ag;
 
           for (b=0;b<config.nbins;++b)
-            {
-              for (ilayer=0;ilayer<config.nlayer;ilayer++)
-                for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)       
-                  if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
-                    {                        
-                      if (surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat+surrogate[i].k1(b,ilayer,iphase,index)<0.0 and
-                          surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
-                        surrogate[i].Jdn(b,ilayer,iphase)=(surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat+surrogate[i].k1(b,ilayer,iphase,index))/
-                          surrogate[i].Ap_layer_init(b,ilayer,iphase); 
-                      else
-                        surrogate[i].Jdn(b,ilayer,iphase)=0.0;
-                  
-                      if (surrogate[i].Ag>tiny)
-                        sum_flux_gas-=surrogate[i].k1(b,ilayer,iphase,index)/surrogate[i].Ag;
-                    }       
-                  else
-                    {                        
-                      if (surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat<0.0 and surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
-                        surrogate[i].Jdn(b,ilayer,iphase)=surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat/
-                          surrogate[i].Ap_layer_init(b,ilayer,iphase); 
-                      else
-                        surrogate[i].Jdn(b,ilayer,iphase)=0.0;                                    
-                    }    
-          
+            {              
+		if (surrogate[i].hydrophobic)
+		  for (ilayer=0;ilayer<config.nlayer;ilayer++)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			//ut << surrogate[i].name << " " << b << " " << ilayer << " " << iphase << " " << surrogate[i].time(b,ilayer,iphase) << " " << config.tequilibrium << endl;
+			if (surrogate[i].time(b,ilayer,iphase)>=config.tequilibrium)
+			  {
+			    //ut << "A" << endl;
+			    if (surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat+surrogate[i].k1(b,ilayer,iphase,index)<0.0 and
+				surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
+			      surrogate[i].Jdn(b,ilayer,iphase)=(surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat+surrogate[i].k1(b,ilayer,iphase,index))/
+				surrogate[i].Ap_layer_init(b,ilayer,iphase); 
+			    else
+			      surrogate[i].Jdn(b,ilayer,iphase)=0.0;
+			    
+			    if (surrogate[i].Ag>tiny)
+			      sum_flux_gas-=surrogate[i].k1(b,ilayer,iphase,index)/surrogate[i].Ag;
+			  }       
+			else
+			  {
+			    //ut << "B" << endl;
+			    if (surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat<0.0 and surrogate[i].Ap_layer_init(b,ilayer,iphase)>tiny)
+			      surrogate[i].Jdn(b,ilayer,iphase)=surrogate[i].flux_chem(b,ilayer,iphase,index)/deltat/
+				surrogate[i].Ap_layer_init(b,ilayer,iphase); 
+			    else
+			      surrogate[i].Jdn(b,ilayer,iphase)=0.0;                                    
+			  }
+		      }
+
+		if (surrogate[i].hydrophilic)
               if (surrogate[i].time_aq(b)>=config.tequilibrium)
                 {
                   if (surrogate[i].flux_chem_aq(b,index)/deltat+surrogate[i].k1_aq(b,index)<0.0 and surrogate[i].Aaq_bins_init(b)>tiny)
@@ -1330,7 +1337,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux;
 			    else
 			      surrogate[surrogate[i].i_irreversible[jmol]].flux_chem_aq(b,index)+=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
-			  cout << "ok2 " << endl;
+			  //ut << "ok2 " << endl;
 			  if (surrogate[i].iother_irreversible[jmol]>=0)
 			    if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophobic)
 			      surrogate[surrogate[i].iother_irreversible[jmol]].flux_chem(b,ilayer,iphase,index)+=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
@@ -1533,7 +1540,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 			  for (ilayer=0;ilayer<config.nlayer;ilayer++)
 			    surrogate[surrogate[i].i_irreversible[jmol]].flux_chem(b,ilayer,0,index)+=flux*config.Vlayer(ilayer);
 
-			cout << "ok3 " << endl;
+			//cout << "ok3 " << endl;
 			if (surrogate[i].iother_irreversible[jmol]>=0)
 			  {
 			    flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
