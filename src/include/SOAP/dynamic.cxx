@@ -1571,7 +1571,7 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
   double xmin=1.0e-10;
   double conc_org;
 
-  if (config.chemistry)
+  if (config.chemistry and config.compute_organic)
     {
       for (b=0;b<config.nbins;++b)
         for (ilayer=0;ilayer<config.nlayer;ilayer++)
@@ -1593,7 +1593,7 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			double Keq2=surrogate[j].MM/surrogate[i].MM*pow(surrogate[i].Keq_oligo,surrogate[i].moligo-1)*pow(max(Xmono,xmin),surrogate[i].moligo-2)/pow(max(XH2O,xmin),surrogate[i].moligo-1);                      
 			double flux1=surrogate[i].koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*surrogate[i].Ap_layer_init(b,ilayer,iphase)*Xmono;
 			double flux2=surrogate[i].koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)*surrogate[j].Ap_layer_init(b,ilayer,iphase)/Keq2;
-		      
+			
 			surrogate[i].kprod(b,ilayer,iphase)+=flux2;
 			surrogate[j].kprod(b,ilayer,iphase)+=flux1;
 			surrogate[i].kloss(b,ilayer,iphase)+=surrogate[i].koligo*surrogate[i].gamma_org_layer(b,ilayer,iphase)*Xmono;
@@ -4706,10 +4706,12 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
   //compute kinetic rates
   prodloss_aq_ssh(config, surrogate, AQinit, LWC, MMaq, chp, ionic, MOinit, 1, Temperature, deltat);
   if (config.compute_organic)
-    if (index==0)
-      prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 0, deltat);
-    else
-      prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 1, deltat);
+    {
+      if (index==0)
+	prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 0, deltat);
+      else
+	prodloss_org_ssh(config, surrogate, MOinit, AQinit, tiny, 1, deltat);
+    }
 
   if (config.compute_organic)
     hydratation_dyn_ssh(config, surrogate, RH, AQinit);
