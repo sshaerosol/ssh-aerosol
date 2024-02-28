@@ -464,7 +464,8 @@ C     Storage in the array of chemical concentrations.
      $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index ! for RO2-RO2 reaction
      $     ,aerosol_species_interact,keep_gp, DLwall
      $     ,kwall_gas,kwall_particle,Cwall,aerosol_type,psat,dhvap,Tref
-     $     ,eddy_turbulence,surface_volume_ratio,dif_air,velocity)
+     $     ,eddy_turbulence,surface_volume_ratio,dif_air,velocity,kwp0
+     $     ,radius_chamber)
 
 C------------------------------------------------------------------------
 C     
@@ -532,7 +533,7 @@ C------------------------------------------------------------------------
       DOUBLE PRECISION wet_diameter_aer(nbin_aer)
       INTEGER hetero_species_index(4)
       DOUBLE PRECISION DLconc_aer(nbin_aer,ns_aer)
-      DOUBLE PRECISION DLnumconc_aer(nbin_aer)
+      DOUBLE PRECISION DLnumconc_aer(nbin_aer),vset(nbin_aer)
 
       INTEGER ICLD,IHETER,INUM,IDENS
 
@@ -584,7 +585,9 @@ C     genoa keep_gp: gas-particle partitioning
       DOUBLE PRECISION ratio_gas(ns),ZCtot(NS),DLconc_save(ns)
       DOUBLE PRECISION klossg(ns_aer),dif_air(ns_aer),velocity(ns_aer)
       DOUBLE PRECISION eddy_turbulence,surface_volume_ratio,accom
-      DOUBLE PRECISION kploc,gamloc
+      DOUBLE PRECISION kploc,gamloc,kwp0
+      DOUBLE PRECISION air_free_mean_path,viscosity,DP,CC,rho_tmp
+      DOUBLE PRECISION radius_chamber,dif_part,debye
 
 C     Aerosol density converted in microg / microm^3.
       RHOA = fixed_density_aer * 1.D-09
@@ -1284,7 +1287,35 @@ C     Storage in the array of chemical concentrations.
          enddo
       endif
 
-      IF (kwall_particle>0.d0) THEN
+      if (eddy_turbulence>0.d0.and.kwp0>0.d0
+     &     .and.radius_chamber>0.d0) then
+         call ssh_COMPUTE_AIR_FREE_MEAN_PATH(DLtemp,DLpress,
+     &        air_free_mean_path,viscosity)
+         air_free_mean_path=air_free_mean_path*1.0e-6
+         do Jb=1,Nbin_aer
+            if (wet_diameter_aer(Jb)>0.d0) then
+               DP=wet_diameter_aer(Jb)*1.0e-6
+            else
+               DP=(bin_bound_aer(Jb)*bin_bound_aer(Jb+1))**0.5*1.0e-6
+            endif
+            rho_tmp=rho_dry(Jb)*1.d18
+            call ssh_compute_CC(air_free_mean_path,DP,CC)         
+            call ssh_compute_VSTOKES(DP,rho_tmp,CC,viscosity,vset(Jb))
+            dif_part=1.39d-23*DLtemp/(3.d0*pi*viscosity*DP)
+            call SSH_DEBYE_N(pi*vset(Jb)
+     &           /(2*(eddy_turbulence*dif_part)**0.5)
+     &           ,1,debye)
+            kwall_particle=kwp0+vset(Jb)*3.d0/4.d0/8.314d0+debye*
+     &           6*(eddy_turbulence*dif_part)**0.5/pi/radius_chamber
+            !print*,kwall_particle
+            wloss=exp(-kwall_particle*delta_t)
+            DLnumconc_aer(Jb)=DLnumconc_aer(Jb)*wloss
+            DO Jsp = 1, Ns_aer
+               DLconc_aer(Jb,Jsp)=DLconc_aer(Jb,Jsp)*wloss
+            ENDDO
+            
+         enddo      
+      ELSE IF (kwall_particle>0.d0) THEN
          wloss=exp(-kwall_particle*delta_t)
          DO Jb = 1, nbin_aer
             DLnumconc_aer(Jb)=DLnumconc_aer(Jb)*wloss

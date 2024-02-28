@@ -194,7 +194,7 @@ PROGRAM SSHaerosol
               mass_density)
 
           delta_t2 = delta_t ! same for ros2 solver
-       else
+       else          
          if (t==1.and.keep_gp.eq.1) then
             ! delta_1=0.001*delta_t
             call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
@@ -223,7 +223,7 @@ PROGRAM SSHaerosol
                aerosol_species_interact(:), keep_gp, concentration_wall, &
                kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
                enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
-               diffusion_coef, quadratic_speed)
+               diffusion_coef, quadratic_speed,kwp0,radius_chamber)
 
             ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
             total_aero_mass = 0.d0
@@ -258,7 +258,7 @@ PROGRAM SSHaerosol
          else
             delta_t2=delta_t
          endif
-
+        
          ! solve chemistry with the two-step time numerical solver if tag_twostep .eq. 1
          call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
               ns_source, source_index, conversionfactor, conversionfactorjacobian,&
@@ -286,7 +286,7 @@ PROGRAM SSHaerosol
               aerosol_species_interact(:), keep_gp, concentration_wall, &
               kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
               enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
-              diffusion_coef, quadratic_speed)
+              diffusion_coef, quadratic_speed,kwp0,radius_chamber)
       end if
     end if ! finish chem
 

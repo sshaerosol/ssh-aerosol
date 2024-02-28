@@ -80,11 +80,13 @@ tag_twostep=1,
 /
 
 &physic_chamber
-kwall_particle=1.e-4,
-kwall_gas=3.e-4,
-Cwall=0.,    !Around 10800*surface_volume_ratio (Huang et al., 2018)
-surface_volume_ratio=1.d0,
-eddy_turbulence=1.d0,
+kwall_particle=1.e-4,              !Fixed wall loss rate of particles (s-1). Used if kwp0 and eddy_turbulence are not provided
+kwall_gas=3.e-4,                   !Fixed wall loss rate of gases (s-1). Used in Cwall and eddy_turbulence are not provided
+Cwall=10000,                       !Around 10800*surface_volume_ratio (Huang et al., 2018) in ug/m3
+surface_volume_ratio=2.22d0,       !Ratio between the surface and volume of the chamber (m-1)
+eddy_turbulence=0.1d0,             !In s-1
+kwp0=8.e-5,                        !Minimal wall loss of particles due to particle charge
+radius_chamber=1.,                 !Radius of the chamber (m). Used to calculate particle deposition from eddy turbulence.
 /
 
 &physic_particle_numerical_issues

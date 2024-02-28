@@ -62,7 +62,7 @@ C------------------------------------------------------------------------
       IMPLICIT NONE
 
       DOUBLE PRECISION  LAMBDA,DP,CC
-
+    
       CC=1.257D0 + 0.4D0 * DEXP(-1.1D0 * DP /(2.D0 * LAMBDA))
       CC=1.D0+(2.D0*LAMBDA/DP)*CC
 
@@ -201,3 +201,27 @@ C     Molar mass of air. ([kg.mol-1])
       RETURN
       END
 
+      SUBROUTINE SSH_DEBYE_N(x,n,debye)
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     Calculate the value of the n debye function of x
+C
+C------------------------------------------------------------------------      
+      IMPLICIT NONE
+      DOUBLE PRECISION x,t,debye
+      INTEGER n,i
+      INTEGER niter
+      niter=1000
+      
+      debye=0.d0
+      DO i=1,niter
+         t=(i-0.5d0)*x/niter
+         debye=debye+t**n/(exp(t)-1)*x/niter
+      ENDDO      
+      debye=debye*n/(x**n)     
+      
+      RETURN
+      END
+      

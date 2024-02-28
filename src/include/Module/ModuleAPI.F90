@@ -1615,7 +1615,7 @@ module SSHaerosolAPI
               aerosol_species_interact(:), keep_gp, concentration_wall, &
               kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
               enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
-              diffusion_coef, quadratic_speed)
+              diffusion_coef, quadratic_speed,kwp0,radius_chamber)
         endif
      end if
 

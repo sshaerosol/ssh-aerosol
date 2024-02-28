@@ -102,7 +102,7 @@ module aInitialization
   Integer, save :: tag_icut  ! 0 = fixed ICUT, icut is computed in the program using 1 = c/e timescale criteria, 2 = ETR criteria, 3 = QSSA criteria
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
   double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.
-  double precision, save :: kwall_gas, kwall_particle, Cwall, surface_volume_ratio, eddy_turbulence
+  double precision, save :: kwall_gas, kwall_particle, Cwall, surface_volume_ratio, eddy_turbulence, kwp0,radius_chamber
 
   character (len=800), save :: reaction_soap_file
 
@@ -489,7 +489,7 @@ contains
          n_altitude, altitude_photolysis_input, & 
          tag_twostep, keep_gp
 
-    namelist /physic_chamber/ kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio 
+    namelist /physic_chamber/ kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -905,6 +905,8 @@ contains
     Cwall=0.d0
     eddy_turbulence=0.d0
     surface_volume_ratio=0.d0
+    kwp0=0.d0
+    radius_chamber=0.d0
 
     ! default genoa related paramters
     tag_twostep = 0
