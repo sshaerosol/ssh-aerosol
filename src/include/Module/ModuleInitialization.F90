@@ -102,7 +102,7 @@ module aInitialization
   Integer, save :: tag_icut  ! 0 = fixed ICUT, icut is computed in the program using 1 = c/e timescale criteria, 2 = ETR criteria, 3 = QSSA criteria
   integer, save :: cond_time_index(3) ! store the index of ENO3, ECL and ENH4 for icut computation
   double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.
-  double precision, save :: kwall_gas, kwall_particle, Cwall
+  double precision, save :: kwall_gas, kwall_particle, Cwall, surface_volume_ratio, eddy_turbulence
 
   character (len=800), save :: reaction_soap_file
 
@@ -487,7 +487,9 @@ contains
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
-         tag_twostep, keep_gp, kwall_gas, kwall_particle, Cwall ! genoa
+         tag_twostep, keep_gp
+
+    namelist /physic_chamber/ kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio 
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -901,6 +903,8 @@ contains
     kwall_gas=0.d0
     kwall_particle=0.d0
     Cwall=0.d0
+    eddy_turbulence=0.d0
+    surface_volume_ratio=0.d0
 
     ! default genoa related paramters
     tag_twostep = 0
@@ -915,15 +919,6 @@ contains
        write(*,*) "physic_gas_chemistry data can not be read."
        stop
     else
-       !Force to use twostep if wall losses are used
-       if (Cwall.eq.0.d0) then
-          kwall_gas=0.d0
-       else
-          tag_twostep=1
-       endif
-       if (kwall_particle>0.d0) then
-          tag_twostep=1
-       endif
        
        ! attenuation = 1.d0 by default
        ! if it is not given in namelist
@@ -1063,6 +1058,25 @@ contains
        if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
     end if
+
+    read(10, nml = physic_chamber, iostat = ierr)
+    !if (ierr .eq. 0) then
+    if (ierr .ne. 0) then
+       if (ssh_standalone) write(*,*) "Chamber mode not found"
+       if (ssh_logger) write(logfile,*)  "Chamber mode not found"
+    else
+       if (ssh_standalone) write(*,*) "Chamber mode found"
+       if (ssh_logger) write(logfile,*)  "Chamber mode found"
+       !Force to use twostep if wall losses are used
+       if (Cwall.eq.0.d0) then
+          kwall_gas=0.d0
+       else
+          tag_twostep=1
+       endif
+       if (kwall_particle>0.d0) then
+          tag_twostep=1
+       endif
+    endif
 
     ! particle numerical issues
     dtaeromin = -999.d0
@@ -1615,6 +1629,7 @@ contains
         write(nml_out, gas_phase_species)
         write(nml_out, aerosol_species)
         write(nml_out, physic_gas_chemistry)
+        write(nml_out, physic_chamber)
         write(nml_out, physic_particle_numerical_issues)
         write(nml_out, physic_coagulation)
         write(nml_out, physic_condensation)

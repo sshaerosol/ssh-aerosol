@@ -76,10 +76,15 @@ latitude_min = 0.d0,
 delta_latitude = 10.d0,
 n_altitude = 9,
 altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0, 15000.0, 20000.0,
+tag_twostep=1,
+/
+
+&physic_chamber
 kwall_particle=0.,
 kwall_gas=3.e-4,
-Cwall=100,    
-tag_twostep=1,
+Cwall=10000,    
+surface_volume_ratio=1.d0,
+eddy_turbulence=1.d0,
 /
 
 

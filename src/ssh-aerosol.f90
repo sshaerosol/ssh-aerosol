@@ -30,6 +30,7 @@ PROGRAM SSHaerosol
   character (len=10) :: ivoc0
   ! genoa timestep for aerosol_dynamic used when keep_gp = 1
   double precision :: delta_t2
+  double precision :: emw_tmp
 
   ! Initial time (seconds)
   call cpu_time(t0)
@@ -113,6 +114,18 @@ PROGRAM SSHaerosol
   else
      allocate(cst_gas_use(0))
   endif
+
+  do jesp=1,N_aerosol
+     if (aerosol_species_interact(jesp).GT.0) then
+        emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
+        call ssh_COMPUTE_GAS_DIFFUSIVITY(Temperature,Pressure,&
+             molecular_diameter(jesp),emw_tmp,&
+             collision_factor_aer(jesp),diffusion_coef(jesp) ) ! gas diff coef in air
+        
+        call ssh_COMPUTE_QUADRATIC_MEAN_VELOCITY(Temperature,&
+             emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
+     endIF
+  enddo
 
   do t = 1, nt
 
@@ -209,7 +222,8 @@ PROGRAM SSHaerosol
                tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
                aerosol_species_interact(:), keep_gp, concentration_wall, &
                kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
-               enthalpy_vaporization, t_ref)
+               enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
+               diffusion_coef, quadratic_speed)
 
             ! re-calculate total_mass(N_aerosol) because mass change due to gas-phase chemistry
             total_aero_mass = 0.d0
@@ -271,7 +285,8 @@ PROGRAM SSHaerosol
               tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
               aerosol_species_interact(:), keep_gp, concentration_wall, &
               kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
-              enthalpy_vaporization, t_ref)
+              enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
+              diffusion_coef, quadratic_speed)
       end if
     end if ! finish chem
 

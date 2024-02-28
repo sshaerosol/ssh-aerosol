@@ -1614,7 +1614,8 @@ module SSHaerosolAPI
               tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
               aerosol_species_interact(:), keep_gp, concentration_wall, &
               kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
-              enthalpy_vaporization, t_ref)
+              enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
+              diffusion_coef, quadratic_speed)
         endif
      end if
 

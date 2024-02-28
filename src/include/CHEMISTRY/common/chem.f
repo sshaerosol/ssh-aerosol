@@ -463,7 +463,8 @@ C     Storage in the array of chemical concentrations.
      $     ,ncst_gas, cst_gas, cst_gas_index !genoa use constant gas conc.
      $     ,tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index ! for RO2-RO2 reaction
      $     ,aerosol_species_interact,keep_gp, DLwall
-     $     ,kwall_gas,kwall_particle,Cwall,aerosol_type,psat,dhvap,Tref)
+     $     ,kwall_gas,kwall_particle,Cwall,aerosol_type,psat,dhvap,Tref
+     $     ,eddy_turbulence,surface_volume_ratio,dif_air,velocity)
 
 C------------------------------------------------------------------------
 C     
@@ -579,8 +580,11 @@ C     genoa keep_gp: gas-particle partitioning
       integer s, keep_gp        ! used for genoa with large timestep
       integer aerosol_species_interact(Ns),aerosol_type(ns_aer)
       DOUBLE PRECISION toadd, ZCtot_save(ns), psat(ns_aer)
-      DOUBLE PRECISION kpart(ns_aer),psat_loc,dhvap(ns_aer),tref(ns_aer)
+      DOUBLE PRECISION krevg(ns_aer),psat_loc,dhvap(ns_aer),tref(ns_aer)
       DOUBLE PRECISION ratio_gas(ns),ZCtot(NS),DLconc_save(ns)
+      DOUBLE PRECISION klossg(ns_aer),dif_air(ns_aer),velocity(ns_aer)
+      DOUBLE PRECISION eddy_turbulence,surface_volume_ratio,accom
+      DOUBLE PRECISION kploc,gamloc
 
 C     Aerosol density converted in microg / microm^3.
       RHOA = fixed_density_aer * 1.D-09
@@ -595,8 +599,10 @@ C     relations between bin idx and size idx
       ENDDO
 
       IF (kwall_gas>0.d0) THEN
+         klossg(:)=0.d0
          DO Jsp=1,ns_aer
             IF (aerosol_type(Jsp)==4 .and. psat(Jsp)>0) THEN
+               Jsp2=aerosol_type(Jsp)
                if (Tref(Jsp)>0) then
                   psat_loc=psat(Jsp) !*
      &                 *exp(-1000.0*dhvap(Jsp)/8.314d0*
@@ -606,13 +612,25 @@ C     relations between bin idx and size idx
      &                 *exp(-1000.0*dhvap(Jsp)/8.314d0*
      &                 (1.0/DLtemp-1.0/298.d0))
                endif
-               kpart(Jsp)=760.d0*8.202d-5*DLtemp/(1.d6*200.d0*psat_loc)
-               kpart(Jsp)=max(kpart(Jsp),kwall_gas/Cwall*tstep_min*5)
-!     print*,Jsp,kpart(Jsp),psat_loc,dhvap(Jsp),psat(Jsp)
+               kploc=760.d0*8.202d-5*DLtemp/(1.d6*Wmol(Jsp2)*psat_loc)
+               gamloc=10.d0**(3.299d0)*kploc**0.6407d0
+               krevg(Jsp)=gamloc/kploc/Cwall*200.d0/Wmol(Jsp2)
+
+               klossg(Jsp)=kwall_gas
+               if (eddy_turbulence>0.d0.and.Cwall>0.d0.and.
+     &              surface_volume_ratio>0.d0) then
+                  accom=min(10.d0**(-2.744d0)*kploc**1.407d0,1.0d0)
+                  klossg(Jsp)=surface_volume_ratio/(pi/2*1.d0/
+     &                 (eddy_turbulence*dif_air(Jsp))**0.5d0+
+     &                 4.d0/(accom*velocity(Jsp)))
+                  !print*,accom,klossg(Jsp) 
+               endif
+               krevg(Jsp)=krevg(Jsp)*klossg(Jsp)
+               kwall_gas=maxval(klossg)
             ENDIF
          ENDDO
       ENDIF
-
+      
 C     With real number concentration.
       IF (INUM.EQ.1) THEN
 C     Compute aerosol density
@@ -825,15 +843,14 @@ C     two-step solver starts
                if (aerosol_species_interact(Jsp)>0) then
                   if (aerosol_type(Jsp) == 4 .and. psat(Jsp)>0) then
                      Jsp2=aerosol_species_interact(Jsp)
-                     chlo0(Jsp2)=chlo0(Jsp2)+kwall_gas*ratio_gas(Jsp2)
-                     chpr0(Jsp2)=chpr0(Jsp2)+
-     &                    kwall_gas/(kpart(Jsp)*Cwall)*ZCwall(Jsp2)
-                     ZCwall(Jsp2)=(concz(Jsp2)+tstep*kwall_gas
+                     chlo0(Jsp2)=chlo0(Jsp2)+klossg(Jsp)*ratio_gas(Jsp2)
+                     chpr0(Jsp2)=chpr0(Jsp2)+krevg(Jsp)*ZCwall(Jsp2)
+                     ZCwall(Jsp2)=(concz(Jsp2)+tstep*klossg(Jsp)
      &                    *ZCtot(Jsp2)*ratio_gas(Jsp2))
-     &                    /(dun+tstep*kwall_gas/(kpart(Jsp)*Cwall))
+     &                    /(dun+tstep*krevg(Jsp))
                      if(ZCwall(Jsp2)<dzero) ZCwall(Jsp2)=dzero
-!     print*,ZCwall(Jsp2),kwall_gas,concz(Jsp2),ZCtot(Jsp2),
-!     &                 kpart(Jsp),Cwall,kwall_gas/(kpart(Jsp)*Cwall)
+!     print*,ZCwall(Jsp2),klossg(Jsp),concz(Jsp2),ZCtot(Jsp2),
+!     &                 kpart(Jsp),Cwall,klossg(Jsp)/(kpart(Jsp)*Cwall)
                   endif
                endif
             enddo
@@ -966,15 +983,13 @@ C     two-step solver starts
                   if (aerosol_species_interact(Jsp)>0) then
                      if (aerosol_type(Jsp) == 4  .and. psat(Jsp)>0) then
                         Jsp2=aerosol_species_interact(Jsp)
-                        chlo0(Jsp2)=chlo0(Jsp2)+kwall_gas
-                        chpr0(Jsp2)=chpr0(Jsp2)+
-     &                       kwall_gas/(kpart(Jsp)*Cwall)*ZCwall(Jsp2)
+                        chlo0(Jsp2)=chlo0(Jsp2)+klossg(Jsp)
+                        chpr0(Jsp2)=chpr0(Jsp2)+krevg(Jsp)*ZCwall(Jsp2)
                         ZCwall(Jsp2)=(((c+dun)*(c+dun)*concz(Jsp2)-
      &                       conczz(Jsp2))/(c*c+2.d0*c)+
-     &                       gam*tstep*kwall_gas*ZCtot(Jsp2)
+     &                       gam*tstep*klossg(Jsp)*ZCtot(Jsp2)
      &                       * ratio_gas(Jsp2))/(dun+
-     &                       gam*tstep*kwall_gas/(kpart(Jsp)*Cwall))
-!print*,Jsp,tstep,kwall_gas/(kpart(Jsp)*Cwall)
+     &                       gam*tstep*krevg(Jsp))
                         if(ZCwall(Jsp2)<dzero) ZCwall(Jsp2)=dzero
                      endif
                   endif
@@ -1100,16 +1115,14 @@ C     two-step solver starts
                      if (aerosol_species_interact(Jsp)>0) then
                         if (aerosol_type(Jsp)==4.and.psat(Jsp)>0) then
                            Jsp2=aerosol_species_interact(Jsp)
-                           chlo0(Jsp2)=chlo0(Jsp2)+kwall_gas
+                           chlo0(Jsp2)=chlo0(Jsp2)+klossg(Jsp)
                            chpr0(Jsp2)=chpr0(Jsp2)+
-     &                          kwall_gas/(kpart(Jsp)*Cwall)
-     &                          *ZCwall(Jsp2)
+     &                          krevg(Jsp)*ZCwall(Jsp2)
                            ZCwall(Jsp2)=(((c+dun)*(c+dun)*concz(Jsp2)-
      &                          conczz(Jsp2))/(c*c+2.d0*c)+
-     &                          gam*tstep*kwall_gas*ZCtot(Jsp2)
+     &                          gam*tstep*klossg(Jsp)*ZCtot(Jsp2)
      &                          * ratio_gas(Jsp2))
-     &                          /(dun+gam*tstep*kwall_gas
-     &                          /(kpart(Jsp)*Cwall))
+     &                          /(dun+gam*tstep*krevg(Jsp))
                            if(ZCwall(Jsp2)<dzero) ZCwall(Jsp2)=dzero
                         endif
                      endif
