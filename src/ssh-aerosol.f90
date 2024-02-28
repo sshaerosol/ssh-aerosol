@@ -115,17 +115,19 @@ PROGRAM SSHaerosol
      allocate(cst_gas_use(0))
   endif
 
-  do jesp=1,N_aerosol
-     if (aerosol_species_interact(jesp).GT.0) then
-        emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
-        call ssh_COMPUTE_GAS_DIFFUSIVITY(Temperature,Pressure,&
-             molecular_diameter(jesp),emw_tmp,&
-             collision_factor_aer(jesp),diffusion_coef(jesp) ) ! gas diff coef in air
-        
-        call ssh_COMPUTE_QUADRATIC_MEAN_VELOCITY(Temperature,&
-             emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
-     endIF
-  enddo
+  if (with_cond.EQ.1.and.kwall_gas>0.d0) then
+     do jesp=1,N_aerosol
+        if (aerosol_species_interact(jesp).GT.0) then
+           emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
+           call ssh_COMPUTE_GAS_DIFFUSIVITY(Temperature,Pressure,&
+                molecular_diameter(jesp),emw_tmp,&
+                collision_factor_aer(jesp),diffusion_coef(jesp) ) ! gas diff coef in air
+
+           call ssh_COMPUTE_QUADRATIC_MEAN_VELOCITY(Temperature,&
+                emw_tmp, quadratic_speed(jesp) ) ! gas quad mean speed in air
+        endIF
+     enddo
+  endif
 
   do t = 1, nt
 
