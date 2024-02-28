@@ -487,9 +487,8 @@ contains
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
-         tag_twostep, keep_gp
-
-    namelist /physic_chamber/ kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
+         tag_twostep, keep_gp, &
+         kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -1059,16 +1058,7 @@ contains
 
        if (ssh_standalone) write(*,*) 'Cloud attenuation field', attenuation
        if (ssh_logger) write(logfile,*) 'Cloud attenuation field', attenuation
-    end if
-
-    read(10, nml = physic_chamber, iostat = ierr)
-    !if (ierr .eq. 0) then
-    if (ierr .ne. 0) then
-       if (ssh_standalone) write(*,*) "Chamber mode not found"
-       if (ssh_logger) write(logfile,*)  "Chamber mode not found"
-    else
-       if (ssh_standalone) write(*,*) "Chamber mode found"
-       if (ssh_logger) write(logfile,*)  "Chamber mode found"
+       
        !Force to use twostep if wall losses are used
        if (Cwall.eq.0.d0) then
           kwall_gas=0.d0
@@ -1630,8 +1620,7 @@ contains
         write(nml_out, fraction_distribution)
         write(nml_out, gas_phase_species)
         write(nml_out, aerosol_species)
-        write(nml_out, physic_gas_chemistry)
-        write(nml_out, physic_chamber)
+        write(nml_out, physic_gas_chemistry)        
         write(nml_out, physic_particle_numerical_issues)
         write(nml_out, physic_coagulation)
         write(nml_out, physic_condensation)

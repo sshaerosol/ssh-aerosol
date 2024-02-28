@@ -77,9 +77,6 @@ delta_latitude = 10.d0,
 n_altitude = 9,
 altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0, 15000.0, 20000.0,
 tag_twostep=1,
-/
-
-&physic_chamber
 kwall_particle=1.e-4,              !Fixed wall loss rate of particles (s-1). Used if kwp0 and eddy_turbulence are not provided
 kwall_gas=3.e-4,                   !Fixed wall loss rate of gases (s-1). Used in Cwall and eddy_turbulence are not provided
 Cwall=10000,                       !Around 10800*surface_volume_ratio (Huang et al., 2018) in ug/m3
