@@ -4677,6 +4677,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
         {
           activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
           compute_kp_org_ssh(config, surrogate, MOinit, Temperature, MOW);
+	  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
         }
      
       if (LWCtot>config.LWClimit)
@@ -4685,6 +4686,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 					   MOinit, conc_inorganic, ionic, ionic_organic,
 					   organion,chp,LWC,MMaq, factor, deltat, 1);
           compute_kp_aq_ssh(config, surrogate, Temperature, ionic, chp, AQinit, MMaq, 0, config.nbins);
+	  characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit);  
         }    
     }
 

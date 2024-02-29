@@ -275,6 +275,11 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       config.isorropia_ph=false;
     }
 
+  if (config.imethod==0)
+    config.kp_low_volatility=0.001;
+  else
+    config.kp_low_volatility=1000.;
+
   //cout << "SOAP inorg: " << soap_inorg << endl;
 
   

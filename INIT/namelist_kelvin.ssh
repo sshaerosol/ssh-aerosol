@@ -9,8 +9,8 @@ Relative_Humidity = 0.1	! if 0, compute RH from specific humidity. if not, use i
 
 &setup_time
 initial_time = 0,             
-final_time = 3600.0,             
-delta_t = 600,                 
+final_time = 3600.,             
+delta_t = 1.,                 
 time_emis = 0,        	 
 /
 
@@ -99,12 +99,12 @@ Cut_dim = 0.0,             ! KCUT	ICUT = 0
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 nlayer = 1,
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
-tequilibrium = 1.e-15,                     ! time under which equilibrium is assumed.
+tequilibrium = 1.e-10,                     ! time under which equilibrium is assumed.
 dorg = 1.e-12,                          ! diffusion coefficient in the organic phase.
 coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
-epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
+epser_soap = 0.0001,                 ! relative difference of ros2 in SOAP  
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
 reaction_soap_file="species-list/REACTIONS.particle.soap",
 /

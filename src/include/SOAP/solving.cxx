@@ -2651,9 +2651,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
   else if (config.compute_inorganic and config.compute_organic)
     nh=max(config.nh_inorg_init,max(config.nh_aq_init,config.nh_org_init));
   else
-    nh=max(config.nh_aq_init,config.nh_org_init);
-  
-  config.nh_max=7;
+    nh=max(config.nh_aq_init,config.nh_org_init); 
 
   double factor_max=1.;
   double factor_min=pow(0.5,config.nh_max-1);
@@ -2664,7 +2662,9 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
   double var;
   double factor_old=factor;
   int m;
+  double significant=1.0e-5;
   chp_save=chp;
+  config.nh_max=7;
   
   for (i=0;i<n;i++)
     {
@@ -3023,7 +3023,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
        
               for (i=0;i<n;i++)
                 if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm)
-                  if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>config.MOmin or surrogate[i].Aaq_bins_init(b)>config.MOmin))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
+                  if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>significant or surrogate[i].Aaq_bins_init(b)>significant))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
                     {
                       /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
                         cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b) << " " << surrogate[i].gamma_aq_bins(b) << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << b << endl;*/
@@ -3045,7 +3045,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 	    if (surrogate[i].hydrophobic)
 	      for (ilayer=0;ilayer<config.nlayer;++ilayer)
 		for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		  if (surrogate[i].Ap_layer(b,ilayer,iphase)>config.Vlayer(ilayer)*config.MOmin)
+		  if (surrogate[i].Ap_layer(b,ilayer,iphase)>config.Vlayer(ilayer)*significant)
 		    {
 		      errloc=(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer(b,ilayer,iphase))/surrogate[i].Ap_layer(b,ilayer,iphase)/factor_old;
 		      if (abs(errloc)>abs(vec_error_compo(index)))
@@ -3208,10 +3208,17 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
             cout << surrogate[i].name << " " << surrogate[i].Aaq_bins_init << " " << surrogate[i].Aaq_bins << endl;
           if (config.compute_organic)
             if (sum(surrogate[i].Ap_layer_init)>1.0e-10)
-              cout << surrogate[i].name << " " << surrogate[i].Ap_layer_init << " " << surrogate[i].Ag << endl;
+	      {
+		ilayer=0;
+		iphase=0;
+		for (b=0;b<config.nbins;b++)
+		  cout << surrogate[i].name << " " << b << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << (surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer(b,ilayer,iphase))/surrogate[i].Ap_layer(b,ilayer,iphase)/factor_old << endl;
+		cout << "gas " << surrogate[i].Ag << " " << (surrogate[i].Ag-surrogate[i].Ag1)/surrogate[i].Ag/factor_old << endl;
+	      }
           if (surrogate[i].is_inorganic_precursor and config.compute_inorganic)
             cout << surrogate[i].name << " " << surrogate[i].Ag0 << endl;
         }
+      cout << config.diameters << endl;
       cout << chp << endl;
       cout << t << " " << deltat << " " << config.max_iter << " " << factor << " " << index << endl;
       //throw string("stop");
@@ -4503,7 +4510,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       while (t<deltatmax)
         {
 	  deltat1=min(deltatmax-t,deltat1);
-	  deltat2=deltat1;	  
+	  deltat2=deltat1;
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
 	  
