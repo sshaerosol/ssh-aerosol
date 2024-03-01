@@ -667,7 +667,7 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
   DOUBLE PRECISION dbound(ns+1),fixed_diameter(ns)
   DOUBLE PRECISION x2hi,Qtotal
   DOUBLE PRECISION DSF(ns),MSD(ns),MSF(ns),XBF(ns+1),XSF(ns),XSD(ns)
-  DOUBLE PRECISION aam,q1,q2,TINYD
+  DOUBLE PRECISION aam,q1,q2,TINYD,aam2,qtot
   INTEGER iredist
 
   NB = NS+1
@@ -698,17 +698,18 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
         MSD(js1) = DEXP(XSD(js1))
      endif
      MSF(js1) = DEXP(XSF(js1))
-     DSF(js1) = fixed_diameter(js1) !(dbound(js1)*dbound(js1+1))**0.5d0
-  ENDDO
+!     DSF(js1) = fixed_diameter(js1) !(dbound(js1)*dbound(js1+1))**0.5d0
+     DSF(js1) = (dbound(js1)*dbound(js1+1))**0.5d0
+ ENDDO
 
   TINYD = (TINYM/CST/fixed_density)**(1.D0/3.D0)
-  !write(*,*) TINYD
   TINYD = 1.d-6
 
   DO js2=1,NS
      iredist = 0
      x2hi=(MSD(js2)/(rho(js2)*CST))**(1.d0/3.D0) ! lagrangian diameter
      CALL SSH_LOCATE(NS,DSF,x2hi,j1hi)
+!     CALL SSH_LOCATE2(NS,dbound,DSF,x2hi,j1hi)
      if(j1hi.GE.1.AND.j1hi.LT.NS) then
         if(x2hi.LT.DSF(j1hi).OR.(x2hi.GT.DSF(j1hi+1)))then
            write(*,*) 'problem in locate',x2hi,DSF(j1hi),DSF(j1hi+1)
@@ -743,12 +744,12 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
                Qtotal = 0.D0
                DO jesp = 1,naer
                   qnew(1,jesp) = qnew(1,jesp) + qesp(js2,jesp)
-                  Qtotal = Qtotal + qnew(NS,jesp)
+                  Qtotal = Qtotal + qnew(1,jesp)
                END DO
                if (with_fixed_density .eq. 0) then
                   CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,1,rho(1))
                endif
-               if(Qtotal.GT.TINYM) Nnew(1) =  Qtotal/CST/rho(1)/fixed_diameter(NS)**3
+               Nnew(1) =  Nnew(1) + Qtotal/CST/rho(1)/fixed_diameter(1)**3                
             endif
         ELSEIF (j1hi.GE.NS) THEN ! use Euler-Mass for the last section
            Qtotal = 0.D0
@@ -765,6 +766,7 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
         ELSE
            diam1=DSF(j1hi)
            diam2=DSF(j1hi+1)
+           qtot = 0.d0
            DO jesp=1,naer
               aam = (1.d0-rho(j1hi+1)/rho(js2)*(diam2/x2hi)**3.D0)/(1.D0-rho(j1hi+1)/rho(j1hi)*(diam2/diam1)**3.D0)
               if(aam.LT.0.D0) aam = 0.D0
@@ -773,12 +775,13 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
               q2 = qesp(js2,jesp) - q1
               qnew(j1hi,jesp) = qnew(j1hi,jesp) + q1
               qnew(j1hi+1,jesp) = qnew(j1hi+1,jesp) + q2
+              qtot = qtot + qesp(js2,jesp)
            END DO
-           aam = (rho(js2)/rho(j1hi+1)*x2hi**3-diam2**3.D0)/(rho(j1hi)/rho(j1hi+1)*diam1**3-diam2**3)
-           if(aam.LT.0.D0) aam = 0.D0
-           if(aam.GT.1.D0) aam = 1.D0
-           Nnew(j1hi) = Nnew(j1hi) + N(js2) * aam 
-           Nnew(j1hi+1) = Nnew(j1hi+1) + N(js2)*(1.d0-aam)
+           aam2 = (rho(js2)/rho(j1hi+1)*x2hi**3-diam2**3.D0)/(rho(j1hi)/rho(j1hi+1)*diam1**3-diam2**3)
+           if(aam2.LT.0.D0) aam2 = 0.D0
+           if(aam2.GT.1.D0) aam2 = 1.D0
+           Nnew(j1hi) = Nnew(j1hi) + N(js2) * aam2 
+           Nnew(j1hi+1) = Nnew(j1hi+1) + N(js2)*(1.d0-aam2)
         ENDIF
      else
         DO jesp = 1,naer
@@ -805,15 +808,17 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
      endif
      if(aam.GT.TINYM.AND.N(js1).GT.TINYN) then
         diam(js1) = (aam/CST /rho(js1)/N(js1))**(1.D0/3.D0)
+!        write(*,*) 'diameter final',js1,diam(js1)
      else
-        diam(js1) = fixed_diameter(js1)
-     endif
-     !if(diam(js1).LT.dbound(js1)) then
-     !   write(*,*) 'EULERCOUPLE: diam lower than bound',diam(js1),dbound(js1),aam,rho(js1),N(js1)
-     !endif
-     !if(diam(js1).GT.dbound(js1+1)) then
-     !   write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1)
-     !endif
+        diam(js1) = (dbound(js1)*dbound(js1+1))**0.5d0 !fixed_diameter(js1)
+!         write(*,*) 'diameter final',js1,diam(js1)
+    endif
+!     if(diam(js1).LT.dbound(js1)) then
+!        write(*,*) 'EULERCOUPLE: diam lower than bound',diam(js1),dbound(js1),aam,rho(js1),N(js1),js1
+!     endif
+!     if(diam(js1).GT.dbound(js1+1)) then
+!        write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1),js1
+!     endif
   ENDDO
 END SUBROUTINE SSH_REDIST_EULERCOUPLE
 !**************************************************

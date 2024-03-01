@@ -75,3 +75,59 @@ C------------------------------------------------------------------------
 
       END
 
+      
+      SUBROUTINE SSH_LOCATE2(n,dbound,DSF,xx,j)
+
+C------------------------------------------------------------------------
+C     
+C     -- DESCRIPTION 
+C     
+C     This subroutine locates the bin j where xx is located in the 
+C     discretization x(*).     
+C     
+C------------------------------------------------------------------------
+C     
+C     -- INPUT VARIABLES
+C     
+C     N : length of array x(*).
+C     X : array of discretization where xx has to be located.
+C     XX: point to be located.
+C     
+C     -- INPUT/OUTPUT VARIABLES
+C     
+C     
+C     -- OUTPUT VARIABLES
+C     
+C     J : interval/bin where xx is located.
+C     
+C------------------------------------------------------------------------
+C     
+C     -- REMARKS
+C     
+C------------------------------------------------------------------------
+C     
+
+      IMPLICIT NONE
+
+      INTEGER j,n,i
+      DOUBLE PRECISION xx,DSF(n),dbound(n+1)
+
+      INTEGER jl,jm,ju
+
+      j = 0
+      IF (xx.LT.dbound(1)) THEN
+         j=0
+      ELSEIF (xx.GT.dbound(n+1)) THEN
+         j=n+1
+      ELSE
+         do i=1,n
+            if((xx.GE.dbound(i)).AND.(xx.LT.dbound(i+1))) then
+               j = i
+            endif
+         enddo
+      ENDIF
+
+      If(xx.LE.DSF(j)) j = j-1
+
+      END
+
