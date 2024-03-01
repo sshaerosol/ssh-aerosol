@@ -17,7 +17,10 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 
   // output flux: 1=screen, 2=file
   int outFlux;
-  outFlux=config.SOAPlog;
+  if (config.SOAPlog==3)
+    outFlux=1;
+  else
+    outFlux=config.SOAPlog;
   
   std::ofstream fileFlux;
   if (outFlux==2)
@@ -4106,7 +4109,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  surrogate[j].groups[igr]=surrogate[i].moligo*surrogate[i].groups[igr];
       }
 
-  if (debug_mode==1)
+  if (debug_mode==1 or config.SOAPlog==3)
     {
       cout << "SUCCESS" << endl;
       exit(0);
