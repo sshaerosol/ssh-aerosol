@@ -1987,13 +1987,16 @@ contains
     if ( .not. allocated(frac_oligo)) allocate(frac_oligo(N_aerosol))
     oligo_index=0
     do s=1,N_aerosol
-       char1=aerosol_species_name(s)       
-       do s2=1,N_aerosol
-          char2=aerosol_species_name(s2)
-          if (trim(char2(2:))=="Oligo"//trim(char1(2:))) then
-             oligo_index(s)=s2
-          endif
-       enddo
+       char2=aerosol_species_name(s)       
+       if (trim(char2(2:6))=="Oligo") then
+          do s2=1,N_aerosol
+             char1=aerosol_species_name(s2)
+             if (trim(char2(2:))=="Oligo"//trim(char1(2:))) then
+                oligo_index(s2)=s                
+                exit
+             endif
+          enddo
+       endif
     enddo
 
     if(with_nucl.EQ.1) then
