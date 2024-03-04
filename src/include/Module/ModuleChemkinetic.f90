@@ -1152,14 +1152,17 @@ subroutine ssh_spack_spec(ire, iex, label)
     if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
       SELECT CASE(ind)
         CASE (1)
-            qfor = SumMc * 6.0d-34 * (temperature/3.d2) ** (-2.4d0)
+           qfor = SumMc * 6.0d-34 * (temperature/3.d2) ** (-2.4d0)
+           qfor = qfor * SumMc * 0.2d0
 !C     YS 17/11/2008 values given by NASA/JPL 2003
         CASE (2)
             qfor = 2.3d-13 * dexp(600.0d0 / temperature) &
                 + 1.7d-33* SumMc * dexp(1000.0d0 / temperature)
         CASE (3)
             qfor = 3.22d-34 * dexp(2800.0d0 / temperature) &
-                + 2.38d-54 * SumMc * dexp(3200.0d0 / temperature)
+                 + 2.38d-54 * SumMc * dexp(3200.0d0 / temperature)
+            qfor = qfor * YlH2O
+                 
         CASE (4)
             ka = 2.4d-14 * dexp(460.0d0 / temperature)
             kb = 2.7d-17 * dexp(2199.0d0 / temperature)
@@ -1167,13 +1170,16 @@ subroutine ssh_spack_spec(ire, iex, label)
             qfor = ka + kd / (1d0 + kd / kb)
 !C     YS 17/11/2008 values given by NASA/JPL 2003
         CASE (5)
-            qfor = 1.44d-13 * (1.0d0 + 2.381d-20 * SumMc)
+            qfor = 1.44d-13 * (1.0d0 + 2.381d-20 * 8.0d-1 * SumMc)
 !C     YS 19/11/2008 value given by IUPAC 2005
         CASE (6)
-            ka = 3.4d-30 * (300./temperature)**(3.2)*SumMc
-            kb = ka / (4.77D-11*(300./temperature)**1.4)
-            qfor = (ka / (1d0 + kb)) * 0.3d0 ** &
-                (1d0 / (1d0 + ((dlog10(kb) - 0.12d0) / 1.2d0) ** 2d0))
+           ! NO2 + OH --> HNO3
+           ka = 2.0d-30 * (temperature / 3.d2)**(-3.d0)
+           kb = 2.5d-11 * (temperature / 3.d2)**(0.d0)
+           qfor = (ka * SumMc / (1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = qfor * 0.885d0
         CASE (7)
             qfor = 1.8d-39 * YlH2O * YlH2O
 !C     YS 26/11/2008 value given by IUPAC 2005
