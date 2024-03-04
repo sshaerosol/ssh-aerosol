@@ -75,7 +75,7 @@ def fast(utils):
     compatible.
     """
     p = _warning(utils)
-    p.flag_compiler += " -Ofast"
+    p.flag_compiler += " -O2"
 
     # p.flag_compiler += " -march=native"
     # using -march=native leads to a more CPU time in polair3d simulations.
