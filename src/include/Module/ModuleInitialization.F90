@@ -390,6 +390,7 @@ contains
     integer :: i,ierr,tag_file, nml_out
     character (len=400), intent(in) :: namelist_file
     character (len=400) :: namelist_out
+    logical :: is_file
 
     ! namelists to read namelist.ssh file 
 
@@ -1013,17 +1014,26 @@ contains
        if (with_coag == 1) then
           if (ssh_standalone) write(*,*) '! ! ! with coagulation.'
           if (ssh_logger) write(logfile,*) '! ! ! with coagulation.'
-          if(i_compute_repart == 0) then
+          inquire (file=Coefficient_file, exist = is_file)
+          if (is_file) then
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are read'
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are read'
-	     if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
-	     if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
-             i_write_repart = 0 ! Do no write repartition coefficients if they are not computed.
+             if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
+             if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
+             i_compute_repart = 0
+             i_write_repart = 0 ! Do not write repartition coefficients if they are not computed.  
           else
-             if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
-             if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
-	     if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
-	     if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
+             if (i_compute_repart == 0) then
+                write(*,*) "Error! Coefficient file does not exist and configuration is set to with_coag = 1 and i_compute_repart = 0. Abort."
+                stop
+             else
+                if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
+                if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
+                if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
+                if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
+                i_compute_repart = 1
+                i_write_repart = 1
+             endif
           endif
           if (i_write_repart == 1) then
              if (ssh_standalone) write(*,*) i_write_repart,'repartition coefficient are written'

@@ -375,7 +375,7 @@ contains
     if (with_coag.eq.1) then !if coagulation
        if(.not. allocated(kernel_coagulation)) allocate(kernel_coagulation(N_size,N_size))
        kernel_coagulation = 0.d0
-
+       tag_file = -999
        if (i_compute_repart == 0 .or. i_write_repart == 1) then
           do i=1,len(trim(Coefficient_file))!judge the input files
              if(Coefficient_file(i:i)==".")then
@@ -385,14 +385,16 @@ contains
                    tag_file=0
                 elseif (Coefficient_file(i+1:i+3)=="txt".or.Coefficient_file(i+1:i+3)=="TXT") then
                    tag_file=2
-                else
-                   if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation."
-                   if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation."
-                   if (i_compute_repart == 0) i_compute_repart = 1
-                   if (i_write_repart == 1) i_write_repart = 0
                 endif
              endif
           enddo
+          if(tag_file == -999) then
+             if (ssh_standalone) write(*,*) "Unsupported input coefficient file type for coagulation."
+             if (ssh_logger) write(logfile,*) "Unsupported input coefficient file type for coagulation."
+             write(*,*) "Unsupported input coefficient file type for coagulation."
+             stop
+          endif
+          
           if (ssh_standalone) write(*,*) 'Coefficient Repartition Database:',Coefficient_file
           if (ssh_logger) write(logfile,*) 'Coefficient Repartition Database:',Coefficient_file
        endif
@@ -411,6 +413,8 @@ contains
 
        ! Check the quality of coagulation repartition coefficients
        call ssh_check_repart_coeff()
+       i_compute_repart = 0 !LL
+       i_write_repart = 0 !LL
 
     endif
     

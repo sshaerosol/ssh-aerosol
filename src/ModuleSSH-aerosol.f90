@@ -28,6 +28,7 @@ contains
     double precision,dimension(nbins+1) :: diam_bins
     
     ssh_standalone = .false.
+    ssh_logger = .false.
 
     call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
@@ -47,8 +48,8 @@ contains
     endif
     
     tag_emis=iemis
-    i_compute_repart = 1
-    i_write_repart = 0
+    ! i_compute_repart = 1
+    ! i_write_repart = 0
 
     call ssh_read_inputs()
 
@@ -92,6 +93,8 @@ contains
     if (.not.allocated(init_bin_number)) then
 
        ssh_standalone = .false.
+       ssh_logger = .false.
+       call ssh_set_logger(ssh_logger)
 
        call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
 
@@ -112,8 +115,8 @@ contains
        endif
 
        tag_emis=iemis
-       i_compute_repart = 1
-       i_write_repart = 0
+       ! i_compute_repart = 1
+       ! i_write_repart = 0
 
        call ssh_read_inputs_spec(nspecies,name_input_species,index_species_ssh)
 
@@ -310,9 +313,9 @@ contains
 
     if (.not.allocated(init_bin_number)) call ssh_read_namelist(namelist_ssh)
 
-    tag_emis=iemis
-    i_compute_repart = 1
-    i_write_repart = 0
+    ! tag_emis=iemis
+    ! i_compute_repart = 1
+    ! i_write_repart = 0
 
     if (.not.allocated(molecular_weight)) call ssh_read_inputs()    
 
@@ -368,7 +371,9 @@ contains
     aero_total_mass=sum(aero_conc(:,1:N_aerosol_layers))
        
     call ssh_init_parameters()
-    call ssh_Init_coag()       
+    if (.not.allocated(repartition_coefficient)) then
+    	call ssh_Init_coag()    
+    endif   
     call ssh_init_distributions()
     !call ssh_init_distributions()
     !print*,"numb: ",sum(concentration_number_tmp)
