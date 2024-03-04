@@ -68,7 +68,8 @@ contains
 	ce_kernal_coef_tot(jesp)=0.D0!TINYA
 	total_ms(jesp)=0.d0
     end do
-    Kelvin_effect=1.000001
+    Kelvin_effect=1.05
+
   !     ****** allocate equilibrium species list      
 
     do s=1,nesp_eq
@@ -95,25 +96,29 @@ contains
 	do j = 1,N_size	!FOR OGANIC
  	 wet_diam=wet_diameter(j)
 	 rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
-! 	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
-!		  Temperature,&          ! temperature (Kelvin)
-!		  emw_tmp,&       ! ext mol weight (g.mol-1)
-!		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
-!		  wet_diam,&         ! wet aero diameter (µm)
-!		  rhop_tmp,&      ! aerosol density (kg.m-3)
-  !		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+         if (with_kelvin_effect == 1) then
+        	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+		  Temperature,&          ! temperature (Kelvin)
+		  emw_tmp,&       ! ext mol weight (g.mol-1)
+		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
+		  wet_diam,&         ! wet aero diameter (µm)
+		  rhop_tmp,&      ! aerosol density (kg.m-3)
+ 		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+          endif
 	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
 		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
 		accomodation_coefficient(jesp),& ! accomadation coef (adim)
 		wet_diameter(j),   & ! wet aero diameter (Âµm)
 		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
-	  if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
-	    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-	                +ce_kernal_coef(j,jesp)*concentration_number(j)!&
-	  !              *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
-	  !KS: ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-	  ! 	      +ce_kernal_coef(j,jesp)*concentration_number(j) 
+          if (with_kelvin_effect == 1) then
+                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)&                
+	                *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
+          else
+                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)!&
+          endif
 	enddo
       endif
     enddo
@@ -343,14 +348,14 @@ contains
     if (soap_inorg==0) then
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            i_hydrophilic,dqaq)
+            i_hydrophilic,dqaq,Kelvin_effect)
     else       
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            i_hydrophilic,dqaq)
+            i_hydrophilic,dqaq,Kelvin_effect)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            0,dqaq)
+            0,dqaq,Kelvin_effect)
 
        if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
           call ssh_redistribution_co3(qaero(ECO3),ICUT_org)
@@ -405,7 +410,7 @@ contains
       ce_kernal_coef_tot(jesp)=0.D0
       total_ms(jesp)=0.d0
     end do
-    Kelvin_effect=1.000001
+    Kelvin_effect=1.05
   !     ****** if sulfate computed dynamically avoid it
   !     ****** allocate equilibrium species list
     do jesp=1,nesp_isorropia
@@ -433,23 +438,29 @@ contains
         ! if (wet_diam .lt. 1.d-3) then
         !   write(*,*) "bulkequi_inorg: too small wet_diameter",wet_diam
          ! endif 
-	      !call ssh_COMPUTE_KELVIN_COEFFICIENT(&
-!		    Temperature,&          ! temperature (Kelvin)
-!		    emw_tmp,&       ! ext mol weight (g.mol-1)
-!		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
-!		    wet_diam,&         ! wet aero diameter (µm)
-!		    rhop_tmp,&      ! aerosol density (kg.m-3)
-!		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
-	      call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
-		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
-		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
-		accomodation_coefficient(jesp),& ! accomadation coef (adim)
-		wet_diameter(j),   & ! wet aero diameter (Âµm)
-		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
-	      if(Kelvin_effect(j,jesp).lt.1.d0) Kelvin_effect(j,jesp)=1.000001
-	      ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-			+ce_kernal_coef(j,jesp)*concentration_number(j) !&
-!!			*(1.d0/(Kelvin_effect(j,jesp)-1.d0)) ! KS
+              if (with_kelvin_effect == 1) then
+	        call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+		    Temperature,&          ! temperature (Kelvin)
+		    emw_tmp,&       ! ext mol weight (g.mol-1)
+		    surface_tension(jesp),&   ! surface tension (N.m-1) from INC
+		    wet_diam,&         ! wet aero diameter (µm)
+		    rhop_tmp,&      ! aerosol density (kg.m-3)
+		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+                endif
+ 	        call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
+		    diffusion_coef(jesp), &! diffusion coef (m2.s-1)
+		    quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
+		    accomodation_coefficient(jesp),& ! accomadation coef (adim)
+		    wet_diameter(j),   & ! wet aero diameter (Âµm)
+		    ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
+                if (with_kelvin_effect == 1) then
+                   ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)&                
+	                *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
+                else
+                   ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)!&
+                endif
             endif
           enddo
         ENDIF
@@ -536,18 +547,16 @@ contains
    jesp=isorropia_species(2)
    concentration_gas(jesp)=qgasi-qgasa
 
-!    call ssh_bulkequi_redistribution_anck(concentration_number,concentration_mass,&
-!    nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
-
     call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,0,daq)
+      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,0,daq,&
+      Kelvin_effect)
 
   end subroutine ssh_bulkequi_inorg
 
 
   
   subroutine ssh_bulkequi_redistribution(c_number,c_mass,nesp_eq,eq_species,end_bin,dq, &
-                                AAi,ce_kernal_coef_tot,i_hydrophilic_tmp,dqaq)
+                                AAi,ce_kernal_coef_tot,i_hydrophilic_tmp,dqaq,ck_ef)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -572,6 +581,7 @@ contains
     integer::eq_species(nesp_eq)
     double precision::totaer,temp_mass,totaa
     double precision::ce_kernal_coef_tot(N_aerosol)
+    double precision::ck_ef(N_size,N_aerosol)
     double precision::dq(N_aerosol)
     double precision::AAi(N_size,N_aerosol)
     double precision::frac(N_size,N_aerosol)
@@ -595,7 +605,12 @@ contains
                 do j =1, N_size
                    if(concentration_index(j, 1) <= end_bin) then
                       if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-                         frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                        if (with_kelvin_effect == 1) then
+                           frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
+                                 ce_kernal_coef_tot(jesp)
+                         else
+                           frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                         endif   
                          temp_mass=c_mass(j,jespmass)+dq(jesp)*frac(j,jesp)
                          if(i_hydrophilic_tmp == 1) then
                             temp_mass_aq=c_mass(j,jespmass2)+dqaq(jesp)*frac(j,jesp)
@@ -624,8 +639,13 @@ contains
                 else !normal case
                    do j =1, N_size
                       if(concentration_index(j, 1) <= end_bin) then
-                         if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-                            frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                         if(ce_kernal_coef_tot(jesp).gt.0.d0) then  
+                            if (with_kelvin_effect == 1) then
+                               frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
+                                    ce_kernal_coef_tot(jesp)
+                            else
+                              frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                            endif
                             c_mass(j,jespmass)=c_mass(j,jespmass)+dq(jesp)*frac(j,jesp)
                          endif
                       endif
@@ -652,7 +672,12 @@ contains
                       do j =1, N_size
                          if(concentration_index(j, 1) <= end_bin) then
                             if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-                               frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                               if (with_kelvin_effect == 1) then
+                                  frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
+                                       ce_kernal_coef_tot(jesp) 
+                               else
+                                  frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
+                               endif   
                                c_mass(j,jespmass2)=c_mass(j,jespmass2)+dqaq(jesp)*frac(j,jesp)
                             endif
                          endif
@@ -666,105 +691,7 @@ contains
 
   end subroutine ssh_bulkequi_redistribution
 
-  subroutine ssh_bulkequi_redistribution_anck(c_number,c_mass,nesp_eq,eq_species,end_bin,dq,AAi,ce_kernal_coef_tot,ck_ef)
-!------------------------------------------------------------------------
-!
-!     -- DESCRIPTION
-!     This subroutine redistribute bulk mass variations into each bins
-!
-!------------------------------------------------------------------------
-!
-!     -- INPUT VARIABLES
-!
-!     c_number: aerosol number concentration(#/m^3)
-!     c_mass: aerosol mass concentration(µg/m^3)
-!     nesp_eq: number of species at equilibirum
-!     eq_species: the list of species pointer at equilibirum
-!     end_bin: marks the number of bins concerned during the redistribution
-!     dq: bulk mass variations
-!     AAi: c/e kernel coefficient          ([m3.s-1]).
-!     ce_kernal_coef_tot: sum of c/e kernel coefficient          ([m3.s-1]).
-!------------------------------------------------------------------------   
-    implicit none
-    integer::j,s,jesp,end_bin,iclip
-    integer::nesp_eq
-    integer::eq_species(nesp_eq)
-    double precision::totaer,temp_mass
-    double precision::ce_kernal_coef_tot(N_aerosol)
-    double precision::dq(N_aerosol)
-    double precision::AAi(N_size,N_aerosol)
-    double precision::frac(N_size,N_aerosol)
-    double precision::c_number(N_size)
-    double precision::c_mass(N_size,N_aerosol_layers)
-    double precision::ck_ef(N_size,N_aerosol)
-    double precision::frac_bin(N_sizebin,N_aerosol)
-    double precision::dm_bin(N_sizebin,N_aerosol)
-    integer::iclip_bin(N_sizebin,N_aerosol)
-    integer::k
-  
-    frac_bin=0.d0
-    dm_bin=0.d0
-    iclip_bin=0
-    
-    do s=1, nesp_eq
-      jesp=eq_species(s)
-      if (aerosol_species_interact(jesp).GT.0) then
-
-       if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
-      IF (jesp.NE.ECl.or.NACL_IN_THERMODYNAMICS==1) THEN
-      IF (jesp.NE.ENa.or.NACL_IN_THERMODYNAMICS==1) THEN
-         iclip=0
-         do j=1,end_bin!judgment
-	  if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-  	    frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
-                 ce_kernal_coef_tot(jesp)
-	    temp_mass=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	    if(temp_mass.lt.0.d0) iclip=1!case of over evaporation
-          endif
-         enddo
-         if(iclip.eq.1) then !over evaporate
-  	  totaer=0.d0
-	  do j=1,end_bin
-	    totaer=totaer+c_mass(j,jesp)
-	  enddo
-	  if(totaer.gt.0.d0) then
-	    do j=1,end_bin
-             if(totaer.GT.0.0) then
-	      frac(j,jesp)=c_mass(j,jesp)/totaer
-	      c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	      if(dq(jesp)*frac(j,jesp).ne.0.d0) then
-	        k=concentration_index(j,1)
-	        frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
-	        dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
-	        iclip_bin(k,jesp)=iclip
-	      endif
-             endif
-	    enddo
-	  endif
-        else!normal case
-	  do j=1,end_bin
-	   if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-	    frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
-                   ce_kernal_coef_tot(jesp)
-	    c_mass(j,jesp)=c_mass(j,jesp)+dq(jesp)*frac(j,jesp)
-	    if(dq(jesp)*frac(j,jesp).ne.0.d0) then
-	      k=concentration_index(j,1)
-	      frac_bin(k,jesp)=frac_bin(k,jesp)+frac(j,jesp)
-	      dm_bin(k,jesp)=dm_bin(k,jesp)+dq(jesp)*frac(j,jesp)
-	      iclip_bin(k,jesp)=iclip
-	    endif
-           endif
-	  enddo
-        endif
-        endif
-      ENDIF
-      ENDIF
-      endif
-    enddo
-
-  end subroutine ssh_bulkequi_redistribution_anck
-
-      subroutine ssh_redistribution_co3(co3,end_bin)
+  subroutine ssh_redistribution_co3(co3,end_bin)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -784,10 +711,6 @@ contains
     double precision :: inorg_total, inorg_bin(N_size)
     integer :: jesp, js,lay,end_bin
     double precision :: co3
-!    double precision :: lwc_Nsize(N_size),proton_Nsize(N_size)
-!    double precision :: proton_Nsize(N_size)
-
-!    double precision :: ionic_Nsize(N_size),liquid_Nsize(12,N_size)
 
     inorg_total = 0.D0
     inorg_bin = 0.D0
