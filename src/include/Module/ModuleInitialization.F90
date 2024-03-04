@@ -2962,12 +2962,16 @@ contains
   integer, parameter :: ntmp = 12 ! max number of coefficients in reaction file
   double precision :: a_tmp(ntmp), tmp_in ! read coefficients
   character(3), parameter :: TBs(5) = ["O2 ", "H2O", "M  ", "N2 ", "H2 "] ! do not change the order ! used in kinetic
-
+  double precision :: xlw
+  
   ! set up parameters for gas-phase chem - GECKO
   ! Use perfect gas law :sumc=(pres*6.022E+23)/(8.32*temp)
-  SumMc = 2.5E19 ! default
+  ! SumMc = 2.5E19 ! default
+  SumMc = Pressure * 7.243d16 / Temperature
   ! Water concentration (molec/cm3)
-  YlH2O = 0.d0
+  ! YlH2O = 0.d0
+  xlw = humidity
+  YlH2O = 29.d0*SumMc*xlw/(18.d0+11.d0*xlw)
   
   ! Open reactions file
   open(unit=11, file=reaction_list_file, status='old')
