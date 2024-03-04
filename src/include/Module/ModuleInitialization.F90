@@ -2952,7 +2952,7 @@ contains
   integer :: i, j, k, js, ierr, iarrow, nrct, npdt
   integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2, ipdt_r, ipdt_f !counts
   integer :: start, finish
-  
+  integer :: finish_plus, finish_minus
   double precision, dimension(3) :: ratios ! use to read ratio function
   
   character (len=800) :: line, subline
@@ -3147,7 +3147,19 @@ contains
             start = 1
             do
                 ! get sname in the format "xxx" or "5E-2 xxx" 
-                finish = index(subline(start:), ' + ')
+               ! finish = index(subline(start:), ' + ')
+               !! YK
+               finish_plus = index(subline(start:), ' + ')
+               finish_minus = index(subline(start:), ' - ')
+               if (finish_plus == 0 .and. finish_minus == 0) then
+                  finish = 0
+               else if (finish_plus == 0 .and. finish_minus .ne. 0) then
+                  finish = finish_minus
+               else if (finish_plus .ne. 0 .and. finish_minus == 0) then
+                  finish = finish_plus
+               else
+                  finish = min(finish_plus, finish_minus)
+               endif !! YK
                 if (finish == 0) then ! last species
                     tmp_line = adjustl(subline(start:))
                 else
@@ -4022,9 +4034,13 @@ subroutine count_products(s, count_pdt, count_ratio, count_set)
         ch = str_val(i:i)
         if (ch == ' '.or. i == len_s) then ! Find a space
             if (i == len_s .and. ch /= ' ') count = count + 1 ! End of the list
-            if (i > start) then ! Find a valid string
-                if (i == len_s .or. (start == i-1 .and. str_val(start:start) == '+')) then
-                    count_pdt = count_pdt + 1 ! Add one product
+            if (i > start .or. i == len_s) then ! Find a valid string !! YK
+               ! if (i == len_s .or. (start == i-1 .and. str_val(start:start) == '+')) then
+               if (i == len_s .or. (start == i-1 .and. &
+                    (str_val(start:start) == '+' .or. str_val(start:start) == '-'))) then   
+                  
+                  ! write(*,*) " Found ---> ", i, start, str_val(start:start) !! YK
+                  count_pdt = count_pdt + 1 ! Add one product
                     if (count > 1) then ! count == 1: sname
                         count_ratio = count_ratio + 1
                         if (count == 4) then ! count == 3: ratio, k1, k2, sname
