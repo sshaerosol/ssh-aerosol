@@ -1137,6 +1137,13 @@ end subroutine ssh_genoa_spec
 
 subroutine ssh_spack_spec(ire, iex, label)
 
+!C------------------------------------------------------------------------
+!C
+!C     -- DESCRIPTION: define the reaction rates when
+!C                     the keyword EXTRA is used in the reactions list.
+!C
+!C------------------------------------------------------------------------
+  
     IMPLICIT NONE 
 
     ! INPUT                                                                 
@@ -1146,7 +1153,7 @@ subroutine ssh_spack_spec(ire, iex, label)
     double precision :: ka, kb, kd, qfor
 
     ! Label for different mechanisms
-    ! 10: cb05, 11: racm2, ... 
+    ! 10: cb05, 20: racm2, ... 
     ind = INT(extra_coeff(iex, 2)) ! 2nd level label
     
     if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
