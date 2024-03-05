@@ -975,7 +975,7 @@ contains
     altitude_photolysis_input = -999.d0
 
     ! default genoa related paramters
-    tag_twostep = 0
+    tag_twostep = 1 ! default option
     keep_gp = 0
 
     ! init genoa files: RO2 reaction
@@ -1094,14 +1094,14 @@ contains
              if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
              if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
           end if
-          if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
-            tag_twostep = 1 ! genoa
-            if (ssh_standalone) write(*,*) 'use two-step solver.' 
-            if (ssh_logger) write(logfile,*) 'use two-step solver.'
-          else
-            if (ssh_standalone) write(*,*) 'use ROS2 solver.'
-            if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
-          end if
+          ! if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
+          !   tag_twostep = 1 ! genoa
+          !   if (ssh_standalone) write(*,*) 'use two-step solver.' 
+          !   if (ssh_logger) write(logfile,*) 'use two-step solver.'
+          ! else
+          !   if (ssh_standalone) write(*,*) 'use ROS2 solver.'
+          !   if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
+          ! end if
           if (tag_genoa.gt.0.or.keep_gp.eq.1) then
             keep_gp = 1 ! genoa
             if (ssh_standalone) write(*,*) 'keep_gp is activated' 
@@ -2366,10 +2366,12 @@ contains
     endif
 
     !!!!!!!!!! genoa related treatments
-    
-   ! read photolysis files
-   call ssh_read_photolysis_file()
 
+    if (tag_chem .eq. 1) then
+       ! read photolysis files
+       call ssh_read_photolysis_file()
+    endif
+    
     ! genoa assign output aero index
     do s = 1, nout_aero
         do js = 1, N_aerosol
