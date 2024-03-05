@@ -10407,6 +10407,77 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 			  species_part,nlayer,i_hydrophilic,
 		          N_inert, N_inorganic);
 
+  species C7H9O9;
+  C7H9O9.name="C7H9O9";
+  C7H9O9.is_inorganic_precursor=false;
+  C7H9O9.Psat_ref=5.9e-13; // Saturation vapor pressure at Tref (torr)
+  C7H9O9.Tref=298;         // Temperature of reference (K)
+  C7H9O9.deltaH=100.0;     // Enthalpy of vaporization (kJ/mol)
+//C7H9O9.aq_type="aldehyde";  // "none","diacid","monoacid" or "aldehyde"
+  C7H9O9.aq_type="none";  // "none","diacid","monoacid" or "aldehyde"
+  C7H9O9.Henry=0.0;       //If the Henry's law constant is set to zero, the model compute the Henry's law constant from the saturation vapour pressure and the activity coefficients at infinite dilution given by unifac
+  C7H9O9.hydrophilic=true;  // Does the species condense on the aqueous phase?
+  C7H9O9.hydrophobic=true;  // Does the species condense on the organic phase?
+  C7H9O9.nonvolatile=false; // Is the compound nonvolatile?
+  C7H9O9.kp_from_experiment=false;  // Use experimental partitioning constant at Tref?
+  C7H9O9.is_organic=true;  // Is the compound organic?
+  C7H9O9.compute_gamma_org=true;  // Compute the activity coefficients of the organic phase for this compound?
+  C7H9O9.compute_gamma_aq=true;  // Compute the activity coefficients of the aqueous phase for this compound?
+  C7H9O9.Koligo_org=0.0;      //oligomeriation constant in the organic phase
+  C7H9O9.rho=1400.0;
+  C7H9O9.is_monomer=false;
+  C7H9O9.rion=false;
+  //Monomer.KDiffusion_air=1.0e-5;
+  //  Monomer.accomodation_coefficient=alpha;
+  C7H9O9.viscosity=1.68e12;
+  C7H9O9.is_solid=false;
+  C7H9O9.is_generic=false;
+  
+  //Group: if no functionnal group in the species use the default species
+  //for the computation of activity coefficients
+  //
+  double group_tmp_C7H9O9 [] = {0.0,0.0,0.0,0.0, // group C
+				 0.0,0.0,0.0,0.0, //group C[OH]
+				 0.0,0.0,0.0,0.0, //group Calcohol
+				 0.0,0.0,0.0,0.0, //group Calcohol-tail
+				 0.0,0.0,0.0,0.0,0.0, //group C=C
+				 0.0,0.0, //group aromatic carbon (AC)
+				 0.0,0.0,0.0, // group //AC-C
+				 0.0,  //group OH
+				 0.0, //group H2O
+				 0.0, //group ACOH
+				 1.0,1.0, //group ketone
+				 1.0,   //group aldehyde  
+				 0.0,0.0, //group ester
+				 0.0,0.0,0.0, //group ether 
+				 0.0,  //group acid
+				 0.0,   //group ACNO2
+				 0.0,0.0,0.0, //group NO3
+				 0.0,3.0,0.0, //group CO-OH
+				 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, //group CO-OC
+				 0.0,  //group PAN
+				 0.0,  //group CO-OOH
+	  		         0.0,  //group O=COC=O
+			         0.0,0.0,0.0}; //group CHxNO2
+
+  size = sizeof(group_tmp_C7H9O9)/sizeof(double);
+  assert(size == 60);
+	
+  for(int i = 0; i < size; ++i)
+    C7H9O9.groups[i] = group_tmp_C7H9O9[i];
+
+  // Search the species name in the aerosol species list 
+  // and add the species if its name matches with
+  // the given list.
+  add_species_ssh(surrogate, C7H9O9, species_list_aer, molecular_weight_aer,
+		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
+		  N_inert, N_inorganic);
+  
+
+  add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient, diffusion_coef,
+			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, henry, t_ref, mass_density,  
+			  species_part,nlayer,i_hydrophilic,
+		          N_inert, N_inorganic);
   
   species H2O;
   H2O.name="H2O";
