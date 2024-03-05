@@ -930,8 +930,9 @@ contains
           ! get n_reaction, n_photolysis from the first line
           ! call ssh_read_reaction_file()
        else
-         print*, "Not reaction file is provided: ", trim(reaction_list_file)
-         stop 
+         reaction_list_file = "./src/include/CHEMISTRY/cb05/CB05_poa_nospack.reactions" 
+         print*, "Not reaction file is provided"
+         print*, "Default file is used: ", trim(reaction_list_file)
        endif   
     end if
 
