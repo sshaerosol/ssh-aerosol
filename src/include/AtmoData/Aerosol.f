@@ -298,8 +298,8 @@ c     coefficient - Kelvin effect coefficient.
 
       double precision coefficient
 
-      coefficient = DMAX(dexp(4.d3 * surf_tension * weight
-     $     / (8.314d0 * temp * density * wet_diam)), 1.05d0)
+      coefficient = max(dexp(4.d3 * surf_tension * weight
+     $     / (8.314d0 * temp * density * wet_diam)),1.000001)
       
 
       end
