@@ -334,7 +334,7 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
         call ssh_genoa_spec(j,i)
 
     ! From SPACK - need to be completed !!!
-    else if (k .eq. 10) then
+    else if ((k .eq. 10) .or. (k .eq. 20)) then
         call ssh_spack_spec(j,i,k)
 
     else ! print label, ircn, iex
@@ -1151,6 +1151,10 @@ subroutine ssh_spack_spec(ire, iex, label)
     
     integer :: ind
     double precision :: ka, kb, kd, qfor
+    double precision :: psat, facteur, xlw
+    double precision :: masmol, cstar, aw, cbar, awc, denom, kwon !! Wall
+
+    xlw = humidity
 
     ! Label for different mechanisms
     ! 10: cb05, 20: racm2, ... 
@@ -1221,6 +1225,65 @@ subroutine ssh_spack_spec(ire, iex, label)
                (1d0 / (1d0 + ((dlog10(kb) - 0.12d0) / 1.2d0) ** 2d0))
         CASE (7)
           qfor = 2.0d-39 * YlH2O * YlH2O
+        CASE (8)
+          qfor = 1.39d-13 + 3.72d-11 * dexp(-2.044d3 / temperature)
+        CASE (9)
+          ! N2O5            ->      NO2   +      NO3
+           qfor = dexp(  0.6117554523749536D+02 &
+                - (  0.1100000000000000D+05 )/temperature)
+           ka =  0.2200000000000000D-29* (temperature / 3.d2) &
+                **(- ( 0.4400000000000000D+01))
+           kb =  0.1400000000000000D-11* (temperature / 3.d2) &
+                **(- ( 0.7000000000000000D+00))
+           kd = (ka * SumMc / ( 1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2.0d0))
+           qfor = kd * qfor
+        CASE (10)
+           ! HNO4            ->      HO2    +     NO2
+           qfor =  dexp(  0.6142746008608852D+02 &
+                - (  0.1090000000000000D+05 )/temperature)
+           ka =  0.2000000000000000D-30* (temperature / 3.d2) &
+                **(- ( 0.3400000000000000D+01))
+           kb =  0.2900000000000000D-11* (temperature / 3.d2) &
+                **(- ( 0.1100000000000000D+01))
+           kd = (ka * SumMc / ( 1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = kd * qfor
+        CASE (11)
+           ! PAN             ->      ACO3   +     NO2
+           qfor =  dexp(  0.6462080260895155D+02 &
+                - (  0.1395400000000000D+05 )/temperature)
+           ka =  0.9700000000000000D-28* (temperature / 3.d2) &
+                **(- ( 0.5600000000000000D+01))
+           kb =  0.9300000000000000D-11* (temperature / 3.d2) &
+                **(- ( 0.1500000000000000D+01))
+           kd = (ka * SumMc / ( 1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = kd * qfor
+        CASE (12)
+           ! DK3000 -> IRDK3000
+           Psat = 611.2d0 * dexp(17.67d0 * (temperature - 273.15d0) &
+                /(temperature - 29.65d0))
+           facteur = xlw*Pressure / ((0.62197d0 * (1.d0-xlw)+xlw) &
+                * Psat ) * 100.
+           qfor = 1d-9*facteur**3 - 1d-7*facteur**2 &
+                + 3.0d-7*facteur + 0.0003 
+        CASE (13)           
+           ! TOL    -> WTOL
+           Psat =  0.16000D+02/760.*dexp( 0.40000D+02*1000. &
+                / 8.314*(1./298.-1./temperature))
+           Masmol =  0.92000D+02 
+           cstar = Masmol*1d+6*Psat/(8.205d-5*temperature)
+           aw = 10**(-0.27440D+01)*cstar**(-0.14066D+01)
+           cbar = (8000*8.314*temperature/(3.14*Masmol))**0.5
+           awc = (aw*cbar/4.)
+           denom = awc / (( 0.42800D-02* 0.50000D-05)**0.5)
+           kwon =  0.33330D+02 * awc / (1.+1.5708*denom)
+           qfor = kwon
+           
         CASE DEFAULT
           print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
                     label,ire,iex

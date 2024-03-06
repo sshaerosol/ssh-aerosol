@@ -3022,9 +3022,10 @@ contains
   integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2, ipdt_r, ipdt_f !counts
   integer :: start, finish
   integer :: finish_plus, finish_minus
+  integer :: index_start
   double precision, dimension(3) :: ratios ! use to read ratio function
   
-  character (len=800) :: line, subline
+  character (len=800) :: line, subline, combinedline, previousline, nextline
   character (len=80) :: tmp_line
   character (len=80) :: sname
   
@@ -3168,6 +3169,22 @@ contains
     do
         read(11, '(A)', iostat=ierr) line
         if (ierr /= 0) exit ! no line
+
+        !! YK TEST
+        ! ! Combine the lines having the line break symbol "//"
+        ! previousline = trim(line)
+        ! do while (index(line, "//") .ne. 0)
+
+        !    index_start = index(line, "//")
+           
+        !    ! Read a next line
+        !    read(11, '(A)', iostat=ierr) line
+
+        !    combinedline = trim(previousline(1:index_start - 1)) // trim(line)
+        !    previousline = combinedline
+        !    line = combinedline
+        ! enddo
+        
         line = adjustl(line)
         i = len_trim(line)
         if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
@@ -3215,24 +3232,25 @@ contains
             subline = line(iarrow+2:)
             ! If there is no product - continue
             if (len_trim(subline) == 0 ) cycle
-
+            
             ! Start to process products
             start = 1
             do
                 ! get sname in the format "xxx" or "5E-2 xxx" 
-               ! finish = index(subline(start:), ' + ')
-               !! YK
-               finish_plus = index(subline(start:), ' + ')
-               finish_minus = index(subline(start:), ' - ')
-               if (finish_plus == 0 .and. finish_minus == 0) then
-                  finish = 0
-               else if (finish_plus == 0 .and. finish_minus .ne. 0) then
-                  finish = finish_minus
-               else if (finish_plus .ne. 0 .and. finish_minus == 0) then
-                  finish = finish_plus
-               else
-                  finish = min(finish_plus, finish_minus)
-               endif !! YK
+                !  finish = index(subline(start:), ' + ')
+                !! read both '+' and '-' signs (YK)
+                finish_plus = index(subline(start:), ' + ')
+                finish_minus = index(subline(start:), ' - ')
+                if (finish_plus == 0 .and. finish_minus == 0) then
+                   finish = 0
+                else if (finish_plus == 0 .and. finish_minus .ne. 0) then
+                   finish = finish_minus
+                else if (finish_plus .ne. 0 .and. finish_minus == 0) then
+                   finish = finish_plus
+                else
+                   finish = min(finish_plus, finish_minus)
+                endif !! YK
+                
                 if (finish == 0) then ! last species
                     tmp_line = adjustl(subline(start:))
                 else
@@ -3270,11 +3288,17 @@ contains
                       endif
                     enddo
                     ! check index
-                    if (index_PDT(ipdt,1) .eq. 0) then
-                        print*, trim(line)
-                        print*, 'product not found in species list: ',trim(sname), &
-                                ' ',trim(tmp_line)
-                        stop
+                    if (index_PDT(ipdt,1) .eq. 0 .and. &
+                         (trim(sname) .ne. "O2" .and. &
+                         trim(sname) .ne. "H2") ) then
+                       ! if the species name is not found in species_list
+                       ! an error message raises.
+                       ! 'O2' and 'H2' are allowed even though they are not
+                       ! listed.
+                       print*, trim(line)
+                       print*, 'product not found in species list: ', &
+                            trim(sname), ' ', trim(tmp_line)
+                       stop
                     endif
                 endif
                 ! check exit
@@ -3540,7 +3564,7 @@ contains
                         stop
                     endif
                     
-                CASE(99, 10) ! 99/10 C1 C2 (optional) 
+                CASE(99, 10, 20) ! 99/10 C1 C2 (optional) 
                   ! Additional calculations that can be updated by the user.
                   ! Please ensure the label has not been used before if adding new labels. 
                   if (finish.eq.2 .or. finish.eq.3) then

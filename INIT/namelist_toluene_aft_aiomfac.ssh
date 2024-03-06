@@ -49,7 +49,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber/species-list.dat",                    !Species list  
+species_list_file = "./species-list/species-list-TOLexp.dat",                    !Species list
+reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber/TOL-VIC_chamber_nospack.reactions",
 /
 
 &aerosol_species
