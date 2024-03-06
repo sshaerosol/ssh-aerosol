@@ -955,7 +955,7 @@ contains
       call system(cmd)
     
       ! error computation - at least save total soa concs
-      output_filename = trim(output_directory) // "/concs" // trim(out_type(output_type))
+      output_filename = trim(output_conc_file)
       ! Remove if output files exist
       inquire (file = output_filename, exist = file_exists)
       if (file_exists) then
@@ -995,94 +995,57 @@ contains
   !
   !   Active if tag_genoa == 1 - fast mode
   ! 
-  !   Compute differences between
-  !       if ierr_ref:  total_soa & ref_soa
-  !       if ierr_pre:  total_soa & pre_soa
   ! ======================================================
   
-  integer :: t, s, t1
-  double precision, dimension(:), allocatable :: rerr, perr ! storage error
-  double precision, dimension(:), allocatable :: rerr_num, perr_num, rerr_deno, perr_deno
+  integer :: t, s, t1, ind
+  double precision, dimension(:,:), allocatable :: rerr ! storage error
+  double precision, dimension(:), allocatable :: rerr_num, rerr_deno
+  character(len=200) :: outline
 
-  if (ierr_ref) then
+  if (nref_file.gt.0) then
     ! init
-    allocate(rerr(nout_total))
+    allocate(rerr(nref_file,nout_total))
     allocate(rerr_num(nout_total))
     allocate(rerr_deno(nout_total))
-    
     rerr = 0.d0
-    rerr_num = 0.d0
-    rerr_deno = 0.d0
+    outline = "Ref Errs: " ! init
     
-    ! compute
-    do t = 1, nt ! t is the index in ref_soa & pre_soa
-      t1 = t+1 ! index in current total_soa
-      do s = 1, nout_total
+    do ind = 1, nref_file
+      rerr_num = 0.d0
+      rerr_deno = 0.d0
+      ! compute
+      do t = 1, nt ! t is the index in ref_soa
+          t1 = t+1 ! index in current total_soa
+          do s = 1, nout_total
       
-        rerr_num(s) =  rerr_num(s) + dabs(total_soa(t1,s) - ref_soa(s,t))
-        rerr_deno(s) = rerr_deno(s) + total_soa(t1,s) + ref_soa(s,t)
-        
-        ! compute errors for the first day and the rest
-        if (delta_t * t .eq. 864.d2.or.t.eq.nt) then ! set time
-           ! change here for error computation
-           rerr(s) = max(rerr(s), 2d0 * rerr_num(s) / (rerr_deno(s) + TINYM))
-           !print*,'rerr',s,rerr(s),rerr_num(s),rerr_deno(s),TINYM
-           rerr_num(s) = 0.d0
-           rerr_deno(s) = 0.d0
-        endif
+            rerr_num(s) =  rerr_num(s) + dabs(total_soa(t1,s) - ref_soa(ind,s,t))
+            rerr_deno(s) = rerr_deno(s) + total_soa(t1,s) + ref_soa(ind,s,t)
+            
+            ! compute errors for the first day and the rest
+            if (delta_t * t .eq. 864.d2.or.t.eq.nt) then ! set time
+               ! change here for error computation
+               rerr(ind,s) = max(rerr(ind,s), 2d0 * rerr_num(s) / (rerr_deno(s) + TINYM))
+               !print*,'rerr',s,rerr(ind,s),rerr_num(s),rerr_deno(s),TINYM
+               rerr_num(s) = 0.d0
+               rerr_deno(s) = 0.d0
+            endif
+            
+          enddo
       enddo
-    enddo
-    
-    ! print
-    print*, rerr
-    write(*,101) maxval(rerr) !rerr
-    
+      ! print
+      print*, rerr(ind,:)
+      if (ind.gt.1) outline = trim(outline)//', '
+      write(outline, '(A, F15.4)') trim(outline), maxval(rerr(ind,:))
+    end do
+
+    print*, outline
+
+    if (allocated(rerr))  deallocate(rerr)
+    if (allocated(rerr_num))  deallocate(rerr_num)
+    if (allocated(rerr_deno))  deallocate(rerr_deno)
+  
   endif
-
-  if (ierr_pre) then
-     ! init
-     allocate(perr(nout_total))
-     allocate(perr_num(nout_total))
-     allocate(perr_deno(nout_total))
-     
-     perr = 0.d0
-     perr_num = 0.d0
-     perr_deno = 0.d0
-    
-    ! compute
-    do t = 1, nt
-      t1 = t + 1 ! index in current total_soa
-      do s = 1, nout_total
-      
-        perr_num(s) =  perr_num(s) + dabs(total_soa(t1,s) - pre_soa(s,t))
-        perr_deno(s) = perr_deno(s) + total_soa(t1,s) + pre_soa(s,t)
-        
-        if (delta_t * t .eq. 864.d2.or.t.eq.nt) then
-           perr(s) = max(perr(s), 2d0 * perr_num(s) / (perr_deno(s) + TINYM))
-           !print*,'perr',s,perr(s),perr_num(s),perr_deno(s),TINYM
-           perr_num(s) = 0.d0
-           perr_deno(s) = 0.d0
-        endif
-      enddo
-    enddo
-
-    ! print
-    print*, perr
-    write(*,102) maxval(perr) !perr
-
-  endif
-
-  ! print format
-  101 format('err_ref: ',f15.4)
-  102 format('err_pre: ',f15.4)
-    
-  if (allocated(rerr))  deallocate(rerr)
-  if (allocated(perr))  deallocate(perr)
-  if (allocated(rerr_num))  deallocate(rerr_num)
-  if (allocated(perr_num))  deallocate(perr_num)
-  if (allocated(rerr_deno))  deallocate(rerr_deno)
-  if (allocated(perr_deno))  deallocate(perr_deno)
-
+  
   END SUBROUTINE ssh_compute_error_genoa
   
 !============================================================================================

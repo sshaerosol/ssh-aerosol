@@ -72,7 +72,7 @@ class Utils:
 
         # Comment when spack is turned off.
         #=== Custom scons extensions.
-        self.spack = Spack(self)
+        #self.spack = Spack(self)
 
 
     def create_variable(self, name, default):
@@ -622,8 +622,8 @@ to highly recommended debugging and optimization options.
             src_dependencies += glob.glob(os.path.join(path, "*.f90"))
             src_dependencies += glob.glob(os.path.join(path, "*.F90"))
             # Comment when spack is turned off.
-            src_dependencies += self.spack.dependency(path, exclude_dependency,
-                                                      build_dir, tag_genoa)
+            #src_dependencies += self.spack.dependency(path, exclude_dependency,
+            #                                          build_dir, tag_genoa)
 
         # In case there is a list of dependencies to be excluded.
         filtered_dependencies = []

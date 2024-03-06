@@ -48,11 +48,11 @@ module aInitialization
   !!part 2: parameters of system options
 
   integer, save :: with_fixed_density!IDENS
-  integer, save :: tag_init		! 0 internally mixed; 1 mixing_state resolved
-  integer, save :: with_init_num	! 0 estimated from mass and diameter; 1 number conc. for each bin is read
-  integer, save :: wet_diam_estimation	! 0 = isorropia ?
+  integer, save :: tag_init             ! 0 internally mixed; 1 mixing_state resolved
+  integer, save :: with_init_num        ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
+  integer, save :: wet_diam_estimation  ! 0 = isorropia ?
   integer, save :: tag_dbd    ! Method for defining particle size bounds (0 auto generated, 1 read)
-  integer, save :: tag_emis	     ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
+  integer, save :: tag_emis             ! 0 Without emissions 1 with internally-mixed emissions 2 with externally-mixed emissions
   integer, save :: with_emis_num ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
 
   integer, save :: tag_external  ! 0 for internally mixed, 1 for mixing-state resolved
@@ -104,52 +104,72 @@ module aInitialization
   double precision, save :: Cut_dim   ! value of the user-chosen parameter. Depending on tag_icut.
   double precision, save :: kwall_gas, kwall_particle, Cwall, surface_volume_ratio, eddy_turbulence, kwp0,radius_chamber
 
-  character (len=800), save :: reaction_soap_file
+  character (len=200), save :: reaction_soap_file
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!! genoa related parameters
   ! tag for genoa, tag to use keep_gp in twostep
   integer, save :: tag_genoa = 0, keep_gp
   ! tag for error computation; tag to round output values
-  logical, save :: ierr_ref, ierr_pre, iout_round = .false.
+  logical, save :: iout_round = .false.
   ! tag for RO2 treatment
-  integer, save :: tag_RO2 ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
+  integer, save :: tag_RO2, nref_file ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   
   ! numbers that needs in the error computation
-  integer, save :: nout_err ! individual species w err compute
-  integer, save :: nout_soa = 0 ! a group of species: total concs w err compute
+  integer, save :: nout_err   ! individual species w err compute
+  integer, save :: nout_soa   ! a group of species: total concs w err compute
   integer, save :: nout_total ! total num for err computation! default total SOAs
   ! number of output species
   integer, save :: nout_gas, nout_aero
   ! index of initial set - can be updated in ssh-aerosol.f90
-  integer, save :: tag_init_set = 0
+  integer, save :: tag_init_set
   ! number of species with constant profiles, RO2 species
-  integer, save :: ncst_gas, ncst_aero, nRO2_chem 
+  integer, save :: ncst_gas, ncst_aero, nRO2_chem, nRO2_group
   ! RO2 pool index in gas species list
-  integer, save :: iRO2, iRO2_cst
+  integer, save :: iRO2_cst
   
   ! index to find corresponding species
   integer, dimension(:), allocatable, save :: output_gas_index, output_aero_index
-  integer, dimension(:), allocatable, save :: cst_gas_index, RO2index, cst_aero_index  
+  integer, dimension(:), allocatable, save :: cst_gas_index, cst_aero_index, RO2out_index
+  integer, dimension(:,:), allocatable, save :: RO2index
   integer, dimension(:,:), allocatable, save :: output_err_index ! (gas/aero, index)
 
   ! concentrations array
-  double precision, dimension(:,:), allocatable, save :: cst_gas  ! constant concs.
-  double precision, dimension(:,:), allocatable, save :: pre_soa, ref_soa, total_soa ! err compute
+  double precision, dimension(:,:), allocatable, save :: cst_gas, total_soa  ! constant concs.
+  double precision, dimension(:,:,:), allocatable, save :: ref_soa  ! err compute
   double precision, dimension(:,:,:), allocatable, save :: cst_aero ! constant concs.
 
   ! file names
-  character (len=800), save :: ref_soa_conc_file, pre_soa_conc_file! reference/previous cases
-  character (len=800), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
-  character (len=800), save :: cst_gas_file ! File for species that need to be keep as constants.
-  character (len=800), save :: cst_aero_file ! File for constant aerosol species.
-  character (len=800), save :: init_species_file ! File for initial sets of SOA precursors
+  character (len=800), save :: ref_conc_files_in ! reference cases
+  character (len=200), save :: RO2_list_file ! File for RO2 species to generate the RO2 pool
+  character (len=200), save :: cst_gas_file ! File for species that need to be keep as constants.
+  character (len=200), save :: cst_aero_file ! File for constant aerosol species.
+  character (len=200), save :: init_species_file ! File for initial sets of SOA precursors
+  character (len=200), dimension(:), allocatable, save :: ref_conc_files
   
   ! list of species name
   character (len=40), dimension(:), allocatable, save :: output_err_sps
   character (len=40), dimension(:), allocatable, save :: output_gas_species, output_aero_species
 
-  
+
+!!!! KINETIC RELATED - GENOA
+  double precision, save :: SumMc ! M (in molec/cm3) - constant or change by pressure and temperature
+  double precision, save :: YlH2O ! water concentration (molec/cm3) in the gas phase
+  integer, dimension(:,:), allocatable, save :: photo_rcn, TB_rcn
+  integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn
+  integer, dimension(:,:), allocatable, save :: index_RCT, index_PDT, index_PDT_ratio
+  double precision, dimension(:), allocatable, save :: ratio_PDT
+  ! kinetics
+  double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
+  double precision, dimension(:), allocatable, save :: kinetic_rate, chem_prod, chem_loss
+  double precision, dimension(:), allocatable, save :: rcn_rate, gas_yield, drv_knt_rate
+  ! photolysis
+  double precision, dimension(:,:,:), allocatable, save :: photo_ratio
+  double precision, dimension(:,:), allocatable, save :: photo_ratio_read
+  double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
+                                        5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
+  integer, parameter :: nsza = 11! sza size 
+    
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
   Integer, save :: with_incloud_scav!IINCLD
@@ -204,32 +224,32 @@ module aInitialization
   Double precision, save :: DQLIMIT
 
   !!part5: dimension data array    
-  integer, dimension(:), allocatable, save :: Index_groups	!index of which group the species belongs to
+  integer, dimension(:), allocatable, save :: Index_groups      !index of which group the species belongs to
   integer, dimension(:), allocatable, save :: aerosol_type
-  integer, dimension(:), allocatable, save :: List_species	!read species defined in cfg files
-  integer, dimension(:,:), allocatable, save :: index_species	!index of species if viscosity is taken into account
+  integer, dimension(:), allocatable, save :: List_species      !read species defined in cfg files
+  integer, dimension(:,:), allocatable, save :: index_species   !index of species if viscosity is taken into account
   Integer, dimension(:), allocatable, save :: aerosol_species_interact
-  integer, dimension(:), allocatable, save :: N_fracbin	!vector of number of composition sections for each section
+  integer, dimension(:), allocatable, save :: N_fracbin !vector of number of composition sections for each section
   integer, dimension(:), allocatable, save :: oligo_index
 
   Double precision,dimension(:), allocatable, save :: photolysis_rate
   integer, dimension(:), allocatable, save :: photolysis_reaction_index
 
-  Double precision,dimension(:), allocatable, save :: density_aer_bin 	!density of each grid bins
-  Double precision,dimension(:), allocatable, save :: density_aer_size 	!density of each size section
+  Double precision,dimension(:), allocatable, save :: density_aer_bin  !density of each grid bins
+  Double precision,dimension(:), allocatable, save :: density_aer_size !density of each size section
   Double precision , dimension(:), allocatable, save :: rho_wet_cell
 
-  Double precision,dimension(:), allocatable, save :: diam_bound	! DBF diameter bounds of each size section
+  Double precision,dimension(:), allocatable, save :: diam_bound       ! DBF diameter bounds of each size section
   double precision,dimension(:), allocatable, save :: diam_input
   double precision,dimension(:), allocatable, save :: frac_bound
   double precision,dimension(:), allocatable, save :: frac_input
 
 
-  Double precision,dimension(:), allocatable, save :: size_diam_av	!DSF average diameter of each size section
-  Double precision,dimension(:), allocatable, save :: size_mass_av	!MSF average mass of each size section
+  Double precision,dimension(:), allocatable, save :: size_diam_av      !DSF average diameter of each size section
+  Double precision,dimension(:), allocatable, save :: size_mass_av      !MSF average mass of each size section
   !Double precision,dimension(:), allocatable :: size_log_av	!XSF
-  Double precision,dimension(:), allocatable, save :: cell_diam_av	!DSF average diameter of each grid cell
-  Double precision,dimension(:), allocatable, save :: cell_log_av	!XSF
+  Double precision,dimension(:), allocatable, save :: cell_diam_av      !DSF average diameter of each grid cell
+  Double precision,dimension(:), allocatable, save :: cell_log_av       !XSF
 
   DOUBLE PRECISION, dimension(:), allocatable, save :: concentration_gas_all
   Double precision,dimension(:), allocatable, save :: concentration_gas	! gas concentration of each species
@@ -250,9 +270,9 @@ module aInitialization
   double precision , dimension(:,:), allocatable, save :: emission_rate
   double precision , dimension(:), allocatable, save :: emission_num_rate
 
-  Double precision,dimension(:), allocatable, save :: wet_diameter	!Aerosol wet diameter (\B5m). of each grid cell
-  Double precision,dimension(:), allocatable, save :: wet_mass	!Aerosol wet mass (\B5g). of each grid cell
-  Double precision,dimension(:), allocatable, save :: wet_volume	!Aerosol wet volume (\B5m^3). of each grid cell
+  Double precision,dimension(:), allocatable, save :: wet_diameter      !Aerosol wet diameter (\B5m). of each grid cell
+  Double precision,dimension(:), allocatable, save :: wet_mass          !Aerosol wet mass (\B5g). of each grid cell
+  Double precision,dimension(:), allocatable, save :: wet_volume        !Aerosol wet volume (\B5m^3). of each grid cell
   double precision , dimension(:,:,:), allocatable, save :: discretization_composition! multi-array storing discretization of composition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -336,18 +356,20 @@ module aInitialization
   double precision, dimension(:,:), allocatable, save :: surface_equilibrium_conc_nsize 
 
   !! part 8: divers parameters (species, I/O)
-  character (len=800), save :: Coefficient_file ! repartition coefficient file
-  character (len=800), save :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
-  character (len=800), save :: init_aero_conc_num_file ! File for aerosols initial number concentrations
-  character (len=800), save :: init_gas_conc_file ! File for gas-phase initial conc.
-  character (len=800), save :: species_list_file ! File for species list.
-  character (len=800), save :: aerosol_species_list_file ! File for species list.
-  character (len=800), save :: aerosol_structure_file ! File for species list.
-  character (len=800), save :: namelist_species ! Namelist file for species list.
-  character (len=800), save :: particles_composition_file ! File for particles composition
-  character (len=800), save :: emis_gas_file
-  character (len=800), save :: emis_aero_mass_file
-  character (len=800), save :: emis_aero_num_file
+  character (len=200), save :: Coefficient_file ! repartition coefficient file
+  character (len=200), save :: init_aero_conc_mass_file ! File for aeroslos initial mass concentrations
+  character (len=200), save :: init_aero_conc_num_file ! File for aerosols initial number concentrations
+  character (len=200), save :: init_gas_conc_file ! File for gas-phase initial conc.
+  character (len=200), save :: species_list_file  ! File for species list.
+  character (len=200), save :: reaction_list_file ! File for species list.
+  character (len=20) , save :: chemID,chemID2,resID,initID      ! IDs for chemistry/output
+  character (len=200), save :: aerosol_species_list_file ! File for species list.
+  character (len=200), save :: aerosol_structure_file ! File for species list.
+  character (len=200), save :: namelist_species ! Namelist file for species list.
+  character (len=200), save :: particles_composition_file ! File for particles composition
+  character (len=200), save :: emis_gas_file
+  character (len=200), save :: emis_aero_mass_file
+  character (len=200), save :: emis_aero_num_file
   character (len=80), dimension(:), allocatable, save :: isorropia_species_name
   character (len=80), dimension(:), allocatable, save :: aec_species_name
   character (len=40), save :: precursor
@@ -356,11 +378,11 @@ module aInitialization
   integer, save :: spec_name_len
   character (len=40), dimension(:), allocatable, save :: emis_gas_species_name
   character (len=40), dimension(:), allocatable, save :: emis_aer_species_name
-  character (len=100), save :: output_directory, output_dir2
+  character (len=200), save :: output_directory, output_conc_file
   
   ! Photolysis
-  character (len=800), save :: photolysis_file ! File for photolysis list.
-  character (len=800), save :: photolysis_dir ! Directory for photolysis list.
+  character (len=200), save :: photolysis_file ! File for photolysis list.
+  character (len=200), save :: photolysis_dir ! Directory for photolysis list.
   character (len=40), dimension(:), allocatable, save :: photolysis_name
   integer, save :: n_time_angle
   double precision, save :: time_angle_min, delta_time_angle
@@ -370,7 +392,7 @@ module aInitialization
   double precision, save :: altitude_photolysis_input(30)
 
   ! meteo
-  character (len=400) , save:: meteo_file
+  character (len=200) , save:: meteo_file
   logical, save :: imeteo 
   
   !!part 6: used in ssh-aerosol.f90 chem()
@@ -444,14 +466,15 @@ contains
     ! ============================================================= 
 
     implicit none
-    integer :: i,ierr,tag_file, nml_out
-    character (len=400), intent(in) :: namelist_file
-    character (len=400) :: namelist_out
+    integer :: i,ierr, nml_out, s , count, icmt
+    character (len=200), intent(in) :: namelist_file
+    character (len=200) :: namelist_out
 
     ! genoa read input lists
-    character (len=100) :: tmp_string
-    character (len=800) :: output_aero_list, output_gas_list
-    character (len=800) :: err_species_list, init_species_list 
+    character (len=40)  :: tmpID0, tmpID1, tmp_name
+    character (len=200) :: tmp_string
+    character (len=400) :: output_aero_list, output_gas_list
+    character (len=400) :: err_species_list 
 
     ! namelists to read namelist.ssh file 
 
@@ -463,7 +486,7 @@ contains
     namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
          wet_diam_estimation, init_gas_conc_file,&
          init_aero_conc_mass_file, init_aero_conc_num_file, &
-         cst_gas_file, cst_aero_file, init_species_list ! genoa inputs
+         cst_gas_file, cst_aero_file, init_species_file ! genoa inputs
          
     namelist /initial_diam_distribution/ diam_input
 
@@ -474,15 +497,15 @@ contains
 
     namelist /fraction_distribution/ frac_input
 
-    namelist /gas_phase_species/ species_list_file
+    namelist /gas_phase_species/ species_list_file, reaction_list_file
 
-    namelist /aerosol_species/ aerosol_species_list_file,aerosol_structure_file
+    namelist /aerosol_species/ aerosol_species_list_file, aerosol_structure_file
 
     namelist /physic_gas_chemistry/ tag_chem, attenuation, option_photolysis, &
          time_update_photolysis, & 
          with_heterogeneous, with_adaptive, &
          adaptive_time_step_tolerance, min_adaptive_time_step, &
-	     RO2_list_file, tag_RO2, &
+         RO2_list_file, tag_RO2, &
          photolysis_dir, photolysis_file, &
          n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
@@ -509,15 +532,15 @@ contains
 
     namelist /output/ output_directory, output_type, particles_composition_file, &
                       output_aero_list, output_gas_list, & ! genoa inputs
-                      err_species_list, & ! genoa inputs
-                      ref_soa_conc_file, pre_soa_conc_file !genoa inputs
+                      err_species_list, nout_soa, & ! genoa inputs
+                      ref_conc_files_in !genoa inputs
 
 
     ! update genoa tag from compile option
 #ifdef UNDER_GENOA_FAST_MODE
     tag_genoa = 1
     ! no print
-    ssh_standalone = .false.
+    ssh_standalone = .true.
     ssh_logger = .false.
     iout_round = .false.
 #endif
@@ -531,11 +554,6 @@ contains
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
-
-    if (tag_init_set.ne.0) then
-        if (ssh_standalone) write(*,*) "read tag_init_set: ", tag_init_set
-        if (ssh_logger) write(logfile,*) "read tag_init_set: ", tag_init_set
-    endif
 
     if (tag_genoa.ne.0) then
         if (ssh_standalone) write(*,*) "Under GENOA mode! ", tag_genoa
@@ -642,7 +660,6 @@ contains
     ! genoa init - section initial_condition
     cst_gas_file= "---"
     cst_aero_file = "---"
-    init_species_list = "---"
     init_species_file = "---"
     
     read(10, nml = initial_condition, iostat = ierr)
@@ -667,7 +684,7 @@ contains
           write(*,*) ' -- this option is not yet available.'
           stop
        else
-          tag_init = 0 	    ! default tag_init == 0
+          tag_init = 0     ! default tag_init == 0
           if (ssh_standalone) write(*,*) 'Internally mixed aerosol species are provided for initial condition.'
           if (ssh_logger) write(logfile,*) 'Internally mixed aerosol species are provided for initial condition.'
        end if
@@ -701,33 +718,24 @@ contains
        diam_input = 0.d0
     end if
 
-    ! genoa Read initial conditions
-    if (init_species_list .ne. "---") then
-        if (ssh_standalone) write(*,*) 'Read inital conditions for some speices: ',trim(init_species_list)
-        if (ssh_logger) write(logfile,*) 'Read inital conditions for some speices: ',trim(init_species_list)
-
-        ! in case in the format "1,[path]", get the number
-        ! find the position of the first comma
-        i = index(init_species_list, ',')
-
-        ! Extract the numeric part before the first comma
-        if (i > 1) then
-            read(init_species_list(:i-1), *, iostat=ierr) tag_init_set
-            if (ierr.ne.0) then
-                print*, "Error: can not read index from init_species_list. ", trim(init_species_list)
-                stop
-            endif
-            ! read path
-            init_species_file = trim(init_species_list(i+1:800))
-            ! print
-            if (ssh_standalone) write(*,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
-            if (ssh_logger) write(logfile,*) "Extracted initial set: ", tag_init_set, trim(init_species_file)
-        else ! no number, read by command: e.g., ssh-aerosol namelist 1
-            if (tag_init_set.ne.0) then
-                ! read from ssh-aerosol.f90
-                init_species_file = init_species_list
-            endif
-        end if
+    ! GENOA read tag_init_set from initID
+    if (trim(initID).ne."-" .and. trim(initID).ne."0") then
+        read(initID,*,iostat=ierr) tag_init_set ! read integer
+        if (ierr.ne.0) then
+            print*, "Error: can not read tag_init_set from initID: ",trim(initID)
+            stop
+        else
+            if (ssh_standalone) write(*,*)  "Read tag_init_set is ",tag_init_set
+            if (ssh_logger) write(logfile,*)"Read tag_init_set is ",tag_init_set
+        endif
+    else
+        tag_init_set = 0            
+    endif
+    
+    ! genoa read initial conditions    
+    if (init_species_file.ne."---" .and. tag_init_set.ne.0) then
+        if (ssh_standalone) write(*,*) 'Read inital conditions for some speices: ',trim(init_species_file)
+        if (ssh_logger) write(logfile,*) 'Read inital conditions for some speices: ',trim(init_species_file)
     end if
     
     ! initial_diam_distribution
@@ -853,6 +861,7 @@ contains
     end if
 
     ! species
+    reaction_list_file = "---"
     read(10, nml = gas_phase_species, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "gas_phase_species data can not be read."
@@ -862,8 +871,77 @@ contains
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Species lists >>>>'
        if (ssh_logger) write(logfile,*) '<<<< Species lists >>>>'
+
+       ! update species_list_file with chemID
+       if (trim(chemID) .ne. "-") species_list_file = trim(adjustl(species_list_file))//"/"//trim(chemID2)//".species"
+
        if (ssh_standalone) write(*,*) 'gas phase species file :', trim(species_list_file)
        if (ssh_logger) write(logfile,*) 'gas phase species file :', trim(species_list_file)
+       
+       ! read gas-phase species namelist ! unit = 11
+        open(unit = 11, file = species_list_file, status = "old")
+
+        if (ssh_standalone) write(*,*) 'read gas-phase species list.'
+        if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
+        
+        ierr = 0  ! reset ierr
+        count = 0 ! count gas-phase species
+        icmt = 0  ! count comment lines
+        do while(ierr .eq. 0)
+           read(11, *, iostat=ierr) tmp_name
+           if (ierr /= 0) exit ! no line to read
+           tmp_name = adjustl(tmp_name)
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. tmp_name(1:1) == "#") then
+             icmt = icmt + 1 ! read comment lines
+           else
+             count = count + 1 ! read gas-phase species
+           endif
+        end do
+
+        N_gas = count ! number of gas-phase species
+        
+        if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
+        if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
+
+        if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
+        if ( .not. allocated(species_name)) allocate(species_name(N_gas))
+
+        rewind 11
+        
+        if (icmt .gt. 0) then ! read comment lines if needed
+            if (ssh_standalone) write(*,*) 'read comment lines from gas-phase species list',icmt
+            if (ssh_logger) write(logfile,*) 'read comment lines from gas-phase species list',icmt
+          do s = 1, icmt
+            read(11, *)
+          enddo
+        endif
+
+        do s = 1, N_gas
+           read(11, *) species_name(s), molecular_weight(s)
+           if (molecular_weight(s).le. 0.d0) then
+             print*,'Error: input MWs <= 0',s, species_name(s),&
+                     molecular_weight(s)
+             stop
+           endif
+        enddo
+        close(11)
+    
+       ! read & update reaction file
+       if (reaction_list_file.ne."---") then
+
+          ! update reaction_list_file with chemID
+          if (trim(chemID) .ne. "-") reaction_list_file=trim(adjustl(reaction_list_file))//"/"//trim(chemID2)//".reactions"
+
+          if (ssh_standalone) write(*,*) 'reaction list file:', trim(reaction_list_file)
+          if (ssh_logger) write(logfile,*) 'reaction list file', trim(reaction_list_file)
+          
+          ! get n_reaction, n_photolysis from the first line
+          ! call ssh_read_reaction_file()
+       else
+         reaction_list_file = "./src/include/CHEMISTRY/cb05/CB05_poa_nospack.reactions" 
+         print*, "Not reaction file is provided"
+         print*, "Default file is used: ", trim(reaction_list_file)
+       endif   
     end if
 
     aerosol_structure_file="---"
@@ -872,6 +950,10 @@ contains
        write(*,*) "aerosol_species data can not be read."
        stop
     else
+       ! update aerosol_species_list_file with chemID
+       if (trim(chemID).ne."-") then
+         aerosol_species_list_file = trim(adjustl(aerosol_species_list_file))//"/"//trim(chemID2)//".aer.vec"
+       endif
        if (ssh_standalone) write(*,*) 'particle species file :', trim(aerosol_species_list_file)
        if (ssh_logger) write(logfile,*) 'particle species file :', trim(aerosol_species_list_file)
        if (aerosol_structure_file.ne."---") then
@@ -908,7 +990,7 @@ contains
     radius_chamber=0.d0
 
     ! default genoa related paramters
-    tag_twostep = 0
+    tag_twostep = 1 ! default option
     keep_gp = 0
     
     ! init genoa files: RO2 reaction
@@ -1008,11 +1090,18 @@ contains
           if (ssh_logger) write(logfile,*) ''
           if (ssh_standalone) write(*,*) '<<<< Without Gas-phase chemistry >>>>'
           if (ssh_logger) write(logfile,*) '<<<< Without Gas-phase chemistry >>>>'
+          ! set default values
+          n_reaction = 0
+          n_photolysis = 0
        else
           if (ssh_standalone) write(*,*) ''
           if (ssh_logger) write(logfile,*) ''
           if (ssh_standalone) write(*,*) '<<<< Gas-phase chemistry >>>>'
           if (ssh_logger) write(logfile,*) '<<<< Gas-phase chemistry >>>>'
+
+          ! read reaction files
+          call ssh_read_reaction_file()
+          
           if (with_heterogeneous == 1) then
              if (ssh_standalone) write(*,*) 'with heterogeneous reaction.'
              if (ssh_logger) write(logfile,*) 'with heterogeneous reaction.'
@@ -1021,14 +1110,14 @@ contains
              if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
              if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
           end if
-          if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
-            tag_twostep = 1 ! genoa
-            if (ssh_standalone) write(*,*) 'use two-step solver.' 
-            if (ssh_logger) write(logfile,*) 'use two-step solver.'
-          else
-            if (ssh_standalone) write(*,*) 'use ROS2 solver.'
-            if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
-          end if
+          ! if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
+          !   tag_twostep = 1 ! genoa
+          !   if (ssh_standalone) write(*,*) 'use two-step solver.' 
+          !   if (ssh_logger) write(logfile,*) 'use two-step solver.'
+          ! else
+          !   if (ssh_standalone) write(*,*) 'use ROS2 solver.'
+          !   if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
+          ! end if
           if (tag_genoa.gt.0.or.keep_gp.eq.1) then
             keep_gp = 1 ! genoa
             if (ssh_standalone) write(*,*) 'keep_gp is activated' 
@@ -1187,14 +1276,14 @@ contains
           if(i_compute_repart == 0) then
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are read'
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are read'
-	     if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
-	     if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
+             if (ssh_standalone) write(*,*) 'coefficient file : ', trim(Coefficient_file)
+             if (ssh_logger) write(logfile,*) 'coefficient file : ', trim(Coefficient_file)
              i_write_repart = 0 ! Do no write repartition coefficients if they are not computed.
           else
              if (ssh_standalone) write(*,*) i_compute_repart,'repartition coefficient are computed'
              if (ssh_logger) write(logfile,*) i_compute_repart,'repartition coefficient are computed'
-	     if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
-	     if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
+             if (ssh_standalone) write(*,*) 'Nmc = ',Nmc
+             if (ssh_logger) write(logfile,*) 'Nmc = ',Nmc
           endif
           if (i_write_repart == 1) then
              if (ssh_standalone) write(*,*) i_write_repart,'repartition coefficient are written'
@@ -1283,41 +1372,41 @@ contains
           if (ssh_standalone) write(*,*) '! ! ! with condensation/ evaporation.'
           if (ssh_logger) write(logfile,*) '! ! ! with condensation/ evaporation.'
 
-	  ! initialise parameters regarding ICUT
-	  if (tag_icut .ne. 0) then
-		set_icut = 0
-		if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
-             	if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
-		if (ssh_standalone) write(*,*) 'Criteria for the computation of cut-off diameter: '
-             	if (ssh_logger) write(logfile,*) 'Criteria for the computation of cut-off diameter: '
-		if (tag_icut .eq. 1) then ! c/e timescale criteria
-			if (ssh_standalone) write(*,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
-	             	if (ssh_logger) write(logfile,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
-		elseif (tag_icut .eq. 2) then ! solver efficientcy criteria
-			if (ssh_standalone) write(*,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
-	             	if (ssh_logger) write(logfile,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
-		elseif (tag_icut .eq. 3) then ! modified QSSA criteria
-			if (ssh_standalone) write(*,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
-	             	if (ssh_logger) write(logfile,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
-		else
-			print*,'tag_icut is not recognize.',tag_icut
-			stop
-		endif
-	  else ! fix ICUT, tag_icut = 0
-		set_icut = 1
-		if (Cut_dim .lt. diam_input(1)) then !dynamic
-	        	if (ssh_standalone) write(*,*) 'inorganics are at dynamic.'
-     			if (ssh_logger) write(logfile,*) 'inorganics are at dynamic.'
-		elseif (Cut_dim .ge. diam_input(size(diam_input))) then !equilibrium
-			if (ssh_standalone) write(*,*) 'inorganic compounds are at equilibrium.'
-     			if (ssh_logger) write(logfile,*) 'inorganic compounds are at equilibrium.'
-		else ! hybrid method with fixed cut-off diameter
-			if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
-             		if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
-			if (ssh_standalone) write(*,*) 'The cut-off diameter is fixed at ',Cut_dim
-             		if (ssh_logger) write(logfile,*) 'The cut-off diameter is fixed at ',Cut_dim
-		endif
-	  endif
+          ! initialise parameters regarding ICUT
+          if (tag_icut .ne. 0) then
+                set_icut = 0
+                if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
+                if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
+                if (ssh_standalone) write(*,*) 'Criteria for the computation of cut-off diameter: '
+                if (ssh_logger) write(logfile,*) 'Criteria for the computation of cut-off diameter: '
+                if (tag_icut .eq. 1) then ! c/e timescale criteria
+                    if (ssh_standalone) write(*,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
+                    if (ssh_logger) write(logfile,*) '-- c/e characteristic timescales with the cut-off parameter given at ',Cut_dim
+                elseif (tag_icut .eq. 2) then ! solver efficientcy criteria
+                    if (ssh_standalone) write(*,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
+                    if (ssh_logger) write(logfile,*) '-- ETR solver efficiency with the cut-off parameter given at ',Cut_dim
+                elseif (tag_icut .eq. 3) then ! modified QSSA criteria
+                    if (ssh_standalone) write(*,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
+                    if (ssh_logger) write(logfile,*) '-- modified QSSA criteria with the cut-off parameter given at ',Cut_dim
+                else
+                    print*,'tag_icut is not recognize.',tag_icut
+                    stop
+                endif
+          else ! fix ICUT, tag_icut = 0
+                set_icut = 1
+                if (Cut_dim .lt. diam_input(1)) then !dynamic
+                    if (ssh_standalone) write(*,*) 'inorganics are at dynamic.'
+                    if (ssh_logger) write(logfile,*) 'inorganics are at dynamic.'
+                elseif (Cut_dim .ge. diam_input(size(diam_input))) then !equilibrium
+                    if (ssh_standalone) write(*,*) 'inorganic compounds are at equilibrium.'
+                    if (ssh_logger) write(logfile,*) 'inorganic compounds are at equilibrium.'
+                else ! hybrid method with fixed cut-off diameter
+                        if (ssh_standalone) write(*,*) 'inorganics are computed with the hybrid method.'
+                        if (ssh_logger) write(logfile,*) 'inorganics are computed with the hybrid method.'
+                        if (ssh_standalone) write(*,*) 'The cut-off diameter is fixed at ',Cut_dim
+                        if (ssh_logger) write(logfile,*) 'The cut-off diameter is fixed at ',Cut_dim
+                endif
+          endif
 
           if (ISOAPDYN == 1) then
              ICUT_org = 0
@@ -1451,13 +1540,11 @@ contains
     endif
     
     ! genoa ! default values
-    ref_soa_conc_file = "---"
-    pre_soa_conc_file = "---"
+    nout_soa = 0 ! default no SOA groups
+    ref_conc_files_in = "---"
     output_aero_list  = "---"
     output_gas_list   = "---"
     err_species_list  = "---"
-    ierr_ref = .false.
-    ierr_pre = .false.
     
     ! output
     read(10, nml = output, iostat = ierr)
@@ -1483,10 +1570,39 @@ contains
           if (ssh_standalone) write(*,*) 'results are saved in text files.'
           if (ssh_logger) write(logfile,*) 'results are saved in text files.'
        end if
+
+       output_directory = adjustl(output_directory)
        if (ssh_standalone) write(*,*) 'output directory :', trim(output_directory)
        if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
+
+       output_conc_file = trim(output_directory)//"/concs.txt"
+       
+       ! update output_conc_file and particles_composition_file with initID,chemID,resID
+       ! get suffix
+       if(trim(chemID).ne."-") then ! add chemID & resultID
+           tmpID0 = "/"//trim(chemID)//"/"//trim(initID)//"."//trim(resID)
+           tmpID1 = "/"//trim(initID)//"."//trim(resID)//".concs" ! for pre/ref files
+       else if (trim(initID).ne."-") then ! incase only put initID
+           tmpID0 = "/"//trim(initID) 
+           tmpID1 = "/"//trim(initID)//".concs"
+       else
+           tmpID0 = "-"
+       endif
+       if (trim(tmpID0).ne."-") then
+           ! detail output by IDs in tmpID0
+           output_directory = trim(output_directory)//trim(tmpID0)
+           particles_composition_file = trim(output_directory)//'.fac'
+           output_conc_file = trim(output_directory)//'.concs'
+           ! Create directory if it does not exist.
+           call system("mkdir -p "// trim(output_directory))
+       endif
+
        if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
        if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
+
+       if (ssh_standalone) write(*,*)   'Concs file : ', trim(output_conc_file)
+       if (ssh_logger) write(logfile,*) 'Concs file : ', trim(output_conc_file)
+       
     end if
 
     !!!!! genoa
@@ -1495,20 +1611,9 @@ contains
     if (output_aero_list .ne. "---") then
         if (ssh_standalone) write(*,*) 'Read output aerosol speices: ',trim(output_aero_list)
         if (ssh_logger) write(logfile,*) 'Read output aerosol speices: ',trim(output_aero_list)
-        
-        ! Remove trailing comma if present
-        if (output_aero_list /= "") then
-            if (output_aero_list(len_trim(output_aero_list):) == ",") then
-                output_aero_list = adjustl(output_aero_list(1:len_trim(output_aero_list)-1))
-            end if
-        end if
+
         ! Count the number of substrings
-        nout_aero = 1
-        do i = 1, len(output_aero_list)
-            if (output_aero_list(i:i) == ",") then
-                nout_aero = nout_aero + 1
-            end if
-        end do
+        call count_delimiter(output_aero_list, ",", nout_aero)
         !print*,"Find number: ", nout_aero
         
         ! Allocate memory
@@ -1518,8 +1623,8 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_aero
-            call get_token(output_aero_list, tmp_string,",")
-            output_aero_species(i) = trim(tmp_string)
+            call get_token(output_aero_list, tmp_name, ",")
+            output_aero_species(i) = tmp_name
             !print*,i," now: ",output_aero_list," species taken: ",output_aero_species(i)
         end do
     else
@@ -1533,20 +1638,8 @@ contains
         if (ssh_standalone) write(*,*) 'Read output gas species: ',trim(output_gas_list)
         if (ssh_logger) write(logfile,*) 'Read output gas species: ',trim(output_gas_list)
         
-        ! Remove trailing comma if present
-        if (output_gas_list /= "") then
-            if (output_gas_list(len_trim(output_gas_list):) == ",") then
-                output_gas_list = adjustl(output_gas_list(1:len_trim(output_gas_list)-1))
-            end if
-        end if
-        
         ! Count the number of substrings
-        nout_gas = 1
-        do i = 1, len(output_gas_list)
-            if (output_gas_list(i:i) == ",") then
-                nout_gas = nout_gas + 1
-            end if
-        end do
+        call count_delimiter(output_gas_list, ",", nout_gas)
         !print*,"Find number: ", nout_gas
         
         ! Allocate memory
@@ -1556,14 +1649,14 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_gas
-            call get_token(output_gas_list, tmp_string, ",")
-            output_gas_species(i) = trim(tmp_string)
+            call get_token(output_gas_list, tmp_name, ",")
+            output_gas_species(i) = tmp_name
             !print*,i," now: ",output_gas_list," species taken: ",output_gas(i)
         end do
     else
         nout_gas = 0
-        allocate(output_gas_species(1))
         allocate(output_gas_index(1))
+        allocate(output_gas_species(1))
     end if
     
     ! read the list of species to compute reduction errors
@@ -1571,20 +1664,8 @@ contains
         if (ssh_standalone) write(*,*) 'Read output speices for error computation: ',trim(err_species_list)
         if (ssh_logger) write(logfile,*) 'Read output speices for error computation: ',trim(err_species_list)
 
-        ! Remove trailing comma if present
-        if (err_species_list /= "") then
-            if (err_species_list(len_trim(err_species_list):) == ",") then
-                err_species_list = adjustl(err_species_list(1:len_trim(err_species_list)-1))
-            end if
-        end if
-        
         ! Count the number of substrings
-        nout_err = 1
-        do i = 1, len(err_species_list)
-            if (err_species_list(i:i) == ",") then
-                nout_err = nout_err + 1
-            end if
-        end do
+        call count_delimiter(err_species_list, ",", nout_err)
         !print*,"Find number: ", nout_err
         
         ! Allocate memory
@@ -1594,8 +1675,8 @@ contains
         
         ! Separate and remove spaces from the input string
         do i = 1, nout_err
-            call get_token(err_species_list, tmp_string, ",")
-            output_err_sps(i) = trim(tmp_string)
+            call get_token(err_species_list, tmp_name, ",")
+            output_err_sps(i) = tmp_name
             !print*,i," now: ",err_species_list," species taken: ",output_err(i)
         end do
     else
@@ -1603,9 +1684,42 @@ contains
         allocate(output_err_sps(1))
         allocate(output_err_index(1,1))
     end if
-    
+
     ! total number of output - 1 for total SOAs
     nout_total = 1 + nout_err + nout_soa
+
+    ! Update ref soa conc file lists
+    if (ref_conc_files_in .ne. "---") then
+    
+        ! Count number of ref files
+        call count_delimiter(ref_conc_files_in, ",", nref_file)
+        allocate(ref_conc_files(nref_file))
+    
+        count = 0 ! find output file    
+        ! Separate and remove spaces from the input string
+        do i = 1, nref_file
+            call get_token(ref_conc_files_in, tmp_string, ",")
+            
+            ! detail paths to references by IDs in tmpID1
+            if (trim(tmpID0).ne."-") then
+              ref_conc_files(i) = trim(adjustl(tmp_string))//trim(tmpID1)
+            else
+              ref_conc_files(i) = tmp_string
+            endif
+            !print*,i," now: ",ref_conc_files_in," species taken: ",ref_conc_files(i)
+
+            ! check if repeat file to output
+            if (trim(output_conc_file).eq.trim(ref_conc_files(i))) then
+                ref_conc_files(i) = "---" ! reset name
+                count = count + 1
+            endif
+            nref_file = nref_file - count ! update
+        end do
+        
+    else
+        nref_file = 0
+        allocate(ref_conc_files(1))
+    end if
     
     close(10)
 
@@ -1647,9 +1761,9 @@ contains
 
 
   subroutine ssh_read_inputs(nspecies,name_input_species,index_species_ssh)
-
-
+    
     implicit none
+    
     integer:: nspecies   !For chimere interface, number of aerosol species we want to select
     character (len=40),dimension(nspecies),optional :: name_input_species !For Chimere interface, name of the species we want to select
     integer,dimension(nspecies),optional :: index_species_ssh   !For Chimere interface, link between the index of species in CHIMERE and SSH-aerosol
@@ -1657,7 +1771,7 @@ contains
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
     character (len=40) :: ic_name, sname, tmp_name
-    integer :: species,aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
+    integer :: aerosol_type_tmp,Index_groups_tmp,inon_volatile_tmp,found_spec
     double precision :: molecular_weight_aer_tmp,collision_factor_aer_tmp, molecular_diameter_tmp
     double precision :: surface_tension_tmp, accomodation_coefficient_tmp, mass_density_tmp
     double precision :: saturation_vapor_pressure_tmp,enthalpy_vaporization_tmp
@@ -1667,9 +1781,8 @@ contains
     character (len=4) :: partitioning_tmp
 
     ! currently only used for genoa
-    logical :: file_exists
-    character (len=40) :: ivoc0, ivoc1
-    character (len=800) :: tmp_string
+    character (len=2) :: ivoc0, ivoc1
+    character (len=200) :: tmp_string
     double precision :: tmp_conc
     integer, dimension(:), allocatable :: tmp_index ! (gas/aero, sps index, ref sps index)
     double precision, dimension(:), allocatable :: tmp_read, tmp_fgls
@@ -1677,40 +1790,6 @@ contains
     if (nspecies>0) then
        index_species_ssh(:)=-1
     endif
-    
-    ! read gas-phase species namelist ! unit = 11
-    if ( .not. allocated(molecular_weight)) allocate(molecular_weight(N_gas))
-    if ( .not. allocated(species_name)) allocate(species_name(N_gas))
-
-    open(unit = 11, file = species_list_file, status = "old")
-    count = 0
-    ierr = 0
-    do while(ierr .eq. 0)
-       read(11, *, iostat=ierr)
-       if (ierr == 0) count = count + 1
-    end do
-    
-    if (ssh_standalone) write(*,*) 'read gas-phase species list.'
-    if (ssh_logger) write(logfile,*) 'read gas-phase species list.'
-    if (N_gas == count - 1) then   ! minus the first comment line
-       if (ssh_standalone) write(*,*) 'Number of gas-phase species', N_gas
-       if (ssh_logger) write(logfile,*) 'Number of gas-phase species', N_gas
-    else 
-       write(*,*) 'Given gas-phase species list does not fit chem() setting.'
-       stop
-    end if
-    
-    rewind 11
-    read(11, *)  ! read the first comment line
-    do s = 1, N_gas
-       read(11, *) species_name(s), molecular_weight(s)
-       if (molecular_weight(s).le. 0.d0) then
-         print*,'Error: input MWs <= 0',s, species_name(s),&
-                 molecular_weight(s)
-         stop
-       endif
-    enddo
-    close(11)
     
     ! read aerosol species namelist ! unit = 12
     open(unit = 12, file = aerosol_species_list_file, status = "old")
@@ -2030,18 +2109,18 @@ contains
        do js = 1, N_gas
           if (species_name(js) .eq. ic_name) then
              concentration_gas_all(js) = tmp
-             if (ssh_standalone) write(*,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
-             if (ssh_logger) write(logfile,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
+             !if (ssh_standalone) write(*,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
+             !if (ssh_logger) write(logfile,*) 'initialize conc ',ic_name,js,concentration_gas_all(js)
              ind = 1
              exit
           endif
        enddo
 
        if (ind .ne. 1) then ! not found
-          if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
-          if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-              trim(init_gas_conc_file), trim(ic_name)
+          if (ssh_standalone) write(*,*) "Error: wrong species name is given in file ",&
+              trim(init_gas_conc_file),": " ,trim(ic_name)
+          if (ssh_logger) write(logfile,*) "Error: wrong species name is given in file ",&
+              trim(init_gas_conc_file),": " ,trim(ic_name)
        endif
     enddo
     close(21)
@@ -2160,9 +2239,9 @@ contains
              if (ind == 1) exit
           enddo
           if (ind .eq. 0) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission", &
+             if (ssh_standalone) write(*,*) "Error: wrong species name is given in gas emission ", &
                trim(init_gas_conc_file), trim(ic_name)
-             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission", &
+             if (ssh_logger) write(logfile,*) "Error: wrong species name is given in gas emission ", &
                trim(init_gas_conc_file), trim(ic_name)
           end if
        end do
@@ -2222,10 +2301,10 @@ contains
           read(33,*, iostat=ierr) ic_name, emis_bin_number
           close(33)
           if (ierr .eq. 0) then
-	     if (ssh_standalone) write(*,*) "Emission number conc. has been read."
-	     if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
-	     if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
-	     if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
+             if (ssh_standalone) write(*,*) "Emission number conc. has been read."
+             if (ssh_logger) write(logfile,*) "Emission number conc. has been read."
+             if (ssh_standalone) write(*,*) 'emis_bin_number', emis_bin_number
+             if (ssh_logger) write(logfile,*) 'emis_bin_number', emis_bin_number
           else 
              write(*,*) "can not read aerosol number conc. from ", trim(emis_aero_num_file)
              stop
@@ -2292,8 +2371,9 @@ contains
       do while(ierr .eq. 0)
          read(34, *, iostat=ierr) tmp_name
          if (ierr == 0) then
-            if (trim(tmp_name) .eq. "#") then
-               nline = nline + 1
+            tmp_name = adjustl(tmp_name)
+            if (trim(tmp_name) == "" .or. tmp_name(1:1) == "#") then
+               nline = nline + 1 ! Comment line
             else
                count = count + 1
             end if
@@ -2352,14 +2432,10 @@ contains
     endif
 
     !!!!!!!!!! genoa related treatments
-    !!!! genoa initial condition
-    if (tag_init_set.gt.0) then
-        ! get tag in char
-        write(ivoc0,'(I0)') tag_init_set
-        ! update output
-        output_directory = trim(output_directory)//'.'//trim(ivoc0)
-        if (ssh_standalone) write(*,*) 'Change output_directory to: ', output_directory
-        if (ssh_logger) write(logfile,*) 'Change output_directory to: ', output_directory
+
+    if (tag_chem .eq. 1) then
+       ! read photolysis files
+       call ssh_read_photolysis_file()
     endif
     
     ! genoa assign output aero index
@@ -2389,7 +2465,7 @@ contains
         enddo
         ! check
         if (output_gas_index(s).eq.0) then
-            print*,'not found gas in species list: ', s, trim(output_gas_species(s))
+            print*,'not found output gas name in species list: ', s, trim(output_gas_species(s))
             stop
         endif
     enddo
@@ -2423,31 +2499,10 @@ contains
     enddo
     
     ! genoa RO2 treatment settings
-    iRO2 = 0 ! init index for RO2
     if (tag_RO2.ne.0) then
         if (ssh_standalone) write(*,*) "Treat RO2-RO2 reaction:"
         if (ssh_logger) write(logfile,*) "Treat RO2-RO2 reaction:"
-        ! RO2 index
-        do js = 1, N_gas
-          if (species_name(js).eq."RO2pool") then
-              iRO2=js
-              if (ssh_standalone) write(*,*) 'RO2 pool is found in gas-phase species with index ',iRO2
-              if (ssh_logger) write(logfile,*) 'RO2 pool is found in gas-phase species with index ',iRO2
-          endif
-        enddo
-        ! check RO2 index
-        if (iRO2 .eq. 0) then
-          if (ssh_standalone) write(*,*) "  RO2 pool is not in the list", trim(species_list_file)
-          if (ssh_logger) write(logfile,*) "  RO2 pool is not in the list", trim(species_list_file)
-          if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3 ) then ! need generated RO2
-              if (ssh_standalone) write(*,*) "  Need generated RO2 pool but there is no RO2 pool index", &
-                 "in the species list. tag_RO2 = ",tag_RO2
-              if (ssh_logger) write(logfile,*) "  Need generated RO2 pool but there is no RO2 pool index", &
-                 "in the species list. tag_RO2 = ",tag_RO2
-              stop
-          endif
-        ! tag_RO2 read only if iRO2 != 0
-        end if
+
         if (tag_RO2 .eq. 1) then
             if (ssh_standalone) write(*,*) '  Use generated RO2 pool. tag_RO2 = ', tag_RO2
             if (ssh_logger) write(logfile,*) '  Use generated RO2 pool. tag_RO2 = ', tag_RO2
@@ -2467,33 +2522,33 @@ contains
     ! genoa read initial profiles
     if (init_species_file.ne."---".and.tag_init_set.gt.0) then ! ivoc is used here
 
-      if (ssh_standalone) write(*,*) 'Initial sets file : ', trim(init_species_file)
-      if (ssh_logger) write(logfile,*) 'Initial sets file : ', trim(init_species_file)
+      if (ssh_standalone) write(*,*) 'Reading initial sets file ', trim(init_species_file)
+      if (ssh_logger) write(logfile,*) 'Reading initial sets file ', trim(init_species_file)
 
       open(unit = 20, file = init_species_file, status = "old")
         ierr = 0 ! tag read line
         ind = 0  ! tag index - 0/1
         j = 0
-        write(ivoc1,'(I0)') tag_init_set+1 ! stop sign
-        
+        write(ivoc0,'(I0)') tag_init_set   ! start sign
+        write(ivoc1,'(I0)') tag_init_set + 1 ! stop sign
+
         allocate(tmp_index(2)) ! index of sps/ref sps
         tmp_index = 0
 
         do while(ierr .eq. 0)
             count = 0 ! default tag
             read(20, '(A)', iostat=ierr) tmp_string ! read line
-            
-            if (trim(tmp_string).eq.trim(ivoc1)) then
-                exit
-            else if (trim(tmp_string).eq.trim(ivoc0)) then
-                ind = 1
-            else if(ind.eq.1.and.ierr.eq.0) then ! read line
-            
-                if (ssh_standalone) write(*,*) 'Read: ', trim(tmp_string)
-                if (ssh_logger) write(logfile,*)'Read: ', trim(tmp_string)
-                
+            if (ierr /= 0) exit
+            tmp_string = adjustl(tmp_string)
+            s = len_trim(tmp_string) ! len
+            if (s == 0 .or. tmp_string(1:1) == '#') cycle ! Comment lines
+            if (s > 2 ) then
+                if (ind /= 1) cycle ! Read line in other set
+                ! Read line
+                if (ssh_standalone) write(*,*) '  Read init set info: ', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Read init set info: ', trim(tmp_string)
                 read(tmp_string,*, iostat=j) ic_name, tmp_name, sname
-                if (j.eq.0) then
+                if (j.eq.0) then ! Read line
                     count = 3
                     ! get factor
                     read(tmp_name,*, iostat=j) tmp_conc
@@ -2501,34 +2556,41 @@ contains
                 else
                     count = 2
                     read(tmp_string,*, iostat=j) ic_name, tmp_conc
-                    !print*, "read 2:",j, trim(ic_name), tmp_conc
+                    !print*, "read 2:",j, trim(ic_name), tmp_conc                 
                 end if
                 if (j.ne.0) then
-                    print*, "Can not read line: ", trim(tmp_string)
-                endif
+                    count = 0
+                    print*, " Warning! Can not read line from initial sets file: ", trim(tmp_string)
+                endif 
+            else if (tmp_string(1:2) .eq. ivoc1) then ! find the stop sign, exit
+                exit
+            else if (tmp_string(1:2) .eq. ivoc0) then ! find the start sign, reading next line
+                ind = 1
+                if (ssh_standalone) write(*,*) '  Find sign:', trim(tmp_string)
+                if (ssh_logger) write(logfile,*)'  Find sign:', trim(tmp_string)
             end if
-            
+
             if (count.ne.0) then ! read line info
                 ! check species name and type
                 do js = 1, N_gas
                     if (ic_name.eq.species_name(js)) then
                         tmp_index(1) = js
-                        if (ssh_standalone) write(*,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
-                        if (ssh_logger) write(logfile,*) 'Find gas (initial concs may change): ', trim(ic_name), ind, js
+                        if (ssh_standalone) write(*,*) '  Find gas (initial concs may change): ', trim(ic_name), ind, js
+                        if (ssh_logger) write(logfile,*) '  Find gas (initial concs may change): ', trim(ic_name), ind, js
                     endif
                     if (count.eq.3.and.sname.eq.species_name(js)) then
                         tmp_index(2) = js
-                        if (ssh_standalone) write(*,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
-                        if (ssh_logger) write(logfile,*) 'Find gas (used to compute initial concs): ', trim(sname), ind, js
+                        if (ssh_standalone) write(*,*) '  Find gas (used to compute initial concs): ', trim(sname), ind, js
+                        if (ssh_logger) write(logfile,*) '  Find gas (used to compute initial concs): ', trim(sname), ind, js
                     endif
                 enddo
 
                 ! check
                 if (tmp_index(1).eq.0) then
-                    print*, "index of input species is not found", trim(ic_name)
+                    print*, "  index of input species is not found", trim(ic_name)
                     stop
                 else if (count.eq.3.and.tmp_index(2).eq.0) then
-                    print*, "index of reference species is not found", trim(sname)
+                    print*, "  index of reference species is not found", trim(sname)
                     stop
                 endif
                 
@@ -2540,8 +2602,8 @@ contains
                 else if (count.eq.3) then
                     concentration_gas_all(js) = tmp_conc * concentration_gas_all(tmp_index(2))
                 endif
-                if (ssh_standalone) write(*,*) "Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
-                if (ssh_logger) write(logfile,*)"Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                if (ssh_standalone) write(*,*) "  Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
+                if (ssh_logger) write(logfile,*)"  Old/New concentration: ",trim(species_name(js)),tmp,concentration_gas_all(js)
                 
             endif
         end do
@@ -2559,10 +2621,11 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(24, *, iostat=ierr) tmp_string
+           read(24, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2627,11 +2690,11 @@ contains
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(25, *, iostat=ierr) tmp_string
+           read(25, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              ! read comment lines
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2662,26 +2725,27 @@ contains
     endif
 
     ! init
-    iRO2_cst = 0 ! index of RO2 pool
-    ncst_gas = 0 ! number of gas species that are constants
-    nRO2_chem = 0! number of RO2 species
+    iRO2_cst = 0  ! index of RO2 pool
+    ncst_gas = 0  ! number of gas species that are constants
+    nRO2_chem = 0 ! number of RO2 species
+    nRO2_group = 1! number of RO2 group
     
     ! genoa read contant gasoes profile
     if (cst_gas_file.ne."---") then
         open(unit = 34, file = cst_gas_file, status = "old")
 
-        if (ssh_standalone) write(*,*) 'Gas-phase concentration constant file : ', trim(cst_aero_file)
-        if (ssh_logger) write(logfile,*) 'Gas-phase concentration constant file : ', trim(cst_aero_file)
+        if (ssh_standalone) write(*,*) 'Gas-phase concentration constant file : ', trim(cst_gas_file)
+        if (ssh_logger) write(logfile,*) 'Gas-phase concentration constant file : ', trim(cst_gas_file)
 
         count = 0 
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_string
+           read(34, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              ! read comment lines
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2707,14 +2771,10 @@ contains
               if (species_name(js) .eq. ic_name) then
                  cst_gas_index(s)=js
 
-                 if (iRO2 .ne. 0 .and. ic_name .eq. 'RO2pool') then
+                 if (ic_name .eq. 'RO2pool') then
                     iRO2_cst = s
                     if (ssh_standalone) write(*,*) 'Index for cst background RO2 pool in cst_gas list', iRO2_cst
                     if (ssh_logger) write(logfile,*) 'Index for cst background RO2 pool in cst_gas list', iRO2_cst
-                    if (tag_RO2 .lt. 2) then
-                        if (ssh_standalone) write(*,*) 'Constant RO2 pool concentration, read but not used. tag_RO2 = ',tag_RO2
-                        if (ssh_logger) write(logfile,*) 'Constant RO2 pool concentration, read but not used. tag_RO2 = ',tag_RO2
-                    endif
                  endif
 
                  do k =1 ,nt
@@ -2744,6 +2804,19 @@ contains
            endif
         enddo
         close(34)
+        
+        ! check iRO2_cst
+        if (iRO2_cst.eq.0) then ! no input
+            if (tag_RO2.eq.2 .or. tag_RO2.eq.3) then
+                print*, "Modify tag_RO2 cuz not iRO2_cst", iRO2_cst, tag_RO2
+                tag_RO2 = tag_RO2 - 2
+                if (tag_RO2.eq.0) then
+                    print*, "Update: No RO2-RO2 reactions", tag_RO2
+                else ! tag_RO2.eq.1
+                    print*, "Update: Only generated RO2-RO2 reactions", tag_RO2
+                endif
+            endif
+        endif
     else
         !print*,'No input cst gas file.'
         if ( .not. allocated(cst_gas_index)) allocate(cst_gas_index(ncst_gas)) ! index of unchanged species
@@ -2751,21 +2824,25 @@ contains
     endif
 
     ! genoa RO2 species list - build RO2pool
-    if (RO2_list_file.ne."---") then
-      if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then ! need to have the list
-
-        if (ssh_standalone) write(*,*) 'RO2 list file : ', trim(RO2_list_file)," tag_RO2 = ",tag_RO2
-        if (ssh_logger) write(logfile,*) 'RO2 list file : ', trim(RO2_list_file)," tag_RO2 = ",tag_RO2
+    ! update species_list_file with chemID
+    if (RO2_list_file.ne."---".and.chemID.ne."-") RO2_list_file = trim(adjustl(RO2_list_file))//"/"//trim(chemID2)//".RO2"
+       
+    if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then ! need to have the list
+      if (RO2_list_file.ne."---") then
+      
+        if (ssh_standalone) write(*,*) 'Read RO2 list file : ', trim(RO2_list_file)," tag_RO2 = ",tag_RO2
+        if (ssh_logger) write(logfile,*) 'Read RO2 list file : ', trim(RO2_list_file)," tag_RO2 = ",tag_RO2
 
         open(unit = 34, file = RO2_list_file, status = "old")
         count = 0 
         ierr = 0
         nline = 0
         do while(ierr .eq. 0)
-           read(34, *, iostat=ierr) tmp_string
+           read(34, *, iostat=ierr) tmp_name
            if (ierr == 0) then
-              if (trim(tmp_string) .eq. "#") then
-                 nline = nline + 1
+              tmp_name = adjustl(tmp_name)
+              if (trim(tmp_name) == "" .or. tmp_name(1:1) .eq. "#") then
+                 nline = nline + 1 ! Comment line
               else
                  count = count + 1
               end if
@@ -2773,18 +2850,21 @@ contains
         end do
 
         nRO2_chem = count
-        if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
-
+        if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem,2)) ! index of RO2 and group id
+        
         rewind 34
         do s = 1, nline
            read(34, *) ! read comment lines.
         end do
         do s= 1, count
-           read(34,*) ic_name
+           read(34,*) ic_name, k
            ind = 0
            do js = 1, N_gas
               if (species_name(js) .eq. ic_name) then
-                 RO2index(s)=js
+                 RO2index(s,1)=js ! isps
+                 RO2index(s,2)=k  ! group id
+                 ! update no. group if need
+                 if (k.gt.nRO2_group) nRO2_group = k
                  ind = 1
               endif
               if (ind == 1) exit
@@ -2798,14 +2878,30 @@ contains
            endif
         enddo
         close(34)
-      else
-          if (ssh_standalone) write(*,*) "RO2 list is given but not read because tag_RO2 = ",&
-            tag_RO2, " ", trim(RO2_list_file)
-          if (ssh_logger) write(logfile,*) "RO2 list is given but not read because tag_RO2 = ",&
-            tag_RO2, " ", trim(RO2_list_file)
-      endif
-    else if (tag_RO2 .eq. 1 .or. tag_RO2 .eq. 3) then
-          !print*,'No input RO2 list.'
+        
+        ! check nRO2_group with reaction list
+        if (nRO2_chem.gt.0) then
+          ind = minval(TB_rcn(:,2)) !number read from reaction list
+          if (ind.gt.0 .and. abs(ind).gt.nRO2_group) then
+            if (ssh_standalone) write(*,*)"Error: RO2 group no. < RO2 index read from reaction file", &
+                                 abs(ind), nRO2_group
+            if (ssh_logger) write(logfile,*) "Error: RO2 group no. < RO2 index read from reaction file", &
+                                 abs(ind), nRO2_group
+            stop
+          endif
+        endif
+
+        ! check nRO2_group with iRO2_cst
+        if (tag_RO2.gt.1.and.nRO2_group.gt.1.and.iRO2_cst.gt.0) then
+          if (ssh_standalone) write(*,*)   "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
+          if (ssh_logger) write(logfile,*) "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
+          stop
+        endif
+        
+        ! for output
+        if ( .not. allocated(RO2out_index)) allocate(RO2out_index(nRO2_group))
+        
+      else ! no RO2 file can be read
           if (ssh_standalone) write(*,*) "Error: RO2 list info is needed but not given."
           if (ssh_standalone) write(*,*) "Please check RO2_list_file in the namelist. tag_RO2 = ",&
               tag_RO2, " ",trim(RO2_list_file)
@@ -2813,105 +2909,88 @@ contains
           if (ssh_logger) write(logfile,*) "Please check RO2_list_file in the namelist. tag_RO2 = ",&
               tag_RO2, " ",trim(RO2_list_file)
           stop
-    else
-        if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
+      endif
+      
+    else ! no need to read RO2 file  
+      if (ssh_standalone) write(*,*) "RO2 list is given but not read because tag_RO2 = ",&
+        tag_RO2, " ", trim(RO2_list_file)
+      if (ssh_logger) write(logfile,*) "RO2 list is given but not read because tag_RO2 = ",&
+        tag_RO2, " ", trim(RO2_list_file)
+    endif
+    
+    ! get RO2 output index
+    if (tag_RO2.ne.0) then
+        RO2out_index = 0 ! init
+        ! find RO2 index
+        do k = 1, nRO2_group
+          ! convert the integer to a string => RO2pool1 to RO2pooln, RO2pool => totoal RO2 pool
+          write(ic_name, '("RO2pool", I0)') k
+          
+          ! check index in species list
+          do js = 1, N_gas
+            if (INDEX(species_name(js),trim(ic_name)) /= 0) then
+              RO2out_index(k) = js
+              if (ssh_standalone) write(*,*) 'RO2 pool id found for group ',k, RO2out_index(k)
+              if (ssh_logger) write(logfile,*) 'RO2 pool id found for group ',k, RO2out_index(k)
+              exit
+            endif
+          enddo
+          ! check RO2 index - not found
+          if ( RO2out_index(k) .eq. 0) then
+            if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
+            if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
+          end if
+        enddo
     endif
 
     ! for twostep solver input
-    if (tag_twostep.eq.1 .and. .not.allocated(RO2index)) allocate(RO2index(nRO2_chem)) ! index of RO2
-
+    if ( .not. allocated(RO2index)) allocate(RO2index(nRO2_chem,2)) ! index of RO2
+    if ( .not. allocated(RO2out_index)) allocate(RO2out_index(nRO2_group))
+    
     ! genoa read ref and pre concentrations
-    if (ref_soa_conc_file.ne."---") then
-        if (tag_init_set.gt.0) then
-            ! Check if the file.[No.] exists
-            INQUIRE(FILE=trim(ref_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
-            if (file_exists) then
-                ref_soa_conc_file = trim(ref_soa_conc_file)//'.'//trim(ivoc0)
-                if (ssh_standalone) write(*,*) 'Update ref file: ',trim(ref_soa_conc_file)
-                if (ssh_logger) write(logfile,*) 'Update ref file: ',trim(ref_soa_conc_file)
+    if (nref_file.gt.0) then
+
+      allocate(ref_soa(nref_file,nout_total,nt)) ! save ref soa conc
+      ref_soa = 0.d0
+        
+      do ind = 1, nref_file
+        if (trim(ref_conc_files(ind)).ne."---") then
+            if (ssh_standalone) write(*,*) ind,'Read ref SOA file: ',trim(ref_conc_files(ind))
+            if (ssh_logger) write(logfile,*) ind,'Read ref SOA file: ',trim(ref_conc_files(ind))
+            
+            open(unit = 35, file = trim(ref_conc_files(ind)), status = "old")
+
+            ! check number of values in the list
+            count = 1 
+            ierr = 0
+            
+            read(35,*, iostat=ierr) ! read the init conc
+            do while(ierr.eq.0.and.count.le.nt) 
+               read(35,*, iostat=ierr) (ref_soa(ind,k,count), k=1, nout_total)
+               if (ierr == 0) count = count + 1
+            enddo
+            
+            if (ierr.ne.0) then
+                write(*,*) "Error: can not read the ref conc. ", count," ",trim(ref_conc_files(ind))
+                stop
             endif
-        endif
-        open(unit = 35, file = ref_soa_conc_file, status = "old")
-        
-        ! check number of values in the list
-        count = 1 
-        ierr = 0
-        ! read ref conc
-        allocate(ref_soa(nout_total,nt)) ! save ref soa conc
 
-        read(35,*, iostat=ierr) ! read the init conc
-        do while(ierr.eq.0.and.count.le.nt) 
-           read(35,*, iostat=ierr) (ref_soa(k,count), k=1, nout_total)
-           if (ierr == 0) count = count + 1
-        enddo
-        
-        if (ierr.ne.0) then
-            write(*,*) "Error: can not read the ref conc. ", count," ",trim(ref_soa_conc_file)
-            stop
-        endif
-        ! check if count number == nt
-        if (nt.ne.count-1) then
-            write(*,*) "Error: not the same number in ref conc. ", nt, count, " ",trim(ref_soa_conc_file)
-            stop
-        endif
-
-        ierr_ref = .true.
-        
-        ! print info
-        if (ssh_standalone) write(*,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
-        if (ssh_logger) write(logfile,*) "ierr_ref = 1. Read ref soa concentration.", nt, count," ",trim(ref_soa_conc_file)
-        
-        close(35)
-    else
-        if (ssh_standalone) write(*,*) "ierr_ref = 0. Not read ref soa concentration."
-        if (ssh_logger) write(logfile,*) "ierr_ref = 0. Not read ref soa concentration."
-    endif
-           
-    if (pre_soa_conc_file.ne."---") then
-
-        if (tag_init_set.gt.0) then
-            ! Check if the file.[No.] exists
-            INQUIRE(FILE=trim(pre_soa_conc_file)//'.'//trim(ivoc0), EXIST=file_exists)
-            if (file_exists) then
-                pre_soa_conc_file = trim(pre_soa_conc_file)//'.'//trim(ivoc0)
-                if (ssh_standalone) write(*,*) 'Update pre file: ',trim(pre_soa_conc_file)
-                if (ssh_logger) write(logfile,*) 'Update pre file: ',trim(pre_soa_conc_file)
+            ! check if count number == nt
+            if (nt.ne.count-1) then
+                write(*,*) "Error: not the same number in ref conc. ", nt, count, " ",trim(ref_conc_files(ind))
+                stop
             endif
-        endif
-
-        open(unit = 35, file = pre_soa_conc_file, status = "old")
-        
-        ! check number of values in the list
-        count = 1 
-        ierr = 0
-        ! read ref conc
-        allocate(pre_soa(nout_total,nt)) ! save ref soa conc
-        read(35,*, iostat=ierr) ! read the init conc
-        do while(ierr.eq.0.and.count.le.nt) 
-           read(35,*, iostat=ierr) (pre_soa(k,count), k=1, nout_total)
-           if (ierr == 0) count = count + 1
-        enddo
-
-        if (ierr.ne.0) then
-            write(*,*) "Error: can not read the pre conc. ", count," ",trim(pre_soa_conc_file)
-            stop
-        endif
-        ! check if count number == nt
-        if (nt.ne.count-1) then
-            write(*,*) "Error: not the same number in pre conc. ", nt, count," ",trim(pre_soa_conc_file)
-            stop
-        endif
-
-        ierr_pre = .true.
-        
-        ! print info
-        if (ssh_standalone) write(*,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
-        if (ssh_logger) write(logfile,*) "ierr_pre = 1. Read pre soa concentration. ", nt, count," ",trim(pre_soa_conc_file)
-        
-        close(35)
+            
+            ! print info
+            if (ssh_standalone) write(*,*) "Read ref soa concentration.", nt, count," ",trim(ref_conc_files(ind))
+            if (ssh_logger) write(logfile,*) "Read ref soa concentration.", nt, count," ",trim(ref_conc_files(ind))
+            
+            close(35)
+        end if
+      end do
     else
-        if (ssh_standalone) write(*,*) "ierr_pre = 0. Not read pre soa concentration."
-        if (ssh_logger) write(logfile,*) "ierr_pre = 0. Not read pre soa concentration."
+        if (ssh_standalone) write(*,*) "Not read ref soa concentration."
+        if (ssh_logger) write(logfile,*) "Not read ref soa concentration."
     endif
     
     ! save for error computation
@@ -2935,6 +3014,734 @@ contains
   end subroutine ssh_read_inputs
 
 
+  subroutine ssh_read_reaction_file()
+  
+  implicit none
+      
+  integer :: i, j, k, js, ierr, iarrow, nrct, npdt
+  integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2, ipdt_r, ipdt_f !counts
+  integer :: start, finish
+  integer :: finish_plus, finish_minus
+  double precision, dimension(3) :: ratios ! use to read ratio function
+  
+  character (len=800) :: line, subline
+  character (len=80) :: tmp_line
+  character (len=80) :: sname
+  
+  integer, parameter :: ntmp = 12 ! max number of coefficients in reaction file
+  double precision :: a_tmp(ntmp), tmp_in ! read coefficients
+  character(3), parameter :: TBs(5) = ["O2 ", "H2O", "M  ", "N2 ", "H2 "] ! do not change the order ! used in kinetic
+  double precision :: xlw
+  
+  ! set up parameters for gas-phase chem - GECKO
+  ! Use perfect gas law :sumc=(pres*6.022E+23)/(8.32*temp)
+  ! SumMc = 2.5E19 ! default
+  SumMc = Pressure * 7.243d16 / Temperature
+  ! Water concentration (molec/cm3)
+  ! YlH2O = 0.d0
+  xlw = humidity
+  YlH2O = 29.d0*SumMc*xlw/(18.d0+11.d0*xlw)
+  
+  ! Open reactions file
+  open(unit=11, file=reaction_list_file, status='old')
+    ! get size
+    ircn = 0 ! count the number of reactions
+    irct = 0 ! count the number of reactants
+    ipdt = 0 ! count the number of products
+    ipdt_r= 0 ! count the number of products with ratio
+    ipdt_f= 0 ! count the number of products with ratio as a function
+    iknc = 0  ! count the number of kinetics
+    ipho  = 0 ! count the number of photolysis read from file
+    ipho_t= 0 ! count the number of photolysis read from line
+    itb   = 0 ! count the number of TB reactions
+    iro2  = 0 ! count the number of RO2-RO2 reactions
+    ifall = 0 ! count the number of falloff reactions 
+    iext  = 0 ! count the number of other types of reactions
+    
+    do
+        read(11, '(A)', iostat=ierr) line
+        if (ierr /= 0) exit ! no line
+        line = adjustl(line)
+        i = len_trim(line)
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        iarrow = index(line, '->') ! arrow position
+        if(iarrow > 0) then ! Find a reaction
+            ircn = ircn + 1     ! no.reaction
+            call count_delimiter(line(1:iarrow - 1), ' + ',i)
+            irct = i + irct     ! no.reactant
+            call count_products(line(iarrow + 2:), i, j, k)
+            ipdt = i + ipdt     ! no.product
+            ipdt_r = ipdt_r + j ! no.product w ratio
+            ipdt_f = ipdt_f + k ! no.ratio as a function
+        ! find all kinetic keywords
+        else if (line(1:7) == "KINETIC") then
+            iknc = iknc + 1 !no.kinetic
+            read(line(8:), '(A20)') sname ! keywords
+            ! Check 1st keyword (two keywords in a line)
+            if (index(sname,'TB') /= 0) then
+                itb = itb + 1 ! third body
+            else if (index(sname,'RO2') /= 0) then ! RO2-RO2
+                iro2 = iro2 + 1
+            endif
+            ! Check 2nd keyword or the only keyword
+            if(index(sname,'PHOT') /= 0) then
+                ipho = ipho + 1
+                ! read in-line tabulation for photolysis
+                if(index(sname,'PHOTOLYSIS') /= 0) ipho_t = ipho_t + 1
+            else if(index(sname,'FALLOFF') /= 0) then ! falloff
+                ifall = ifall + 1
+            else if(index(sname,'EXTRA') /= 0) then ! extra and specified kinetics
+                iext = iext + 1
+            endif 
+        end if
+    end do
+
+    n_reaction = ircn
+    n_photolysis = ipho
+
+    if (ssh_standalone) then
+        print*, "Finish 1st time reading reactions. Read No.reactions: ",n_reaction
+        if (ircn /= iknc) print*, "No.kinetics /= No.reactions: ", iknc
+    endif
+    
+    ! allocate arrays
+    allocate(index_RCT(irct,2))   ! index of species in species list and reaction list
+    allocate(index_PDT(ipdt,3))   ! index of species in species list, reaction list, ratio list
+    allocate(index_PDT_ratio(ipdt_f,3))
+    allocate(ratio_PDT(ipdt_r))   ! branching ratios
+    
+    ! kinetics
+    allocate(photo_rcn(ipho,2)) ! code of photolysis
+    allocate(photo_ratio_read(ipho_t,nsza)) ! read ratio
+    
+    allocate(TB_rcn(itb+iro2,2))  ! TBs & RO2-RO2 2. index(TB+,RO2-); 1. reaction index
+    allocate(Arrhenius(iknc,3))   ! kinetic rate contants
+    allocate(fall_rcn(ifall))     ! 1. spec index; 2: reaction index
+    allocate(fall_coeff(ifall,8)) ! coefficients for troe reactions
+    allocate(extra_rcn(iext))     ! code and reaction index for EXTRA type of reactions
+    allocate(extra_coeff(iext,8)) ! coefficients for extra reactions
+
+    ! for two-step: y,w,rk,prod,loss,dw
+    allocate(gas_yield(n_gas))
+    allocate(rcn_rate(iknc))
+    allocate(kinetic_rate(iknc))
+    allocate(chem_prod(n_gas))
+    allocate(chem_loss(n_gas))
+    allocate(drv_knt_rate(irct))
+    
+    if (ssh_standalone) print*, "Finish allocating arrays for reactions."
+
+    ! init
+    index_RCT = 0
+    index_PDT = 0
+    index_PDT_ratio = 0
+    ratio_PDT = 0.d0
+    
+    photo_rcn = 0
+    TB_rcn = 0
+    fall_rcn = 0
+    extra_rcn = 0
+        
+    Arrhenius = 0.d0
+    fall_coeff = 0.d0
+    extra_coeff = 0.d0
+
+    rewind(11)  ! Reset the file position
+
+    ! recount size
+    ircn = 0 ! count the number of reactions
+    iknc = 0  ! count the number of kinetics
+
+    irct = 0 ! count the number of reactants
+    ipdt = 0 ! count the number of products
+    ipdt_r =0 ! count the number of products with prodcut ratio
+    ipdt_f =0 ! count the number of products with prodcut ratio as a function
+
+    ipho  = 0 ! count the number of photolysis read from a file
+    ipho_t= 0 ! count the number of photolysis read from a tabulation
+    itb   = 0 ! count the number of TB reactions
+    iro2  = 0 ! count the number of RO2-RO2 reactions
+    ifall = 0 ! count the number of falloff reactions 
+    iext  = 0 ! count the number of other types of reactions
+
+    ! Read reactions and their rates
+    do
+        read(11, '(A)', iostat=ierr) line
+        if (ierr /= 0) exit ! no line
+        line = adjustl(line)
+        i = len_trim(line)
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        iarrow = index(line, '->') ! arrow position
+        if (iarrow > 0) then ! read reactions
+            ircn = ircn + 1 ! reaction index
+            nrct = 0 ! Reset count reactants
+            npdt = 0 ! Reset count products
+            !if (ssh_standalone) print*, "Reading reaction: ", ircn, " / ", n_reaction
+
+            ! Extract reactants
+            subline = line(1:iarrow-1)
+            start = 1
+            do
+                ! get sname
+                finish = index(subline(start:), ' + ')
+                if (finish == 0) then ! last species
+                    sname = adjustl(subline(start:))
+                else
+                    sname = adjustl(subline(start:start+finish-2))
+                    start = start + finish + 1
+                endif
+                
+                ! get sname index
+                irct = irct + 1 ! index in index_RCT
+                nrct = nrct + 1 ! count
+                ! get index in species list
+                do js = 1, N_gas
+                  if (species_name(js) .eq. sname) then
+                    index_RCT(irct,1)=ircn ! no.reaction
+                    index_RCT(irct,2)=js   ! no.species
+                    exit
+                  endif
+                enddo
+                ! check index
+                if (index_RCT(irct,1) .eq. 0) then
+                    print*, 'reactants not found in species list: ',trim(sname)
+                    stop
+                endif    
+                ! check exit
+                if (finish == 0) exit
+            end do
+
+            ! Extract products & branching ratios
+            subline = line(iarrow+2:)
+            ! If there is no product - continue
+            if (len_trim(subline) == 0 ) cycle
+
+            ! Start to process products
+            start = 1
+            do
+                ! get sname in the format "xxx" or "5E-2 xxx" 
+               ! finish = index(subline(start:), ' + ')
+               !! YK
+               finish_plus = index(subline(start:), ' + ')
+               finish_minus = index(subline(start:), ' - ')
+               if (finish_plus == 0 .and. finish_minus == 0) then
+                  finish = 0
+               else if (finish_plus == 0 .and. finish_minus .ne. 0) then
+                  finish = finish_minus
+               else if (finish_plus .ne. 0 .and. finish_minus == 0) then
+                  finish = finish_plus
+               else
+                  finish = min(finish_plus, finish_minus)
+               endif !! YK
+                if (finish == 0) then ! last species
+                    tmp_line = adjustl(subline(start:))
+                else
+                    tmp_line = adjustl(subline(start:start+finish-2))
+                    start = start + finish + 1
+                endif
+
+                ipdt = ipdt + 1 ! index in index_RCT
+                npdt = npdt + 1 ! count
+                ! get species num and index
+                if (len_trim(tmp_line) == 0) then ! update for no product
+                    index_PDT(ipdt,1) = ircn
+                else ! get index in species list
+                    call get_prodcut_and_ratios(tmp_line, ratios, sname, i)
+                    if (i /= 0) then ! Find ratio
+                        ipdt_r = ipdt_r + 1 ! count
+                        ! update index
+                        if (i == 3) then ! Find ratio, k1, k2 - use a function
+                            ipdt_f = ipdt_f + 1 ! count function
+                            index_PDT(ipdt,3) = -ipdt_f  ! Record index
+                            index_PDT_ratio(ipdt_f,1) = ipdt_r ! ratio index
+                            index_PDT_ratio(ipdt_f,2) = INT(ratios(2))+ircn-1 ! k1
+                            index_PDT_ratio(ipdt_f,3) = INT(ratios(3))+ircn-1 ! k2
+                        else
+                            index_PDT(ipdt,3) = ipdt_r  ! ratio as a number
+                        endif
+                        ! update ratio
+                        ratio_PDT(ipdt_r) = ratios(1)
+                    endif
+                    do js = 1, N_gas
+                      if (species_name(js) .eq. sname) then
+                        index_PDT(ipdt,1)=ircn
+                        index_PDT(ipdt,2)=js
+                        exit
+                      endif
+                    enddo
+                    ! check index
+                    if (index_PDT(ipdt,1) .eq. 0) then
+                        print*, trim(line)
+                        print*, 'product not found in species list: ',trim(sname), &
+                                ' ',trim(tmp_line)
+                        stop
+                    endif
+                endif
+                ! check exit
+                if (finish == 0) exit
+            end do
+                        
+        elseif (line(1:7) == "KINETIC") then ! read kinetics
+
+            iknc = iknc + 1 ! Count kinetics
+            ! Update ircn if need
+            if (ircn /= iknc) then
+                !print*, 'Update index: ',ircn,iknc
+                ! Update ircn index in index_RCT & index_PDT
+                do js=1, nrct
+                    index_RCT(irct-nrct+js,1) = iknc
+                enddo
+                do js=1, npdt
+                    index_PDT(ipdt-npdt+js,1) = iknc
+                enddo
+                ircn = iknc
+            endif
+
+            subline = adjustl(line(8:))
+            do js=1, len_trim(subline)
+                if (subline(js:js) .eq. " ") exit ! found space to locate 1st keyword
+            enddo 
+            
+            read(subline(1:js), '(A20)', iostat=ierr) sname ! keyword
+            js = js + 1 ! cursor position
+            
+            ! read 1st keyword TBs & RO2s
+            if (trim(sname) == "TB".or.trim(sname) == "RO2") then
+            
+                ! read info related to TBs & RO2s
+                itb = itb + 1 ! both TB & RO2
+                TB_rcn(itb,1) = iknc
+                
+                ! read second input: for TB is a string, for RO2 is a number
+                subline = adjustl(subline(js:))
+                do js=1, len_trim(subline)
+                    if (subline(js:js) .eq. " ") exit ! found " " loc
+                enddo
+                
+                if (trim(sname) == "TB") then ! read TB
+                    read(subline(1:js), '(A20)', iostat=ierr) sname
+                    if (ierr /= 0) then
+                        print*, "Can not read TB name from line", trim(subline), iknc
+                        stop
+                    endif
+                    ! get index in TBs
+                    j = 0
+                    do i = 1, 5 ! Need to update here the size of TBs
+                        if (trim(TBs(i)) == trim(sname)) then
+                            j = i
+                            exit
+                        end if
+                    end do
+                    ! check & record index
+                    if (j.eq.0) then
+                        print*, 'Not find TB in TBs: ', trim(sname)
+                        stop
+                    else
+                        TB_rcn(itb, 2) = j ! index of TB
+                    endif
+                else ! read RO2 index
+                    iro2 = iro2 + 1
+                    read(subline(1:js), *, iostat=ierr) j
+                    if (ierr /= 0) then
+                        print*, "Can not read RO2 integer index from line", trim(subline(1:js)), &
+                              js
+                        stop
+                    endif
+                    TB_rcn(itb, 2) = -j ! index of RO2 - negative!
+                endif
+                
+                ! read 2nd keyword
+                js = js + 1
+                subline = adjustl(subline(js:))
+                do js=1, len_trim(subline)
+                    if (subline(js:js) .eq. " ") exit ! found " "
+                enddo
+                read(subline(1:js), '(A20)', iostat=ierr) sname
+            end if
+            
+            ! Read all coefficients - up to No. ntmp
+            a_tmp = 0d0
+            do i = 1, ntmp
+                ! adjust the rest of line
+                subline = adjustl(subline(js:))
+                ! get 1st space loc
+                js = index(subline, ' ')
+                if (js /= 0) then ! find space
+                    ! check length of str
+                    if (len_trim(adjustl(subline(1:js))).eq.0) exit
+                    ! read number
+                    read(subline(1:js), *, iostat=ierr) tmp_in
+                    if (ierr .eq. 0) a_tmp(i) = tmp_in ! read
+                else
+                    exit ! no space
+                endif
+            enddo
+            
+            ! check no. read coefficients
+            if (i-1.lt.1) then
+                print*, 'read no kinetic coefficient', iknc
+                stop
+            else
+                finish = i - 1
+            endif
+            
+            ! assign values for different types of kinetics
+            if (trim(sname) == "ARR") then
+                ! read arrhenius contants - can be 3 or 4 (with a ratio from GENOA reduction)
+                if (finish.eq.3 .or. finish.eq.4) then
+                    do i = 1, 3
+                        Arrhenius(iknc,i) = a_tmp(i)
+                    enddo
+                    if (finish.eq.4) then ! multiply read ratio
+                        Arrhenius(iknc,1) = Arrhenius(iknc,1) * a_tmp(4)
+                    endif
+                else
+                    print*, "Error:  ARR read no. coeff should be 3 or 4", &
+                            iknc, finish, a_tmp(1:finish)
+                    stop
+                endif
+             elseif (trim(sname) == "PHOT".or.trim(sname) == "PHOTOLYSIS") then
+                ! read photolysis
+                ipho = ipho + 1
+                photo_rcn(ipho,1) = iknc
+
+                if (finish .eq. 2) then ! read only index & ratio
+                    photo_rcn(ipho,2) = int(a_tmp(1))
+                    Arrhenius(iknc,1) = a_tmp(2)
+                    
+                else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
+                    ! id: negative in photo_ratio_read
+                    ipho_t = ipho_t + 1
+                    photo_rcn(ipho,2) = -ipho_t
+                    
+                    ! read tabulation
+                    do i = 1, nsza
+                        photo_ratio_read(ipho_t,i) = a_tmp(i)
+                    enddo
+                    
+                    ! ratio
+                    if (finish.eq.nsza+1) then ! read
+                        Arrhenius(iknc,1) = a_tmp(nsza+1)
+                    else ! default
+                        Arrhenius(iknc,1) = 1d0
+                    endif
+                else
+                    print*, "Error: PHOT read no. coeff not 2/nsza/nsza+1." &
+                            , iknc, finish, a_tmp(1:finish)
+                    stop
+                endif
+
+            elseif (trim(sname) == "FALLOFF") then
+                ! read falloff 
+                ifall = ifall + 1
+                fall_rcn(ifall) = iknc
+
+                ! arrhenius(3) + FALLOFF(7) + ratio = 11
+                if (finish.eq.10 .or. finish.eq.11) then 
+                    do i = 1, 3 ! arrhenius coefficents
+                        Arrhenius(iknc,i) = a_tmp(i)
+                    enddo
+                    do i = 1, 7 ! falloff coefficents
+                        fall_coeff(ifall,i) = a_tmp(i+3)
+                    enddo
+                    ! ratio
+                    if (finish .eq. 11) then
+                        fall_coeff(ifall,8) = a_tmp(11)
+                    else ! default
+                        fall_coeff(ifall,8) = 1d0
+                    endif
+                else
+                    print*, "Error: FALLOFF read no.coeff should be 10 or 11", &
+                            iknc, finish, a_tmp(1:finish)
+                    stop
+                endif
+
+            elseif (trim(sname) == "EXTRA") then
+              ! read extra or specified kinetics
+              iext = iext + 1
+              extra_rcn(iext) = iknc
+                
+              js = int(a_tmp(1)) ! get label
+              extra_coeff(iext,1) =  js
+
+              SELECT CASE (js)
+
+                CASE(91) !MCM: 91 C1 C2 C3 C4(optional)
+                  if (finish.eq.4 .or. finish.eq.5) then
+                    do i = 2, 4
+                        extra_coeff(iext,i) = a_tmp(i)
+                    enddo
+                    ! ratio
+                    if (finish.eq.5) then
+                        Arrhenius(iknc,1) = a_tmp(5)
+                    else ! default
+                        Arrhenius(iknc,1) = 1d0
+                    endif
+                  else
+                    print*, "Error: EXTRA 91 read no. not 4/5 for MCM photolysis", &
+                             iknc, finish,a_tmp(1:finish)
+                    stop
+                  endif
+                  
+                CASE(92, 93) !MCM: 92 C1 C2(optional)
+                  if (finish.eq.2 .or. finish.eq.3) then
+                    extra_coeff(iext,2) = a_tmp(2)
+                    ! ratio
+                    if (finish.eq.3) then
+                        Arrhenius(iknc,1) = a_tmp(3)
+                    else ! default
+                        Arrhenius(iknc,1) = 1d0
+                    endif
+                  else
+                    print*, "Error: EXTRA 92,93 read no. not 2/3 for MCM generic, complex rate coefficents", &
+                              iknc,finish,a_tmp(1:finish)
+                    stop
+                  endif
+
+                CASE(100, 200, 500, 501, 510, 502, 550) ! GECKO labels
+                    start = finish ! get length - no. coff remain unread
+                    if (finish.ge.4) then
+                        do i = 2, 4
+                            Arrhenius(iknc,i-1) = a_tmp(i)
+                        enddo
+                        start = start - 4
+                    else
+                        print*, "Error: EXTRA GECKO read no. < 4", &
+                                iknc,finish,a_tmp(1:finish)
+                        stop
+                    endif
+                    
+                    j = 0 ! no. coeff need to be read
+                    if (js.eq.200.and.start.ge.5) then ! 5 coef
+                        j = 5
+                    else if (js.eq.501.and.start.ge.3) then ! 3 coef
+                        j = 3
+                    else if (js.eq.550.and.start.ge.6) then ! 6 coef
+                        j = 6
+                    endif
+                    ! read coef
+                    do i = 1, j
+                        extra_coeff(iext,i+1) = a_tmp(i+4) 
+                    enddo
+                    start = start - j
+                    
+                    ! read one ratio
+                    if (start.eq.1) then
+                        extra_coeff(iext,8) = a_tmp(j+5) ! last number
+                        start = start - 1
+                    else ! default
+                        extra_coeff(iext,8) = 1d0
+                    endif
+                    
+                    ! check if read all
+                    if (start.ne.0) then
+                        print*, "Error: EXTRA GECKO read no. coefs not match required: ", js, j, &
+                                 iknc,finish,start,a_tmp(1:finish)
+                        stop
+                    endif
+                    
+                CASE(99, 10) ! 99/10 C1 C2 (optional) 
+                  ! Additional calculations that can be updated by the user.
+                  ! Please ensure the label has not been used before if adding new labels. 
+                  if (finish.eq.2 .or. finish.eq.3) then
+                    extra_coeff(iext,2) = a_tmp(2)
+                    ! ratio
+                    if (finish.eq.3) then
+                        Arrhenius(iknc,1) = a_tmp(3)
+                    else ! default
+                        Arrhenius(iknc,1) = 1d0
+                    endif
+                  else
+                    print*, "Error: EXTRA read no. coeffs not 2/3", js, &
+                             iknc,finish,a_tmp(1:finish)
+                    stop
+                  endif
+
+                CASE DEFAULT
+                  print*,"EXTRA label unknown: ",js
+                  STOP
+              END SELECT
+
+            else
+              print*,"Error: Unknown kinetic keyword detected: ",trim(sname)
+              stop
+            END if
+        else ! neither reaction nor kinetics, not read
+            ! print to check
+            print*, 'Error: Can not read line from reaction file: ',trim(line)
+            stop
+        endif
+    end do
+
+    close(11)
+    
+    print*,'Finished reading reaction file. Find No.rcn: ',ircn,' No.rct: ', &
+          irct,' No.pdt: ',ipdt, ' No.pdt w ratio: ',ipdt_r, &
+          ' No.pdt w ratio as a function: ', ipdt_f, &
+          ' No.pho: ',ipho,' No.pho_tab: ',ipho_t ,' No.tb: ', &
+          itb-iro2, ' No.fall: ',ifall, ' No.ext: ',iext, ' No.RO2-RO2: ', iro2
+
+  end subroutine ssh_read_reaction_file
+  
+  subroutine ssh_read_photolysis_file()
+  
+    USE mod_cubicspline
+  
+    implicit none
+
+    integer, dimension(:), allocatable :: ratio_id
+    integer :: i,j,k,s,n,ierr, isize
+    integer :: npho_r,npho_t, npho_tot
+    integer :: tag, ind
+    character (len=200) :: line
+    character (len=40) :: ic_name, sname
+    double precision :: a_tmp(nsza), tmp, tmp_inter(4,nsza-1)
+    
+
+    ! size    
+    npho_t = size(photo_ratio_read,1) ! read from table
+    npho_tot = size(photo_rcn,1) ! all photolysis
+    npho_r = npho_tot - npho_t ! read from file
+
+    ! allocate
+    allocate(photo_ratio(npho_tot,nsza-1,4))  
+    allocate(ratio_id(npho_r))
+    ratio_id = 0 ! init
+    photo_ratio = 0.d0
+    
+    ! orginize input id to get ratio_id
+    isize = 0 ! size of current ratio_id
+    n = 0 ! number in photo_ratio_read
+    do i=1, npho_tot ! 
+        !check if contains - tag = 1, if not tag = 0
+        tag = 0
+        j = photo_rcn(i,2) ! photolysis index
+        if (j .gt. 0) then ! read ratio_id
+          tag = 0
+          do k = 1, isize
+            if (j .eq. ratio_id(k)) then
+                tag = 1 ! find id
+                exit
+            endif
+          enddo
+          if (tag.eq.0) then ! record
+            isize = isize + 1
+            ratio_id(isize) = j
+          endif
+        else !write photo_ratio
+            n = n + 1
+            ! interpolation
+            call ssh_SPL3(nsza,szas,photo_ratio_read(-j,:),tmp_inter)
+            ! save in photo_ratio
+            do s=1, nsza-1
+              do k=1,4
+                photo_ratio(n,s,k) =  tmp_inter(k,s)
+              enddo
+            enddo
+            ! update index in photo_rcn !!! negative
+            photo_rcn(i,2) = -n
+        endif
+    enddo
+    ! check no. tabulation
+    if (npho_t .ne. n) then
+        print*,'Error in ssh_read_photolysis_file(): tabulation number not match', &
+                npho_t, n, npho_r, npho_tot
+        stop
+    endif
+    ! print to check
+    if (ssh_standalone) write(*,*) "Read in-line tabulation: ", npho_t
+    if (ssh_logger) write(logfile,*) "Read in-line tabulation: ", npho_t
+
+    ! read photolysis from file
+
+    if (isize .gt. 0) then
+      if (ssh_standalone) write(*,*) "Reading No.phot ",npho_r," from file: ", trim(photolysis_file)
+      if (ssh_logger) write(logfile,*) "Reading No.phot ",npho_r," from file: ", trim(photolysis_file)
+      
+      n = 0 ! init for total read number
+      
+      open(unit=11, file=photolysis_file, status='old')
+        ! Read file line by line
+        do
+          read(11, '(A)', iostat=ierr) line
+          if (ierr /= 0) exit ! end file
+            
+          if (index(line, 'PHOT') > 0) then ! Check if the line contains 'PHOT'
+            
+            read(line, *, iostat=ierr) ic_name, sname, ind, i
+
+            if (ierr == 0 .and. trim(ic_name) == 'PHOT') then
+                !print*, 'read ', ic_name, sname, ind, i
+                ! check npoints
+                if (i .ne. nsza) then
+                    print*, 'photolysis read, number of points not match: ',i,' ', nsza
+                    stop
+                endif
+                
+                ! check ind_tmp if in ratio_id
+                do s=1, isize
+                    if (ind .eq. ratio_id(s)) then ! found. id in ratio_id is s
+                        n = n + 1 ! record read
+                        do j=1, nsza ! read data points for this species 
+                            read(11, *) tmp, a_tmp(j) ! sza,j
+                            !print*, tmp,' ', a_tmp(j)
+                            ! check sza
+                            if (tmp .ne. szas(j)) then
+                                print*," sza not match: ",tmp, szas(j),j
+                                stop
+                            endif
+                            ! set for search later
+                            ratio_id(s) = -1
+                        enddo
+                        
+                        ! interpolation
+                        !call ssh_SPL3(nsza,szas,a_tmp,tmp_inter)
+                        call ssh_gck_cspline(nsza,szas,a_tmp,tmp_inter)
+                        
+                        ! save in photo_ratio
+                        do j=1, nsza-1
+                          do k=1,4
+                            photo_ratio(s+npho_t,j,k) =  tmp_inter(k,j)
+                          enddo
+                        enddo
+
+                        ! update photo index in photo_rcn
+                        tag = 0 ! no.reaction
+                        do j=1, npho_tot
+                            if (photo_rcn(j,2) .eq. ind) then
+                                photo_rcn(j,2) = s + npho_t ! set index in photo_ratio
+                                tag = tag + 1
+                            endif
+                        enddo
+                        if (tag.eq.0) then ! check read if complete
+                            print*,"Not found index in photo_rcn"
+                            stop
+                        endif
+                        exit
+                    endif
+                enddo
+            end if
+          end if  
+        end do    
+      close(11)
+    
+      ! after reading, check numbers
+      if (n.ne.isize) then
+        print*,"Photolysis: not found all points from file. find: ", &
+                n," need: ",isize
+        do s=1, isize
+          if (ratio_id(s) /= -1) print*,"PHOT id: ",ratio_id(s)
+        enddo
+        stop
+      endif
+    endif
+      
+    if (allocated(ratio_id)) deallocate(ratio_id)
+    
+  end subroutine ssh_read_photolysis_file
+
+!------------------------------------------------------------------------
+       
   ! ============================================================
   !
   !  !   ! free allocated memory
@@ -2947,6 +3754,7 @@ contains
 
     ! genoa
     if (allocated(RO2index)) deallocate(RO2index)
+    if (allocated(RO2out_index)) deallocate(RO2out_index)
     if (allocated(cst_gas_index)) deallocate(cst_gas_index)
     if (allocated(cst_aero_index)) deallocate(cst_aero_index)
     if (allocated(output_gas_index)) deallocate(output_gas_index)
@@ -2956,13 +3764,35 @@ contains
     if (allocated(cst_gas)) deallocate(cst_gas)
     if (allocated(cst_aero)) deallocate(cst_aero)
     if (allocated(ref_soa)) deallocate(ref_soa)
-    if (allocated(pre_soa)) deallocate(pre_soa)
     if (allocated(total_soa)) deallocate(total_soa)
     
     if (allocated(output_aero_species)) deallocate(output_aero_species)
     if (allocated(output_gas_species)) deallocate(output_gas_species)
     if (allocated(output_err_sps)) deallocate(output_err_sps)
-
+    if (allocated(ref_conc_files)) deallocate(ref_conc_files)
+    
+    ! genoa - kinetic
+    if (allocated(photo_rcn)) deallocate(photo_rcn)
+    if (allocated(TB_rcn)) deallocate(TB_rcn)
+    if (allocated(fall_rcn)) deallocate(fall_rcn)
+    if (allocated(fall_rcn)) deallocate(fall_rcn)
+    if (allocated(extra_rcn)) deallocate(extra_rcn)
+    if (allocated(index_RCT)) deallocate(index_RCT)
+    if (allocated(index_PDT)) deallocate(index_PDT)
+    if (allocated(index_PDT_ratio)) deallocate(index_PDT_ratio)
+    if (allocated(Arrhenius)) deallocate(Arrhenius)
+    if (allocated(fall_coeff)) deallocate(fall_coeff)
+    if (allocated(extra_coeff)) deallocate(extra_coeff)
+    if (allocated(ratio_PDT)) deallocate(ratio_PDT)
+    if (allocated(photo_ratio)) deallocate(photo_ratio)
+    if (allocated(photo_ratio_read)) deallocate(photo_ratio_read)
+    if (allocated(gas_yield)) deallocate(gas_yield)
+    if (allocated(rcn_rate)) deallocate(rcn_rate)
+    if (allocated(kinetic_rate)) deallocate(kinetic_rate)
+    if (allocated(chem_prod)) deallocate(chem_prod)
+    if (allocated(chem_loss)) deallocate(chem_loss)
+    if (allocated(drv_knt_rate)) deallocate(drv_knt_rate)
+    
     ! read_namelist()
     if (allocated(init_bin_number))  deallocate(init_bin_number, stat=ierr)
     if (allocated(emis_bin_number))  deallocate(emis_bin_number, stat=ierr)
@@ -3135,7 +3965,6 @@ contains
     logical, intent(in) :: flag
 
     integer :: ierr
-    logical :: log_file_exists
 
     ssh_logger = flag
 
@@ -3181,29 +4010,126 @@ contains
 ! genoa used for read strings from namelist
 
 subroutine get_token(input_string, token, delimiter)
+
     character(*), intent(inout) :: input_string
     character(*), intent(out) :: token
-    character(len=*), intent(in) :: delimiter
-    character(100) :: temp_string
-    integer :: comma_pos, space_pos, i
+    character(len=1), intent(in) :: delimiter
+    integer :: i ! comma position
 
-    comma_pos = index(input_string, trim(delimiter))
-    if (comma_pos == 0) then
+    input_string = adjustl(input_string)
+    i = index(input_string, delimiter) ! Find delimiter
+    if (i == 0) then ! No delimiter
         token = trim(input_string)
         input_string = ""
         return
     end if
 
-    temp_string = input_string(1:comma_pos-1)
-    space_pos = len_trim(temp_string)
-    do i = space_pos, 1, -1
-        if (temp_string(i:i) /= ' ') exit
+    token = trim(input_string(1:i-1)) ! Get token before delimiter
+    input_string = input_string(i+1:) ! Update input_string
+
+end subroutine get_token
+
+subroutine get_prodcut_and_ratios(s, numbers, str_val, nrt)
+
+    character(len=*), intent(in) :: s
+    double precision, dimension(3) :: numbers
+    character(len=len(s)) :: str_val
+    integer :: i, ierr, nrt
+
+    numbers = 0.d0
+    nrt = 0 ! number of ratios <= 3
+
+    str_val = adjustl(s) ! Adjust the string
+    
+    i = 1  ! current position of a string
+    do while (i <= len_trim(str_val))
+        if (str_val(i:i) == ' '.and. i > 1) then ! Find a space (i) and a string (1:i-1)
+            nrt = nrt + 1
+            if (nrt <= 3) then ! Max. 3 ratios
+                read(str_val(1:i-1), *, iostat=ierr) numbers(nrt)
+                if (ierr == 0) then ! Read a number
+                    str_val = adjustl(str_val(i+1:)) ! Update the string
+                    i = 1 ! Reset the loop counter
+                else
+                    print*, nrt,'number can not read in line: ',trim(str_val),' from ',trim(s)
+                    stop
+                endif
+            else
+                print*, 'Too many numbers in line: ', trim(s)
+                stop
+            endif
+        endif
+        i = i + 1
     end do
 
-    token = temp_string(1:i)
-    input_string = input_string(comma_pos+1:)
-    
-end subroutine get_token
+    !print*, 'Finish reading ',trim(s)," find: ", numbers, nrt, trim(str_val)
+
+end subroutine get_prodcut_and_ratios
+
+subroutine count_delimiter(str, delimiter, res)
+    character(*), intent(in) :: str
+    character(len=*), intent(in) :: delimiter
+    integer, intent(out) :: res
+    integer :: i, n, m
+
+    res = 1
+    n = len_trim(str)
+    m = len_trim(delimiter)
+
+    if (n >= m .and. m > 0) then
+        do i = 1, n - m + 1
+            if (str(i:i+m-1) == delimiter) then
+                res = res + 1
+            end if
+        end do
+    end if
+
+end subroutine count_delimiter
+
+subroutine count_products(s, count_pdt, count_ratio, count_set)
+    character(len=*), intent(in) :: s
+    character(len=len(s)) :: str_val
+    integer :: count, count_ratio, count_pdt, count_set, i, start, len_s
+    character(len=1) :: ch
+
+    str_val = adjustl(s)
+    len_s = len_trim(str_val)
+    count = 0       ! number of elements
+    count_pdt = 0   ! number of products (default one, incremented with '+')
+    count_ratio = 0 ! number of ratios
+    count_set = 0   ! number of ratios as a set of three numbers 
+    start = 1       ! start of the word
+
+    ! Process each character in the string
+    do i = 1, len_s
+        ch = str_val(i:i)
+        if (ch == ' '.or. i == len_s) then ! Find a space
+            if (i == len_s .and. ch /= ' ') count = count + 1 ! End of the list
+            if (i > start .or. i == len_s) then ! Find a valid string !! YK
+               ! if (i == len_s .or. (start == i-1 .and. str_val(start:start) == '+')) then
+               if (i == len_s .or. (start == i-1 .and. &
+                    (str_val(start:start) == '+' .or. str_val(start:start) == '-'))) then   
+                  
+                  ! write(*,*) " Found ---> ", i, start, str_val(start:start) !! YK
+                  count_pdt = count_pdt + 1 ! Add one product
+                    if (count > 1) then ! count == 1: sname
+                        count_ratio = count_ratio + 1
+                        if (count == 4) then ! count == 3: ratio, k1, k2, sname
+                            count_set = count_set + 1
+                        else if (count /= 2) then ! count == 2: ratio, sname
+                            print*, count, 'count number should be 1, 2, or 4. Check: ', trim(s)
+                            stop
+                        endif
+                    endif
+                    count = 0 ! Reset
+                else  ! Find an element: can be a ratio or species name
+                    count = count + 1
+                endif
+            endif
+            start = i + 1
+        endif
+    enddo
+end subroutine count_products
 
 ! ===========================================
 end module aInitialization

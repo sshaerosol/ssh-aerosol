@@ -34,7 +34,6 @@ include_path_template = """
     include/AtmoData
     include/isorropia_aec
     include/CHEMISTRY/{chemistry}
-    include/CHEMISTRY/common
     include/INC
     include/RDB
     include/SOAP
@@ -51,8 +50,6 @@ if ARGUMENTS["genoa"] == "fast" or ARGUMENTS["genoa"] == "complete":
         include/SeldonData
         include/AtmoData
         include/isorropia_aec
-        include/genoa/CHEMISTRY/genoa
-        include/genoa/CHEMISTRY/common
         include/INC
         include/RDB
         include/SOAP

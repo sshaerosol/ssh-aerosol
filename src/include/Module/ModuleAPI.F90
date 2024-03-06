@@ -131,7 +131,7 @@ module SSHaerosolAPI
       
       ! N_gas = 93; N_reaction = 206; N_photolysis = 24
       
-      call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
+      !call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
       
       
       
@@ -1540,6 +1540,7 @@ module SSHaerosolAPI
 
       use iso_c_binding
       use aInitialization
+      use mod_sshchem, only: ssh_chem_twostep,ssh_chem
 
       implicit none
 
@@ -1558,27 +1559,7 @@ module SSHaerosolAPI
 
       if (tag_chem .ne. 0) then
         if (tag_twostep .ne. 1) then
-          call ssh_chem(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-              0, lwc_cloud_threshold, molecular_weight, &
-              current_time, attenuation, &
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, delta_t, attenuation,&
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, longitude,&
-              latitude, concentration_gas_all,&
-              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-              0.d0,&
-              diam_bound, fixed_density, &
-              wet_diameter, &
-              heterogeneous_reaction_index, &
-              concentration_mass,&
-              with_adaptive, adaptive_time_step_tolerance,&
-              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-              1, not(with_fixed_density), concentration_number, &
-              mass_density)
+          call ssh_chem()
         else
            ! update constant concentrations if exist
            ! Temporary fix. 
@@ -1589,33 +1570,7 @@ module SSHaerosolAPI
              !enddo
           endif
           ! solve chemistry with the two-step time numerical solver if tag_twostep .eq. 1
-          call ssh_chem_twostep(n_gas, n_reaction, n_photolysis, photolysis_reaction_index,&
-              ns_source, source_index, conversionfactor, conversionfactorjacobian,&
-              0, lwc_cloud_threshold, molecular_weight, &
-              current_time, attenuation, &
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, delta_t, attenuation,&
-              humidity, temperature,&
-              pressure, source, &
-              photolysis_rate, longitude,&
-              latitude, concentration_gas_all,&
-              0, with_heterogeneous, n_aerosol, n_size, n_fracmax,&
-              0.d0,&
-              diam_bound, fixed_density, &
-              wet_diameter, &
-              heterogeneous_reaction_index, &
-              concentration_mass,&
-              with_adaptive, adaptive_time_step_tolerance,&
-              min_adaptive_time_step, option_photolysis, ind_jbiper, ind_kbiper,&
-              1, not(with_fixed_density), concentration_number, &
-              mass_density, &
-              ncst_gas, cst_gas_use, cst_gas_index, & !genoa use constant gas conc.
-              tag_RO2, nRO2_chem, iRO2, iRO2_cst, RO2index, &
-              aerosol_species_interact(:), keep_gp, concentration_wall, &
-              kwall_gas, kwall_particle, Cwall, aerosol_type, saturation_vapor_pressure, &
-              enthalpy_vaporization, t_ref, eddy_turbulence,surface_volume_ratio, &
-              diffusion_coef, quadratic_speed,kwp0,radius_chamber)
+          call ssh_chem_twostep(current_time,delta_t,1)
         endif
      end if
 
