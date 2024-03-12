@@ -10402,11 +10402,6 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
-  add_generic_species_ssh(config, surrogate, species_list_aer, molecular_weight_aer, accomodation_coefficient, diffusion_coef,
-			  aerosol_type, species_smiles, saturation_vapor_pressure, enthalpy_vaporization, henry, t_ref, mass_density,  
-			  species_part,nlayer,i_hydrophilic,
-		          N_inert, N_inorganic);
-
   species C7H9O9;
   C7H9O9.name="C7H9O9";
   C7H9O9.is_inorganic_precursor=false;
