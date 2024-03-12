@@ -9,7 +9,15 @@ module mod_sshchemkinetic
                           ratio_PDT, kinetic_rate, chem_prod, chem_loss, &
                           drv_knt_rate, rcn_rate, gas_yield, species_name, &
                           concentration_gas_all, SumMc, YlH2O, &
-                          szas, nsza, nRO2_group, RO2index, nRO2_chem
+                          szas, nsza, nRO2_group, RO2index, nRO2_chem, &
+                          hetero_rcn, hetero_ind, &
+                          concentration_mass, concentration_number, &
+                          diam_bound, fixed_density, &
+                          lwc_cloud_threshold, mass_density, molecular_weight, n_aerosol, &
+                          n_fracmax, n_size, wet_diameter, &
+                          with_fixed_density, with_heterogeneous, &
+                          n_sizebin, option_cloud, cloud_water
+ 
   
   implicit none
   
@@ -298,6 +306,8 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   integer, PARAMETER ::geckoLabel(6) = (/100, 200, 500, 501, 502, 550/)
   integer, PARAMETER ::mcmLabel(4) = (/91, 92, 93, 94/)
 
+  DOUBLE PRECISION dsf_aero(n_size)
+  
   do i=1, size(kinetic_rate) ! reactions
     kinetic_rate(i) = Arrhenius(i,1) * (temperature**Arrhenius(i,2)) &
                       * dEXP(-Arrhenius(i,3)/temperature)
@@ -372,6 +382,36 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
     endif
   enddo
 
+  !==============================!
+  !=== heterogenous reactions ===!
+  !==============================!
+  do i=1, size(hetero_rcn)
+
+     j = hetero_rcn(i) ! reaction index
+     
+     if (with_heterogeneous == 1) then
+
+        ! Compute particle diameter.
+        call ssh_compute_granulo(fixed_density, not(with_fixed_density), &
+             n_size, n_aerosol, concentration_mass, mass_density, &
+             concentration_number, n_fracmax, diam_bound, dsf_aero)
+        
+
+        ! liquid_water_content in kg/kg (QCLOUD from WRF)
+        call ssh_hetero_rate(i, j, hetero_ind(i), &
+             n_gas, n_sizebin, temperature, pressure, option_cloud, &
+             wet_diameter, concentration_number, &
+             dsf_aero, molecular_weight, lwc_cloud_threshold, &
+             cloud_water, &
+             kinetic_rate(j))
+        
+     else
+        kinetic_rate(j) = 0.d0
+     endif
+  
+  enddo
+
+  
 END subroutine ssh_basic_kinetic
 
 subroutine ssh_update_kinetic_pho(azi)
@@ -1295,6 +1335,260 @@ subroutine ssh_spack_spec(ire, iex, label)
   kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
    
 end subroutine ssh_spack_spec
+
+
+subroutine ssh_hetero_rate(i, reaction_ind, hetero_ind, &
+     ns, nbin_aer, temp, press, icld, &
+     wetdiam, granulo, &
+     dsf_aero, wmol, lwcmin, dllwc, ktot)
+  
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!
+!     This routine computes the kinetic rates for the heterogeous reactions.
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     wmol: molecular weight
+!     ICLD: 0: no, 1: vsrm, 2: simple
+!     LWCmin: lwc_cloud_threshold
+!     temp: temperature
+!     press: pressure
+!     dllwc: liquid_water_content in kg/kg (QCLOUD from WRF)
+!     dsf_aero: diameter
+!     WetDiam: wet diameter      
+!
+!     -- INPUT/OUTPUT VARIABLES
+!
+!     -- OUTPUT VARIABLES
+!
+!     ktot: heterogeneous reaction rate
+!
+!------------------------------------------------------------------------
+
+      INCLUDE 'CONST.INC'
+      INCLUDE 'CONST_A.INC'
+      INCLUDE 'hetrxn.inc'
+
+      INTEGER Ns,Nbin_aer
+
+      integer :: reaction_ind, hetero_ind
+      INTEGER i,js
+      DOUBLE PRECISION Ndroplet
+
+      DOUBLE PRECISION temp,press
+      DOUBLE PRECISION vi
+      DOUBLE PRECISION ktot,A
+      DOUBLE PRECISION DIFF
+      DOUBLE PRECISION avdiammeter
+
+      DOUBLE PRECISION WetDiam(Nbin_aer)
+      DOUBLE PRECISION WetDiammeter(Nbin_aer)
+      DOUBLE PRECISION granulo(Nbin_aer)
+      DOUBLE PRECISION dsf_aero(Nbin_aer)
+
+      DOUBLE PRECISION lwctmp, dllwc 
+
+      INTEGER ICLOUD
+      INTEGER ICLD
+
+      DOUBLE PRECISION sigm_tmp,parm_tmp,wmol_tmp
+      DOUBLE PRECISION Wmol(Ns),LWCmin
+
+      double precision dactiv, avdiam
+
+      DOUBLE PRECISION :: lwca
+     
+      !     WET DIAMETERS OF THE TWO SECTIONS
+      
+!     If bulk, diameter = avdiam
+      parameter (avdiam = 20)   ! in \mu m   
+!     
+!     ACTIVATION DIAMETER (Dry)
+!     
+      parameter (dactiv = 0.2D0) ! in \mu m
+
+      if (i > 4) then
+         write(*,*) "Index", i, "is not accepted for the heterogenous reactions."
+         stop
+      endif
+
+      
+!     Constants.
+      avdiammeter = 1.d-6 * avdiam
+      
+      sigm_tmp = SIGM_NO2
+      parm_tmp = PARM_NO2
+      ICLOUD=0
+      
+      !C     Cloud liquid water content (g/m^3)
+      !  Converts from kg / kg to g / m^3.
+      lwctmp=DLLWC*1000.d0* &
+           press/101325.d0*28.97d0/Pr/ &
+           temp
+      
+      IF (ICLD.GE.1.AND.(lwctmp.GE.LWCmin)) THEN
+         ICLOUD=1
+      ENDIF
+
+      !     REACTION PROBABILITIES
+      ktot = 0.d0
+
+      wmol_tmp = Wmol(hetero_ind + 1)
+      call SSH_COMPUTE_GAS_DIFFUSIVITY(TEMP,PRESS, &
+           sigm_tmp, wmol_tmp, parm_tmp, DIFF)
+
+      call SSH_COMPUTE_QUADRATIC_MEAN_VELOCITY(TEMP, &
+           wmol_tmp,vi)
+
+      if (gamma(i) .eq. 0.d0) then
+         ktot = 0.d0
+      else
+         do js=1,Nbin_aer
+            IF ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
+               WetDiammeter(js) = 1.d-6 * WetDiam(js)
+
+               !     CALCULATE k FOR EACH SECTION
+               
+               A = PI*(WetDiammeter(js)**2.d0)*granulo(js) !surface * nb_aero
+
+               !     CALCULATE k FOR AEROSOL DISTRIBUTION
+
+               IF(Gamma(i).ne.0.d0) then
+                  ktot = ktot &
+                       + (((WetDiammeter(js) / (2.d0 * DIFF)) &
+                       + 4.d0 / (vi * Gamma(i)))**(-1.d0)) * A ! rate constant for each rxn
+               ENDIF
+            ENDIF
+         enddo
+         
+         !     If we are in a cloud, then reactions on droplet surface for N2O5.
+         IF ((ICLOUD.EQ.1).and.(i.eq.4)) THEN
+            Ndroplet = lwctmp &
+                 / (RHOwater * 1.d3 & !kg.m-3 -> g.m-3
+                 * pi / 6.d0 * avdiammeter**3.d0)
+            A = PI * avdiammeter**2.d0 * Ndroplet !surface * nb_droplet
+            IF(Gamma(i).ne.0.d0) then
+               ktot = ktot + ((avdiammeter / (2.d0 * DIFF) + &
+                    4.d0 / (vi*Gamma(i)))**(-1.d0))*A ! rate constant for each rxn
+            ENDIF
+         ENDIF
+      endif
+      
+end subroutine ssh_hetero_rate
+
+
+
+subroutine ssh_compute_granulo(fixed_density_aer, IDENS, &
+     nbin_aer, ns_aer, dlconc_aer, mass_density_aer, &
+     DLnumconc_aer, ncomp_aer, bin_bound_aer, dsf)
+
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!
+!     This routine computes the aerosol diameters for the heterogeous reactions.
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     
+!     fixed_density_aer: aerosol density which is set in namelist.
+!     IDENS: 0 for fixed density, 1 for varing density
+!     nbin_aer: number of aerosol bins
+!     ns_aer: number of aerosol species
+!     dlconc_aer: aerosol mass concentrations in ug/m3
+!     mass_density_aer: density of each aerosol species 
+!     DLnumconc_aer: aerosol number concentrations in #/m3
+!     ncomp_aer: number of aerosol composition   
+!     bin_bound_aer: bin bound of the aerosol size bin
+!  
+!     -- INPUT/OUTPUT VARIABLES
+!
+!     -- OUTPUT VARIABLES
+!
+!     dsf: diameter of aerosol bins
+!
+!------------------------------------------------------------------------
+
+  
+      IMPLICIT NONE
+
+      INCLUDE 'paraero.inc'
+      INCLUDE 'CONST_A.INC'
+      
+      integer :: jb, jsp, nbin_aer, ns_aer, ncomp_aer
+      integer :: IDENS
+
+      double precision :: rhoa, fixed_density_aer
+      double precision :: conc_tot
+      double precision :: rho_dry(nbin_aer)
+      DOUBLE PRECISION :: DLconc_aer(nbin_aer,ns_aer)
+      double precision :: DLnumconc_aer(nbin_aer)
+      DOUBLE PRECISION :: MSF(nbin_aer)
+      DOUBLE PRECISION :: DSF(nbin_aer)
+      DOUBLE PRECISION :: DBF((nbin_aer/ncomp_aer)+1)
+      DOUBLE PRECISION :: bin_bound_aer((nbin_aer/ncomp_aer) + 1)
+      INTEGER :: idx_bs(nbin_aer)
+      double precision :: mass_density_aer(ns_aer)
+      
+!C     Aerosol density converted in microg / microm^3.
+      RHOA = fixed_density_aer * 1.D-09
+
+!C     Aerosol discretization converted in microm.
+      DO Jb=1,(nbin_aer/ncomp_aer)+1
+         DBF(Jb) = bin_bound_aer(Jb) * 1.D06
+      ENDDO
+
+!C     relations between bin idx and size idx
+      DO Jb=1,nbin_aer
+         idx_bs(Jb)=(Jb-1)/ncomp_aer+1
+      ENDDO
+      
+      
+!C     Compute aerosol density
+      rho_dry = RHOA
+      IF (IDENS.EQ.1) THEN   ! for varying density
+         DO Jb=1,nbin_aer
+            CALL SSH_COMPUTE_DENSITY(nbin_aer,ns_aer, ns_aer, TINYM, &
+                 DLconc_aer, &
+                 mass_density_aer,Jb,rho_dry(Jb)) 
+         ENDDO
+      ENDIF
+      DO Jb = 1, nbin_aer
+         conc_tot = 0.d0
+         DO Jsp = 1, Ns_aer
+            conc_tot = conc_tot + DLconc_aer(Jb,Jsp)
+         ENDDO
+
+         !C     Compute mass and diameter of each section
+         IF (DLnumconc_aer(Jb) .GT. 0.d0) THEN
+            MSF(Jb) = conc_tot/DLnumconc_aer(Jb)
+         ELSE
+            MSF(Jb) = 0.d0
+         ENDIF
+
+         if ((DLnumconc_aer(Jb).GT. TINYN .or.  &
+              conc_tot.GT.TINYM) &
+              .AND. IDENS .EQ. 1) then
+            DSF(Jb) = (MSF(Jb)/cst_PI6/rho_dry(Jb))**cst_FRAC3
+         else
+            DSF(Jb) = DSQRT(DBF(idx_bs(Jb))* DBF(idx_bs(Jb)+1)) !sz
+         endif
+
+         if (DSF(Jb) .LT. DBF(idx_bs(Jb)) .or. &
+              DSF(Jb) .GT. DBF(idx_bs(Jb)+1)) THEN
+            DSF(Jb) =  DSQRT(DBF(idx_bs(Jb)) * DBF(idx_bs(Jb)+1))
+         endif
+
+      ENDDO
+
+  
+end subroutine ssh_compute_granulo
 
 
 end module mod_sshchemkinetic

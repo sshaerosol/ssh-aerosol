@@ -916,22 +916,22 @@ KINETIC ARR 1.5E-19 0 0
 %--------------------HR1---------------------%
 HO2              ->      0.5 H2O2
 %KINETIC HETERO -1 !!!
-KINETIC ARR 0 0 0
+KINETIC HETERO 1
 %
 %--------------------HR2---------------------%
 NO2              ->      0.5 HONO + 0.5 HNO3
 %KINETIC HETERO -2 !!!
-KINETIC ARR 0 0 0
+KINETIC HETERO 2
 %
 %--------------------HR3---------------------%
 NO3              ->      HNO3
 %KINETIC HETERO -3 !!!
-KINETIC ARR 0 0 0
+KINETIC HETERO 3
 %
 %--------------------HR4---------------------%
 N2O5             ->      2 HNO3
 %KINETIC HETERO -4 !!!
-KINETIC ARR 0 0 0
+KINETIC HETERO 4
 %
 %=============================================%
 %====== END OF HETEROGENEOUS REACTIONS =======%

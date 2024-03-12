@@ -95,7 +95,8 @@ module aInitialization
   integer, save :: niter_water,niter_eqconc
   integer, save :: NACL_IN_THERMODYNAMICS
   integer, dimension(:), allocatable, save :: iter_eqconc,iter_water
-
+  integer, save :: option_cloud
+  
   ! cut-off diameter
   integer, save :: ICUT,ICUT_org      ! section index
   Integer, save :: set_icut  ! 0 = need to update ICUT, 1 = keep ICUT unchanged after initialization
@@ -156,11 +157,12 @@ module aInitialization
   double precision, save :: SumMc ! M (in molec/cm3) - constant or change by pressure and temperature
   double precision, save :: YlH2O ! water concentration (molec/cm3) in the gas phase
   integer, dimension(:,:), allocatable, save :: photo_rcn, TB_rcn
-  integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn
+  integer, dimension(:), allocatable, save :: fall_rcn, extra_rcn, hetero_rcn
   integer, dimension(:,:), allocatable, save :: index_RCT, index_PDT, index_PDT_ratio
   double precision, dimension(:), allocatable, save :: ratio_PDT
   ! kinetics
   double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
+  integer, dimension(:), allocatable, save :: hetero_ind
   double precision, dimension(:), allocatable, save :: kinetic_rate, chem_prod, chem_loss
   double precision, dimension(:), allocatable, save :: rcn_rate, gas_yield, drv_knt_rate
   ! photolysis
@@ -198,6 +200,7 @@ module aInitialization
   double precision, save :: attenuation
   double precision, save :: fixed_density
   double precision, save :: lwc_cloud_threshold
+  double precision, save :: cloud_water
 
   double precision, dimension(:), allocatable, save :: temperature_array
   double precision, dimension(:), allocatable, save :: humidity_array
@@ -479,7 +482,7 @@ contains
     ! namelists to read namelist.ssh file 
 
     namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
-         Humidity, Relative_Humidity, meteo_file
+         Humidity, Relative_Humidity, meteo_file, cloud_water
 
     namelist /setup_time/ initial_time, final_time, delta_t,time_emis
 
@@ -511,7 +514,7 @@ contains
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
          tag_twostep, keep_gp, &
-         kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
+         kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber, option_cloud
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -573,6 +576,9 @@ contains
     endif !genoa
 
     ! meteorological setup
+
+    cloud_water = -999.d0
+
     meteo_file = ""
     read(10, nml = setup_meteo, iostat = ierr)
 
@@ -610,6 +616,13 @@ contains
        !    endif
        ! end if
 
+       ! cloud_water = 0.d0 by default
+       ! if it is not given in namelist
+       if (cloud_water == -999.d0) then
+          cloud_water = 0.d0 ! in kg/kg
+       endif
+
+       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
@@ -988,6 +1001,7 @@ contains
     surface_volume_ratio=0.d0
     kwp0=0.d0
     radius_chamber=0.d0
+    option_cloud = -999
 
     ! default genoa related paramters
     tag_twostep = 1 ! default option
@@ -1157,6 +1171,13 @@ contains
        if (kwall_particle>0.d0) then
           tag_twostep=1
        endif
+
+       ! option_cloud = 0 by default
+       ! if it is not given in namelist
+       if (option_cloud == -999) then
+          option_cloud = 0
+       endif
+       
     endif
 
     ! particle numerical issues
@@ -3019,7 +3040,8 @@ contains
   implicit none
       
   integer :: i, j, k, js, ierr, iarrow, nrct, npdt
-  integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb, iext, ifall, iro2, ipdt_r, ipdt_f !counts
+  integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb
+  integer :: iext, ifall, iro2, ipdt_r, ipdt_f, ihet !counts
   integer :: start, finish
   integer :: finish_plus, finish_minus
   integer :: index_start
@@ -3058,6 +3080,7 @@ contains
     iro2  = 0 ! count the number of RO2-RO2 reactions
     ifall = 0 ! count the number of falloff reactions 
     iext  = 0 ! count the number of other types of reactions
+    ihet  = 0 ! count the number of heterogenous reactions
     
     do
         read(11, '(A)', iostat=ierr) line
@@ -3093,17 +3116,23 @@ contains
                 ifall = ifall + 1
             else if(index(sname,'EXTRA') /= 0) then ! extra and specified kinetics
                 iext = iext + 1
+            else if(index(sname,'HETERO') /= 0) then ! heterogenous reactions
+                ihet = ihet + 1
+               
             endif 
         end if
     end do
-
+    
     n_reaction = ircn
     n_photolysis = ipho
 
-    if (ssh_standalone) then
+    ! if (ssh_standalone) then
         print*, "Finish 1st time reading reactions. Read No.reactions: ",n_reaction
-        if (ircn /= iknc) print*, "No.kinetics /= No.reactions: ", iknc
-    endif
+        if (ircn /= iknc) then
+           print*, "Error: No.kinetics /= No.reactions: ", iknc, n_reaction
+           stop
+        endif
+    ! endif
     
     ! allocate arrays
     allocate(index_RCT(irct,2))   ! index of species in species list and reaction list
@@ -3121,7 +3150,9 @@ contains
     allocate(fall_coeff(ifall,8)) ! coefficients for troe reactions
     allocate(extra_rcn(iext))     ! code and reaction index for EXTRA type of reactions
     allocate(extra_coeff(iext,8)) ! coefficients for extra reactions
-
+    allocate(hetero_rcn(ihet))    ! heterogenous reactions
+    allocate(hetero_ind(ihet)) ! coefficients for heterogeneous reactions
+    
     ! for two-step: y,w,rk,prod,loss,dw
     allocate(gas_yield(n_gas))
     allocate(rcn_rate(iknc))
@@ -3142,10 +3173,12 @@ contains
     TB_rcn = 0
     fall_rcn = 0
     extra_rcn = 0
-        
+    hetero_rcn = 0
+    
     Arrhenius = 0.d0
     fall_coeff = 0.d0
     extra_coeff = 0.d0
+    hetero_ind = 0
 
     rewind(11)  ! Reset the file position
 
@@ -3164,7 +3197,8 @@ contains
     iro2  = 0 ! count the number of RO2-RO2 reactions
     ifall = 0 ! count the number of falloff reactions 
     iext  = 0 ! count the number of other types of reactions
-
+    ihet = 0  ! count the number of heterogenous reactions
+    
     ! Read reactions and their rates
     do
         read(11, '(A)', iostat=ierr) line
@@ -3586,6 +3620,14 @@ contains
                   STOP
               END SELECT
 
+            ! Find heterogenous reactions.  
+            elseif (trim(sname) == "HETERO") then
+
+              ihet = ihet + 1
+              hetero_rcn(ihet) = iknc
+              js = int(a_tmp(1)) ! get label
+              hetero_ind(ihet) =  js
+              
             else
               print*,"Error: Unknown kinetic keyword detected: ",trim(sname)
               stop
@@ -3604,7 +3646,8 @@ contains
           ' No.pdt w ratio as a function: ', ipdt_f, &
           ' No.pho: ',ipho,' No.pho_tab: ',ipho_t ,' No.tb: ', &
           itb-iro2, ' No.fall: ',ifall, ' No.ext: ',iext, ' No.RO2-RO2: ', iro2
-
+    write (*,*) "No. hetero: ", ihet
+    
   end subroutine ssh_read_reaction_file
   
   subroutine ssh_read_photolysis_file()
@@ -3799,7 +3842,7 @@ contains
     if (allocated(photo_rcn)) deallocate(photo_rcn)
     if (allocated(TB_rcn)) deallocate(TB_rcn)
     if (allocated(fall_rcn)) deallocate(fall_rcn)
-    if (allocated(fall_rcn)) deallocate(fall_rcn)
+    if (allocated(hetero_rcn)) deallocate(hetero_rcn)
     if (allocated(extra_rcn)) deallocate(extra_rcn)
     if (allocated(index_RCT)) deallocate(index_RCT)
     if (allocated(index_PDT)) deallocate(index_PDT)
@@ -3807,6 +3850,7 @@ contains
     if (allocated(Arrhenius)) deallocate(Arrhenius)
     if (allocated(fall_coeff)) deallocate(fall_coeff)
     if (allocated(extra_coeff)) deallocate(extra_coeff)
+    if (allocated(hetero_ind)) deallocate(hetero_ind)
     if (allocated(ratio_PDT)) deallocate(ratio_PDT)
     if (allocated(photo_ratio)) deallocate(photo_ratio)
     if (allocated(photo_ratio_read)) deallocate(photo_ratio_read)
