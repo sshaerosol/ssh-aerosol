@@ -11,6 +11,7 @@ plt.ioff()
 dir1 = '../results/toluene-aft/toluene-aft-ideal/aero/'
 dir2 = '../results/toluene-aft/toluene-aft-ideal-rdc/aero/'
 dir3 = '../results/toluene-aft/toluene-aft-ideal-rdcRm1/aero/'
+dir4 = '../results/toluene-aft/toluene-aft-ideal-rdcH2O/aero/'
 
 Nt= 156
 #####################################################################
@@ -25,6 +26,7 @@ ide=np.zeros(shape)
 uni=np.zeros(shape)
 aio=np.zeros(shape)
 uniRm1=np.zeros(shape)
+uniH2O=np.zeros(shape)
 
 
 with open (dir1+'Organic.5.txt') as finit :
@@ -50,6 +52,11 @@ with open (dir3+'Organic.5.txt') as finit :
         for j in range(Nt) :
                   uniRm1[j] = float(string_conc1[j])
 
+with open (dir4+'Organic.5.txt') as finit :
+        string_conc = finit.read().splitlines()
+        for j in range(Nt) :
+                  uniH2O[j] = float(string_conc[j])
+
 
 time=range(5,(Nt+1)*5,5)
 time=numpy.array(time)
@@ -58,12 +65,13 @@ time=time/60.
 fig = plt.figure()
 #ax = fig.add_subplot(1,1,1)
 fig = plt.figure(1,figsize = (15,15))
-plt.ylim(0.,30.)
+#plt.ylim(0.,30.)
 plt.grid()
 plt.plot(time,ide,'k-',label='Ideal')
 plt.plot(time,uni,'b--',label='Ideal rdc')
 plt.plot(time,aio,'r-.',label='ipso-BPR SOA')
 plt.plot(time,uniRm1,'g-',label='Ideal rdc MCM')
+plt.plot(time,uniH2O,'m-',label='Ideal rdc H$^2$O')
 plt.ylabel("SOA [$\mu g.m^{-3}$]", fontsize=18)
 plt.xlabel("time [min]", fontsize=18)
 plt.legend(loc=2)
