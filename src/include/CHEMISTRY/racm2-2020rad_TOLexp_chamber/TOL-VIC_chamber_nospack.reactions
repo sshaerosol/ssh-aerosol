@@ -3940,8 +3940,8 @@ KINETIC EXTRA 20 12
 % BLOC 9 : WALL LOSSES des especes gaz stables
 %
 TOL    -> WTOL
-%KINETIC WALL 0 0.16E+02 40.00 4.28E-3 92.0 !!!
-KINETIC EXTRA 20 13
+KINETIC WALL 0 0.16E+02 40.00 4.28E-3 92.0 !!!
+%KINETIC EXTRA 20 13
 %
 %
 %B9=============================================================%

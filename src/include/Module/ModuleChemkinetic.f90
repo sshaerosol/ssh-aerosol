@@ -16,7 +16,8 @@ module mod_sshchemkinetic
                           lwc_cloud_threshold, mass_density, molecular_weight, n_aerosol, &
                           n_fracmax, n_size, wet_diameter, &
                           with_fixed_density, with_heterogeneous, &
-                          n_sizebin, option_cloud, cloud_water
+                          n_sizebin, option_cloud, cloud_water, &
+                          wall_rcn, wall_coeff ! wall loss
  
   
   implicit none
@@ -306,7 +307,11 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   integer, PARAMETER ::geckoLabel(6) = (/100, 200, 500, 501, 502, 550/)
   integer, PARAMETER ::mcmLabel(4) = (/91, 92, 93, 94/)
 
+  ! Heterogeneous reactions
   DOUBLE PRECISION dsf_aero(n_size)
+
+  ! Wall loss
+  double precision :: Psat, Masmol, cstar, aw, cbar, awc, denom
   
   do i=1, size(kinetic_rate) ! reactions
     kinetic_rate(i) = Arrhenius(i,1) * (temperature**Arrhenius(i,2)) &
@@ -411,6 +416,33 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   
   enddo
 
+  !===========================!
+  !=== Wall loss reactions ===!
+  !===========================!
+  do i = 1, size(wall_rcn)
+
+     j = wall_rcn(i) ! reaction index
+
+     ! Check coefficients
+     if (wall_coeff(i, 5) <= 0.d0) then
+        write(*,*) "Error in WALL coefficient", wall_coeff(i, :)
+        stop
+     endif
+     
+     Psat =  wall_coeff(i, 2) / 760. * dexp(wall_coeff(i, 3) * 1000. &
+          / 8.314*(1./298.-1./temperature))
+     Masmol =  wall_coeff(i, 5)
+     cstar = Masmol * 1d+6 * Psat / (8.205d-5 * temperature)
+     aw = 10**(-0.27440D+01)*cstar**(-0.14066D+01)
+     cbar = (8000*8.314*temperature/(3.14*Masmol))**0.5
+     awc = (aw*cbar/4.)
+     denom = awc / (( wall_coeff(i, 4) * 0.50000D-05)**0.5)
+     kinetic_rate(j) =  0.33330D+02 * awc / (1. + 1.5708 * denom)
+  
+  enddo
+
+
+  
   
 END subroutine ssh_basic_kinetic
 

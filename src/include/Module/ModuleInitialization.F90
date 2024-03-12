@@ -171,7 +171,11 @@ module aInitialization
   double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
                                         5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
   integer, parameter :: nsza = 11! sza size 
-    
+
+  ! Wall loss
+  integer, dimension(:), allocatable, save :: wall_rcn  
+  double precision, dimension(:,:), allocatable, save :: wall_coeff
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
   Integer, save :: with_incloud_scav!IINCLD
@@ -3041,7 +3045,7 @@ contains
       
   integer :: i, j, k, js, ierr, iarrow, nrct, npdt
   integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb
-  integer :: iext, ifall, iro2, ipdt_r, ipdt_f, ihet !counts
+  integer :: iext, ifall, iro2, ipdt_r, ipdt_f, ihet, iwall !counts
   integer :: start, finish
   integer :: finish_plus, finish_minus
   integer :: index_start
@@ -3080,7 +3084,8 @@ contains
     iro2  = 0 ! count the number of RO2-RO2 reactions
     ifall = 0 ! count the number of falloff reactions 
     iext  = 0 ! count the number of other types of reactions
-    ihet  = 0 ! count the number of heterogenous reactions
+    ihet  = 0 ! count the number of heterogeneous reactions
+    iwall  = 0 ! count the number of wall loss
     
     do
         read(11, '(A)', iostat=ierr) line
@@ -3118,7 +3123,9 @@ contains
                 iext = iext + 1
             else if(index(sname,'HETERO') /= 0) then ! heterogenous reactions
                 ihet = ihet + 1
-               
+            else if(index(sname,'WALL') /= 0) then ! wall loss
+                iwall = iwall + 1
+                
             endif 
         end if
     end do
@@ -3151,7 +3158,9 @@ contains
     allocate(extra_rcn(iext))     ! code and reaction index for EXTRA type of reactions
     allocate(extra_coeff(iext,8)) ! coefficients for extra reactions
     allocate(hetero_rcn(ihet))    ! heterogenous reactions
-    allocate(hetero_ind(ihet)) ! coefficients for heterogeneous reactions
+    allocate(hetero_ind(ihet))    ! coefficients for heterogeneous reactions
+    allocate(wall_rcn(iwall))     ! wall loss
+    allocate(wall_coeff(iwall,5)) ! coefficients for wall loss
     
     ! for two-step: y,w,rk,prod,loss,dw
     allocate(gas_yield(n_gas))
@@ -3198,6 +3207,7 @@ contains
     ifall = 0 ! count the number of falloff reactions 
     iext  = 0 ! count the number of other types of reactions
     ihet = 0  ! count the number of heterogenous reactions
+    iwall = 0  ! count the number of wall loss
     
     ! Read reactions and their rates
     do
@@ -3627,6 +3637,15 @@ contains
               hetero_rcn(ihet) = iknc
               js = int(a_tmp(1)) ! get label
               hetero_ind(ihet) =  js
+
+            ! Find wall loss
+            elseif (trim(sname) == "WALL") then
+
+              iwall = iwall + 1
+              wall_rcn(iwall) = iknc
+              do i = 1, 5 ! wall loss coefficents
+                 wall_coeff(iwall,i) = a_tmp(i)
+              enddo
               
             else
               print*,"Error: Unknown kinetic keyword detected: ",trim(sname)
