@@ -1792,7 +1792,7 @@ contains
     integer:: nspecies   !For chimere interface, number of aerosol species we want to select
     character (len=40),dimension(nspecies),optional :: name_input_species !For Chimere interface, name of the species we want to select
     integer,dimension(nspecies),optional :: index_species_ssh   !For Chimere interface, link between the index of species in CHIMERE and SSH-aerosol
-    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2
+    integer :: k,i,j,s,js, ind, count, ierr, ilayer, esp_layer, nline, N_count,icoun,s2, jesp
     double precision :: tmp
     double precision, dimension(:), allocatable :: tmp_aero
     character (len=40) :: ic_name, sname, tmp_name
@@ -2435,10 +2435,12 @@ contains
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
           do i = 1,N_aerosol
-              if(aerosol_species_name(i) == name_org_h2so4_nucl_species(s)) then
+              jesp= List_species(i)
+              if(aerosol_species_name(jesp) == name_org_h2so4_nucl_species(s)) then
                 org_h2so4_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Nucl. species found ",aerosol_species_name(i),i
-                if (ssh_logger) write(logfile,*) "Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_standalone) write(*,*) "Nucl. species found ",aerosol_species_name(jesp),i
+                if (ssh_logger) write(logfile,*) "Nucl. species found ",aerosol_species_name(jesp),i
+                exit
              endif
            enddo
        enddo
@@ -2447,10 +2449,12 @@ contains
     if(nucl_model_org == 1) then
        do s=1,nesp_org_nucl
           do i = 1,N_aerosol
-              if(aerosol_species_name(i) == name_org_nucl_species(s)) then
+              jesp= List_species(i)
+              if(aerosol_species_name(jesp) == name_org_nucl_species(s)) then
                 org_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Org. Nucl. species found ",aerosol_species_name(i),i
-                if (ssh_logger) write(logfile,*) "Org. Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_standalone) write(*,*) "Org. Nucl. species found ",aerosol_species_name(jesp),i
+                if (ssh_logger) write(logfile,*) "Org. Nucl. species found ",aerosol_species_name(jesp),i
+                exit
              endif
            enddo
        enddo
