@@ -1,0 +1,30 @@
+% Converted from poa.h2o.reactions to poa.h2o.nospack.reactions
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for POA SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------192--------------------
+POAlP + hydroxyl       -> SOAlP + hydroxyl
+KINETIC ARR 2.00E-11 0 0
+%
+%--------------------193--------------------
+POAmP + hydroxyl       -> SOAmP + hydroxyl
+KINETIC ARR 2.00E-11 0 0
+%
+%--------------------194--------------------
+POAhP + hydroxyl       -> SOAhP + hydroxyl
+KINETIC ARR 2.00E-11 0 0
+%
+%
+END
+
+
+

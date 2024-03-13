@@ -1,0 +1,9 @@
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
+PMD	1    5    	28.0    --           1.000D10        1.000D10        0.D0      1.0     2.33D-06	    0           --            -       0.        0.      0.      0.
+PBC	2    4	        12.0    --           1.000D10        1.000D10        0.D0      1.0     2.25D-06     0           --            -       0.         0.     0.      0.
+PNA	3    1	        23.0    --           1.000D10        1.000D10        0.D0      1.0     0.97D-06	    0           --            -       0.         0.     0.      0.
+PSO4	3    1        	98.0    SULF         77.3d0          5.5d0           80.D-03   1.0    1.84D-06      1           --            -       0.         0.     0.      0.
+PNH4	3    1         	17.0	NH3          558.3d0         2.9d0           80.D-03   1.0    0.91D-06      0           --            -       0.         0.     0.      0.
+PNO3	3    1	        63.0    HNO3         475.9d0         3.3d0           80.D-03   1.0    1.50D-06      0           --            -       0.         0.     0.      0.
+PHCL	3    1	        36.5	HCL          344.7d0         3.339d0         80.D-03   1.0    1.15D-06      0           --            -       0.         0.     0.      0.
+PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.     0.      0.

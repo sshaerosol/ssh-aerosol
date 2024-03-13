@@ -95,7 +95,7 @@ else # default no genoa
     if [ -z $chemistry ]; then
         chemistry="cb05"
     fi
-    echo "Chemistry: $chemistry"
+    # echo "Chemistry: $chemistry"
 
     if [ -z $openmp ]; then
         openmp="no"
@@ -132,10 +132,20 @@ else # default no genoa
             exit 0
         else
             cd src/include/CHEMISTRY/$chemistry
-            ln -s ../tools/combine_files.py
-            ln -s ../tools/replacement_species.py
-            ln -s ../tools/user_defined_scheme.py
-            python3 combine_files.py _ciCB05_poa.species CB05_poa.reactions $iscombining
+            cwd=$PWD
+            rm -rf combine_files.py replacement_species.py user_defined_scheme.py
+            ln -s ../../../../tools/combine_files.py
+            ln -s ../../../../tools/replacement_species.py
+            ln -s ../../../../tools/user_defined_scheme.py
+            (
+                set -e
+                python3 combine_files.py _ciCB05_poa.species CB05_poa_nospack.reactions $iscombining
+            )
+            errorCode=$?
+            if [ $errorCode -ne 0 ]; then
+                exit $errorCode
+            fi
+            
             cd ../../../../
         fi
     fi
@@ -160,8 +170,17 @@ cd src
 scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$sharedlib genoa=$genoa
 
 cd ..
-ln -s src/ssh-aerosol-$chemistry ssh-aerosol
+ln -s src/ssh-aerosol ssh-aerosol
 
+if [[ $iscombining != "no" ]]; then
+    echo 
+    echo "New files have been generated."
+    echo "Please use these files in namelist.ssh"
+    echo "--- reactions: $cwd/combined_reactions.dat"
+    echo "--- gas-phase speices: $cwd/species-list-user.dat"
+    echo "--- aerosol species: $cwd/species-list-aer-user.dat"
+    echo
+fi
 
 # if [[ $genoa != "fast" && $genoa != "complete" ]]; then # not used for genoa to save time
 #     # Make a link to "species-list.dat" containing the species list.

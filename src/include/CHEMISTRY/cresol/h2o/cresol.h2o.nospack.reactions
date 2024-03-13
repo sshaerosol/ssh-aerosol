@@ -1,0 +1,27 @@
+% Converted from cresol.h2o.reactions to cresol.h2o.nospack.reactions
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for cresol SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------211--------------------
+CRESp + hydroxyl       -> 0.73 MCAT + hydroxyl
+KINETIC ARR 4.65E-10 0 0
+%
+%--------------------212--------------------
+MCAT + hydroxyl       -> 0.39 DHMB + hydroxyl
+KINETIC ARR 2.00E-10 0 0
+%
+%
+%
+END
+
+
+

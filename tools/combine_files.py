@@ -37,24 +37,6 @@ scheme = sys.argv[3]
 """
 Selection of schemes
 """
-
-# is_user_defined = input(
-#     "\n\
-#     ****************************************************************\n\
-#     SPACK is combining the ozone chemistry and the SOA chemistry.\n\
-#     The default H2O chemistry is used if an user-defined SOA chemistry is not chosed.\n\
-#     Do you want to use user-defined SOA chemistry? (y or n)\
-#     ")
-
-# is_user_defined = is_user_defined.lower()
-
-# if is_user_defined == "y" or is_user_defined == "yes":
-#     user_defined = True
-# elif is_user_defined == "n" or is_user_defined == "no":
-#     user_defined = False
-# else:
-#     sys.exit("Please type y (yes) or n (no).")
-
 if scheme == "h2o":
     user_defined = False
 elif scheme == "user":
@@ -66,50 +48,24 @@ if user_defined == True:
 
     list_schemes = config['schemes']
 
-    # Read the schemes
-    opt_tol = list_schemes.getboolean('toluene')
-    opt_xyl = list_schemes.getboolean('xylene')
-    opt_api = list_schemes.getboolean('alpha-pinene')
-    opt_bpi = list_schemes.getboolean('beta-pinene')
-    opt_lim = list_schemes.getboolean('limonene')
-    opt_iso = list_schemes.getboolean('isoprene')
-    opt_hum = list_schemes.getboolean('humulene')
-    opt_poa = list_schemes.getboolean('poa')
-    opt_ben = list_schemes.getboolean('benzene')
-    opt_cre = list_schemes.getboolean('cresol')
-    opt_syr = list_schemes.getboolean('syringol')
-    opt_gua = list_schemes.getboolean('guaiacol')
-    opt_nap = list_schemes.getboolean('naphthalene')
-    opt_mna = list_schemes.getboolean('methyl-naphthalene')
+    options_list = {}
+    for key in list_schemes:
+        options_list[key] = list_schemes.getboolean(key)
     
-    options_list = {
-        "Toluene": opt_tol,
-        "Xylene": opt_xyl,
-        "Alpha-pinene": opt_api,
-        "Beta-pinene": opt_bpi,
-        "Limonene": opt_lim,
-        "Isoprene": opt_iso,
-        "Humulene": opt_hum,
-        "POA": opt_poa,
-        "Benzene": opt_ben,
-        "Cresol": opt_cre,
-        "Syringol": opt_syr,
-        "Guaiacol": opt_gua,
-        "Naphthalene": opt_nap,
-        "Methyl-naphthalene": opt_mna
-    }
-    
-    reactions_aerosol, species_aerosol = \
+    reactions_precursor, species_precursor, species_aerosol = \
         user_defined_scheme(options_list)
 
 
 else:
-    species_aerosol = "../h2o/h2o.species"
-    reactions_aerosol = "../h2o/h2o.reactions"
+    species_precursor = "../h2o/h2o.species"
+    reactions_precursor = "../h2o/h2o.nospack.reactions"
+    species_aerosol = "../h2o/species-list-aer-h2o.dat"
 
+
+species_inorganic_aerosol = "../inorganic/species-list-aer-inorg.dat"    
 print("Ozone species:", species_gas)
-print("SOA species:", species_aerosol)
-print("SOA reactions:", reactions_aerosol)
+print("SOA species:", species_precursor)
+print("SOA reactions:", reactions_precursor)
 
 species_out = "combined_species.dat"
 reactions_out = "combined_reactions.dat"
@@ -134,7 +90,7 @@ if (Ns_gas != len(species_name)):
     sys.exit(1)
         
 
-with open(species_aerosol,'r') as f:
+with open(species_precursor,'r') as f:
     # Jumps the title line.
     f.readline()
     for line in f:
@@ -154,35 +110,6 @@ if (Ns != len(species_name)):
     print("Error " + str(Ns) + " " + str(len(species_name)))
     sys.exit(1)
 
-# ####################
-# # TODO For debugging purpose, an output of the photolysis reactions is done,
-# # but a mapping should be done with the real photolysis reactions names
-# # to generate automatically the section [photolysis_reaction_index].
-# def format_reaction(reaction_str):
-#     lhs, rhs = reaction_str.split('->')
-#     lhs = sorted([ s.strip() for s in lhs.split('+')])
-#     rhs = sorted([ s.strip() for s in rhs.split('+')])
-#     return ' + '.join(lhs) + ' -> ' + ' + '.join(rhs)
-
-# photolysis_reactions = []
-# current_reaction = ""
-# with open(sys.argv[2],'r', encoding="UTF-8") as f:
-#     # Jumps the title line.
-#     f.readline()
-#     for line in f:
-#         line = line.strip()
-#         if not line or line[0] in "#%!-":
-#             continue # A comment.
-#         if '->' in line:
-#             current_reaction = line
-#             continue # A reaction.
-#         line=line.split()
-#         if line[0:2] != ["KINETIC", "PHOTOLYSIS"]:
-#             continue # current_reaction is not a photolysis reaction.
-
-#         photolysis_reactions.append(format_reaction(current_reaction))
-# ####################
-
 
 """ Write a combined list of the species
 """
@@ -199,8 +126,6 @@ with open(species_out, "w") as f:
         f.write(k.ljust(8))
         f.write(v)
 
-
-
 """ Read reactions list of the mechanism.
 """
 
@@ -216,7 +141,7 @@ with open(reactions_gas,'r', encoding="UTF-8") as f1, open(reactions_out, 'w') a
             f2.write(line)
             f2.write("\n")
 
-with open(reactions_aerosol,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
+with open(reactions_precursor,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
 
     species_matching = read_matching_file()
     
@@ -241,29 +166,50 @@ with open(reactions_aerosol,'r', encoding="UTF-8") as f1, open(reactions_out, 'a
 with open(reactions_out, 'a') as f:
     f.write("END")
 
-#with open("species.spack.dat","w") as f:
-#    f.write("[species]\n")
-#    f.write("\n".join(species_name))
-#    f.write("\n\n[molecular_weight]\n")
-#    for k, v in zip(species_name, species_weight):
-#        k += " "
-#        v += "\n"
-#        f.write(k.ljust(8))
-#        f.write(v)
-#    f.write("""
 
-# Here is the list of photolysis reactions in good order.
-# This section is generated to help debugging
-# the section '[photolysis_reaction_index]'
-#""")
-#    f.write("\n#".join(photolysis_reactions))
-#    f.write("\n")
-    
-#write species-list.dat automaticaly
-with open("species-list.dat","w") as f:
-    f.write("# The order of species in this list should not be changed.")
+""" Write a combined list of the species as the input format of ssh-aerosol
+"""
+with open("species-list-user.dat","w") as f:
+    f.write("# This file is automatically generated by combine_files.py.")
     for k, v in zip(species_name, species_weight):
         k += " "
         f.write("\n")
         f.write(k.ljust(8))
         f.write(v)
+
+
+""" Write organic aerosol species list.
+"""
+output_filename = "species-list-aer-user.dat"
+header = "# Name Type group ID	MW       Precursor   coll_fac        " + \
+    "mole_diam       surf_tens accomod  mass_dens non-volatile  " + \
+    "partitioning  smiles psat_torr  dHvap	Henry	Tref\n"
+with open(output_filename,"w") as f, \
+     open(species_aerosol, "r") as f2:
+    f.write(header)
+    f2.readline()
+    for line in f2:
+        line = line.strip()
+        if not line or line[0] in "#%!-":
+            continue # comment
+        
+        f.write(line)
+        f.write("\n")
+
+""" Write inorganic aerosol species list. This should be called after 
+the organic aerosol species.
+"""
+       
+with open(output_filename,"a") as f, \
+     open(species_inorganic_aerosol, "r") as f2:
+    f2.readline()
+    for line in f2:
+        line = line.strip()
+        if not line or line[0] in "#%!-":
+            continue # comment
+        
+        f.write(line)
+        f.write("\n")
+        
+
+        

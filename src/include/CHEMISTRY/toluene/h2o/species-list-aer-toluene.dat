@@ -1,0 +1,4 @@
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
+PAnBlP	4    3	        167.0   AnBlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       6.8e-8     50.    0.      0.
+PAnBmP	4    3	        152.0	AnBmP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       8.4e-6     50.    0.      0.
+PAnClP	4    3	        167.0   AnClP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHO          -       0.         0.     0.      0.

@@ -1,0 +1,2 @@
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
+PPSYR    4   2          186.0   PSYR         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       7.53e-6    50.    0.      0.
