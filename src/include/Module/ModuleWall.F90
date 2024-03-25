@@ -60,7 +60,7 @@ contains
        klossg(:)=0.d0
        DO Jsp=1,ns_aer
           IF (aerosol_type(Jsp)==4 .and. psat(Jsp)>0) THEN
-             Jsp2=aerosol_type(Jsp)
+             Jsp2=aerosol_species_interact(Jsp)
              if (Tref(Jsp)>0) then
                 psat_loc=psat(Jsp) &
                      *exp(-1000.0*dhvap(Jsp)/8.314d0* &
