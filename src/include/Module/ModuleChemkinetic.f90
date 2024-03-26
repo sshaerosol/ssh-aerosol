@@ -1274,27 +1274,28 @@ subroutine ssh_spack_spec(ire, iex, label)
     elseif (label .eq. 20) then ! RACM2 - rewrite from ssh_WSPEC_RACM90
      SELECT CASE(ind)
         CASE (1)
-          qfor = sumMc * 6.0d-34 * (temperature/3.d2) ** (-2.3d0)
+           qfor = sumMc * 5.74d-34 * (temperature/3.d2) ** (-2.6d0)
+           qfor = qfor * SumMc * 0.2d0
 !C     BS 05/02/2003 values given by RACM
         CASE (2)
-          qfor = 2.3d-13 * dexp(6d2 / temperature) &
-               + 1.73d-33* SumMc * dexp(1d3/ temperature)
+          qfor = 2.2d-13 * dexp(6d2 / temperature) &
+               + 1.9d-33* SumMc * dexp(980.0d0/ temperature)
         CASE (3)
-          qfor = 3.22d-34 * dexp(28d2 / temperature) &
-               + 2.38d-54 * SumMc * dexp(32d2 / temperature)
+          qfor = 3.08d-34 * dexp(28d2 / temperature) &
+               + 2.59d-54 * SumMc * dexp(3180.0d0 / temperature)
+          qfor = qfor * YlH2O
 !C      MODIF BS 06/06/2003 on the basis of CMAQ
         CASE (4)
-          ka = 7.2d-15 * dexp(785d0 / temperature)
-          kb = 4.1d-16 * dexp(1440d0 / temperature)
-          kd = 1.9d-33 * dexp(725d0 / temperature) * SumMc
+          ka = 2.4d-14 * dexp(460d0 / temperature)
+          kb = 2.7d-17 * dexp(2199d0 / temperature)
+          kd = 6.5d-34 * dexp(1335d0 / temperature) * SumMc
           qfor = ka + kd / (1d0 + kd / kb)
         CASE (5)
-          qfor = 1.5d-13 * (1.0d0 + 2.439d-20 * SumMc)
+          qfor = 1.44d-13 * (1.0d0 + 8.0d-1 * SumMc / 4.0d19)
         CASE (6)
-          ka = 3.4d-30 * (3d2 / temperature) ** (3.2d0) * SumMc
-          kb = ka / (4.77d-11 * (3d2 / temperature) ** 1.4d0)
-          qfor = (ka / (1d0 + kb)) * 3d-1 ** &
-               (1d0 / (1d0 + ((dlog10(kb) - 0.12d0) / 1.2d0) ** 2d0))
+          ka = 3.43d-12 * dexp(270.0d0 / temperature)
+          kb = (530.0d0 / temperature) + 4.8d-6 * pressure - 1.73
+          qfor = ka * kb / 100.d0
         CASE (7)
           qfor = 2.0d-39 * YlH2O * YlH2O
         CASE (8)
