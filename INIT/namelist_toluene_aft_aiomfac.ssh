@@ -69,6 +69,7 @@ min_adaptive_time_step = 0.001,          !Minimum time step
 photolysis_dir = "./photolysis/",  ! Directory where binary files are located.
 photolysis_file = "./photolysis/photolysis-cb05.dat",  ! File for photolysis list
 n_time_angle = 9,
+nsza = 2,
 time_angle_min = 0.d0,
 delta_time_angle = 1.d0,
 n_latitude = 10,

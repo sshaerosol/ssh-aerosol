@@ -6,6 +6,7 @@ module mod_sshchemkinetic
                           index_RCT, index_PDT, index_PDT_ratio, &
                           fall_coeff, extra_coeff, &
                           photo_ratio, Arrhenius, &
+                          photo_ratio_read, &
                           ratio_PDT, kinetic_rate, chem_prod, chem_loss, &
                           drv_knt_rate, rcn_rate, gas_yield, species_name, &
                           concentration_gas_all, SumMc, YlH2O, &
@@ -495,6 +496,13 @@ subroutine ssh_update_kinetic_pho(azi)
        ! Cloud attenuation.
        kinetic_rate(j) = Arrhenius(j,1) * max(photo*attenuation, 0.d0) ! add a ratio
     enddo
+  else if (azi .ge. 90.d0) then
+    do i=1, size(photo_rcn,1)
+       j = photo_rcn(i,1) ! reaction index
+       k = photo_rcn(i,2) ! pholysis index
+       ik = abs(k)
+       kinetic_rate(j) = photo_ratio_read(ik,nsza)
+     enddo
   else ! no photolysis
     do i=1, size(photo_rcn,1) ! no.TB reactions
         j = photo_rcn(i,1) ! reaction index

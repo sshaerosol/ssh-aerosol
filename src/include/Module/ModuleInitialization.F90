@@ -168,10 +168,13 @@ module aInitialization
   ! photolysis
   double precision, dimension(:,:,:), allocatable, save :: photo_ratio
   double precision, dimension(:,:), allocatable, save :: photo_ratio_read
-  double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
-                                        5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
-  integer, parameter :: nsza = 11! sza size 
+  ! double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
+  !                                       5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
+  ! integer, parameter :: nsza = 11! sza size 
+  integer :: nsza
+  double precision, dimension(:), allocatable, save :: szas
 
+  
   ! Wall loss
   integer, dimension(:), allocatable, save :: wall_rcn  
   double precision, dimension(:,:), allocatable, save :: wall_coeff
@@ -514,7 +517,7 @@ contains
          adaptive_time_step_tolerance, min_adaptive_time_step, &
          RO2_list_file, tag_RO2, &
          photolysis_dir, photolysis_file, &
-         n_time_angle, time_angle_min, delta_time_angle, &
+         n_time_angle, nsza, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
          tag_twostep, keep_gp, &
@@ -991,6 +994,7 @@ contains
     photolysis_dir = "---"
     photolysis_file = "---"
     n_time_angle = -999
+    nsza = -999
     time_angle_min = -999.d0
     delta_time_angle = -999.d0
     n_latitude = -999
@@ -1066,6 +1070,11 @@ contains
        if (n_time_angle == -999) then
           n_time_angle = 9
        endif
+       ! nsza = 11 by default
+       ! if it is not given in namelist
+       if (nsza == -999) then
+          nsza = 11
+       endif       
        ! time_angle_min = 0.d0 by default
        ! if it is not given in namelist
        if (time_angle_min == -999.d0) then
@@ -3153,7 +3162,9 @@ contains
     
     ! kinetics
     allocate(photo_rcn(ipho,2)) ! code of photolysis
+
     allocate(photo_ratio_read(ipho_t,nsza)) ! read ratio
+    allocate(szas(nsza))
     
     allocate(TB_rcn(itb+iro2,2))  ! TBs & RO2-RO2 2. index(TB+,RO2-); 1. reaction index
     allocate(Arrhenius(iknc,3))   ! kinetic rate contants
@@ -3472,7 +3483,7 @@ contains
                             iknc, finish, a_tmp(1:finish)
                     stop
                 endif
-             elseif (trim(sname) == "PHOT".or.trim(sname) == "PHOTOLYSIS") then
+             elseif (trim(sname) == "PHOT") then
                 ! read photolysis
                 ipho = ipho + 1
                 photo_rcn(ipho,1) = iknc
@@ -3481,11 +3492,46 @@ contains
                     photo_rcn(ipho,2) = int(a_tmp(1))
                     Arrhenius(iknc,1) = a_tmp(2)
                     
-                else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
+                ! else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
+                !     ! id: negative in photo_ratio_read
+                !     ipho_t = ipho_t + 1
+                !     photo_rcn(ipho,2) = -ipho_t
+                    
+                !     ! read tabulation
+                !     do i = 1, nsza
+                !         photo_ratio_read(ipho_t,i) = a_tmp(i)
+                !     enddo
+                    
+                !     ! ratio
+                !     if (finish.eq.nsza+1) then ! read
+                !         Arrhenius(iknc,1) = a_tmp(nsza+1)
+                !     else ! default
+                !         Arrhenius(iknc,1) = 1d0
+                !     endif
+                else
+                    print*, "Error: PHOT read no. coeff not 2." &
+                            , iknc, finish, a_tmp(1:finish)
+                    stop
+                endif
+
+             elseif (trim(sname) == "PHOTOLYSIS") then
+                ! read photolysis
+                ipho = ipho + 1
+                photo_rcn(ipho,1) = iknc
+
+                !!!! (To do) Move to namelist
+                if (nsza == 2) then
+                   szas = [0.0d0, 9.0d1]
+                else if (nsza == 11) then
+                   szas = [0d0,1d1,2d1,3d1,4d1, &
+                        5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
+                endif
+
+                if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
                     ! id: negative in photo_ratio_read
                     ipho_t = ipho_t + 1
                     photo_rcn(ipho,2) = -ipho_t
-                    
+
                     ! read tabulation
                     do i = 1, nsza
                         photo_ratio_read(ipho_t,i) = a_tmp(i)
@@ -3498,11 +3544,13 @@ contains
                         Arrhenius(iknc,1) = 1d0
                     endif
                 else
-                    print*, "Error: PHOT read no. coeff not 2/nsza/nsza+1." &
-                            , iknc, finish, a_tmp(1:finish)
+                    print*, "Error: PHOTOLYSIS read no. coeff not nsza/nsza+1." &
+                         , iknc, finish, a_tmp(1:finish), &
+                         "nsza (nsza in namelist): ", nsza
                     stop
                 endif
 
+                
             elseif (trim(sname) == "FALLOFF") then
                 ! read falloff 
                 ifall = ifall + 1
