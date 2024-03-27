@@ -18,7 +18,8 @@ module mod_sshchemkinetic
                           n_fracmax, n_size, wet_diameter, &
                           with_fixed_density, with_heterogeneous, &
                           n_sizebin, option_cloud, cloud_water, &
-                          wall_rcn, wall_coeff ! wall loss
+                          wall_rcn, wall_coeff, & ! wall loss
+                          irdi_rcn, irdi_ind ! irreversible dicarbonyl
  
   
   implicit none
@@ -313,6 +314,11 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
 
   ! Wall loss
   double precision :: Psat, Masmol, cstar, aw, cbar, awc, denom
+
+  ! Irreversible dicarbonyl
+  double precision :: facteur, xlw
+
+  xlw = humidity
   
   do i=1, size(kinetic_rate) ! reactions
     kinetic_rate(i) = Arrhenius(i,1) * (temperature**Arrhenius(i,2)) &
@@ -442,6 +448,27 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   
   enddo
 
+  !===============================!
+  !=== Irreversible dicarbonyl ===!
+  !===============================!
+  do i = 1, size(irdi_rcn)
+
+     j = irdi_rcn(i) ! reaction index
+
+     if (irdi_ind(i) == 1) then
+     
+        Psat =  611.2d0 * dexp(17.67d0 * (temperature - 273.15d0) &
+             / (temperature - 29.65d0))
+        facteur = xlw*Pressure / ((0.62197d0 * (1.d0-xlw)+xlw) &
+             * Psat ) * 100.
+        kinetic_rate(j) = 1d-9*facteur**3 - 1d-7*facteur**2 &
+             + 3.0d-7*facteur + 0.0003
+     else
+        write(*,*) "Error: undefined index for irrevesible dicarbonyl", i
+        stop
+     endif
+  
+  enddo
 
   
   

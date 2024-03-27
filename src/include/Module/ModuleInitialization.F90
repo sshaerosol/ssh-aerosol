@@ -160,7 +160,7 @@ module aInitialization
   double precision, dimension(:), allocatable, save :: ratio_PDT
   ! kinetics
   double precision, dimension(:,:), allocatable, save :: Arrhenius,fall_coeff,extra_coeff  ! coefficients for spec reactions
-  integer, dimension(:), allocatable, save :: hetero_ind
+  integer, dimension(:), allocatable, save :: hetero_ind, irdi_ind
   double precision, dimension(:), allocatable, save :: kinetic_rate, chem_prod, chem_loss
   double precision, dimension(:), allocatable, save :: rcn_rate, gas_yield, drv_knt_rate
   ! photolysis
@@ -176,6 +176,9 @@ module aInitialization
   ! Wall loss
   integer, dimension(:), allocatable, save :: wall_rcn  
   double precision, dimension(:,:), allocatable, save :: wall_coeff
+
+  ! Irreversible dicarbonyl
+  integer, dimension(:), allocatable, save :: irdi_rcn  
   
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Integer, save :: aqueous_module!ICLD
@@ -3034,7 +3037,7 @@ contains
       
   integer :: i, j, k, js, ierr, iarrow, nrct, npdt
   integer :: ircn, iknc, irct, ipdt, ipho, ipho_t, itb
-  integer :: iext, ifall, iro2, ipdt_r, ipdt_f, ihet, iwall !counts
+  integer :: iext, ifall, iro2, ipdt_r, ipdt_f, ihet, iwall, iirdi !counts
   integer :: start, finish
   integer :: finish_plus, finish_minus
   integer :: index_start
@@ -3113,7 +3116,9 @@ contains
             else if(index(sname,'HETERO') /= 0) then ! heterogenous reactions
                 ihet = ihet + 1
             else if(index(sname,'WALL') /= 0) then ! wall loss
-                iwall = iwall + 1
+               iwall = iwall + 1
+            else if(index(sname,'IRDICARB') /= 0) then ! irreversible dicarbonyl
+                iirdi = iirdi + 1               
                 
             endif 
         end if
@@ -3149,6 +3154,8 @@ contains
     allocate(hetero_ind(ihet))    ! coefficients for heterogeneous reactions
     allocate(wall_rcn(iwall))     ! wall loss
     allocate(wall_coeff(iwall,5)) ! coefficients for wall loss
+    allocate(irdi_rcn(iirdi))     ! irreversible dicarbonyl
+    allocate(irdi_ind(iirdi))      ! index for irreversible dicarbonyl
     
     ! for two-step: y,w,rk,prod,loss,dw
     allocate(gas_yield(n_gas))
@@ -3176,6 +3183,7 @@ contains
     fall_coeff = 0.d0
     extra_coeff = 0.d0
     hetero_ind = 0
+    irdi_ind = 0    
 
     rewind(11)  ! Reset the file position
 
@@ -3196,6 +3204,7 @@ contains
     iext  = 0 ! count the number of other types of reactions
     ihet = 0  ! count the number of heterogenous reactions
     iwall = 0  ! count the number of wall loss
+    iirdi = 0  ! count the number of irreversible dicarbonyl
     
     ! Read reactions and their rates
     do
@@ -3671,6 +3680,14 @@ contains
               do i = 1, 5 ! wall loss coefficents
                  wall_coeff(iwall,i) = a_tmp(i)
               enddo
+
+            ! Find irreversible dicarbonyl
+            elseif (trim(sname) == "IRDICARB") then
+
+              iirdi = iirdi + 1
+              irdi_rcn(iirdi) = iknc
+              js = int(a_tmp(1)) ! get label
+              irdi_ind(iirdi) = js
               
             else
               print*,"Error: Unknown kinetic keyword detected: ",trim(sname)
@@ -3691,6 +3708,7 @@ contains
           ' No.pho: ',ipho,' No.pho_tab: ',ipho_t ,' No.tb: ', &
           itb-iro2, ' No.fall: ',ifall, ' No.ext: ',iext, ' No.RO2-RO2: ', iro2
     write (*,*) "No. hetero: ", ihet
+    write (*,*) "No. irdi: ", iirdi   
     
   end subroutine ssh_read_reaction_file
   
@@ -3887,6 +3905,7 @@ contains
     if (allocated(TB_rcn)) deallocate(TB_rcn)
     if (allocated(fall_rcn)) deallocate(fall_rcn)
     if (allocated(hetero_rcn)) deallocate(hetero_rcn)
+    if (allocated(irdi_rcn)) deallocate(irdi_rcn)    
     if (allocated(extra_rcn)) deallocate(extra_rcn)
     if (allocated(index_RCT)) deallocate(index_RCT)
     if (allocated(index_PDT)) deallocate(index_PDT)
@@ -3895,6 +3914,7 @@ contains
     if (allocated(fall_coeff)) deallocate(fall_coeff)
     if (allocated(extra_coeff)) deallocate(extra_coeff)
     if (allocated(hetero_ind)) deallocate(hetero_ind)
+    if (allocated(irdi_ind)) deallocate(irdi_ind)
     if (allocated(ratio_PDT)) deallocate(ratio_PDT)
     if (allocated(photo_ratio)) deallocate(photo_ratio)
     if (allocated(photo_ratio_read)) deallocate(photo_ratio_read)
