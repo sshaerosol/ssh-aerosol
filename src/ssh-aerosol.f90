@@ -23,8 +23,6 @@ PROGRAM SSHaerosol
   integer :: t, j, s,jesp,day  
   character (len=400) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
-  ! need if use constant input concentrations
-  double precision, dimension(:), allocatable :: cst_gas_use
 
   double precision :: t_since_update_photolysis, t0
 
@@ -125,13 +123,6 @@ PROGRAM SSHaerosol
   call cpu_time(t0)
   timer(2) = t0
 
-  ! for constant concentrations
-  if (ncst_gas.gt.0) then
-     allocate(cst_gas_use(ncst_gas))
-  else
-     allocate(cst_gas_use(0))
-  endif
-
   if (with_cond.EQ.1.and.kwall_gas>0.d0) then
      do jesp=1,N_aerosol
         if (aerosol_species_interact(jesp).GT.0) then
@@ -190,14 +181,6 @@ PROGRAM SSHaerosol
      ! 0 : not take into account cloud    0.d0 : air water content fracion sets to 0  
 
      if (tag_chem .ne. 0) then
-
-       ! update constant concentrations if exist
-       if (ncst_gas .gt. 0) then
-          cst_gas_use = 0.0
-          do s =1, ncst_gas !size(cst_gas_index)
-             cst_gas_use(s) = cst_gas(s,t)
-          enddo
-       endif
 
        if (tag_twostep .ne. 1) then
            call ssh_chem()
@@ -347,5 +330,4 @@ PROGRAM SSHaerosol
 
   ! Free memory
   if (allocated(timer)) deallocate(timer)
-  if (allocated(cst_gas_use)) deallocate(cst_gas_use) !genoa
 end PROGRAM SSHaerosol
