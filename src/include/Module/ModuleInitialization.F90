@@ -572,7 +572,8 @@ contains
     ! meteorological setup
 
     cloud_water = -999.d0
-
+    humidity = -999.d0
+    
     meteo_file = ""
     read(10, nml = setup_meteo, iostat = ierr)
 
@@ -615,8 +616,7 @@ contains
        if (cloud_water == -999.d0) then
           cloud_water = 0.d0 ! in kg/kg
        endif
-
-       
+      
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
        if (ssh_standalone) write(*,*) '<<<< Meteorological setup >>>>'
@@ -3078,6 +3078,7 @@ contains
     iext  = 0 ! count the number of other types of reactions
     ihet  = 0 ! count the number of heterogeneous reactions
     iwall  = 0 ! count the number of wall loss
+    iirdi = 0 ! count the number of irreversible dicarbonyl
     
     do
         read(11, '(A)', iostat=ierr) line
@@ -3509,11 +3510,13 @@ contains
                         5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
                 endif
 
-                if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
-                    ! id: negative in photo_ratio_read
-                    ipho_t = ipho_t + 1
-                    photo_rcn(ipho,2) = -ipho_t
+                ! id: negative in photo_ratio_read
+                ipho_t = ipho_t + 1
+                photo_rcn(ipho,2) = -ipho_t
 
+                
+                if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
+  
                     ! read tabulation
                     do i = 1, nsza
                         photo_ratio_read(ipho_t,i) = a_tmp(i)
@@ -3526,10 +3529,19 @@ contains
                         Arrhenius(iknc,1) = 1d0
                     endif
                 else
-                    print*, "Error: PHOTOLYSIS read no. coeff not nsza/nsza+1." &
+                    print*, "Warning: PHOTOLYSIS read no. coeff not nsza/nsza+1." &
                          , iknc, finish, a_tmp(1:finish), &
-                         "nsza (nsza in namelist): ", nsza
-                    stop
+                         "nsza in namelist): ", nsza
+                    if (finish .lt. nsza) then
+                       ! put the 1st value from the tabulation to all angles 
+                       do i = 1, nsza
+                          photo_ratio_read(ipho_t,i) = a_tmp(1)
+                       enddo
+                       Arrhenius(iknc,1) = 1d0
+                    else
+                       write(*,*) "Error: something wrong in nsza."
+                       stop
+                    endif
                 endif
 
                 

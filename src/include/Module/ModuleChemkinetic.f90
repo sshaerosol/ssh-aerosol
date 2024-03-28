@@ -1,6 +1,7 @@
 module mod_sshchemkinetic
-
+  
   use aInitialization, only : attenuation, n_gas, &
+       relative_humidity, &
                           humidity, temperature, pressure, &
                           photo_rcn, TB_rcn, fall_rcn, extra_rcn, &
                           index_RCT, index_PDT, index_PDT_ratio, &
@@ -20,7 +21,8 @@ module mod_sshchemkinetic
                           n_sizebin, option_cloud, cloud_water, &
                           wall_rcn, wall_coeff, & ! wall loss
                           irdi_rcn, irdi_ind ! irreversible dicarbonyl
- 
+
+  use mod_meteo
   
   implicit none
   
@@ -318,6 +320,11 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   ! Irreversible dicarbonyl
   double precision :: facteur, xlw
 
+  if (humidity == -999.d0) then
+     call ssh_compute_sh(relative_humidity, temperature, &
+          pressure, humidity)
+  endif
+  
   xlw = humidity
   
   do i=1, size(kinetic_rate) ! reactions
@@ -1261,6 +1268,11 @@ subroutine ssh_spack_spec(ire, iex, label)
     double precision :: psat, facteur, xlw
     double precision :: masmol, cstar, aw, cbar, awc, denom, kwon !! Wall
 
+    if (humidity == -999.d0) then
+       call ssh_compute_sh(relative_humidity, temperature, &
+            pressure, humidity)
+    endif
+    
     xlw = humidity
 
     ! Label for different mechanisms
