@@ -208,7 +208,7 @@ contains
     double precision :: rho_dry(nbin_aer), vset(nbin_aer), DLnumconc_aer(nbin_aer)
     DOUBLE PRECISION :: DLconc_aer(nbin_aer,ns_aer)
     double precision :: mass_density_aer(ns_aer)
-    double precision :: CC, dif_part, debye, kwall_particle
+    double precision :: CC, dif_part, debye
     double precision :: wloss, delta_t
     
     ! global variables to local
@@ -228,9 +228,9 @@ contains
        ENDDO
     ENDIF
 
-    
     if (eddy_turbulence>0.d0.and.kwp0>0.d0 &
          .and.radius_chamber>0.d0) then
+
        call ssh_COMPUTE_AIR_FREE_MEAN_PATH(DLtemp,DLpress, &
             air_free_mean_path,viscosity)
        air_free_mean_path=air_free_mean_path*1.0e-6
