@@ -3,6 +3,7 @@ latitude = 48.2,                ! Latitude
 longitude = 2.22,               ! Longitude
 Temperature = 280.00,    	! TEMP
 Pressure = 1.01325e05,         	! PRES
+Humidity = 5.33039774746E-3, 
 Relative_Humidity = 0.24 	! if 0, compute RH from specific humidity. if not, use it
 /
 
@@ -49,7 +50,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_rdc/species-list.dat",                    !Species list  
+species_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_rdc/TOL-VIC_nospack.species",                    !Species list
+reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_rdc/TOL-VIC_chamber_nospack.reactions",
 /
 
 &aerosol_species
@@ -68,6 +70,7 @@ min_adaptive_time_step = 0.001,          !Minimum time step
 photolysis_dir = "./photolysis/",  ! Directory where binary files are located.
 photolysis_file = "./photolysis/photolysis-cb05.dat",  ! File for photolysis list
 n_time_angle = 9,
+nsza = 11,
 time_angle_min = 0.d0,
 delta_time_angle = 1.d0,
 n_latitude = 10,
