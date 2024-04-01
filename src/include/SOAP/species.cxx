@@ -328,6 +328,9 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
 		  accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
 
+  // GENOA DELETE DETECTOR START //
+  // NOTE: When running ./clean under genoa clean mode (-gcl=cleanall), the code block after "GENOA DELETE DETECTOR START" and before "GENOA DELETE DETECTOR END" will be removed.
+
   /* TOLexp SPECIES START */
 
   /* ==== A02000 ==== */ 
@@ -7601,8 +7604,11 @@ void creation_species_ssh( model_config &config, vector<species>& surrogate, vec
               accomodation_coefficient,diffusion_coef,saturation_vapor_pressure,enthalpy_vaporization, henry, t_ref, mass_density, species_part,nlayer,i_hydrophilic,
 		  N_inert, N_inorganic);
   
-/* TOLexp SPECIES START */
- 
+  /* TOLexp SPECIES END */
+
+  // GENOA DELETE DETECTOR END //
+  // NOTE: When running ./clean under genoa clean mode (-gcl=cleanall), the code block after "GENOA DELETE DETECTOR START" and before "GENOA DELETE DETECTOR END" will be removed.
+
   species GLY;
   GLY.name="GLY";
   GLY.is_inorganic_precursor=false;
