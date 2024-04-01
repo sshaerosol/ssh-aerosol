@@ -372,7 +372,8 @@ module aInitialization
   character (len=200), save :: init_gas_conc_file ! File for gas-phase initial conc.
   character (len=200), save :: species_list_file  ! File for species list.
   character (len=200), save :: reaction_list_file ! File for species list.
-  character (len=20) , save :: chemID,chemID2,resID,initID      ! IDs for chemistry/output
+  character (len=40) , save :: chemID,resID,initID      ! IDs for chemistry/output
+  character (len=80), save  :: chemID2 ! IDs to save chemID/chemID
   character (len=200), save :: aerosol_species_list_file ! File for species list.
   character (len=200), save :: aerosol_structure_file ! File for species list.
   character (len=200), save :: namelist_species ! Namelist file for species list.
@@ -1777,7 +1778,6 @@ contains
         close(nml_out)
     endif !genoa
 
-    write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"
 
@@ -2961,7 +2961,7 @@ contains
         RO2out_index = 0 ! init
         ! find RO2 index
         do k = 1, nRO2_group
-          ! convert the integer to a string => RO2pool1 to RO2pooln, RO2pool => totoal RO2 pool
+          ! convert the integer to a string => RO2pool1 to RO2pooln, RO2pool => total RO2 pool
           write(ic_name, '("RO2pool", I0)') k
           
           ! check index in species list
@@ -3148,10 +3148,7 @@ contains
 
     ! if (ssh_standalone) then
         print*, "Finish 1st time reading reactions. Read No.reactions: ",n_reaction
-        if (ircn /= iknc) then
-           print*, "Error: No.kinetics /= No.reactions: ", iknc, n_reaction
-           stop
-        endif
+        if (ircn /= iknc) print*, "No.kinetics /= No.reactions: ", iknc, n_reaction
     ! endif
     
     ! allocate arrays
