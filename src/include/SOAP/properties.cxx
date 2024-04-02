@@ -26,7 +26,7 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
   double viscosity=0.;
-
+  bool verbose = false;
   std::ofstream outFlux;  
   if (config.SOAPlog==2)
     {
@@ -84,10 +84,13 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
           if (surrogate[i].Henry <= tiny_henry)
             {
 	      surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
-	      if (config.SOAPlog==1)
-		cout << surrogate[i].name << " " << surrogate[i].Henry << endl;
-	      else if (config.SOAPlog==2)
-		outFlux << surrogate[i].name << " " << surrogate[i].Henry << endl;
+              if (verbose == true)
+                {
+                  if (config.SOAPlog==1)
+                    cout << surrogate[i].name << " " << surrogate[i].Henry << endl;
+                  else if (config.SOAPlog==2)
+                    outFlux << surrogate[i].name << " " << surrogate[i].Henry << endl;
+                }
 	    }
         }
       else
