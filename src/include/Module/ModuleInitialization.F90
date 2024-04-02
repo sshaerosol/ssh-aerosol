@@ -571,6 +571,9 @@ contains
 
     ! meteorological setup
 
+    Temperature = -999.d0
+    Pressure = -999.d0
+    Relative_humidity = -999.d0
     cloud_water = -999.d0
     humidity = -999.d0
     
@@ -2937,6 +2940,8 @@ contains
     
     ! get RO2 output index
     if (tag_RO2.ne.0) then
+        ! YK
+        if ( .not. allocated(RO2out_index)) allocate(RO2out_index(nRO2_group))
         RO2out_index = 0 ! init
         ! find RO2 index
         do k = 1, nRO2_group
@@ -3475,22 +3480,22 @@ contains
                     photo_rcn(ipho,2) = int(a_tmp(1))
                     Arrhenius(iknc,1) = a_tmp(2)
                     
-                ! else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
-                !     ! id: negative in photo_ratio_read
-                !     ipho_t = ipho_t + 1
-                !     photo_rcn(ipho,2) = -ipho_t
+                else if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
+                    ! id: negative in photo_ratio_read
+                    ipho_t = ipho_t + 1
+                    photo_rcn(ipho,2) = -ipho_t
                     
-                !     ! read tabulation
-                !     do i = 1, nsza
-                !         photo_ratio_read(ipho_t,i) = a_tmp(i)
-                !     enddo
+                    ! read tabulation
+                    do i = 1, nsza
+                        photo_ratio_read(ipho_t,i) = a_tmp(i)
+                    enddo
                     
-                !     ! ratio
-                !     if (finish.eq.nsza+1) then ! read
-                !         Arrhenius(iknc,1) = a_tmp(nsza+1)
-                !     else ! default
-                !         Arrhenius(iknc,1) = 1d0
-                !     endif
+                    ! ratio
+                    if (finish.eq.nsza+1) then ! read
+                        Arrhenius(iknc,1) = a_tmp(nsza+1)
+                    else ! default
+                        Arrhenius(iknc,1) = 1d0
+                    endif
                 else
                     print*, "Error: PHOT read no. coeff not 2." &
                             , iknc, finish, a_tmp(1:finish)
