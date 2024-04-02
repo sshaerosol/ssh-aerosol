@@ -111,8 +111,6 @@ module aInitialization
   !!! genoa related parameters
   ! tag for genoa, tag to use keep_gp in twostep
   integer, save :: tag_genoa = 0, keep_gp
-  ! tag for error computation; tag to round output values
-  logical, save :: iout_round = .false.
   ! tag for RO2 treatment
   integer, save :: tag_RO2, nref_file ! 0 for without RO2, 1 for simulated with generated RO2 only, 2 for with background RO2 only, 3 for with background + generated RO2
   
@@ -547,41 +545,26 @@ contains
                       ref_conc_files_in !genoa inputs
 
 
-    ! update genoa tag from compile option
-#ifdef UNDER_GENOA_FAST_MODE
-    tag_genoa = 1
-    ! no print
-    ssh_standalone = .true.
-    ssh_logger = .false.
-    iout_round = .false.
-#endif
+    ! Update print settings based on tag_genoa
+    if (tag_genoa.eq.1) then ! Fast mode
+        ! No further print info
+        ssh_standalone = .true.
+        ssh_logger = .false.
+    else
+        ! And write to namelist.out
+        nml_out = 101
+        namelist_out = "namelist.out"
+        open(nml_out, file = namelist_out)
+    endif
 
-#ifdef UNDER_GENOA_COMPLETE_MODE
-    tag_genoa = 2
-    ssh_standalone = .true.
-    ssh_logger = .false.
-    iout_round = .false.
-#endif
 
     if (ssh_standalone) write(*,*) "=========================start read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================start read namelist.ssh file======================"
-
-    if (tag_genoa.ne.0) then
-        if (ssh_standalone) write(*,*) "Under GENOA mode! ", tag_genoa
-        if (ssh_logger) write(logfile,*) "Under GENOA mode! ", tag_genoa
-    endif
     
     ! read namelist.ssh file !
     open(unit = 10, file = namelist_file, status = "old")
 
     ! Use default values if they are not given in namelist.ssh
-
-    if (tag_genoa.ne.1) then !genoa
-        ! And write to namelist.out
-        nml_out = 101
-        namelist_out = "namelist.out"
-        open(nml_out, file = namelist_out)
-    endif !genoa
 
     ! meteorological setup
 
@@ -1138,16 +1121,9 @@ contains
              if (ssh_standalone) write(*,*) 'without heterogeneous reaction.' 
              if (ssh_logger) write(logfile,*) 'without heterogeneous reaction.' 
           end if
-          ! if (tag_genoa.gt.0.or.tag_twostep.eq.1) then
-          !   tag_twostep = 1 ! genoa
-          !   if (ssh_standalone) write(*,*) 'use two-step solver.' 
-          !   if (ssh_logger) write(logfile,*) 'use two-step solver.'
-          ! else
-          !   if (ssh_standalone) write(*,*) 'use ROS2 solver.'
-          !   if (ssh_logger) write(logfile,*) 'use ROS2 solver.'
-          ! end if
+
           if (tag_genoa.gt.0.or.keep_gp.eq.1) then
-            keep_gp = 1 ! genoa
+            keep_gp = 1 ! Force keep_gp = 1 if under genoa modes
             if (ssh_standalone) write(*,*) 'keep_gp is activated' 
             if (ssh_logger) write(logfile,*) 'keep_gp is activated' 
             if (tag_twostep.eq.0) then
@@ -1668,7 +1644,7 @@ contains
         allocate(output_aero_index(1))
     end if
     
-    ! read a list of output gas-phase species - only used with tag_genoa = 1
+    ! read a list of output gas-phase species - only used if tag_genoa = 1 or out_type = 0
     if (output_gas_list .ne. "---") then
         if (ssh_standalone) write(*,*) 'Read output gas species: ',trim(output_gas_list)
         if (ssh_logger) write(logfile,*) 'Read output gas species: ',trim(output_gas_list)
@@ -1758,7 +1734,7 @@ contains
     
     close(10)
 
-    if (tag_genoa.ne.1) then !genoa
+    if (tag_genoa.ne.1) then ! Not for genoa fast mode
         ! Write to namelist.out
         write(nml_out, setup_meteo)
         write(nml_out, setup_time)
@@ -1776,7 +1752,7 @@ contains
         write(nml_out, physic_nucleation)
         write(nml_out, output)
         close(nml_out)
-    endif !genoa
+    endif ! Not for genoa fast mode
 
     if (ssh_standalone) write(*,*) "=========================finish read namelist.ssh file======================"
     if (ssh_logger) write(logfile,*) "=========================finish read namelist.ssh file======================"

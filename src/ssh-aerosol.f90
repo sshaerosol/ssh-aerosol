@@ -20,7 +20,7 @@ PROGRAM SSHaerosol
   
   implicit none
 
-  integer :: t, j, s,jesp,day  
+  integer :: t, j, s, jesp, day, tag_genoa_in  
   character (len=400) :: namelist_ssh  ! Configuration file
   double precision, dimension(:), allocatable :: timer
 
@@ -34,34 +34,55 @@ PROGRAM SSHaerosol
 
   ! Initial time (seconds)
   call cpu_time(t0)
+  
+  ! Initialize input args used for genoa v3
+  initID = "-" ! initial set id
+  chemID = "-" ! chem id
+  chemID2= "-" ! chemID2 = chemID/chemID
+  resID  = "-" ! result id
+  tag_genoa_in = 0 ! normal mode
 
   ! Initialisation: discretization and distribution
   if (iargc() == 0) then
-     write(*,*) "usage: ssh-aerosol namelist.input"
-     stop
+    write(*,*) "usage: ssh-aerosol namelist.input"
+    stop
   else
-     ! read for GENOA reduction
-     call getarg(1, namelist_ssh)
-     initID = "-" ! init
-     chemID = "-" ! init
-     chemID2= "-" ! init chemID2 = chemID/chemID
-     resID  = "-" ! init
-     ! genoa read initial sets
-     if (iargc() .ge. 2) then ! init id
-         
-         call getarg(2, ivoc0)
-         initID = trim(adjustl(ivoc0))
-         print*,'Read init ID: ', trim(initID)
-         
-         if (iargc().eq.4) then ! chem id & res id
-             call getarg(3,ivoc0)
-             chemID = trim(adjustl(ivoc0))
-             chemID2 = trim(chemID)//"/"//trim(chemID)
-             call getarg(4,ivoc0)
-             resID = trim(adjustl(ivoc0))
-             print*, 'Read chem & result IDs:',trim(chemID)," ",trim(resID) 
-         endif
-     endif
+    call getarg(1, namelist_ssh) ! Read namelist file
+    !!! Inputs for gneoa START !!!
+    ! No.inputs can be: 2, 3, 5 - read up to 5
+    if (iargc() .ge. 2) then ! Read flag and settings for GENOA reductions ! 
+      ! Read the #2 input as tag_genoa
+      call getarg(2, ivoc0)
+      read(ivoc0, *, iostat=s) tag_genoa_in
+      if (s /= 0) then
+        print*, "Error: Input genoa mode is not an integer: ", trim(ivoc0)
+        stop
+      endif
+      ! Update tag_genoa: 0 = no genoa, 1 = fast mode, or 2 = complete mode
+      if (tag_genoa_in .eq. 1 .or. tag_genoa_in .eq. 2) then
+        tag_genoa = tag_genoa_in
+        print*, "Under GENOA mode!", tag_genoa
+      else if (tag_genoa_in .ne. 0) then
+        print*, "Error: Input unknown tag_genoa mode: ", tag_genoa_in
+        stop
+      endif
+
+      ! Read #3 input for init id
+      if (iargc() .ge. 3) then
+        initID = trim(adjustl(ivoc0))
+        print*,"Read init ID: ", trim(initID)
+        ! Read #4 and #5 inputs for chem id & res id
+        if (iargc() .ge. 5) then
+          call getarg(3,ivoc0)
+          chemID = trim(adjustl(ivoc0))
+          chemID2 = trim(chemID)//"/"//trim(chemID)
+          call getarg(4,ivoc0)
+          resID = trim(adjustl(ivoc0))
+          print*, "Read chem & result IDs:",trim(chemID)," ",trim(resID) 
+        endif
+      endif
+    endif
+    !!! Inputs for genoa END !!!
   end if
 
   ! Read the number of gas-phase species and chemical reactions

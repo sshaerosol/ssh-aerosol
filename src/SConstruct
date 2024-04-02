@@ -33,28 +33,12 @@ include_path_template = """
     include/SeldonData
     include/AtmoData
     include/isorropia_aec
-    include/CHEMISTRY/{chemistry}
+    include/CHEMISTRY
     include/INC
     include/RDB
     include/SOAP
     include/Module
     """
-
-# genoa - update include_path_template
-if 'genoa' not in ARGUMENTS:
-    ARGUMENTS["genoa"] = 'no'
-    
-if ARGUMENTS["genoa"] == "fast" or ARGUMENTS["genoa"] == "complete":
-    include_path_template = """
-        include/Talos
-        include/SeldonData
-        include/AtmoData
-        include/isorropia_aec
-        include/INC
-        include/RDB
-        include/SOAP
-        include/Module
-        """
         
 # [Optional] Compiled library paths: put absolute paths, relative paths or
 # paths that are in the Polyphemus directory. Put the list of paths to
@@ -74,7 +58,6 @@ if 'sharedlib' not in ARGUMENTS:
 chemistry_list = utils.create_list("chemistry", 
                                    ["racm", "racm2", "cb05", "cb05en",
                                     "cb05v0", ARGUMENTS["chemistry"]], "*")
-genoa_list = utils.create_list("genoa", ["no", "fast", "complete"], "*")
 sharedlib_list = utils.create_list("sharedlib", ["yes", "no"], "*")
 
 # src_dependencies is nececessary in scons/scons_ext/utils.py
@@ -88,25 +71,18 @@ netcdf_path = "/usr/include"
 flag_fortran = "-I" + netcdf_path + " -cpp"
 
 for chemistry in chemistry_list:
-    for genoa in genoa_list:
-        include_path = include_path_template.format(chemistry=chemistry)
+    include_path = include_path_template.format(chemistry=chemistry)
 # Hack in Polair3DChemistry.
-        preprocessor_defines = ["POLYPHEMUS_WITH_AEROSOL_MODULE"]
-        build_flavor = []
-        program_suffix = []
+    preprocessor_defines = ["POLYPHEMUS_WITH_AEROSOL_MODULE"]
+    build_flavor = []
+    program_suffix = []
 
-        # add for genoa
-        if genoa == "fast":
-            preprocessor_defines.append("UNDER_GENOA_FAST_MODE")
-        elif genoa == "complete":
-            preprocessor_defines.append("UNDER_GENOA_COMPLETE_MODE")
+    for sharedlib in sharedlib_list:
+        if sharedlib == "no":
+            utils.create_programs()
+        elif sharedlib == "yes":
+            utils.create_programs(False)
 
-        for sharedlib in sharedlib_list:
-            if sharedlib == "no":
-                utils.create_programs()
-            elif sharedlib == "yes":
-                utils.create_programs(False)
-
-        # Avoids displaying the libraries checking next time since libraries
-        # does not change in this case.
-        utils.run.quiet(True)
+    # Avoids displaying the libraries checking next time since libraries
+    # does not change in this case.
+    utils.run.quiet(True)

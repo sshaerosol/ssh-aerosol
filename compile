@@ -39,14 +39,6 @@ case $i in
     iscombining="${i#*=}"
     shift
     ;;
-    
-# Read the option to use genoa
-# Accepted values: fast, complete, no
-# Default: genoa = no    
-    -g=*|--genoa=*)
-    genoa="${i#*=}"
-    shift
-    ;;
 
 esac
 done
@@ -61,100 +53,67 @@ ulimit -s unlimited
 # path to swig
 #export SWIG=/home/cereaadm/usr/local/bin/swig
 
-if [[ $genoa == "fast" || $genoa == "complete" ]]; then
-    # used for genoa 
-    # some changes are irreversible
 
-    # active tag
-    echo "GENOA version : $genoa"
-    
-    # default paramters to use genoa - change here
-    chemistry="genoa"
-    
-    if [ -z $openmp ]; then
-        openmp="no"
-    fi
-    echo "OpenMP: $openmp"
+if [ -z $chemistry ]; then
+    chemistry="cb05"
+fi
+# echo "Chemistry: $chemistry"
 
+if [ -z $openmp ]; then
+    openmp="no"
+fi
+echo "OpenMP: $openmp"
+
+if [ -z $sharedlib ]; then                     
     sharedlib="no"                
+fi
+echo "SharedLib: $sharedlib"
+
+if [ -z $profile ]; then                     
     profile="fast"                
+fi
+echo "Compiling profile : $profile"
+
+if [ -z $iscombining ]; then                     
     iscombining="no"
-    
-    # Check folder exists
-    #if [ ! -d "src/include/genoa" ]; then
-    #    echo "Error: Folder 'src/include/genoa' does not exist."
-    #    exit 1
-    #fi
-    
-else # default no genoa
-
-    # default not use genoa settings                  
-    genoa="no"
-
-    # not used for genoa 
-    if [ -z $chemistry ]; then
-        chemistry="cb05"
+else
+    # Check whether the given option is accepted.
+    if [[ $iscombining != "h2o" && $iscombining != "user" ]]; then
+        echo "Accepted values are 'h2o' and 'user'."
+        echo "compile -b=h2O -c=cb05-ozone"
+        echo "compile -b=user -c=cb05-ozone"
+        exit 0                
     fi
-    # echo "Chemistry: $chemistry"
+fi
 
-    if [ -z $openmp ]; then
-        openmp="no"
-    fi
-    echo "OpenMP: $openmp"
-
-    if [ -z $sharedlib ]; then                     
-        sharedlib="no"                
-    fi
-    echo "SharedLib: $sharedlib"
-
-    if [ -z $profile ]; then                     
-        profile="fast"                
-    fi
-    echo "Compiling profile : $profile"
-
-    if [ -z $iscombining ]; then                     
-        iscombining="no"
+if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
+    # Check if a mechanism without h2o is used.
+    if [ $chemistry != "cb05-ozone" ]; then
+        echo "Please use cb05-ozone as the chemistry mechanism."
+        echo "compile -b=$iscombining -c=cb05-ozone"
+        exit 0
     else
-        # Check whether the given option is accepted.
-        if [[ $iscombining != "h2o" && $iscombining != "user" ]]; then
-            echo "Accepted values are 'h2o' and 'user'."
-            echo "compile -b=h2O -c=cb05-ozone"
-            echo "compile -b=user -c=cb05-ozone"
-            exit 0                
+        cd src/include/CHEMISTRY/$chemistry
+        cwd=$PWD
+        rm -rf combine_files.py replacement_species.py user_defined_scheme.py
+        ln -s ../../../../tools/combine_files.py
+        ln -s ../../../../tools/replacement_species.py
+        ln -s ../../../../tools/user_defined_scheme.py
+        (
+            set -e
+            python3 combine_files.py _ciCB05_poa.species CB05_poa_nospack.reactions $iscombining
+        )
+        errorCode=$?
+        if [ $errorCode -ne 0 ]; then
+            exit $errorCode
         fi
-    fi
-
-    if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
-        # Check if a mechanism without h2o is used.
-        if [ $chemistry != "cb05-ozone" ]; then
-            echo "Please use cb05-ozone as the chemistry mechanism."
-            echo "compile -b=$iscombining -c=cb05-ozone"
-            exit 0
-        else
-            cd src/include/CHEMISTRY/$chemistry
-            cwd=$PWD
-            rm -rf combine_files.py replacement_species.py user_defined_scheme.py
-            ln -s ../../../../tools/combine_files.py
-            ln -s ../../../../tools/replacement_species.py
-            ln -s ../../../../tools/user_defined_scheme.py
-            (
-                set -e
-                python3 combine_files.py _ciCB05_poa.species CB05_poa_nospack.reactions $iscombining
-            )
-            errorCode=$?
-            if [ $errorCode -ne 0 ]; then
-                exit $errorCode
-            fi
-            
-            cd ../../../../
-        fi
+        
+        cd ../../../../
     fi
 fi
 
 file="ssh-aerosol"
 rm -f $file
-
-./cleantmp $chemistry
 
 #=== List of scons options ===
 # profile: fast, debug (default: fast)
@@ -167,7 +126,7 @@ rm -f $file
 #=============================
 
 cd src
-scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$sharedlib genoa=$genoa
+scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$sharedlib
 
 cd ..
 ln -s src/ssh-aerosol ssh-aerosol
@@ -181,15 +140,3 @@ if [[ $iscombining != "no" ]]; then
     echo "--- aerosol species: $cwd/species-list-aer-user.dat"
     echo
 fi
-
-# if [[ $genoa != "fast" && $genoa != "complete" ]]; then # not used for genoa to save time
-#     # Make a link to "species-list.dat" containing the species list.
-#     # This file is automatically generated by SPACK.
-#     cd species-list
-#     file="species-list.dat"
-#     if [ -h $file ] 
-#     then
-#         mv $file $file.bck
-#     fi
-#     ln -s ../src/include/CHEMISTRY/$chemistry/$file
-# fi

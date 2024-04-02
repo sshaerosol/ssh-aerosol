@@ -412,16 +412,6 @@ contains
         total_soa(t_out,1+nout_err+i) = total_soa(t_out,1+nout_err+i) + total_aero_mass(s)
       end do
     end do
-
-    ! round values if need
-    if (iout_round) then
-        do i = 1, nout_total
-            if (total_soa(t_out,i).lt.1d7) then
-                j = anint(total_soa(t_out,i)*1d6)
-                total_soa(t_out,i) = j/1d6
-            end if
-        enddo
-    end if
     
   end subroutine ssh_save_total_soa_genoa
   
@@ -964,20 +954,9 @@ contains
       endif
       ! create new file
       open(unit=100,file=output_filename, status="new")
-      if (iout_round) then
-        do t=1, nt+1
-          ! output total SOA
-          if (total_soa(t,1).lt.1d7) then ! round
-              write(100,'(999E15.6)') (total_soa(t,s), s=1, nout_total)
-          else ! no round
-              write(100,*) (total_soa(t,s), s=1, nout_total)
-          end if
-        enddo
-      else ! no round up
-        do t=1, nt+1
+      do t=1, nt+1
           write(100,*) (total_soa(t,s), s=1, nout_total)
-        enddo
-      endif
+      enddo
       close(100)
     endif
     

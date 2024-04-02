@@ -242,9 +242,6 @@ class Utils:
         self.add_argument("mpi", ["no", "yes"])
         self.add_argument("intel", ["no", "yes"])
         
-        # add for genoa, default no
-        self.add_argument("genoa", ["no", "fast", "complete"])
-        
         has_deprecated_debug = ARGUMENTS["debug"] != "-1" \
                             or ARGUMENTS["debug_cpp"] != "-1" \
                             or ARGUMENTS["debug_fortran"] != "-1"
@@ -612,18 +609,13 @@ to highly recommended debugging and optimization options.
         src_dependencies = self.create_list("src_dependencies")
         exclude_dependency = self.create_list("exclude_dependency")
 
-        #=== Add tag for genoa
-        if ARGUMENTS["genoa"] == "fast" or ARGUMENTS["genoa"] == "complete":
-            tag_genoa = True
-        else: tag_genoa = False #default
-
         for path in include_path:
             src_dependencies += glob.glob(os.path.join(path, "*.[fFcC]"))
             src_dependencies += glob.glob(os.path.join(path, "*.f90"))
             src_dependencies += glob.glob(os.path.join(path, "*.F90"))
             # Comment when spack is turned off.
             #src_dependencies += self.spack.dependency(path, exclude_dependency,
-            #                                          build_dir, tag_genoa)
+            #                                          build_dir)
 
         # In case there is a list of dependencies to be excluded.
         filtered_dependencies = []

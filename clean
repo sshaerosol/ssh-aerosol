@@ -11,12 +11,7 @@ case $i in
     shift
     ;;
 # For genoa
-# Default: genoa = no    
-    -g=*|--genoa=*)
-    genoa="${i#*=}"
-    shift
-    ;;
-# Add an option to clean unused folders/files - only for genoa
+# Add a genoa option to clean unused folders/files
     -gcl=*|--genoaclean=*)
     gclean="${i#*=}"
     shift
@@ -24,62 +19,53 @@ case $i in
 esac
 done
 
-# For GENOA algorithm
-if [ -z $genoa ]; then                     
-    genoa="no"
 
-elif [[ $genoa == "fast" || $genoa == "complete" ]]; then             
-    # Active tag
-    echo "GENOA version : $genoa"
-    # Default to use genoa folder
-    chemistry="genoa"
-    # Clean option
-    if [[ $gclean ]]; then
-        echo -e "Attempting to clean up unused folders/files for GENOA runs. CAUTION: This action cannot be reversed!\n"
-        if [[ $gclean == "cleanall" ]]; then
-            echo "Remove files without asking for further permission ..."
-            cmd="y"
+# Clean option
+if [[ $gclean ]]; then
+    echo -e "Attempting to clean up unused folders/files for GENOA runs. CAUTION: This action cannot be reversed!\n"
+    if [[ $gclean == "cleanall" ]]; then
+        echo "Remove files without asking for further permission ..."
+        cmd="y"
+    else
+        # Add a confirmation from the user before clean to make sure
+        read -p "Are you sure you want to remove ALL items that are not used with the GENOA v3 algorithm? (y/N): " cmd
+    fi
+    # Delete items that fit the patterns - need to be updated
+    if [[ $cmd == [yY] || $cmd == [yY][eE][sS] ]]; then
+        patterns=("README.md" "graph*" "species-list*" "example_*" "results*" "coef_*" "INIT" "inputs" "namelist*" "photolysis" "run_testcase.py" "tools" "src/include/CHEMISTRY/*" "make.sh" "mymodules.sh" "history.md"  "LICENSE"  "Makefile"  "Makefile.hdr")
+        for pattern in "${patterns[@]}"; do
+            echo "Deleting $pattern ..."
+            rm -rf $pattern
+        done
+        # Delete genoa comments from file: src/include/SOAP/species.cxx
+        soap_sfile="src/include/SOAP/species.cxx"
+        if [ -f "$soap_sfile" ]; then
+            # Backup soap file
+            sav_soap_sfile="${soap_sfile}.sav"
+            echo "Saving orignial species.cxx file as $sav_soap_sfile ..."
+            cp "$soap_sfile" "$sav_soap_sfile"
+            
+            # Use awk to skip lines between the start and end markers
+            # Start marker: // GENOA DELETE DETECTOR START //
+            # END marker: // GENOA DELETE DETECTOR END //
+            awk "/\/\/ GENOA DELETE DETECTOR START \/\// {flag=1; next} /\/\/ GENOA DELETE DETECTOR END \/\// {flag=0; next} !flag" "$sav_soap_sfile" > "$soap_sfile"
+            echo "Deletion completed in species.cxx file. Code between 'GENOA DELETE DETECTOR' markers has been removed."
         else
-            # Add a confirmation from the user before clean to make sure
-            read -p "Are you sure you want to remove ALL items that are not used with the GENOA v3 algorithm? (y/N): " cmd
+            echo "File $soap_sfile does not exist. Skip its deletion for the GENOA clean process."
         fi
-        # Delete items that fit the patterns - need to be updated
-        if [[ $cmd == [yY] || $cmd == [yY][eE][sS] ]]; then
-            patterns=("genoa-test*" "graph*" "species-list*" "example_*" "results*" "coef_*" "INIT" "inputs" "namelist*" "photolysis" "run_testcase.py" "tools" "src/include/CHEMISTRY" "make.sh" "mymodules.sh" "history.md"  "LICENSE"  "Makefile"  "Makefile.hdr")
-            for pattern in "${patterns[@]}"; do
-                echo "Deleting $pattern ..."
-                rm -rf $pattern
-            done
-            # Delete genoa comments from file: src/include/SOAP/species.cxx
-            soap_sfile="src/include/SOAP/species.cxx"
-            if [ -f "$soap_sfile" ]; then
-                # Backup soap file
-                sav_soap_sfile="${soap_sfile}.sav"
-                echo "Saving orignial species.cxx file as $sav_soap_sfile ..."
-                cp "$soap_sfile" "$sav_soap_sfile"
-                
-                # Use awk to skip lines between the start and end markers
-                # Start marker: // GENOA DELETE DETECTOR START //
-                # END marker: // GENOA DELETE DETECTOR END //
-                awk "/\/\/ GENOA DELETE DETECTOR START \/\// {flag=1; next} /\/\/ GENOA DELETE DETECTOR END \/\// {flag=0; next} !flag" "$sav_soap_sfile" > "$soap_sfile"
-                echo "Deletion completed in species.cxx file. Code between 'GENOA DELETE DETECTOR' markers has been removed."
-            else
-                echo "File $soap_sfile does not exist. Skip its deletion for GENOA."
-fi
-            echo -e "Clean up is finished. Now SSH-aerosol is ready to be used with the GENOA v3 algorithm.\n"
-        else
-            echo -e "Clean up canceled by the user.\n"
-        fi
+        echo -e "Clean up is finished.\n"
+    else
+        echo -e "Clean up canceled by the user.\n"
     fi
 fi
 
 if [ -z $chemistry ]; then
     chemistry="cb05"
 fi
-echo "Chemistry: $chemistry"
+#echo "Chemistry: $chemistry"
 
 cd src
-scons -c chemistry=$chemistry genoa=$genoa
+scons -c chemistry=$chemistry
 
 rm -f `find -iname "*.bck"` 
 rm -f `find -iname "*.o"`
