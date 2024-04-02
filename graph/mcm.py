@@ -21,7 +21,7 @@ tiny=1E-19
 
 fig = plt.figure()
 for ind,fn in enumerate(filename):
-    with open(fn+'/aero/Organic.txt') as f: soa = f.read().splitlines()
+    with open(fn+'/aero/Organic.5.txt') as f: soa = f.read().splitlines()
     with open(fn+'/gas/BCARY.txt') as f: voc = f.read().splitlines()
     nt = len(soa)
     data = np.zeros(nt)
