@@ -3191,6 +3191,14 @@ contains
     hetero_ind = 0
     irdi_ind = 0    
 
+    !!!! (To do) Move to namelist
+    if (nsza == 2) then
+       szas = [0.0d0, 9.0d1]
+    else if (nsza == 11) then
+       szas = [0d0,1d1,2d1,3d1,4d1, &
+            5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
+    endif
+
     rewind(11)  ! Reset the file position
 
     ! recount size
@@ -3507,19 +3515,10 @@ contains
                 ipho = ipho + 1
                 photo_rcn(ipho,1) = iknc
 
-                !!!! (To do) Move to namelist
-                if (nsza == 2) then
-                   szas = [0.0d0, 9.0d1]
-                else if (nsza == 11) then
-                   szas = [0d0,1d1,2d1,3d1,4d1, &
-                        5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
-                endif
-
                 ! id: negative in photo_ratio_read
                 ipho_t = ipho_t + 1
                 photo_rcn(ipho,2) = -ipho_t
 
-                
                 if (finish.eq.nsza .or. finish.eq.nsza+1) then ! in-list tabulation
   
                     ! read tabulation
