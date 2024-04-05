@@ -1,7 +1,7 @@
 module mod_sshchemkinetic
   
   use aInitialization, only : attenuation, n_gas, &
-       relative_humidity, &
+       relative_humidity, tag_genoa, &
                           humidity, temperature, pressure, &
                           photo_rcn, TB_rcn, fall_rcn, extra_rcn, &
                           index_RCT, index_PDT, index_PDT_ratio, &
@@ -530,12 +530,12 @@ subroutine ssh_update_kinetic_pho(azi)
        ! Cloud attenuation.
        kinetic_rate(j) = Arrhenius(j,1) * max(photo*attenuation, 0.d0) ! add a ratio
     enddo
-  else if (azi .ge. 90.d0) then
+  else if (tag_genoa.eq.0 .and. azi .ge. 90.d0) then ! CAUTION: not for all photolysis kinetics
     do i=1, size(photo_rcn,1)
        j = photo_rcn(i,1) ! reaction index
        k = photo_rcn(i,2) ! pholysis index
        ik = abs(k)
-       kinetic_rate(j) = photo_ratio_read(ik,nsza)
+       kinetic_rate(j) = photo_ratio_read(ik,nsza) ! No photo_ratio_read for PHOT from file !
      enddo
   else ! no photolysis
     do i=1, size(photo_rcn,1) ! no.TB reactions
