@@ -69,14 +69,15 @@ PROGRAM SSHaerosol
 
       ! Read #3 input for init id
       if (iargc() .ge. 3) then
+        call getarg(3, ivoc0)
         initID = trim(adjustl(ivoc0))
         print*,"Read init ID: ", trim(initID)
         ! Read #4 and #5 inputs for chem id & res id
         if (iargc() .ge. 5) then
-          call getarg(3,ivoc0)
+          call getarg(4,ivoc0)
           chemID = trim(adjustl(ivoc0))
           chemID2 = trim(chemID)//"/"//trim(chemID)
-          call getarg(4,ivoc0)
+          call getarg(5,ivoc0)
           resID = trim(adjustl(ivoc0))
           print*, "Read chem & result IDs:",trim(chemID)," ",trim(resID) 
         endif
