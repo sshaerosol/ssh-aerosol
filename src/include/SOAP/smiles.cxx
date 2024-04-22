@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include "smiles-functions.cxx"
+#include <sstream>
 using namespace ssh_soap;
 
 void get_smiles(model_config &config, vector<species>& surrogate)
@@ -23,6 +24,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
     outFlux=config.SOAPlog;
   
   std::ofstream fileFlux;
+  
   if (outFlux==2)
     fileFlux.open("smile2UNIFAC.decomp", ios::out); 
 
@@ -183,6 +185,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	int ngr=surrogate[i].smile.length();
         int total_c=0;
         int total_o=0;
+	int icycle;
+	int icycle2;
         for (igr=0;igr<ngr;igr++)
            {
 	     if (surrogate[i].smile.substr(igr,1)=="O")
@@ -194,6 +198,319 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	     if (surrogate[i].smile.substr(igr,1)=="C")
 	       total_c++;
 	   }
+
+	int found_arom=1;
+	while (found_arom==1)
+	  {
+	    found_arom=0;
+	    for (icycle=0;icycle<5;icycle++)
+	      {
+	    
+		std::stringstream ss;
+		ss << icycle+1;
+		std::string s = ss.str();
+		//cout << "C"+s << endl;
+		int found=0;
+		int igr1=-1;
+		int igr2=-1;
+		int check_consecutive_double=-1;
+		//cout << "Search: C"+s << endl;
+		for (igr=0;igr<ngr;igr++)
+		  {
+		    if ((surrogate[i].smile.substr(igr,2)=="C"+s or surrogate[i].smile.substr(igr,2)=="c"+s) and found==0)
+		      {
+			//cout << icycle << " " << igr << " " << "C"+s << endl;
+			found++;
+			igr1=igr;
+		      }
+		    else if ((surrogate[i].smile.substr(igr,2)=="C"+s or surrogate[i].smile.substr(igr,2)=="C"+s) and found==1)
+		      {
+			//cout << icycle << " " << igr << " " << "C"+s << endl;
+			found++;
+			igr2=igr;
+		      }
+		    else
+		      {
+			for (icycle2=0;icycle2<5;icycle2++)
+			  if (icycle!=icycle2)
+			    {
+			      std::stringstream ss2;
+			      ss2 << icycle2+1;
+			      std::string s2 = ss2.str();
+			      //cout << "C"+s2+s << endl;
+			      if ((surrogate[i].smile.substr(igr,3)=="C"+s+s2 or surrogate[i].smile.substr(igr,3)=="C"+s2+s) and found==0)
+				{
+				  //cout << icycle << " " << igr << " " << "C"+s << endl;
+				  found++;
+				  igr1=igr;
+				}
+			      else if ((surrogate[i].smile.substr(igr,3)=="C"+s+s2 or surrogate[i].smile.substr(igr,3)=="C"+s2+s) and found==1)
+				{
+				  //cout << icycle << " " << igr << " " << "C"+s << endl;
+				  found++;
+				  igr2=igr;
+				}
+			      else if ((surrogate[i].smile.substr(igr,3)=="c"+s+s2 or surrogate[i].smile.substr(igr,3)=="c"+s2+s) and found==0)
+				{
+				  //cout << icycle << " " << igr << " " << "C"+s << endl;
+				  found++;
+				  igr1=igr;
+				}
+			      else if ((surrogate[i].smile.substr(igr,3)=="c"+s+s2 or surrogate[i].smile.substr(igr,3)=="c"+s2+s) and found==1)
+				{
+				  //cout << icycle << " " << igr << " " << "C"+s << endl;
+				  found++;
+				  igr2=igr;
+				}
+			    }
+		      }
+		  }
+
+
+	    
+		if (igr1>-1 and igr2>-1)
+		  {
+		    vector <int> Carom_position,Carom_dbound;
+		    //Carom_position.push_back(igr2);
+		    double ndouble=0;
+		    int nC=1;
+		    igr=igr2+1;
+		    found=0;
+		    for (icycle2=0;icycle2<5;icycle2++)
+		      {
+			std::stringstream ss2;
+			ss2 << icycle2+1;
+			std::string s2 = ss2.str();
+			//cout << "C"+s2+s << endl;
+			if (surrogate[i].smile.substr(igr+1,1)==s2)
+			  {
+			    found++;
+			  }
+		      }
+		    if (found==1)
+		      igr++;
+
+		    
+		    int igrn;
+		    if (surrogate[i].smile.substr(igr1,1)=="c")
+		      ndouble+=0.5;
+		    while (igr>igr1)
+		      {
+			int igrf=igr;
+			//cout << igr << " " << igr1 << " " << surrogate[i].smile.substr(igr,1) << endl;
+			for (icycle2=0;icycle2<5;icycle2++)
+			  {
+			    std::stringstream ss;
+			    ss << icycle2+1;
+			    std::string s = ss.str();
+			    if (surrogate[i].smile.substr(igr,1)==s)
+			      {
+				if (icycle2==icycle)
+				  igrf--;
+				else
+				  {
+				    int igrm=-1;
+				    for (igrn=igr-2;igrn>igr1;igrn--)
+				      {
+					if (surrogate[i].smile.substr(igrn,2)=="C"+s or surrogate[i].smile.substr(igrn,2)=="c"+s)
+					  {
+					    igrm=igrn;
+					    //if (igrm!=igr-1 and igrm!=
+					    //cout << "Jump loop to " << igrm << " from " << igr << endl;
+					    /*
+					      if (surrogate[i].smile.substr(igr-2,2)=="=C")
+					      {
+					      //ndouble+=1;
+					      nC+=1;
+					      }*/
+					    found=0;
+					    int igrb=igr-1;
+					    for (icycle2=0;icycle2<5;icycle2++)
+					      {
+						std::stringstream ss2;
+						ss2 << icycle2+1;
+						std::string s2 = ss2.str();
+						//cout << "C"+s2+s << endl;
+						if (surrogate[i].smile.substr(igrb,1)==s2)
+						  {
+						    found++;
+						  }
+					      }
+					    if (found==1)
+					      igrb--;
+					    
+					    if (surrogate[i].smile.substr(igrb,1)=="C")
+					      {
+						check_consecutive_double--;
+						//cout << "C in " << igrb << endl;
+						nC+=1;
+					      }
+					    if (surrogate[i].smile.substr(igrb,1)=="c")
+					      {
+						check_consecutive_double--;
+						nC+=1;
+						ndouble+=0.5;
+					      }					
+					  }
+				      }
+
+				    if (igrm<0 or igrm<=igr1)
+				      igrf--;
+				    else
+				      igrf=igrm;
+				  }
+			      }
+			  }
+			if (surrogate[i].smile.substr(igr,1)=="O" or surrogate[i].smile.substr(igr,1)=="N")
+			  {
+			    //cout << "O or N found in " << igr << endl;
+			    nC=0;
+			    igrf=0;
+			  }
+			if (surrogate[i].smile.substr(igr,1)=="C")
+			  {
+			    //cout << "C in " << igr << endl;
+			    nC++;
+			    igrf=igr-1;
+			    Carom_position.push_back(igr);
+			    check_consecutive_double--;
+			  }
+			if (surrogate[i].smile.substr(igr,1)=="c")
+			  {
+			    //cout << "c in " << igr << endl;
+			    nC++;
+			    ndouble=ndouble+0.5;
+			    igrf=igr-1;
+			    check_consecutive_double--;
+			  }		    
+			if (surrogate[i].smile.substr(igr,1)=="=")
+			  {
+			    if (check_consecutive_double>0)
+			      {
+				//cout << "warning consecutive" << endl;
+				igr=0;
+				ndouble=0;
+				nC=0;
+			      }
+			    //cout << "= in " << igr << endl;
+			    ndouble++;
+			    igrf=igr-1;
+			    Carom_dbound.push_back(igr);
+			    check_consecutive_double=2;
+			  }
+			if (surrogate[i].smile.substr(igr,1)=="(")
+			  {
+			    igrf=igr-1;
+			  }
+			if (surrogate[i].smile.substr(igr,1)==")")
+			  {
+			    //cout << "ramification" << endl;
+			    int ipar=0;
+			    for (igrn=igr-1;igrn>igr1;igrn--)
+			      {			
+				if (ipar==0 and surrogate[i].smile.substr(igrn,1)=="(")
+				  {
+				    ipar=igrn;
+				    igrn=-1;
+				  }
+				else if (ipar<0 and surrogate[i].smile.substr(igrn,1)=="(")			
+				  ipar=ipar+1;
+				else if (ipar<=0 and surrogate[i].smile.substr(igrn,1)==")")
+				  {
+				    //cout << "une ramification s'est ouverte" << endl;
+				    ipar=ipar-1;
+				  }
+			      }
+			    igrf=ipar;
+			  }
+			igr=igrf;
+		      }
+
+		    //cout << "carbon and double bounds in loop: " << nC << " " << ndouble << endl;
+		    if (nC==6 and ndouble>2.2 and int(Carom_dbound.size())>0)
+		      {
+			//cout << nC << " " << ndouble << endl;
+			//cout << "aromatic ring detected" << endl;
+			found_arom=1;
+			//cout << "Carom: " << endl;
+			Carom_position.push_back(igr1);
+			/*for (igr=0;igr<int(Carom_position.size());igr++)
+			  cout << "Arom " << igr << " " << Carom_position[igr] << endl;
+
+			for (igr=0;igr<int(Carom_dbound.size());igr++)
+			  cout << "Double to remove " << igr << " " << Carom_dbound[igr] << endl;
+
+			  cout << int(Carom_dbound.size()) << endl;*/
+			surrogate[i].smile=smile_save.substr(0,igr1);
+			nC=0;
+			ndouble=0;
+			//cout << "next arom: " << Carom_position[int(Carom_position.size())-1-nC] << endl;
+			//cout << "next double: " << Carom_dbound[int(Carom_dbound.size())-1-ndouble] << endl;
+			for (igr=igr1;igr<=igr2;igr++)
+			  {
+			    if (Carom_position[int(Carom_position.size())-1-nC]==igr)
+			      {
+
+				surrogate[i].smile+="c";
+				if (nC<int(Carom_position.size())-1)
+				  {
+				    nC++;
+				    //cout << "next arom: " << Carom_position[int(Carom_position.size())-1-nC] << endl;
+				  }
+			      }
+			    else if (Carom_dbound[int(Carom_dbound.size())-1-ndouble]==igr)
+			      {
+				if (ndouble<int(Carom_dbound.size())-1)
+				  {
+				    ndouble++;
+				    //cout << "next double: " << Carom_dbound[int(Carom_dbound.size())-1-ndouble] << endl;
+				  }
+			      }
+			    else
+			      surrogate[i].smile+=smile_save.substr(igr,1);
+			  }
+			surrogate[i].smile+=smile_save.substr(igr2+1,ngr-igr2);
+			//cout << "update: " << surrogate[i].smile << " " << smile_save << endl;
+			//exit(0);
+			smile_save=surrogate[i].smile;
+			ngr=surrogate[i].smile.length();
+		      }
+		  }
+	   
+	      }
+	  }
+	//exit(0);
+
+	//cout << surrogate[i].smile << endl;
+	//Reposition loop number (for example C32 is replace by C23)
+	for (icycle=0;icycle<5;icycle++)
+	  {
+	    
+	    std::stringstream ss;
+	    ss << icycle+1;
+	    std::string s = ss.str();
+	    for (icycle2=icycle+1;icycle2<5;icycle2++)
+	      {
+		std::stringstream ss2;
+		ss2 << icycle2+1;
+		std::string s2 = ss2.str();
+		//cout << s2+s << endl;
+		for (igr=0;igr<ngr;igr++)
+		  {
+		    
+		    if (surrogate[i].smile.substr(igr,2)==s2+s)
+		      {
+			//cout << "found " << endl;
+			surrogate[i].smile=smile_save.substr(0,igr)+s+s2+smile_save.substr(igr+2,ngr-igr-3);
+		      }
+		  }
+	      }
+	  }
+	//cout << surrogate[i].smile << endl;
+	smile_save=surrogate[i].smile;
+	ngr=surrogate[i].smile.length();
+
+	//exit(0);
 
 	carbon_arom.resize(ngr+3);
 	carbon_alcool.resize(ngr+3);
@@ -635,6 +952,86 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		last_pos=igr+3;
 		carbon_arom(0)=1;
 		ipos=ipos+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c12")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,0)=1;
+		carbon_cycle(ipos,1)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c13")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,0)=1;
+		carbon_cycle(ipos,2)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c14")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,0)=1;
+		carbon_cycle(ipos,3)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c15")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,0)=1;
+		carbon_cycle(ipos,4)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c23")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,1)=1;
+		carbon_cycle(ipos,2)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c24")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,1)=1;
+		carbon_cycle(ipos,3)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c25")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,1)=1;
+		carbon_cycle(ipos,4)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c34")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,2)=1;
+		carbon_cycle(ipos,3)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c35")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,2)=1;
+		carbon_cycle(ipos,4)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
+	      }
+	    else if (surrogate[i].smile.substr(igr,3)=="c45")
+	      {
+		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"C";
+		carbon_cycle(ipos,3)=1;
+		carbon_cycle(ipos,4)=1;		
+		carbon_arom(ipos)=1;
+		last_pos=igr+3;
 	      }
 	    else if (surrogate[i].smile.substr(igr,2)=="c1")
 	      {
@@ -1112,7 +1509,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  if (surrogate[i].smile.substr(igr,1)=="e")
 	    {
 	      if (debug_mode==1) cout << "la e " << endl;
-	      int icycle;
+
 	      for (icycle=0;icycle<5;icycle++)
 		if (carbon_cycle(igr,icycle)>0)
 		  for (igr2=0;igr2<ngr;igr2++)
@@ -1179,7 +1576,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    {
 	      carbon_taken(igr)++;
 	      if (debug_mode==1) cout << "la f " << endl;
-	      int icycle;
+	     
 	      for (icycle=0;icycle<5;icycle++)
 		if (carbon_cycle(igr,icycle)>0)
 		  for (igr2=0;igr2<ngr;igr2++)
@@ -1237,7 +1634,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    else if (surrogate[i].smile.substr(0,2)=="LK" and sum_len_group==0)
 	      {
 		if (debug_mode==1) cout << "C0 " << endl;
-		int icycle;
+        
 		/*
 		carbon_ketone(sum_len_group,iket)=1;
 		carbon_ketone(sum_len_group+2,iket)=1;
@@ -1362,8 +1759,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		carbon_taken(sum_len_group+1)=1;
 		int igrloc=2;
 		int igrl=-1;
-		int icycle;
-
+		
 		if (surrogate[i].smile.substr(igrloc,1)=="G" and surrogate[i].smile.substr(igrloc,4)!="GC=O")
 		  {
 		    if (debug_mode==1) cout << "is GKG" << endl;
@@ -1583,7 +1979,6 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    
 	    else if (surrogate[i].smile.substr(0,1)=="L" and (surrogate[i].smile.substr(0,2)!="LO" or surrogate[i].smile.substr(0,3)=="LOO") and surrogate[i].smile.substr(0,2)!="LF" and surrogate[i].smile.substr(0,2)!="LE")
 	      {
-		int icycle;
 		len_group=1;
 		previous="C";
 		if (debug_mode==1) cout << "Lbegin" << endl;	       
@@ -2294,7 +2689,6 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		int nitrite=0;
 		int ester=0;
 		int arom=0;		
-		int icycle;
 		if (will_be_ester==1)
 		  {
 		    will_be_ester=0;
@@ -2342,16 +2736,23 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  }
 		else
 		  {
-		    nC=1;
+		    //cout << "Ncycle on carbon " << carbon_cycle(sum_len_group,0)+carbon_cycle(sum_len_group,1)+carbon_cycle(sum_len_group,2)+carbon_cycle(sum_len_group,3)+carbon_cycle(sum_len_group,4) << endl;
+		    nC=2-(carbon_cycle(sum_len_group,0)+carbon_cycle(sum_len_group,1)+carbon_cycle(sum_len_group,2)+carbon_cycle(sum_len_group,3)+carbon_cycle(sum_len_group,4));
+		    if (previous!="")
+		      nC=nC-1;
 		    if (carbon_arom(sum_len_group+1)==1)
 		      nC=nC+1;
 		    if (surrogate[i].smile.substr(0,3)=="C(C" and carbon_arom(sum_len_group+2)==1)
 		      nC=nC+1;
+		    if (surrogate[i].smile.substr(1,1)==")")
+		      nC=nC+1;		    
 		    if (linked_to_arom(sum_len_group)==1)
 		      {
 			//if (debug_mode==1) cout << "found" << endl;
 			nC=0;
 		      }
+
+		    
 		      
 		    //nC=nC-(carbon_cycle(sum_len_group,0)+carbon_cycle(sum_len_group,1)+carbon_cycle(sum_len_group,2)+carbon_cycle(sum_len_group,3)+carbon_cycle(sum_len_group,4));
 		    /*
@@ -2526,6 +2927,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			if (debug_mode==1) cout << "double A " << endl;
 			is_double=1;
 		      }
+		    
 		    if (surrogate[i].smile.substr(1,1)!="=" and surrogate[i].smile.substr(1,1)!="" and surrogate[i].smile.substr(1,1)!=")")
 		      {
 			nC=nC-1;
@@ -2533,11 +2935,14 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 
 		  }
 
+		//cout << nC << endl;
 		if (is_double>0)
 		  nC=nC-2;
 		else if (will_be_double==1)
 		  nC=nC-1;
 		carbon_nh(sum_len_group)=nC;
+		//cout << nC << endl;
+		//exit(0);
 		
 		if (ester>0)
 		  {
@@ -3025,7 +3430,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		if (debug_mode==1) cout << "LO " << endl;
 		len_group=2;
 		carbon_ester(sum_len_group)=1;
-		int icycle;
+		
 		for (icycle=0;icycle<5;icycle++)
 		  if (carbon_cycle(sum_len_group,icycle)>0)
 		    for (igr=0;igr<ngr;igr++)
@@ -3480,25 +3885,26 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	      carbon_hydrogen(igr)=-1;
 	      carbon_taken(igr)=1;
 	    }
-	
+
+	//cout << carbon_nh << " " << carbon_arom << endl;
+	//exit(0);
 	for (igr=0;igr<ngr;igr++)
 	  if (carbon_arom(igr)==1)
 	    {
 	      //if (debug_mode==1) cout << "ici" << endl;
 	      if (carbon_nh(igr)==1)
 		{
-		  //if (debug_mode==1) cout << "aromatic carbon with one hydrogen" << endl;		 
+		  if (debug_mode==1) cout << "aromatic carbon with one hydrogen" << " " << igr << endl;		 
 		  surrogate[i].groups[21]++;
+		  //exit(0);
 		}
 	      else 
 		{
-		  //if (debug_mode==1) cout << "aromatic carbon with no hydrogen" << endl;	     
+		  if (debug_mode==1) cout << "aromatic carbon with no hydrogen" << " " << igr << endl;	     
 		  surrogate[i].groups[22]++;
 		}
 	    }
 
-
-	int icycle;
 	//for (igr3=0;igr3<ngr;igr3++)
 	for (igr=0;igr<ngr;igr++)
 	  {

@@ -59,13 +59,25 @@ void get_branch(int &debug_mode, model_config &config, vector<species>& surrogat
 
       if (surrogate[i].smile.substr(ipar+1,1)=="O" and ipar+1==int(surrogate[i].smile.length())-1)
 	{
-	  if (debug_mode==1) cout << "alcool1 " << sum_len_group+ipar+1 << endl;
-	  carbon_alcool(sum_len_group)++;
+	  if (debug_mode==1) cout << "alcool1 " << sum_len_group+ipar+1 << " " << arom << endl;
+	  if (arom==1)
+	    {
+	      carbon_arom(sum_len_group)=0;
+	      surrogate[i].groups[28]+=1;
+	    }
+	  else
+	    carbon_alcool(sum_len_group)++;
 	}
       if (surrogate[i].smile.substr(ipar+1,2)=="O)")
 	{
-	  if (debug_mode==1) cout << "alcool2 " << sum_len_group+ipar+1 << endl;
-	  carbon_alcool(sum_len_group)++;
+	  if (debug_mode==1) cout << "alcool2 " << sum_len_group+ipar+1 << " " << arom << endl;
+	  if (arom==1)
+	    {
+	      carbon_arom(sum_len_group)=0;
+	      surrogate[i].groups[28]+=1;
+	    }
+	  else
+	    carbon_alcool(sum_len_group)++;
 	}
     }
 
