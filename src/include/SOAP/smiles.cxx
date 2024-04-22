@@ -2745,7 +2745,10 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    if (surrogate[i].smile.substr(0,3)=="C(C" and carbon_arom(sum_len_group+2)==1)
 		      nC=nC+1;
 		    if (surrogate[i].smile.substr(1,1)==")")
-		      nC=nC+1;		    
+		      nC=nC+1;
+		    if (sum_len_group==int(smile_save.length())-1)		      			
+		      nC=nC+1;		      
+		    
 		    if (linked_to_arom(sum_len_group)==1)
 		      {
 			//if (debug_mode==1) cout << "found" << endl;
