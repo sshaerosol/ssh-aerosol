@@ -118,7 +118,7 @@ void add_generic_species_ssh(model_config &config,
   // Find the number in the aerosol species list  
   for (int i = 0; i < nsp; ++i)
     if (aerosol_type[i]==4)
-      {
+      {	
 	found=0;
 	for (j=0;j<n;j++)
 	  if (species_list_aer[i].substr(1,-1) == surrogate[j].name)
@@ -193,7 +193,10 @@ void add_generic_species_ssh(model_config &config,
 	    X.soap_ind = i;
 	    X.soap_ind_aero = (i-N_start) * (nlayer-1+i_hydrophilic) + i;
 	    X.is_generic=true;
-	    surrogate.push_back(X);	  
+	    X.is_ion=false;
+	    X.is_solvent=true;
+	    X.catalyzed_ph=false;	   
+	    surrogate.push_back(X);
 	  }
       }
   /*
