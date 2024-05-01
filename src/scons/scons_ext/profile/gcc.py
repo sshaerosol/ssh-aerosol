@@ -77,8 +77,8 @@ def fast(utils):
     """
     p = _warning(utils)
     p.flag_compiler += " -O2"
-    # It is required 
-    # p.flag_compiler += " -fPIC" 
+    # It is required for gfortran 13 
+    p.flag_compiler += " -fPIC" 
     # p.flag_compiler += " -march=native"
     # using -march=native leads to a more CPU time in polair3d simulations.
     # It is moved to the "debug" profile. Its using needs to be tested (YK).
