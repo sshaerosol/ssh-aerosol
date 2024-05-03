@@ -290,9 +290,6 @@ class Utils:
         cpp_compiler = self.create_variable("cpp_compiler", None)
         fortran_compiler = self.create_variable("fortran_compiler", None)
         linker = self.create_variable("linker", "$CXX")
-
-        # default fortran compiler
-        fortran_compiler = "gfortran"
         
         if ARGUMENTS["intel"] == "yes":
             c_compiler = "icc"
