@@ -4,8 +4,8 @@ for i in "$@"
 do
 case $i in
 # Read the option for Chemistry kinetic mechanism.
-# Accepted values: racm, racm2, cb05, melchior2
-# Default: chemistry=cb05
+# Accepted values: cb05-ozone
+# Default: chemistry=cb05-ozone
     -c=*|--chemistry=*)
     chemistry="${i#*=}"
     shift
@@ -55,7 +55,7 @@ ulimit -s unlimited
 
 
 if [ -z $chemistry ]; then
-    chemistry="cb05"
+    chemistry="cb05-ozone"
 fi
 # echo "Chemistry: $chemistry"
 
