@@ -742,14 +742,16 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
            END DO
            if(aam.GT.TINYM) then
                Qtotal = 0.D0
-               DO jesp = 1,naer
+               DO jesp = 1,naer-1
                   qnew(1,jesp) = qnew(1,jesp) + qesp(js2,jesp)
                   Qtotal = Qtotal + qnew(1,jesp)
                END DO
+               jesp = naer
+               qnew(1,jesp) = qnew(1,jesp)+qesp(js2,jesp)
                if (with_fixed_density .eq. 0) then
                   CALL ssh_compute_density(ns,naer, EH2O,TINYM,qnew,LMD,1,rho(1))
                endif
-               Nnew(1) =  Nnew(1) + Qtotal/CST/rho(1)/fixed_diameter(1)**3                
+               Nnew(1) =  Qtotal/CST/rho(1)/fixed_diameter(1)**3                
             endif
         ELSEIF (j1hi.GE.NS) THEN ! use Euler-Mass for the last section
            Qtotal = 0.D0
@@ -793,33 +795,20 @@ SUBROUTINE SSH_REDIST_EULERCOUPLE(ns,naer,n,qesp,with_fixed_density,fixed_densit
 
   !******turn back to conc vector
   DO js1=1,NS
-     Do jj=1,naer
-        qesp(js1,jj)=qnew(js1,jj)
-     Enddo
-     N(js1) = Nnew(js1)
-  END DO
-  DO js1=1,NS
      aam = 0.d0
      Do jj=1,naer-1
+        qesp(js1,jj)=qnew(js1,jj)
         aam = aam + qesp(js1,jj)
      Enddo
+     qesp(js1,naer)=qnew(js1,naer)
      if (with_fixed_density .eq. 0) then
         CALL ssh_compute_density(ns,naer, EH2O,TINYM,qesp,LMD,js1,rho(js1))
      endif
-     if(aam.GT.TINYM.AND.N(js1).GT.TINYN) then
-        diam(js1) = (aam/CST /rho(js1)/N(js1))**(1.D0/3.D0)
-!        write(*,*) 'diameter final',js1,diam(js1)
-     else
-        diam(js1) = (dbound(js1)*dbound(js1+1))**0.5d0 !fixed_diameter(js1)
-!         write(*,*) 'diameter final',js1,diam(js1)
-    endif
-!     if(diam(js1).LT.dbound(js1)) then
-!        write(*,*) 'EULERCOUPLE: diam lower than bound',diam(js1),dbound(js1),aam,rho(js1),N(js1),js1
-!     endif
-!     if(diam(js1).GT.dbound(js1+1)) then
-!        write(*,*) 'EULERCOUPLE: diam higher than bound',diam(js1),dbound(js1+1),aam,rho(js1),N(js1),js1
-!     endif
+     diam(js1) = (dbound(js1)*dbound(js1+1))**0.5d0 !fixed_diameter(js1)
+     Nnew(js1) =  aam/CST/rho(js1)/diam(js1)**3                
+     N(js1) = Nnew(js1)
   ENDDO
+  
 END SUBROUTINE SSH_REDIST_EULERCOUPLE
 !**************************************************
 SUBROUTINE SSH_REDIST_MOVINGDIAM(ns,naer,n,q,with_fixed_density,fixed_density,rho,LMD,dbound,fixed_diameter,diam,EH2O)
