@@ -96,9 +96,9 @@ if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
         cd src/include/CHEMISTRY/$chemistry
         cwd=$PWD
         rm -rf combine_files.py replacement_species.py user_defined_scheme.py
-        ln -s ../../../../tools/combine_files.py
-        ln -s ../../../../tools/replacement_species.py
-        ln -s ../../../../tools/user_defined_scheme.py
+        ln -s ../../../script/combine_files.py
+        ln -s ../../../script/replacement_species.py
+        ln -s ../../../script/user_defined_scheme.py
         (
             set -e
             python3 combine_files.py _ciCB05_poa.species CB05_poa_nospack.reactions $iscombining
