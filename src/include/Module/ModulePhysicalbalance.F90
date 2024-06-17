@@ -26,26 +26,35 @@ contains
 !------------------------------------------------------------------------   
     implicit none
     integer::k,s,j,jesp
-    double precision::mass_total
+    double precision::mass_total,rhoaer
     double precision::volum_cell,av_volum_cl
 
-    !call compute_all_density()!renew the density of each bin
-
+    if (with_fixed_density.eq.0) then
+       CALL ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,mass_density_layers,j,rhoaer)
+    endif
+       
     do j= 1, N_size
-       k=concentration_index(j, 1)!size bins
-       cell_diam_av(j)=size_diam_av(k)
-       volum_cell=0.d0
-       mass_total =0.d0
-       do s=1,N_aerosol_layers
-	jesp=List_species(s)
-        !if(aerosol_species_name(jesp).NE.'PH2O') then
+        k=concentration_index(j, 1)!size bins
+        cell_diam_av(j)=size_diam_av(k)
+        volum_cell=0.d0
+        mass_total =0.d0
+        if (with_fixed_density.eq.0) then
+          CALL ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,mass_density_layers,j,rhoaer)
+          if(rhoaer.LT.0.1d-6) rhoaer=fixed_density
+        else
+          rhoaer = fixed_density
+        endif
+        do s=1,N_aerosol_layers-1
+	  jesp=List_species(s)
+         !if(aerosol_species_name(jesp).NE.'PH2O') then
           mass_total = mass_total + concentration_mass(j,s)
           mass_total_grid (j) =mass_total
-	  if(mass_density(jesp).gt.0.d0) then
-             volum_cell=volum_cell+concentration_mass(j,s)/mass_density(jesp)
-	  endif
+	 ! if(mass_density(jesp).gt.0.d0) then
+         !    volum_cell=volum_cell+concentration_mass(j,s)/mass_density(jesp)
+	 ! endif
 	 !endif
-	enddo
+        enddo
+        volum_cell = mass_total/rhoaer
 	if (concentration_number(j).gt.0.d0) then
           av_volum_cl=dble(volum_cell)/dble(concentration_number(j))
 	  cell_diam_av(j)  = (6.d0*av_volum_cl/pi)**(1.D0/3.D0) ! µm
