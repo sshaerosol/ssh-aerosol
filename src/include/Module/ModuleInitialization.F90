@@ -1195,12 +1195,12 @@ contains
        ! with_fixed_density = 0 by default
        ! if it is not given in namelist
        if (with_fixed_density == -999) then
-          with_fixed_density = 0
+          with_fixed_density = 1
        endif
        ! fixed_density = 1.84d-06 by default
        ! if it is not given in namelist
        if (fixed_density == -999.d0) then
-          fixed_density = 1.84d-06
+          fixed_density = 1.4d-06
        endif
        ! splitting = 1 by default
        ! if it is not given in namelist
