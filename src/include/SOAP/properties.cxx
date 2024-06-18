@@ -26,11 +26,15 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
   X_unifac.resize(config.nmol_aq);
   gamma_unifac.resize(config.nmol_aq);
   double viscosity=0.;
-  bool verbose = false;
-  std::ofstream outFlux;  
-  if (config.SOAPlog==2)
+  std::ofstream henryFlux;
+  if (config.SOAPlog==1)
     {
-      outFlux.open("henryfromSOAP.dat", ios::out);
+      cout << "#Species     Henry_cst(M.atm-1)    at Tref(K)" << endl;
+    }
+  else if (config.SOAPlog==2)
+    { 
+      henryFlux.open("henry.soap", ios::out);
+      henryFlux << "#Species     Henry_cst(M.atm-1)    at Tref(K)" << endl;
     }
 
   for (i=0;i<n;++i)
@@ -84,13 +88,11 @@ void compute_gamma_infini_ssh(model_config &config, vector<species>& surrogate)
           if (surrogate[i].Henry <= tiny_henry)
             {
 	      surrogate[i].Henry=1000.0*760.0/(18.0*surrogate[i].GAMMAinf*surrogate[i].Psat_ref);
-              if (verbose == true)
-                {
-                  if (config.SOAPlog==1)
-                    cout << surrogate[i].name << " " << surrogate[i].Henry << endl;
-                  else if (config.SOAPlog==2)
-                    outFlux << surrogate[i].name << " " << surrogate[i].Henry << endl;
-                }
+              
+              if (config.SOAPlog==1)
+                cout << surrogate[i].name << "       " << surrogate[i].Henry << "       " << surrogate[i].Tref << endl;
+              else if (config.SOAPlog==2)
+                henryFlux << surrogate[i].name << "       " << surrogate[i].Henry << "       " << surrogate[i].Tref << endl;
 	    }
         }
       else

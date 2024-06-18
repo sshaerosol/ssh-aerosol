@@ -18,15 +18,16 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 
   // output flux: 1=screen, 2=file
   int outFlux;
-  if (config.SOAPlog==3)
+  
+  if (config.SOAPlog==3)  // if SOAPlog=3, stop SSH-aerosol after the SMILES decomposition
     outFlux=1;
   else
     outFlux=config.SOAPlog;
   
-  std::ofstream fileFlux;
+  std::ofstream smileFlux;
   
   if (outFlux==2)
-    fileFlux.open("smile2UNIFAC.decomp", ios::out); 
+    smileFlux.open("smile2UNIFAC.soap", ios::out); 
 
   Array<string,1> name_group;
   Array<int, 1> nc_group,no_group;
@@ -162,8 +163,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	  }
 	else if (outFlux==2)
 	  {
-	    fileFlux <<"===="<< i <<"===="<<endl;
-	    fileFlux << surrogate[i].name << " is constructed from smiles: " << surrogate[i].smile << endl;
+	    smileFlux <<"===="<< i <<"===="<<endl;
+	    smileFlux << surrogate[i].name << " is constructed from smiles: " << surrogate[i].smile << endl;
 	  }
 		
 	for (j=0; j<60; j++)
@@ -1178,8 +1179,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  }
 		else if (outFlux == 2)
 		  {
-		    fileFlux << "WARNING: group OOC(=O) not available" << endl;
-		    fileFlux << "Group OC(=O) used instead" << endl;
+		    smileFlux << "WARNING: group OOC(=O) not available" << endl;
+		    smileFlux << "Group OC(=O) used instead" << endl;
 		  }
 		total_o--;
 	      }*/
@@ -1197,8 +1198,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  }
 		else if (outFlux == 2)
 		  {
-		    fileFlux << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
-		    fileFlux << "Group O[N+](=O)[O-] used instead" << endl;
+		    smileFlux << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
+		    smileFlux << "Group O[N+](=O)[O-] used instead" << endl;
 		  }
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"O[N+](=O)[O-])";	
 		last_pos=igr+15;
@@ -1214,8 +1215,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		  }
 		else if (outFlux == 2)
 		  {
-		    fileFlux << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
-		    fileFlux << "Group O[N+](=O)[O-]) used instead" << endl;
+		    smileFlux << "WARNING: group OO[N+](=O)[O-]) not available" << endl;
+		    smileFlux << "Group O[N+](=O)[O-]) used instead" << endl;
 		  }
 		smile2+=surrogate[i].smile.substr(last_pos,igr-last_pos)+"ON(=O)=O";	
 		last_pos=igr+9;
@@ -2114,8 +2115,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			  }
 			else if (outFlux==2)
 			  {
-			    fileFlux <<"WARNING: CH2=CH2 not available" << endl;
-			    fileFlux << "Group CH2=CH used instead" << endl;
+			    smileFlux <<"WARNING: CH2=CH2 not available" << endl;
+			    smileFlux << "Group CH2=CH used instead" << endl;
 			  }			   
 		      }
 		    ///////////////////  
@@ -2125,8 +2126,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			cout << "problem in smiles.cxx. Try manual group decomposition" << endl;	
 			if (outFlux==2)
 			  {
-			    fileFlux << "error double bounds type " << nC1 << " " << nC2 << endl;
-			    fileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
+			    smileFlux << "error double bounds type " << nC1 << " " << nC2 << endl;
+			    smileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
 			  }
 			exit(0);
 		      }
@@ -2892,8 +2893,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 				  {
 				    cout << "Too much branches" << endl;
 				    cout << "problem in smiles.cxx. Try manual group decomposition" << endl;
-				    fileFlux << "encore un groupe" << endl;
-				    fileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;				
+				    smileFlux << "encore un groupe" << endl;
+				    smileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;				
 				  }
 				exit(0);
 			      }
@@ -2987,7 +2988,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			  }
 			else if (outFlux==2)
 			  {
-			    fileFlux << "Waring: already occupied" << endl;
+			    smileFlux << "Waring: already occupied" << endl;
 			  }
 		      }
 		    
@@ -3021,7 +3022,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			  }
 			else if (outFlux==2)
 			  {
-			    fileFlux << "Waring: already occupied" << endl;
+			    smileFlux << "Waring: already occupied" << endl;
 			  }
 		      }
 		    
@@ -3042,7 +3043,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			    if (outFlux==1)			  
 			      cout << "nitrite with three hydrogens" <<endl;
 			    else if (outFlux==2)
-			      fileFlux << "nitrite with three hydrogens" <<endl;
+			      smileFlux << "nitrite with three hydrogens" <<endl;
 			    surrogate[i].groups[57]+=nitrite;
 			  }
 			else if  (nC==2)
@@ -3050,7 +3051,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			    if (outFlux==1)			  
 			      cout << "nitrite with two hydrogens" <<endl;
 			    else if (outFlux==2)
-			      fileFlux << "nitrite with two hydrogens" <<endl;
+			      smileFlux << "nitrite with two hydrogens" <<endl;
 			    surrogate[i].groups[58]+=nitrite;
 			  }
 			else
@@ -3058,7 +3059,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			    if (outFlux==1)
 			      cout << "nitrite with one or zero hydrogen" <<endl;
 			    else if (outFlux==2)
-			      fileFlux << "nitrite with one or zero hydrogen" <<endl;
+			      smileFlux << "nitrite with one or zero hydrogen" <<endl;
 			    surrogate[i].groups[59]+=nitrite;
 			  }
 
@@ -3067,7 +3068,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			    if (outFlux==1)
 			      cout << "Waring: already occupied" << endl;
 			    else if (outFlux==2)
-			      fileFlux << "Waring: already occupied" << endl;			  
+			      smileFlux << "Waring: already occupied" << endl;			  
 			  }
 		    
 			carbon_taken(sum_len_group)+=nitrite;
@@ -3080,7 +3081,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    if (outFlux==1)
 		      cout << "another double bound is currently treated" << endl;
 		    else if (outFlux==2)
-		      fileFlux << "another double bound is currently treated" << endl;
+		      smileFlux << "another double bound is currently treated" << endl;
 		    //break;
 		  }
 		else if (is_double==1)
@@ -3118,8 +3119,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			  }
 			else if (outFlux==2)
 			  {
-			    fileFlux <<"WARNING: CH2=CH2 not available" << endl;
-			    fileFlux << "Group CH2=CH used instead" << endl;
+			    smileFlux <<"WARNING: CH2=CH2 not available" << endl;
+			    smileFlux << "Group CH2=CH used instead" << endl;
 			  }			   
                       }
 		    ///////////////////  
@@ -3129,8 +3130,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			cout << "problem in smiles.cxx. Try manual group decomposition" << endl;	
 			if (outFlux==2)
 			  {
-			    fileFlux << "error double bounds type " << nC1 << " " << nC2 << endl;
-			    fileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
+			    smileFlux << "error double bounds type " << nC1 << " " << nC2 << endl;
+			    smileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
 			  }
 			exit(0);
 		      }
@@ -3522,9 +3523,9 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    cout << "problem in smiles.cxx. Try manual group decomposition" << endl;
 		    if (outFlux==2)
 		      {
-			fileFlux << surrogate[i].smile.substr(0,5) << endl;
-			fileFlux << "group not found" << endl;
-			fileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
+			smileFlux << surrogate[i].smile.substr(0,5) << endl;
+			smileFlux << "group not found" << endl;
+			smileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
 		      }
 		    exit(0);
 		  }
@@ -3591,7 +3592,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    if (outFlux==1) 
 		      cout << "WARNING: already occupied carbon" << endl;
 		    else if (outFlux==2)
-		      fileFlux << "WARNING: already occupied carbon" << endl;
+		      smileFlux << "WARNING: already occupied carbon" << endl;
 		  }
 		carbon_taken(i1)++;	      
 		carbon_taken(i2)++;
@@ -3709,7 +3710,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 			if (outFlux==1)
 			  cout << "Warning: subsequent ketone" << endl;
 			else if (outFlux==2)
-			  fileFlux << "Warning: subsequent ketone" << endl;
+			  smileFlux << "Warning: subsequent ketone" << endl;
 			if (carbon_nh(i1)>=carbon_nh(i2))
 			  ketone1=1;
 			else
@@ -3721,7 +3722,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		    if (outFlux==1)
 		      cout << "Warning: already occupied ketone" << endl;
 		    else if (outFlux==2)
-		      fileFlux << "Warning: already occupied ketone" << endl;
+		      smileFlux << "Warning: already occupied ketone" << endl;
 		    if (carbon_nh(i1)>=carbon_nh(i2))
 		      ketone1=1;
 		    else
@@ -4287,8 +4288,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	      }
 	    else if (outFlux == 2)
 	      {
-		fileFlux << "WARNING: " << excess_carbon << " carbon to be removed" << endl;
-		fileFlux << "WARNING: exact structure not possible, use of an approximate one" << endl;
+		smileFlux << "WARNING: " << excess_carbon << " carbon to be removed" << endl;
+		smileFlux << "WARNING: exact structure not possible, use of an approximate one" << endl;
 	      }
 
 	    for (igr=0;igr<ngr;igr++)
@@ -4380,7 +4381,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 		if (outFlux == 1)
 		  cout << "WARNING: " << excess_carbon << " excess carbon cannot be removed" << endl;
 		else if (outFlux == 2)
-		  fileFlux << "WARNING: " << excess_carbon << " excess carbon cannot be removed" << endl;
+		  smileFlux << "WARNING: " << excess_carbon << " excess carbon cannot be removed" << endl;
 	      }
 
 	    
@@ -4458,7 +4459,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	      if (outFlux == 1)
 		cout <<j<<" "<<name_group(j) << " " << surrogate[i].groups[j] << " " << nc_group(j) << " " << no_group(j) << endl;
 	      else if (outFlux == 2)
-		fileFlux <<j<<" "<<name_group(j) << " " << surrogate[i].groups[j] << " " << nc_group(j) << " " << no_group(j) << endl;
+		smileFlux <<j<<" "<<name_group(j) << " " << surrogate[i].groups[j] << " " << nc_group(j) << " " << no_group(j) << endl;
 	      out_c=out_c+int(surrogate[i].groups[j]*nc_group(j));
 	      out_o=out_o+int(surrogate[i].groups[j]*no_group(j));
 	    }
@@ -4468,7 +4469,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    if (outFlux == 1)
 	      cout << "WARNING: not the good number of carbons " << out_c << " instead of " << total_c << endl;
 	    else if (outFlux == 2)
-	      fileFlux << "WARNING: not the good number of carbons " << out_c << " instead of " << total_c << endl;
+	      smileFlux << "WARNING: not the good number of carbons " << out_c << " instead of " << total_c << endl;
 	  }
 
 	if (out_c-excess_carbon!=total_c)
@@ -4477,7 +4478,7 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    cout << "problem in smiles.cxx. Try manual group decomposition" << endl;
 	    if (outFlux == 2)
 	      {
-		fileFlux << "CRITICAL: not the good number of carbons " << out_c-excess_carbon << " (without excess) instead of " << total_c << endl;
+		smileFlux << "CRITICAL: not the good number of carbons " << out_c-excess_carbon << " (without excess) instead of " << total_c << endl;
 		cout << "problem in smiles.cxx. Try manual group decomposition" << endl;
 	      }
 	    exit(0);
@@ -4489,8 +4490,8 @@ void get_smiles(model_config &config, vector<species>& surrogate)
 	    cout << "problem in smiles.cxx. Try manual group decomposition" << endl;
 	    if (outFlux == 2)
 	      {
-		fileFlux << "CRITICAL: not the good number of oxygens " << out_o << " instead of " << total_o << endl;
-		fileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
+		smileFlux << "CRITICAL: not the good number of oxygens " << out_o << " instead of " << total_o << endl;
+		smileFlux << "problem in smiles.cxx. Try manual group decomposition" << endl;
 	      }
 	    exit(0);
 	  }

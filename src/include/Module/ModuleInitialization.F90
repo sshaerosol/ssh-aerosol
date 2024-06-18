@@ -1336,7 +1336,7 @@ contains
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation
     imethod=1 !ROS2 explicit method in SOAP
-    SOAPlog=0
+    SOAPlog=2
     reaction_soap_file="--"
     co2_conc_ppm=410.d0 !Default CO2 concentrations set to 460 ppm
     soap_inorg=0
