@@ -50,7 +50,7 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./src/include/CHEMISTRY/cb05/species-list.dat",                    !Species list for CB05 
+species_list_file = "./species-list/species-list-cb05.dat",                    !Species list for CB05 
 /
 
 &aerosol_species
