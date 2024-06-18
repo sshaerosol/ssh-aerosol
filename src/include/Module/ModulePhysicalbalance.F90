@@ -29,16 +29,16 @@ contains
     double precision::mass_total,rhoaer
     double precision::volum_cell,av_volum_cl
 
-    if (with_fixed_density.eq.0) then
-       CALL ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,mass_density_layers,j,rhoaer)
-    endif
+    !if (with_fixed_density.eq.0) then
+    !   CALL ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,mass_density_layers,j,rhoaer)
+    !endif
        
     do j= 1, N_size
         k=concentration_index(j, 1)!size bins
         cell_diam_av(j)=size_diam_av(k)
         volum_cell=0.d0
         mass_total =0.d0
-        if (with_fixed_density.eq.0) then
+        if (with_fixed_density.eq.0) then           
           CALL ssh_compute_density(N_size,N_aerosol_layers,EH2O_layers,TINYM,concentration_mass,mass_density_layers,j,rhoaer)
           if(rhoaer.LT.0.1d-6) rhoaer=fixed_density
         else
