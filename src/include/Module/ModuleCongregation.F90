@@ -190,7 +190,11 @@ contains
           if(s.LE.N_nonorganics) then
              lay = 1 
           else
-             lay = nlayer
+             if (partitioning(s)=="HPHI" .and. i_hydrophilic==1) then             
+                lay = nlayer+1
+             else
+                lay = nlayer
+             endif
           endif
           jesp = index_species(s,lay)
           if((inon_volatile(s).EQ.1).OR.  &
@@ -203,7 +207,7 @@ contains
                 ce_kernal_coef_i(s) ) ! c/e kernel coef (m3.s-1)
              ce_kernal_coef(j,s)=ce_kernal_coef_i(s)    ! bulk gas conc (ug.m-3)
              ce_kernel(s)=ce_kernal_coef_i(s) * c_gas(s)    ! bulk gas conc (ug.m-3)
-             dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(s)
+             dqdt(j,jesp)=dqdt(j,jesp)+c_number(j)*ce_kernel(s)             
           endif
        enddo
     enddo

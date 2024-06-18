@@ -1928,6 +1928,11 @@ contains
              write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
              stop
           endif
+
+          if(inon_volatile(s).eq.1.and.partitioning(s).eq."--".and.aerosol_species_name(s).ne."PSO4") then
+             write(*,*) trim(aerosol_species_name_tmp)," is non volatile. partitioning should be defined: HPHO, HPHI or BOTH"
+             stop
+          endif
           ! Find pairs of aerosol species and its precursor.
           ind = 0
           do js = 1, N_gas
