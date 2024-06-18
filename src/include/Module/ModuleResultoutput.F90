@@ -47,7 +47,7 @@ contains
      implicit none
      integer :: j,stat
      logical :: file_exists
-     character (len=80) :: cmd
+     character (len=200) :: cmd
 
      !Create output directory
      cmd = trim('mkdir -p '// trim(output_directory))
@@ -419,6 +419,7 @@ contains
 
   SUBROUTINE ssh_write_output()
     IMPLICIT NONE
+      character (len=200) :: cmd
       
       if (ssh_standalone) write(*,*) ""
       if (ssh_logger) write(logfile,*) ""
@@ -433,9 +434,14 @@ contains
         call ssh_write_output_bintxt()
       end if
       
+      if (SOAPlog == 2) then
+        cmd = trim('mv *.soap '// trim(output_directory) //'/.')
+        call system(cmd)
+      endif
+
       if (ssh_standalone) write(*,*) ""
       if (ssh_logger) write(logfile,*) ""
-      
+
   END SUBROUTINE ssh_write_output
   
 
@@ -678,7 +684,7 @@ contains
     integer :: stat, s, b, t
     logical :: file_exists
     character (len=100) output_filename
-    character (len=80) :: cmd
+    character (len=200) :: cmd
     character (len=10) :: out_dir(5) 
     
     character(20) :: out_aero(8) 
@@ -694,7 +700,7 @@ contains
     out_aero(2) = 'Black_Carbon'
     out_aero(3) = 'Water'
     out_aero(4) = 'Inorganic'
-    out_aero(5) = 'Organic.5'
+    out_aero(5) = 'Organic'
     out_aero(6) = 'PM1'
     out_aero(7) = 'PM2.5'
     out_aero(8) = 'PM10'
