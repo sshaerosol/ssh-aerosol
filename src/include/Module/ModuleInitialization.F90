@@ -1929,8 +1929,9 @@ contains
              stop
           endif
 
-          if(inon_volatile(s).eq.1.and.partitioning(s).eq."--".and.aerosol_species_name(s).ne."PSO4") then
-             write(*,*) trim(aerosol_species_name_tmp)," is non volatile. partitioning should be defined: HPHO, HPHI or BOTH"
+          if(inon_volatile(s).eq.1.and.(partitioning(s).eq."--".or.partitioning(s).eq."BOTH").and. &
+               aerosol_species_name(s).ne."PSO4") then
+             write(*,*) trim(aerosol_species_name_tmp)," is non volatile. partitioning should be defined: HPHO, HPHI"
              stop
           endif
           ! Find pairs of aerosol species and its precursor.
