@@ -926,6 +926,8 @@ contains
           enddo
         endif
 
+        idOH=0;idHO2=0;idNO=0;idNO2=0;idO3=0;idNO3=0
+
         do s = 1, N_gas
            read(11, *) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
@@ -933,9 +935,34 @@ contains
                      molecular_weight(s)
              stop
            endif
+           !compute index of important gaseous species
+           if ((species_name(s) .eq. "HO").or.(species_name(s) .eq. "OH")) idOH = s
+           if  (species_name(s) .eq. "HO2") idHO2 = s
+           if  (species_name(s) .eq. "NO")  idNO  = s
+           if  (species_name(s) .eq. "NO2") idNO2 = s
+           if  (species_name(s) .eq. "O3")  idO3  = s
+           if  (species_name(s) .eq. "NO3") idNO3 = s           
         enddo
         close(11)
-    
+        
+        if (ssh_standalone) then
+          if (idOH.eq.0)  write(*,*) 'OH or HO not found in species list file'  !stop?
+          if (idHO2.eq.0) write(*,*) 'HO2 not found in species list file'       !stop?
+          if (idNO.eq.0)  write(*,*) 'NO not found in species list file'        !stop?
+          if (idNO2.eq.0) write(*,*) 'NO2 not found in species list file'       !stop?
+          if (idO3.eq.0)  write(*,*) 'O3 not found in species list file'        !stop?
+          if (idNO3.eq.0) write(*,*) 'NO3 not found in species list file'       !stop?
+        endif
+        
+        if (ssh_logger) then
+          if (idOH.eq.0)  write(logfile,*) 'OH or HO not found in species list file'  !stop?
+          if (idHO2.eq.0) write(logfile,*) 'HO2 not found in species list file'       !stop?
+          if (idNO.eq.0)  write(logfile,*) 'NO not found in species list file'        !stop?
+          if (idNO2.eq.0) write(logfile,*) 'NO2 not found in species list file'       !stop?
+          if (idO3.eq.0)  write(logfile,*) 'O3 not found in species list file'        !stop?
+          if (idNO3.eq.0) write(logfile,*) 'NO3 not found in species list file'       !stop?
+        endif
+        
        ! read & update reaction file
        if (reaction_list_file.ne."---") then
 
