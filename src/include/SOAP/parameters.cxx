@@ -2272,7 +2272,7 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
 void parameters_ssh(model_config& config, vector<species>& surrogate, vector<string> species_list_aer,
 		    double molecular_weight_aer[], double accomodation_coefficient[], int aerosol_type[],
 		     vector<string> species_part, vector<string> species_smiles, double saturation_vapor_pressure[],
-		    double enthalpy_vaporization[], double diffusion_coef[],
+		    double enthalpy_vaporization[], int is_nonvolatile[], double diffusion_coef[],
 		    double henry[], double t_ref[], double mass_density[],
 		    int i_hydrophilic, int N_inert, int N_inorganic)
 {
@@ -2366,7 +2366,7 @@ void parameters_ssh(model_config& config, vector<species>& surrogate, vector<str
   //create the vector of species and the various parameters of the model
   creation_species_ssh(config, surrogate,species_list_aer, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
-		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization,
+		       species_smiles, saturation_vapor_pressure, enthalpy_vaporization, is_nonvolatile,
 		       diffusion_coef, henry, t_ref, mass_density,
 		       species_part, config.nlayer, i_hydrophilic, config.compute_inorganic,
 		       N_inert, N_inorganic);

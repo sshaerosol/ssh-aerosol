@@ -31,7 +31,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       char* species_name, int* name_len, double* molecular_weight_aer,
 			       double* accomodation_coefficient, int* aerosol_type, 
 			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
-			       double* enthalpy_vaporization, double *diffusion_coef,
+			       double* enthalpy_vaporization, int *is_nonvolatile, double *diffusion_coef,
 			       double* henry, double* t_ref, double* mass_density,
 			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
@@ -49,7 +49,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       species_name, *name_len, molecular_weight_aer,
 		       accomodation_coefficient, aerosol_type,
 		       partitioning, smiles, saturation_vapor_pressure,
-		       enthalpy_vaporization, diffusion_coef,
+		       enthalpy_vaporization, is_nonvolatile, diffusion_coef,
 		       henry, t_ref, mass_density,
 		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
@@ -78,7 +78,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
-		   double enthalpy_vaporization[], double diffusion_coef[],
+		   double enthalpy_vaporization[], int is_nonvolatile[], double diffusion_coef[],
 		   double henry[], double t_ref[], double mass_density[], 
 		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
@@ -222,7 +222,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
     {
       parameters_ssh(config, surrogate, species_list_aer, molecular_weight_aer,
                      accomodation_coefficient, aerosol_type, species_part, species_smiles,
-		     saturation_vapor_pressure, enthalpy_vaporization,
+		     saturation_vapor_pressure, enthalpy_vaporization, is_nonvolatile,
 		     diffusion_coef, henry, t_ref, mass_density, 
 		     i_hydrophilic,N_inert,N_inorganic);
       
@@ -449,6 +449,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 			     MOinit,MOW,
 			     LWC, AQinit, ionic, chp,
 			     Temperature, RH, deltat);
+      
 
       if (config.compute_inorganic or config.inorganic_chemistry)
 	{
@@ -885,7 +886,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       for (i = 0; i < n; ++i)
 	if (sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init)+surrogate[i].Ag>0)
 	  cout << "INIT: " << surrogate[i].name << " " << sum(surrogate[i].Aaq_bins_init)+sum(surrogate[i].Asol_bins_init) << " " << surrogate[i].Ag << endl;*/
-
+      
       dynamic_system_ssh(config,surrogate,
 			 MOinit_layer, MOW_layer,number,vsol,
 			 LWC_bins, AQinit_bins, ionic_bins, chp_bins,

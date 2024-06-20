@@ -330,6 +330,10 @@ contains
        concentration_gas(jesp)=qgasi-qgasa
     endif
 
+    !do s=1,N_aerosol
+    !   print*,aerosol_species_name(s),dq(s)
+    !enddo
+
     if(i_hydrophilic == 1) then
        do s=1,nesp_eq
           jesp = eq_species(s)
@@ -596,8 +600,8 @@ contains
        if(i_hydrophilic_tmp == 1) then
           jespmass2 = index_species(jesp,2) !index of the species in the N_aerosol_layer list
        endif
-       if (aerosol_species_interact(jesp).GT.0) then
-          if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
+       !if (aerosol_species_interact(jesp).GT.0) then
+       !   if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
              IF ((jesp.NE.ECl .and. jesp.ne.ENa).or.NACL_IN_THERMODYNAMICS==1) THEN
                 iclip=0
                 iclipaq=0
@@ -685,8 +689,8 @@ contains
                    endif
                 endif
              ENDIF
-          endif
-       endif
+       !   endif
+       !endif
     enddo
 
   end subroutine ssh_bulkequi_redistribution

@@ -108,7 +108,8 @@ contains
            imethod, soap_inorg_loc,&
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
-           partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           partitioning, smiles, saturation_vapor_pressure, &
+           enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
@@ -254,7 +255,7 @@ contains
         if(s.NE.EH2O_layers) then
           DO js=1,N_size
              jj=IQ(s,js)
-             qaero(jesp)=qaero(jesp)+q_soap(jj)
+             qaero(jesp)=qaero(jesp)+q_soap(jj)             
           END DO
           if (inon_volatile(jesp).EQ.0.and. aerosol_species_interact(jesp).GT.0) then
              qgas(jesp) = q_soap(N_size * (1 + N_aerosol_layers) + jesp)
@@ -297,7 +298,8 @@ contains
            imethod, soap_inorg_loc2, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, &
            accomodation_coefficient, aerosol_type, &
-           partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           partitioning, smiles, saturation_vapor_pressure, &
+           enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
@@ -307,7 +309,8 @@ contains
       do js = 1, N_size
          concentration_number(js) = q_soap(js) 
       enddo
-      i = 0 
+      i = 0
+  
       do jesp = 1,N_aerosol_layers
          s = List_species(jesp)
          do js = 1, N_size
@@ -317,7 +320,7 @@ contains
            ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))&
            .or.(aerosol_type(s)==9)) then
                concentration_mass(js, jesp) = q_soap(N_size + i)
-            endif         
+            endif                       
          enddo
       enddo
     
@@ -493,7 +496,8 @@ contains
            liquid_Nsize(:,ICUT_org+1:N_size), N_size-ICUT_org, isoapdyn2, &
            imethod, soap_inorg_loc, &
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
-           aerosol_type, partitioning, smiles, saturation_vapor_pressure, enthalpy_vaporization, diffusion_coef,&
+           aerosol_type, partitioning, smiles, saturation_vapor_pressure, &
+           enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&

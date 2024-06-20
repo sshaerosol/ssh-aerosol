@@ -345,7 +345,7 @@ module aInitialization
   character(len=800),dimension(:), allocatable, save :: smiles ! (\B5g/mol) gas=phase
   integer,dimension(:), allocatable, save :: aerosol_hydrophilic,aerosol_hydrophobic
   
-  integer ,dimension(:), allocatable, save :: inon_volatile 
+  integer ,dimension(:), allocatable, save :: inon_volatile, inon_volatile_soap 
 
   character(len=4),dimension(:), allocatable, save :: partitioning ! HPHO HPHI BOTH
 
@@ -1837,6 +1837,7 @@ contains
     if ( .not. allocated(accomodation_coefficient)) allocate(accomodation_coefficient(N_aerosol))
     if ( .not. allocated(mass_density)) allocate(mass_density(N_aerosol))
     if ( .not. allocated(inon_volatile)) allocate(inon_volatile(N_aerosol))
+    if ( .not. allocated(inon_volatile_soap)) allocate(inon_volatile_soap(N_aerosol))
     if ( .not. allocated(Vlayer)) allocate(Vlayer(nlayer))
     ! relation between Aerosol and GAS
     if ( .not. allocated(aerosol_species_interact)) allocate(aerosol_species_interact(N_aerosol))
@@ -1929,8 +1930,7 @@ contains
              stop
           endif
 
-          if(inon_volatile(s).eq.1.and.(partitioning(s).eq."--".or.partitioning(s).eq."BOTH").and. &
-               aerosol_species_name(s).ne."PSO4") then
+          if(inon_volatile(s).eq.1.and.partitioning(s).eq."--".and.aerosol_species_name(s).ne."PSO4") then
              write(*,*) trim(aerosol_species_name_tmp)," is non volatile. partitioning should be defined: HPHO, HPHI"
              stop
           endif
@@ -1944,6 +1944,7 @@ contains
              endif
              if (ind == 1) exit
           enddo
+
           !! Check if a precursor name is found in the list of gas-phase species.
           if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
              if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
@@ -2372,12 +2373,22 @@ contains
           endif
        endif
     endif
-   
+
+    
+    inon_volatile_soap(:)=inon_volatile(:)
     if(nlayer > 1) then ! Consider non-volatile species in SOAP
         do i = 1, N_aerosol
            if(i.NE.ESO4) inon_volatile(i) = 0
         enddo
-    endif
+     endif
+     do i = 1, N_aerosol
+        !print*,aerosol_species_name(i),inon_volatile(i),inon_volatile_soap(i)
+        if(partitioning(i)=="BOTH") inon_volatile(i) = 0
+        if (aerosol_species_interact(i)==0.and.aerosol_type(i)==4) then
+           !print*,aerosol_species_name(i)
+           inon_volatile_soap(i)=1
+        endif
+     enddo
 
     ! read input file for photolysis rate (unit 34)
     if ( .not. allocated(photolysis_name)) allocate(photolysis_name(n_photolysis))
@@ -3988,6 +3999,7 @@ contains
     if (allocated(mass_density))  deallocate(mass_density, stat=ierr)
     if (allocated(mass_density_layers))  deallocate(mass_density_layers, stat=ierr)
     if (allocated(inon_volatile))  deallocate(inon_volatile, stat=ierr)
+    if (allocated(inon_volatile_soap))  deallocate(inon_volatile_soap, stat=ierr)
     if (allocated(layer_number))  deallocate(layer_number, stat=ierr)
     if (allocated(Vlayer))  deallocate(Vlayer, stat=ierr)
     if (allocated(t_ref))  deallocate(t_ref, stat=ierr)

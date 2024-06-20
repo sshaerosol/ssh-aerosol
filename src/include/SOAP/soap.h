@@ -23,6 +23,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   char species_name[], int name_len, double molecular_weight_aer[],
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[], double enthalpy_vaporization[],
+                   int is_nonvolatile[],
                    double diffusion_coef[],
 		   double henry[], double t_ref[], double mass_density[],
 		   int nlayer, int with_kelvin_effect,
