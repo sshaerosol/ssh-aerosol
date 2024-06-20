@@ -458,24 +458,32 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   !===============================!
   !=== Irreversible dicarbonyl ===!
   !===============================!
-  do i = 1, size(irdi_rcn)
+  do i=1, size(irdi_rcn)
 
      j = irdi_rcn(i) ! reaction index
-
-     if (irdi_ind(i) == 1) then
      
-        Psat =  611.2d0 * dexp(17.67d0 * (temperature - 273.15d0) &
-             / (temperature - 29.65d0))
-        facteur = xlw*Pressure / ((0.62197d0 * (1.d0-xlw)+xlw) &
-             * Psat ) * 100.
-        kinetic_rate(j) = 1d-9*facteur**3 - 1d-7*facteur**2 &
-             + 3.0d-7*facteur + 0.0003
-     else
-        write(*,*) "Error: undefined index for irrevesible dicarbonyl", i
-        stop
-     endif
+     !if (with_heterogeneous == 1) then
+
+     ! Compute particle diameter.
+     call ssh_compute_granulo(fixed_density, not(with_fixed_density), &
+              n_size, n_aerosol, concentration_mass, mass_density, &
+              concentration_number, n_fracmax, diam_bound, dsf_aero)
+        
+     ! liquid_water_content in kg/kg (QCLOUD from WRF)
+     call ssh_dicarb_rate(i, j, irdi_ind(i), &
+              n_sizebin, temperature, pressure, option_cloud, &
+              wet_diameter, concentration_number, &
+              dsf_aero, lwc_cloud_threshold, &
+              cloud_water, concentration_gas_all(idOH),&
+              kinetic_rate(j))
+        
+     !else
+     !   kinetic_rate(j) = 0.d0
+     !endif
+     
   
   enddo
+  
 
   
   
@@ -1338,14 +1346,20 @@ subroutine ssh_spack_spec(ire, iex, label)
           kd = 6.5d-34 * dexp(1335d0 / temperature) * SumMc
           qfor = ka + kd / (1d0 + kd / kb)
         CASE (5)
+          ! CO +   HO        ->      HO2
           qfor = 1.44d-13 * (1.0d0 + 8.0d-1 * SumMc / 4.0d19)
         CASE (6)
-          ka = 3.43d-12 * dexp(270.0d0 / temperature)
-          kb = (530.0d0 / temperature) + 4.8d-6 * pressure - 1.73
-          qfor = ka * kb / 100.d0
+           ! NO2 + OH --> HNO3
+           ka = 1.8d-30 * (temperature / 3.d2)**(-3.d0)
+           kb = 2.8d-11 * (temperature / 3.d2)**(0.d0)
+           qfor = (ka * SumMc / (1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = qfor * 0.868d0
         CASE (7)
           qfor = 2.0d-39 * YlH2O * YlH2O
         CASE (8)
+          ! ACT +  HO        ->      ACTP
           qfor = 1.39d-13 + 3.72d-11 * dexp(-2.044d3 / temperature)
         CASE (9)
           ! N2O5            ->      NO2   +      NO3
@@ -1481,6 +1495,7 @@ subroutine ssh_hetero_rate(i, reaction_ind, hetero_ind, &
       double precision dactiv, avdiam
 
       DOUBLE PRECISION :: lwca
+      
      
       !     WET DIAMETERS OF THE TWO SECTIONS
       
@@ -1512,8 +1527,8 @@ subroutine ssh_hetero_rate(i, reaction_ind, hetero_ind, &
       
       IF (ICLD.GE.1.AND.(lwctmp.GE.LWCmin)) THEN
          ICLOUD=1
-      ENDIF
-
+      ENDIF      
+      
       !     REACTION PROBABILITIES
       ktot = 0.d0
 
@@ -1557,8 +1572,197 @@ subroutine ssh_hetero_rate(i, reaction_ind, hetero_ind, &
             ENDIF
          ENDIF
       endif
+
       
 end subroutine ssh_hetero_rate
+
+
+
+
+
+
+subroutine ssh_dicarb_rate(i, reaction_ind, irdi_ind, &
+                           nbin_aer, temp, press, icld, &
+                           wetdiam, granulo, &
+                           dsf_aero, lwcmin, dllwc, OHgasmass,ktot)
+  
+!------------------------------------------------------------------------
+! 
+!     -- DESCRIPTION
+! 
+!     This routine computes the kinetic rates for the heterogeous reactions
+!     leading to irreversible condensation of dicarbonyles.
+! 
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!     wmol: molecular weight
+!     ICLD: 0: no, 1: vsrm, 2: simple
+!     LWCmin: lwc_cloud_threshold
+!     temp: temperature
+!     press: pressure
+!     dllwc: liquid_water_content in kg/kg (QCLOUD from WRF)
+!     dsf_aero: diameter
+!     WetDiam: wet diameter      
+!
+!     -- INPUT/OUTPUT VARIABLES
+!
+!     -- OUTPUT VARIABLES
+!
+!     ktot: heterogeneous reaction rate
+!
+!------------------------------------------------------------------------
+
+      INCLUDE 'CONST.INC'
+      INCLUDE 'CONST_A.INC'
+
+      INTEGER Nbin_aer
+
+      integer :: reaction_ind, irdi_ind
+      INTEGER i,js
+      DOUBLE PRECISION Ndroplet
+
+      DOUBLE PRECISION temp,press
+      DOUBLE PRECISION vi
+      DOUBLE PRECISION ktot
+      DOUBLE PRECISION avdiammeter
+
+      DOUBLE PRECISION WetDiam(Nbin_aer)
+      DOUBLE PRECISION WetDiammeter(Nbin_aer)
+      DOUBLE PRECISION granulo(Nbin_aer)
+      DOUBLE PRECISION dsf_aero(Nbin_aer)
+
+      DOUBLE PRECISION lwctmp, dllwc 
+
+      INTEGER ICLOUD
+      INTEGER ICLD
+
+      DOUBLE PRECISION wmol_tmp, OHgasmass
+      DOUBLE PRECISION LWCmin
+
+      double precision dactiv, avdiam
+
+      DOUBLE PRECISION :: lwca
+      
+      ! data for heterogeneous reactivity of dicarbonyls (GLY and MGLY)
+      DOUBLE PRECISION     Rcst, Daq, alpha,ve,OHaq,OHgas,kaq,kl,HeffOH
+      DOUBLE PRECISION     Rpart,Asurf,qp,cothqp,Heff,gammad,Navogadro
+      DOUBLE PRECISION     Heff298,deltaHenry,Heff298OH,deltaHenryOH
+      
+     
+      !     WET DIAMETERS OF THE TWO SECTIONS
+      
+!     If bulk, diameter = avdiam
+      parameter (avdiam = 20)   ! in micro m   
+!     
+!     ACTIVATION DIAMETER (Dry)   
+      parameter (dactiv = 0.2D0) ! in micro m
+
+      if (irdi_ind > 2) then
+         write(*,*) "Index", i, "is not accepted for the dicarb. heterogenous reactions."
+         stop
+      endif
+
+      
+!     Constants.
+      avdiammeter = 1.d-6 * avdiam
+      ICLOUD=0
+      
+      !C     Cloud liquid water content (g/m^3)
+      !  Converts from kg / kg to g / m^3.
+      lwctmp = DLLWC *1000.d0 *press /101325.d0 *28.97d0 /Pr /temp
+      
+      IF (ICLD.GE.1.AND.(lwctmp.GE.LWCmin)) THEN
+         ICLOUD=1
+      ENDIF
+
+! PARAMETERS
+
+Rcst = 8.207d-5        !universal gas constant in m3 atm mol-1 K-1
+Navogadro = 6.02214d23 !mol-1
+Daq = 1.0d-9           !aqueous-phase diffusion coefficient (m2 s−1)
+!The aqueous-phase diffusion coefficient used for both GLY and MGLY was Daq = 10−9 m2 s−1. 
+!Daq does not vary much for small species, and this value is typical for small organics (Bird et al., 2006). 
+![Curry et al. 2018 10.5194/acp-18-9823-2018]
+alpha = 0.02d0           !mass accommodation coefficient ()
+!The mass accommodation coefficient used was α = 0.02. This value of α is an estimate based on the assumption 
+!that α values for GLYX and MGLY are similar to that of formaldehyde uptake to water (Jayne et al., 1992).
+![Curry et al. 2018 10.5194/acp-18-9823-2018]
+
+!Henry constant of dicarb. adapted from (Sander 2015 10.5194/acp-15-4399-2015) to match with Hu et al. 2022 observations.
+if (irdi_ind .eq. 1) then
+  Heff298 = 360000.d0 ; deltaHenry = 4500.d0 ; wmol_tmp = 58.d0        !GLYOXAL
+elseif (irdi_ind .eq. 2) then
+  Heff298 = 42000.d0  ; deltaHenry = 4500.d0 ; wmol_tmp = 72.d0        !METHYLGLYOXAL
+else
+  print*, "error: dicarb. properties missing in ssh_dicarb_rate of ModuleChemkinetic.f90" ; stop
+endif
+Heff  =  Heff298 * dexp( deltaHenry * ((1.d0/temp)-(1.d0/298.d0)) )
+
+!Henry constant of OH (Sander 2015 10.5194/acp-15-4399-2015)
+Heff298OH = 29.d0
+deltaHenryOH = 4300.d0 !4300.d0
+HeffOH = Heff298OH*dexp(deltaHenryOH*((1.d0/temp)-(1.d0/298.d0)))
+
+!gas-phase thermal velocity of glyoxal/methylglyoxal (m s−1)
+!ve = dsqrt(8000.d0*Rcst*101300.d0*temp/(pi*wmol_tmp))! with Mw (g mol-1)
+call ssh_compute_quadratic_mean_velocity(temp,wmol_tmp,ve)
+
+
+OHgas = OHgasmass/1.d12/17.d0*Navogadro
+!OHgas =  1.5d6 !typical mean value in atmosphere (lelieveld et al. 2016)
+
+OHaq = OHgas * Rcst * temp * HeffOH / Navogadro * 1.0d6 !OH conc in aq phase according to Henry's law (mol l-1)
+!OHaq=3.0d-12 !typical mean value in atmosphere (Hermann et al. 2010)
+kaq = 1.1d9  !aqueous reaction rate of MGLYaq or GLYaq with OHaq (l mol-1 s-1)
+kl = kaq * OHaq !first-order aqueous loss rate(s−1)
+
+ktot=0.d0 !effective uptake rate (s-1)
+!calculs en lien avec la taille des aerosols:
+do js=1,Nbin_aer
+  if ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
+    if (WetDiam(js).ne.0.0) then
+      Rpart = 1.d-6 * WetDiam(js) / 2.d0         !particle radius (m)
+      Asurf = 4.d0*pi*(Rpart**2.d0) * granulo(js)   !aerosol surface area density (m2 m−3): surface * nb_aero
+      qp = Rpart / dsqrt(Daq/kl)                 !parameter for measuring in-particle diffusion limitations ()
+
+      !gammad = uptake coefficient ()
+      cothqp = cosh(qp)/sinh(qp)
+      
+      gammad = 1.d0/( 1.d0/alpha + (ve/(4.d0*Rcst*temp*Heff*dsqrt(kaq*Daq)))/(cothqp - 1.d0/qp) )
+      
+      ktot = ktot + (ve*gammad*Asurf)/4.d0 
+
+    endif
+  endif
+enddo
+         
+if (ICLOUD.EQ.1) then !     If we are in a cloud.
+  Ndroplet = lwctmp / (RHOwater * 1.d3 * pi / 6.d0 * avdiammeter**3.d0)
+  Rpart = avdiammeter / 2.d0              !particle radius (m)
+  Asurf = 4.d0*pi*(Rpart**2.d0) * Ndroplet   !aerosol surface area density (m2 m−3): surface * nb_aero
+  qp = Rpart / dsqrt(Daq/kl)              !parameter for measuring in-particle diffusion limitations ()
+  
+  !gammad = uptake coefficient ()
+  cothqp = cosh(qp)/sinh(qp)
+  gammad = 1.d0/( 1.d0/alpha + (ve/(4.d0*Rcst*temp*Heff*dsqrt(kaq*Daq)))/(cothqp - 1.d0/qp) )
+
+  ktot = ktot + (ve*gammad*Asurf)/4.d0 
+
+endif
+
+
+   
+end subroutine ssh_dicarb_rate
+
+
+
+
+
+
+
+
 
 
 

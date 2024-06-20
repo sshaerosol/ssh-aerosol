@@ -53,7 +53,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 
 &gas_phase_species
 !use the Automatic generated link
-species_list_file = "./species-list/species-list.dat",
+species_list_file = "./src/include/CHEMISTRY/mcm/BCARYorg.species",
+reaction_list_file = "./src/include/CHEMISTRY/mcm/BCARYorg.reactions",
 /
 
 &aerosol_species

@@ -1,7 +1,4 @@
-File for BCARYorg (name and molar mass)
-# gaseous species # aqueous species
-511 0
----Gas-phase----
+# no-spack version
 NBCO2    298.35
 BCARY    204.35
 NO3     62.00
@@ -508,6 +505,7 @@ CHOCOMOXO2    119.05
 CO24C4CHO    114.10
 ALCOMOXOOH    120.06
 RO2pool    250.00
+RO2pool1    250.00
 HCL     36.50
 BiMT    136.00
 SULF     98.00

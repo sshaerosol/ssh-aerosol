@@ -901,7 +901,8 @@ contains
            read(11, *, iostat=ierr) tmp_name
            if (ierr /= 0) exit ! no line to read
            tmp_name = adjustl(tmp_name)
-           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. tmp_name(1:1) == "#") then
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. &
+                tmp_name(1:1) == "#" .or. tmp_name(1:1) == "!" ) then
              icmt = icmt + 1 ! read comment lines
            else
              count = count + 1 ! read gas-phase species
@@ -926,6 +927,8 @@ contains
           enddo
         endif
 
+        idOH=0;idHO2=0;idNO=0;idNO2=0;idO3=0;idNO3=0
+
         do s = 1, N_gas
            read(11, *) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
@@ -933,9 +936,34 @@ contains
                      molecular_weight(s)
              stop
            endif
+           !compute index of important gaseous species
+           if ((species_name(s) .eq. "HO").or.(species_name(s) .eq. "OH")) idOH = s
+           if  (species_name(s) .eq. "HO2") idHO2 = s
+           if  (species_name(s) .eq. "NO")  idNO  = s
+           if  (species_name(s) .eq. "NO2") idNO2 = s
+           if  (species_name(s) .eq. "O3")  idO3  = s
+           if  (species_name(s) .eq. "NO3") idNO3 = s           
         enddo
         close(11)
-    
+        
+        if (ssh_standalone) then
+          if (idOH.eq.0)  write(*,*) 'OH or HO not found in species list file'  !stop?
+          if (idHO2.eq.0) write(*,*) 'HO2 not found in species list file'       !stop?
+          if (idNO.eq.0)  write(*,*) 'NO not found in species list file'        !stop?
+          if (idNO2.eq.0) write(*,*) 'NO2 not found in species list file'       !stop?
+          if (idO3.eq.0)  write(*,*) 'O3 not found in species list file'        !stop?
+          if (idNO3.eq.0) write(*,*) 'NO3 not found in species list file'       !stop?
+        endif
+        
+        if (ssh_logger) then
+          if (idOH.eq.0)  write(logfile,*) 'OH or HO not found in species list file'  !stop?
+          if (idHO2.eq.0) write(logfile,*) 'HO2 not found in species list file'       !stop?
+          if (idNO.eq.0)  write(logfile,*) 'NO not found in species list file'        !stop?
+          if (idNO2.eq.0) write(logfile,*) 'NO2 not found in species list file'       !stop?
+          if (idO3.eq.0)  write(logfile,*) 'O3 not found in species list file'        !stop?
+          if (idNO3.eq.0) write(logfile,*) 'NO3 not found in species list file'       !stop?
+        endif
+        
        ! read & update reaction file
        if (reaction_list_file.ne."---") then
 
@@ -2915,7 +2943,7 @@ contains
            endif
         enddo
         close(34)
-        
+
         ! check nRO2_group with reaction list
         if (nRO2_chem.gt.0) then
           ind = minval(TB_rcn(:,2)) !number read from reaction list
@@ -2976,8 +3004,10 @@ contains
           enddo
           ! check RO2 index - not found
           if ( RO2out_index(k) .eq. 0) then
-            if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
-            if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
+             if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", &
+                  k, trim(ic_name), " ", trim(species_list_file)
+             if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", &
+                  k, trim(ic_name), " ", trim(species_list_file)
           end if
         enddo
     endif
@@ -3107,7 +3137,8 @@ contains
         if (ierr /= 0) exit ! no line
         line = adjustl(line)
         i = len_trim(line)
-        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. &
+          line(1:1) == '!' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
         if(iarrow > 0) then ! Find a reaction
             ircn = ircn + 1     ! no.reaction
@@ -3259,7 +3290,8 @@ contains
         
         line = adjustl(line)
         i = len_trim(line)
-        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. &
+             line(1:1) == '!' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
         if (iarrow > 0) then ! read reactions
             ircn = ircn + 1 ! reaction index

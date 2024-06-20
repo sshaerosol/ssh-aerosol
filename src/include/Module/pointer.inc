@@ -15,6 +15,9 @@
 !C*****
       INTEGER ENa,ESO4,ENH4,ENO3,ECl,&
           EH2O,EH2O_layers,ECO3
+          
+      INTEGER idOH,idHO2,idNO,idNO2,idO3,idNO3
+          
       PARAMETER (IH   =1,&
           INa  =2,&
           INH4 =3,&
