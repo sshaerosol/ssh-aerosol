@@ -901,7 +901,8 @@ contains
            read(11, *, iostat=ierr) tmp_name
            if (ierr /= 0) exit ! no line to read
            tmp_name = adjustl(tmp_name)
-           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. tmp_name(1:1) == "#") then
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. &
+                tmp_name(1:1) == "#" .or. tmp_name(1:1) == "!" ) then
              icmt = icmt + 1 ! read comment lines
            else
              count = count + 1 ! read gas-phase species
@@ -3125,7 +3126,8 @@ contains
         if (ierr /= 0) exit ! no line
         line = adjustl(line)
         i = len_trim(line)
-        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. &
+          line(1:1) == '!' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
         if(iarrow > 0) then ! Find a reaction
             ircn = ircn + 1     ! no.reaction
@@ -3277,7 +3279,8 @@ contains
         
         line = adjustl(line)
         i = len_trim(line)
-        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. line(1:3) == 'END') cycle ! read comments
+        if(i < 3 .or. line(1:1) == '%' .or. line(1:1) == '#' .or. &
+             line(1:1) == '!' .or. line(1:3) == 'END') cycle ! read comments
         iarrow = index(line, '->') ! arrow position
         if (iarrow > 0) then ! read reactions
             ircn = ircn + 1 ! reaction index

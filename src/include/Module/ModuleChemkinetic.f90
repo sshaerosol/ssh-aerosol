@@ -1346,14 +1346,20 @@ subroutine ssh_spack_spec(ire, iex, label)
           kd = 6.5d-34 * dexp(1335d0 / temperature) * SumMc
           qfor = ka + kd / (1d0 + kd / kb)
         CASE (5)
+          ! CO +   HO        ->      HO2
           qfor = 1.44d-13 * (1.0d0 + 8.0d-1 * SumMc / 4.0d19)
         CASE (6)
-          ka = 3.43d-12 * dexp(270.0d0 / temperature)
-          kb = (530.0d0 / temperature) + 4.8d-6 * pressure - 1.73
-          qfor = ka * kb / 100.d0
+           ! NO2 + OH --> HNO3
+           ka = 1.8d-30 * (temperature / 3.d2)**(-3.d0)
+           kb = 2.8d-11 * (temperature / 3.d2)**(0.d0)
+           qfor = (ka * SumMc / (1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = qfor * 0.868d0
         CASE (7)
           qfor = 2.0d-39 * YlH2O * YlH2O
         CASE (8)
+          ! ACT +  HO        ->      ACTP
           qfor = 1.39d-13 + 3.72d-11 * dexp(-2.044d3 / temperature)
         CASE (9)
           ! N2O5            ->      NO2   +      NO3
