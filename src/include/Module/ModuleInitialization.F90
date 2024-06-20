@@ -2931,7 +2931,7 @@ contains
            endif
         enddo
         close(34)
-        
+
         ! check nRO2_group with reaction list
         if (nRO2_chem.gt.0) then
           ind = minval(TB_rcn(:,2)) !number read from reaction list
@@ -2992,8 +2992,10 @@ contains
           enddo
           ! check RO2 index - not found
           if ( RO2out_index(k) .eq. 0) then
-            if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
-            if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", k, trim(ic_name), trim(species_list_file)
+             if (ssh_standalone) write(*,*)   "Not found RO2 pool id in species list: ", &
+                  k, trim(ic_name), " ", trim(species_list_file)
+             if (ssh_logger) write(logfile,*) "Not found RO2 pool id in species list: ", &
+                  k, trim(ic_name), " ", trim(species_list_file)
           end if
         enddo
     endif
