@@ -1349,13 +1349,10 @@ subroutine ssh_spack_spec(ire, iex, label)
           ! CO +   HO        ->      HO2
           qfor = 1.44d-13 * (1.0d0 + 8.0d-1 * SumMc / 4.0d19)
         CASE (6)
-           ! NO2 + OH --> HNO3
-           ka = 1.8d-30 * (temperature / 3.d2)**(-3.d0)
-           kb = 2.8d-11 * (temperature / 3.d2)**(0.d0)
-           qfor = (ka * SumMc / (1.0d0 + ka * SumMc / &
-                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
-                (dlog10(ka * SumMc / kb))**2))
-           qfor = qfor * 0.868d0
+          ! NO + HO2 --> HNO3
+          ka = 3.43d-12 * dexp(270.0d0 / temperature)
+          kb = (530.0d0 / temperature) + 4.8d-6 * pressure - 1.73
+          qfor = ka * kb / 100.d0
         CASE (7)
           qfor = 2.0d-39 * YlH2O * YlH2O
         CASE (8)
@@ -1417,6 +1414,14 @@ subroutine ssh_spack_spec(ire, iex, label)
            denom = awc / (( 0.42800D-02* 0.50000D-05)**0.5)
            kwon =  0.33330D+02 * awc / (1.+1.5708*denom)
            qfor = kwon
+        CASE (14)
+           ! NO2 + OH --> HNO3
+           ka = 1.8d-30 * (temperature / 3.d2)**(-3.d0)
+           kb = 2.8d-11 * (temperature / 3.d2)**(0.d0)
+           qfor = (ka * SumMc / (1.0d0 + ka * SumMc / &
+                kb)) * 0.6d0 ** (1.0d0 / (1.0d0 + &
+                (dlog10(ka * SumMc / kb))**2))
+           qfor = qfor * 0.868d0
            
         CASE DEFAULT
           print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
