@@ -57,7 +57,7 @@ void compute_kp_org_bins_ssh(model_config &config, vector<species>& surrogate,
              for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
                 {
                   if (surrogate[i].nonvolatile)
-                    surrogate[i].Kp(b,ilayer,iphase)=pow(10.0,5)*200.0/
+                    surrogate[i].Kp(b,ilayer,iphase)=1.e9*200.0/
                       (surrogate[i].gamma_org_layer(b,ilayer,iphase)*MOW(b,ilayer,iphase));
                   else if (surrogate[i].kp_from_experiment)
                     if(iphase==jphase)
@@ -123,7 +123,7 @@ void compute_kp_aq_ssh(model_config &config, vector<species>& surrogate,
 	    {	  
 	      surrogate[i].gamma_LR=surrogate[i].LR(b);
 	      if (surrogate[i].nonvolatile)
-		surrogate[i].Kaq(b)=1000.0/surrogate[i].gamma_aq_bins(b)*18.0/MMaq(b);
+		surrogate[i].Kaq(b)=1.0e9/surrogate[i].gamma_aq_bins(b)*18.0/MMaq(b);
 	      else 
 		{
 		  surrogate[i].Kaq(b)=min(1.e20,
