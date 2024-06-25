@@ -470,7 +470,7 @@ contains
     INTEGER :: ncstat
     CHARACTER(20) :: out_aero(8) 
     DOUBLE PRECISION :: lb(N_size), hb(N_size)
-    INTEGER :: sb(N_size), em(N_size)
+    INTEGER :: sb(N_size), em(N_size), smb(N_size)
 
     
     out_aero(1) = 'Dust'
@@ -488,18 +488,25 @@ contains
 ! gas file
     ncstat = nf90_create(trim(output_directory) // "gas.nc", NF90_NETCDF4, ncid)
     ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of gaseous species')  
+    
+    !dim 1
     ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
     ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
-    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')    
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds') 
+    
+    !main output 
     do s = 1, n_gas
       ncstat = nf90_def_var(ncid,trim(species_name(s)), NF90_DOUBLE,  (/ tid /), concid(s))
       ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+      ncstat = nf90_put_att(ncid, concid(1), 'title', species_name(s) // ' gaseous concentration')
     enddo
     
+    !output value writing
     ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
     do s = 1, n_gas
       ncstat = nf90_put_var(ncid, concid(s), output_gas(1:nt+1,s))
     enddo
+    
     ncstat = nf90_close(ncid)
 !=======
    
@@ -508,99 +515,31 @@ contains
 ! number file
     ncstat = nf90_create(trim(output_directory) // "number.nc", NF90_NETCDF4, ncid)
     ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: numbers of particles')  
+    
+    !dim 1
     ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
     ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
-    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')        
-    isizmix = 0
-    do b=1, N_sizebin
-      do m=1, mixing_nb
-        isizmix = isizmix+1
-        ncstat = nf90_def_var(ncid,"sizemixbin_" // trim(str(isizmix)), NF90_DOUBLE,  (/ tid /), concid(isizmix))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'units', 'particles_m-3')
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'lower_boundary', diam_bound(b))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'higher_boundary', diam_bound(b+1))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'ext_mix', m)
-      enddo
-    enddo
-    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
-    ncstat = nf90_def_var(ncid,"total", NF90_DOUBLE,  (/ tid /), concid(N_size+1))
-    ncstat = nf90_put_att(ncid, concid(N_size+1), 'units', 'particles_m-3')
-    ncstat = nf90_put_att(ncid, concid(N_size+1), 'lower_boundary', diam_bound(1))
-    ncstat = nf90_put_att(ncid, concid(N_size+1), 'higher_boundary', diam_bound(N_sizebin+1))
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')  
     
-    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
-    do b = 1, N_size+1
-      ncstat = nf90_put_var(ncid, concid(b), output_numb(1:nt+1,b))
-    enddo
-    ncstat = nf90_close(ncid)
-!=======
-    
-    
-!=======
-! diameter file
-    ncstat = nf90_create(trim(output_directory) // "diameter.nc", NF90_NETCDF4, ncid)
-    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: average diameters of particles')  
-    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
-    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
-    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')    
-    isizmix = 0
-    do b=1, N_sizebin
-      do m=1, mixing_nb
-        isizmix = isizmix+1
-        ncstat = nf90_def_var(ncid,"sizebin_" // trim(str(isizmix)), NF90_DOUBLE,  (/ tid /), concid(isizmix))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'units', 'micrometer')
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'lower_boundary', diam_bound(b))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'higher_boundary', diam_bound(b+1))
-        ncstat = nf90_put_att(ncid, concid(isizmix), 'ext_mix', m)
-      enddo
-    enddo
-    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
-    
-    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
-    do b = 1, N_size
-      ncstat = nf90_put_var(ncid, concid(b), output_diam(1:nt+1,b))
-    enddo
-    ncstat = nf90_close(ncid)
-!=======
-   
-    
-!=======
-! TM file    
-    ncstat = nf90_create(trim(output_directory) // "TM.nc", NF90_NETCDF4, ncid)
-    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of condensable species')  
-    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
-    ncstat = nf90_def_dim(ncid,"Phase",3,pid)
-    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
-    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
-    ncstat = nf90_def_var(ncid,"Phase", NF90_CHAR,  (/ pid /), pvid)
-    ncstat = nf90_put_att(ncid, pvid, 'phase', '1=aer 2=gas 3=tot')
-    do s = 1, N_aerosol
-      ncstat = nf90_def_var(ncid,aerosol_species_name(s), NF90_DOUBLE,  (/ tid , pid /), concid(s))
-      ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
-    enddo
+    !dim 2
+    ncstat = nf90_def_dim(ncid,"size_mix_ind",N_size,sid)
+    ncstat = nf90_def_var(ncid,"size_mix_ind", NF90_DOUBLE,  (/ sid /), svid)
+    ncstat = nf90_put_att(ncid, svid, 'title', 'size bin / external mixing indice')
 
-    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
-    do s = 1, N_aerosol
-      ncstat = nf90_put_var(ncid, concid(s), output_TM(1:nt+1,s,1:3))
-    enddo
-    ncstat = nf90_close(ncid)
-!=======
-
-
-!=======
-! aero file 
-    ncstat = nf90_create(trim(output_directory) // "aero.nc", NF90_NETCDF4, ncid)
-    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of aerosol species')  
-    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
-    ncstat = nf90_def_dim(ncid,"Size_mix",N_size,sid)
-    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
-    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+    !main output
+    ncstat = nf90_def_var(ncid,"number", NF90_DOUBLE, (/ tid , sid /), concid(1)) 
+    ncstat = nf90_put_att(ncid, concid(1), 'units', 'particles_m-3')  
+    ncstat = nf90_put_att(ncid, concid(1), 'title', 'number concentration of particles for considered sizebin and ext. mix')
+    ncstat = nf90_def_var(ncid,"total_number", NF90_DOUBLE,  (/ tid /), concid(2))
+    ncstat = nf90_put_att(ncid, concid(2), 'units', 'particles_m-3')  
+    ncstat = nf90_put_att(ncid, concid(2), 'title', 'total number concentration of particles')
     
-    ncstat = nf90_def_var(ncid,"lower_boundary", NF90_DOUBLE,  (/ sid /), lbid)
+    !size_mix_ind info
+    ncstat = nf90_def_var(ncid,"low_boundary", NF90_DOUBLE,  (/ sid /), lbid)
     ncstat = nf90_put_att(ncid, lbid, 'units', 'micrometers')
-    ncstat = nf90_def_var(ncid,"higher_boundary", NF90_DOUBLE,  (/ sid /), hbid)
+    ncstat = nf90_def_var(ncid,"high_boundary", NF90_DOUBLE,  (/ sid /), hbid)
     ncstat = nf90_put_att(ncid, hbid, 'units', 'micrometers')
-    ncstat = nf90_def_var(ncid,"Sizebin", NF90_INT,  (/ sid /), sbid)
+    ncstat = nf90_def_var(ncid,"sizebin", NF90_INT,  (/ sid /), sbid)
     ncstat = nf90_put_att(ncid, sbid, 'title', 'Sizebin indice')
     ncstat = nf90_def_var(ncid,"ext_mix", NF90_INT,  (/ sid /), emid)      
     ncstat = nf90_put_att(ncid, emid, 'title', 'external mixing indice')
@@ -613,25 +552,173 @@ contains
         hb(isizmix) = diam_bound(b+1)
         sb(isizmix) = b
         em(isizmix) = m
+        smb(isizmix) = isizmix
       enddo
     enddo         
     if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
     
+    !output value writing
+    ncstat = nf90_put_var(ncid, lbid, lb)
+    ncstat = nf90_put_var(ncid, hbid, hb)
+    ncstat = nf90_put_var(ncid, sbid, sb)
+    ncstat = nf90_put_var(ncid, emid, em)    
+    ncstat = nf90_put_var(ncid, svid, smb)
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    ncstat = nf90_put_var(ncid, concid(1), output_numb(1:nt+1,1:N_size))
+    ncstat = nf90_put_var(ncid, concid(2), output_numb(1:nt+1,N_size+1))
+
+    ncstat = nf90_close(ncid)
+!=======
+    
+    
+!=======
+! diameter file
+    ncstat = nf90_create(trim(output_directory) // "diameter.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: average diameters of particles')
+    
+    !dim 1
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+
+    !dim 2
+    ncstat = nf90_def_dim(ncid,"size_mix_ind",N_size,sid)
+    ncstat = nf90_def_var(ncid,"size_mix_ind", NF90_DOUBLE,  (/ sid /), svid)
+    ncstat = nf90_put_att(ncid, svid, 'title', 'size bin / external mixing indice')
+
+    !main output
+    ncstat = nf90_def_var(ncid,"mean_diameter", NF90_DOUBLE, (/ tid , sid /), concid(1)) 
+    ncstat = nf90_put_att(ncid, concid(1), 'units', 'micrometer')  
+    ncstat = nf90_put_att(ncid, concid(1), 'title', 'mean particle diameter for considered sizebin and ext. mix')
+    
+    !size_mix_ind info
+    ncstat = nf90_def_var(ncid,"low_boundary", NF90_DOUBLE,  (/ sid /), lbid)
+    ncstat = nf90_put_att(ncid, lbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"high_boundary", NF90_DOUBLE,  (/ sid /), hbid)
+    ncstat = nf90_put_att(ncid, hbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"sizebin", NF90_INT,  (/ sid /), sbid)
+    ncstat = nf90_put_att(ncid, sbid, 'title', 'Sizebin indice')
+    ncstat = nf90_def_var(ncid,"ext_mix", NF90_INT,  (/ sid /), emid)      
+    ncstat = nf90_put_att(ncid, emid, 'title', 'external mixing indice')
+    
+    isizmix = 0
+    do b=1, N_sizebin
+      do m=1, mixing_nb
+        isizmix = isizmix+1
+        lb(isizmix) = diam_bound(b)
+        hb(isizmix) = diam_bound(b+1)
+        sb(isizmix) = b
+        em(isizmix) = m
+        smb(isizmix) = isizmix
+      enddo
+    enddo         
+    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
+    
+    !output value writing
+    ncstat = nf90_put_var(ncid, lbid, lb)
+    ncstat = nf90_put_var(ncid, hbid, hb)
+    ncstat = nf90_put_var(ncid, sbid, sb)
+    ncstat = nf90_put_var(ncid, emid, em)    
+    ncstat = nf90_put_var(ncid, svid, smb)
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    ncstat = nf90_put_var(ncid, concid(1), output_diam(1:nt+1,1:N_size))
+
+    ncstat = nf90_close(ncid)
+!=======
+   
+    
+!=======
+! TM file    
+    ncstat = nf90_create(trim(output_directory) // "TM.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of condensable species')
+    
+    !dim 1
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+    
+    !dim 2
+    ncstat = nf90_def_dim(ncid,"Phase",3,pid)
+    ncstat = nf90_def_var(ncid,"Phase", NF90_CHAR,  (/ pid /), pvid)
+    ncstat = nf90_put_att(ncid, pvid, 'phase', '1=aer 2=gas 3=tot')
+    
+    !main output
+    do s = 1, N_aerosol
+      ncstat = nf90_def_var(ncid,aerosol_species_name(s), NF90_DOUBLE,  (/ tid , pid /), concid(s))
+      ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+      ncstat = nf90_put_att(ncid, concid(s), 'title', 'gas, aer. and total concentrations of ' // aerosol_species_name(s) )
+    enddo
+    
+    !output value writing
+    ncstat = nf90_put_var(ncid, pvid, (/ 1, 2, 3 /) )
+    ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
+    do s = 1, N_aerosol
+      ncstat = nf90_put_var(ncid, concid(s), output_TM(1:nt+1,s,1:3))
+    enddo
+    
+    ncstat = nf90_close(ncid)
+!=======
+
+
+!=======
+! aero file 
+    ncstat = nf90_create(trim(output_directory) // "aero.nc", NF90_NETCDF4, ncid)
+    ncstat = nf90_put_att(ncid, NF90_GLOBAL, 'Title', 'SSH-aerosol ouput file: concentrations of aerosol species') 
+    
+    !dim 1
+    ncstat = nf90_def_dim(ncid,"Time",nt+1,tid)
+    ncstat = nf90_def_var(ncid,"Time", NF90_DOUBLE,  (/ tid /), tvid)
+    ncstat = nf90_put_att(ncid, tvid, 'units', 'seconds')
+    
+    !dim 2
+    ncstat = nf90_def_dim(ncid,"size_mix_ind",N_size,sid)
+    ncstat = nf90_def_var(ncid,"size_mix_ind", NF90_DOUBLE,  (/ sid /), svid)
+    ncstat = nf90_put_att(ncid, svid, 'title', 'size bin / external mixing indice')
+    
+    !main output
     do s = 1, N_aerosol
       ncstat = nf90_def_var(ncid,aerosol_species_name(s), NF90_DOUBLE,  (/ tid , sid /), concid(s))
       ncstat = nf90_put_att(ncid, concid(s), 'units', 'microgram_m-3')
+      ncstat = nf90_put_att(ncid, concid(s), 'title', aerosol_species_name(s) // &
+                          " aer. concentration for considered sizebin and ext. mix")
     enddo
     do s = 1, 8
       ncstat = nf90_def_var(ncid,out_aero(s), NF90_DOUBLE,  (/ tid /), concid(N_aerosol+s))
       ncstat = nf90_put_att(ncid, concid(N_aerosol+s), 'units', 'microgram_m-3')
+      ncstat = nf90_put_att(ncid, concid(N_aerosol+s), 'title', out_aero(s) // " concentration")
     enddo
     ncstat = nf90_def_var(ncid,"pH", NF90_DOUBLE,  (/ tid , sid /), concid(N_aerosol+8+1))
+    ncstat = nf90_put_att(ncid, concid(N_aerosol+8+1), 'title', "pH in particle for considered sizebin and ext. mix")
     
+    !size_mix_ind info
+    ncstat = nf90_def_var(ncid,"low_boundary", NF90_DOUBLE,  (/ sid /), lbid)
+    ncstat = nf90_put_att(ncid, lbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"high_boundary", NF90_DOUBLE,  (/ sid /), hbid)
+    ncstat = nf90_put_att(ncid, hbid, 'units', 'micrometers')
+    ncstat = nf90_def_var(ncid,"sizebin", NF90_INT,  (/ sid /), sbid)
+    ncstat = nf90_put_att(ncid, sbid, 'title', 'Sizebin indice')
+    ncstat = nf90_def_var(ncid,"ext_mix", NF90_INT,  (/ sid /), emid)      
+    ncstat = nf90_put_att(ncid, emid, 'title', 'external mixing indice')
+    
+    isizmix = 0
+    do b=1, N_sizebin
+      do m=1, mixing_nb
+        isizmix = isizmix+1
+        lb(isizmix) = diam_bound(b)
+        hb(isizmix) = diam_bound(b+1)
+        sb(isizmix) = b
+        em(isizmix) = m
+        smb(isizmix) = isizmix
+      enddo
+    enddo         
+    if (isizmix .ne. N_size) write(*,*) 'ERROR in Netcdf writing: isizmix and N_size are different'
+    
+    !output value writing
     ncstat = nf90_put_var(ncid, lbid, lb)
     ncstat = nf90_put_var(ncid, hbid, hb)
     ncstat = nf90_put_var(ncid, sbid, sb)
-    ncstat = nf90_put_var(ncid, emid, em)
-    
+    ncstat = nf90_put_var(ncid, emid, em)    
+    ncstat = nf90_put_var(ncid, svid, smb)
     ncstat = nf90_put_var(ncid, tvid, output_time(1:nt+1))
     do s = 1, N_aerosol
       ncstat = nf90_put_var(ncid, concid(s), output_aero(1:nt+1,s,1:N_size))
@@ -640,6 +727,7 @@ contains
       ncstat = nf90_put_var(ncid, concid(N_aerosol+s), output_special(1:nt+1,s))
     enddo
     ncstat = nf90_put_var(ncid, concid(N_aerosol+8+1), output_pH(1:nt+1,1:N_size))
+    
     ncstat = nf90_close(ncid)
 !=======
   
