@@ -176,10 +176,167 @@ contains
 
   end SUBROUTINE  ssh_ComputeCoefficientRepartition
 
+  SUBROUTINE ssh_ComputeCoefficientRepartition_analyt()
+    
+      implicit none
+  
+      !!integer (kind=8), parameter :: Nmc = 10000
+      integer, parameter :: Nalloc_tmp = 1000000 
+      real, dimension(:), allocatable :: repartition_coefficient_tmp
+      real, dimension(:), allocatable :: index1_repartition_coefficient_tmp
+      real, dimension(:), allocatable :: index2_repartition_coefficient_tmp
+      double precision, dimension(:), allocatable :: random_vector
+      double precision :: dsum, dsum_low, dsum_high
+      double precision :: m_low, m_high, m1_low, m1_high, m2_low, m2_high
+      integer :: i1,i2,l1,l2,j1,j2,n,s,i,j,k,l,g
+      integer :: ki
+      integer, dimension(40) :: seed
+  
+      if (ssh_standalone) write(*,*) "Compute coefficient repartition"
+      if (ssh_logger) write(logfile,*) "Compute coefficient repartition"
+  
+      ! Allocate repartition coefficient
+      if ( .not. allocated(repartition_coefficient)) allocate(repartition_coefficient(N_size))
+      if ( .not. allocated(index1_repartition_coefficient)) allocate(index1_repartition_coefficient(N_size))
+      if ( .not. allocated(index2_repartition_coefficient)) allocate(index2_repartition_coefficient(N_size))
+      if ( .not. allocated(repartition_coefficient_tmp)) allocate(repartition_coefficient_tmp(Nalloc_tmp))
+      if ( .not. allocated(index1_repartition_coefficient_tmp)) allocate(index1_repartition_coefficient_tmp(Nalloc_tmp))
+      if ( .not. allocated(index2_repartition_coefficient_tmp)) allocate(index2_repartition_coefficient_tmp(Nalloc_tmp))
+      if ( .not. allocated(random_vector)) allocate(random_vector(2+2*N_groups))
+  
+      ! set seed for random number generator
+      seed(1:40) = 47281
+      call random_seed(put=seed)
+  
+      ! Compute repartition coefficient
+      do j = 1,N_size
+
+          repartition_coefficient_tmp = 0.0
+          k = concentration_index(j, 1)
+          i = concentration_index(j, 2)
+          l = 1
+
+          do j1 = 1,N_size
+                  do j2 = 1,N_size
+
+                      l1 = concentration_index(j1, 1)
+                      l2 = concentration_index(j2, 1)
+                      
+                      i1 = concentration_index(j1, 2)
+                      i2 = concentration_index(j2, 2)
+
+                      ! Locate section boundaries
+                      m_low = discretization_mass(k)
+                      m_high = discretization_mass(k+1)
+                      m1_low = discretization_mass(l1)
+                      m1_high = discretization_mass(l1+1)
+                      m2_low = discretization_mass(l2)
+                      m2_high = discretization_mass(l2+1)
+
+                      call convolution_piecewiseconstant_windowed(m_low, &
+                          m1_low, &
+                          m1_high, &
+                          m2_low, &
+                          m2_high, &
+                          dsum_low)
+
+                      call convolution_piecewiseconstant_windowed(m_high, &
+                          m1_low, &
+                          m1_high, &
+                          m2_low, &
+                          m2_high, &
+                          dsum_high)
+
+                      dsum = dsum_high - dsum_low
+
+                      if (dsum > 0.0) then
+                          repartition_coefficient_tmp(l) = dsum
+                      
+                          index1_repartition_coefficient_tmp(l) = j1
+                          index2_repartition_coefficient_tmp(l) = j2
+                      
+                          l = l + 1
+                      endif
+
+              enddo
+          enddo
+  
+          repartition_coefficient(j)%n = 0
+          do l = 1,Nalloc_tmp
+              if (repartition_coefficient_tmp(l) > 0.0) then
+                  repartition_coefficient(j)%n = repartition_coefficient(j)%n + 1
+              endif
+              
+      enddo
+          index1_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+          index2_repartition_coefficient(j)%n = repartition_coefficient(j)%n
+  
+          ! YK to avoid zero Ncoef
+          if (repartition_coefficient(j)%n == 0) then
+              repartition_coefficient(j)%n = 1
+              repartition_coefficient_tmp(1) = 0.0
+              index1_repartition_coefficient_tmp(1) = j
+              index2_repartition_coefficient_tmp(1) = j
+          endif
+  
+          allocate(repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+          allocate(index1_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+          allocate(index2_repartition_coefficient(j)%arr(repartition_coefficient(j)%n))
+              
+          do l = 1,repartition_coefficient(j)%n
+              repartition_coefficient(j)%arr(l) = repartition_coefficient_tmp(l)
+              index1_repartition_coefficient(j)%arr(l) = index1_repartition_coefficient_tmp(l)
+              index2_repartition_coefficient(j)%arr(l) = index2_repartition_coefficient_tmp(l)
+          enddo
+  
+      enddo
+  
+  end SUBROUTINE  ssh_ComputeCoefficientRepartition_analyt
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  ! Read repartition coefficients and their indexes from file.
-  ! Size and composition discretization must correspond.
+  SUBROUTINE convolution_piecewiseconstant_windowed(m, m1_low, m1_high, m2_low, m2_high, dsum)
+
+      implicit none
+
+      double precision :: m, m1_low, m1_high, m2_low, m2_high
+      double precision :: dsum
+      double precision :: delta1, delta2, norm, a, b, c, d
+
+      delta1 = m1_high - m1_low
+      delta2 = m2_high - m2_low
+
+      norm = 1./(delta1*delta2)
+
+      a = m1_low + m2_low
+      d = m1_high + m2_high
+
+      if (delta1 > delta2) then
+          b = m1_low + m2_high
+          c = m1_high + m2_low
+      else
+          c = m1_low + m2_high
+          b = m1_high + m2_low
+      endif
+
+      if (m <= a) then
+          dsum = 0.
+      elseif (m >= d) then
+          dsum = 1.
+      elseif (m <= b) then
+          dsum = 0.5 * norm * (m-a)**2
+      elseif (m >= c) then
+          dsum = 1. - 0.5 * norm * (m-d)**2
+      else
+          if (delta1 > delta2) then
+              dsum = 0.5*(delta2/delta1) + (m - b)/delta1 
+          else
+              dsum = 0.5*(delta1/delta2) + (m - b)/delta2 
+          endif
+      endif
+
+  end SUBROUTINE convolution_piecewiseconstant_windowed
+
   subroutine ssh_ReadCoefficientRepartition(file, tag_file)
 !------------------------------------------------------------------------
 !
