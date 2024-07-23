@@ -412,7 +412,11 @@ contains
        if (i_compute_repart == 0) then
           call ssh_ReadCoefficientRepartition(Coefficient_file, tag_file)
        else if (i_compute_repart == 1) then
-          if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition()
+          if (N_frac.gt.1) then
+             if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition()
+          else
+             if (.not. allocated(repartition_coefficient)) call ssh_ComputeCoefficientRepartition_analyt()
+          endif
        else
           if (ssh_standalone) write(*,*) "Coefficient for coagulation must be read or computed."
           if (ssh_logger) write(logfile,*) "Coefficient for coagulation must be read or computed."
