@@ -79,21 +79,24 @@ contains
           rho_wet_cell(j1) = rhoaer
           if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
        enddo
+    else if (with_fixed_density.eq.1) then
+             do j1 = 1, N_size
+                rho_wet_cell(j1)= fixed_density
+             enddo
     else if (with_fixed_density.eq.2) then
+            do j1 = 1, N_size
+              do jesp=1,N_aerosol
+                qext(jesp)=0.d0
+              enddo
+              do jesp=1,N_aerosol_layers
+                 s = List_species(jesp)
+                 qext(s) = qext(s) + concentration_mass(j1,jesp)
+              enddo
 
-       do j1 = 1, N_size
-          do jesp=1,N_aerosol
-             qext(jesp)=0.d0
-          enddo
-          do jesp=1,N_aerosol_layers
-             s = List_species(jesp)
-             qext(s) = qext(s) + concentration_mass(j1,jesp)
-          enddo
-
-          call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)
-          rho_wet_cell(j1) = wet_density
-          if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
-       enddo
+              call ssh_get_nonlinear_density(qext,dry_density,wet_density,dry_mass,wmass,dry_to_wet)
+              rho_wet_cell(j1) = wet_density
+              if(rho_wet_cell(j1).LT.0.1d-6) rho_wet_cell(j1)=density_aer_bin(j1)
+            enddo
     end if  
 
     call ssh_update_wet_diameter_liquid(N_size,concentration_mass, concentration_number,&
