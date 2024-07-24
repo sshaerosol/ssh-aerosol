@@ -20,7 +20,7 @@ M_1, N_1 = upsample.M_N_conservative_upsample(M, rho, np.array([dmin, dmax]))
 print('Total mass', M_1[0])
 print('Total number', N_1[0])
 
-print('\nSpliting section at geometric mean diameter')
+print('\nSpliting section at geometric mean diameter in 2 logspaced sections')
 
 M_log2, N_log2 = upsample.M_N_conservative_upsample_logspace(M, rho, dmin, dmax, 2)
 
