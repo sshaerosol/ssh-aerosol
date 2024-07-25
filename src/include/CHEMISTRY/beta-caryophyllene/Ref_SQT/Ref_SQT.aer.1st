@@ -1,13 +1,4 @@
 # Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
-PMD	1    5    	28.0    --           1.000D10        1.000D10        0.D0      1.0     2.33D-06	    0           --            -       0.        0.      0.      0.
-PBC	2    4	        12.0    --           1.000D10        1.000D10        0.D0      1.0     2.25D-06     0           --            -       0.         0.     0.      0.
-PNA	3    1	        23.0    --           1.000D10        1.000D10        0.D0      1.0     0.97D-06	    0           --            -       0.         0.     0.      0.   
-PSO4	3    1        	98.0    SULF         77.3d0          5.5d0           80.D-03   1.0    1.84D-06      1           --            -       0.         0.     0.      0.
-PNH4	3    1         	17.0	NH3          558.3d0         2.9d0           80.D-03   1.0    0.91D-06      0           --            -       0.         0.     0.      0.
-PNO3	3    1	        63.0    HNO3         475.9d0         3.3d0           80.D-03   1.0    1.50D-06      0           --            -       0.         0.     0.      0.
-PHCL	3    1	        36.5	HCL          344.7d0         3.339d0         80.D-03   1.0    1.15D-06      0           --            -       0.         0.     0.      0.
-PBiMT	4    1	        136.0   BiMT         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.     0.      0.
-PSOAlP	4    1	        392.0	SOAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.     0.      0. 
 PBCALBOC	4	2	252.35	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	O=CCCC(=C)C1CC(C)(C)C1CCC(=O)OC	2.02E-05	9.29E+01	0.0	0.0
 PC141CO2H	4	2	252.35	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	CC(=O)CCC1C(CC1(C)C)C(=C)CCC(=O)O	3.75E-08	1.14E+02	0.0	0.0
 PNBCOOH	4	2	299.36	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	OOC1(C)CCC2C(CC2(C)C)C(=C)CCC1O[N+](=O)[O-]	3.07E-09	1.19E+02	0.0	0.0
@@ -333,4 +324,3 @@ PC828PAN	4	2	261.19	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	[O-][N+](=O)OOC(
 PC828OOH	4	2	188.18	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	OOC(C)(C)C(=O)C(=O)CC(=O)C	3.07E-06	9.93E+01	0.0	0.0
 PCO24C4CHO	4	2	114.10	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	O=CC(=O)CC(=O)C	4.60E-01	5.65E+01	0.0	0.0
 PALCOMOXOOH	4	2	120.06	--	687d0	8.39d0	30.D-03	1.0	1.30D-06	0	BOTH	OOCOC(=O)C=O	3.16E-02	6.91E+01	0.0	0.0
-PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.     0.      0.
