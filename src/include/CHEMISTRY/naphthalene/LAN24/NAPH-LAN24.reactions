@@ -1,0 +1,2557 @@
+%
+%
+%B1=============================================================%
+% BLOC 1 : NAPHTHALENE + NITRO-NAPHTHALENE 
+%
+%-------------------B0-001-------------------%
+% kOH: Shiroudi et al., 2014 / ROUEINTAN 2014 !!! adaptée
+% position de l'attaque (90% en 1-, 10% en 2- selon Shiroudi)
+%MODIF
+NAPH + hydroxyl          ->        4NaO   
+KINETIC ARR  1.105E-12 0 -908.0
+%KINETIC ARR  1.335E-12  -902.0
+%
+%-------------------B0-002-------------------%
+%kNO2: Nishino et al., 2008 (vNO2=vO2 quand [NO2]= ~60ppb avec ses valeurs)
+4NaO + nitric_dioxide         ->        NaV
+KINETIC ARR  3.6E-11 0 0
+%
+%-------------------B1-001-------------------%
+% k: dapres Phousongphouang & Arey 2003 (considerant 90% en 1-(2.85E-4) , 10% en 2-(20.4E-4) à JNO2 exp)
+% voir AR0128 pour evolution zenithale? 
+% produit pour benz d'apres ASTDR 1990 dans (https://www.inchem.org/documents/ehc/ehc/ehc230.htm): nojima and kanno 1977
+% coeff a ajuster
+NaV                ->        1Na + nitric_oxide
+KINETIC PHOTOLYSIS  2.1526E-04  2.1268E-04  2.0491E-04  1.9159E-04  1.7219E-04  1.4589E-04  1.1178E-04  7.0091E-05  3.5657E-05  1.0972E-05  0.0000E+00
+%
+%-------------------B1-002-------------------%
+%k: kNAPH/6 (effet compris entre ceux pour tol et benz car est-ce que nitric_dioxide a un impact sur le 2e cycle?) 
+% coeff de NAPHOHNO2 dapres benz gecko, AJOUTER DAUTRES PRODUITS???
+NaV + hydroxyl           ->  0.22  NaVO  + 0.22 hydroperoxy 
+KINETIC ARR  4.45E-12 0 0
+%
+%-------------------B0-003-------------------%
+%kO2: 1.0E-17 selon Nishino et al., 2008
+%kO2: 4.47E-16 selon jenkinARO (1 kaddO2 pour les 10 et 1 pour les 90% avec les pos des alk differentes, + kabsO2)
+% les coeff prennent en compte les 10/90% de Shiroudi, l'impossibilité de bicycle qd OH est en pos. 1 (olivella 2009, glowacki 2009), et unique voie en pos. 2 du fait de la cinétique
+% COEFF d'apres jenkinRO2 et jenkinARO considérant 1seul site d'add de O2 et 2gp alk sur le cycle
+% L1: NaO 8% en pos. 2 92% en pos. 1
+% L2: 0.020 1NAPHEPOX  + 0.059 2NAPHOHBP  % 0.079 bicycleOO qui devient epox a 25% ou bicycleOO+OO. a 75% (ratio MCM GECKO) 
+% L3: 18% du 2NAPHOH est en para (olivella 2009 jenkin)
+% L4: seul le para donne des quinones, seul l'ortho s'ouvre par autox
+4NaO               ->  0.255 NaO     + 0.255 hydroperoxy + 0.079 4NaOBp  +  0.546 2NaOort + 0.120 2NaOpar                         
+KINETIC TB O2 ARR  4.47E-16 0 0
+%
+%
+1Na + ozone           ->        2Na
+KINETIC ARR  2.86E-13 0 0
+1Na + nitric_dioxide          ->        NaVO
+KINETIC ARR  2.08E-12 0 0
+1Na + hydroperoxy          ->        NaO
+KINETIC ARR  2.30E-13 0 0
+%
+2Na + nitric_oxide           ->        1Na  + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2Na + nitric_dioxide          ->        1Na + nitrate_radical
+KINETIC ARR  6.143E-09 -1.1 0.00
+2Na + nitrate_radical          ->        1Na + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2Na + hydroperoxy          ->        NaH
+KINETIC ARR  2.096E-13 0 -1300.0
+2Na + methylperoxy          ->  0.80  1Na  + 0.20 NaO +    formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -324.0 
+%
+%B1=============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B2=============================================================%
+% BLOC 2 : BLOC PARA
+%
+%--------------------------------------%
+%classique gecko mcm
+2NaOpar + nitric_oxide       ->  0.82  1NaOpar    + 0.18  NaONpar  + 0.82 nitric_dioxide 
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOpar + hydroperoxy      ->        NaOHpar 
+KINETIC ARR  2.577E-13 0 -1300.0
+2NaOpar + nitrate_radical      ->        1NaOpar    +       nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOpar + methylperoxy      ->  0.60  1NaOpar    + 0.20  NaOOpar  + 0.20 NaOKpar + 0.60  hydroperoxy        + 0.80  formaldehyde     + 0.20 MOH
+KINETIC ARR  1.00E-13 0 -663.59 
+%
+1NaOpar            ->        NaOKpar    + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+%
+% coef&kin GECKO
+NaOKpar + hydroxyl       ->  0.225 NaQuin    + 0.775 2NaOOK + 0.225 hydroperoxy   
+KINETIC ARR  8.80E-11 0 0
+%
+2NaOOK + nitric_oxide        ->  0.875 1NaOOK    + 0.125 NaNOOK + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOOK + hydroperoxy       ->        NaHOOK
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOOK + nitrate_radical       ->        1NaOOK    +       nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOOK + methylperoxy       ->  0.60  1NaOOK    + 0.20  NaOOOK + 0.20 NaOOKK  + 0.60  hydroperoxy       + 0.80  formaldehyde   + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+1NaOOK             ->  0.57  PhODKD    + 0.43  PhDKOD + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%REVIEW
+%--------------------------------------%
+PhODKD  + hydroxyl       ->  0.41  4PhODKD  + 0.41 4PhDOD + 0.41 carbon_monoxide + 0.18  PhKDKD   + 0.18 hydroperoxy
+KINETIC ARR  3.56E-11 0 0
+%
+PhODKD  + nitrate_radical     ->  PhKDKD + nitric_acid + hydroperoxy
+KINETIC ARR  2.87E-13 0 0
+%
+%--------------------------------------%
+% RINGCLOSURE SCHEME (LVL2): 4PhODKD
+%(mcm fur)
+4PhODKD           ->  0.40  2PhOKEst  + 0.60 3PhOKD
+KINETIC ARR  1.00E+06 0 0
+%
+2PhOKEst + nitric_oxide     ->        1PhOKEst  + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhOKEst + hydroperoxy    ->  0.540 PhOKHEst  + 0.460 PhOKAnhy + 0.20  hydroxyl         + 0.20  hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhOKEst + nitrate_radical    ->        1PhOKEst  +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhOKEst + methylperoxy    ->  0.60  1PhOKEst  + 0.20  PhOKAnhy + 0.20 PhOKOEst  + 0.60  hydroperoxy        + 0.80  formaldehyde     + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhOKEst          ->        3PhOKA 
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhOKA + nitric_oxide       ->        1PhDOKA   + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOKA + nitric_dioxide      ->        PhPOKA
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOKA + nitrate_radical      ->        1PhDOKA   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOKA + hydroperoxy      ->  0.65  PhGOKA    + 0.15 PhAOKA + 0.20 1PhDOKA + 0.15  ozone         + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOKA + methylperoxy      ->  0.80  1PhDOKA   + 0.20 PhAOKA +   formaldehyde       + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+3PhOKD + nitric_oxide       ->        1PhDOKD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOKD + nitric_dioxide      ->        PhPOKD
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOKD + nitrate_radical      ->        1PhDOKD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOKD + hydroperoxy      ->  0.65  PhGOKD    + 0.15 PhAOKD + 0.20 1PhDOKD + 0.15  ozone       + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOKD + methylperoxy      ->  0.80  1PhDOKD + 0.20  PhAOKD  + formaldehyde     + 0.80  hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+% Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef? (60/40 coef bloss2005) 
+%MODIF REVIEW!!!
+1PhDOKA            ->  0.60  PhOKAnhy  + 0.60 hydroxyl  + 0.40  PhDKA     + 0.4 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDOKD            ->  0.60  PhOKAnhy  +  0.60 hydroperoxy  + 0.40  PhKDD     + 0.40 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%
+%REVIEW
+% RINGCLOSURE SCHEME (LVL2): 4PhDOD
+%(mcm fur)
+4PhDOD           ->  0.40  2PhOEst  + 0.60 3PhOD
+KINETIC ARR  1.00E+06 0 0
+%
+2PhOEst + nitric_oxide     ->        1PhOEst  + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhOEst + hydroperoxy    ->  0.540 PhOHEst  + 0.460 PhOAnhy + 0.20  hydroxyl  + 0.20  hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhOEst + nitrate_radical    ->        1PhOEst  +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhOEst + methylperoxy    ->  0.60  1PhOEst  + 0.20  PhOAnhy + 0.20 PhOOEst  +  0.60  hydroperoxy        + 0.80  formaldehyde     + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhOEst          ->        3PhOA 
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhOA + nitric_oxide       ->        1PhDOA   + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOA + nitric_dioxide      ->        PhPOA
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOA + nitrate_radical      ->        1PhDOA   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOA + hydroperoxy      ->  0.65  PhGOA    + 0.15 PhAOA + 0.20 1PhDOA + 0.15  ozone         + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOA + methylperoxy      ->  0.80  1PhDOA   + 0.20 PhAOA +    formaldehyde       + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+3PhOD + nitric_oxide       ->        1PhDODb + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOD + nitric_dioxide      ->        PhPOD
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOD + nitrate_radical      ->        1PhDODb + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOD + hydroperoxy      ->  0.65  PhGOD    + 0.15 PhAOD + 0.20 1PhDODb + 0.15  ozone       + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOD + methylperoxy      ->  0.80  1PhDODb + 0.20  PhAOD  +    formaldehyde     + 0.80  hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+1PhDOA            ->  0.60  PhOAnhy  + 0.60 hydroxyl  + 0.40  PhAD     + 0.4 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDODb            ->  0.60  PhOAnhy  +  0.60 hydroperoxy  + 0.40  PhD     + 0.40 hydroperoxy +   0.40  carbon_monoxide
+KINETIC ARR  1.00E+06 0 0
+%
+3PhO + nitric_oxide          ->        1PhOD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhO + nitric_dioxide         ->        PhOP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhO + nitrate_radical         ->        1PhOD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhO + hydroperoxy         ->  0.65  PhOG  + 0.15 PhOA + 0.20 1PhOD +  0.15  ozone    + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhO + methylperoxy         ->  0.80  1PhOD + 0.20  PhOA   +     formaldehyde  + 0.80  hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1PhOD              ->        PhD   + hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhOKAnhy           ->       PhAOKA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%REVIEW
+PhOAnhy           ->        PhAOA
+KINETIC TB H2O ARR  2.50E-22 0 0
+PhKAnhy           ->        PhAKA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL3): PhKDKD
+%REVIEW
+PhKDKD  + hydroxyl     ->   0.6 PhKAnhy + 0.24 hydroxyl + 0.36 hydroperoxy +  0.16 3PhA    + 0.16 carbon_monoxide +  0.24 3Ph     + 0.48 carbon_monoxide 
+KINETIC ARR  2.59E-11 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhKKAnhy           ->        PhKAKA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%--------------------------------------------%
+PhDKOD  + hydroxyl       ->  0.82 4PhDKOD  + 0.18 PhDKKD   + 0.18 hydroperoxy 
+KINETIC ARR  3.04E-11 0 0
+%
+PhDKOD  + nitrate_radical      ->       PhDKKD   + nitric_acid + hydroperoxy
+KINETIC ARR  1.92E-13 0 0
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL2): 4PhDKOD
+%(mcm fur)
+4PhDKOD           ->  0.40  2PhKOEst  + 0.60 3PhKOD
+KINETIC ARR  1.00E+06 0 0
+%
+2PhKOEst + nitric_oxide     ->        1PhKOEst  + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhKOEst + hydroperoxy    ->  0.540 PhKOHEst  + 0.460 PhKOAnhy + 0.20  hydroxyl  + 0.20  hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhKOEst + nitrate_radical    ->        1PhKOEst  +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhKOEst + methylperoxy    ->  0.60  1PhKOEst  + 0.20  PhKOAnhy + 0.20 PhKOOEst  +  0.60  hydroperoxy        + 0.80  formaldehyde     + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhKOEst          ->        3PhKOA 
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhKOA + nitric_oxide       ->        1PhDKOA   + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhKOA + nitric_dioxide      ->        PhPKOA
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhKOA + nitrate_radical      ->        1PhDKOA   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhKOA + hydroperoxy      ->  0.65  PhGKOA    + 0.15 PhAKOA + 0.20 1PhDKOA + 0.15  ozone         + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhKOA + methylperoxy      ->  0.80  1PhDKOA   + 0.20 PhAKOA +   formaldehyde       + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+3PhKOD + nitric_oxide        ->        1PhDKOD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhKOD + nitric_dioxide       ->        PhPKOD
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhKOD + nitrate_radical       ->        1PhDKOD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhKOD + hydroperoxy       ->  0.65  PhGKOD    + 0.15 PhAKOD + 0.20 1PhDKOD +  0.15  ozone       + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhKOD + methylperoxy       ->  0.80  1PhDKOD + 0.20  PhAKOD  +  formaldehyde    + 0.80  hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+% Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef? (60/40 coef bloss2005) 
+1PhDKOA            ->  0.60  PhKOAnhy   + 0.60 hydroxyl  + 0.20  PhAKD      + 0.2 hydroperoxy + 0.20  2PhKOA   
+KINETIC ARR  1.00E+06 0 0
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDKOD            ->  0.60  PhKOAnhy  + 0.60 hydroperoxy  + 0.20  3PhKO     + 0.20  PhKDD     + 0.20 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%
+2PhKOA + nitric_oxide        ->        1PhKOA +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhKOA + nitric_dioxide       ->        1PhKOA + nitrate_radical 
+KINETIC ARR  6.143E-09  -1.1  0.0
+2PhKOA + nitrate_radical       ->        1PhKOA +   nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhKOA + hydroperoxy       ->        HPhKOA
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhKOA + methylperoxy       ->  0.80  1PhKOA + 0.20  OPhKOA  +    formaldehyde   + 0.80  hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+%
+1PhKOA + ozone         ->        2PhKOA
+KINETIC ARR   2.86E-13 0 0
+1PhKOA + nitric_dioxide        ->        VOPhKOA
+KINETIC ARR   2.08E-12 0 0
+1PhKOA + hydroperoxy        ->        OPhKOA
+KINETIC ARR   2.30E-13 0 0
+%
+3PhKO + nitric_oxide         ->        1PhKOD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhKO + nitric_dioxide        ->        PhKOP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhKO + nitrate_radical        ->        1PhKOD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhKO + hydroperoxy        ->  0.65  PhKOG  + 0.15 PhKOA + 0.20 1PhKOD + 0.15  ozone     + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhKO + methylperoxy        ->  0.80  1PhKOD + 0.20  PhKOA   +   formaldehyde   + 0.80  hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1PhKOD             ->        PhKD   + hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhKOAnhy           ->        PhAKOA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL3): PhDKKD
+%REVIEW
+PhDKKD  + hydroxyl     ->   0.20 2PhEst + 0.30 3PhD + carbon_monoxide + 0.3 PhKKAnhy + 0.12 hydroxyl + 0.18 hydroperoxy + 0.08 3PhA + 0.08 carbon_monoxide + 0.12 3Ph + 0.24 carbon_monoxide +  0.3 carbon_monoxide
+KINETIC ARR  2.51E-11 0 0
+%
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL3): PhKDD
+%REVIEW
+PhKDD  + hydroxyl        ->  0.20 2PhEst + 0.30 3PhD + 0.5 carbon_monoxide + 0.3 PhKAnhy + 0.12 hydroxyl + 0.18 hydroperoxy + 0.08 3PhA + 0.08 carbon_monoxide + 0.12 3Ph + 0.24 carbon_monoxide + 0.3 carbon_monoxide 
+KINETIC ARR  2.51E-11 0 0
+%
+%
+%
+%B2=============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B3=============================================================%
+% BLOC 3 : BLOC ORTHO / NaOPEN
+%
+%-------------------B2-001-------------------%
+%classique gecko mcm
+2NaOort + nitric_oxide     ->  0.875 1NaOort    + 0.125  NaONort + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOort + hydroperoxy    ->   NaOHort
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOort + nitrate_radical    ->   1NaOort    +   nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOort + methylperoxy  ->  0.60 1NaOort  + 0.20  NaOOort  + 0.20 NaOKort +  0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+% voie arrachement proposée par Kautzman 2010, cinetique jenkinRO2
+2NaOort          ->  NaOPEN + hydroxyl
+KINETIC ARR  1.90E11 0 9750.0 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%ZHANG12 !!!
+1NaOort          ->    0.50 NaOPEN + 0.50 hydroperoxy +  0.50 2NaOEpox
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+2NaOEpox + nitric_oxide     ->  0.875 1NaOEpox    + 0.125  NaONEpox + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOEpox + hydroperoxy    ->   NaOHEpox
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOEpox + nitrate_radical    ->   1NaOEpox    +   nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOEpox + methylperoxy  ->  0.60 1NaOEpox  + 0.20  NaOOEpox  + 0.20 NaOKEpox + 0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+1NaOEpox            ->        NaOKEpox    + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+NaOKEpox + hydroxyl       ->        NaKKEpox    + hydroperoxy
+KINETIC ARR  3.27E-09 0 246.0
+%
+1NaOEpox            ->        2PhDOD    + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  2301.0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL1): NaOPEN 
+%
+% (OH: cin et coef adapted gecko: 0.52 additioon sur C=C, 0.28 arr du H de CHO solo, 0.20 arr du H de CHO apres C=C)
+% (hv: cin et coef adapted gecko)
+NaOPEN + hydroxyl   ->  0.52 2PhDOD + 0.28 4NaOPEN1  + 0.20 4NaOPEN2
+KINETIC ARR  6.50E-11 0 0
+%
+%(avec Hshift sur cycle kautzman sc.4)
+NaOPEN        ->     3PhU + carbon_monoxide + hydroperoxy
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%(20200)
+NaOPEN        ->     PhDD + 2.0 carbon_monoxide + 2.0 hydroperoxy
+KINETIC PHOTOLYSIS  2.9336E-06  2.8914E-06  2.7643E-06  2.5488E-06  2.2406E-06  1.8363E-06  1.3410E-06  7.9317E-07  3.9615E-07  1.2047E-07  0.0000E+00
+%21100
+NaOPEN        ->     5PhDCrg + carbon_monoxide
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%21200
+NaOPEN        ->     4NaOPEN2 + hydroperoxy
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%21300
+%
+% (gecko)
+5PhDCrg       ->  0.625 PhDCA   + 0.375 PhDCD 
+%+ 0.375 H2O2
+KINETIC TB H2O ARR  1.205E-14 0 0
+5PhDCrg + nitric_oxide     ->    PhDCD +       nitric_dioxide
+KINETIC ARR   0.600E-13 0 0
+5PhDCrg + nitric_dioxide    ->    PhDCD +       nitrate_radical
+KINETIC ARR   0.200E-11 0 0
+5PhDCrg + carbon_monoxide     ->    PhDCD 
+KINETIC ARR   0.219E-19 0 0
+5PhDCrg + nitric_acid   ->    PhDCD +       peroxynitric_acid
+KINETIC ARR   0.540E-09 0 0
+5PhDCrg + ozone     ->    PhDCD
+KINETIC ARR   0.152E-11 0 0
+5PhDCrg          ->    PhDCD +       hydroxyl
+KINETIC ARR   0.114E+03 0 0
+%
+2PhDOD + nitric_oxide     ->   0.810 1PhDOD  + 0.190 PhDNOD + 0.810 nitric_dioxide 
+KINETIC ARR  2.7E-12 0 -360.0
+2PhDOD + nitrate_radical    ->   1PhDOD    +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhDOD + hydroperoxy    ->        PhDHOD
+KINETIC ARR  2.66E-13 0 -1300.0
+2PhDOD + methylperoxy  ->  0.60 1PhDOD    + 0.20  PhDOOD  + 0.20 PhDKOD  + 0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -1031.0 
+2PhDOD + hydroxyl    ->        1PhDOD + hydroperoxy
+KINETIC ARR  3.70E-11 0 -350.0
+%
+1PhDOD             ->  GLYOX  +  PhDD + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  1644.0
+%
+%--------------------------------------------%
+%(mcm fur)
+4NaOPEN1  ->   0.40 2PhUEst1  + 0.60 3PhUD1
+KINETIC ARR  1.00E+06 0 0
+%
+%
+2PhUEst1 + nitric_oxide     ->   1PhUEst1  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhUEst1 + hydroperoxy    ->  0.540 PhUHEst1 + 0.460 PhUAnhy + 0.20  hydroxyl + 0.20 hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhUEst1 + nitrate_radical    ->   1PhUEst1    +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhUEst1 + methylperoxy  ->  0.60 1PhUEst1    + 0.20  PhUAnhy  + 0.20 PhUOEst1  + 0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhUEst1          ->    3PhUA1 
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhUA1 + nitric_oxide     ->  1PhDUA1 + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhUA1 + nitric_dioxide    ->  PhPUA1
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhUA1 + nitrate_radical    ->  1PhDUA1 + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhUA1 + hydroperoxy    ->  0.65 PhGUA1  + 0.15 PhAUA + 0.20 1PhDUA1 + 0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhUA1 + methylperoxy  ->  0.80 1PhDUA1 + 0.20  PhAUA   +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+% (60/40 coef bloss2005) 
+% Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef?
+1PhDUA1   ->   0.60  PhUAnhy  + 0.60 hydroxyl + 0.40  PhAD + 0.4 carbon_monoxide + 0.4 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%gecko
+3PhUD1 + nitric_oxide     ->  1PhDUD1 + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhUD1 + nitric_dioxide    ->  PhPUD1
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhUD1 + nitrate_radical    ->  1PhDUD1 + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhUD1 + hydroperoxy    ->  0.65 PhGUD1  + 0.15 PhAUD1 + 0.20 1PhDUD1 + 0.15 ozone + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhUD1 + methylperoxy  ->  0.80 1PhDUD1 + 0.20  PhAUD1  +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDUD1     ->    0.60  PhUAnhy  + 0.60 hydroperoxy  +  0.40  3PhU     
+KINETIC ARR  1.00E+06 0 0
+%
+3PhU + nitric_oxide     ->  1PhUD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhU + nitric_dioxide    ->  PhUP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhU + nitrate_radical    ->  1PhUD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhU + hydroperoxy    ->  0.65 PhUG  + 0.15 PhUA + 0.20 1PhUD + 0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhU + methylperoxy  ->  0.80 1PhUD + 0.20  PhUA   +  formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1PhUD     ->   PhD + carbon_monoxide + hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhUAnhy        ->    PhAUA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%--------------------------------------------%
+%(mcm fur)
+4NaOPEN2  ->   0.40 2PhUEst2  + 0.60 3PhUD2
+KINETIC ARR  1.00E+06 0 0
+%
+2PhUEst2 + nitric_oxide     ->   1PhUEst2  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhUEst2 + hydroperoxy    ->  0.540 PhUHEst2 + 0.460 PhUAnhy + 0.20 hydroxyl + 0.20 hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhUEst2 + nitrate_radical    ->   1PhUEst2    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhUEst2 + methylperoxy  ->  0.60 1PhUEst2    + 0.20  PhUAnhy  + 0.20 PhUOEst2 + 0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -1010.0 
+%
+1PhUEst2          ->    3PhUA2
+KINETIC ARR  8.00E+10  1.7  3723.0
+%
+3PhUA2 + nitric_oxide     ->  1PhDUA2 + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhUA2 + nitric_dioxide    ->  PhPUA2
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhUA2 + nitrate_radical    ->  1PhDUA2 + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhUA2 + hydroperoxy    ->  0.65 PhGUA2  + 0.15 PhAUA + 0.20 1PhDUA2 + 0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhUA2 + methylperoxy  ->  0.80 1PhDUA2 + 0.20  PhAUA  +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+% (60/40 coef bloss2005) 
+% Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef?
+1PhDUA2   ->    0.60  PhUAnhy + 0.60 hydroxyl + 0.40  2PhUA   
+KINETIC ARR  1.00E+06 0 0
+%
+2PhUA + nitric_oxide       ->  1PhUA  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhUA + nitric_dioxide       ->  1PhUA + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+2PhUA + nitrate_radical    ->   1PhUA    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhUA + hydroperoxy       ->   HPhUA
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhUA + methylperoxy  ->  0.80 1PhUA    + 0.20  OPhUA +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+%
+1PhUA + ozone       ->     2PhUA 
+KINETIC ARR   2.86E-13 0 0
+1PhUA + nitric_dioxide      ->     VOPhUA 
+KINETIC ARR   2.08E-12 0 0
+1PhUA + hydroperoxy      ->     OPhUA
+KINETIC ARR   2.30E-13 0 0
+%
+%
+3PhUD2 + nitric_oxide     ->  1PhDUD2 + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhUD2 + nitric_dioxide    ->  PhPUD2 
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhUD2 + nitrate_radical    ->  1PhDUD2 + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhUD2 + hydroperoxy    ->  0.65 PhGUD2  + 0.15 PhAUD2 + 0.20 1PhDUD2 +  0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhUD2 + methylperoxy  ->  0.80 1PhDUD2 + 0.20  PhAUD2 + formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+% (60/40 coef bloss2005) 
+1PhDUD2   ->   0.60  PhUAnhy  + hydroperoxy +   0.40  PhDD     + 0.4 carbon_monoxide  
+KINETIC ARR  1.00E+06 0 0
+%
+%B3=============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B4=============================================================%
+% BLOC 4 : BLOC PONT O-O
+%
+%bicycleOO qui devient epox a 25% ou bicycleOO+OO. a 75% (ratio MCM GECKO) 
+4NaOBp             ->   0.75  2NaOBp   +  0.25  1NaEpox 
+KINETIC ARR  1.0E+06 0 0
+%
+%--------------------------------------%
+%classique gecko mcm
+2NaOBp + nitric_oxide        ->  0.91 1NaOBp    + 0.09 NaONBp + 0.91 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOBp + hydroperoxy       ->       NaOHBp
+KINETIC ARR  2.447E-13 0 -1300.0
+2NaOBp + nitrate_radical       ->       1NaOBp  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaOBp + methylperoxy       ->  0.60 1NaOBp    + 0.20  NaOOBp  + 0.20 NaOKBp +   0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -598.0  
+%
+1NaOBp             ->  1PhDOD
+KINETIC ARR  1.12E+09  1.7  2413.0
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ZHANG12
+%
+1NaEpox            ->    NaOPENEpox
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+NaOPENEpox + hydroxyl    ->    4NaOPENEpox
+KINETIC ARR  2.51E-11 0 0
+%
+% RINGCLOSURE SCHEME (LVL2): 
+%(ratio mcm fur)
+4NaOPENEpox           ->   0.40 2PhEpoxEst  + 0.60 3PhEpoxD
+KINETIC ARR  1.00E+06 0 0
+%
+2PhEpoxEst + nitric_oxide      ->   1PhEpoxEst  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhEpoxEst + hydroperoxy     ->  0.540 PhEpoxHEst + 0.460 PhEpoxAnhy +  0.20  hydroxyl       + 0.20  hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhEpoxEst + nitrate_radical     ->   1PhEpoxEst    +  nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhEpoxEst + methylperoxy     ->   0.60 1PhEpoxEst    + 0.20  PhEpoxAnhy  + 0.20 PhEpoxOEst  +  0.60 hydroperoxy         + 0.80  formaldehyde      + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhEpoxEst           ->    PhEpoxAnhy + hydroperoxy
+KINETIC TB O2 ARR  2.5E-14 0 300.0
+1PhEpoxEst           ->    3PhAEpox
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhAEpox + nitric_oxide        ->  1PhAEpoxD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhAEpox + nitric_dioxide       ->  PhAEpoxP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhAEpox + nitrate_radical       ->  1PhAEpoxD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhAEpox + hydroperoxy       ->  0.65 PhAEpoxG  + 0.15 PhAEpoxA + 0.20 1PhAEpoxD +  0.15 ozone      + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhAEpox + methylperoxy       ->  0.80 1PhAEpoxD + 0.20 PhAEpoxA   +   formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0
+%
+%
+3PhEpoxD + nitric_oxide        ->  1PhDEpoxD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhEpoxD + nitric_dioxide       ->  PhPEpoxD
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhEpoxD + nitrate_radical       ->  1PhDEpoxD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhEpoxD + hydroperoxy       ->  0.65 PhGEpoxD  + 0.15 PhAEpoxD + 0.20 1PhDEpoxD +  0.15 ozone      + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhEpoxD + methylperoxy       ->  0.80 1PhDEpoxD + 0.20 PhAEpoxD  +    formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+% (60/40 coef bloss2005) Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef?
+1PhAEpoxD            ->   0.60  PhEpoxAnhy  + 0.60 hydroxyl +  0.20  2PhAD       + 0.20  2PhEpoxA    
+KINETIC ARR  1.00E+06 0 0
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDEpoxD            ->    0.60  PhEpoxAnhy  +  0.60 hydroperoxy + 0.20  3PhEpox     + 0.20  2PhDCD   
+KINETIC ARR  1.00E+06 0 0
+%
+%
+2PhAD + nitric_oxide         ->   0.88 1PhAD  + 0.88 nitric_dioxide + 0.12 PhAND
+KINETIC ARR  2.7E-12 0 -360.0
+2PhAD + nitrate_radical        ->   1PhAD    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhAD + hydroperoxy        ->   PhAHD
+KINETIC ARR  2.623E-13 0 -1300.0
+2PhAD + methylperoxy        ->  0.60 1PhAD    + 0.20  PhAOD  + 0.20  PhAKD + 0.60 hydroperoxy      + 0.80  formaldehyde   + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -1038.0
+%
+1PhAD              ->     PhAKD + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+1PhAD              ->     PhAD  + carbon_monoxide  + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  5233.0
+%
+2PhEpoxA + nitric_oxide       ->  1PhEpoxA  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhEpoxA + nitric_dioxide       ->  1PhEpoxA + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+2PhEpoxA + nitrate_radical    ->   1PhEpoxA    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhEpoxA + hydroperoxy       ->   HPhEpoxA
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhEpoxA + methylperoxy  ->  0.80 1PhEpoxA    + 0.20  OPhEpoxA +    formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+%
+1PhEpoxA + ozone       ->     2PhEpoxA 
+KINETIC ARR   2.86E-13 0 0
+1PhEpoxA + nitric_dioxide      ->     VOPhEpoxA 
+KINETIC ARR   2.08E-12 0 0
+1PhEpoxA + hydroperoxy      ->     OPhEpoxA
+KINETIC ARR   2.30E-13 0 0
+%
+%
+3PhEpox + nitric_oxide         ->  1PhEpoxD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhEpox + nitric_dioxide        ->  PhEpoxP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhEpox + nitrate_radical        ->  1PhEpoxD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhEpox + hydroperoxy        ->  0.65 PhEpoxG  + 0.15 PhEpoxA + 0.20 1PhEpoxD + 0.15 ozone     + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhEpox + methylperoxy        ->  0.80 1PhEpoxD + 0.20 PhEpoxA   +   formaldehyde   + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1PhEpoxD             ->   2PhCD 
+KINETIC ARR  1.00E+06 0 0
+%
+2PhCD + nitric_oxide          ->   0.88 1PhCD  + 0.88 nitric_dioxide + 0.12 PhND
+KINETIC ARR  2.7E-12 0 -360.0
+2PhCD + nitrate_radical         ->   1PhCD    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhCD + hydroperoxy         ->   PhHD
+KINETIC ARR  2.623E-13 0 -1300.0
+2PhCD + methylperoxy         ->  0.60 1PhCD    + 0.20  PhOD  + 0.20  PhKD + 0.60 hydroperoxy     + 0.80  formaldehyde  + 0.20  MOH
+KINETIC ARR  1.03E-13 0 -1038.0
+%
+1PhCD               ->     PhKD + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+1PhCD               ->     PhD  + carbon_monoxide  + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  5233.0
+%
+%
+2PhDCD + nitric_oxide          ->   0.88 1PhDCD  + 0.88 nitric_dioxide + 0.12 PhDND
+KINETIC ARR  2.7E-12 0 -360.0
+2PhDCD + nitrate_radical         ->   1PhDCD    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhDCD + hydroperoxy         ->   PhDHD
+KINETIC ARR  2.623E-13 0 -1300.0
+2PhDCD + methylperoxy         ->  0.60 1PhDCD    + 0.20  PhDOD  + 0.20  PhKDD + 0.60 hydroperoxy     + 0.80  formaldehyde  + 0.20  MOH
+KINETIC ARR  1.03E-13 0 -1038.0
+%
+1PhDCD               ->     PhKDD + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+1PhDCD               ->     PhDD  + carbon_monoxide  + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  5233.0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhEpoxAnhy           ->    PhAEpoxA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%
+%B4=============================================================%
+%
+%
+%
+%
+%
+%
+%B5=============================================================%
+% BLOC 5 : NAPHOH
+%
+%-------------------B3-001-------------------%
+%cinetique: x10 sur le cycle avec OH, normale sur l'autre, cela se répercute sur les coeff 10x plus grand pour attaque du phenol
+% meme ratio 25-75 entre addition et abstraction + attaque du OH
+NaO    + hydroxyl       ->  0.217 NaOO    + 0.217 hydroperoxy +  0.022 ONaO    + 0.022 hydroperoxy +  0.044 1Na     +  0.065 2ONaO   +   0.652 2NaOO
+KINETIC ARR  1.35E-10 0 0
+%KINETIC ARR  2.7E-10  x10 par rapport au napht
+%KINETIC ARR  1.3E-10  x5 par rapport au napht
+%
+%-------------------B3-001-------------------%
+% meme ratio pour les positions de OH que pour le naph (90% en 1-, 10% en 2- selon Shiroudi) puis meme ratios ort/par (82/18)
+% les blocs de mech qui suivent sont les memes que pour 4NAPHOHBP, 2NAPHOHpar et 2NAPHOHort (le OH en plus sur l'autre cycle)
+2ONaO        ->  0.100 4ONaOBp  + 0.162 2ONaOpar +  0.738 2ONaOort
+KINETIC ARR  1.0E+06 0 0
+%
+%-------------------B3-001-------------------%
+% ratio pour les positions de l'attaque de OH adaptées de JenkinARO (50/50 para ortho)
+% en ortho, changement du fait de l'addition de O2 sur un C avec gp OH, la formation de l'aldehyde devient compétitive (JenkinRO2, on met à 50/50 par rapport à BP)
+% blocs de mech qui suivent similaires pour 2NAPHOHort et 4NAPHOHBP (le OH en plus sur le meme cycle) sauf pour l'EPOX (gecko)
+%MODIF branch L1 et 2: + vers naOKort
+2NaOO       ->  0.125 4NaOOBp  + 0.375 NaOKort  + 0.375 hydroperoxy + 0.410 2NaOOort + 0.09  NaOKpar + 0.09 hydroperoxy
+KINETIC ARR  1.0E+06 0 0
+%
+%B5=============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B51============================================================%
+% BLOC 5-1
+%
+%bicycleOO qui devient epox a 25% ou bicycleOO+OO. a 75% (ratio MCM GECKO) 
+4ONaOBp       ->   0.75  2ONaOBp   +  0.25  1ONaEpox 
+KINETIC ARR  1.0E+06 0 0
+%
+%classique gecko mcm
+2ONaOBp + nitric_oxide       ->  0.91 1ONaOBp    + 0.09  ONaONBp  + 0.91 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2ONaOBp + hydroperoxy       ->    ONaOHBp
+KINETIC ARR  2.447E-13 0 -1300.0
+2ONaOBp + nitrate_radical    ->    1ONaOBp   + nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2ONaOBp + methylperoxy  ->  0.60 1ONaOBp  + 0.20  ONaOOBp + 0.20 ONaOKBp   + 0.60 hydroperoxy      + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -598.0  
+%
+1ONaOBp      ->  1OPhDOD
+KINETIC ARR  1.12E+09  1.7  2413.0
+%
+1OPhDOD    ->  GLYOX  +  OPhDD + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  1644.0
+%
+%ZHANG12
+1ONaEpox          ->    OPhDEpoxD
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%
+%B51============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B52============================================================%
+% BLOC 5-2 
+%
+2ONaOpar + nitric_oxide     ->  0.82 1ONaOpar    + 0.18  ONaONpar + 0.82 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2ONaOpar + hydroperoxy    ->       ONaOHpar
+KINETIC ARR  2.577E-13 0 -1300.0
+2ONaOpar + nitrate_radical    ->       1ONaOpar  + nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2ONaOpar + methylperoxy  ->  0.60 1ONaOpar    + 0.20  ONaOOpar  + 0.20 ONaOKpar   + 0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.00E-13 0 -663.59 
+%
+1ONaOpar          ->    ONaOKpar + hydroperoxy
+KINETIC TB O2 ARR  2.50E-14 0 300.0
+%
+% coef&kin GECKO
+ONaOKpar + hydroxyl     ->  0.225  ONaQuin  + 0.775 2ONaOOK   + 0.225 hydroperoxy
+KINETIC ARR  8.80E-11 0 0
+%
+2ONaOOK + nitric_oxide     ->  0.875 1ONaOOK    + 0.125  ONaNOOK + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2ONaOOK + hydroperoxy    ->        ONaHOOK
+KINETIC ARR  2.659E-13 0 -1300.0
+2ONaOOK + nitrate_radical    ->        1ONaOOK  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2ONaOOK + methylperoxy  ->  0.60 1ONaOOK    + 0.20  ONaOOOK  + 0.20 ONaOOKK  +  0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+%pas dvp car représente 0,2% de la matière
+1NaOOK          ->     OPhODKD + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%B52============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B53============================================================%
+% BLOC 5-3 
+%
+%-------------------B2-001-------------------%
+%classique gecko mcm
+2ONaOort + nitric_oxide     ->  0.875 1ONaOort    + 0.125  ONaONort  + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2ONaOort + hydroperoxy    ->   ONaOHort
+KINETIC ARR  2.659E-13 0 -1300.0
+2ONaOort + nitrate_radical    ->   1ONaOort    + nitric_dioxide  
+KINETIC ARR  8.90E-12 0 390.0
+2ONaOort + methylperoxy  ->  0.60 1ONaOort    + 0.20  ONaOOort  + 0.20 ONaOKort   +  0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+% voie arrachement proposée par Kautzman 2010, cinetique jenkinRO2
+2ONaOort          ->  ONaOPEN + hydroxyl
+KINETIC ARR  1.90E11 0 9750.0 
+%
+1ONaOort          ->    ONaOPEN + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%--------------------------------------------%
+% RINGCLOSURE SCHEME (LVL2): ONaOPEN (représente que 1.2%)
+ONaOPEN + hydroxyl   ->  0.52 2OPhDOD + 0.48 4ONaOPEN
+KINETIC ARR  6.50E-11 0 0
+%
+ONaOPEN        ->    3OPhU + carbon_monoxide + hydroperoxy
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%20200
+ONaOPEN         ->   OPhDD + 2.0 carbon_monoxide + 2.0 hydroperoxy
+KINETIC PHOTOLYSIS  2.9336E-06  2.8914E-06  2.7643E-06  2.5488E-06  2.2406E-06  1.8363E-06  1.3410E-06  7.9317E-07  3.9615E-07  1.2047E-07  0.0000E+00
+%21100
+ONaOPEN         ->   5OPhDCrg + carbon_monoxide
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%21200
+ONaOPEN         ->   4ONaOPEN + hydroperoxy
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%21300
+%
+5OPhDCrg       ->  0.625 OPhDCA   + 0.375 OPhDCD 
+%+ 0.375 H2O2
+KINETIC TB H2O ARR  1.205E-14 0 0
+5OPhDCrg          ->    OPhDCD +       hydroxyl
+KINETIC ARR   0.114E+03 0 0
+%
+2OPhDOD + nitric_oxide     ->   0.810 1OPhDOD  + 0.190 OPhDNOD  + 0.810 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2OPhDOD + nitrate_radical    ->   1OPhDOD    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2OPhDOD + hydroperoxy    ->        OPhDHOD
+KINETIC ARR  2.66E-13 0 -1300.0
+2OPhDOD + methylperoxy  ->  0.60 1OPhDOD    + 0.20  OPhDOOD  + 0.20 OPhDKOD  +   0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -1031.0 
+2OPhDOD + hydroxyl    ->        1OPhDOD + hydroperoxy
+KINETIC ARR  3.70E-11 0 -350.0
+%
+%
+4ONaOPEN  ->   0.40 2OPhUEst  + 0.60 3OPhUD
+KINETIC ARR  1.00E+06 0 0
+%
+2OPhUEst + nitric_oxide     ->   1OPhUEst  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2OPhUEst + hydroperoxy    ->  0.460 OPhUAnhy + 0.20 hydroxyl + 0.20 hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2OPhUEst + nitrate_radical    ->   1OPhUEst    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2OPhUEst + methylperoxy  ->  0.60 1OPhUEst    + 0.20  OPhUAnhy  +  0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH 
+KINETIC ARR  1.03E-13 0 -955.0 
+%simplifié (produit manquant)
+1OPhUEst          ->    OPhUAnhy + hydroperoxy
+KINETIC TB O2 ARR  2.5E-14 0 300.0
+1OPhUEst          ->    3OPhUA
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3OPhUA + nitric_oxide     ->  1OPhDUA + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3OPhUA + nitric_dioxide    ->  
+KINETIC ARR  6.143E-09  -1.1  0.0
+3OPhUA + nitrate_radical    ->  1OPhDUA + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3OPhUA + hydroperoxy    ->  0.15 OPhAUA + 0.20 1OPhDUA + 0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3OPhUA + methylperoxy  ->  0.80 1OPhDUA + 0.20  OPhAUA +  formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+3OPhUD + nitric_oxide     ->  1OPhDUD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3OPhUD + nitric_dioxide    ->  
+KINETIC ARR  6.143E-09  -1.1  0.0
+3OPhUD + nitrate_radical    ->  1OPhDUD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3OPhUD + hydroperoxy    ->  0.20 1OPhDUD + 0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3OPhUD + methylperoxy  ->  0.80 1OPhDUD  +  formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%(60/40 coef bloss2005)
+1OPhDUA            ->  0.60  OPhUAnhy  + 0.60 hydroxyl  +  0.23  OPhAD     + 0.23 carbon_monoxide  + 0.23 hydroperoxy +   0.17  2OPhUA  
+KINETIC ARR  1.00E+06 0 0
+%
+%(60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1OPhDUD            ->  0.60  OPhUAnhy  + 0.60 hydroperoxy + 0.23  3OPhU     + 0.17  OPhDD     + 0.17 carbon_monoxide  + 0.17 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+3OPhU + nitric_oxide         ->        1OPhUD + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3OPhU + nitrate_radical        ->        1OPhUD + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3OPhU + hydroperoxy        ->  0.20  1OPhUD +  0.15 ozone + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3OPhU + methylperoxy        ->  0.80  1OPhUD +    formaldehyde   + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1OPhUD             ->        OPhD + carbon_monoxide + hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%
+2OPhUA + nitric_oxide       ->   1OPhUA  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2OPhUA + nitric_dioxide       ->  1OPhUA + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+2OPhUA + nitrate_radical    ->   1OPhUA    +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2OPhUA + hydroperoxy       ->   OHPhUA
+KINETIC ARR  2.335E-13 0 -1300.0
+2OPhUA + methylperoxy  ->  0.80 1OPhUA    + 0.20  OOPhUA +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+%
+1OPhUA + ozone       ->     2OPhUA
+KINETIC ARR   2.86E-13 0 0
+1OPhUA + nitric_dioxide      ->     VOOPhUA
+KINETIC ARR   2.08E-12 0 0
+1OPhUA + hydroperoxy      ->     OOPhUA
+KINETIC ARR   2.30E-13 0 0
+%
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+OPhUAnhy        ->    OPhAUA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%B53============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B54============================================================%
+% BLOC 5-4 
+%
+%bicycleOO qui devient epox a 25% ou bicycleOO+OO. a 75% (ratio MCM GECKO) 
+4NaOOBp            ->  0.75  2NaOOBp   + 0.25 1NaOOEpox 
+KINETIC ARR  1.0E+06 0 0
+%
+%-------------------B2-001-------------------%
+%classique gecko mcm
+2NaOOBp + nitric_oxide       ->  0.91  1NaOOBp   + 0.09 NaOONBp + 0.91 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOOBp + hydroperoxy      ->        NaOOHBp
+KINETIC ARR  2.447E-13 0 -1300.0
+2NaOOBp + nitrate_radical      ->        1NaOOBp   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaOOBp + methylperoxy      ->  0.60  1NaOOBp   + 0.20 NaOOOBp + 0.20 NaOOKBp  +   0.60  hydroperoxy       + 0.80 formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -598.0  
+%
+1NaOOBp            ->        1PhDOOD
+KINETIC ARR  1.12E+09  1.7  2413.0
+%
+1PhDOOD            ->        GLYOX     +  PhAD + hydroperoxy
+KINETIC ARR  1.12E+09  1.7  1644.0
+%
+%ZHANG12
+1NaOOEpox           ->        PhAEpoxD
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%
+PhAEpoxD + hydroxyl        ->     3PhAEpox
+KINETIC ARR   4.02E-11 0 0
+%
+%B54============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B55============================================================%
+% BLOC 5-5
+%
+%classique gecko mcm
+2NaOOort + nitric_oxide      -> 0.875 1NaOOort    + 0.125  NaOONort + 0.875 nitric_dioxide 
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOOort + hydroperoxy     ->       NaOOHort
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOOort + nitrate_radical     ->       1NaOOort    +   nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOOort + methylperoxy     ->  0.60 1NaOOort  + 0.20  NaOOOort  + 0.20 NaOOKort   +  0.60 hydroperoxy       + 0.80  formaldehyde      + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+% voie arrachement proposée par Kautzman 2010, cinetique jenkinRO2
+2NaOOort           ->       NaOPENOL + hydroxyl
+KINETIC ARR  1.90E11 0 9750.0 
+%
+%ZHANG12
+1NaOOort           ->     0.50  NaOPENOL + 0.50 hydroperoxy +  0.50  NaOKEpox + 0.50 hydroperoxy
+KINETIC ARR  1.12E+09  1.7  2301.0
+%
+%CHIMIE DE NaOPENOL
+% cinetique additionnant les réactions possibles (prise en compte du gp OH sur C=C pour la cinétique d'après jenkin)
+NaOPENOL + hydroxyl      ->  0.33 4NaOPENOL  +  0.38 PhDKOD     + 0.38 hydroperoxy +  0.22 2PhDKD     +  0.07 2PhDOOD
+KINETIC ARR  9.60E-11 0 0
+%REVOIR cinétique?
+%
+%---------------------------------------%
+2PhDOOD + nitric_oxide       ->  0.82 1PhDOOD1  + 0.18  PhDOOND + 0.82 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhDOOD + hydroperoxy      ->       PhDOOHD
+KINETIC ARR  2.688E-13 0 -1300.0
+2PhDOOD + nitrate_radical      ->       1PhDOOD1  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhDOOD + methylperoxy      ->  0.60 1PhDOOD1  + 0.20  PhDOOKD + 0.20 PhDOOOD  +  0.60 hydroperoxy      + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+1PhDOOD1            ->       PhDOOD1  + carbon_monoxide + hydroperoxy
+KINETIC ARR  1.120E+09 1.7 3572.0
+%
+% RINGCLOSURE SCHEME (LVL2): PhDOOD1 (représente 0.6%)
+PhDOOD1 + hydroxyl       ->  0.60 PhOOAnhy + 0.36 hydroperoxy + 0.24 hydroxyl  +   0.20 PhA      + 0.20 hydroperoxy +   0.12 PhAD     + 0.12 hydroperoxy +  0.08 PhAA     + 0.08 hydroperoxy
+KINETIC ARR  2.7E-11 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhOOAnhy        ->    PhAOOA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%---------------------------------------%
+2PhDKD + nitric_oxide        ->  0.91  1PhDKD   + 0.09  PhDKND  + 0.91 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhDKD + hydroperoxy       ->  0.52  PhDKHD   + 0.48  1PhDKD  + 0.48 hydroxyl
+KINETIC ARR  2.659E-13 0 -1300.0
+2PhDKD + nitrate_radical       ->        1PhDKD   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhDKD + methylperoxy       ->  0.80  1PhDKD   + 0.20  PhDKOD +   0.80  hydroperoxy      +       formaldehyde    
+KINETIC ARR  1.03E-13 0 -894.0 
+%
+1PhDKD             ->  0.50 3PhD  + 0.50 GLYOX +   0.50 PhKDD + 0.5  hydroperoxy + 0.5  carbon_monoxide
+KINETIC ARR  1.120E+09 1.7 4378.0
+%
+%---------------------------------------%
+% RINGCLOSURE SCHEME (LVL2): 4NaOPENOL (représente 2.7%)
+4NaOPENOL          ->  0.40  2PhOUEst  + 0.60 3PhOUD
+KINETIC ARR  1.00E+06 0 0
+%
+2PhOUEst + nitric_oxide     ->        1PhOUEst  +  nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhOUEst + hydroperoxy    ->  0.540 PhOUHEst  + 0.460 PhOUAnhy +    0.20  hydroxyl         + 0.20 hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhOUEst + nitrate_radical    ->        1PhOUEst  +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhOUEst + methylperoxy    ->  0.60  1PhOUEst  + 0.20  PhOUAnhy  + 0.20 PhOUOEst +   0.60  hydroperoxy        + 0.80  formaldehyde     + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -955.0 
+%
+1PhOUEst          ->        PhOUAnhy + hydroperoxy
+KINETIC TB O2 ARR  2.5E-14 0 300.0
+1PhOUEst          ->        3PhOUA
+KINETIC ARR 8.00E+10  1.7  3723.0
+%
+3PhOUA + nitric_oxide       ->        1PhDOUA + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOUA + nitric_dioxide      ->        PhPOUA
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOUA + nitrate_radical      ->        1PhDOUA + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOUA + hydroperoxy      ->  0.65  PhGOUA  + 0.15 PhAOUA + 0.20 1PhDOUA +  0.15  ozone       + 0.20 hydroxyl
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOUA + methylperoxy      ->  0.80  1PhDOUA + 0.20 PhAOUA +   formaldehyde     + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+3PhOUD + nitric_oxide       ->        1PhDOUD  + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOUD + nitric_dioxide      ->        PhPOUD
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOUD + nitrate_radical      ->        1PhDOUD  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOUD + hydroperoxy      ->  0.65  PhGOUD   + 0.15 PhAOUD + 0.20 1PhDOUD +   0.15  ozone        + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOUD + methylperoxy      ->  0.80  1PhDOUD  + 0.20 PhAOUD +   formaldehyde      + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+%
+% Sans doute la formation de l'anhydride moins simple par cette voie, reduire le coef? (60/40 coef bloss2005) 
+1PhDOUA            ->  0.60  PhOUAnhy  + 0.60 hydroxyl  +   0.23  PhAA    + 0.23 hydroperoxy + 0.23 carbon_monoxide +  0.17  2PhOUA   
+KINETIC ARR  1.00E+06 0 0
+%
+% (60/40 coef bloss2005) (avec Hshift sur cycle kautzman sc.4)
+1PhDOUD            ->  0.60  PhOUAnhy  + 0.60 hydroperoxy +  0.23  3PhOU     +  0.17  PhAD      + 0.17 carbon_monoxide  + 0.17 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+%
+2PhOUA + nitric_oxide        ->        1PhOUA    + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhOUA + nitric_dioxide       ->        1PhOUA    + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+2PhOUA + nitrate_radical       ->        1PhOUA    + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhOUA + hydroperoxy       ->        HPhOUA
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhOUA + methylperoxy       ->  0.80  1PhOUA    + 0.20 OPhOUA +  formaldehyde      + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+%
+1PhOUA + ozone        ->        2PhOUA
+KINETIC ARR   2.86E-13 0 0
+1PhOUA + nitric_dioxide       ->        VOPhOUA
+KINETIC ARR   2.08E-12 0 0
+1PhOUA + hydroperoxy       ->        OPhOUA
+KINETIC ARR   2.30E-13 0 0
+%
+3PhOU + nitric_oxide         ->        1PhOUD  + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhOU + nitric_dioxide        ->        PhOUP
+KINETIC ARR  6.143E-09  -1.1  0.0
+3PhOU + nitrate_radical        ->        1PhOUD  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhOU + hydroperoxy        ->  0.65  PhOUG   + 0.15 PhOUA + 0.20 1PhOUD +  0.15  ozone        + 0.20 hydroxyl 
+KINETIC ARR  3.324E-12 0 -730.0
+3PhOU + methylperoxy        ->  0.80  1PhOUD  + 0.20 PhOUA +    formaldehyde      + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+%
+1PhOUD             ->        PhA + hydroperoxy + carbon_monoxide
+KINETIC ARR  1.00E+06 0 0
+%
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhOUAnhy        ->    PhAOUA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%B55============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B56============================================================%
+% BLOC 5-6
+%
+NaOKort + hydroxyl       ->  0.215 NaKK      + 0.785 2NaOOK2 + 0.215 hydroperoxy
+KINETIC ARR  1.54E-11 0 -540.0
+%
+NaKK + hydroxyl          ->        2NaOKK
+KINETIC ARR  7.075E-12 0 -540.0
+%
+2NaOKK + nitric_oxide        ->  0.875 1NaOKK    + 0.125  NaOKKN  + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOKK + hydroperoxy       ->        NaOKKH
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOKK + nitrate_radical       ->        1NaOKK    + nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2NaOKK + methylperoxy       ->  0.60  1NaOKK    + 0.20  NaOOKK  + 0.20 NaOKKK   +   0.60  hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -894.0 
+%
+1NaOKK             ->  0.815 PhDKKD    + 0.185 3PhO   + 0.815 hydroperoxy +  0.37  carbon_monoxide 
+KINETIC ARR  1.120E+09 1.7 2301.70
+%
+%
+2NaOOK2 + nitric_oxide       ->  0.875 1NaOOK2   + 0.125  NaNOOK + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOOK2 + hydroperoxy      ->        NaHOOK
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaOOK2 + nitrate_radical      ->        1NaOOK2   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaOOK2 + methylperoxy      ->  0.60  1NaOOK2   + 0.20  NaOOOK  + 0.20 NaOOKK  +   0.60  hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+1NaOOK2            ->  0.322 PhODKD    + 0.778 PhDKOD  + hydroperoxy
+KINETIC ARR  1.120E+09 1.7 2301.70
+%
+%
+%-----peut etre pas necessaire-----%
+NaOKort + nitrate_radical     ->  2NaKON
+KINETIC ARR  3.04E-13 0 0
+%
+2NaKON + nitric_oxide     ->  0.875 1NaKON    + 0.125  NaNKON + 0.875 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaKON + hydroperoxy    ->        NaHKON
+KINETIC ARR  2.659E-13 0 -1300.0
+2NaKON + nitrate_radical    ->        1NaKON  + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaKON + methylperoxy  ->  0.60 1NaKON    + 0.20  NaOKON  + 0.20 NaKKON   +  0.60 hydroperoxy       + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -791.0 
+%
+% PEUT ETRE SUPPRIMER PHNDKD?
+1NaKON          ->    0.5 PhNDKD  + 0.5 PhDKOD + 0.5 hydroperoxy + 0.5 nitric_dioxide
+KINETIC ARR  1.120E+09 1.7 2301.70
+%
+PhNDKD + hydroxyl      ->  0.5 PhKDD + 0.5 3PhND + carbon_monoxide +  0.5 nitric_dioxide
+KINETIC ARR  2.71E-11  0 0
+PhNDKD + nitrate_radical     -> 0.5 PhKDKD + 0.375 PhKDD + 0.125 3PhND +    nitric_acid + 0.875 nitric_dioxide + 0.5 carbon_monoxide 
+KINETIC ARR  3.17E-14  0 0
+PhNDKD            ->  PhKDD + nitric_dioxide + carbon_monoxide + hydroperoxy
+KINETIC PHOTOLYSIS  2.4221E-06  2.3612E-06  2.1827E-06  1.8975E-06  1.5263E-06  1.1023E-06  6.7659E-07  3.1883E-07  1.2888E-07  2.9137E-08  0.0000E+00
+%10200
+PhNDKD            ->  PhKDD + carbon_monoxide + nitric_dioxide + hydroperoxy
+KINETIC PHOTOLYSIS  1.7676E-05  1.7243E-05  1.5970E-05  1.3924E-05  1.1243E-05  8.1515E-06  5.0161E-06  2.3590E-06  9.4442E-07  2.0833E-07  0.0000E+00
+%20300
+PhNDKD            ->  3PhND + carbon_monoxide + hydroperoxy
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%21400
+% kautzman sc.4
+3PhND + nitric_oxide       ->  3PhN + nitric_dioxide 
+KINETIC ARR  7.50E-12 0 -290.0
+3PhND + hydroperoxy       ->  0.65 PhGND  + 0.15 PhAND + 0.20 3PhN +   0.15 ozone + 0.20 hydroxyl  
+KINETIC ARR  3.149E-12 0 -730.0
+3PhND + nitrate_radical    ->  3PhN + nitric_dioxide 
+KINETIC ARR  8.90E-12 0 -305.0
+3PhND + methylperoxy  ->  0.80 3PhN + 0.20  PhAND  +   formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+3PhND + nitric_dioxide       ->  PhPND
+KINETIC ARR  6.143E-09  -1.1  0.0
+%
+3PhN + nitric_oxide        ->  PhD + 2.0 nitric_dioxide 
+KINETIC ARR  7.50E-12 0 -290.0
+3PhN + hydroperoxy       ->  0.50 PhD  + 0.13 PhNA + 0.37 PhNG +   0.13 ozone + 0.50 hydroxyl + 0.50 nitric_dioxide  
+KINETIC ARR  3.149E-12 0 -730.0
+3PhN + nitrate_radical    ->  PhD + 2.0 nitric_dioxide 
+KINETIC ARR  8.90E-12 0 -305.0
+3PhN + methylperoxy  ->  0.80 PhD + 0.20  PhNA  +  formaldehyde + 0.80 hydroperoxy + 0.80 nitric_dioxide
+KINETIC ARR  2.000E-12 0 -508.0 
+3PhN + nitric_dioxide       ->  PhNP
+KINETIC ARR  6.143E-09  -1.1  0.0
+%
+%
+%B56============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%B6=============================================================%
+% BLOC 6 : PH2CHO CHEMISTRY (AnhyDRIDE PHTALEIC FORMATION)
+%
+%-------------------B2-001-------------------%
+%
+% RINGCLOSURE SCHEME (LVL1): PhDD (mais symetrique, + pas de Hshift de kautzman car trop court) 
+PhDD + hydroxyl          ->   0.40 2PhEst  + 0.60 3PhD
+KINETIC ARR  2.63E-11 0 0
+%
+PhDD               ->   0.40 2PhEst  + 0.60 3PhD + hydroperoxy
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+PhDD               ->   0.40 2PhEst  + 0.60 3PhD + hydroperoxy
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+%(23000 x2)
+%
+PhAD + hydroxyl ->   3PhA
+KINETIC ARR  1.38E-11 0 0
+%
+%--------------------------------------%
+2PhEst + nitric_oxide        ->        1PhEst  + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhEst + hydroperoxy       ->  0.540 PhEstH  + 0.460 PhAnhy +   0.20  hydroxyl      + 0.20  hydroperoxy
+KINETIC ARR  2.62E-13 0 -1300.0
+2PhEst + nitrate_radical       ->        1PhEst  +  nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhEst + methylperoxy       ->  0.60  1PhEst  + 0.20  PhAnhy  + 0.20 PhEstO   +   0.60  hydroperoxy     + 0.80  formaldehyde    + 0.20 MOH
+KINETIC ARR  1.03E-13 0 -1010.0 
+%
+1PhEst             ->        3PhA
+KINETIC ARR  8.00E+10  1.7  3723.0
+%
+3PhA + nitric_oxide          ->        1PhDA   + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhA + hydroperoxy         ->  0.65  PhGA    + 0.15 PhAA     + 0.20 1PhDA  +    0.15  ozone      + 0.20 hydroxyl
+KINETIC ARR  3.149E-12 0 -730.0
+3PhA + nitrate_radical         ->        1PhDA   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3PhA + methylperoxy         ->  0.80  1PhDA   + 0.20 PhAA +    formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+3PhA + nitric_dioxide         ->        PhPA
+KINETIC ARR  6.143E-09  -1.1  0.0
+%
+1PhDA              ->  0.60  PhAnhy  + 0.60 hydroxyl +   0.40  2PhA   
+KINETIC ARR  1.00E+06 0 0
+%
+2PhA + nitric_oxide          ->        1PhA    + nitric_dioxide 
+KINETIC ARR  2.7E-12 0 -360.0
+2PhA + hydroperoxy         ->        HPhA
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhA + nitrate_radical         ->        1PhA    + nitric_dioxide 
+KINETIC ARR  8.90E-12 0 390.0
+2PhA + methylperoxy         ->  0.80  1PhA    + 0.20 OPhA +    formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+2PhA + nitric_dioxide         ->        1PhA    + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+%
+1PhA + ozone          ->        2PhA
+KINETIC ARR   2.86E-13 0 0
+1PhA + nitric_dioxide         ->        VOPhA
+KINETIC ARR   2.08E-12 0 0
+1PhA + hydroperoxy         ->        OPhA
+KINETIC ARR   2.30E-13 0 0
+%
+%--------------------------------------%
+3PhD + nitric_oxide          ->        1PhDD   + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3PhD + hydroperoxy         ->  0.65  PhGD    + 0.15 PhAD + 0.20 1PhDD +  0.15  ozone      + 0.20 hydroxyl 
+KINETIC ARR  3.149E-12 0 -730.0
+3PhD + nitrate_radical         ->        1PhDD   + nitric_dioxide
+KINETIC ARR  8.90E-12 0 -305.0
+3PhD + methylperoxy         ->  0.80  1PhDD   + 0.20 PhAD  +    formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0 
+3PhD + nitric_dioxide         ->        PhPD 
+KINETIC ARR  6.143E-09 -1.1  0.0
+% (coef bloss2005)
+1PhDD              ->  0.40  2PhD    + 0.60 PhAnhy   + 0.60 hydroperoxy
+KINETIC ARR  1.00E+06 0 0
+%
+2PhD + nitric_oxide          ->        1PhD    + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2PhD + hydroperoxy         ->        HPhD
+KINETIC ARR  2.335E-13 0 -1300.0
+2PhD + nitrate_radical         ->        1PhD    + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2PhD + methylperoxy         ->  0.80  1PhD    + 0.20 OPhD  +    formaldehyde    + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -398.0
+2PhD + nitric_dioxide         ->        1PhD    + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+%
+1PhD + ozone          ->        2PhD
+KINETIC ARR   2.86E-13 0 0
+1PhD + nitric_dioxide         ->        VOPhD
+KINETIC ARR   2.08E-12 0 0
+1PhD + hydroperoxy         ->        OPhD 
+KINETIC ARR   2.30E-13 0 0
+%
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%???
+PhAnhy             ->        PhAA
+KINETIC TB H2O ARR  2.50E-22 0 0
+%???
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%B6=============================================================%
+%
+%
+%
+%
+%
+%
+%B7=============================================================%
+% BLOC 7 : NaOO
+%
+%-------------------B3-001-------------------%
+%cinetique: x3.5 sur le cycle avec les OH par rapport à NaO (moyenne pour le passage de 1 à 2 OH pour benz, TOL, Oxyl chez MCM), normale sur l'autre
+%on a donc un cycle avec meme cin que naph et un autre x10 puis x3.5
+% on ne considere que l'attaque sur le cycle avec les OH en raison de différences de cinétique importantes
+% meme ratio 25-75 entre addition et abstraction + attaque du OH, 7% pour arr du H de l'alcool (gecko/mcm)
+NaOO    + hydroxyl       ->  0.23  NaOOO   + 0.23 hydroperoxy +   0.07  1NaO    +   0.70  2NaOOO
+KINETIC ARR  4.955E-10  0 0
+%
+%le reste de la chimie est simplifiée en raison de la faible fraction de matière représentée sans epox notamment
+%
+%-------------------B3-001-------------------%
+1NaO + ozone          ->        2NaO
+KINETIC ARR  2.86E-13 0 0
+1NaO + nitric_dioxide         ->        NaVOO
+KINETIC ARR  2.08E-12 0 0
+1NaO + hydroperoxy         ->        NaOO
+KINETIC ARR  2.30E-13 0 0
+%
+2NaO + nitric_oxide          ->        1NaO + nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaO + nitric_dioxide         ->        1NaO + nitrate_radical
+KINETIC ARR  6.143E-09 -1.1 0.00
+2NaO + nitrate_radical         ->        1NaO + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaO + hydroperoxy         ->        NaHO
+KINETIC ARR  2.096E-13 0 -1300.0
+2NaO + methylperoxy         ->  0.80  1NaO + 0.20 NaOO +    formaldehyde + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -324.0 
+%
+%-------------------B3-001-------------------%
+%les isom sont regroupés
+% quand addition de O2 sur un C avec gp OH (50%), la formation de l'aldehyde devient compétitive (JenkinRO2, on met à 50/50 par rapport à BP, d'ou le ratio 25/75)
+2NaOOO             ->  0.25  NaOOK    + 0.25 hydroperoxy +    0.75  2NaOOOBp 
+KINETIC ARR  1.0E+06 0 0
+%
+% OO. et OH sur meme C cyclique, cinétique jenkinRO2
+2NaOOOBp           ->        NaOOKBp  + hydroperoxy
+KINETIC ARR  5.60E12 0 6010.0
+%
+%version simplifiée avec formation de l'alkoxy uniquement ou pas (voir NaOOBp pour la non simplifiée)
+2NaOOOBp + nitric_oxide      ->  0.91  1NaOOOBp + 0.09 NaOOONBp + 0.91 nitric_dioxide
+KINETIC ARR  2.7E-12 0 -360.0
+2NaOOOBp + hydroperoxy     ->        NaOOOHBp
+KINETIC ARR  2.447E-13 0 -1300.0
+2NaOOOBp + nitrate_radical     ->        1NaOOOBp + nitric_dioxide
+KINETIC ARR  8.90E-12 0 390.0
+2NaOOOBp + methylperoxy     ->  0.80  1NaOOOBp + 0.20 NaOOOOBp +   formaldehyde     + 0.80 hydroperoxy
+KINETIC ARR  1.03E-13 0 -598.0  
+%
+1NaOOOBp           ->        1PhAOOD
+KINETIC ARR  1.12E+09  1.7  2413.0
+%
+1PhAOOD            ->  0.5   GLYOX    + 0.5  PhAA +  0.5   GLYA     + 0.5  PhAD +     hydroperoxy
+KINETIC ARR  1.12E+09  1.7  1644.0
+%
+%B7=============================================================%
+%
+%
+%
+%
+%B8============================================================%
+% BLOC 8: C2 et C1
+%
+GLYOX + hydroxyl   ->  0.30 3GLY + 1.4 carbon_monoxide + 0.70 hydroperoxy
+KINETIC ARR  2.17E-12 0 -340.0
+GLYOX + nitrate_radical  ->  0.30 3GLY  + nitric_acid + 1.4 carbon_monoxide + 0.70 hydroperoxy
+KINETIC ARR  2.80E-12 0 2375.0
+GLYOX        ->  2.0 carbon_monoxide
+KINETIC PHOTOLYSIS  4.4037E-06  4.3088E-06  4.0280E-06  3.5702E-06  2.9552E-06  2.2207E-06  1.4365E-06  7.2308E-07  3.1019E-07  7.4586E-08  0.0000E+00
+%5100
+GLYOX        ->  2.0 carbon_monoxide + 2.0 hydroperoxy
+KINETIC PHOTOLYSIS  3.2716E-05  3.2197E-05  3.0644E-05  2.8043E-05  2.4392E-05  1.9722E-05  1.4180E-05  8.2364E-06  3.9854E-06  1.1449E-06  0.0000E+00
+%5200
+GLYOX        ->  formaldehyde + carbon_monoxide
+KINETIC PHOTOLYSIS  1.8343E-05  1.7972E-05  1.6870E-05  1.5061E-05  1.2604E-05  9.6214E-06  6.3626E-06  3.2994E-06  1.4538E-06  3.6451E-07  0.0000E+00
+%5300
+%
+3GLY + nitric_oxide     ->  carbon_monoxide + hydroperoxy + nitric_dioxide
+KINETIC ARR  7.50E-12 0 -290.0
+3GLY + nitric_dioxide    ->  carbon_monoxide + hydroperoxy + nitrate_radical
+KINETIC ARR  6.143E-09  -1.1  0.0
+3GLY + nitrate_radical    ->  carbon_monoxide + hydroperoxy + nitric_dioxide
+KINETIC ARR  8.90E-12 0 305.0
+3GLY + hydroperoxy    ->   0.37 GLYG + 0.13 GLYA + 0.5 carbon_monoxide +  0.5 hydroxyl + 0.5 hydroperoxy + 0.13 ozone 
+KINETIC ARR  2.105E-12 0 -730.0
+3GLY + methylperoxy  ->   0.8 carbon_monoxide + 0.20 GLYA  +  formaldehyde + 1.60 hydroperoxy
+KINETIC ARR  2.000E-12 0 -508.0
+%
+GLYG + hydroxyl  -> 0.193 3GLY + 0.807 hydroperoxy + 1.614 carbon_monoxide
+KINETIC ARR   1.60E-11 0 0
+GLYG   ->   CHOOH 
+KINETIC PHOTOLYSIS  1.3261E-04  1.3095E-04  1.2594E-04  1.1735E-04  1.0485E-04  8.7987E-05  6.6401E-05  4.0830E-05  2.0779E-05  6.5377E-06  0.0000E+00
+%7800 
+GLYG   ->   carbon_monoxide 
+KINETIC PHOTOLYSIS  1.6681E-05  1.6486E-05  1.5897E-05  1.4884E-05  1.3399E-05  1.1370E-05  8.7149E-06  5.4526E-06  2.7763E-06  8.7201E-07  0.0000E+00
+%7900 
+%
+GLYA + hydroxyl  ->   2.0 carbon_monoxide + hydroxyl
+KINETIC ARR   1.34E-11 0 0
+GLYA       ->   formaldehyde 
+KINETIC PHOTOLYSIS  1.3261E-04  1.3095E-04  1.2594E-04  1.1735E-04  1.0485E-04  8.7987E-05  6.6401E-05  4.0830E-05  2.0779E-05  6.5377E-06  0.0000E+00
+%7800
+GLYA       ->   2.0 carbon_monoxide
+KINETIC PHOTOLYSIS  1.6681E-05  1.6486E-05  1.5897E-05  1.4884E-05  1.3399E-05  1.1370E-05  8.7149E-06  5.4526E-06  2.7763E-06  8.7201E-07  0.0000E+00
+%7900
+%
+%
+CHOOH + hydroxyl        ->   hydroperoxy
+KINETIC ARR   4.50E-13 0 0
+%
+formaldehyde + hydroxyl        ->      hydroperoxy    +     carbon_monoxide
+KINETIC ARR   8.60E-12 0 -20.0
+formaldehyde + nitrate_radical       ->      hydroperoxy    +     nitric_acid   +     carbon_monoxide
+KINETIC ARR   2.00E-12  0  2440.0
+%
+formaldehyde       ->   2.0 hydroperoxy + carbon_monoxide
+KINETIC PHOTOLYSIS  2.8961E-05  2.8360E-05  2.6576E-05  2.3652E-05  1.9690E-05  1.4905E-05  9.7259E-06  4.9364E-06  2.1192E-06  4.9897E-07  0.0000E+00
+%110
+formaldehyde       ->   carbon_monoxide
+KINETIC PHOTOLYSIS  3.9749E-05  3.9115E-05  3.7212E-05  3.4012E-05  2.9497E-05  2.3696E-05  1.6820E-05  9.5893E-06  4.6494E-06  1.3289E-06  0.0000E+00
+%17
+%
+%B8============================================================%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%====================================================%
+%=================== PUITS ==========================%
+%====================================================%
+% avec potentiellement reformation de composés (ex: degrad. PAN)
+% puits: (OH d'apres Jenkin2018, NO3 Kerdouci 10 et 14)
+%
+%
+%
+%ZHANG12
+%
+NaONEpox + hydroxyl  ->  
+KINETIC ARR  6.22E-11 0 0
+NaONEpox + nitrate_radical  ->  
+KINETIC ARR  9.77E-14 0 0
+%
+NaOHEpox + hydroxyl  ->  
+KINETIC ARR  7.98E-11 0 0
+NaOHEpox + nitrate_radical  ->  
+KINETIC ARR  9.77E-14 0 0
+%
+NaOOEpox + hydroxyl  ->  
+KINETIC ARR  2.02E-10 0 0
+NaOOEpox + nitrate_radical  ->  
+KINETIC ARR  1.16E-13 0 0
+%
+NaKKEpox + hydroxyl  ->  
+KINETIC ARR  1.61E-13 0 0
+NaKKEpox + nitrate_radical  ->  
+KINETIC ARR  3.09E-14 0 0
+%
+PhEpoxHEst + hydroxyl  ->  
+KINETIC ARR  4.15E-11 0 0
+PhEpoxHEst + nitrate_radical  ->  
+KINETIC ARR  2.67E-13 0 0
+%
+PhEpoxAnhy + hydroxyl  ->  
+KINETIC ARR  3.32E-12 0 0
+PhEpoxAnhy + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+PhEpoxOEst + hydroxyl  ->  
+KINETIC ARR  3.86E-11 0 0
+PhEpoxOEst + nitrate_radical  ->  
+KINETIC ARR  2.85E-13 0 0
+%
+PhAEpoxP + hydroxyl  ->  
+KINETIC ARR  1.31E-11 0 0
+PhAEpoxP + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+PhAEpoxP      ->  3PhAEpox  + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+%
+PhAEpoxG + hydroxyl  ->  
+KINETIC ARR  1.62E-11 0 0
+PhAEpoxG + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+PhAEpoxA + hydroxyl  ->  
+KINETIC ARR  1.37E-11 0 0
+PhAEpoxA + nitrate_radical  ->  
+KINETIC ARR   3.96E-14 0 0
+%
+PhAHD + hydroxyl  ->  
+KINETIC ARR   3.42E-11 0 0
+PhAHD + nitrate_radical  ->  
+KINETIC ARR  1.89E-14 0 0
+%
+PhPEpoxD + hydroxyl  ->  
+KINETIC ARR  3.96E-11 0 0
+PhPEpoxD + nitrate_radical  ->  
+KINETIC ARR  3.55E-12 0 0
+PhPEpoxD      ->   3PhEpoxD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+%
+PhGEpoxD + hydroxyl  ->  
+KINETIC ARR  4.27E-11 0 0
+PhGEpoxD + nitrate_radical  ->  
+KINETIC ARR  3.55E-12 0 0
+%
+PhEpoxP + hydroxyl  ->  
+KINETIC ARR  5.31E-12 0 0
+PhEpoxP + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+PhEpoxP      ->   3PhEpox + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+%
+PhEpoxG + hydroxyl  ->  
+KINETIC ARR  8.41E-12 0 0
+PhEpoxG + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+PhEpoxA + hydroxyl  ->  
+KINETIC ARR   5.86E-12 0 0
+PhEpoxA + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+PhND  + hydroxyl  ->  
+KINETIC ARR  1.82E-11 0 0
+PhND + nitrate_radical  ->  
+KINETIC ARR  1.89E-14 0 0
+%
+PhHD  + hydroxyl  ->  
+KINETIC ARR  2.64E-11 0 0
+PhHD + nitrate_radical  ->  
+KINETIC ARR  1.89E-14 0 0
+%
+%
+HPhEpoxA   + hydroxyl  ->  
+KINETIC ARR  1.62E-11 0 0
+HPhEpoxA + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+OPhEpoxA  + hydroxyl  ->  
+KINETIC ARR   3.45E-11  0 0
+OPhEpoxA  + nitrate_radical  ->  
+KINETIC ARR   3.96E-14 0 0
+%
+VOPhEpoxA  + hydroxyl  ->  
+KINETIC ARR  5.02E-12 0 0
+VOPhEpoxA  + nitrate_radical  ->  
+KINETIC ARR  3.96E-14 0 0
+%
+PhDND  + hydroxyl  ->  
+KINETIC ARR   2.63E-11  0 0
+%
+PhDHD  + hydroxyl  ->  
+KINETIC ARR   3.45E-11 0 0
+%
+PhDOD  + hydroxyl  ->  
+KINETIC ARR   3.48E-11   0 0 
+PhDOD  + nitrate_radical  ->  PhKDD + hydroperoxy + nitric_acid
+KINETIC ARR  2.77E-13 0 0
+%
+OPhDEpoxD + hydroxyl  ->  
+KINETIC ARR   5.46E-11 0 0
+OPhDEpoxD + nitrate_radical ->  
+KINETIC ARR   3.56E-12 0 0
+%
+%B1=============================================================%
+%NAPH: OK
+%NaV: OK
+%idem NAPH comme pour benz mcm
+NaVO + hydroxyl  ->  
+KINETIC ARR  2.60E-11 0 0
+%NaO: OK
+%kin.: NAPH x3
+NaH + hydroxyl  ->  
+KINETIC ARR  7.80E-11 0 0
+%
+%B2=============================================================%
+NaONpar + hydroxyl   ->  
+KINETIC ARR   1.34E-10 0 0
+NaOHpar + ozone   ->  
+KINETIC ARR   1.15E-17  0 0
+NaONpar + nitrate_radical  ->  
+KINETIC ARR   3.05E-13 0 0
+%
+NaOHpar + hydroxyl   -> 
+KINETIC ARR   1.92E-10 0 0
+NaOHpar + ozone   ->  
+KINETIC ARR   2.62E-16 0 0
+NaOHpar + nitrate_radical  ->  
+KINETIC ARR   3.05E-13 0 0
+%
+NaOOpar + hydroxyl   -> 
+KINETIC ARR   3.29E-10 0 0
+NaOOpar + ozone   ->  
+KINETIC ARR   3.67E-16  0 0
+NaOOpar + nitrate_radical  ->  
+KINETIC ARR   2.73E-13 0 0
+%
+NaOKpar + ozone   ->  
+KINETIC ARR   5.24E-18  0 0
+NaOKpar + nitrate_radical  ->  
+KINETIC ARR   7.96E-15 0 0
+%
+NaQuin + hydroxyl   -> 
+KINETIC ARR   3.17E-11 0 0
+%
+NaNOOK + hydroxyl   ->  
+KINETIC ARR   8.13E-12 0 0
+NaNOOK + nitrate_radical  -> 
+KINETIC ARR   5.30E-15 0 0
+%
+NaHOOK + hydroxyl   -> 
+KINETIC ARR   4.11E-11 0 0
+NaHOOK + nitrate_radical  -> 
+KINETIC ARR   5.30E-15 0 0
+%
+NaOOOK + hydroxyl   ->  
+KINETIC ARR   4.93E-11 0 0
+NaOOOK + nitrate_radical  ->  
+KINETIC ARR   9.95E-15 0 0
+%
+NaOOKK + hydroxyl   -> 
+KINETIC ARR   1.13E-11 0 0
+NaOOKK + nitrate_radical  -> 
+KINETIC ARR   2.02E-15 0 0
+%
+%PhODKD: OK
+%PhDKOD: OK
+%PhKDKD: OK
+%
+PhOKHEst + hydroxyl    -> 
+KINETIC ARR  1.95E-11 0 0
+PhOKAnhy + hydroxyl    -> 
+KINETIC ARR  6.40E-12 0 0
+PhOKOEst + hydroxyl    -> 
+KINETIC ARR  1.66E-11 0 0
+%
+PhPOKA + hydroxyl   -> 
+KINETIC ARR   7.27E-12 0 0
+PhPOKA      ->   3PhOKA + nitric_dioxide
+KINETIC ARR  5.20E+16  0 13850.00
+%
+%PhGOKA: log(Psat) < -13
+%PhAOKA: log(Psat) < -13
+%
+PhPOKD + hydroxyl   -> 
+KINETIC ARR   1.80E-11  0 0
+PhPOKD      ->   3PhOKD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGOKD + hydroxyl   -> 
+KINETIC ARR  2.59E-11  0 0
+PhAOKD + hydroxyl   ->  
+KINETIC ARR  2.02E-11  0 0
+%
+PhDKA + hydroxyl   -> 
+KINETIC ARR   1.23E-11 0 0
+%
+%PhKDD: OK
+%
+PhOP + hydroxyl   -> 
+KINETIC ARR   2.00E-11 0 0
+PhOP        ->   3PhO + nitric_dioxide
+KINETIC ARR   5.20E+16 0 13850.00
+PhOG + hydroxyl   -> 
+KINETIC ARR   2.79E-11 0 0
+PhOA + hydroxyl   -> 
+KINETIC ARR   2.21E-11 0 0
+PhD + hydroxyl   ->
+KINETIC ARR   1.26E-11 0 0
+%
+PhKKAnhy + hydroxyl   ->
+KINETIC ARR   1.15E-13 0 0
+%
+PhKAKA + hydroxyl   ->
+KINETIC ARR    3.55E-13 0 0
+%
+%PhDKKD: OK
+%
+PhKOHEst + hydroxyl    -> 
+KINETIC ARR  1.95E-11 0 0
+PhKOAnhy + hydroxyl    -> 
+KINETIC ARR  6.40E-12 0 0
+PhKOOEst + hydroxyl    -> 
+KINETIC ARR  1.66E-11 0 0
+%
+PhPKOA + hydroxyl   ->
+KINETIC ARR    2.42E-12 0 0
+PhPKOA      ->   3PhKOA + nitric_dioxide
+KINETIC ARR   5.20E+16 0 13850.00
+%
+%PhGKOA: log(Psat) < -13
+%PhAKOA: log(Psat) < -13
+%
+PhPKOD + hydroxyl   ->  
+KINETIC ARR   1.94E-11 0 0
+PhPKOD      ->   3PhKOD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhPKOD + nitrate_radical  ->  
+KINETIC ARR   1.85E-13  0 0
+PhGKOD + hydroxyl   -> 
+KINETIC ARR   2.25E-11 0 0
+PhGKOD + nitrate_radical  ->  
+KINETIC ARR   1.85E-13 0 0
+PhAKOD + hydroxyl   ->  
+KINETIC ARR   2.00E-11 0 0
+PhAKOD + nitrate_radical  ->  
+KINETIC ARR   1.85E-13 0 0
+%
+PhAKD + hydroxyl   ->  
+KINETIC ARR  1.46E-11  0 0
+%
+%HPhKOA: log(Psat) < -13
+%
+OPhKOA + hydroxyl   ->  
+KINETIC ARR  8.43E-12 0 0
+%
+%VOPhKOA: log(Psat) < -13
+%
+PhKOP        ->   3PhKO + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhKOP + hydroxyl   ->  
+KINETIC ARR  1.18E-12 0 0
+PhKOG + hydroxyl   ->  
+KINETIC ARR  9.10E-12 0 0
+PhKOA + hydroxyl   ->  
+KINETIC ARR  3.34E-12 0 0
+%
+PhKD + hydroxyl   ->  
+KINETIC ARR  1.34E-11 0 0
+%
+%
+PhKAnhy + hydroxyl   ->  
+KINETIC ARR  3.12E-13 0 0
+%
+%REVIEW
+PhOHEst + hydroxyl    -> 
+KINETIC ARR  1.95E-11 0 0
+PhOAnhy + hydroxyl    -> 
+KINETIC ARR  6.40E-12 0 0
+PhOOEst + hydroxyl    -> 
+KINETIC ARR  1.66E-11 0 0
+%
+PhPOA + hydroxyl   -> 
+KINETIC ARR   7.27E-12 0 0
+PhPOA      ->   3PhOKA + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+%
+%PhGOA: log(Psat) < -13
+%PhAOA: log(Psat) < -13
+%
+PhPOD + hydroxyl   -> 
+KINETIC ARR   1.80E-11  0 0
+PhPOD      ->   3PhOKD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGOD + hydroxyl   -> 
+KINETIC ARR  2.59E-11  0 0
+PhAOD + hydroxyl   ->  
+KINETIC ARR  2.02E-11  0 0
+%
+%B3=============================================================%
+NaONort + hydroxyl   ->  
+KINETIC ARR   9.16E-11 0 0
+NaONort + ozone   ->  
+KINETIC ARR   8.24E-18  0 0
+NaONort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+NaOHort + hydroxyl   ->  
+KINETIC ARR   2.26E-10 0 0
+NaOHort + ozone   ->  
+KINETIC ARR   1.87E-16  0 0
+NaOHort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+NaOOort + hydroxyl   ->  
+KINETIC ARR   2.65E-10 0 0
+NaOOort + ozone   ->  
+KINETIC ARR   2.62E-16  0 0
+NaOOort + nitrate_radical  ->  
+KINETIC ARR   3.09E-13 0 0
+%
+%NaOKort: OK
+%NaOPEN: OK
+%PhDD: OK
+%
+PhDCD + hydroxyl    -> 
+KINETIC ARR  4.06E-11 0 0
+PhDCA + hydroxyl    -> 
+KINETIC ARR  1.99E-11 0 0
+%
+PhDNOD + hydroxyl   ->  
+KINETIC ARR   2.87E-11 0 0
+PhDNOD + nitrate_radical  ->  
+KINETIC ARR   4.55E-13 0 0
+%
+PhDHOD + hydroxyl   ->  
+KINETIC ARR   5.09E-11 0 0
+PhDHOD + nitrate_radical  ->  
+KINETIC ARR   4.55E-13 0 0
+%
+PhDOOD + hydroxyl   -> 
+KINETIC ARR   6.03E-11 0 0
+PhDOOD + nitrate_radical  ->  
+KINETIC ARR   4.58E-13 0 0
+%
+%GLYOX: OK
+%
+PhUAnhy + hydroxyl    ->
+KINETIC ARR   0.622E-11 0 -540.0
+PhUAnhy + ozone    ->  
+KINETIC ARR  1.80E-16 0 0
+PhUAnhy + nitrate_radical    ->
+KINETIC ARR   0.272E-14 0 0
+%
+PhUHEst1 + hydroxyl    -> 0.5 PhUAnhy 
+KINETIC ARR  1.17E-10 0 0
+PhUHEst1 + ozone    ->  
+KINETIC ARR  9.00E-15 0 0
+PhUHEst1 + nitrate_radical   ->  
+KINETIC ARR  3.40E-13 0 0
+%
+PhUOEst1 + hydroxyl    -> 0.5 PhUAnhy 
+KINETIC ARR  1.25E-10 0 0
+PhUOEst1 + ozone    ->  
+KINETIC ARR  1.26E-14 0 0
+PhUOEst1 + nitrate_radical   ->  
+KINETIC ARR  3.05E-13 0 0
+%
+PhPUA1 + hydroxyl    ->  
+KINETIC ARR  5.17E-11 0 0
+PhPUA1      ->   3PhUA1 + nitric_dioxide
+KINETIC ARR  5.20E+16  13850.00
+PhGUA1 + hydroxyl    -> 0.1 3PhUA1 
+KINETIC ARR  5.48E-11 0 0
+PhGUA1 + nitrate_radical   -> 
+KINETIC ARR  3.40E-13 0 0
+%
+PhAUA + hydroxyl    ->  
+KINETIC ARR  5.23E-11 0 0
+PhAUA + nitrate_radical   ->  
+KINETIC ARR  3.40E-13 0 0
+%
+%PhAD: OK
+%
+PhPUD1 + hydroxyl    ->  hydroxyl
+KINETIC ARR  5.87E-11 0 0
+PhPUD1      ->   3PhUD1 + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGUD1 + hydroxyl    -> 0.1 3PhUD1 
+KINETIC ARR  6.18E-11 0 0
+PhAUD1 + hydroxyl    -> 0.25 3PhUA1 
+KINETIC ARR  5.92E-11 0 0
+%
+PhUP        ->   3PhU + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhUP + hydroxyl   ->  
+KINETIC ARR  4.39E-11 0 0
+PhUG + hydroxyl   ->  
+KINETIC ARR  4.70E-11 0 0
+PhUG + nitrate_radical  ->  
+KINETIC ARR  3.40E-13 0 0
+PhUA + hydroxyl   ->  
+KINETIC ARR   4.45E-11 0 0
+PhUA + nitrate_radical  ->  
+KINETIC ARR   3.40E-13 0 0
+%
+PhUHEst2 + hydroxyl    -> 0.5 PhUAnhy 
+KINETIC ARR  1.17E-10 0 0
+PhUHEst2 + ozone    -> 
+KINETIC ARR  9.00E-15 0 0
+PhUHEst2 + nitrate_radical   -> 
+KINETIC ARR  3.40E-13 0 0
+%
+PhUOEst2 + hydroxyl    -> 0.5 PhUAnhy 
+KINETIC ARR  1.25E-10 0 0
+PhUOEst2 + ozone    -> 
+KINETIC ARR  1.26E-14 0 0
+PhUOEst2 + nitrate_radical   -> 
+KINETIC ARR  3.05E-13 0 0
+%
+PhPUA2 + hydroxyl    ->  
+KINETIC ARR  5.17E-11 0 0
+PhPUA2      ->   3PhUA2 + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGUA2 + hydroxyl    -> 0.1 3PhUA2
+KINETIC ARR  5.48E-11 0 0
+PhGUA2 + nitrate_radical   ->  
+KINETIC ARR  3.40E-13 0 0
+%
+HPhUA + hydroxyl    -> 
+KINETIC ARR  6.18E-11 0 0
+OPhUA + hydroxyl    ->  
+KINETIC ARR  1.01E-10 0 0
+VOPhUA + hydroxyl    -> 
+KINETIC ARR  7.00E-11 0 0
+%
+PhPUD2 + hydroxyl    ->  
+KINETIC ARR  5.87E-11 0 0
+PhPUD2      ->   3PhUD2 + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGUD2 + hydroxyl    -> 0.1 3PhUD2 
+KINETIC ARR  6.18E-11 0 0
+PhAUD2 + hydroxyl    -> 0.25 3PhUA2 
+KINETIC ARR  5.92E-11 0 0
+%
+%B4=============================================================%
+NaONBp + hydroxyl   ->  
+KINETIC ARR   5.38E-11 0 0
+NaONBp + nitrate_radical  ->  
+KINETIC ARR   1.91E-13 0 0
+%
+NaOHBp + hydroxyl   ->  
+KINETIC ARR   7.27E-11 0 0
+NaOHBp + nitrate_radical  ->  
+KINETIC ARR   1.91E-13 0 0
+%
+NaOOBp + hydroxyl   ->  
+KINETIC ARR   1.04E-10 0 0
+NaOOBp + nitrate_radical  ->  
+KINETIC ARR   2.08E-13 0 0
+%
+NaOKBp + hydroxyl   ->  
+KINETIC ARR   2.70E-11 0 0
+NaOKBp + nitrate_radical  ->  
+KINETIC ARR   1.89E-13 0 0
+%
+PhAOD + hydroxyl   ->  
+KINETIC ARR   6.50E-11 0 0
+PhAOD + nitrate_radical  ->  
+KINETIC ARR   2.74E-13 0 0
+%
+PhOD + hydroxyl   ->  
+KINETIC ARR   3.75E-11 0 0
+PhOD + nitrate_radical  ->  
+KINETIC ARR    2.74E-13 0 0
+%
+%B5=============================================================%
+%NaOO: OK
+%ONaO: OK
+%
+%B51============================================================%
+ONaONBp + hydroxyl   ->  
+KINETIC ARR   1.17E-10 0 0
+ONaONBp + nitrate_radical  ->  
+KINETIC ARR   1.91E-13 0 0
+%
+ONaOHBp + hydroxyl   ->  
+KINETIC ARR   1.36E-10 0 0
+ONaOHBp + nitrate_radical  ->  
+KINETIC ARR   1.91E-13 0 0
+%
+ONaOOBp + hydroxyl   -> 
+KINETIC ARR   3.31E-10 0 0
+ONaOOBp + nitrate_radical  ->  
+KINETIC ARR   2.08E-13 0 0
+%
+ONaOKBp + hydroxyl   -> 
+KINETIC ARR   3.54E-11 0 0
+ONaOKBp + nitrate_radical  ->  
+KINETIC ARR   1.89E-13 0 0
+%
+OPhDD + hydroxyl     -> 
+KINETIC ARR  2.43E-11 0 0
+%
+%B52============================================================%
+ONaONpar + hydroxyl   ->  
+KINETIC ARR   3.61E-10 0 0
+ONaOHpar + ozone   ->  
+KINETIC ARR   1.15E-17  0 0
+ONaONpar + nitrate_radical  ->  
+KINETIC ARR   3.05E-13 0 0
+%
+ONaOHpar + hydroxyl   ->  
+KINETIC ARR   4.19E-10 0 0
+ONaOHpar + ozone   ->  
+KINETIC ARR   2.62E-16 0 0
+ONaOHpar + nitrate_radical  ->  
+KINETIC ARR   3.05E-13 0 0
+%
+ONaOOpar + hydroxyl   ->  
+KINETIC ARR   1.16E-09 0 0
+ONaOOpar + ozone   ->  
+KINETIC ARR   3.67E-16  0 0
+ONaOOpar + nitrate_radical  ->  
+KINETIC ARR   2.73E-13 0 0
+%
+ONaOKpar + ozone   ->  
+KINETIC ARR   5.24E-18  0 0
+ONaOKpar + nitrate_radical  ->  
+KINETIC ARR   7.96E-15 0 0
+%
+ONaQuin + hydroxyl   ->  
+KINETIC ARR   3.49E-11 0 0
+%
+ONaNOOK + hydroxyl   ->  
+KINETIC ARR   3.23E-11 0 0
+ONaNOOK + nitrate_radical  ->  
+KINETIC ARR   5.30E-15 0 0
+%
+ONaHOOK + hydroxyl   ->  
+KINETIC ARR   6.11E-11 0 0
+ONaHOOK + nitrate_radical  ->  
+KINETIC ARR   5.30E-15 0 0
+%
+ONaOOOK + hydroxyl   ->  
+KINETIC ARR   7.35E-11 0 0
+ONaOOOK + nitrate_radical  ->  
+KINETIC ARR   9.95E-15 0 0
+%
+ONaOOKK + hydroxyl   ->  
+KINETIC ARR   3.55E-11 0 0
+ONaOOKK + nitrate_radical  ->  
+KINETIC ARR   2.02E-15 0 0
+%
+OPhODKD  + hydroxyl     -> 
+KINETIC ARR  3.56E-11 0 0
+OPhODKD  + nitrate_radical     ->  
+KINETIC ARR  2.87E-13 0 0
+%
+%B53============================================================%
+ONaONort + hydroxyl   ->  
+KINETIC ARR   3.40E-10 0 0
+ONaONort + ozone   ->  
+KINETIC ARR   8.24E-18  0 0
+ONaONort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+ONaOHort + hydroxyl   ->  
+KINETIC ARR   4.75E-10 0 0
+ONaOHort + ozone   ->  
+KINETIC ARR   1.87E-16  0 0
+ONaOHort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+ONaOOort + hydroxyl   ->  
+KINETIC ARR   5.14E-10 0 0
+ONaOOort + ozone   ->  
+KINETIC ARR   2.62E-16  0 0
+ONaOOort + nitrate_radical  ->  
+KINETIC ARR   3.09E-13 0 0
+%
+ONaOKort + hydroxyl   ->  
+KINETIC ARR   3.55E-10 0 0
+ONaOKort + ozone   ->  
+KINETIC ARR   3.74E-18  0 0
+ONaOKort + nitrate_radical  ->  
+KINETIC ARR   8.03E-15 0 0
+%
+%ONaOPEN: OK
+%
+OPhDCD + hydroxyl    -> 
+KINETIC ARR  4.90E-11 0 0
+OPhDCA + hydroxyl    -> 
+KINETIC ARR  2.83E-11 0 0
+%
+OPhDNOD + hydroxyl   -> 
+KINETIC ARR   6.00E-11 0 0
+OPhDNOD + nitrate_radical  ->  
+KINETIC ARR   4.66E-14 0 0
+%
+OPhDHOD + hydroxyl   -> 
+KINETIC ARR   7.09E-11 0 0
+OPhDHOD + nitrate_radical  ->  
+KINETIC ARR   4.55E-13 0 0
+%
+OPhDOOD + hydroxyl   -> 
+KINETIC ARR   8.45E-11 0 0
+OPhDOOD + nitrate_radical  ->  
+KINETIC ARR   4.58E-13 0 0
+%
+OPhDKOD + hydroxyl   ->  
+KINETIC ARR   7.20E-11 0 0
+OPhDKOD + nitrate_radical  ->  
+KINETIC ARR   1.34E-14 0 0
+%
+OPhUAnhy + hydroxyl    ->
+KINETIC ARR   0.622E-11 0 -540.0
+OPhUAnhy + nitrate_radical    ->
+KINETIC ARR   0.272E-14 0 0
+%
+OPhAUA + hydroxyl    ->  
+KINETIC ARR  5.23E-11 0 0
+OPhAUA + nitrate_radical   ->  
+KINETIC ARR  3.40E-13 0 0
+%
+OPhAD + hydroxyl ->  
+KINETIC ARR  1.38E-11 0 0
+%
+OPhD + hydroxyl    ->  
+KINETIC ARR  1.46E-11 0 0
+%
+OHPhUA + hydroxyl    ->  
+KINETIC ARR  6.18E-11 0 0
+OOPhUA + hydroxyl    ->  
+KINETIC ARR  1.01E-10 0 0
+VOOPhUA + hydroxyl    ->  
+KINETIC ARR  7.00E-11 0 0
+%
+%B54============================================================%
+NaOONBp + hydroxyl   ->  
+KINETIC ARR   8.11E-11 0 0
+NaOONBp + nitrate_radical  ->  
+KINETIC ARR   9.09E-13 0 0
+%
+NaOOHBp + hydroxyl   -> 
+KINETIC ARR   9.41E-11 0 0
+NaOOHBp + nitrate_radical  ->  
+KINETIC ARR   9.09E-13 0 0
+%
+NaOOOBp + hydroxyl   ->  
+KINETIC ARR   2.16E-10 0 0
+NaOOOBp + nitrate_radical  ->  
+KINETIC ARR   9.26E-13 0 0
+%
+NaOOKBp + hydroxyl   ->  
+KINETIC ARR   2.64E-11 0 0
+NaOOKBp + nitrate_radical  ->  
+KINETIC ARR   9.07E-13 0 0
+%
+%B55============================================================%
+%basés sur ceux de 2NaOort
+NaOONort + hydroxyl   ->  
+KINETIC ARR   9.16E-11 0 0
+NaOONort + ozone   ->  
+KINETIC ARR   8.24E-18  0 0
+NaOONort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+NaOOHort + hydroxyl   ->  
+KINETIC ARR   2.26E-10 0 0
+NaOOHort + ozone   ->  
+KINETIC ARR   1.87E-16  0 0
+NaOOHort + nitrate_radical  ->  
+KINETIC ARR   3.43E-13 0 0
+%
+NaOOOort + hydroxyl   ->  
+KINETIC ARR   2.65E-10 0 0
+NaOOOort + ozone   ->  
+KINETIC ARR   2.62E-16  0 0
+NaOOOort + nitrate_radical  ->  
+KINETIC ARR   3.09E-13 0 0
+%
+NaOOKort + hydroxyl   ->  
+KINETIC ARR   1.06E-10 0 0
+NaOOKort + ozone   ->  
+KINETIC ARR   3.74E-18  0 0
+NaOOKort + nitrate_radical  ->  
+KINETIC ARR   8.03E-15 0 0
+%
+%NaOPENOL: OK
+%
+PhDOOND + hydroxyl   ->  
+KINETIC ARR   3.00E-11 0 0
+PhDOOND + nitrate_radical   ->  
+KINETIC ARR    4.98E-14 0 0
+%
+%PhDOOHD: log(Psat) < -13
+%
+PhDOOKD + hydroxyl   ->  
+KINETIC ARR   2.96E-11 0 0
+%
+%PhDOOOD: log(Psat) < -13
+%
+PhDOOD1 + hydroxyl   ->  
+KINETIC ARR   4.40E-11 0 0
+PhDOOD1 + nitrate_radical   ->  
+KINETIC ARR   5.68E-13 0 0
+%
+PhOOAnhy + hydroxyl   ->  
+KINETIC ARR   1.22E-11 0 0
+%
+PhA + hydroxyl   ->  
+KINETIC ARR    5.77E-12 0 0
+%
+%PhAOOA: log(Psat) < -13
+%
+PhDKND + hydroxyl   ->  
+KINETIC ARR   2.52E-11 0 0
+PhDKND + nitrate_radical  ->  
+KINETIC ARR   2.89E-14 0 0
+PhDKHD + hydroxyl   ->  
+KINETIC ARR    3.34E-11 0 0
+PhDKHD + nitrate_radical  ->  
+KINETIC ARR    2.89E-14 0 0
+%
+PhOUHEst + hydroxyl    -> 
+KINETIC ARR  1.285E-10 0 0
+%
+PhOUAnhy + hydroxyl    ->
+KINETIC ARR   4.96E-11 0 0
+%
+PhOUOEst + hydroxyl    ->
+KINETIC ARR  1.365E-10 0 0
+%
+PhPOUA + hydroxyl    ->  
+KINETIC ARR  6.32E-11 0 0
+PhPOUA      ->   3PhOUA + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGOUA + hydroxyl    -> 
+KINETIC ARR  6.63E-11 0 0
+PhAOUA + hydroxyl    ->  
+KINETIC ARR  6.38E-11 0 0
+%
+PhPOUD + hydroxyl    ->  hydroxyl
+KINETIC ARR  7.02E-11 0 0
+PhPOUD      ->   3PhOUD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhGOUD + hydroxyl    -> 
+KINETIC ARR  7.33E-11 0 0
+PhAOUD + hydroxyl    -> 
+KINETIC ARR  7.07E-11 0 0
+%
+HPhOUA + hydroxyl    -> 
+KINETIC ARR  7.33E-11 0 0
+OPhOUA + hydroxyl    ->  
+KINETIC ARR  1.125E-10 0 0
+VOPhOUA + hydroxyl    -> 
+KINETIC ARR  8.15E-11 0 0
+%
+PhOUP        ->   3PhOU + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhOUP + hydroxyl   ->  
+KINETIC ARR  5.54E-11 0 0
+PhOUG + hydroxyl   ->  
+KINETIC ARR  5.85E-11 0 0
+%
+PhOUA + hydroxyl   ->  
+KINETIC ARR   5.60E-11 0 0
+%
+%B56============================================================%
+%
+%NaKK: OK
+%
+NaOKKN + hydroxyl   ->  
+KINETIC ARR   2.89E-12  0 0
+NaOKKH + hydroxyl   ->  
+KINETIC ARR   1.76E-11  0 0
+NaOKKK + hydroxyl   ->  
+KINETIC ARR   3.53E-12  0 0
+%
+NaNKON + hydroxyl   ->  
+KINETIC ARR    2.65E-12 0 0
+NaHKON + hydroxyl   ->  
+KINETIC ARR   1.12E-11 0 0
+NaOKON + hydroxyl   ->  
+KINETIC ARR   1.41E-11 0 0
+NaKKON + hydroxyl   ->  
+KINETIC ARR   4.76E-12 0 0
+%
+%PhNDKD: OK
+%
+PhGND + hydroxyl   ->  
+KINETIC ARR   2.85E-11  0 0
+PhGND + nitrate_radical   -> 
+KINETIC ARR    1.89E-14 0 0
+PhAND + hydroxyl   ->  
+KINETIC ARR   2.60E-11 0 0
+PhAND + nitrate_radical   -> 
+KINETIC ARR    1.89E-14 0 0
+PhPND + hydroxyl   ->  
+KINETIC ARR    2.55E-11  0 0
+PhPND      ->   3PhND + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhPND + nitrate_radical   ->  
+KINETIC ARR    1.89E-14 0 0
+%
+PhNA + hydroxyl    ->  
+KINETIC ARR  5.86E-12 0 0
+PhNG + hydroxyl    ->  
+KINETIC ARR  8.56E-12 0 0
+PhNP         ->   3PhN + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhNP + hydroxyl    ->  
+KINETIC ARR  5.24E-12 0 0
+%
+%B6=============================================================%
+PhAnhy + hydroxyl    ->
+KINETIC ARR   8.44E-13 0 0
+%
+PhEstH + hydroxyl    ->   0.55  PhAnhy
+KINETIC ARR  1.01E-11 0 0
+PhEstO + hydroxyl    ->   0.28  PhAnhy
+KINETIC ARR  1.59E-11 0 0
+%
+PhGA + hydroxyl    ->  
+KINETIC ARR  1.61E-11 0 0
+PhPA + hydroxyl    ->    
+KINETIC ARR  1.30E-11  0 0
+PhAA + hydroxyl    ->  0.1 3PhA 
+KINETIC ARR  1.36E-11 0 0
+PhPA      ->   3PhA + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+HPhA + hydroxyl    ->  0.23 3PhA 
+KINETIC ARR  1.64E-11 0 0
+OPhA + hydroxyl    ->  0.1 1PhA 
+KINETIC ARR  3.44E-11 0 0
+%
+VOPhA + hydroxyl    ->  
+KINETIC ARR  4.93E-12 0 0
+%
+PhGD + hydroxyl ->   0.20 3PhD 
+KINETIC ARR  1.64E-11 0 0
+PhPD      ->   3PhD + nitric_dioxide
+KINETIC ARR  5.20E+16 0 13850.00
+PhPD + hydroxyl -> 
+KINETIC ARR  1.64E-11 0 0
+HPhD + hydroxyl    ->  0.23 3PhD 
+KINETIC ARR  1.64E-11 0 0
+VOPhD + hydroxyl    ->  
+KINETIC ARR  9.40E-12 0 0
+%
+%B7=============================================================%
+NaOOO + hydroxyl     -> 
+KINETIC ARR  4.955E-10 0 0
+NaVOO + hydroxyl  -> 
+KINETIC ARR  1.00E-10 0 0
+NaHO + hydroxyl  -> 
+KINETIC ARR  7.80E-11 0 0
+%
+NaOOK + hydroxyl  -> 
+KINETIC ARR  7.51E-11 0 0
+NaOOK + ozone  -> 
+KINETIC ARR  8.39E-17 0 0
+NaOOK + nitrate_radical ->  
+KINETIC ARR  3.09E-13 0 0
+%
+NaOOONBp + hydroxyl  -> 
+KINETIC ARR   2.06E-10 0 0
+NaOOONBp + nitrate_radical  ->  
+KINETIC ARR  9.08E-13 0 0
+%
+NaOOOHBp + hydroxyl  -> 
+KINETIC ARR   2.17E-10 0 0
+NaOOOHBp + nitrate_radical  ->  
+KINETIC ARR  4.45E-12  0 0
+%
+NaOOOOBp + hydroxyl  -> 
+KINETIC ARR   2.06E-10 0 0
+NaOOOOBp + nitrate_radical  ->  
+KINETIC ARR  9.08E-13 0 0
+%
+%GLYA: OK
+%
+%
+END
