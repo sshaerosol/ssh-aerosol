@@ -1,0 +1,212 @@
+%-----------------------------------------------------------------------
+%     Copyright (C) 2024 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+SET UNIT GAS MOLCM3
+SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
+%-----------------------1-----------------------
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%----- TOLUENE
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+toluene + hydroxyl -> 1.800E-01 CRESOL + 6.500E-01 TLBIPERO2 //
+ + toluene   + hydroxyl
+%1.8E-12*EXP(340/TEMP)
+KINETIC ARR2 1.800E-12  -340.00
+%=========================2============================
+CRESOL + nitrate_radical -> 1.030E-01 TLFUO2 + 5.060E-01 NCRESO2 //
+     + 3.910E-01 TOL1O + nitrate_radical
+%1.4E-11
+KINETIC ARR1 1.400E-11
+%=========================3============================
+CRESOL + hydroxyl -> 2.000E-01 TLFUO2 + 7.270E-01 MCATECHOL //
+     + 7.300E-02 TOL1O + hydroxyl
+%4.65E-11
+KINETIC ARR1 4.650E-11
+%=========================4============================
+TLBIPERO2 + hydroperoxy -> hydroperoxy
+%KRO2HO2*0.82*9.8769E-01
+KINETIC ARR2 2.357E-13 -1300.00
+%=========================5============================
+TLBIPERO2 + nitric_oxide -> 3.556E-01 BZFUONE + nitric_oxide //
+     + 5.334E-01 HCOCO3H
+%KRO2NO*9.8769E-01
+KINETIC ARR2 2.667E-12  -360.00
+%=========================6============================
+TLFUO2 + hydroperoxy -> hydroperoxy + 9.120E-01 TLFUOOH //
+     + 8.799E-02 TLEMUCOOH
+%3.45E-13*EXP(1300.00/TEMP)
+KINETIC ARR2 3.450E-13 -1300.00
+%=========================7============================
+NCRESO2 + hydroperoxy -> NCRESOOH + hydroperoxy
+%KRO2HO2*0.82
+KINETIC ARR2 2.386E-13 -1300.00
+%=========================8============================
+NCRESO2 + nitric_oxide -> nitric_oxide
+%KRO2NO
+KINETIC ARR2 2.700E-12  -360.00
+%=========================9============================
+NCRESO2 -> 
+%8.00E-13*RO2
+KINETIC TB RO2 ARR1 8.000E-13
+%=========================10============================
+TOL1O + nitric_dioxide -> nitric_dioxide + 5.000E-01 NCRES1O2
+%2.08E-12
+KINETIC ARR1 2.080E-12
+%=========================11============================
+TOL1O + ozone -> OXYL1O2 + ozone
+%2.86E-13
+KINETIC ARR1 2.860E-13
+%=========================12============================
+MCATECHOL + nitrate_radical -> MCATEC1O + nitrate_radical
+%1.7E-10*1.0
+KINETIC ARR1 1.700E-10
+%=========================13============================
+MCATECHOL + ozone -> ozone
+%2.8E-17
+KINETIC ARR1 2.800E-17
+%=========================14============================
+MCATECHOL + hydroxyl -> MCATEC1O + hydroxyl
+%2.0E-10*1.0
+KINETIC ARR1 2.000E-10
+%=========================15============================
+TLFUO2 + nitric_oxide -> nitric_oxide + 3.150E-01 C6H5O //
+     + 7.837E-03 TLEMUCNO3
+%3.44E-12*EXP(360.00/TEMP)
+KINETIC ARR2 3.440E-12  -360.00
+%=========================16============================
+TLEMUCOOH + hydroxyl -> TLFUO2 + hydroxyl
+%1.15E-10
+KINETIC ARR1 1.150E-10
+%=========================17============================
+NCRESOOH + hydroxyl -> NCRESO2 + hydroxyl
+%1.07E-10*9.3916E-01
+KINETIC ARR1 1.005E-10
+%=========================18============================
+OXYL1O2 + hydroperoxy -> hydroperoxy
+%KRO2HO2*0.82
+KINETIC ARR2 2.386E-13 -1300.00
+%=========================19============================
+OXYL1O2 -> TOL1O
+%2.50E-13*RO2
+KINETIC TB RO2 ARR1 2.500E-13
+%=========================20============================
+MCATEC1O + nitric_dioxide -> MNCATECH + nitric_dioxide
+%2.08E-12
+KINETIC ARR1 2.080E-12
+%=========================21============================
+MCATEC1O + ozone -> MCATEC1O2 + ozone
+%2.86E-13
+KINETIC ARR1 2.860E-13
+%=========================22============================
+HCOCO3H -> 4.000E-01 BZFUONE
+%J<4>*0.2
+KINETIC MCM3 2.330E-03 0.244 0.267
+%=========================23============================
+BZFUONE + nitrate_radical -> nitrate_radical + 7.780E-01 NTLFUO2 //
+     + 2.220E-01 NPHEN1O2
+%5.51E-13
+KINETIC ARR1 5.510E-13
+%=========================24============================
+BZFUONE + hydroxyl -> TLFUO2 + hydroxyl
+%4.77E-11
+KINETIC ARR1 4.770E-11
+%=========================25============================
+TLEMUCNO3 + hydroxyl -> hydroxyl
+%3.06E-11
+KINETIC ARR1 3.060E-11
+%=========================26============================
+MNCATECH + nitrate_radical -> MNNCATECO2 + nitrate_radical
+%5.03E-12
+KINETIC ARR1 5.030E-12
+%=========================27============================
+MNCATECH + hydroxyl -> MNCATECO2 + hydroxyl
+%6.83E-12
+KINETIC ARR1 6.830E-12
+%=========================28============================
+MCATEC1O2 + hydroperoxy -> MCATEC1OOH + hydroperoxy
+%KRO2HO2*0.82
+KINETIC ARR2 2.386E-13 -1300.00
+%=========================29============================
+MCATEC1O2 + nitric_oxide -> MCATEC1O + nitric_oxide
+%KRO2NO
+KINETIC ARR2 2.700E-12  -360.00
+%=========================30============================
+NTLFUO2 + hydroperoxy -> hydroperoxy + 9.004E-01 NTLFUOOH //
+     + 9.959E-02 NCRESOOH
+%4.17E-13*EXP(1300.00/TEMP)
+KINETIC ARR2 4.170E-13 -1300.00
+%=========================31============================
+NTLFUO2 + nitric_oxide -> nitric_oxide
+%4.93E-12*EXP(360.00/TEMP)
+KINETIC ARR2 4.930E-12  -360.00
+%=========================32============================
+NTLFUO2 + nitrate_radical -> nitrate_radical
+%KRO2NO3*8.2611E-01
+KINETIC ARR1 1.900E-12
+%=========================33============================
+NPHEN1O2 -> 
+%8.80E-13*RO2*1.1409E-01
+KINETIC TB RO2 ARR1 1.004E-13
+%=========================34============================
+C6H5O + nitrate_radical -> nitrate_radical + NCRES1O2
+%9.00E-14
+KINETIC ARR1 9.000E-14
+%=========================35============================
+DNPHEN + nitrate_radical -> MNNCATECO2 + nitrate_radical
+%7.83E-15*4.3003E-01
+KINETIC ARR1 3.367E-15
+%=========================36============================
+MNNCATECO2 + hydroperoxy -> MNNCATCOOH + hydroperoxy
+%KRO2HO2*0.82*9.9088E-01
+KINETIC ARR2 2.364E-13 -1300.00
+%=========================37============================
+MNNCATECO2 + nitric_oxide -> NC4MDCO2H + nitric_oxide
+%KRO2NO*9.9088E-01
+KINETIC ARR2 2.675E-12  -360.00
+%=========================38============================
+MNNCATECO2 + nitrate_radical -> NC4MDCO2H + nitrate_radical
+%KRO2NO3*9.9088E-01
+KINETIC ARR1 2.279E-12
+%=========================39============================
+MNNCATECO2 -> NC4MDCO2H
+%8.00E-13*RO2*9.9088E-01
+KINETIC TB RO2 ARR1 7.927E-13
+%=========================40============================
+MNCATECO2 + hydroperoxy -> MNCATECOOH + hydroperoxy
+%4.74E-13*EXP(1300.00/TEMP)
+KINETIC ARR2 4.740E-13 -1300.00
+%=========================41============================
+MNCATECO2 + nitric_oxide -> nitric_oxide + NC4MDCO2H
+%5.36E-12*EXP(360.00/TEMP)
+KINETIC ARR2 5.360E-12  -360.00
+%=========================42============================
+MCATEC1OOH + hydroxyl -> MCATEC1O2 + hydroxyl
+%2.05E-10
+KINETIC ARR1 2.050E-10
+%=========================43============================
+NTLFUOOH + hydroxyl -> NTLFUO2 + hydroxyl
+%4.44E-12*7.7820E-01*6.0815E-01
+KINETIC ARR1 2.101E-12
+%=========================44============================
+TLFUOOH + hydroxyl -> TLFUO2 + hydroxyl
+%2.60E-11
+KINETIC ARR1 2.600E-11
+%=========================45============================
+NCRES1O2 + nitric_dioxide -> DNPHEN + nitric_dioxide
+%2.08E-12*5.5424E-01
+KINETIC ARR1 1.153E-12
+%=========================46============================
+NCRES1O2 + ozone -> NPHEN1O2 + ozone
+%2.86E-13*5.5424E-01
+KINETIC ARR1 1.585E-13
+%=========================47============================
+NPHEN1O2 + nitric_oxide -> nitric_oxide + NCRES1O2
+%KRO2NO*8.8591E-01
+KINETIC ARR2 2.392E-12  -360.00
+%=========================48============================
+NC4MDCO2H + hydroxyl -> hydroxyl
+%1.90E-12*EXP(190/TEMP)
+KINETIC ARR2 1.900E-12  -190.00
+END
