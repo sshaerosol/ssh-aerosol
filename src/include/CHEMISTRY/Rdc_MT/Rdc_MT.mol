@@ -1,0 +1,2483 @@
+
+name	"APINENE"
+status	true
+mass	136.23404
+organic	true
+formula	"C10H16"
+SMILES	"CC1=CCC2CC1C2(C)C"
+functionalGroups	{"O": 0.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 3.0, "1": 2.0, "2": 2.0, "3": 1.0, "19": 1.0}
+ratios	{"OM/OC": 1.135, "H/C": 1.6, "N/C": 0.0, "O/C": 0.0}
+DU	3
+psat_atm	0.004461380460058124
+psat_torr	3.3906491496441737
+dHvap_KJ	45.42674347106105
+gamma	252720.44313802323
+henry	0.049274004592467946
+Kp	0.0109871904695553
+generation	-1
+groupID	2
+
+name	"NO3"
+status	true
+mass	62.0
+SMILES	"-"
+generation	-1
+
+name	"NAPINAO2"
+status	true
+mass	230.23773999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO5"
+SMILES	"[O]OC1(C)C(ON(=O)=O)CC2CC1C2(C)C"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 1.919, "H/C": 1.6, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	0.00018540386738102548
+psat_torr	0.14090693920957936
+dHvap_KJ	60.09204516495836
+gamma	524999.8769458709
+henry	0.5707547103410145
+Kp	0.12726773002881075
+generation	-1
+groupID	2
+
+name	"NAPINBO2"
+status	true
+mass	230.23773999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO5"
+SMILES	"[O]OC1CC2CC(C1(C)ON(=O)=O)C2(C)C"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 1.919, "H/C": 1.6, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	0.00018540386738102548
+psat_torr	0.14090693920957936
+dHvap_KJ	60.09204516495836
+gamma	524999.8769458709
+henry	0.5707547103410145
+Kp	0.12726773002881075
+generation	-1
+groupID	2
+
+name	"O3"
+status	true
+mass	48.0
+SMILES	"-"
+generation	-1
+
+name	"C107O2"
+status	true
+mass	199.22369999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15O4"
+SMILES	"O=CCC1CC(O[O])(C(=O)C)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.66, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	0.0004282830828442017
+psat_torr	0.3254951429615933
+dHvap_KJ	56.522862771440145
+gamma	1063.589509185293
+henry	121.9614361660271
+Kp	27.195141539226253
+generation	-1
+groupID	2
+
+name	"C109O2"
+status	true
+mass	199.2237
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15O4"
+SMILES	"[O]OCC(=O)C1CC(CC=O)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.66, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	0.000269560622031685
+psat_torr	0.2048660727440806
+dHvap_KJ	58.42091991306038
+gamma	1794.97690381308
+henry	114.81858229988931
+Kp	25.602417412731125
+generation	-1
+groupID	2
+
+name	"C96O2"
+status	true
+mass	173.00049130431194
+organic	true
+Radical	true
+RO2	true
+formula	"C9H15O3"
+SMILES	"[O]OCC1CC(C(=O)C)C1(C)C"
+functionalGroups	{"O": 3.2023068174285814, "H": 14.795307371853003, "N": 0.0, "C": 8.896460780567294}
+ratios	{"OM/OC": 1.62, "H/C": 1.663, "N/C": 0.0, "O/C": 0.36}
+DU	2.4988070946407923
+psat_atm	0.0025977679231308877
+psat_torr	1.9743036215794747
+dHvap_KJ	48.90783005950262
+gamma	3619.7253987208346
+henry	12.01138976361384
+Kp	0.7763594804280182
+generation	-1
+groupID	2
+
+name	"APINBOO"
+status	true
+mass	184.23223999999993
+organic	true
+Radical	true
+formula	"C10H16O3"
+SMILES	"[O-][O+]=CCC1CC(C(=O)C)C1(C)C"
+functionalGroups	{"O": 3.0, "H": 16.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.535, "H/C": 1.6, "N/C": 0.0, "O/C": 0.3}
+DU	3
+psat_atm	0.00025697981169911743
+psat_torr	0.19530465689132925
+dHvap_KJ	58.44837573712637
+gamma	1364.0030019438557
+henry	158.49412267276176
+Kp	35.34125404487398
+generation	-1
+groupID	2
+
+name	"C10H15O2O2"
+status	true
+mass	199.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15N0O4"
+SMILES	"-"
+functionalGroups	{"O": 4, "H": 15, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 3.0, "2": 3.0, "30": 1.0, "31": 1.0}
+ratios	{"OM/OC": 1.658, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	2.209445979342057e-05
+psat_torr	0.016791789442999635
+dHvap_KJ	58.122164339525995
+henry	1479.1083881682073
+generation	-1
+groupID	7
+
+name	"OH"
+status	true
+mass	17.0
+SMILES	"-"
+generation	-1
+
+name	"APINBO2"
+status	true
+mass	185.24017999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"[O]OC1CC2CC(C1(C)O)C2(C)C"
+functionalGroups	{"O": 3.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.544, "H/C": 1.7, "N/C": 0.0, "O/C": 0.3}
+DU	2
+psat_atm	0.0009109435121119032
+psat_torr	0.6923170692050464
+dHvap_KJ	55.013767262088415
+gamma	1137.2320229424204
+henry	53.62742787769163
+Kp	11.95792323676094
+generation	-1
+groupID	2
+
+name	"APINCO2"
+status	true
+mass	185.24018
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"[O]OC(C)(C)C1CC=C(C)C(O)C1"
+functionalGroups	{"O": 3.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.544, "H/C": 1.7, "N/C": 0.0, "O/C": 0.3}
+DU	2
+psat_atm	0.000532246992589273
+psat_torr	0.4045077143678475
+dHvap_KJ	57.44661190904452
+gamma	2031.5099265129024
+henry	51.3801455222491
+Kp	11.456820891166476
+generation	-1
+groupID	2
+
+name	"C10H17O4O2"
+status	true
+mass	233.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17N0O6"
+SMILES	"-"
+functionalGroups	{"O": 6, "H": 17, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 4.0, "6": 2.0, "26": 2.0, "43": 1.0}
+ratios	{"OM/OC": 1.942, "H/C": 1.7, "N/C": 0.0, "O/C": 0.6}
+DU	2
+psat_atm	6.227064835728526e-10
+psat_torr	4.73256927515368e-07
+dHvap_KJ	88.53370400812001
+henry	309029543.2513592
+generation	-1
+groupID	1
+
+name	"BPINENE"
+status	true
+mass	136.23404
+organic	true
+formula	"C10H16"
+SMILES	"C=C1CCC2CC1C2(C)C"
+functionalGroups	{"O": 0.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 3.0, "2": 2.0, "3": 1.0, "18": 1.0}
+ratios	{"OM/OC": 1.135, "H/C": 1.6, "N/C": 0.0, "O/C": 0.0}
+DU	3
+psat_atm	0.004820517833269683
+psat_torr	3.6635935532849593
+dHvap_KJ	44.814374726187346
+gamma	266563.66210066713
+henry	0.043234740323526255
+Kp	0.009640546384755562
+generation	-1
+groupID	3
+
+name	"NBPINAO2"
+status	true
+mass	230.23773999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO5"
+SMILES	"[O]OC1(CON(=O)=O)CCC2CC1C2(C)C"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 1.919, "H/C": 1.6, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	0.00010741180117659996
+psat_torr	0.08163296889421597
+dHvap_KJ	62.25231550276774
+gamma	522582.2119117912
+henry	0.9897394311006652
+Kp	0.22069356316118438
+generation	-1
+groupID	3
+
+name	"NBPINBO2"
+status	true
+mass	230.23773999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO5"
+SMILES	"[O]OCC1(CCC2CC1C2(C)C)ON(=O)=O"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 1.919, "H/C": 1.6, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	0.00010741180117659996
+psat_torr	0.08163296889421597
+dHvap_KJ	62.25231550276774
+gamma	522582.2119117912
+henry	0.9897394311006652
+Kp	0.22069356316118438
+generation	-1
+groupID	3
+
+name	"NOPINONE"
+status	true
+mass	138.20686
+organic	true
+formula	"C9H14O"
+SMILES	"O=C1CCC2CC1C2(C)C"
+functionalGroups	{"O": 1.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "30": 1.0}
+ratios	{"OM/OC": 1.28, "H/C": 1.556, "N/C": 0.0, "O/C": 0.111}
+DU	3
+psat_atm	0.0008193033483903838
+psat_torr	0.6226705447766917
+dHvap_KJ	52.53413289026405
+gamma	5186.582203201176
+henry	13.073789845333174
+Kp	2.9152130089213624
+generation	-1
+groupID	3
+
+name	"NOPINDO2"
+status	true
+mass	169.19771999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C9H13O3"
+SMILES	"[O]OC1CC2CC(C1=O)C2(C)C"
+functionalGroups	{"O": 3.0, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.567, "H/C": 1.444, "N/C": 0.0, "O/C": 0.333}
+DU	3
+psat_atm	0.0032878499443773908
+psat_torr	2.498765957726817
+dHvap_KJ	47.5601197804479
+gamma	13032.419485820097
+henry	1.296553542152906
+Kp	0.2891074277284974
+generation	-1
+groupID	3
+
+name	"BPINAO2"
+status	true
+mass	185.24017999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"OCC1(O[O])CCC2CC1C2(C)C"
+functionalGroups	{"O": 3.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.544, "H/C": 1.7, "N/C": 0.0, "O/C": 0.3}
+DU	2
+psat_atm	0.0002667030539852591
+psat_torr	0.20269432102879692
+dHvap_KJ	59.48422998205132
+gamma	717.0773444400944
+henry	290.49155050605606
+Kp	64.77423585933515
+generation	-1
+groupID	3
+
+name	"BPINBO2"
+status	true
+mass	185.24017999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"[O]OCC1(O)CCC2CC1C2(C)C"
+functionalGroups	{"O": 3.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.544, "H/C": 1.7, "N/C": 0.0, "O/C": 0.3}
+DU	2
+psat_atm	0.0005067264633896875
+psat_torr	0.3851121121761625
+dHvap_KJ	57.265991548848966
+gamma	1616.1453685887668
+henry	67.83807056726975
+Kp	15.12663337543425
+generation	-1
+groupID	3
+
+name	"LIMONENE"
+status	true
+mass	136.23404
+organic	true
+formula	"C10H16"
+SMILES	"CC1=CCC(CC1)C(=C)C"
+functionalGroups	{"O": 0.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 3.0, "2": 1.0, "18": 1.0, "19": 1.0}
+ratios	{"OM/OC": 1.135, "H/C": 1.6, "N/C": 0.0, "O/C": 0.0}
+DU	3
+psat_atm	0.004573452020735064
+psat_torr	3.4758235357586487
+dHvap_KJ	45.176364985680145
+gamma	323381.716768138
+henry	0.037563660372397514
+Kp	0.008376000584054548
+generation	-1
+groupID	4
+
+name	"NLIMO2"
+status	true
+mass	230.23773999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO5"
+SMILES	"[O-][N+](=O)OC1CC(CCC1(C)O[O])C(=C)C"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 1.919, "H/C": 1.6, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	0.000226881863477134
+psat_torr	0.17243021624262184
+dHvap_KJ	59.41063476652215
+gamma	266563.66210066713
+henry	0.9186006917972396
+Kp	0.20483094178597236
+generation	-1
+groupID	4
+
+name	"LIMAO2"
+status	true
+mass	187.26000165504962
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"[O]OC1(C)CCC(CC1O)C(=C)C"
+functionalGroups	{"O": 3.1828530665562296, "H": 16.55770957360996, "N": 0.0, "C": 9.961707853361208}
+ratios	{"OM/OC": 1.566, "H/C": 1.662, "N/C": 0.0, "O/C": 0.32}
+DU	2.6828530665562287
+psat_atm	0.0007325475036038101
+psat_torr	0.5567361027388956
+dHvap_KJ	55.82273336971332
+gamma	1416.9558132372474
+henry	50.1737400324874
+Kp	10.73523288742355
+generation	-1
+groupID	4
+
+name	"LIMALBO2"
+status	true
+mass	199.2237
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15O4"
+SMILES	"[O]OCC(=O)CCC(CC=O)C(=C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.66, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	0.00021517176997695888
+psat_torr	0.16353054518248875
+dHvap_KJ	59.56089224638074
+gamma	2769.8817562580775
+henry	93.21396306586536
+Kp	20.784987441091992
+generation	-1
+groupID	4
+
+name	"LIMAL"
+status	true
+mass	168.3071186932558
+organic	true
+formula	"C10H16O2"
+SMILES	"O=CCC(CCC(=O)C)C(=C)C"
+functionalGroups	{"O": 2.004904888641568, "H": 15.995836476302049, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 0.9971768732074073, "1": 2.986625730980654, "2": 0.9971768732074073, "6": 0.0028231267925926964, "7": 0.0028231267925926964, "9": 0.00846938037777809, "10": 0.0028231267925926964, "12": 0.005646253585185393, "18": 1.0, "26": 0.005646253585185393, "29": 0.9922719845658392, "30": 0.004904888641568098, "31": 1.0020817618489755}
+ratios	{"OM/OC": 1.403, "H/C": 1.6, "N/C": 0.0, "O/C": 0.2}
+DU	3.0020817618489755
+psat_atm	9.082404509280606e-05
+psat_torr	0.06902627427053261
+dHvap_KJ	62.63510376561089
+gamma	2135.8589055590014
+henry	291.62237169183857
+Kp	62.36850445265381
+generation	-1
+groupID	4
+
+name	"LIMCO2"
+status	true
+mass	185.24018
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O3"
+SMILES	"OCC(C)(O[O])C1CCC(=CC1)C"
+functionalGroups	{"O": 3.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.544, "H/C": 1.7, "N/C": 0.0, "O/C": 0.3}
+DU	2.5
+psat_atm	0.0003202936208288034
+psat_torr	0.24342315182989058
+dHvap_KJ	59.03599672517555
+gamma	887.6923660624548
+henry	190.87867709163135
+Kp	64.24493432067622
+generation	-1
+groupID	4
+
+name	"HO2"
+status	true
+mass	33.0
+SMILES	"-"
+generation	-1
+
+name	"NAPINAOOH"
+status	true
+mass	232.40526774641086
+organic	true
+condensable	true
+formula	"C10H17NO5"
+SMILES	"OOC1(C)C(ON(=O)=O)CC2CC1C2(C)C"
+functionalGroups	{"O": 5.082925311109853, "H": 16.834149377780292, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 3.0, "1": 1.9170746888901466, "2": 1.9170746888901466, "3": 1.0, "30": 0.08292531110985324, "40": 0.9170746888901468, "41": 0.08292531110985324, "44": 1.0}
+ratios	{"OM/OC": 1.937, "H/C": 1.683, "N/C": 0.1, "O/C": 0.508}
+DU	3.082925311109854
+psat_atm	6.059187603629034e-08
+psat_torr	4.6049825787580656e-05
+dHvap_KJ	96.14022872811545
+gamma	49609.5
+henry	18502.0
+Kp	16704.505113282423
+generation	-1
+groupID	2
+
+name	"NO"
+status	true
+mass	30.0
+SMILES	"-"
+generation	-1
+
+name	"APINANO3"
+status	true
+mass	214.88702481403203
+organic	true
+formula	"C10H17NO4"
+SMILES	"O=N(=O)OC1(C)C(O)CC2CC1C2(C)C"
+functionalGroups	{"O": 4.0, "H": 16.910423916040816, "N": 1.0, "C": 9.977605979010203}
+SOAPStructure	{"0": 0.044788041979591325, "1": 0.044788041979591325, "2": 0.022394020989795663, "3": 0.022394020989795663, "6": 0.6051733089104462, "7": 0.3724326700997581, "9": 1.2103466178208924, "10": 1.2103466178208924, "11": 0.6051733089104462, "12": 2.932817937030613, "13": 0.7448653401995162, "14": 0.7448653401995162, "15": 0.3724326700997581, "26": 0.9776059790102043, "30": 0.022394020989795663, "40": 0.3724326700997581, "41": 0.6275673299002419}
+ratios	{"OM/OC": 1.795, "H/C": 1.695, "N/C": 0.1, "O/C": 0.401}
+DU	3.022394020989795
+psat_atm	1.1416886699435391e-06
+psat_torr	0.0008676833891570898
+dHvap_KJ	83.64247145907783
+gamma	5928.271637785558
+henry	7118.616322226022
+Kp	2245.0425764765646
+generation	-1
+groupID	2
+
+name	"NAPINBOOH"
+status	true
+mass	231.24568
+organic	true
+formula	"C10H17NO5"
+SMILES	"OOC1CC2CC(C1(C)ON(=O)=O)C2(C)C"
+functionalGroups	{"O": 5.0, "H": 17.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 3.0, "1": 2.0, "2": 2.0, "3": 1.0, "41": 1.0, "43": 1.0}
+ratios	{"OM/OC": 1.927, "H/C": 1.7, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	7.505099488743013e-08
+psat_torr	5.70387561144469e-05
+dHvap_KJ	95.23455090051938
+gamma	9881.12108185236
+henry	74914.31626197128
+Kp	16704.505113282423
+generation	-1
+groupID	2
+
+name	"APINAOOH"
+status	true
+mass	186.21830766912376
+organic	true
+formula	"C10H18O3"
+SMILES	"OOC1(C)C(O)CC2CC1C2(C)C"
+functionalGroups	{"O": 3.002751680611909, "H": 17.984759338344222, "N": 0.0, "C": 9.995131349784021}
+SOAPStructure	{"0": 0.005186005719898584, "1": 0.010372011439797168, "2": 0.003011048729132785, "6": 0.9211754451731261, "7": 0.07363854910697537, "9": 1.8423508903462522, "10": 1.8423508903462522, "11": 0.9211754451731261, "12": 2.984441982840304, "13": 0.14727709821395074, "14": 0.14727709821395074, "15": 0.07363854910697537, "18": 0.005186005719898584, "26": 0.9948139942801014, "29": 0.004926637602674865, "31": 0.003011048729132785, "42": 0.000259368117223718, "43": 0.07856518670965024, "44": 0.9211754451731261}
+ratios	{"OM/OC": 1.553, "H/C": 1.799, "N/C": 0.0, "O/C": 0.3}
+DU	2.00275168061191
+psat_atm	1.4934206920716803e-07
+psat_torr	0.00011349997259744771
+dHvap_KJ	92.83141747992745
+gamma	81.2526849569847
+henry	4482517.116556848
+Kp	1067364.452770629
+generation	-1
+groupID	2
+
+name	"C926O2"
+status	true
+mass	194.99777190411518
+organic	true
+Radical	true
+RO2	true
+formula	"C9H13O5"
+SMILES	"O=CCC(O[O])(CCC(=O)C)C(=O)C"
+functionalGroups	{"O": 4.5567104637541345, "H": 13.886579072491731, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.806, "H/C": 1.543, "N/C": 0.0, "O/C": 0.506}
+DU	3.0567104637541345
+psat_atm	9.458159890118844e-05
+psat_torr	0.07188201516490322
+dHvap_KJ	63.48296336613549
+gamma	89.04829172185212
+henry	8089.841430011944
+Kp	1806.051774715209
+generation	-1
+groupID	4
+
+name	"APINCOOH"
+status	true
+mass	186.24812
+organic	true
+formula	"C10H18O3"
+SMILES	"OOC(C)(C)C1CC=C(C)C(O)C1"
+functionalGroups	{"O": 3.0, "H": 18.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"5": 0.36148486288507803, "6": 0.6385151371149219, "12": 2.6385151371149216, "13": 2.361484862885078, "14": 1.0, "19": 1.0, "26": 1.0, "44": 1.0}
+ratios	{"OM/OC": 1.552, "H/C": 1.8, "N/C": 0.0, "O/C": 0.3}
+DU	2.0
+psat_atm	7.036810706349228e-08
+psat_torr	5.3479761368254136e-05
+dHvap_KJ	96.01999955981574
+gamma	85.90362683357067
+henry	10647656.344929958
+Kp	1350258.5566246132
+generation	-1
+groupID	2
+
+name	"C720O2"
+status	true
+mass	143.16044
+organic	true
+Radical	true
+RO2	true
+formula	"C7H11O3"
+SMILES	"[O]OC1CC=C(C)C(O)C1"
+functionalGroups	{"O": 3.0, "H": 11.0, "N": 0.0, "C": 7.0}
+ratios	{"OM/OC": 1.704, "H/C": 1.571, "N/C": 0.0, "O/C": 0.429}
+DU	2
+psat_atm	0.006424123183632755
+psat_torr	4.882333619560894
+dHvap_KJ	48.414441198530646
+gamma	70.39649670833744
+henry	122.84644352503852
+Kp	27.392481789949507
+generation	-1
+groupID	5
+
+name	"NBPINAOOH"
+status	true
+mass	231.24568
+organic	true
+condensable	true
+formula	"C10H17NO5"
+SMILES	"OOC1(CON(=O)=O)CCC2CC1C2(C)C"
+functionalGroups	{"O": 5.0, "H": 17.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 3.0, "2": 2.0, "3": 1.0, "39": 0.9373052708589892, "41": 0.06269472914101082, "42": 0.06269472914101082, "44": 0.9373052708589892}
+ratios	{"OM/OC": 1.927, "H/C": 1.7, "N/C": 0.1, "O/C": 0.5}
+DU	3.0
+psat_atm	3.606473217551528e-08
+psat_torr	2.740919645339161e-05
+dHvap_KJ	98.30447604943727
+gamma	38560.5
+henry	39962.1
+Kp	34914.84854410659
+generation	-1
+groupID	3
+
+name	"BPINANO3"
+status	true
+mass	215.20457727319655
+organic	true
+formula	"C10H17NO4"
+SMILES	"OCC1(CCC2CC1C2(C)C)ON(=O)=O"
+functionalGroups	{"O": 4.0, "H": 16.958625784467877, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 0.04137421553212418, "1": 0.06206132329818627, "2": 0.04137421553212418, "3": 0.02068710776606209, "5": 0.8671665988649405, "7": 0.11214629336899745, "9": 0.33643888010699236, "10": 0.2242925867379949, "11": 0.11214629336899745, "12": 1.958625784467876, "13": 2.6014997965948217, "14": 1.734333197729881, "15": 0.8671665988649405, "26": 0.979312892233938, "31": 0.02068710776606209, "39": 0.11214629336899745, "41": 0.8878537066310026}
+ratios	{"OM/OC": 1.793, "H/C": 1.696, "N/C": 0.1, "O/C": 0.4}
+DU	3.0206871077660615
+psat_atm	3.9225483067081423e-07
+psat_torr	0.0002981136713098188
+dHvap_KJ	87.73832586215309
+gamma	3940.093750897445
+henry	31322.83112020726
+Kp	9158.477597986901
+generation	-1
+groupID	3
+
+name	"NOPINCOOH"
+status	true
+mass	170.20565999999997
+organic	true
+formula	"C9H14O3"
+SMILES	"OOC12CCC(=O)C(C1)C2(C)C"
+functionalGroups	{"O": 3.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 1.6784585749856946, "2": 1.3215414250143054, "3": 1.0, "30": 1.0, "43": 0.3215414250143055, "44": 0.6784585749856946}
+ratios	{"OM/OC": 1.576, "H/C": 1.556, "N/C": 0.0, "O/C": 0.333}
+DU	3.0
+psat_atm	2.3503928037304607e-06
+psat_torr	0.00178629853083515
+dHvap_KJ	78.62580288105532
+gamma	120.95766622803751
+henry	187357.28460546356
+Kp	45298.907452521955
+generation	-1
+groupID	3
+
+name	"C918O2"
+status	true
+mass	177.23236412565709
+organic	true
+Radical	true
+RO2	true
+formula	"C9H13O4"
+SMILES	"O=CCC(=O)C1CC(O[O])C1(C)C"
+functionalGroups	{"O": 3.502184089756933, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.641, "H/C": 1.444, "N/C": 0.0, "O/C": 0.389}
+DU	3.5
+psat_atm	0.0017624097103299608
+psat_torr	1.3394313798507702
+dHvap_KJ	50.5401309630398
+gamma	687.9225443188571
+henry	19.381480988277378
+Kp	17.18517030011635
+generation	-1
+groupID	3
+
+name	"BPINAOOH"
+status	true
+mass	186.24811999999994
+organic	true
+condensable	true
+formula	"C10H18O3"
+SMILES	"OCC1(OO)CCC2CC1C2(C)C"
+functionalGroups	{"O": 3.0, "H": 18.0, "N": 0.0, "C": 10.000000000000002}
+SOAPStructure	{"5": 0.9852347439137314, "7": 0.01476525608626861, "9": 0.04429576825880583, "10": 0.02953051217253722, "11": 0.01476525608626861, "12": 2.0, "13": 2.955704231741194, "14": 1.970469487827463, "15": 0.9852347439137314, "26": 1.0, "42": 0.01476525608626861, "44": 0.9852347439137314}
+ratios	{"OM/OC": 1.552, "H/C": 1.8, "N/C": 0.0, "O/C": 0.3}
+DU	2.0000000000000018
+psat_atm	4.614000443224363e-08
+psat_torr	3.5066403368505155e-05
+dHvap_KJ	97.36811256312834
+gamma	4683.38
+henry	256847.0
+Kp	5029702.578263458
+generation	-1
+groupID	3
+
+name	"NLIMOOH"
+status	true
+mass	231.24568
+organic	true
+formula	"C10H17NO5"
+SMILES	"[O-][N+](=O)OC1CC(CCC1(C)OO)C(=C)C"
+functionalGroups	{"O": 5.0, "H": 17.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 3.0, "2": 1.0, "18": 1.0, "40": 1.0, "44": 1.0}
+ratios	{"OM/OC": 1.927, "H/C": 1.7, "N/C": 0.1, "O/C": 0.5}
+DU	3
+psat_atm	9.745637525931777e-08
+psat_torr	7.40668451970815e-05
+dHvap_KJ	94.24377593067659
+gamma	3249.9439122827503
+henry	175404.75990465176
+Kp	39112.01296258391
+generation	-1
+groupID	4
+
+name	"LIMAOOH"
+status	true
+mass	187.02458697804417
+organic	true
+formula	"C10H18O3"
+SMILES	"OOC1(C)CCC(CC1O)C(=C)C"
+functionalGroups	{"O": 3.0555272905566073, "H": 17.888945418886784, "N": 0.0, "C": 9.999999999999998}
+SOAPStructure	{"0": 0.055527290556607385, "1": 0.11105458111321477, "2": 0.055527290556607385, "6": 0.917150554841307, "7": 0.027322154602085574, "8": 0.917150554841307, "12": 0.9717948640454782, "13": 2.8334181283301776, "14": 0.9444727094433926, "18": 1.0, "26": 0.9444727094433926, "30": 0.055527290556607385, "31": 0.055527290556607385, "42": 0.055527290556607385, "43": 0.027322154602085574, "44": 0.917150554841307}
+ratios	{"OM/OC": 1.559, "H/C": 1.789, "N/C": 0.0, "O/C": 0.306}
+DU	2.055527290556606
+psat_atm	1.8140839791159276e-07
+psat_torr	0.0001378703824128105
+dHvap_KJ	92.09268466294002
+gamma	90.37732025375074
+henry	3324334.570389138
+Kp	714735.7518918691
+generation	-1
+groupID	4
+
+name	"C729CHO"
+status	true
+mass	153.51470711819564
+organic	true
+formula	"C8H12O2"
+SMILES	"O=CCC(CC=O)C(=C)C"
+functionalGroups	{"O": 2.623243469816293, "H": 12.515829228106597, "N": 0.0, "C": 8.236753947316899}
+SOAPStructure	{"0": 1.0459202921466058, "1": 1.268967895784045, "2": 0.9817488409588082, "3": 0.2529004124404564, "5": 0.2052393017292247, "6": 0.0017408185646259286, "12": 0.033920579753410805, "13": 0.022901485301025547, "14": 0.2052393017292247, "18": 0.5740400470191038, "26": 0.2069801202938506, "29": 0.6682051463219754, "30": 0.2512867544843142, "31": 0.9654507978012175, "37": 0.2656603254574676}
+ratios	{"OM/OC": 1.553, "H/C": 1.52, "N/C": 0.0, "O/C": 0.318}
+DU	2.9788393332636005
+psat_atm	2.2646125480443757e-05
+psat_torr	0.017211055365137257
+dHvap_KJ	69.51290609602512
+gamma	559.676759236183
+henry	25048.00092220411
+Kp	183.95453306217564
+generation	-1
+groupID	4
+
+name	"LIMKET"
+status	true
+mass	138.20686
+organic	true
+formula	"C9H14O"
+SMILES	"CC1=CCC(CC1)C(=O)C"
+functionalGroups	{"O": 1.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 1.0, "1": 3.0, "2": 1.0, "19": 1.0, "29": 1.0}
+ratios	{"OM/OC": 1.28, "H/C": 1.556, "N/C": 0.0, "O/C": 0.111}
+DU	3
+psat_atm	0.000768768981426076
+psat_torr	0.5842644258838178
+dHvap_KJ	52.937412032084545
+gamma	3817.1847965683137
+henry	18.93164959548454
+Kp	4.221407245642544
+generation	-1
+groupID	4
+
+name	"LIMCOOH"
+status	true
+mass	186.24811999999997
+organic	true
+formula	"C10H18O3"
+SMILES	"OCC(C)(OO)C1CCC(=CC1)C"
+functionalGroups	{"O": 3.0, "H": 18.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"5": 1.0, "12": 2.0, "13": 3.0, "14": 1.0, "19": 1.0, "26": 1.0, "44": 1.0}
+ratios	{"OM/OC": 1.552, "H/C": 1.8, "N/C": 0.0, "O/C": 0.3}
+DU	2
+psat_atm	3.367628904135325e-08
+psat_torr	2.5593979671428474e-05
+dHvap_KJ	98.85558975293243
+gamma	57.17447190338361
+henry	28853672.933907684
+Kp	6433834.694238679
+generation	-1
+groupID	4
+
+name	"NC101CO"
+status	true
+mass	213.23039999999997
+organic	true
+formula	"C10H15NO4"
+SMILES	"O=N(=O)OC1(C)C(=O)CC2CC1C2(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 3.0, "1": 1.0, "2": 2.0, "3": 1.0, "30": 1.0, "41": 1.0}
+ratios	{"OM/OC": 1.777, "H/C": 1.5, "N/C": 0.1, "O/C": 0.4}
+DU	4
+psat_atm	4.159349576002576e-06
+psat_torr	0.003161105677761958
+dHvap_KJ	75.82561271683561
+gamma	65046.002940660714
+henry	205.34373536460546
+Kp	45.787850020328065
+generation	-1
+groupID	2
+
+name	"NC102O2"
+status	true
+mass	260.22066
+organic	true
+Radical	true
+RO2	true
+formula	"C10H14NO7"
+SMILES	"[O]OC(C)(C)C1CC(=O)CC(=O)C1(C)ON(=O)=O"
+functionalGroups	{"O": 7.0, "H": 14.0, "N": 1.0, "C": 10.0}
+ratios	{"OM/OC": 2.169, "H/C": 1.4, "N/C": 0.1, "O/C": 0.7}
+DU	4
+psat_atm	2.3991397604529922e-06
+psat_torr	0.0018233462179442742
+dHvap_KJ	78.2315073080063
+gamma	11137.178624857826
+henry	2079.2023695305297
+Kp	463.62362157742444
+generation	-1
+groupID	2
+
+name	"C96CO3"
+status	true
+mass	199.22369999999995
+organic	true
+Radical	true
+formula	"C10H15O4"
+SMILES	"[O]OC(=O)CC1CC(C(=O)C)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.66, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	0.015548221216975898
+psat_torr	11.816648124901683
+dHvap_KJ	42.28129400520419
+gamma	3619.7253987208346
+henry	0.9871227445266766
+Kp	0.22011009051622024
+generation	-1
+groupID	2
+
+name	"C106O2"
+status	true
+mass	206.35909963805403
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15O5"
+SMILES	"O=CCC(=O)CC(C(=O)C)C(C)(C)O[O]"
+functionalGroups	{"O": 4.796606836692744, "H": 13.943192416269135, "N": 0.0, "C": 9.621617961569092}
+ratios	{"OM/OC": 1.787, "H/C": 1.449, "N/C": 0.0, "O/C": 0.499}
+DU	3.6500217534345243
+psat_atm	7.495149786453026e-05
+psat_torr	0.056963138377043
+dHvap_KJ	63.53864444649738
+gamma	269.1201239018999
+henry	2276.9032051988556
+Kp	1208.2217258011374
+generation	-1
+groupID	2
+
+name	"C10H15O7O2"
+status	true
+mass	279.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15N0O9"
+SMILES	"-"
+functionalGroups	{"O": 9, "H": 15, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 2.0, "2": 2.0, "6": 1.0, "26": 1.0, "30": 1.0, "43": 1.0, "55": 1.0}
+ratios	{"OM/OC": 2.325, "H/C": 1.5, "N/C": 0.0, "O/C": 0.9}
+DU	3
+psat_atm	7.839410162588524e-10
+psat_torr	5.957951723567279e-07
+dHvap_KJ	71.321821091486
+henry	1445439770.745928
+generation	-1
+groupID	7
+
+name	"C109OOH"
+status	true
+mass	200.23163999999997
+organic	true
+formula	"C10H16O4"
+SMILES	"OOCC(=O)C1CC(CC=O)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 1.0, "3": 1.0, "30": 1.0, "31": 1.0, "42": 1.0}
+ratios	{"OM/OC": 1.669, "H/C": 1.6, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	7.761792947312778e-08
+psat_torr	5.898962639957711e-05
+dHvap_KJ	94.40346416371236
+gamma	79.26190330720178
+henry	9030274.347197967
+Kp	2013583.9387442367
+generation	-1
+groupID	2
+
+name	"C89CO3"
+status	true
+mass	185.19711999999998
+organic	true
+Radical	true
+formula	"C9H13O4"
+SMILES	"O=CCC1CC(C(=O)O[O])C1(C)C"
+functionalGroups	{"O": 4.0, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.715, "H/C": 1.444, "N/C": 0.0, "O/C": 0.444}
+DU	3
+psat_atm	0.0402813985734248
+psat_torr	30.613862915802844
+dHvap_KJ	38.93748675334854
+gamma	2058.989263027905
+henry	0.6698365973952208
+Kp	0.14936115584535054
+generation	-1
+groupID	5
+
+name	"C920CO3H"
+status	true
+mass	216.23103999999995
+organic	true
+formula	"C10H16O5"
+SMILES	"OOC(=O)CC1CC(C(=O)CO)C1(C)C"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"12": 2.0, "13": 2.0, "14": 2.0, "15": 1.0, "26": 1.0, "30": 1.0, "55": 1.0}
+ratios	{"OM/OC": 1.802, "H/C": 1.6, "N/C": 0.0, "O/C": 0.5}
+DU	3
+psat_atm	6.430939957099421e-09
+psat_torr	4.8875143673955605e-06
+dHvap_KJ	106.74462391729261
+gamma	11.046255243359935
+henry	782056204.6490681
+Kp	174384049.95583212
+generation	-1
+groupID	2
+
+name	"C96OOH"
+status	true
+mass	180.15532212088937
+organic	true
+formula	"C9H16O3"
+SMILES	"OOCC1CC(C(=O)C)C1(C)C"
+functionalGroups	{"O": 3.28324719015246, "H": 16.0, "N": 0.0, "C": 9.28324719015246}
+SOAPStructure	{"0": 2.0, "1": 1.2832471901524598, "2": 1.7167528098475402, "3": 1.0, "29": 1.0, "31": 0.2832471901524597, "42": 0.7167528098475403, "44": 0.2832471901524597}
+ratios	{"OM/OC": 1.617, "H/C": 1.724, "N/C": 0.0, "O/C": 0.354}
+DU	2.2832471901524602
+psat_atm	1.489316678423976e-06
+psat_torr	0.0011318806756022218
+dHvap_KJ	81.08961615185368
+gamma	115.7960114862324
+henry	408896.8356806727
+Kp	28710.965909963204
+generation	-1
+groupID	2
+
+name	"C98OOH"
+status	true
+mass	203.28861737035447
+organic	true
+condensable	true
+formula	"C9H16O5"
+SMILES	"OCC(CC(=O)C(=O)C)C(C)(C)OO"
+functionalGroups	{"O": 5.0, "H": 15.753618686595837, "N": 0.0, "C": 8.943101980016742}
+SOAPStructure	{"0": 0.03297141056016539, "1": 0.16590649959630085, "2": 0.016485705280082696, "5": 0.933707363281178, "12": 1.7536186865958368, "13": 0.05689801998325961, "14": 0.933707363281178, "26": 0.933707363281178, "29": 1.0902192461419165, "30": 0.8932950485780011, "31": 0.08277834199890477, "43": 0.05689801998325961, "44": 0.9431019800167405}
+ratios	{"OM/OC": 1.894, "H/C": 1.762, "N/C": 0.0, "O/C": 0.559}
+DU	2.0662926367188232
+psat_atm	1.1346446184043711e-09
+psat_torr	8.62329909987322e-07
+dHvap_KJ	113.70945749564783
+gamma	37.5432
+henry	1304680000.0
+Kp	21186872644.75931
+generation	-1
+groupID	2
+
+name	"C97O2"
+status	true
+mass	187.21299999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C9H15O4"
+SMILES	"OCC1CC(O[O])(C(=O)C)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.733, "H/C": 1.667, "N/C": 0.0, "O/C": 0.444}
+DU	2
+psat_atm	0.00015176691640306493
+psat_torr	0.11534285646632934
+dHvap_KJ	61.832401040324456
+gamma	38.34276319070472
+henry	9547.001204163367
+Kp	2128.80445806613
+generation	-1
+groupID	2
+
+name	"NOPINDOOH"
+status	true
+mass	170.20565999999997
+organic	true
+formula	"C9H14O3"
+SMILES	"OOC1CC2CC(C1=O)C2(C)C"
+functionalGroups	{"O": 3.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "30": 1.0, "43": 1.0}
+ratios	{"OM/OC": 1.576, "H/C": 1.556, "N/C": 0.0, "O/C": 0.333}
+DU	3
+psat_atm	2.5510943862525448e-06
+psat_torr	0.001938831733551934
+dHvap_KJ	78.34579454180519
+gamma	347.66304323597006
+henry	62638.6573927053
+Kp	13967.260530638372
+generation	-1
+groupID	3
+
+name	"C822CO3H"
+status	true
+mass	186.20506
+organic	true
+formula	"C9H14O4"
+SMILES	"O=CCC(CCC(=O)OO)C(=C)C"
+functionalGroups	{"O": 4.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 1.0, "1": 3.0, "2": 1.0, "18": 1.0, "31": 1.0, "55": 1.0}
+ratios	{"OM/OC": 1.724, "H/C": 1.556, "N/C": 0.0, "O/C": 0.444}
+DU	3
+psat_atm	2.809854083480326e-06
+psat_torr	0.0021354891034450476
+dHvap_KJ	79.60984079912085
+gamma	281.79471560065605
+henry	70163.44147515825
+Kp	15645.148022024172
+generation	-1
+groupID	4
+
+name	"NO2"
+status	true
+mass	46.0
+SMILES	"-"
+generation	-1
+
+name	"C10PAN2"
+status	true
+mass	245.2292
+organic	true
+formula	"C10H15NO6"
+SMILES	"O=N(=O)OOC(=O)CC1CC(C(=O)C)C1(C)C"
+functionalGroups	{"O": 6.0, "H": 15.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "29": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.044, "H/C": 1.5, "N/C": 0.1, "O/C": 0.6}
+DU	4
+psat_atm	2.38011077120594e-06
+psat_torr	0.0018088841861165145
+dHvap_KJ	78.82236351227213
+gamma	8457.628851945365
+henry	2759.826002521019
+Kp	615.3900865846206
+generation	-1
+groupID	2
+
+name	"C109CO"
+status	true
+mass	181.5639307528966
+organic	true
+formula	"C10H14O3"
+SMILES	"O=CCC1CC(C(=O)C=O)C1(C)C"
+functionalGroups	{"O": 3.0, "H": 13.949884992049602, "N": 0.0, "C": 9.949884992049604}
+SOAPStructure	{"0": 1.9498849920496033, "1": 1.9498849920496033, "2": 0.9749424960248017, "3": 0.9749424960248017, "5": 0.025057503975198313, "12": 0.025057503975198313, "13": 0.025057503975198313, "18": 0.025057503975198313, "26": 0.025057503975198313, "30": 1.0, "31": 1.9749424960248017}
+ratios	{"OM/OC": 1.521, "H/C": 1.402, "N/C": 0.0, "O/C": 0.302}
+DU	3.974942496024803
+psat_atm	5.831689281482848e-06
+psat_torr	0.004432083853926965
+dHvap_KJ	74.5897429414321
+gamma	867.8595139317853
+henry	12051.980869423296
+Kp	2444.3080795836813
+generation	-1
+groupID	2
+
+name	"C622CHO"
+status	true
+mass	128.16898
+organic	true
+formula	"C7H12O2"
+SMILES	"CC(=C)C(CC=O)CO"
+functionalGroups	{"O": 2.0, "H": 12.0, "N": 0.0, "C": 7.0}
+SOAPStructure	{"5": 1.0, "10": 1.0, "12": 1.0, "13": 1.0, "18": 1.0, "26": 1.0, "31": 1.0}
+ratios	{"OM/OC": 1.526, "H/C": 1.714, "N/C": 0.0, "O/C": 0.286}
+DU	2
+psat_atm	0.00015139835475778553
+psat_torr	0.115062749615917
+dHvap_KJ	62.877875687330175
+gamma	22.377200362880323
+henry	16398.366503346817
+Kp	3656.5320324986983
+generation	-1
+groupID	4
+
+name	"C728O2"
+status	true
+mass	175.53786472593518
+organic	true
+Radical	true
+RO2	true
+formula	"C7H13O5"
+SMILES	"O=CCC(CO)C(C)(CO)O[O]"
+functionalGroups	{"O": 5.0, "H": 12.766549611656608, "N": 0.0, "C": 6.883274805828303}
+ratios	{"OM/OC": 2.125, "H/C": 1.855, "N/C": 0.0, "O/C": 0.726}
+DU	1.4999999999999991
+psat_atm	4.51298623002073e-06
+psat_torr	0.003429869534815755
+dHvap_KJ	79.78216394410781
+gamma	0.6298316820343642
+henry	21052648.013607144
+Kp	5016315.5318619795
+generation	-1
+groupID	4
+
+name	"HCC7CO"
+status	true
+mass	126.15310000000001
+organic	true
+formula	"C7H10O2"
+SMILES	"O=C1CC=C(C)C(O)C1"
+functionalGroups	{"O": 2.0, "H": 10.0, "N": 0.0, "C": 7.0}
+SOAPStructure	{"6": 1.0, "12": 1.0, "13": 1.0, "19": 1.0, "26": 1.0, "30": 1.0}
+ratios	{"OM/OC": 1.502, "H/C": 1.429, "N/C": 0.0, "O/C": 0.286}
+DU	3
+psat_atm	0.00012026336969118665
+psat_torr	0.09140016096530186
+dHvap_KJ	62.468349536068985
+gamma	15.40165943108802
+henry	29993.462940046098
+Kp	6687.986756696631
+generation	-1
+groupID	5
+
+name	"C719O2"
+status	true
+mass	175.15924
+organic	true
+Radical	true
+RO2	true
+formula	"C7H11O5"
+SMILES	"[O]OC1(C)C(O)CC(=O)CC1O"
+functionalGroups	{"O": 5.0, "H": 11.0, "N": 0.0, "C": 7.0}
+ratios	{"OM/OC": 2.085, "H/C": 1.571, "N/C": 0.0, "O/C": 0.714}
+DU	2
+psat_atm	1.5465367686157164e-05
+psat_torr	0.011753679441479445
+dHvap_KJ	74.42377187233566
+gamma	0.7285760759255575
+henry	4930515.618327476
+Kp	1099413.6697377756
+generation	-1
+groupID	5
+
+name	"C720NO3"
+status	true
+mass	173.16654
+organic	true
+formula	"C7H11NO4"
+SMILES	"O=N(=O)OC1CC=C(C)C(O)C1"
+functionalGroups	{"O": 4.0, "H": 11.0, "N": 1.0, "C": 7.0}
+SOAPStructure	{"6": 1.0, "12": 1.0, "13": 2.0, "19": 1.0, "26": 1.0, "40": 1.0}
+ratios	{"OM/OC": 2.062, "H/C": 1.571, "N/C": 0.143, "O/C": 0.571}
+DU	3
+psat_atm	7.450742350147387e-06
+psat_torr	0.005662564186112014
+dHvap_KJ	76.62296034814136
+gamma	442.84259392683106
+henry	16837.537011126136
+Kp	3754.4589222956824
+generation	-1
+groupID	5
+
+name	"NOPINDCO"
+status	true
+mass	152.19038
+organic	true
+formula	"C9H12O2"
+SMILES	"O=C1CC2CC(C1=O)C2(C)C"
+functionalGroups	{"O": 2.0, "H": 12.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 1.0, "2": 2.0, "3": 1.0, "30": 2.0}
+ratios	{"OM/OC": 1.409, "H/C": 1.333, "N/C": 0.0, "O/C": 0.222}
+DU	4
+psat_atm	0.0001808008784013301
+psat_torr	0.13740866758501089
+dHvap_KJ	58.113813629775535
+gamma	1548.563388097893
+henry	198.42572305714796
+Kp	44.245261397352984
+generation	-1
+groupID	3
+
+name	"NLIMALO2"
+status	true
+mass	261.07077938177144
+organic	true
+Radical	true
+RO2	true
+formula	"C10H16NO7"
+SMILES	"O=CCC(CCC(=O)C)C(C)(O[O])CO[N+](=O)[O-]"
+functionalGroups	{"O": 7.000000000000001, "H": 15.833778352495246, "N": 1.0, "C": 9.916889176247622}
+ratios	{"OM/OC": 2.194, "H/C": 1.597, "N/C": 0.101, "O/C": 0.706}
+DU	3.499999999999999
+psat_atm	1.2453075070547427e-06
+psat_torr	0.0009464337053616044
+dHvap_KJ	82.50713151899264
+gamma	1358.6944690994048
+henry	34867.6544444474
+Kp	7597.619805663047
+generation	-1
+groupID	4
+
+name	"C817CO3H"
+status	true
+mass	202.20446000000004
+organic	true
+formula	"C9H14O5"
+SMILES	"OOC(=O)CC(CCC(=O)C)C(=O)C"
+functionalGroups	{"O": 5.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"1": 3.0, "2": 1.0, "29": 2.0, "55": 1.0}
+ratios	{"OM/OC": 1.872, "H/C": 1.556, "N/C": 0.0, "O/C": 0.556}
+DU	3
+psat_atm	2.1210349329791866e-07
+psat_torr	0.00016119865490641817
+dHvap_KJ	89.9269203275229
+gamma	34.94219165668329
+henry	7495999.210023854
+Kp	1671468.99792995
+generation	-1
+groupID	4
+
+name	"LIMALO2"
+status	true
+mass	217.23898000000003
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17O5"
+SMILES	"O=CCC(CCC(=O)C)C(C)(CO)O[O]"
+functionalGroups	{"O": 5.0, "H": 17.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.81, "H/C": 1.7, "N/C": 0.0, "O/C": 0.5}
+DU	2
+psat_atm	2.546971517170456e-06
+psat_torr	0.0019356983530495464
+dHvap_KJ	79.82028755368765
+gamma	26.315321316722418
+henry	828885.856845563
+Kp	184826.19511049177
+generation	-1
+groupID	4
+
+name	"C923CO3"
+status	true
+mass	199.2237
+organic	true
+Radical	true
+formula	"C10H15O4"
+SMILES	"[O]OC(=O)CC(CCC(=O)C)C(=C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 10.0}
+ratios	{"OM/OC": 1.66, "H/C": 1.5, "N/C": 0.0, "O/C": 0.4}
+DU	3
+psat_atm	0.01317564108469439
+psat_torr	10.013487224367736
+dHvap_KJ	43.179138542231165
+gamma	5242.683043718565
+henry	0.8042704949573247
+Kp	0.1793374252859168
+generation	-1
+groupID	4
+
+name	"C729CO2H"
+status	true
+mass	156.17908
+organic	true
+formula	"C8H12O3"
+SMILES	"O=CCC(CC(=O)O)C(=C)C"
+functionalGroups	{"O": 3.0, "H": 12.0, "N": 0.0, "C": 8.0}
+SOAPStructure	{"0": 1.0, "1": 2.0, "2": 1.0, "18": 1.0, "31": 1.0, "37": 1.0}
+ratios	{"OM/OC": 1.627, "H/C": 1.5, "N/C": 0.0, "O/C": 0.375}
+DU	3
+psat_atm	2.5806577321053253e-06
+psat_torr	0.0019612998764000473
+dHvap_KJ	80.46730183038684
+gamma	85.45651123731427
+henry	251913.7816496219
+Kp	56172.10786462954
+generation	-1
+groupID	4
+
+name	"LMLKAO2"
+status	true
+mass	201.19652000000002
+organic	true
+Radical	true
+RO2	true
+formula	"C9H13O5"
+SMILES	"O=CCC(CC(O[O])C(=O)C)C(=O)C"
+functionalGroups	{"O": 5.0, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.863, "H/C": 1.444, "N/C": 0.0, "O/C": 0.556}
+DU	3
+psat_atm	7.770909907237525e-05
+psat_torr	0.05905891529500519
+dHvap_KJ	63.869387306351
+gamma	103.14001318016768
+henry	6931.519324799486
+Kp	1545.60043769239
+generation	-1
+groupID	4
+
+name	"C817O2"
+status	true
+mass	173.18642
+organic	true
+Radical	true
+RO2	true
+formula	"C8H13O4"
+SMILES	"[O]OCC(CCC(=O)C)C(=O)C"
+functionalGroups	{"O": 4.0, "H": 13.0, "N": 0.0, "C": 8.0}
+ratios	{"OM/OC": 1.804, "H/C": 1.625, "N/C": 0.0, "O/C": 0.5}
+DU	2
+psat_atm	0.0012738423963018595
+psat_torr	0.9681202211894132
+dHvap_KJ	51.357821486732185
+gamma	176.40194921908179
+henry	247.23412565787245
+Kp	55.12863124569837
+generation	-1
+groupID	4
+
+name	"C106OOH"
+status	true
+mass	216.23103999999995
+organic	true
+condensable	true
+formula	"C10H16O5"
+SMILES	"O=CCC(=O)CC(C(=O)C)C(C)(C)OO"
+functionalGroups	{"O": 5.0, "H": 16.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 2.0, "1": 1.0, "2": 1.0, "29": 1.0, "30": 1.0, "31": 1.0, "44": 1.0}
+ratios	{"OM/OC": 1.802, "H/C": 1.6, "N/C": 0.0, "O/C": 0.5}
+DU	3.0
+psat_atm	7.083732298151348e-09
+psat_torr	5.383636546595024e-06
+dHvap_KJ	104.83021562079163
+gamma	212.036
+henry	37012600.0
+Kp	123718891.16324016
+generation	-1
+groupID	2
+
+name	"C811CO3"
+status	true
+mass	201.19651999999996
+organic	true
+Radical	true
+formula	"C9H13O5"
+SMILES	"[O]OC(=O)CC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 5.0, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.863, "H/C": 1.444, "N/C": 0.0, "O/C": 0.556}
+DU	3
+psat_atm	0.0009851871808542131
+psat_torr	0.748742257449202
+dHvap_KJ	56.987769704176024
+gamma	397.34891993861197
+henry	141.91774630349738
+Kp	31.645029109018378
+generation	-1
+groupID	5
+
+name	"C89PAN"
+status	true
+mass	231.20261999999997
+organic	true
+formula	"C9H13NO6"
+SMILES	"O=CCC1CC(C(=O)OON(=O)=O)C1(C)C"
+functionalGroups	{"O": 6.0, "H": 13.0, "N": 1.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "31": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.141, "H/C": 1.444, "N/C": 0.111, "O/C": 0.667}
+DU	4
+psat_atm	9.78312012254151e-06
+psat_torr	0.007435171293131547
+dHvap_KJ	72.20643247516541
+gamma	5093.805735667696
+henry	1114.8276478729913
+Kp	248.58591886763847
+generation	-1
+groupID	5
+
+name	"C89CO2H"
+status	true
+mass	170.20565999999997
+organic	true
+formula	"C9H14O3"
+SMILES	"O=CCC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 3.0, "H": 14.0, "N": 0.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "31": 1.0, "37": 1.0}
+ratios	{"OM/OC": 1.576, "H/C": 1.556, "N/C": 0.0, "O/C": 0.333}
+DU	3
+psat_atm	1.124354614456228e-06
+psat_torr	0.0008545095069867332
+dHvap_KJ	83.69675306051985
+gamma	149.39788645938316
+henry	330734.67880108044
+Kp	73747.70816638957
+generation	-1
+groupID	5
+
+name	"C920O2"
+status	true
+mass	187.21299999999997
+organic	true
+Radical	true
+RO2	true
+formula	"C9H15O4"
+SMILES	"[O]OCC1CC(C(=O)CO)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 15.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.733, "H/C": 1.667, "N/C": 0.0, "O/C": 0.444}
+DU	2
+psat_atm	9.104502603006114e-05
+psat_torr	0.06919421978284647
+dHvap_KJ	63.92296096339559
+gamma	65.63579988424536
+henry	9296.735781815247
+Kp	2072.999903798121
+generation	-1
+groupID	2
+
+name	"C920PAN"
+status	true
+mass	261.2286
+organic	true
+condensable	true
+formula	"C10H15NO7"
+SMILES	"OCC(=O)C1CC(CC(=O)OON(=O)=O)C1(C)C"
+functionalGroups	{"O": 7.0, "H": 15.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"12": 2.0, "13": 2.0, "14": 2.0, "15": 1.0, "26": 1.0, "30": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.177, "H/C": 1.5, "N/C": 0.1, "O/C": 0.7}
+DU	4
+psat_atm	2.5640142689349703e-08
+psat_torr	1.9486508443905775e-05
+dHvap_KJ	99.32803938812634
+gamma	1082.75
+henry	1999760.0
+Kp	3565384.40843111
+generation	-1
+groupID	2
+
+name	"C921O2"
+status	true
+mass	203.21239999999995
+organic	true
+Radical	true
+RO2	true
+formula	"C9H15O5"
+SMILES	"OCC(=O)C1(O[O])CC(CO)C1(C)C"
+functionalGroups	{"O": 5.0, "H": 15.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.882, "H/C": 1.667, "N/C": 0.0, "O/C": 0.556}
+DU	2
+psat_atm	1.052465377923745e-06
+psat_torr	0.0007998736872220463
+dHvap_KJ	84.6984314108633
+gamma	1.4323252587990798
+henry	36853439.47130207
+Kp	8217634.476401352
+generation	-1
+groupID	2
+
+name	"C97OOH"
+status	true
+mass	188.2573994301991
+organic	true
+condensable	true
+formula	"C9H16O4"
+SMILES	"OCC1CC(OO)(C(=O)C)C1(C)C"
+functionalGroups	{"O": 4.002607314195503, "H": 15.994785371608994, "N": 0.0, "C": 9.0}
+SOAPStructure	{"1": 0.005214628391006031, "2": 0.0026073141955030156, "5": 0.9314853005253897, "6": 0.0659073852791073, "8": 0.0659073852791073, "12": 1.8629706010507794, "13": 1.1292074563627117, "14": 0.997392685804497, "15": 0.9314853005253897, "26": 0.997392685804497, "29": 1.002607314195503, "31": 0.0026073141955030156, "43": 0.0026073141955030156, "44": 0.997392685804497}
+ratios	{"OM/OC": 1.743, "H/C": 1.777, "N/C": 0.0, "O/C": 0.445}
+DU	2.0026073141955028
+psat_atm	2.284043219023711e-08
+psat_torr	1.73587284645802e-05
+dHvap_KJ	100.6796143360641
+gamma	166.479
+henry	14575800.0
+Kp	221478169.6746535
+generation	-1
+groupID	2
+
+name	"C98O2"
+status	true
+mass	203.2124
+organic	true
+Radical	true
+RO2	true
+formula	"C9H15O5"
+SMILES	"OCC(CC(=O)C(=O)C)C(C)(C)O[O]"
+functionalGroups	{"O": 5.0, "H": 15.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.882, "H/C": 1.667, "N/C": 0.0, "O/C": 0.556}
+DU	2
+psat_atm	1.1351097407735446e-05
+psat_torr	0.00862683402987894
+dHvap_KJ	72.52453487965383
+gamma	9.165856445673814
+henry	533969.6747848055
+Kp	119065.34835863461
+generation	-1
+groupID	2
+
+name	"C719OOH"
+status	true
+mass	178.244645415726
+organic	true
+condensable	true
+formula	"C7H12O5"
+SMILES	"OOC1(C)C(O)CC(=O)CC1O"
+functionalGroups	{"O": 5.0, "H": 12.296270058539003, "N": 0.0, "C": 7.148104854248475}
+SOAPStructure	{"0": 0.33602689167397953, "1": 0.16801344583698977, "2": 0.16801344583698977, "5": 0.1481953793115513, "6": 1.3676125247239432, "8": 0.683791174851459, "9": 0.683791174851459, "12": 0.1481953793115513, "13": 0.1871070216465286, "14": 0.0389418173560025, "26": 1.5158079040354944, "29": 0.1092233869345236, "30": 0.7930145617859826, "31": 0.24592725557002, "37": 0.16801344583698977, "44": 1.0}
+ratios	{"OM/OC": 2.078, "H/C": 1.72, "N/C": 0.0, "O/C": 0.699}
+DU	1.9999698249789732
+psat_atm	7.13904478313601e-10
+psat_torr	5.425674035183368e-07
+dHvap_KJ	117.82316520689605
+gamma	7.51904
+henry	10341400000.0
+Kp	359516950342.34326
+generation	-1
+groupID	5
+
+name	"H3C25C6CO3"
+status	true
+mass	189.14276
+organic	true
+Radical	true
+formula	"C7H9O6"
+SMILES	"[O]OC(=O)CC(=O)CC(O)C(=O)C"
+functionalGroups	{"O": 6.0, "H": 9.0, "N": 0.0, "C": 7.0}
+ratios	{"OM/OC": 2.252, "H/C": 1.286, "N/C": 0.0, "O/C": 0.857}
+DU	3
+psat_atm	0.0010010548531032598
+psat_torr	0.7608016883584775
+dHvap_KJ	56.130463833492534
+gamma	1.4495490680798648
+henry	38285.70938357566
+Kp	8537.00414119959
+generation	-1
+groupID	5
+
+name	"NC102OOH"
+status	true
+mass	262.1843889005746
+organic	true
+condensable	true
+formula	"C10H15NO7"
+SMILES	"OOC(C)(C)C1CC(=O)CC(=O)C1(C)ON(=O)=O"
+functionalGroups	{"O": 7.0, "H": 15.948259718410455, "N": 1.0, "C": 10.0}
+SOAPStructure	{"0": 2.0517402815895465, "1": 1.4223895776156805, "2": 1.0, "29": 0.4741298592052269, "30": 1.0517402815895462, "31": 0.4741298592052269, "39": 0.4741298592052269, "41": 0.5258701407947731, "44": 1.0}
+ratios	{"OM/OC": 2.185, "H/C": 1.595, "N/C": 0.1, "O/C": 0.7}
+DU	3.5258701407947726
+psat_atm	2.12350450414917e-10
+psat_torr	1.6138634231533693e-07
+dHvap_KJ	121.20875650892927
+gamma	4111.34
+henry	63787000.0
+Kp	96679265.66149445
+generation	-1
+groupID	2
+
+name	"LIMALOOH"
+status	true
+mass	218.24692000000002
+organic	true
+condensable	true
+formula	"C10H18O5"
+SMILES	"O=CCC(CCC(=O)C)C(C)(CO)OO"
+functionalGroups	{"O": 5.0, "H": 18.0, "N": 0.0, "C": 10.0}
+SOAPStructure	{"5": 1.0, "12": 1.0, "13": 3.0, "14": 1.0, "26": 1.0, "29": 1.0, "31": 1.0, "44": 1.0}
+ratios	{"OM/OC": 1.819, "H/C": 1.8, "N/C": 0.0, "O/C": 0.5}
+DU	2
+psat_atm	1.4967021600855647e-10
+psat_torr	1.1374936416650291e-07
+dHvap_KJ	123.55588236328904
+gamma	137.214
+henry	2699210000.0
+Kp	44670912236.9267
+generation	-1
+groupID	4
+
+name	"LIMALNO3"
+status	true
+mass	247.24508000000003
+organic	true
+condensable	true
+formula	"C10H17NO6"
+SMILES	"O=CCC(CCC(=O)C)C(C)(CO)O[N+](=O)[O-]"
+functionalGroups	{"O": 6.0, "H": 17.0, "N": 1.0, "C": 10.0}
+SOAPStructure	{"5": 1.0, "12": 1.0, "13": 3.0, "14": 1.0, "26": 1.0, "29": 1.0, "31": 1.0, "41": 1.0}
+ratios	{"OM/OC": 2.06, "H/C": 1.7, "N/C": 0.1, "O/C": 0.6}
+DU	3
+psat_atm	1.481640641611078e-09
+psat_torr	1.1260468876244192e-06
+dHvap_KJ	112.9090874585352
+gamma	650.233
+henry	57463700.0
+Kp	317720128.18272865
+generation	-1
+groupID	4
+
+name	"C823CO3"
+status	true
+mass	201.19652000000002
+organic	true
+Radical	true
+formula	"C9H13O5"
+SMILES	"[O]OC(=O)CC(CCC(=O)O)C(=C)C"
+functionalGroups	{"O": 5.0, "H": 13.0, "N": 0.0, "C": 9.0}
+ratios	{"OM/OC": 1.863, "H/C": 1.444, "N/C": 0.0, "O/C": 0.556}
+DU	3
+psat_atm	0.0007969651079056576
+psat_torr	0.6056934820082998
+dHvap_KJ	58.06238716215625
+gamma	486.45806932395163
+henry	143.2988731223015
+Kp	31.95299481114301
+generation	-1
+groupID	4
+
+name	"C822PAN"
+status	true
+mass	231.68291896247044
+organic	true
+formula	"C9H13NO6"
+SMILES	"O=CCC(CCC(=O)OO[N+](=O)[O-])C(=C)C"
+functionalGroups	{"O": 6.24345807649476, "H": 12.51308384701048, "N": 1.0, "C": 8.75654192350524}
+SOAPStructure	{"0": 0.7565419235052396, "1": 3.0, "2": 1.0, "18": 0.7565419235052396, "29": 0.2434580764947604, "31": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.205, "H/C": 1.429, "N/C": 0.114, "O/C": 0.713}
+DU	4.000000000000001
+psat_atm	4.4508666442137205e-06
+psat_torr	0.0033826586496024276
+dHvap_KJ	75.98814083624235
+gamma	3150.5516389797644
+henry	9000.688790644279
+Kp	521.830286522231
+generation	-1
+groupID	4
+
+name	"NORLIMOOH"
+status	true
+mass	197.77382994005205
+organic	true
+condensable	true
+formula	"C9H16O5"
+SMILES	"O=CC(CCC(=O)C)C(C)(CO)OO"
+functionalGroups	{"O": 5.135430549377814, "H": 14.963550363947405, "N": 0.0, "C": 8.36984201208085}
+SOAPStructure	{"5": 1.247363719270668, "12": 0.8645694506221857, "13": 1.4817751819737035, "14": 0.8645694506221857, "26": 1.247363719270668, "29": 0.8880668301071464, "30": 0.1354305493778143, "31": 0.8645694506221857, "44": 1.0}
+ratios	{"OM/OC": 1.969, "H/C": 1.788, "N/C": 0.0, "O/C": 0.614}
+DU	1.8880668301071477
+psat_atm	2.5574271841073567e-10
+psat_torr	1.9436446599215912e-07
+dHvap_KJ	121.49240916414215
+gamma	21.4867
+henry	10129100000.0
+Kp	28349341209.315548
+generation	-1
+groupID	4
+
+name	"C731CO3"
+status	true
+mass	187.16994
+organic	true
+Radical	true
+formula	"C8H11O5"
+SMILES	"O=CCC(CCC(=O)O[O])C(=O)C"
+functionalGroups	{"O": 5.0, "H": 11.0, "N": 0.0, "C": 8.0}
+ratios	{"OM/OC": 1.95, "H/C": 1.375, "N/C": 0.0, "O/C": 0.625}
+DU	3
+psat_atm	0.011522535092478496
+psat_torr	8.757126670283657
+dHvap_KJ	44.945101260960485
+gamma	108.28392735392718
+henry	44.52618194432497
+Kp	9.928513948694858
+generation	-1
+groupID	4
+
+name	"C811O2"
+status	true
+mass	173.18642
+organic	true
+Radical	true
+RO2	true
+formula	"C8H13O4"
+SMILES	"[O]OCC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 13.0, "N": 0.0, "C": 8.0}
+ratios	{"OM/OC": 1.804, "H/C": 1.625, "N/C": 0.0, "O/C": 0.5}
+DU	2
+psat_atm	0.0001767861712761602
+psat_torr	0.13435749016988174
+dHvap_KJ	63.06047017197304
+gamma	397.34891993861197
+henry	790.8737622668356
+Kp	176.35020200342717
+generation	-1
+groupID	5
+
+name	"C811PAN"
+status	true
+mass	247.20202
+organic	true
+formula	"C9H13NO7"
+SMILES	"O=N(=O)OOC(=O)CC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 7.0, "H": 13.0, "N": 1.0, "C": 9.0}
+SOAPStructure	{"0": 2.0, "1": 2.0, "2": 2.0, "3": 1.0, "37": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.289, "H/C": 1.444, "N/C": 0.111, "O/C": 0.778}
+DU	4
+psat_atm	5.94564358692159e-08
+psat_torr	4.518689126060409e-05
+dHvap_KJ	96.7421413530192
+gamma	1493.5937730686908
+henry	625599.1195043826
+Kp	139497.01755378413
+generation	-1
+groupID	5
+
+name	"PINIC"
+status	true
+mass	189.29416122208602
+organic	true
+condensable	true
+formula	"C9H14O4"
+SMILES	"OC(=O)CC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 14.443434175319872, "N": 0.0, "C": 9.219982697046314}
+SOAPStructure	{"0": 1.5496282622256323, "1": 1.5496282622256323, "2": 1.5496282622256323, "3": 0.7748141311128162, "5": 0.0017343906136241996, "12": 0.4469029565471195, "13": 0.4503717377743679, "14": 0.44863734716074366, "15": 0.22345147827355974, "26": 0.22518586888718395, "29": 0.0017343906136241996, "30": 0.22345147827355974, "37": 1.7748141311128163}
+ratios	{"OM/OC": 1.711, "H/C": 1.567, "N/C": 0.0, "O/C": 0.434}
+DU	2.9982656093863778
+psat_atm	4.76648431430422e-09
+psat_torr	3.6225280788712073e-06
+dHvap_KJ	107.97004562765139
+gamma	50.764
+henry	229761000.0
+Kp	49406070.32165388
+generation	-1
+groupID	5
+
+name	"C812OOH"
+status	true
+mass	194.75218792147533
+organic	true
+condensable	true
+formula	"C8H14O5"
+SMILES	"OCC1CC(OO)(C(=O)O)C1(C)C"
+functionalGroups	{"O": 5.0, "H": 14.649969974359443, "N": 0.0, "C": 8.324984987179722}
+SOAPStructure	{"5": 1.0, "12": 2.0, "13": 1.0, "14": 1.0, "15": 1.0, "26": 1.3249849871797217, "30": 0.32498498717972174, "37": 0.6750150128202783, "44": 1.0}
+ratios	{"OM/OC": 1.949, "H/C": 1.76, "N/C": 0.0, "O/C": 0.601}
+DU	2.0
+psat_atm	3.234911517854291e-11
+psat_torr	2.4585327535692613e-08
+dHvap_KJ	132.13638153814358
+gamma	40.8876
+henry	41977300000.0
+Kp	639894079288.0476
+generation	-1
+groupID	5
+
+name	"C98NO3"
+status	true
+mass	233.2185
+organic	true
+condensable	true
+formula	"C9H15NO6"
+SMILES	"OCC(CC(=O)C(=O)C)C(C)(C)ON(=O)=O"
+functionalGroups	{"O": 6.0, "H": 15.0, "N": 1.0, "C": 9.0}
+SOAPStructure	{"5": 1.0, "12": 2.0, "14": 1.0, "26": 1.0, "29": 1.0, "30": 1.0, "41": 1.0}
+ratios	{"OM/OC": 2.159, "H/C": 1.667, "N/C": 0.111, "O/C": 0.667}
+DU	3
+psat_atm	7.977010738830233e-09
+psat_torr	6.062528161510977e-06
+dHvap_KJ	104.73600489335601
+gamma	203.844
+henry	34179900.0
+Kp	24127665.690915238
+generation	-1
+groupID	2
+
+name	"C823O2"
+status	true
+mass	174.7705422116111
+organic	true
+Radical	true
+RO2	true
+formula	"C8H13O4"
+SMILES	"[O]OCC(CCC(=O)O)C(=C)C"
+functionalGroups	{"O": 4.802973515886435, "H": 11.394052968227129, "N": 0.0, "C": 7.1970264841135645}
+ratios	{"OM/OC": 2.024, "H/C": 1.583, "N/C": 0.0, "O/C": 0.667}
+DU	2.5
+psat_atm	1.5889849454980416e-05
+psat_torr	0.012076285585785116
+dHvap_KJ	73.38376260876788
+gamma	486.45806932395163
+henry	220099.12990212694
+Kp	184.16359333417682
+generation	-1
+groupID	4
+
+name	"C811OOH"
+status	true
+mass	174.19435999999996
+organic	true
+formula	"C8H14O4"
+SMILES	"OOCC1CC(C(=O)O)C1(C)C"
+functionalGroups	{"O": 4.0, "H": 14.0, "N": 0.0, "C": 8.0}
+SOAPStructure	{"0": 2.0, "1": 1.0, "2": 2.0, "3": 1.0, "37": 1.0, "42": 1.0}
+ratios	{"OM/OC": 1.815, "H/C": 1.75, "N/C": 0.0, "O/C": 0.5}
+DU	2
+psat_atm	1.4002576320243117e-08
+psat_torr	1.0641958003384768e-05
+dHvap_KJ	104.3915600307669
+gamma	22.053040361560257
+henry	179908247.93598372
+Kp	40116207.388972595
+generation	-1
+groupID	5
+
+name	"C812O2"
+status	true
+mass	189.18581999999998
+organic	true
+Radical	true
+RO2	true
+formula	"C8H13O5"
+SMILES	"OCC1CC(O[O])(C(=O)O)C1(C)C"
+functionalGroups	{"O": 5.0, "H": 13.0, "N": 0.0, "C": 8.0}
+ratios	{"OM/OC": 1.971, "H/C": 1.625, "N/C": 0.0, "O/C": 0.625}
+DU	2
+psat_atm	1.7339355068474009e-06
+psat_torr	0.0013177909852040246
+dHvap_KJ	84.41879681883806
+gamma	6.816673145360091
+henry	4700262.190921023
+Kp	1048071.4197196123
+generation	-1
+groupID	5
+
+name	"H3C25C6PAN"
+status	true
+mass	235.14826
+organic	true
+condensable	true
+formula	"C7H9NO8"
+SMILES	"O=C(OON(=O)=O)CC(=O)CC(O)C(=O)C"
+functionalGroups	{"O": 8.0, "H": 9.0, "N": 1.0, "C": 7.0}
+SOAPStructure	{"6": 1.0, "9": 1.0, "26": 1.0, "29": 1.0, "30": 1.0, "54": 1.0}
+ratios	{"OM/OC": 2.799, "H/C": 1.286, "N/C": 0.143, "O/C": 1.143}
+DU	4
+psat_atm	2.2733013548592998e-08
+psat_torr	1.727709029693068e-05
+dHvap_KJ	100.9092038522049
+gamma	11.6186
+henry	210060000.0
+Kp	81276914.26253901
+generation	-1
+groupID	5
+
+name	"C813O2"
+status	true
+mass	205.18522000000002
+organic	true
+Radical	true
+RO2	true
+formula	"C8H13O6"
+SMILES	"OCC(CC(=O)C(=O)O)C(C)(C)O[O]"
+functionalGroups	{"O": 6.0, "H": 13.0, "N": 0.0, "C": 8.0}
+ratios	{"OM/OC": 2.137, "H/C": 1.625, "N/C": 0.0, "O/C": 0.75}
+DU	2
+psat_atm	8.181063137078195e-08
+psat_torr	6.217607984179428e-05
+dHvap_KJ	96.84876103584811
+gamma	1.9033833502018678
+henry	356772592.7903387
+Kp	79553680.76382703
+generation	-1
+groupID	5
+
+name	"C621OOH"
+status	true
+mass	178.1544744987221
+organic	true
+condensable	true
+formula	"C6H10O6"
+SMILES	"OCC(OO)CC(=O)C(=O)CO"
+functionalGroups	{"O": 5.663852793262306, "H": 11.344588826950776, "N": 0.0, "C": 6.336147206737694}
+SOAPStructure	{"5": 1.336147206737694, "12": 0.3361472067376942, "13": 0.3361472067376942, "14": 0.3361472067376942, "26": 2.0, "30": 1.3277055865246115, "31": 0.3361472067376942, "43": 0.6638527932623057, "44": 0.3361472067376942}
+ratios	{"OM/OC": 2.343, "H/C": 1.79, "N/C": 0.0, "O/C": 0.894}
+DU	1.663852793262306
+psat_atm	1.5630717015967186e-11
+psat_torr	1.1879344932135061e-08
+dHvap_KJ	134.6862603380074
+gamma	1.92522
+henry	1842950000000.0
+Kp	169193625806602.94
+generation	-1
+groupID	2
+
+name	"C813OOH"
+status	true
+mass	206.19316
+organic	true
+condensable	true
+formula	"C8H14O6"
+SMILES	"OCC(CC(=O)C(=O)O)C(C)(C)OO"
+functionalGroups	{"O": 6.0, "H": 14.0, "N": 0.0, "C": 8.0}
+SOAPStructure	{"5": 1.0, "12": 2.0, "14": 1.0, "26": 1.0, "30": 1.0, "37": 1.0, "44": 1.0}
+ratios	{"OM/OC": 2.148, "H/C": 1.75, "N/C": 0.0, "O/C": 0.75}
+DU	2
+psat_atm	8.764971458947262e-13
+psat_torr	6.661378308799918e-10
+dHvap_KJ	148.4345825752634
+gamma	9.02977
+henry	7020860000000.0
+Kp	84813481228932.88
+generation	-1
+groupID	5
+
+name	"C516O2"
+status	true
+mass	163.10548
+organic	true
+Radical	true
+RO2	true
+formula	"C5H7O6"
+SMILES	"OCC(O[O])CC(=O)C(=O)O"
+functionalGroups	{"O": 6.0, "H": 7.0, "N": 0.0, "C": 5.0}
+ratios	{"OM/OC": 2.718, "H/C": 1.4, "N/C": 0.0, "O/C": 1.2}
+DU	2
+psat_atm	1.0316651043473924e-06
+psat_torr	0.0007840654793040183
+dHvap_KJ	86.56334977739894
+gamma	0.24738856080992128
+henry	217675294.07756028
+Kp	48537559.23284962
+generation	-1
+groupID	5
+
+name	"C813NO3"
+status	true
+mass	235.19132000000002
+organic	true
+condensable	true
+formula	"C8H13NO7"
+SMILES	"OCC(CC(=O)C(=O)O)C(C)(C)ON(=O)=O"
+functionalGroups	{"O": 7.0, "H": 13.0, "N": 1.0, "C": 8.0}
+SOAPStructure	{"5": 1.0, "12": 2.0, "14": 1.0, "26": 1.0, "30": 1.0, "37": 1.0, "41": 1.0}
+ratios	{"OM/OC": 2.45, "H/C": 1.625, "N/C": 0.125, "O/C": 0.875}
+DU	3
+psat_atm	1.649469382571342e-11
+psat_torr	1.25359673075422e-08
+dHvap_KJ	134.84773952914526
+gamma	30.81
+henry	109633000000.0
+Kp	52297277483.330185
+generation	-1
+groupID	5
+
+name	"C516OOH"
+status	true
+mass	164.11342
+organic	true
+condensable	true
+formula	"C5H8O6"
+SMILES	"OCC(OO)CC(=O)C(=O)O"
+functionalGroups	{"O": 6.0, "H": 8.0, "N": 0.0, "C": 5.0}
+SOAPStructure	{"5": 1.0, "26": 1.0, "30": 1.0, "37": 1.0, "43": 1.0}
+ratios	{"OM/OC": 2.735, "H/C": 1.6, "N/C": 0.0, "O/C": 1.2}
+DU	2
+psat_atm	7.117142793127881e-12
+psat_torr	5.40902852277719e-09
+dHvap_KJ	139.0740566667777
+gamma	0.716401
+henry	10894000000000.0
+Kp	60429887273893.09
+generation	-1
+groupID	5
+
+name	"C10H15O6O2"
+status	true
+mass	263.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15N0O8"
+SMILES	"-"
+functionalGroups	{"O": 8, "H": 15, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 1.0, "2": 3.0, "30": 1.0, "31": 1.0, "43": 2.0}
+ratios	{"OM/OC": 2.192, "H/C": 1.5, "N/C": 0.0, "O/C": 0.8}
+DU	3
+psat_atm	6.227064835728527e-09
+psat_torr	4.73256927515368e-06
+dHvap_KJ	79.77107191324599
+henry	58884365.53555884
+generation	-1
+groupID	7
+
+name	"C10H15O10O2"
+status	true
+mass	327.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15N0O12"
+SMILES	"-"
+functionalGroups	{"O": 12, "H": 15, "N": 0, "C": 10}
+SOAPStructure	{"1": 1.0, "2": 3.0, "30": 1.0, "43": 3.0, "55": 1.0}
+ratios	{"OM/OC": 2.725, "H/C": 1.5, "N/C": 0.0, "O/C": 1.2}
+DU	3
+psat_atm	7.839410162588524e-14
+psat_torr	5.957951723567278e-11
+dHvap_KJ	80.587888990966
+henry	26915348039269.14
+generation	-1
+groupID	7
+
+name	"C10H15O9O2"
+status	true
+mass	311.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H15N0O11"
+SMILES	"-"
+functionalGroups	{"O": 11, "H": 15, "N": 0, "C": 10}
+SOAPStructure	{"1": 1.0, "2": 3.0, "6": 1.0, "26": 1.0, "30": 1.0, "43": 2.0, "55": 1.0}
+ratios	{"OM/OC": 2.592, "H/C": 1.5, "N/C": 0.0, "O/C": 1.1}
+DU	3
+psat_atm	2.479039162605065e-12
+psat_torr	1.8840697635798494e-09
+dHvap_KJ	82.146274878346
+henry	870963589956.0796
+generation	-1
+groupID	7
+
+name	"C10H14O9"
+status	true
+mass	269.8029296187178
+organic	true
+condensable	true
+formula	"C10H14N0O9"
+SMILES	"-"
+functionalGroups	{"O": 8.395850335884003, "H": 15.469324244573802, "N": 0.0, "C": 10.0}
+SOAPStructure	{"0": 0.3488688776673841, "1": 1.4075955847617707, "2": 1.7384117502753456, "6": 1.0301929813154178, "26": 1.0301929813154178, "30": 1.2653378777131, "31": 0.035616997167859134, "43": 1.8771815129329492, "51": 0.3326161987272943, "55": 0.5483690187890458}
+ratios	{"OM/OC": 2.248, "H/C": 1.547, "N/C": 0.0, "O/C": 0.84}
+DU	3.2653378777130992
+psat_atm	3.4094955778842837e-12
+psat_torr	2.5912166391920555e-09
+dHvap_KJ	75.94904170876819
+gamma	63.2267
+henry	257834000000.0
+generation	-1
+groupID	7
+
+name	"C10H14O11"
+status	true
+mass	314.84098310164063
+organic	true
+condensable	true
+formula	"C10H14N0O11"
+SMILES	"-"
+functionalGroups	{"O": 11.254581287431744, "H": 14.767682502732727, "N": 0.0, "C": 10.0}
+SOAPStructure	{"1": 0.38384125136636266, "2": 2.0, "3": 0.25458128743174296, "6": 0.6384225387981056, "26": 0.6384225387981056, "30": 1.3615774612018945, "43": 2.745418712568257, "55": 1.254581287431743}
+ratios	{"OM/OC": 2.624, "H/C": 1.477, "N/C": 0.0, "O/C": 1.125}
+DU	3.6161587486336364
+psat_atm	1.800420277735258e-15
+psat_torr	1.3683194110787963e-12
+dHvap_KJ	81.25111348930086
+gamma	12.5808
+henry	2449700000000000.0
+generation	-1
+groupID	7
+
+name	"C20H30O13"
+status	true
+mass	478.0
+organic	true
+condensable	true
+formula	"C20H30N0O13"
+SMILES	"-"
+functionalGroups	{"O": 13, "H": 30, "N": 0, "C": 20}
+SOAPStructure	{"0": 1.0, "1": 4.0, "2": 4.0, "6": 1.0, "26": 1.0, "30": 2.0, "31": 1.0, "43": 2.0, "51": 1.0, "55": 1.0}
+ratios	{"OM/OC": 1.992, "H/C": 1.5, "N/C": 0.0, "O/C": 0.65}
+DU	6
+psat_atm	1.969170801844444e-20
+psat_torr	1.4965698094017775e-17
+dHvap_KJ	105.477699261032
+gamma	4858.24
+henry	5.7939e+17
+generation	-1
+groupID	7
+
+name	"C10H17O6O2"
+status	true
+mass	265.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17N0O8"
+SMILES	"-"
+functionalGroups	{"O": 8, "H": 17, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 1.0, "2": 4.0, "6": 2.0, "26": 2.0, "43": 2.0}
+ratios	{"OM/OC": 2.208, "H/C": 1.7, "N/C": 0.0, "O/C": 0.8}
+DU	2
+psat_atm	2.4790391626050653e-10
+psat_torr	1.8840697635798497e-07
+dHvap_KJ	108.25353702534001
+henry	239883291.90194947
+generation	-1
+groupID	1
+
+name	"C10H17O7O2"
+status	true
+mass	281.0
+organic	true
+Radical	true
+RO2	true
+formula	"C10H17N0O9"
+SMILES	"-"
+functionalGroups	{"O": 9, "H": 17, "N": 0, "C": 10}
+SOAPStructure	{"0": 1.0, "1": 2.0, "2": 2.0, "6": 1.0, "26": 1.0, "43": 2.0, "51": 1.0}
+ratios	{"OM/OC": 2.342, "H/C": 1.7, "N/C": 0.0, "O/C": 0.9}
+DU	2
+psat_atm	1.2424627799597e-10
+psat_torr	9.44271712769372e-08
+dHvap_KJ	78.44201134559998
+henry	1148153621.496884
+generation	-1
+groupID	1
+
+name	"SULF"
+status	true
+mass	98.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"NH3"
+status	true
+mass	17.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"HNO3"
+status	true
+mass	63.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"HCL"
+status	true
+mass	36.5
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool"
+status	true
+mass	250.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"SOAlP"
+status	true
+mass	392.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"BiMT"
+status	true
+mass	136.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"CO"
+status	true
+mass	28.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"H2O2"
+status	true
+mass	34.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"H2"
+status	true
+mass	2.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"SO2"
+status	true
+mass	64.0
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"CMPHEN"
+status	true
+mass	136.3
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"O3P"
+status	true
+mass	16.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool1"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"MD"
+status	true
+mass	28.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool3"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"HO"
+status	true
+mass	17.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"HNO2"
+status	true
+mass	47.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool6"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"BC"
+status	true
+mass	12.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"CH3O2"
+status	true
+mass	47.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"BCARY"
+status	true
+mass	240.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"TOL"
+status	true
+mass	92.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"O1D"
+status	true
+mass	16.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool5"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"HNO4"
+status	true
+mass	79.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"O2"
+status	true
+mass	32.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"H2O"
+status	true
+mass	16.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"ACO3"
+status	true
+mass	75.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool4"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"C02000"
+status	true
+mass	170.3
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool2"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool9"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool8"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"CO2"
+status	true
+mass	44.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"XCLOST"
+status	true
+mass	12.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"N2O5"
+status	true
+mass	108.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
+
+name	"RO2pool7"
+status	true
+mass	250.0
+formula	"-"
+SMILES	"-"
+generation	-1
+groupID	2
