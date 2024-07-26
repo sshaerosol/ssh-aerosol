@@ -158,6 +158,7 @@ if [ $cleanall == "yes" ]; then
     rm -f `find -iname "combine_files.py"`
     rm -f `find -iname "replacement_species.py"`
     rm -f `find -iname "user_defined_scheme.py"`
+    rm -f `find -iname "user_defined_scheme_tmp.cfg"`
     cd $cwd
 fi
    

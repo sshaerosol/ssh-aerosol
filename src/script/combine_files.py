@@ -44,7 +44,24 @@ elif scheme == "user":
     
 if user_defined == True:
 
-    config.read('user_defined_scheme.cfg')
+
+    config_inputfile = 'user_defined_scheme.cfg'
+    config_outputfile = 'user_defined_scheme_tmp.cfg'
+    with open(config_inputfile, 'r') as file:
+        lines = file.readlines()
+
+    with open(config_outputfile, 'w') as file:
+        for line in lines:
+            # Remove everything after the first '#' character
+            new_line = line.split('#', 1)[0]
+            # Remove any trailing whitespace and
+            # write the line back to the file if it is not empty
+            new_line = new_line.rstrip()
+            
+            if new_line:
+                file.write(new_line + '\n')
+    
+    config.read(config_outputfile)
 
     list_schemes = config['schemes']
 
@@ -53,7 +70,7 @@ if user_defined == True:
         options_list[key] = list_schemes.getboolean(key)
     
     reactions_precursor, species_precursor, species_aerosol = \
-        user_defined_scheme(options_list)
+        user_defined_scheme(options_list, config_outputfile)
 
 
 else:

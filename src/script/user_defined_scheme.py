@@ -118,11 +118,59 @@ def add_aerosol_scheme(section,
 
     return aerosol_species_name, aerosol_properties
 
+
+""" Read the list of RO2 reactions from the given schemes,
+and make a new file listing all the RO2 reactions.
+"""
+def add_ro2_species(section,
+                    ro2_species_name,
+                    ro2_group_id):
+
+    section = section.lower()
+
+    try:
+        # Read RO2 reactions
+        ro2_reactions = config[section]['ro2_reactions']
+
+        ro2_species_name_scheme, ro2_group_id_scheme = \
+            read_ro2_species(ro2_reactions)
+
+        for spe, gid in zip(ro2_species_name_scheme, \
+                           ro2_group_id_scheme):
+            if spe in ro2_species_name:
+                print(spe + " exists in RO2 reactions.")
+            else:
+                ro2_species_name.append(spe)
+                ro2_group_id.append(gid)
+                
+        
+    except Exception:
+        print("RO2 reaction not used for ", section)
+        pass
+
     
-def user_defined_scheme(options_list):
+def read_ro2_species(file_name):
 
-    config.read('user_defined_scheme.cfg')
+    ro2_species_name = []
+    ro2_group_id = []
+    
+    with open(file_name, 'r') as f:
+        
+        # Jump the title line
+        f.readline()
+        for line in f:
+            line = line.strip()
+            if not line or line[0] in "#%!-":
+                continue # comment
+            line = line.split()
+            ro2_species_name.append(line[0])
+            ro2_group_id.append(line[1])
+    return ro2_species_name, ro2_group_id
 
+
+def user_defined_scheme(options_list, configfile):
+    
+    config.read(configfile)
 
     species_name = []
     species_weight = []
@@ -134,12 +182,15 @@ def user_defined_scheme(options_list):
     species_precursor = "../user_defined/user_defined.species"
     reactions_precursor = "../user_defined/user_defined.reactions"
     species_aerosol = "../user_defined/species-list-aer.dat"
+    ro2_reactions = "../user_defined/ro2_reactions.dat"
     if os.path.isfile(species_precursor):
         os.remove(species_precursor)
     if os.path.isfile(reactions_precursor):
         os.remove(reactions_precursor)
     if os.path.isfile(species_aerosol):
-        os.remove(species_aerosol)        
+        os.remove(species_aerosol)
+    if os.path.isfile(ro2_reactions):
+        os.remove(ro2_reactions)                
 
     # Write header for reaction file
     header = "#==== User-definded reactions ====\n"
@@ -151,7 +202,11 @@ def user_defined_scheme(options_list):
     with open(species_aerosol, 'w') as f:
         f.write(header)        
 
-    
+    # RO2 variables
+    ro2_species_name = []
+    ro2_group_id = []
+
+    # Loop of the schemes.
     for opt in options_list:
 
         section = opt
@@ -168,6 +223,10 @@ def user_defined_scheme(options_list):
             aerosol_species_name, properties = \
                 add_aerosol_scheme(section,
                                    aerosol_species_name)
+
+            add_ro2_species(section,
+                            ro2_species_name,
+                            ro2_group_id)
         
             copy_reactions(reactions, reactions_precursor, "a")
             append_aerosol_species(properties, species_aerosol, "a")
@@ -188,5 +247,15 @@ def user_defined_scheme(options_list):
             f.write(v)
 
 
-    return reactions_precursor, species_precursor, species_aerosol
+    # Write RO2 reactions file
+    header = "#==== User-definded RO2 reactions ===="
+    with open(ro2_reactions, 'w') as f:
+        f.write(header)
+        for k, v in zip(ro2_species_name, ro2_group_id):
+            k += " "
+            f.write("\n")
+            f.write(k.ljust(8))
+            f.write(v)
 
+
+    return reactions_precursor, species_precursor, species_aerosol

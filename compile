@@ -140,6 +140,8 @@ scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$shared
 cd ..
 ln -s src/ssh-aerosol ssh-aerosol
 
+path_ro2=$PWD/src/include/CHEMISTRY/user_defined/ro2_reactions.dat 
+
 if [[ $iscombining != "no" ]]; then
     echo 
     echo "New files have been generated."
@@ -147,5 +149,6 @@ if [[ $iscombining != "no" ]]; then
     echo "--- reactions: $cwd/combined_reactions.dat"
     echo "--- gas-phase speices: $cwd/species-list-user.dat"
     echo "--- aerosol species: $cwd/species-list-aer-user.dat"
+    echo "--- ro2 reactions: $path_ro2"
     echo
 fi
