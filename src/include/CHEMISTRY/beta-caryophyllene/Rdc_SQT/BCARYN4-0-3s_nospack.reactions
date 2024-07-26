@@ -1,0 +1,94 @@
+% Converted from BCARYN4-0-3s.reactions to BCARYN4-0-3s_nospack.reactions.reactions
+%=========================1============================
+beta-caryophyllene + nitrate_radical -> NBCO2 + nitrate_radical
+%1.90E-11
+KINETIC ARR 1.900E-11 0 0
+%=========================2============================
+beta-caryophyllene + ozone -> ozone + 8.700E-01 BCAOO + 7.200E-02 BCALBO2 + 3.300E-02 BCSOZO2 + 2.000E-02 C136OOH
+%1.20E-14
+KINETIC ARR 1.200E-14 0 0
+%=========================3============================
+beta-caryophyllene + hydroxyl -> hydroxyl + 6.300E-01 BCBO2 + 3.700E-01 BCSOZO2
+%1.97E-10
+KINETIC ARR 1.970E-10 0 0
+%=========================4============================
+NBCO2 + nitric_oxide -> BCAL + nitric_oxide
+%KRO2NO
+KINETIC ARR 2.700E-12 0 -360.00
+%=========================5============================
+NBCO2 + nitrate_radical -> BCAL + nitrate_radical
+%KRO2NO3
+KINETIC ARR 2.300E-12 0 0
+%=========================6============================
+BCAOO -> BCSOZ
+%1.00E+02
+KINETIC ARR 1.000E+02 0 0
+%=========================7============================
+BCAOO -> C141CO2H
+%2.00E-16*H2O*5.0000E-01
+KINETIC TB H2O ARR 1.000E-16 0 0
+%=========================8============================
+BCBO2 + nitric_oxide -> BCAL + nitric_oxide
+%KRO2NO*7.530E-01
+KINETIC ARR 2.033E-12 0 -360.00
+%=========================9============================
+BCAL + ozone -> ozone + C131O2
+%1.10E-16*3.350E-01
+KINETIC ARR 3.685E-17 0 0
+%=========================10============================
+BCAL + hydroxyl -> hydroxyl + BCALBO2
+%8.35E-11
+KINETIC ARR 8.350E-11 0 0
+%=========================11============================
+BCSOZ + ozone -> BCKSOZ + ozone
+%1.10E-16
+KINETIC ARR 1.100E-16 0 0
+%=========================12============================
+BCSOZ + hydroxyl -> BCSOZO2 + hydroxyl
+%7.29E-11
+KINETIC ARR 7.290E-11 0 0
+%=========================13============================
+C141CO2H + ozone -> ozone + C131O2
+%1.10E-16*9.9963E-01*3.350E-01
+KINETIC ARR 3.684E-17 0 0
+%=========================14============================
+BCALBO2 + hydroperoxy -> hydroperoxy + C132OOH
+%4.93E-13*EXP(1300.00/TEMP)
+KINETIC ARR 4.930E-13 0 -1300.00
+%=========================15============================
+BCALBO2 ->
+%2.00E-12*RO2*8.0000E-01*7.5000E-01
+KINETIC RO2 1 ARR 1.200E-12 0 0
+%=========================16============================
+C136OOH + nitric_oxide -> nitric_oxide + 8.220E-01 BCALBO2
+%KRO2NO
+KINETIC ARR 2.700E-12 0 -360.00
+%=========================17============================
+BCKSOZ + hydroxyl -> hydroxyl + C131O2
+%3.58E-11
+KINETIC ARR 3.580E-11 0 0
+%=========================18============================
+BCSOZO2 + hydroperoxy -> C132OOH + hydroperoxy
+%KRO2HO2*0.975*9.1489E-01*7.6435E-01
+KINETIC ARR 1.984E-13 0 -1300.00
+%=========================19============================
+BCSOZO2 + nitric_oxide -> nitric_oxide + 7.501E-01 BCKSOZ + 2.499E-01 C131CO2H
+%1.90E-12*EXP(360.00/TEMP)
+KINETIC ARR 1.900E-12 0 -360.00
+%=========================20============================
+C131O2 + nitric_oxide -> nitric_oxide + 6.946E-01 C133O + 2.229E-01 C133NO3
+%2.94E-12*EXP(360.00/TEMP)
+KINETIC ARR 2.940E-12 0 -360.00
+%=========================21============================
+C131O2 + hydroperoxy -> hydroperoxy + C132OOH
+%5.17E-13*EXP(1300.00/TEMP)
+KINETIC ARR 5.170E-13 0 -1300.00
+%=========================22============================
+C133O -> C133CO
+%KROSEC*O2*9.4947E-01
+KINETIC TB O2 ARR 2.374E-14 0 300.00
+%=========================23============================
+C133O ->
+%2.70E+14*EXP(-6643/TEMP)*9.4947E-01
+KINETIC ARR 2.564E+14 0 6643.00
+END

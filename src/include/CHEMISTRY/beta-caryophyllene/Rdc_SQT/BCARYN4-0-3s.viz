@@ -1,0 +1,41 @@
+digraph G {
+    layout=dot; graph [ranksep=1];
+
+	node [fontsize="50",shape=box]; "mBCKSOZ";
+	node [fontsize="50",shape=hexagon]; "mC141CO2H"; "mC131CO2H"; "mC133CO";
+	node [fontsize="50",shape=octagon]; "mC132OOH"; "C133NO3";
+	node [fontsize="50",shape=ellipse]; "BCARY"; "C136OOH"; "BCAL"; "BCSOZ";
+	node [fontsize="50",shape=plain]; "NBCO2"; "mBCAOO"; "BCALBO2"; "mBCSOZO2"; "BCBO2"; "mC131O2"; "mC133O";
+	node [fontsize="50",shape=ellipse]; "BCARY"
+	
+	"BCARY"->"NBCO2"[penwidth=3,len=1,arrowsize=3,color =green,fontcolor=green,arrowhead=onormal]
+	"BCARY"->"mBCAOO"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCARY"->"BCALBO2"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCARY"->"mBCSOZO2"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCARY"->"C136OOH"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCARY"->"BCBO2"[penwidth=3,len=1,arrowsize=3,color =red,fontcolor=red,arrowhead=odiamond]
+	"BCARY"->"mBCSOZO2"[penwidth=3,len=1,arrowsize=3,color =red,fontcolor=red,arrowhead=odiamond]
+	"NBCO2"->"BCAL"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"NBCO2"->"BCAL"[penwidth=3,len=1,arrowsize=3,color =green,fontcolor=green,arrowhead=onormal]
+	"mBCAOO"->"BCSOZ"[penwidth=3,len=1,arrowsize=3]
+	"mBCAOO"->"mC141CO2H"[penwidth=3,len=1,arrowsize=3,color =orchid3,fontcolor=orchid3,arrowhead=tee]
+	"BCALBO2"->"mC132OOH"[penwidth=3,len=1,arrowsize=3,color =cyan3,fontcolor=cyan3,arrowhead=odot]
+	"mBCSOZO2"->"mC132OOH"[penwidth=3,len=1,arrowsize=3,color =cyan3,fontcolor=cyan3,arrowhead=odot]
+	"mBCSOZO2"->"mBCKSOZ"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"mBCSOZO2"->"mC131CO2H"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"C136OOH"->"BCALBO2"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"BCBO2"->"BCAL"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"BCAL"->"mC131O2"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCAL"->"BCALBO2"[penwidth=3,len=1,arrowsize=3,color =red,fontcolor=red,arrowhead=odiamond]
+	"BCSOZ"->"mBCKSOZ"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"BCSOZ"->"mBCSOZO2"[penwidth=3,len=1,arrowsize=3,color =red,fontcolor=red,arrowhead=odiamond]
+	"mC141CO2H"->"mC131O2"[penwidth=3,len=1,arrowsize=3,color =blue,fontcolor=blue,arrowhead=vee]
+	"mC131O2"->"mC133O"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"mC131O2"->"C133NO3"[penwidth=3,len=1,arrowsize=3,color =orange,fontcolor=orange,arrowhead=dot]
+	"mC131O2"->"mC132OOH"[penwidth=3,len=1,arrowsize=3,color =cyan3,fontcolor=cyan3,arrowhead=odot]
+	"mBCKSOZ"->"mC131O2"[penwidth=3,len=1,arrowsize=3,color =red,fontcolor=red,arrowhead=odiamond]
+	"mC133O"->"mC133CO"[penwidth=3,len=1,arrowsize=3,label=" O2",fontsize="50"]
+{rank = min;BCARY}
+{rank=same; C136OOH;BCAL}
+{rank=same; mC141CO2H;BCALBO2}
+}

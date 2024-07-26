@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1415pt" height="1262pt" viewBox="0.00 0.00 1414.73 1261.55">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1257.5535)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-1257.5535 1410.7314,-1257.5535 1410.7314,4 -4,4"/>
+<!-- mBCKSOZ -->
+<g id="node1" class="node">
+<title>mBCKSOZ</title>
+<polygon fill="none" stroke="#000000" points="1145.9801,-580.6552 893.7501,-580.6552 893.7501,-512.6552 1145.9801,-512.6552 1145.9801,-580.6552"/>
+<text text-anchor="middle" x="1019.8651" y="-531.6552" font-family="Times,serif" font-size="50.00" fill="#000000">mBCKSOZ</text>
+</g>
+<!-- mC131O2 -->
+<g id="node16" class="node">
+<title>mC131O2</title>
+<text text-anchor="middle" x="935.8651" y="-374.1334" font-family="Times,serif" font-size="50.00" fill="#000000">mC131O2</text>
+</g>
+<!-- mBCKSOZ&#45;&gt;mC131O2 -->
+<g id="edge26" class="edge">
+<title>mBCKSOZ-&gt;mC131O2</title>
+<path fill="none" stroke="#ff0000" stroke-width="3" d="M1001.6384,-512.4753C992.0907,-494.5709 980.099,-472.0835 968.9785,-451.2296"/>
+<polygon fill="none" stroke="#ff0000" stroke-width="3" points="968.8694,-451.0249 949.8111,-440.7885 951.93,-419.2592 970.9882,-429.4956 968.8694,-451.0249"/>
+</g>
+<!-- mC141CO2H -->
+<g id="node2" class="node">
+<title>mC141CO2H</title>
+<polygon fill="none" stroke="#000000" points="1406.5978,-729.6987 1286.7314,-785.2423 1046.9988,-785.2423 927.1325,-729.6987 1046.9988,-674.1552 1286.7314,-674.1552 1406.5978,-729.6987"/>
+<text text-anchor="middle" x="1166.8651" y="-714.6987" font-family="Times,serif" font-size="50.00" fill="#000000">mC141CO2H</text>
+</g>
+<!-- mC141CO2H&#45;&gt;mC131O2 -->
+<g id="edge22" class="edge">
+<title>mC141CO2H-&gt;mC131O2</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M1179.2632,-673.9941C1187.5266,-622.1387 1191.1127,-544.9682 1154.8651,-491.1334 1134.225,-460.4788 1101.8499,-438.8427 1068.2628,-423.6484"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="1040.3158,-412.4569 1073.1844,-411.0772 1054.6125,-417.1049 1068.5375,-422.6813 1068.1657,-423.6096 1067.7939,-424.538 1053.869,-418.9616 1063.147,-436.1421 1040.3158,-412.4569 1040.3158,-412.4569"/>
+</g>
+<!-- mC131CO2H -->
+<g id="node3" class="node">
+<title>mC131CO2H</title>
+<polygon fill="none" stroke="#000000" points="875.5978,-546.6552 755.7314,-602.1987 515.9988,-602.1987 396.1325,-546.6552 515.9988,-491.1117 755.7314,-491.1117 875.5978,-546.6552"/>
+<text text-anchor="middle" x="635.8651" y="-531.6552" font-family="Times,serif" font-size="50.00" fill="#000000">mC131CO2H</text>
+</g>
+<!-- mC133CO -->
+<g id="node4" class="node">
+<title>mC133CO</title>
+<polygon fill="none" stroke="#000000" points="1041.83,-55.5218 946.8475,-111.0653 756.8827,-111.0653 661.9003,-55.5218 756.8827,.0218 946.8475,.0218 1041.83,-55.5218"/>
+<text text-anchor="middle" x="851.8651" y="-40.5218" font-family="Times,serif" font-size="50.00" fill="#000000">mC133CO</text>
+</g>
+<!-- mC132OOH -->
+<g id="node5" class="node">
+<title>mC132OOH</title>
+<polygon fill="none" stroke="#000000" points="575.4978,-213.5121 575.4978,-256.6648 453.8694,-287.1784 281.8609,-287.1784 160.2325,-256.6648 160.2325,-213.5121 281.8609,-182.9985 453.8694,-182.9985 575.4978,-213.5121"/>
+<text text-anchor="middle" x="367.8651" y="-220.0885" font-family="Times,serif" font-size="50.00" fill="#000000">mC132OOH</text>
+</g>
+<!-- C133NO3 -->
+<g id="node6" class="node">
+<title>C133NO3</title>
+<polygon fill="none" stroke="#000000" points="1300.4762,-213.5121 1300.4762,-256.6648 1201.1203,-287.1784 1060.6099,-287.1784 961.254,-256.6648 961.254,-213.5121 1060.6099,-182.9985 1201.1203,-182.9985 1300.4762,-213.5121"/>
+<text text-anchor="middle" x="1130.8651" y="-220.0885" font-family="Times,serif" font-size="50.00" fill="#000000">C133NO3</text>
+</g>
+<!-- BCARY -->
+<g id="node7" class="node">
+<title>BCARY</title>
+<ellipse fill="none" stroke="#000000" cx="524.8651" cy="-1205.4703" rx="133.1904" ry="48.1667"/>
+<text text-anchor="middle" x="524.8651" y="-1190.4703" font-family="Times,serif" font-size="50.00" fill="#000000">BCARY</text>
+</g>
+<!-- C136OOH -->
+<g id="node8" class="node">
+<title>C136OOH</title>
+<ellipse fill="none" stroke="#000000" cx="187.8651" cy="-905.3038" rx="164.4885" ry="48.1667"/>
+<text text-anchor="middle" x="187.8651" y="-890.3038" font-family="Times,serif" font-size="50.00" fill="#000000">C136OOH</text>
+</g>
+<!-- BCARY&#45;&gt;C136OOH -->
+<g id="edge5" class="edge">
+<title>BCARY-&gt;C136OOH</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M413.9442,-1178.8352C359.0906,-1160.6241 295.6489,-1131.246 252.8651,-1085.387 226.6258,-1057.2617 210.8268,-1017.7655 201.391,-982.9258"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="194.5752,-953.6092 214.5181,-979.7727 198.946,-967.993 202.3428,-982.6034 201.3688,-982.8298 200.3948,-983.0563 196.998,-968.446 188.2195,-985.887 194.5752,-953.6092 194.5752,-953.6092"/>
+</g>
+<!-- NBCO2 -->
+<g id="node11" class="node">
+<title>NBCO2</title>
+<text text-anchor="middle" x="343.8651" y="-1040.387" font-family="Times,serif" font-size="50.00" fill="#000000">NBCO2</text>
+</g>
+<!-- BCARY&#45;&gt;NBCO2 -->
+<g id="edge1" class="edge">
+<title>BCARY-&gt;NBCO2</title>
+<path fill="none" stroke="#00ff00" stroke-width="3" d="M471.5381,-1161.2521C450.1725,-1143.5359 425.4611,-1123.0456 403.5034,-1104.8384"/>
+<polygon fill="none" stroke="#00ff00" stroke-width="3" points="410.0033,-1096.588 380.2075,-1085.5217 396.599,-1112.7535 410.0033,-1096.588"/>
+</g>
+<!-- mBCAOO -->
+<g id="node12" class="node">
+<title>mBCAOO</title>
+<text text-anchor="middle" x="858.8651" y="-1040.387" font-family="Times,serif" font-size="50.00" fill="#000000">mBCAOO</text>
+</g>
+<!-- BCARY&#45;&gt;mBCAOO -->
+<g id="edge2" class="edge">
+<title>BCARY-&gt;mBCAOO</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M608.2858,-1167.9851C655.6918,-1146.6832 715.2043,-1119.9412 764.3349,-1097.8643"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="791.8925,-1085.4813 770.0615,-1110.0914 778.6202,-1092.5415 764.9381,-1098.6896 764.5282,-1097.7775 764.1183,-1096.8653 777.8005,-1090.7172 758.9949,-1085.4635 791.8925,-1085.4813 791.8925,-1085.4813"/>
+</g>
+<!-- BCALBO2 -->
+<g id="node13" class="node">
+<title>BCALBO2</title>
+<text text-anchor="middle" x="187.8651" y="-714.6987" font-family="Times,serif" font-size="50.00" fill="#000000">BCALBO2</text>
+</g>
+<!-- BCARY&#45;&gt;BCALBO2 -->
+<g id="edge3" class="edge">
+<title>BCARY-&gt;BCALBO2</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M402.8516,-1186.1876C277.7936,-1158.9406 91.1697,-1095.5663 14.8651,-953.387 -5.3462,-915.7271 -4.4075,-895.3693 14.8651,-857.2205 32.1501,-823.0059 63.423,-795.7155 94.6733,-775.3018"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="120.6106,-759.7708 101.8075,-786.7652 108.2551,-768.3348 95.3859,-776.0408 94.8721,-775.1828 94.3584,-774.3249 107.2276,-766.6189 87.9367,-763.6005 120.6106,-759.7708 120.6106,-759.7708"/>
+</g>
+<!-- mBCSOZO2 -->
+<g id="node14" class="node">
+<title>mBCSOZO2</title>
+<text text-anchor="middle" x="642.8651" y="-714.6987" font-family="Times,serif" font-size="50.00" fill="#000000">mBCSOZO2</text>
+</g>
+<!-- BCARY&#45;&gt;mBCSOZO2 -->
+<g id="edge4" class="edge">
+<title>BCARY-&gt;mBCSOZO2</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M561.1351,-1159.0101C577.7065,-1138.1414 595.7463,-1112.1997 605.8651,-1085.387 642.9656,-987.0787 643.1923,-862.8778 641.7412,-790.2648"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="641.0654,-759.9549 655.2309,-789.6465 642.3996,-774.9289 642.734,-789.9252 641.7343,-789.9475 640.7345,-789.9698 640.4001,-774.9735 628.2376,-790.2484 641.0654,-759.9549 641.0654,-759.9549"/>
+</g>
+<!-- BCARY&#45;&gt;mBCSOZO2 -->
+<g id="edge7" class="edge">
+<title>BCARY-&gt;mBCSOZO2</title>
+<path fill="none" stroke="#ff0000" stroke-width="3" d="M575.9893,-1160.9866C594.5505,-1139.7914 613.4243,-1113.0529 623.8651,-1085.387 660.0423,-989.5253 661.1581,-869.0437 654.9901,-795.7808"/>
+<polygon fill="none" stroke="#ff0000" stroke-width="3" points="654.9839,-795.7254 641.031,-779.1931 650.9251,-759.9549 664.878,-776.4872 654.9839,-795.7254"/>
+</g>
+<!-- BCBO2 -->
+<g id="node15" class="node">
+<title>BCBO2</title>
+<text text-anchor="middle" x="524.8651" y="-1040.387" font-family="Times,serif" font-size="50.00" fill="#000000">BCBO2</text>
+</g>
+<!-- BCARY&#45;&gt;BCBO2 -->
+<g id="edge6" class="edge">
+<title>BCARY-&gt;BCBO2</title>
+<path fill="none" stroke="#ff0000" stroke-width="3" d="M524.8651,-1157.1569C524.8651,-1145.8757 524.8651,-1133.6675 524.8651,-1121.7549"/>
+<polygon fill="none" stroke="#ff0000" stroke-width="3" points="524.8652,-1121.6937 512.8652,-1103.6937 524.8651,-1085.6937 536.8652,-1103.6937 524.8652,-1121.6937"/>
+</g>
+<!-- C136OOH&#45;&gt;BCALBO2 -->
+<g id="edge16" class="edge">
+<title>C136OOH-&gt;BCALBO2</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M187.8651,-856.8541C187.8651,-834.2834 187.8651,-807.3383 187.8651,-784.0737"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="187.8652" cy="-771.8005" rx="12" ry="12"/>
+</g>
+<!-- BCAL -->
+<g id="node9" class="node">
+<title>BCAL</title>
+<ellipse fill="none" stroke="#000000" cx="475.8651" cy="-905.3038" rx="105.6846" ry="48.1667"/>
+<text text-anchor="middle" x="475.8651" y="-890.3038" font-family="Times,serif" font-size="50.00" fill="#000000">BCAL</text>
+</g>
+<!-- BCAL&#45;&gt;BCALBO2 -->
+<g id="edge19" class="edge">
+<title>BCAL-&gt;BCALBO2</title>
+<path fill="none" stroke="#ff0000" stroke-width="3" d="M412.6623,-866.7665C370.1584,-840.8502 313.7689,-806.4672 268.1008,-778.6216"/>
+<polygon fill="none" stroke="#ff0000" stroke-width="3" points="267.831,-778.4571 246.2154,-779.332 237.0941,-759.7156 258.7097,-758.8407 267.831,-778.4571"/>
+</g>
+<!-- BCAL&#45;&gt;mC131O2 -->
+<g id="edge18" class="edge">
+<title>BCAL-&gt;mC131O2</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M443.9881,-859.3251C390.5608,-776.074 297.1825,-599.0131 386.8651,-491.1334 438.5575,-428.9524 656.0096,-404.4978 801.2365,-395.0059"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="831.4942,-393.1742 802.3648,-408.4624 816.582,-395.0788 801.6094,-395.9852 801.549,-394.987 801.4886,-393.9889 816.4611,-393.0824 800.7332,-381.5117 831.4942,-393.1742 831.4942,-393.1742"/>
+</g>
+<!-- BCSOZ -->
+<g id="node10" class="node">
+<title>BCSOZ</title>
+<ellipse fill="none" stroke="#000000" cx="858.8651" cy="-905.3038" rx="125.4931" ry="48.1667"/>
+<text text-anchor="middle" x="858.8651" y="-890.3038" font-family="Times,serif" font-size="50.00" fill="#000000">BCSOZ</text>
+</g>
+<!-- BCSOZ&#45;&gt;mBCKSOZ -->
+<g id="edge20" class="edge">
+<title>BCSOZ-&gt;mBCKSOZ</title>
+<path fill="none" stroke="#0000ff" stroke-width="3" d="M865.0656,-857.1932C872.6538,-808.9399 888.3126,-733.4823 917.8651,-674.177 930.3612,-649.1001 948.4105,-624.38 965.863,-603.4786"/>
+<polygon fill="#0000ff" stroke="#0000ff" stroke-width="3" points="985.7081,-580.9036 976.0402,-612.3486 976.5556,-592.8297 966.652,-604.0956 965.901,-603.4353 965.1499,-602.7751 975.0535,-591.5092 955.7617,-594.5221 985.7081,-580.9036 985.7081,-580.9036"/>
+</g>
+<!-- BCSOZ&#45;&gt;mBCSOZO2 -->
+<g id="edge21" class="edge">
+<title>BCSOZ-&gt;mBCSOZO2</title>
+<path fill="none" stroke="#ff0000" stroke-width="3" d="M805.1943,-861.6701C775.8052,-837.7772 739.1585,-807.9839 708.1254,-782.7544"/>
+<polygon fill="none" stroke="#ff0000" stroke-width="3" points="707.9111,-782.5803 686.3745,-780.5366 679.9776,-759.8707 701.5142,-761.9143 707.9111,-782.5803"/>
+</g>
+<!-- NBCO2&#45;&gt;BCAL -->
+<g id="edge8" class="edge">
+<title>NBCO2-&gt;BCAL</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M364.7337,-1025.3761C378.4343,-1008.6097 396.9909,-987.084 415.0378,-966.8999"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="423.262" cy="-957.8129" rx="12" ry="12"/>
+</g>
+<!-- NBCO2&#45;&gt;BCAL -->
+<g id="edge9" class="edge">
+<title>NBCO2-&gt;BCAL</title>
+<path fill="none" stroke="#00ff00" stroke-width="3" d="M375.7863,-1025.3761C389.8143,-1010.4826 406.6163,-991.8337 422.4313,-973.7057"/>
+<polygon fill="none" stroke="#00ff00" stroke-width="3" points="430.4047,-980.5376 441.9932,-950.941 414.4774,-966.8511 430.4047,-980.5376"/>
+</g>
+<!-- mBCAOO&#45;&gt;mC141CO2H -->
+<g id="edge11" class="edge">
+<title>mBCAOO-&gt;mC141CO2H</title>
+<path fill="none" stroke="#cd69c9" stroke-width="3" d="M904.3493,-1025.2304C931.4535,-1006.2061 965.7452,-980.2244 992.8651,-953.387 1041.2373,-905.5187 1088.1339,-844.076 1121.0281,-797.7018"/>
+<polygon fill="#cd69c9" stroke="#cd69c9" stroke-width="3" points="1115.7166,-779.1757 1140.2585,-796.4297 1136.8077,-801.3381 1112.2658,-784.0841 1115.7166,-779.1757"/>
+<polyline fill="none" stroke="#cd69c9" stroke-width="3" points="1129.7129,-785.3485 1121.0859,-797.6194 "/>
+</g>
+<!-- mBCAOO&#45;&gt;BCSOZ -->
+<g id="edge10" class="edge">
+<title>mBCAOO-&gt;BCSOZ</title>
+<path fill="none" stroke="#000000" stroke-width="3" d="M858.8651,-1025.3761C858.8651,-1013.1862 858.8651,-998.4807 858.8651,-983.604"/>
+<polygon fill="#000000" stroke="#000000" stroke-width="3" points="869.3652,-983.5783 858.8651,-953.5784 848.3652,-983.5784 869.3652,-983.5783"/>
+</g>
+<!-- BCALBO2&#45;&gt;mC132OOH -->
+<g id="edge12" class="edge">
+<title>BCALBO2-&gt;mC132OOH</title>
+<path fill="none" stroke="#00cdcd" stroke-width="3" d="M198.854,-699.5032C226.623,-623.1984 300.2615,-420.852 340.5633,-310.1095"/>
+<ellipse fill="none" stroke="#00cdcd" stroke-width="3" cx="344.7612" cy="-298.5742" rx="12" ry="12"/>
+</g>
+<!-- mBCSOZO2&#45;&gt;mBCKSOZ -->
+<g id="edge14" class="edge">
+<title>mBCSOZO2-&gt;mBCKSOZ</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M704.6968,-699.6778C765.3921,-670.2086 858.6977,-624.9063 928.055,-591.2315"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="938.8655" cy="-585.9827" rx="12" ry="12"/>
+</g>
+<!-- mBCSOZO2&#45;&gt;mC131CO2H -->
+<g id="edge15" class="edge">
+<title>mBCSOZO2-&gt;mC131CO2H</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M641.7092,-699.4728C640.947,-679.5428 639.9104,-652.4358 638.9217,-626.5831"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="638.4577" cy="-614.4472" rx="12" ry="12"/>
+</g>
+<!-- mBCSOZO2&#45;&gt;mC132OOH -->
+<g id="edge13" class="edge">
+<title>mBCSOZO2-&gt;mC132OOH</title>
+<path fill="none" stroke="#00cdcd" stroke-width="3" d="M523.5869,-699.5955C472.7674,-680.3854 418.0985,-649.8307 386.8651,-602.177 329.9059,-515.2725 337.716,-390.4161 350.947,-311.0406"/>
+<ellipse fill="none" stroke="#00cdcd" stroke-width="3" cx="353.1473" cy="-299.0236" rx="12" ry="12"/>
+</g>
+<!-- BCBO2&#45;&gt;BCAL -->
+<g id="edge17" class="edge">
+<title>BCBO2-&gt;BCAL</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M515.067,-1025.3761C510.394,-1011.063 504.5886,-993.2816 498.89,-975.8273"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="495.1581" cy="-964.3966" rx="12" ry="12"/>
+</g>
+<!-- mC131O2&#45;&gt;mC132OOH -->
+<g id="edge25" class="edge">
+<title>mC131O2-&gt;mC132OOH</title>
+<path fill="none" stroke="#00cdcd" stroke-width="3" d="M831.6852,-360.8792C748.0274,-338.1907 629.0058,-305.9114 532.479,-279.7327"/>
+<ellipse fill="none" stroke="#00cdcd" stroke-width="3" cx="520.6752" cy="-276.5315" rx="12" ry="12"/>
+</g>
+<!-- mC131O2&#45;&gt;C133NO3 -->
+<g id="edge24" class="edge">
+<title>mC131O2-&gt;C133NO3</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M973.926,-359.0663C994.5053,-342.8092 1020.7976,-322.039 1045.953,-302.1668"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="1055.4381" cy="-294.6739" rx="12" ry="12"/>
+</g>
+<!-- mC133O -->
+<g id="node17" class="node">
+<title>mC133O</title>
+<text text-anchor="middle" x="851.8651" y="-220.0885" font-family="Times,serif" font-size="50.00" fill="#000000">mC133O</text>
+</g>
+<!-- mC131O2&#45;&gt;mC133O -->
+<g id="edge23" class="edge">
+<title>mC131O2-&gt;mC133O</title>
+<path fill="none" stroke="#ffa500" stroke-width="3" d="M919.4697,-359.0663C908.2318,-338.4576 893.0392,-310.5964 879.9029,-286.506"/>
+<ellipse fill="#ffa500" stroke="#ffa500" stroke-width="3" cx="874.1075" cy="-275.8781" rx="12" ry="12"/>
+</g>
+<!-- mC133O&#45;&gt;mC133CO -->
+<g id="edge27" class="edge">
+<title>mC133O-&gt;mC133CO</title>
+<path fill="none" stroke="#000000" stroke-width="3" d="M851.8651,-205.0331C851.8651,-187.4612 851.8651,-164.3031 851.8651,-141.4757"/>
+<polygon fill="#000000" stroke="#000000" stroke-width="3" points="862.3652,-141.108 851.8651,-111.1081 841.3652,-141.1081 862.3652,-141.108"/>
+</g>
+</g>
+</svg>

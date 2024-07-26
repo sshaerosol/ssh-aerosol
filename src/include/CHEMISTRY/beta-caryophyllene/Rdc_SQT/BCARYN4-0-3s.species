@@ -1,0 +1,21 @@
+File for BCARYN4-0-3s (name and molar mass)
+# gaseous species # aqueous species
+35 0
+---Gas-phase----
+NBCO2    298.35
+BCAOO    252.35
+BCALBO2    267.34
+BCSOZO2    296.19
+C136OOH    226.31
+BCBO2    253.36
+BCAL    236.35
+BCSOZ    252.35
+C141CO2H    252.34
+C131O2    244.41
+BCKSOZ    252.77
+C132OOH    280.25
+C131CO2H    254.27
+C133O    257.20
+C133NO3    303.31
+C133CO    256.38
+RO2pool    250.00

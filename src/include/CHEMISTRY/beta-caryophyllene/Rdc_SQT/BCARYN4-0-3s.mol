@@ -1,0 +1,1050 @@
+
+name	"BCARY"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	true
+RO2	false
+Radical	false
+condensed	false
+SMILES	"CC1=CCCC(=C)C2CC(C)(C)C2CC1"
+InChI	"InChI=1S/C15H24/c1-11-6-5-7-12(2)13-10-15(3,4)14(13)9-8-11/h6,13-14H,2,5,7-10H2,1,3-4H3/b11-6-"
+mass	204.35106
+formula	"C15H24"
+source	["MCM"]
+groupID	2
+psat_torr	0.002390658459911197
+psat_atm	3.1456032367252596e-06
+dHvap_KJ	74.37280027491451
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.135, "H/C": 1.6, "O/C": 0.0, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 24.0, "O": 0.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 19], [3.0, 5.0, 2.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"NO3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	62.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"NBCO2"
+nameUsed	null
+status	true
+lump	[]
+jump	["NBCOOH"]
+organic	true
+RO2	true
+Radical	true
+condensed	false
+SMILES	"[O]OC1(C)CCC2C(CC2(C)C)C(=C)CCC1O[N+](=O)[O-]"
+InChI	"InChI=1S/C15H24NO5/c1-10-5-6-13(20-16(17)18)15(4,21-19)8-7-12-11(10)9-14(12,2)3/h11-13H,1,5-9H2,2-4H3"
+mass	298.35476
+formula	"C15H24NO5"
+source	["MCM"]
+groupID	2
+psat_torr	1.2615088059899622e-05
+psat_atm	1.6598800078815292e-08
+dHvap_KJ	91.56594997657709
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.658, "H/C": 1.6, "O/C": 0.333, "N/C": 0.067}
+functionalGroups	{"C": 15.0, "H": 24.0, "O": 5.0, "N": 1.0}
+SOAPStructure	[[0, 1, 2, 3, 18], [3.0, 5.0, 3.0, 2.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"O3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	48.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"BCAOO"
+nameUsed	null
+status	true
+lump	["BCBOO"]
+jump	[]
+organic	true
+RO2	false
+Radical	true
+condensed	false
+SMILES	"O=CCCC(=C)C1CC(C)(C)C1CCC(=[O+][O-])C"
+InChI	"InChI=1S/C15H24O3/c1-11(6-5-9-16)13-10-15(3,4)14(13)8-7-12(2)18-17/h9,13-14H,1,5-8,10H2,2-4H3"
+mass	252.34926000000002
+formula	"C15H24O3"
+source	["MCM"]
+groupID	2
+psat_torr	3.032444674348569e-05
+psat_atm	3.9900587820375906e-08
+dHvap_KJ	91.12333293005759
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4.0
+ratios	{"OM/OC": 1.402, "H/C": 1.6, "O/C": 0.2, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 24.0, "O": 3.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 29, 30, 31], [3.0, 5.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"BCALBO2"
+nameUsed	null
+status	true
+lump	[]
+jump	["BCOOA", "BCALBOH", "BCALBCO", "C141CO3"]
+organic	true
+RO2	true
+Radical	true
+condensed	false
+SMILES	"O=CCCC(=C)C1CC(C)(C)C1CCC(=O)CO[O]"
+InChI	"InChI=1S/C15H23O4/c1-11(5-4-8-16)13-9-15(2,3)14(13)7-6-12(17)10-19-18/h8,13-14H,1,4-7,9-10H2,2-3H3"
+mass	267.34072000000003
+formula	"C15H23O4"
+source	["MCM"]
+groupID	2
+psat_torr	2.705489824782606e-05
+psat_atm	3.559855032608692e-08
+dHvap_KJ	91.96491568254517
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.485, "H/C": 1.533, "O/C": 0.267, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 23.0, "O": 4.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 30, 31], [2.0, 6.0, 2.0, 1.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"BCSOZO2"
+nameUsed	null
+status	true
+lump	["C151O2", "BCCO2", "BCALCO2", "BCALAO2"]
+jump	["C141CO"]
+organic	true
+RO2	true
+Radical	true
+condensed	false
+SMILES	"OCC1(O[O])CCC2OOC(C)(CCC3C1CC3(C)C)O2"
+InChI	"InChI=1S/C15H25O6/c1-13(2)8-11-10(13)4-6-14(3)18-12(19-21-14)5-7-15(11,9-16)20-17/h10-12,16H,4-9H2,1-3H3"
+mass	296.1856751952236
+formula	"C15H25O6"
+source	["MCM"]
+groupID	2
+psat_torr	1.9079237808712412e-07
+psat_atm	2.5104260274621595e-10
+dHvap_KJ	106.77302814325282
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	3.5601825860013037
+ratios	{"OM/OC": 1.645, "H/C": 1.659, "O/C": 0.379, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 24.879634827997393, "O": 5.684462921527797, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 5, 9, 10, 11, 12, 18, 19, 26, 29, 30, 31, 37], [2.804828093530403, 5.554348317214733, 2.6293617593703753, 2.5089965873677698, 0.9398174139986971, 0.325286510782661, 0.1301146043130644, 0.1301146043130644, 0.1951719064695966, 0.060182586001302905, 0.0650573021565322, 0.9398174139986971, 0.23564892016133074, 0.2114236385204374, 0.060182586001302905, 0.17546633416002785]]
+non_volatile	0
+generation	-1
+
+
+name	"C136OOH"
+nameUsed	null
+status	true
+lump	[]
+jump	["C136O2", "BCALBOC"]
+organic	true
+RO2	false
+Radical	false
+condensed	false
+SMILES	"OOCCC1C(CC1(C)C)C(=C)CCC=O"
+InChI	"InChI=1S/C13H22O3/c1-10(5-4-7-14)11-9-13(2,3)12(11)6-8-16-15/h7,11-12,15H,1,4-6,8-9H2,2-3H3"
+mass	226.31198000000006
+formula	"C13H22O3"
+source	["MCM"]
+groupID	2
+psat_torr	2.1805077407891694e-06
+psat_atm	2.869089132617328e-09
+dHvap_KJ	101.09188082957701
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	3
+ratios	{"OM/OC": 1.451, "H/C": 1.692, "O/C": 0.231, "N/C": 0.0}
+functionalGroups	{"C": 13.0, "H": 22.0, "O": 3.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 31, 42], [2.0, 4.0, 2.0, 1.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"OH"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	17.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"BCBO2"
+nameUsed	null
+status	true
+lump	[]
+jump	["BCAO2", "BCAOOH"]
+organic	true
+RO2	true
+Radical	true
+condensed	false
+SMILES	"[O]OC1CCC(=C)C2CC(C)(C)C2CCC1(C)O"
+InChI	"InChI=1S/C15H25O3/c1-10-5-6-13(18-17)15(4,16)8-7-12-11(10)9-14(12,2)3/h11-13,16H,1,5-9H2,2-4H3"
+mass	253.35719999999998
+formula	"C15H25O3"
+source	["MCM"]
+groupID	2
+psat_torr	1.6119430176926913e-05
+psat_atm	2.1209776548588042e-08
+dHvap_KJ	91.85606710363575
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	3
+ratios	{"OM/OC": 1.408, "H/C": 1.667, "O/C": 0.2, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 25.0, "O": 3.0, "N": 0.0}
+SOAPStructure	[[3, 7, 8, 9, 10, 11, 12, 18, 26], [1.0, 1.0, 1.0, 5.0, 3.0, 1.0, 2.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"NO"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	30.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"BCAL"
+nameUsed	null
+status	true
+lump	[]
+jump	["NBCO", "BCAO", "BCBO", "BCAO", "BCBO"]
+organic	true
+RO2	false
+Radical	false
+condensed	false
+SMILES	"O=CCCC(=C)C1CC(C)(C)C1CCC(=O)C"
+InChI	"InChI=1S/C15H24O2/c1-11(6-5-9-16)13-10-15(3,4)14(13)8-7-12(2)17/h9,13-14H,1,5-8,10H2,2-4H3"
+mass	236.34986000000004
+formula	"C15H24O2"
+source	["MCM"]
+groupID	2
+psat_torr	3.032444674348569e-05
+psat_atm	3.9900587820375906e-08
+dHvap_KJ	91.12333293005759
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.313, "H/C": 1.6, "O/C": 0.133, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 24.0, "O": 2.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 29, 31], [2.0, 5.0, 2.0, 1.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"BCSOZ"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	true
+RO2	false
+Radical	false
+condensed	false
+SMILES	"C=C1CCC2OOC(C)(CCC3C1CC3(C)C)O2"
+InChI	"InChI=1S/C15H24O3/c1-10-5-6-13-16-15(4,18-17-13)8-7-12-11(10)9-14(12,2)3/h11-13H,1,5-9H2,2-4H3"
+mass	252.34926000000004
+formula	"C15H24O3"
+source	["MCM"]
+groupID	2
+psat_torr	0.00021598955029964557
+psat_atm	2.8419677671005996e-07
+dHvap_KJ	82.36251656865873
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.402, "H/C": 1.6, "O/C": 0.2, "N/C": 0.0}
+functionalGroups	{"C": 15.0, "H": 24.0, "O": 3.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 36, 52], [3.0, 4.0, 2.0, 1.0, 1.0, 1.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"C141CO2H"
+nameUsed	null
+status	true
+lump	["C126CO2H"]
+jump	["BCOOB"]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"CC(=O)CCC1C(CC1(C)C)C(=C)CCC(=O)O"
+InChI	"InChI=1S/C15H24O3/c1-10(5-8-14(17)18)12-9-15(3,4)13(12)7-6-11(2)16/h12-13H,1,5-9H2,2-4H3,(H,17,18)"
+mass	252.33879659589385
+formula	"C15H24O3"
+source	["MCM"]
+groupID	2
+psat_torr	3.752481421202067e-08
+psat_atm	4.9374755542132466e-11
+dHvap_KJ	113.59876428799811
+gamma	32372.8
+henry	34780000.0
+Kp	null
+temp	298.0
+DU	3.9999999999999982
+ratios	{"OM/OC": 1.402, "H/C": 1.6, "O/C": 0.2, "N/C": 0.0}
+functionalGroups	{"C": 14.999254030269231, "H": 23.998508060538466, "O": 3.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 18, 29, 31, 37], [2.0, 4.999627015134616, 2.0, 1.0, 1.0, 0.9996270151346158, 0.00037298486538416486, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"C131O2"
+nameUsed	null
+status	true
+lump	["C118O2", "C144O2", "BCLKCO2", "BCLKAO2", "C1312O2"]
+jump	["BCKOOB", "C131NO3", "C131OOH", "C133O2", "C131CO"]
+organic	true
+RO2	true
+Radical	true
+condensed	false
+SMILES	"[O]OCCC(=O)C1CC(C)(C)C1CCC(=O)C"
+InChI	"InChI=1S/C13H21O4/c1-9(14)4-5-11-10(8-13(11,2)3)12(15)6-7-17-16/h10-11H,4-8H2,1-3H3"
+mass	244.4097367696521
+formula	"C13H21O4"
+source	["MCM"]
+groupID	2
+psat_torr	0.0001248434342865363
+psat_atm	1.6426767669281095e-07
+dHvap_KJ	86.32017781607782
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	3.5260531050441397
+ratios	{"OM/OC": 1.56, "H/C": 1.613, "O/C": 0.317, "N/C": 0.0}
+functionalGroups	{"C": 13.059747128226578, "H": 21.067388046364876, "O": 4.14505349133143, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 5, 18, 26, 29, 30, 31], [2.9727515373370887, 4.954594261475215, 1.9988046423812265, 1.072399290143733, 0.09964775280664422, 0.00789582918226414, 0.09964775280664422, 0.9727515373370886, 1.9132865085055517, 0.12570085785078214]]
+non_volatile	0
+generation	-1
+
+
+name	"BCKSOZ"
+nameUsed	null
+status	true
+lump	["BCLKET"]
+jump	["BCSOZO", "BCSOZOH", "BCKSZOO"]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"O=C1CCC2OOC(C)(CCC3C1CC3(C)C)O2"
+InChI	"InChI=1S/C14H22O4/c1-13(2)8-9-10(13)6-7-14(3)16-12(17-18-14)5-4-11(9)15/h9-10,12H,4-8H2,1-3H3"
+mass	252.77339686467576
+formula	"C14H22O4"
+source	["MCM"]
+groupID	2
+psat_torr	1.555402371966839e-05
+psat_atm	2.0465820683774197e-08
+dHvap_KJ	91.13463269784917
+gamma	191129.0
+henry	14160.9
+Kp	null
+temp	298.0
+DU	4.0
+ratios	{"OM/OC": 1.505, "H/C": 1.571, "O/C": 0.279, "N/C": 0.0}
+functionalGroups	{"C": 14.0, "H": 22.0, "O": 3.903203674180013, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 29, 30, 31, 36, 52], [2.9032036741800136, 3.096796325819987, 2.0, 1.0, 0.09679632581998676, 1.0, 0.09679632581998676, 0.9032036741800132, 0.9032036741800132]]
+non_volatile	0
+generation	-1
+
+
+name	"HO2"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	33.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"C132OOH"
+nameUsed	null
+status	true
+lump	["BCSOZOOH", "C133OOH", "C147OOH", "C144OOH", "BCLKAOOH", "C152OOH", "BCALOOH"]
+jump	["C146OOH", "C142OOH", "BCALBOOH"]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"OCCC(=O)C1(OO)CC(C)(C)C1CCC(=O)C"
+InChI	"InChI=1S/C13H22O5/c1-9(15)4-5-10-12(2,3)8-13(10,18-17)11(16)6-7-14/h10,14,17H,4-8H2,1-3H3"
+mass	280.24919555714376
+formula	"C13H22O5"
+source	["MCM"]
+groupID	2
+psat_torr	4.1187223339833695e-11
+psat_atm	5.419371492083381e-14
+dHvap_KJ	134.81102474410005
+gamma	7068.52
+henry	144983000000.0
+Kp	null
+temp	298.0
+DU	3.0209830087472955
+ratios	{"OM/OC": 1.669, "H/C": 1.711, "O/C": 0.393, "N/C": 0.0}
+functionalGroups	{"C": 13.991300924831267, "H": 23.940635832167942, "O": 5.504778495355917, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 5, 12, 13, 14, 15, 26, 29, 30, 31, 33, 36, 37, 43, 44, 52], [0.04196601749459491, 0.08151421152559932, 0.02340083221088797, 0.020983008747297454, 0.9790169912527026, 2.313392022029053, 3.421155579769867, 1.349641450791908, 0.9790169912527026, 0.9790169912527026, 0.6446419604763522, 0.6293755404607948, 0.15444061220642868, 0.005901098178718731, 0.3494569413449291, 0.01856518528370694, 0.15183827929585944, 0.8481617207041408, 0.3494569413449291]]
+non_volatile	0
+generation	-1
+
+
+name	"C131CO2H"
+nameUsed	null
+status	true
+lump	["C116CO2H"]
+jump	["C151O", "BCKOOB", "C131CO3H", "C141OO", "C151NO3", "BCSOZNO3"]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"CC(=O)CCC1C(CC1(C)C)C(=O)CCC(=O)O"
+InChI	"InChI=1S/C14H22O4/c1-9(15)4-5-11-10(8-14(11,2)3)12(16)6-7-13(17)18/h10-11H,4-8H2,1-3H3,(H,17,18)"
+mass	254.27078287367456
+formula	"C14H22O4"
+source	["MCM"]
+groupID	2
+psat_torr	4.413947615455212e-09
+psat_atm	5.8078258098094895e-12
+dHvap_KJ	120.24899406605199
+gamma	1931.11
+henry	4957880000.0
+Kp	null
+temp	298.0
+DU	4.0
+ratios	{"OM/OC": 1.514, "H/C": 1.571, "O/C": 0.286, "N/C": 0.0}
+functionalGroups	{"C": 13.996342862884216, "H": 21.992685725768432, "O": 4.0, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 29, 30, 31, 37], [2.0, 3.998171431442108, 2.0, 1.0, 0.9981714314421076, 1.0, 0.0018285685578924848, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"C133O"
+nameUsed	null
+status	true
+lump	["C143O"]
+jump	[]
+organic	true
+RO2	false
+Radical	true
+condensed	false
+SMILES	"OCCC(=O)C(=O)CC(C)(C)C([O])CCC(=O)C"
+InChI	"InChI=1S/C13H21O5/c1-9(15)4-5-12(18)13(2,3)8-11(17)10(16)6-7-14/h12,14H,4-8H2,1-3H3"
+mass	257.20314838833065
+formula	"C13H21O5"
+source	["MCM"]
+groupID	2
+psat_torr	1.710394093013873e-08
+psat_atm	2.2505185434393066e-11
+dHvap_KJ	117.38654681619816
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	3.5
+ratios	{"OM/OC": 1.642, "H/C": 1.617, "O/C": 0.379, "N/C": 0.0}
+functionalGroups	{"C": 13.050532543095347, "H": 21.101065086190694, "O": 4.949467456904654, "N": 0.0}
+SOAPStructure	[[0, 1, 2, 3, 5, 18, 26, 29, 30], [3.0, 5.0, 1.0, 1.0, 1.0, 0.05053254309534631, 1.0, 1.0, 2.9494674569046535]]
+non_volatile	0
+generation	-1
+
+
+name	"C133NO3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"OCCC(=O)C(=O)CC(C)(C)C(CCC(=O)C)O[N+](=O)[O-]"
+InChI	"InChI=1S/C13H21NO7/c1-9(16)4-5-12(21-14(19)20)13(2,3)8-11(18)10(17)6-7-15/h12,15H,4-8H2,1-3H3"
+mass	303.30834
+formula	"C13H21NO7"
+source	["MCM"]
+groupID	2
+psat_torr	1.2532320702607273e-11
+psat_atm	1.648989566132536e-14
+dHvap_KJ	139.51657246583915
+gamma	1320.6
+henry	2557750000000.0
+Kp	null
+temp	298.0
+DU	4
+ratios	{"OM/OC": 1.944, "H/C": 1.615, "O/C": 0.538, "N/C": 0.077}
+functionalGroups	{"C": 13.0, "H": 21.0, "O": 7.0, "N": 1.0}
+SOAPStructure	[[5, 12, 13, 15, 26, 29, 30, 40], [1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0]]
+non_volatile	0
+generation	-1
+
+
+name	"C133CO"
+nameUsed	null
+status	true
+lump	["C147OH"]
+jump	[]
+organic	true
+RO2	false
+Radical	false
+condensed	true
+SMILES	"OCCC(=O)C(=O)CC(C)(C)C(=O)CCC(=O)C"
+InChI	"InChI=1S/C13H20O5/c1-9(15)4-5-12(18)13(2,3)8-11(17)10(16)6-7-14/h14H,4-8H2,1-3H3"
+mass	256.37796727027654
+formula	"C13H20O5"
+source	["MCM"]
+groupID	2
+psat_torr	4.864770717829487e-10
+psat_atm	6.401014102407219e-13
+dHvap_KJ	128.17793861108706
+gamma	64.8673
+henry	1339300000000.0
+Kp	null
+temp	298.0
+DU	4.0
+ratios	{"OM/OC": 1.643, "H/C": 1.539, "O/C": 0.384, "N/C": 0.0}
+functionalGroups	{"C": 13.005922132856082, "H": 20.011844265712163, "O": 5.0, "N": 0.0}
+SOAPStructure	[[5, 6, 12, 13, 14, 15, 26, 29, 30, 37], [0.9940778671439182, 0.005922132856081858, 2.0, 1.0177663985682457, 0.005922132856081858, 1.0, 1.0, 1.0, 2.988155734287836, 0.005922132856081858]]
+non_volatile	0
+generation	-1
+
+
+name	"SULF"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	98.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"NH3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	17.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"HNO3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	63.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"HCL"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	36.5
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"RO2pool"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	250.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"SOAlP"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	392.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"BiMT"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	136.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"CO"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	28.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"NO2"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	46.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"H2O2"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	34.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"H2"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	2.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"SO2"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	64.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+
+
+name	"SO3"
+nameUsed	null
+status	true
+lump	[]
+jump	[]
+organic	false
+RO2	false
+Radical	false
+condensed	false
+SMILES	"-"
+InChI	null
+mass	80.0
+formula	""
+source	[]
+groupID	2
+psat_torr	0.0
+psat_atm	0.0
+dHvap_KJ	0.0
+gamma	null
+henry	0.0
+Kp	null
+temp	298.0
+DU	null
+ratios	null
+functionalGroups	{}
+SOAPStructure	null
+non_volatile	0
+generation	-1
+

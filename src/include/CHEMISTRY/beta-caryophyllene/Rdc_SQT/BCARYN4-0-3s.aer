@@ -1,0 +1,17 @@
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap
+PMD	1    5    	28.0    --           1.000D10        1.000D10        0.D0      1.0     2.33D-06	    0           --            -       0.         0.
+PBC	2    4	        12.0    --           1.000D10        1.000D10        0.D0      1.0     2.25D-06     0           --            -       0.         0.
+PNA	3    1	        23.0    --           1.000D10        1.000D10        0.D0      1.0     0.97D-06	    0           --            -       0.         0.
+PSO4	3    1        	98.0    SULF         77.3d0          5.5d0           80.D-03   1.0    1.84D-06      1           --            -       0.         0.
+PNH4	3    1         	17.0	NH3          558.3d0         2.9d0           80.D-03   1.0    0.91D-06      0           --            -       0.         0.
+PNO3	3    1	        63.0    HNO3         475.9d0         3.3d0           80.D-03   1.0    1.50D-06      0           --            -       0.         0.
+PHCL	3    1	        36.5	HCL          344.7d0         3.339d0         80.D-03   1.0    1.15D-06      0           --            -       0.         0.
+PBiMT	4    -1	        136.0   BiMT         687.d0          8.39d0          30.D-03   1.0    1.30D-06      0           HPHI          -       0.         0.
+PSOAlP	4    -1	        392.0	SOAlP        687.d0          8.39d0          30.D-03   1.0    1.30D-06      1           HPHO          -       0.         0.
+PC141CO2H	4	2	252.34	C141CO2H	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	CC(=O)CCC1C(CC1(C)C)C(=C)CCC(=O)O	3.75E-08	1.14E+02
+PBCKSOZ	4	2	252.77	BCKSOZ	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	O=C1CCC2OOC(C)(CCC3C1CC3(C)C)O2	1.56E-05	9.11E+01
+PC132OOH	4	2	280.25	C132OOH	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	OCCC(=O)C1(OO)CC(C)(C)C1CCC(=O)C	4.12E-11	1.35E+02
+PC131CO2H	4	2	254.27	C131CO2H	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	CC(=O)CCC1C(CC1(C)C)C(=O)CCC(=O)O	4.41E-09	1.20E+02
+PC133NO3	4	2	303.31	C133NO3	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	OCCC(=O)C(=O)CC(C)(C)C(CCC(=O)C)O[N+](=O)[O-]	1.25E-11	1.40E+02
+PC133CO	4	2	256.38	C133CO	6.87E+02	8.39E+00	3.00E-02	1.00E+00	1.30E-06	0	BOTH	OCCC(=O)C(=O)CC(C)(C)C(=O)CCC(=O)C	4.86E-10	1.28E+02
+PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.
