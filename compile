@@ -87,29 +87,38 @@ else
 fi
 
 if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
-    # Check if a mechanism without h2o is used.
-    if [ $chemistry != "cb05-ozone" ]; then
-        echo "Please use cb05-ozone as the chemistry mechanism."
+    # available gas-phase mechanisms: cb05-ozone
+
+    # 1: cb05-ozone
+    if [ $chemistry == "cb05-ozone" ]; then
+        specieslist="_ciCB05_poa.species"
+        reactionlist="CB05_poa_nospack.reactions"
+    # 2: racm2-2020rad-ozone
+    elif [ $chemistry == "racm2-2020rad-ozone" ]; then
+        specieslist="RACM2-2020rad.species"
+        reactionlist="RACM2-2020rad_nospack.reactions"
+    else
+        echo "Please use cb05-ozone or racm2-2020rad-ozone as the chemistry mechanism."
         echo "compile -b=$iscombining -c=cb05-ozone"
         exit 0
-    else
-        cd src/include/CHEMISTRY/$chemistry
-        cwd=$PWD
-        rm -rf combine_files.py replacement_species.py user_defined_scheme.py
-        ln -s ../../../script/combine_files.py
-        ln -s ../../../script/replacement_species.py
-        ln -s ../../../script/user_defined_scheme.py
-        (
-            set -e
-            python3 combine_files.py _ciCB05_poa.species CB05_poa_nospack.reactions $iscombining
-        )
-        errorCode=$?
-        if [ $errorCode -ne 0 ]; then
-            exit $errorCode
-        fi
-        
-        cd ../../../../
     fi
+    
+    cd src/include/CHEMISTRY/$chemistry
+    cwd=$PWD
+    rm -rf combine_files.py replacement_species.py user_defined_scheme.py
+    ln -s ../../../script/combine_files.py
+    ln -s ../../../script/replacement_species.py
+    ln -s ../../../script/user_defined_scheme.py
+    (
+        set -e
+        python3 combine_files.py $specieslist $reactionlist $iscombining
+    )
+    errorCode=$?
+    if [ $errorCode -ne 0 ]; then
+        exit $errorCode
+    fi
+        
+    cd ../../../../
 fi
 
 file="ssh-aerosol"
