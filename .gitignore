@@ -42,7 +42,7 @@ user_manual/user_manual.blg
 user_manual/user_manual.pdf
 *.sav
 */*test*
-
+compile.log
 
 ### Executables
 example_fortran/launch

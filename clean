@@ -1,5 +1,11 @@
 #!/bin/bash
 
+cwd=$PWD
+
+# Default options
+cleanall="no"
+
+# Read options
 for i in "$@"
 do
 case $i in
@@ -14,6 +20,11 @@ case $i in
 # Add a genoa option to clean unused folders/files
     -gcl=*|--genoaclean=*)
     gclean="${i#*=}"
+    shift
+    ;;
+# Clean all
+    -a)
+    cleanall="yes"
     shift
     ;;
 esac
@@ -107,21 +118,6 @@ then
     rm -f $file
 fi
 
-# file="combined_reactions.dat"
-# if [ -f $file ] 
-# then
-#     rm -f $file
-# fi
-# file="combined_species.dat"
-# if [ -f $file ] 
-# then
-#     rm -f $file
-# fi
-# cd ..
-
-
-
-
 # if [ "$1" = "all" ]; then
 #    lst=`ls -d tmp* 2>/dev/null`
 #    for di in ${lst}; do
@@ -133,3 +129,35 @@ fi
 # find -iname "*.nc"
 # echo -n "Total directory space: "
 # du -sh .
+
+
+# Cleaning
+if [ $cleanall == "yes" ]; then
+
+
+    cd src/include
+
+    echo "o-----------------------------o"
+    echo "| Removing Emacs backup files |"
+    echo "o-----------------------------o"
+    rm -f -v `find . -iname "*~" -print`
+    rm -f -v `find . -iname ".*~" -print`
+    rm -f -v `find . -iname "\#*" -print`
+    echo "o---------------------------o"
+    echo "| Removing .o and .il files |"
+    echo "o---------------------------o"
+    rm -f -v `find . -iname "*.o" -print`
+    rm -f -v `find . -iname "*.il" -print`    
+
+    cd CHEMISTRY
+    
+    rm -f `find -iname "combined_reactions.dat"`
+    rm -f `find -iname "combined_species.dat"`
+    rm -f `find -iname "species-list-user.dat"`
+    rm -f `find -iname "species-list-aer-user.dat"`
+    rm -f `find -iname "combine_files.py"`
+    rm -f `find -iname "replacement_species.py"`
+    rm -f `find -iname "user_defined_scheme.py"`
+    cd $cwd
+fi
+   
