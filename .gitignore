@@ -41,6 +41,8 @@ user_manual/user_manual.bbl
 user_manual/user_manual.blg
 user_manual/user_manual.pdf
 *.sav
+*/*test*
+
 
 ### Executables
 example_fortran/launch
@@ -83,6 +85,11 @@ namelist.out
 species-list/species-list.dat
 src/include/CHEMISTRY/*/combined_reactions.dat
 src/include/CHEMISTRY/*/combined_species.dat
+src/include/CHEMISTRY/*/combine_files.py
+src/include/CHEMISTRY/*/replacement_species.py
+src/include/CHEMISTRY/*/user_defined_scheme.py
+src/include/CHEMISTRY/*/species-list-user.dat
+src/include/CHEMISTRY/*/species-list-aer-user.dat
 
 ### Temporary files in example_using_so
 example_using_so/graph/*png
