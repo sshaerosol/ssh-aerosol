@@ -129,23 +129,23 @@ def add_ro2_species(section,
     section = section.lower()
 
     try:
-        # Read RO2 reactions
-        ro2_reactions = config[section]['ro2_reactions']
+        # Read RO2 species
+        ro2_species = config[section]['ro2_species']
 
         ro2_species_name_scheme, ro2_group_id_scheme = \
-            read_ro2_species(ro2_reactions)
+            read_ro2_species(ro2_species)
 
         for spe, gid in zip(ro2_species_name_scheme, \
                            ro2_group_id_scheme):
             if spe in ro2_species_name:
-                print(spe + " exists in RO2 reactions.")
+                print(spe + " exists in RO2 species.")
             else:
                 ro2_species_name.append(spe)
                 ro2_group_id.append(gid)
                 
         
     except Exception:
-        print("RO2 reaction not used for ", section)
+        print("RO2 species not used for ", section)
         pass
 
     
@@ -182,15 +182,15 @@ def user_defined_scheme(options_list, configfile):
     species_precursor = "../user_defined/user_defined.species"
     reactions_precursor = "../user_defined/user_defined.reactions"
     species_aerosol = "../user_defined/species-list-aer.dat"
-    ro2_reactions = "../user_defined/ro2_reactions.dat"
+    ro2_species = "../user_defined/ro2_species.dat"
     if os.path.isfile(species_precursor):
         os.remove(species_precursor)
     if os.path.isfile(reactions_precursor):
         os.remove(reactions_precursor)
     if os.path.isfile(species_aerosol):
         os.remove(species_aerosol)
-    if os.path.isfile(ro2_reactions):
-        os.remove(ro2_reactions)                
+    if os.path.isfile(ro2_species):
+        os.remove(ro2_species)                
 
     # Write header for reaction file
     header = "#==== User-definded reactions ====\n"
@@ -249,7 +249,7 @@ def user_defined_scheme(options_list, configfile):
 
     # Write RO2 reactions file
     header = "#==== User-definded RO2 reactions ===="
-    with open(ro2_reactions, 'w') as f:
+    with open(ro2_species, 'w') as f:
         f.write(header)
         for k, v in zip(ro2_species_name, ro2_group_id):
             k += " "
