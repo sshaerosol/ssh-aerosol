@@ -105,7 +105,7 @@ AR0120 + nitrate_radical     ->       nitrate_radical    +      AR0028
 KINETIC ARR 0.400E-11 0 0
 %
 %-------------------B1-015-------------------%
-AR0120 + nitric_dioxide     ->       AR0130 +      nitric_dioxide
+AR0120 + nitrogen_dioxide     ->       AR0130 +      nitrogen_dioxide
 KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
 %
 %-------------------B1-016-------------------%
@@ -149,7 +149,7 @@ AR0043 + hydroxyl      ->       AR0028 +      hydroxyl
 KINETIC ARR 0.360E-11 0 0
 %
 %-------------------B1-026-------------------%
-AR0013 + nitric_dioxide     ->       AR0027 +      nitric_dioxide
+AR0013 + nitrogen_dioxide     ->       AR0027 +      nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------B1-027-------------------%
@@ -187,7 +187,7 @@ AR0098 + ozone      ->       AR0112 +      ozone
 KINETIC ARR 0.286E-12 0 0
 %
 %-------------------GEC000-------------------%
-AR0098 + nitric_dioxide     ->       AR0113 +      nitric_dioxide
+AR0098 + nitrogen_dioxide     ->       AR0113 +      nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------GEC000-------------------%
@@ -231,7 +231,7 @@ AR0113 + hydroxyl      ->       AR0126 +      hydroxyl
 KINETIC ARR 0.153E-11 0 0
 %
 %-------------------GEC000-------------------%
-AR0126 + nitric_dioxide       ->     AR0138 +      nitric_dioxide
+AR0126 + nitrogen_dioxide       ->     AR0138 +      nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------GEC000--(Sch-Lan)--------%
@@ -326,7 +326,7 @@ AR0100 + ozone      ->       AR0117 +      ozone
 KINETIC ARR 0.281E-16 0 0
 %
 %-------------------GEC000-------------------%
-AR0116 + nitric_dioxide     ->       AR0128 +      nitric_dioxide
+AR0116 + nitrogen_dioxide     ->       AR0128 +      nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------GEC000-------------------%
@@ -418,7 +418,7 @@ TOL4OH + hydroxyl -> 0.07 TOL3OH1O + 0.07  MBQN3OH + 0.73 TOL5OH + 0.13 BTOL5OH2
 KINETIC ARR 2.5E-10 0 0
 %
 %-------------------GEC000--(Sch-Lan)--------%
-TOL2OH1O + nitric_dioxide -> TOL3OH1NO2 + nitric_dioxide
+TOL2OH1O + nitrogen_dioxide -> TOL3OH1NO2 + nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------GEC000--(Sch-Lan)--------%
@@ -446,7 +446,7 @@ TOL2OHOOH + hydroxyl      ->       TOL2OH2O +      hydroxyl
 KINETIC ARR 0.205E-09 0 0
 %
 %-------------------GEC000--(Sch-Lan)--------%
-TOL3OH1O + nitric_dioxide -> TOL4OH1NO2 + nitric_dioxide
+TOL3OH1O + nitrogen_dioxide -> TOL4OH1NO2 + nitrogen_dioxide
 KINETIC ARR 0.208E-11 0 0
 %
 %-------------------GEC000--(Sch-Lan)--------%
@@ -768,7 +768,7 @@ AR0095 + nitric_oxide      ->       nitric_oxide     +      2U6000
 KINETIC ARR 0.810E-11 0 -270.
 %
 %-------------------GEC000-------------------%
-AR0095 + nitric_dioxide     ->       AR0105 +      nitric_dioxide
+AR0095 + nitrogen_dioxide     ->       AR0105 +      nitrogen_dioxide
 KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
 %
 %-------------------GEC000-------------------%
@@ -880,7 +880,7 @@ AR0124 + hydroxyl      ->       hydroxyl     +      AR0010 +      3K2000
 KINETIC ARR 0.406E-10 0 0
 %
 %-------------------GEC000-------------------%
-AR0020 + nitric_dioxide     ->       AR0038 +      nitric_dioxide
+AR0020 + nitrogen_dioxide     ->       AR0038 +      nitrogen_dioxide
 KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
 %
 %-------------------GEC000-------------------%
@@ -916,7 +916,7 @@ AR0111 + nitric_oxide      ->       nitric_oxide     +      DK3000
 KINETIC ARR 0.100E-13 0 0
 %
 %-------------------GEC000-------------------%
-AR0111 + nitric_dioxide     ->       nitric_dioxide    +      DK3000
+AR0111 + nitrogen_dioxide     ->       nitrogen_dioxide    +      DK3000
 KINETIC ARR 0.100E-14 0 0
 %
 %-------------------GEC000-------------------%
@@ -1124,7 +1124,7 @@ KINETIC ARR 0.150E-11 0 0
 KINETIC ARR 0.810E-11 0 -270.
 %
 %-------------------GEC000-------------------%
-3U5001 + nitric_dioxide     ->       PU5001 +      nitric_dioxide
+3U5001 + nitrogen_dioxide     ->       PU5001 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1208,7 +1208,7 @@ PU5001          ->       3U5001
 KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
 %
 %-------------------GEC000-------------------%
-3K2000 + nitric_dioxide    ->       P02000 +      nitric_dioxide
+3K2000 + nitrogen_dioxide    ->       P02000 +      nitrogen_dioxide
 KINETIC FALLOFF 0.110E-10 -1.0 0 0.850E-28 -6.5 0 0.6 0 0 0 1.0
 %
 %-------------------GEC000-------------------%
@@ -1248,7 +1248,7 @@ KINETIC ARR 0.112E+10 1.7 3197.
 % BLOC 7 : FORMATION DES SOA MAJOR CONTRIBUTORS GECKO
 %
 %-------------------GEC000-------------------%
-3U5002 + nitric_dioxide     ->       PU5002 +      nitric_dioxide
+3U5002 + nitrogen_dioxide     ->       PU5002 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1344,7 +1344,7 @@ KINETIC ARR 0.270E-11 0 -360.
 KINETIC ARR 0.230E-11 0 0
 %
 %-------------------GEC000-------------------%
-3H5004 + nitric_dioxide     ->       PH5002 +      nitric_dioxide
+3H5004 + nitrogen_dioxide     ->       PH5002 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1360,7 +1360,7 @@ KINETIC ARR 0.810E-11 0 -270.
 KINETIC ARR 0.500E-11 0 0
 %
 %-------------------GEC000-------------------%
-3H5009 + nitric_dioxide     ->       PH5004 +      nitric_dioxide
+3H5009 + nitrogen_dioxide     ->       PH5004 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1384,7 +1384,7 @@ PH5004           ->       1P500A
 KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
 %
 %-------------------GEC000-------------------%
-3U5000 + nitric_dioxide    ->       PU5000 +      nitric_dioxide
+3U5000 + nitrogen_dioxide    ->       PU5000 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1416,7 +1416,7 @@ KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  
 KINETIC ARR 0.242E-12 0 -1250.
 %
 %-------------------GEC000-------------------%
-3H5000 + nitric_dioxide     ->       PH5000 +      nitric_dioxide
+3H5000 + nitrogen_dioxide     ->       PH5000 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1484,7 +1484,7 @@ PK5003           ->       3K5003
 KINETIC ARR 0.200E+16 0 12800.
 %
 %-------------------GEC000-------------------%
-3K5003 + nitric_dioxide     ->       PK5003 +      nitric_dioxide
+3K5003 + nitrogen_dioxide     ->       PK5003 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1500,7 +1500,7 @@ PD5002           ->       3P4000
 KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
 %
 %-------------------GEC000-------------------%
-3P4000 + nitric_dioxide    ->       PP4000 +      nitric_dioxide
+3P4000 + nitrogen_dioxide    ->       PP4000 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%
@@ -1520,7 +1520,7 @@ PP4004          ->       3P400X
 KINETIC ARR 0.400E+16 0 12800.
 %
 %-------------------GEC000-------------------%
-3P400X + nitric_dioxide    ->       PP4004 +      nitric_dioxide
+3P400X + nitrogen_dioxide    ->       PP4004 +      nitrogen_dioxide
 KINETIC ARR 0.330E-08 -1.0 0.
 %
 %-------------------GEC000-------------------%

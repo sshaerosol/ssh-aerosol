@@ -45,7 +45,7 @@ NCRESO2 ->
 %8.00E-13*RO2
 KINETIC RO2 1 ARR 8.000E-13 0 0
 %=========================10============================
-TOL1O + nitric_dioxide -> nitric_dioxide + 5.000E-01 NCRES1O2
+TOL1O + nitrogen_dioxide -> nitrogen_dioxide + 5.000E-01 NCRES1O2
 %2.08E-12
 KINETIC ARR 2.080E-12 0 0
 %=========================11============================
@@ -85,7 +85,7 @@ OXYL1O2 -> TOL1O
 %2.50E-13*RO2
 KINETIC RO2 1 ARR 2.500E-13 0 0
 %=========================20============================
-MCATEC1O + nitric_dioxide -> MNCATECH + nitric_dioxide
+MCATEC1O + nitrogen_dioxide -> MNCATECH + nitrogen_dioxide
 %2.08E-12
 KINETIC ARR 2.080E-12 0 0
 %=========================21============================
@@ -185,7 +185,7 @@ TLFUOOH + hydroxyl -> TLFUO2 + hydroxyl
 %2.60E-11
 KINETIC ARR 2.600E-11 0 0
 %=========================45============================
-NCRES1O2 + nitric_dioxide -> DNPHEN + nitric_dioxide
+NCRES1O2 + nitrogen_dioxide -> DNPHEN + nitrogen_dioxide
 %2.08E-12*5.5424E-01
 KINETIC ARR 1.153E-12 0 0
 %=========================46============================

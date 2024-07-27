@@ -364,7 +364,7 @@ APINBOO + nitric_oxide-> PINAL + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %========================92============================
-APINBOO + nitric_dioxide -> PINAL + nitric_dioxide
+APINBOO + nitrogen_dioxide -> PINAL + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================93============================
@@ -544,7 +544,7 @@ CH2OO + nitric_oxide-> HCHO + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================137============================
-CH2OO + nitric_dioxide -> HCHO + nitric_dioxide
+CH2OO + nitrogen_dioxide -> HCHO + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================138============================
@@ -568,7 +568,7 @@ NOPINOO + nitric_oxide-> NOPINONE + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================143============================
-NOPINOO + nitric_dioxide -> NOPINONE + nitric_dioxide
+NOPINOO + nitrogen_dioxide -> NOPINONE + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================144============================
@@ -700,7 +700,7 @@ LIMBOO + nitric_oxide-> LIMAL + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================176============================
-LIMBOO + nitric_dioxide -> LIMAL + nitric_dioxide
+LIMBOO + nitrogen_dioxide -> LIMAL + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================177============================
@@ -792,7 +792,7 @@ C96CO3 + nitric_oxide-> C96O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================199============================
-C96CO3 + nitric_dioxide -> C10PAN2 + nitric_dioxide
+C96CO3 + nitrogen_dioxide -> C10PAN2 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================200============================
@@ -956,7 +956,7 @@ NC91CO3 + nitric_oxide-> NOPINONE + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================240============================
-NC91CO3 + nitric_dioxide -> NC91PAN + nitric_dioxide
+NC91CO3 + nitrogen_dioxide -> NC91PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================241============================
@@ -1088,7 +1088,7 @@ C918CO3 + nitric_oxide-> NOPINONE + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================273============================
-C918CO3 + nitric_dioxide -> C918PAN + nitric_dioxide
+C918CO3 + nitrogen_dioxide -> C918PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================274============================
@@ -1216,7 +1216,7 @@ C923CO3 + nitric_oxide-> C923O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================305============================
-C923CO3 + nitric_dioxide -> C923PAN + nitric_dioxide
+C923CO3 + nitrogen_dioxide -> C923PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================306============================
@@ -1308,7 +1308,7 @@ C89CO3 + nitric_oxide-> 8.000E-01 C811CO3 + 2.000E-01 C89O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================328============================
-C89CO3 + nitric_dioxide -> C89PAN + nitric_dioxide
+C89CO3 + nitrogen_dioxide -> C89PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================329============================
@@ -1328,7 +1328,7 @@ C920CO3 + nitric_oxide-> C920O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================333============================
-C920CO3 + nitric_dioxide -> C920PAN + nitric_dioxide
+C920CO3 + nitrogen_dioxide -> C920PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================334============================
@@ -1380,7 +1380,7 @@ C85CO3 + nitric_oxide-> C85O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================346============================
-C85CO3 + nitric_dioxide -> C9PAN2 + nitric_dioxide
+C85CO3 + nitrogen_dioxide -> C9PAN2 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================347============================
@@ -1432,7 +1432,7 @@ CH3CO3 + nitric_oxide-> CH3O2 + nitric_oxide
 %7.5E-12*EXP(290/TEMP)
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================359============================
-CH3CO3 + nitric_dioxide -> PAN + nitric_dioxide
+CH3CO3 + nitrogen_dioxide -> PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================360============================
@@ -1456,7 +1456,7 @@ CH3O2 + nitric_oxide-> 1.000E-03 CH3NO3 + 9.990E-01 CH3O + nitric_oxide
 %2.3E-12*EXP(360/TEMP)
 KINETIC ARR 2.300E-12 0 -360.00
 %=========================365============================
-CH3O2 + nitric_dioxide -> CH3O2NO2 + nitric_dioxide
+CH3O2 + nitrogen_dioxide -> CH3O2NO2 + nitrogen_dioxide
 %KMT13
 KINETIC EXTRA 93 13 1.0
 %=========================366============================
@@ -1708,7 +1708,7 @@ C729CO3 + nitric_oxide-> C729O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================428============================
-C729CO3 + nitric_dioxide -> C729PAN + nitric_dioxide
+C729CO3 + nitrogen_dioxide -> C729PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================429============================
@@ -1728,7 +1728,7 @@ C822CO3 + nitric_oxide-> 2.000E-01 C822O2 + 8.000E-01 C823CO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================433============================
-C822CO3 + nitric_dioxide -> C822PAN + nitric_dioxide
+C822CO3 + nitrogen_dioxide -> C822PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================434============================
@@ -1764,7 +1764,7 @@ C816CO3 + nitric_oxide-> C816O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================442============================
-C816CO3 + nitric_dioxide -> C816PAN + nitric_dioxide
+C816CO3 + nitrogen_dioxide -> C816PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================443============================
@@ -2284,7 +2284,7 @@ C512CO3 + nitric_oxide-> C512O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================572============================
-C512CO3 + nitric_dioxide -> C512PAN + nitric_dioxide
+C512CO3 + nitrogen_dioxide -> C512PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================573============================
@@ -2368,7 +2368,7 @@ C817CO3 + nitric_oxide-> C817O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================593============================
-C817CO3 + nitric_dioxide -> C817PAN + nitric_dioxide
+C817CO3 + nitrogen_dioxide -> C817PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================594============================
@@ -2636,7 +2636,7 @@ LMKBOO + nitric_oxide-> LMLKET + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================660============================
-LMKBOO + nitric_dioxide -> LMLKET + nitric_dioxide
+LMKBOO + nitrogen_dioxide -> LMLKET + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================661============================
@@ -2736,7 +2736,7 @@ C811CO3 + nitric_oxide-> C811O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================685============================
-C811CO3 + nitric_dioxide -> C811PAN + nitric_dioxide
+C811CO3 + nitrogen_dioxide -> C811PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================686============================
@@ -2888,7 +2888,7 @@ C88CO3 + nitric_oxide-> C88O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================723============================
-C88CO3 + nitric_dioxide -> C88PAN + nitric_dioxide
+C88CO3 + nitrogen_dioxide -> C88PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================724============================
@@ -3120,7 +3120,7 @@ C626CO3 + nitric_oxide-> C626O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================781============================
-C626CO3 + nitric_dioxide -> C626PAN + nitric_dioxide
+C626CO3 + nitrogen_dioxide -> C626PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================782============================
@@ -3252,7 +3252,7 @@ C823CO3 + nitric_oxide-> C823O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================814============================
-C823CO3 + nitric_dioxide -> C823PAN + nitric_dioxide
+C823CO3 + nitrogen_dioxide -> C823PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================815============================
@@ -3288,7 +3288,7 @@ C622CO3 + nitric_oxide-> C622O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================823============================
-C622CO3 + nitric_dioxide -> C622PAN + nitric_dioxide
+C622CO3 + nitrogen_dioxide -> C622PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================824============================
@@ -3412,7 +3412,7 @@ CO235C6CO3 + nitric_oxide-> CO235C6O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================854============================
-CO235C6CO3 + nitric_dioxide -> C7PAN3 + nitric_dioxide
+CO235C6CO3 + nitrogen_dioxide -> C7PAN3 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================855============================
@@ -3432,7 +3432,7 @@ CHOC3COCO3 + nitric_oxide-> CHOC3COO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================859============================
-CHOC3COCO3 + nitric_dioxide -> CHOC3COPAN + nitric_dioxide
+CHOC3COCO3 + nitrogen_dioxide -> CHOC3COPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================860============================
@@ -3644,7 +3644,7 @@ H3C25C6CO3 + nitric_oxide-> H3C25C6O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================912============================
-H3C25C6CO3 + nitric_dioxide -> H3C25C6PAN + nitric_dioxide
+H3C25C6CO3 + nitrogen_dioxide -> H3C25C6PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================913============================
@@ -3696,7 +3696,7 @@ HCOCH2CO3 + nitric_oxide-> HCOCH2O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================925============================
-HCOCH2CO3 + nitric_dioxide -> C3PAN2 + nitric_dioxide
+HCOCH2CO3 + nitrogen_dioxide -> C3PAN2 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================926============================
@@ -3936,7 +3936,7 @@ C727CO3 + nitric_oxide-> C727O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================985============================
-C727CO3 + nitric_dioxide -> C727PAN + nitric_dioxide
+C727CO3 + nitrogen_dioxide -> C727PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================986============================
@@ -4196,7 +4196,7 @@ MACO3 + nitric_oxide-> 3.500E-01 CH3CO3 + HCHO + 6.500E-01 CH3O2 + nitric_oxide
 %8.70E-12*EXP(290/TEMP)
 KINETIC ARR 8.700E-12 0 -290.00
 %=========================1050============================
-MACO3 + nitric_dioxide -> MPAN + nitric_dioxide
+MACO3 + nitrogen_dioxide -> MPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1051============================
@@ -4308,7 +4308,7 @@ C731CO3 + nitric_oxide-> 2.000E-01 C731O2 + 8.000E-01 C732CO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1078============================
-C731CO3 + nitric_dioxide -> C731PAN + nitric_dioxide
+C731CO3 + nitrogen_dioxide -> C731PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1079============================
@@ -4672,7 +4672,7 @@ C87CO3 + nitric_oxide-> C87O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1169============================
-C87CO3 + nitric_dioxide -> C87PAN + nitric_dioxide
+C87CO3 + nitrogen_dioxide -> C87PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1170============================
@@ -4728,7 +4728,7 @@ C718CO3 + nitric_oxide-> C718O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1183============================
-C718CO3 + nitric_dioxide -> C718PAN + nitric_dioxide
+C718CO3 + nitrogen_dioxide -> C718PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1184============================
@@ -4808,7 +4808,7 @@ CO25C6CO3 + nitric_oxide-> C627O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1203============================
-CO25C6CO3 + nitric_dioxide -> C627PAN + nitric_dioxide
+CO25C6CO3 + nitrogen_dioxide -> C627PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1204============================
@@ -4904,7 +4904,7 @@ C511CO3 + nitric_oxide-> C511O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1227============================
-C511CO3 + nitric_dioxide -> C511PAN + nitric_dioxide
+C511CO3 + nitrogen_dioxide -> C511PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1228============================
@@ -4924,7 +4924,7 @@ C517CO3 + nitric_oxide-> C517O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1232============================
-C517CO3 + nitric_dioxide -> C517PAN + nitric_dioxide
+C517CO3 + nitrogen_dioxide -> C517PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1233============================
@@ -5128,7 +5128,7 @@ MGLYOO + nitric_oxide-> MGLYOX + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================1283============================
-MGLYOO + nitric_dioxide -> MGLYOX + nitric_dioxide
+MGLYOO + nitrogen_dioxide -> MGLYOX + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================1284============================
@@ -5220,7 +5220,7 @@ CO2C3CO3 + nitric_oxide-> CH3COCH2O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1306============================
-CO2C3CO3 + nitric_dioxide -> CO2C3PAN + nitric_dioxide
+CO2C3CO3 + nitrogen_dioxide -> CO2C3PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1307============================
@@ -5352,7 +5352,7 @@ C721CO3 + nitric_oxide-> C721O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1339============================
-C721CO3 + nitric_dioxide -> C721PAN + nitric_dioxide
+C721CO3 + nitrogen_dioxide -> C721PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1340============================
@@ -5416,7 +5416,7 @@ HOCH2CO3 + nitric_oxide-> HCHO + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1355============================
-HOCH2CO3 + nitric_dioxide -> PHAN + nitric_dioxide
+HOCH2CO3 + nitrogen_dioxide -> PHAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1356============================
@@ -5476,7 +5476,7 @@ H3C2C4CO3 + nitric_oxide-> HMVKAO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1370============================
-H3C2C4CO3 + nitric_dioxide -> H3C2C4PAN + nitric_dioxide
+H3C2C4CO3 + nitrogen_dioxide -> H3C2C4PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1371============================
@@ -5604,7 +5604,7 @@ CHOC2CO3 + nitric_oxide-> CHOC2H4O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1402============================
-CHOC2CO3 + nitric_dioxide -> CHOC2PAN + nitric_dioxide
+CHOC2CO3 + nitrogen_dioxide -> CHOC2PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1403============================
@@ -5928,7 +5928,7 @@ C518CO3 + nitric_oxide-> ISOPDO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1483============================
-C518CO3 + nitric_dioxide -> C518PAN + nitric_dioxide
+C518CO3 + nitrogen_dioxide -> C518PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1484============================
@@ -6044,7 +6044,7 @@ CO2C4CO3 + nitric_oxide-> MEKAO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1512============================
-CO2C4CO3 + nitric_dioxide -> C5PAN2 + nitric_dioxide
+CO2C4CO3 + nitrogen_dioxide -> C5PAN2 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1513============================
@@ -6080,7 +6080,7 @@ MACRNCO3 + nitric_oxide-> ACETOL + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1521============================
-MACRNCO3 + nitric_dioxide -> MACRNPAN + nitric_dioxide
+MACRNCO3 + nitrogen_dioxide -> MACRNPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1522============================
@@ -6108,7 +6108,7 @@ MACRNBCO3 + nitric_oxide-> NOA + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1528============================
-MACRNBCO3 + nitric_dioxide -> MACRNBPAN + nitric_dioxide
+MACRNBCO3 + nitrogen_dioxide -> MACRNBPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1529============================
@@ -6128,7 +6128,7 @@ CHOMOHCO3 + nitric_oxide-> MGLYOX + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1533============================
-CHOMOHCO3 + nitric_dioxide -> CHOMOHPAN + nitric_dioxide
+CHOMOHCO3 + nitrogen_dioxide -> CHOMOHPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1534============================
@@ -6248,7 +6248,7 @@ C732CO3 + nitric_oxide-> C732O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1563============================
-C732CO3 + nitric_dioxide -> C732PAN + nitric_dioxide
+C732CO3 + nitrogen_dioxide -> C732PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1564============================
@@ -6268,7 +6268,7 @@ CO23C4CO3 + nitric_oxide-> BIACETO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1568============================
-CO23C4CO3 + nitric_dioxide -> C5PAN9 + nitric_dioxide
+CO23C4CO3 + nitrogen_dioxide -> C5PAN9 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1569============================
@@ -6288,7 +6288,7 @@ C312COCO3 + nitric_oxide-> CHOCOCH2O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1573============================
-C312COCO3 + nitric_dioxide -> C312COPAN + nitric_dioxide
+C312COCO3 + nitrogen_dioxide -> C312COPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1574============================
@@ -6536,7 +6536,7 @@ HCOCO3 + nitric_oxide-> NO
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1635============================
-HCOCO3 + nitric_dioxide -> nitric_dioxide
+HCOCO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1636============================
@@ -6556,7 +6556,7 @@ C515CO3 + nitric_oxide-> C515O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1640============================
-C515CO3 + nitric_dioxide -> C515PAN + nitric_dioxide
+C515CO3 + nitrogen_dioxide -> C515PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1641============================
@@ -6720,7 +6720,7 @@ HOC2H4CO3 + nitric_oxide-> HOCH2CH2O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1681============================
-HOC2H4CO3 + nitric_dioxide -> C3PAN1 + nitric_dioxide
+HOC2H4CO3 + nitrogen_dioxide -> C3PAN1 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1682============================
@@ -6820,7 +6820,7 @@ HMVKBCO3 + nitric_oxide-> HMVKBO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1706============================
-HMVKBCO3 + nitric_dioxide -> HMVKBPAN + nitric_dioxide
+HMVKBCO3 + nitrogen_dioxide -> HMVKBPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1707============================
@@ -6992,7 +6992,7 @@ C624CO3 + nitric_oxide-> C624O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1749============================
-C624CO3 + nitric_dioxide -> C624PAN + nitric_dioxide
+C624CO3 + nitrogen_dioxide -> C624PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1750============================
@@ -7056,7 +7056,7 @@ CONM2CO3 + nitric_oxide-> MGLYOX + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1765============================
-CONM2CO3 + nitric_dioxide -> CONM2PAN + nitric_dioxide
+CONM2CO3 + nitrogen_dioxide -> CONM2PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1766============================
@@ -7096,7 +7096,7 @@ IPRHOCO3 + nitric_oxide-> CH3COCH3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1775============================
-IPRHOCO3 + nitric_dioxide -> C4PAN5 + nitric_dioxide
+IPRHOCO3 + nitrogen_dioxide -> C4PAN5 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1776============================
@@ -7324,7 +7324,7 @@ CO2H3CO3 + nitric_oxide-> MGLYOX + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1832============================
-CO2H3CO3 + nitric_dioxide -> C4PAN6 + nitric_dioxide
+CO2H3CO3 + nitrogen_dioxide -> C4PAN6 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1833============================
@@ -7396,7 +7396,7 @@ C615CO3 + nitric_oxide-> C615O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1850============================
-C615CO3 + nitric_dioxide -> C615PAN + nitric_dioxide
+C615CO3 + nitrogen_dioxide -> C615PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1851============================
@@ -7432,7 +7432,7 @@ C617CO3 + nitric_oxide-> C617O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1859============================
-C617CO3 + nitric_dioxide -> C617PAN + nitric_dioxide
+C617CO3 + nitrogen_dioxide -> C617PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1860============================
@@ -7452,7 +7452,7 @@ C618CO3 + nitric_oxide-> C618O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1864============================
-C618CO3 + nitric_dioxide -> C618PAN + nitric_dioxide
+C618CO3 + nitrogen_dioxide -> C618PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1865============================
@@ -7888,7 +7888,7 @@ NC61CO3 + nitric_oxide-> CO235C5CHO + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================1973============================
-NC61CO3 + nitric_dioxide -> NC6PAN1 + nitric_dioxide
+NC61CO3 + nitrogen_dioxide -> NC6PAN1 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================1974============================
@@ -8220,7 +8220,7 @@ NC4OO + nitric_oxide-> MVKNO3 + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2056============================
-NC4OO + nitric_dioxide -> MVKNO3 + nitric_dioxide
+NC4OO + nitrogen_dioxide -> MVKNO3 + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2057============================
@@ -8368,7 +8368,7 @@ C519CO3 + nitric_oxide-> C519O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2093============================
-C519CO3 + nitric_dioxide -> C519PAN + nitric_dioxide
+C519CO3 + nitrogen_dioxide -> C519PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2094============================
@@ -8484,7 +8484,7 @@ COHM2CO3 + nitric_oxide-> GLYOX + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2122============================
-COHM2CO3 + nitric_dioxide -> COHM2PAN + nitric_dioxide
+COHM2CO3 + nitrogen_dioxide -> COHM2PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2123============================
@@ -8588,7 +8588,7 @@ H1C23C4CO3 + nitric_oxide-> H1C23C4O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2148============================
-H1C23C4CO3 + nitric_dioxide -> H1C23C4PAN + nitric_dioxide
+H1C23C4CO3 + nitrogen_dioxide -> H1C23C4PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2149============================
@@ -8644,7 +8644,7 @@ CO1M22CO3 + nitric_oxide-> IBUTALCO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2162============================
-CO1M22CO3 + nitric_dioxide -> CO1M22PAN + nitric_dioxide
+CO1M22CO3 + nitrogen_dioxide -> CO1M22PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2163============================
@@ -8680,7 +8680,7 @@ C67CO3 + nitric_oxide-> C55O2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2171============================
-C67CO3 + nitric_dioxide -> nitric_dioxide
+C67CO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2172============================
@@ -8700,7 +8700,7 @@ CO2N3CO3 + nitric_oxide-> MGLYOX + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2176============================
-CO2N3CO3 + nitric_dioxide -> CO2N3PAN + nitric_dioxide
+CO2N3CO3 + nitrogen_dioxide -> CO2N3PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2177============================
@@ -8960,7 +8960,7 @@ HC4CCO3 + nitric_oxide-> CH3CO3 + HOCH2CHO + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2241============================
-HC4CCO3 + nitric_dioxide -> C5PAN19 + nitric_dioxide
+HC4CCO3 + nitrogen_dioxide -> C5PAN19 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2242============================
@@ -9096,7 +9096,7 @@ CH3COCO3 + nitric_oxide-> CH3CO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2275============================
-CH3COCO3 + nitric_dioxide -> CH3COPAN + nitric_dioxide
+CH3COCO3 + nitrogen_dioxide -> CH3COPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2276============================
@@ -9272,7 +9272,7 @@ C57NO3CO3 + nitric_oxide-> HO12CO3C4 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2319============================
-C57NO3CO3 + nitric_dioxide -> nitric_dioxide
+C57NO3CO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2320============================
@@ -9320,7 +9320,7 @@ INDHPCO3 + nitric_oxide-> MVKNO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2331============================
-INDHPCO3 + nitric_dioxide -> nitric_dioxide
+INDHPCO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2332============================
@@ -9340,7 +9340,7 @@ INB1NACO3 + nitric_oxide-> MACRNO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2336============================
-INB1NACO3 + nitric_dioxide -> nitric_dioxide
+INB1NACO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2337============================
@@ -9360,7 +9360,7 @@ INB1NBCO3 + nitric_oxide-> MVKNO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2341============================
-INB1NBCO3 + nitric_dioxide -> nitric_dioxide
+INB1NBCO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2342============================
@@ -9380,7 +9380,7 @@ INDHCO3 + nitric_oxide-> MVKNO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2346============================
-INDHCO3 + nitric_dioxide -> nitric_dioxide
+INDHCO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2347============================
@@ -9432,7 +9432,7 @@ HC4ACO3 + nitric_oxide-> ACETOL + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2359============================
-HC4ACO3 + nitric_dioxide -> C5PAN17 + nitric_dioxide
+HC4ACO3 + nitrogen_dioxide -> C5PAN17 + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2360============================
@@ -9472,7 +9472,7 @@ GAOO + nitric_oxide-> HOCH2CHO + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2369============================
-GAOO + nitric_dioxide -> HOCH2CHO + nitric_dioxide
+GAOO + nitrogen_dioxide -> HOCH2CHO + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2370============================
@@ -9492,7 +9492,7 @@ NC3OO + nitric_oxide-> NOA + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2374============================
-NC3OO + nitric_dioxide -> NOA + nitric_dioxide
+NC3OO + nitrogen_dioxide -> NOA + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2375============================
@@ -9580,7 +9580,7 @@ GLYOO + nitric_oxide-> GLYOX + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2396============================
-GLYOO + nitric_dioxide -> GLYOX + nitric_dioxide
+GLYOO + nitrogen_dioxide -> GLYOX + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2397============================
@@ -9600,7 +9600,7 @@ C3MCODBCO3 + nitric_oxide-> 3.500E-01 MGLYOX + 6.500E-01 MMALANHY + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2401============================
-C3MCODBCO3 + nitric_dioxide -> C3MCODBPAN + nitric_dioxide
+C3MCODBCO3 + nitrogen_dioxide -> C3MCODBPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2402============================
@@ -9620,7 +9620,7 @@ MC3CODBCO3 + nitric_oxide-> 3.500E-01 GLYOX + 3.500E-01 CH3O2 + 6.500E-01 MMALAN
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2406============================
-MC3CODBCO3 + nitric_dioxide -> MC3CODBPAN + nitric_dioxide
+MC3CODBCO3 + nitrogen_dioxide -> MC3CODBPAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2407============================
@@ -9764,7 +9764,7 @@ IECCO3 + nitric_oxide-> MACRO2 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2442============================
-IECCO3 + nitric_dioxide -> nitric_dioxide
+IECCO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2443============================
@@ -9804,7 +9804,7 @@ ACLOO + nitric_oxide-> ACETOL + nitric_oxide
 %1.0E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2452============================
-ACLOO + nitric_dioxide -> ACETOL + nitric_dioxide
+ACLOO + nitrogen_dioxide -> ACETOL + nitrogen_dioxide
 %1.0E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2453============================
@@ -9860,7 +9860,7 @@ M3FOO + nitric_oxide-> C532CO + nitric_oxide
 %1.00E-14
 KINETIC ARR 1.000E-14 0 0
 %=========================2466============================
-M3FOO + nitric_dioxide -> C532CO + nitric_dioxide
+M3FOO + nitrogen_dioxide -> C532CO + nitrogen_dioxide
 %1.00E-15
 KINETIC ARR 1.000E-15 0 0
 %=========================2467============================
@@ -10004,7 +10004,7 @@ HPC52CO3 + nitric_oxide-> DHPMPAL + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2502============================
-HPC52CO3 + nitric_dioxide -> nitric_dioxide
+HPC52CO3 + nitrogen_dioxide -> nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2503============================
@@ -10052,7 +10052,7 @@ C58NO3CO3 + nitric_oxide-> MACRNO3 + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2514============================
-C58NO3CO3 + nitric_dioxide -> C58NO3PAN + nitric_dioxide
+C58NO3CO3 + nitrogen_dioxide -> C58NO3PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2515============================
@@ -10120,7 +10120,7 @@ C31CO3 + nitric_oxide-> CHOOCHO + nitric_oxide
 %KAPNO
 KINETIC ARR 7.500E-12 0 -290.00
 %=========================2531============================
-C31CO3 + nitric_dioxide -> C31PAN + nitric_dioxide
+C31CO3 + nitrogen_dioxide -> C31PAN + nitrogen_dioxide
 %KFPAN
 KINETIC EXTRA 93 21 1.0
 %=========================2532============================

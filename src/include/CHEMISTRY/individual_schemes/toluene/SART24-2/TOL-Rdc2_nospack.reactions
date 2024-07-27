@@ -61,7 +61,7 @@ TOL4OH + hydroxyl -> 0.07  MBQN3OH + hydroxyl
 KINETIC ARR 2.5E-10 0 0
 %
 %=========================13============================
-BTOL5OH2O + nitric_dioxide -> TOL3OH1NO2 + nitric_dioxide
+BTOL5OH2O + nitrogen_dioxide -> TOL3OH1NO2 + nitrogen_dioxide
 %0.208E-11*6.8799E-01
 KINETIC ARR 1.431E-12 0 0
 %=========================14============================
@@ -141,7 +141,7 @@ UD5000 ->
 %J<Tab>
 KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
 %=========================33============================
-2D6001 + nitric_dioxide -> PU5002 + nitric_dioxide
+2D6001 + nitrogen_dioxide -> PU5002 + nitrogen_dioxide
 %0.330E-08*TEMP**-1.0*EXP(-0./TEMP)*9.9955E-01*2.9911E-01
 KINETIC ARR 9.866E-10 -1.0 -0.00
 %=========================34============================
@@ -157,7 +157,7 @@ PU5002 -> 9.560E-01 3U5002 + 4.403E-02 2D6001
 %2.00E+15*EXP(-12800.00/TEMP)
 KINETIC ARR 2.000E+15 0 12800.00
 %=========================37============================
-3U5002 + nitric_dioxide -> PU5002 + nitric_dioxide
+3U5002 + nitrogen_dioxide -> PU5002 + nitrogen_dioxide
 %0.330E-08*TEMP**-1.0*EXP(-0./TEMP)
 KINETIC ARR 0.330E-08 -1.0 0.
 %=========================38============================
@@ -181,7 +181,7 @@ DK3000 -> IRDK3000
 %Tab
 KINETIC IRDICARB 2 
 %=========================43============================
-2P500A + nitric_dioxide -> PP4000 + nitric_dioxide
+2P500A + nitrogen_dioxide -> PP4000 + nitrogen_dioxide
 %0.330E-08*TEMP**-1.0*EXP(-0./TEMP)
 KINETIC ARR 0.330E-08 -1.0 0.
 %=========================44============================
