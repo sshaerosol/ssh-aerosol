@@ -50,12 +50,12 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_rdc/TOL-VIC_nospack.species",                    !Species list
-reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_rdc/TOL-VIC_chamber_nospack.reactions",
+species_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_SART24-2/TOL-VIC_nospack.species",                    !Species list
+reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber_SART24-2/TOL-VIC_chamber_nospack.reactions",
 /
 
 &aerosol_species
-aerosol_species_list_file = "./species-list/species-list-aer-TOLexp-rdc.dat",        !Aerosol species list
+aerosol_species_list_file = "./species-list/species-list-aer-TOLexp-SART24-2.dat",        !Aerosol species list
 /
 
 &physic_gas_chemistry
@@ -124,7 +124,7 @@ with_nucl = 0,                !Tag of nucleation - Need to have lower diameter a
 /
 
 &output
-output_directory = "results/toluene-aft/toluene-aft-ideal-rdc/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/toluene-aft/toluene-aft-ideal-SART24-2/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "INIT/fractions.txt"
 /

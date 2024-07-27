@@ -9,9 +9,9 @@ import numpy, pylab
 plt.ioff()
 ################### input parameters #################################"
 dir1 = '../results/toluene-aft/toluene-aft-ideal/aero/'
-dir2 = '../results/toluene-aft/toluene-aft-ideal-rdc/aero/'
-dir3 = '../results/toluene-aft/toluene-aft-ideal-rdcRm1/aero/'
-dir4 = '../results/toluene-aft/toluene-aft-ideal-rdcH2O/aero/'
+dir2 = '../results/toluene-aft/toluene-aft-ideal-SART24-2/aero/'
+dir3 = '../results/toluene-aft/toluene-aft-ideal-SART24-1/aero/'
+dir4 = '../results/toluene-aft/toluene-aft-ideal-H2O/aero/'
 
 Nt= 156
 #####################################################################
@@ -29,13 +29,13 @@ uniRm1=np.zeros(shape)
 uniH2O=np.zeros(shape)
 
 
-with open (dir1+'Organic.5.txt') as finit :
+with open (dir1+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   ide[j] = float(string_conc1[j])
 
 
-with open (dir2+'Organic.5.txt') as finit :
+with open (dir2+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   uni[j] = float(string_conc1[j])
@@ -47,12 +47,12 @@ with open (dir2+'PC7H9O9_1.txt') as finit :
                   aio[j] = float(string_conc1[j])
 
 
-with open (dir3+'Organic.5.txt') as finit :
+with open (dir3+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   uniRm1[j] = float(string_conc1[j])
 
-with open (dir4+'Organic.5.txt') as finit :
+with open (dir4+'Organic.txt') as finit :
         string_conc = finit.read().splitlines()
         for j in range(Nt) :
                   uniH2O[j] = float(string_conc[j])
@@ -67,11 +67,11 @@ fig = plt.figure()
 fig = plt.figure(1,figsize = (15,15))
 #plt.ylim(0.,30.)
 plt.grid()
-plt.plot(time,ide,'k-',label='Ideal')
-plt.plot(time,uni,'b--',label='Ideal rdc')
-plt.plot(time,aio,'r-.',label='ipso-BPR SOA')
-plt.plot(time,uniRm1,'g-',label='Ideal rdc MCM')
-plt.plot(time,uniH2O,'m-',label='Ideal rdc H$^2$O')
+plt.plot(time,ide,'k-',label='Full')
+plt.plot(time,uni,'b--',label='Rdc SART24-2')
+plt.plot(time,aio,'r-.',label='iBPR SOA (SART24-2)')
+plt.plot(time,uniRm1,'g-',label='Rdc SART24-1')
+plt.plot(time,uniH2O,'m-',label='Rdc H$^2$O')
 plt.ylabel("SOA [$\mu g.m^{-3}$]", fontsize=18)
 plt.xlabel("time [min]", fontsize=18)
 plt.legend(loc=2)
