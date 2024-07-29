@@ -1830,11 +1830,39 @@ contains
     double precision :: tmp_conc
     integer, dimension(:), allocatable :: tmp_index ! (gas/aero, sps index, ref sps index)
     double precision, dimension(:), allocatable :: tmp_read, tmp_fgls
-  
+
+    integer :: num_columns
+    character(len=1000) line
+    character(len=1) :: char
+    logical :: in_word
+    
     if (nspecies>0) then
        index_species_ssh(:)=-1
     endif
+
+    write(*,*) 'Read ', aerosol_species_list_file
     
+    ! Get the number of columns
+    open(unit = 12, file = aerosol_species_list_file, status = "old")
+    read(12, '(A)') line
+
+    num_columns = 0
+    in_word = .false.
+    
+    do i = 1, len_trim(line)
+       char = line(i:i)
+       if (char /= ' ' .and. .not. in_word) then
+          in_word = .true.
+          num_columns = num_columns + 1
+       else if (char == ' ') then
+          in_word = .false.
+       end if
+    enddo
+          
+    write(*,*) 'number of columns = ', num_columns
+
+    rewind 12
+   
     ! read aerosol species namelist ! unit = 12
     open(unit = 12, file = aerosol_species_list_file, status = "old")
     count = 0
@@ -1976,9 +2004,9 @@ contains
           !! Check if a precursor name is found in the list of gas-phase species.
           if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
              if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
-                  trim(aerosol_species_list_file), trim(precursor)
+                  trim(aerosol_species_list_file), ' ', trim(precursor)
              if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
-                  trim(aerosol_species_list_file), trim(precursor)
+                  trim(aerosol_species_list_file), ' ', trim(precursor)
              stop
           endif
        endif
