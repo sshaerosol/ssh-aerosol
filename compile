@@ -89,6 +89,7 @@ fi
 if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
     # available gas-phase mechanisms: cb05-ozone
 
+    # ====== User input =====
     # 1: cb05-ozone
     if [ $chemistry == "cb05-ozone" ]; then
         specieslist="_ciCB05_poa.species"
@@ -102,6 +103,11 @@ if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
         echo "compile -b=$iscombining -c=cb05-ozone"
         exit 0
     fi
+
+    usrcfg="user_defined_scheme_rdc.cfg"
+    matching="species_matching_rdc.dat"
+    # ====== End of User input =====
+
     
     cd src/include/CHEMISTRY/$chemistry
     cwd=$PWD
@@ -111,7 +117,7 @@ if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
     ln -s ../../../script/user_defined_scheme.py
     (
         set -e
-        python3 combine_files.py $specieslist $reactionlist $iscombining
+        python3 combine_files.py --species  $specieslist --reaction $reactionlist --scheme $iscombining --usrcfg $usrcfg --matching $matching
     )
     errorCode=$?
     if [ $errorCode -ne 0 ]; then

@@ -1,0 +1,2 @@
+# Name Type group ID	MW       Precursor   coll_fac        mole_diam       surf_tens accomod  mass_dens non-volatile  partitioning  smiles psat_torr  dHvap	Henry	Tref
+PH2O	9    0	        18.0 	--           1.000D10        1.000D10        0.d0      1.0    1.00D-06      0           BOTH          -       0.         0.     0.      0.

@@ -13,6 +13,7 @@ def append_aerosol_species(new_species, file_out, opt_write):
             f2.write('\t'.join(line))
             f2.write("\n")
 
+            
 def copy_reactions(file_in, file_out, opt_write):
 
     with open(file_in, 'r', encoding = "UTF-8") as f1, \
@@ -111,6 +112,8 @@ def add_aerosol_scheme(section,
                                aerosol_properties_scheme):
         if spe in aerosol_species_name:
             print(spe + " exists")
+        elif spe == "PH2O":
+            print(spe + " is skipped.")
         else:
             aerosol_species_name.append(spe)
             aerosol_properties.append(properties)
@@ -212,8 +215,6 @@ def user_defined_scheme(options_list, configfile):
         section = opt
         if (options_list.get(opt)):
             print ("===== " + opt + " ====")
-
-            
             
             species_name, species_weight, reactions = \
                 add_scheme(section,

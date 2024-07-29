@@ -9,9 +9,7 @@ import os
 import string
 import sys
 
-matching_file="species_matching.dat" 
-
-def read_matching_file():
+def read_matching_file(matching_file):
 
     old = []
     new = []

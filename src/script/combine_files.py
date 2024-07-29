@@ -10,9 +10,17 @@ import string
 import sys
 from replacement_species import *
 from user_defined_scheme import *
-import configparser
+import configparser, argparse
 
 config = configparser.ConfigParser()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--usrcfg', type = str)
+parser.add_argument('--species', type = str)
+parser.add_argument('--reactions', type = str)
+parser.add_argument('--scheme', type = str)
+parser.add_argument('--matching', type = str)
+args = parser.parse_args()
 
 Ns = None
 Ns_gas = None
@@ -30,9 +38,10 @@ reactions_h2o = "../h2o/h2o.reactions"
 
 """
 
-species_gas = sys.argv[1]
-reactions_gas = sys.argv[2]
-scheme = sys.argv[3]
+species_gas = args.species # sys.argv[1]
+reactions_gas = args.reactions # sys.argv[2]
+scheme = args.scheme # sys.argv[3]
+matching_file = args.matching
 
 """
 Selection of schemes
@@ -44,8 +53,7 @@ elif scheme == "user":
     
 if user_defined == True:
 
-
-    config_inputfile = 'user_defined_scheme.cfg'
+    config_inputfile = args.usrcfg
     config_outputfile = 'user_defined_scheme_tmp.cfg'
     with open(config_inputfile, 'r') as file:
         lines = file.readlines()
@@ -79,7 +87,8 @@ else:
     species_aerosol = "../h2o/species-list-aer-h2o.dat"
 
 
-species_inorganic_aerosol = "../inorganic/species-list-aer-inorg.dat"    
+species_inorganic_aerosol = "../inorganic/species-list-aer-inorg.dat"
+species_water_aerosol = "../inorganic/species-list-aer-water.dat"    
 print("Ozone species:", species_gas)
 print("SOA species:", species_precursor)
 print("SOA reactions:", reactions_precursor)
@@ -160,7 +169,7 @@ with open(reactions_gas,'r', encoding="UTF-8") as f1, open(reactions_out, 'w') a
 
 with open(reactions_precursor,'r', encoding="UTF-8") as f1, open(reactions_out, 'a') as f2:
 
-    species_matching = read_matching_file()
+    species_matching = read_matching_file(matching_file)
     
     # Jumps the title line.
     f1.readline()
@@ -194,29 +203,19 @@ with open("species-list-user.dat","w") as f:
         f.write(k.ljust(8))
         f.write(v)
 
-
-""" Write organic aerosol species list.
+""" Write header
 """
 output_filename = "species-list-aer-user.dat"
 header = "# Name Type group ID	MW       Precursor   coll_fac        " + \
     "mole_diam       surf_tens accomod  mass_dens non-volatile  " + \
     "partitioning  smiles psat_torr  dHvap	Henry	Tref\n"
-with open(output_filename,"w") as f, \
-     open(species_aerosol, "r") as f2:
+with open(output_filename,"w") as f:
     f.write(header)
-    f2.readline()
-    for line in f2:
-        line = line.strip()
-        if not line or line[0] in "#%!-":
-            continue # comment
-        
-        f.write(line)
-        f.write("\n")
+       
 
 """ Write inorganic aerosol species list. This should be called after 
 the organic aerosol species.
 """
-       
 with open(output_filename,"a") as f, \
      open(species_inorganic_aerosol, "r") as f2:
     f2.readline()
@@ -227,6 +226,34 @@ with open(output_filename,"a") as f, \
         
         f.write(line)
         f.write("\n")
+
+        
+
+""" Write organic aerosol species list.
+"""
+with open(output_filename,"a") as f, \
+     open(species_aerosol, "r") as f2:
+    f2.readline()
+    for line in f2:
+        line = line.strip()
+        if not line or line[0] in "#%!-":
+            continue # comment
+        
+        f.write(line)
+        f.write("\n")
+
+""" Write waterc aerosol species list. This should be called last.
+"""
+with open(output_filename,"a") as f, \
+     open(species_water_aerosol, "r") as f2:
+    f2.readline()
+    for line in f2:
+        line = line.strip()
+        if not line or line[0] in "#%!-":
+            continue # comment
+        
+        f.write(line)
+        f.write("\n")        
         
 
         
