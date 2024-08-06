@@ -104,8 +104,8 @@ if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
         exit 0
     fi
 
-    usrcfg="user_defined_scheme_rdc.cfg"
-    matching="species_matching_rdc.dat"
+    usrcfg="user_defined_scheme.cfg" # "user_defined_scheme_rdc.cfg"
+    matching="species_matching.dat" # "species_matching_rdc.dat"
     # ====== End of User input =====
 
     
@@ -146,15 +146,20 @@ scons -j8 profile=$profile chemistry=$chemistry openmp=$openmp sharedlib=$shared
 cd ..
 ln -s src/ssh-aerosol ssh-aerosol
 
-path_ro2=$PWD/src/include/CHEMISTRY/user_defined/ro2_species.dat 
 
 if [[ $iscombining != "no" ]]; then
+    
+    rootdir=$PWD
+    path_ro2=$PWD/src/include/CHEMISTRY/user_defined/ro2_species.dat
+    cd $cwd
+    ln -s $path_ro2
     echo 
     echo "New files have been generated."
     echo "Please use these files in namelist.ssh"
     echo "--- reactions: $cwd/combined_reactions.dat"
     echo "--- gas-phase speices: $cwd/species-list-user.dat"
     echo "--- aerosol species: $cwd/species-list-aer-user.dat"
-    echo "--- ro2 species: $path_ro2"
+    echo "--- ro2 species: $cwd/ro2_species.dat"
     echo
+    cd $rootdir
 fi

@@ -90,6 +90,8 @@ src/include/CHEMISTRY/*/replacement_species.py
 src/include/CHEMISTRY/*/user_defined_scheme.py
 src/include/CHEMISTRY/*/species-list-user.dat
 src/include/CHEMISTRY/*/species-list-aer-user.dat
+src/include/CHEMISTRY/*/user_defined_scheme_tmp.cfg
+src/include/CHEMISTRY/*/ro2_species.dat
 
 ### Temporary files in example_using_so
 example_using_so/graph/*png

@@ -159,6 +159,7 @@ if [ $cleanall == "yes" ]; then
     rm -f `find -iname "replacement_species.py"`
     rm -f `find -iname "user_defined_scheme.py"`
     rm -f `find -iname "user_defined_scheme_tmp.cfg"`
+    rm -f `find -iname "ro2_species.dat"`
     cd $cwd
 fi
    
