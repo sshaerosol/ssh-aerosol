@@ -40,6 +40,24 @@ case $i in
     shift
     ;;
 
+# Read the option to choose the configuration file for 
+# the user-defined scheme.
+# Accepted values: file name
+# Default value is found below    
+    -u=*|--usrcfg=*)
+    usrcfg="${i#*=}"
+    shift
+    ;;
+
+# Read the option to choose the file for species matching of  
+# the user-defined scheme.
+# Accepted values: file name
+# Default value is found below    
+    -m=*|--matching=*)
+    matching="${i#*=}"
+    shift
+    ;;
+    
 esac
 done
 
@@ -104,8 +122,18 @@ if [[ $iscombining == "h2o" || $iscombining == "user" ]]; then
         exit 0
     fi
 
-    usrcfg="user_defined_scheme.cfg" # "user_defined_scheme_rdc.cfg"
-    matching="species_matching.dat" # "species_matching_rdc.dat"
+    # Default usrcfg
+    if [ -z $usrcfg ]; then                     
+        usrcfg="user_defined_scheme.cfg" # "user_defined_scheme_rdc.cfg"
+    fi
+    echo "usrcfg: $usrcfg"
+
+    # Default matching
+    if [ -z $matching ]; then                     
+        matching="species_matching.dat" # "species_matching_rdc.dat"
+    fi 
+    echo "matching file: $matching"
+    
     # ====== End of User input =====
 
     
