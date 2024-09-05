@@ -666,6 +666,8 @@ contains
 
     ! initial_condition
     wet_diam_estimation = -999
+    N_sizebin = 0
+    tag_dbd = 0
 
     ! genoa init - section initial_condition
     cst_gas_file= "---"
@@ -682,6 +684,11 @@ contains
        ! if it is not given in namelist
        if (wet_diam_estimation == -999) then
           wet_diam_estimation = 1
+       endif
+
+       if (N_sizebin .eq. 0) then
+          write(*,*) "N_sizebin must be provided in namelist (initial_condition)."
+          stop
        endif
        
        if (ssh_standalone) write(*,*) ''
@@ -765,6 +772,7 @@ contains
     end if
 
     ! emissions
+    tag_emis=0
     read(10, nml = emissions, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "emissions data can not be read."
@@ -806,7 +814,7 @@ contains
        end if
     end if
 
-
+    tag_external=0
     ! mixing_state
     read(10, nml = mixing_state, iostat = ierr)
     if (ierr .ne. 0) then
@@ -1371,6 +1379,8 @@ contains
     niter_eqconc=1
     niter_water=1
     NACL_IN_THERMODYNAMICS=0
+    with_cond=0    
+    activity_model=3
     read(10, nml = physic_condensation, iostat = ierr)
     if (ierr .ne. 0) then
        write(*,*) "physic_condensation data can not be read."
@@ -1481,6 +1491,7 @@ contains
     end if
 
     ! nucleation
+    with_nucl=0
     nucl_model_binary = 0
     nucl_model_ternary = 0
     scal_ternary = 1.0
