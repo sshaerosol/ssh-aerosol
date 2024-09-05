@@ -1,38 +1,38 @@
 % Converted from MT/Ref_MCM+PRAM_MT/Ref_MCM+PRAM_MT.reactions to NEWs/Ref_MT.reactions
 %=========================1============================
-alpha_pinene + nitrate_radical -> 6.500E-01 NAPINAO2 + 3.500E-01 NAPINBO2 + nitrate_radical
+alpha_pinene + nitrate_radical -> alpha_pinene + 6.500E-01 NAPINAO2 + 3.500E-01 NAPINBO2 + nitrate_radical
 %1.2E-12*EXP(490/TEMP)
 KINETIC ARR 1.200E-12 0 -490.00
 %=========================2============================
-alpha_pinene + ozone -> 2.970E-01 C107O2 + 2.430E-01 C109O2 + 6.000E-02 C10H15O2O2 + 2.000E-01 APINBOO + 2.000E-01 C96O2 + ozone
+alpha_pinene + ozone -> alpha_pinene + 2.970E-01 C107O2 + 2.430E-01 C109O2 + 6.000E-02 C10H15O2O2 + 2.000E-01 APINBOO + 2.000E-01 C96O2 + ozone
 %8.05E-16*EXP(-640/TEMP)
 KINETIC ARR 8.050E-16 0 640.00
 %=========================3============================
-alpha_pinene + hydroxyl -> 5.577E-01 APINAO2 + 3.442E-01 APINBO2 + 7.312E-02 APINCO2 + 2.500E-02 C10H17O3O2 + hydroxyl
+alpha_pinene + hydroxyl -> alpha_pinene + 5.577E-01 APINAO2 + 3.442E-01 APINBO2 + 7.312E-02 APINCO2 + 2.500E-02 C10H17O3O2 + hydroxyl
 %1.2E-11*EXP(440/TEMP)
 KINETIC ARR 1.200E-11 0 -440.00
 %=========================4============================
-beta_pinene + nitrate_radical -> 8.000E-01 NBPINAO2 + 2.000E-01 NBPINBO2 + nitrate_radical
+beta_pinene + nitrate_radical -> beta_pinene + 8.000E-01 NBPINAO2 + 2.000E-01 NBPINBO2 + nitrate_radical
 %2.51E-12
 KINETIC ARR 2.510E-12 0 0
 %=========================5============================
-beta_pinene + ozone -> 4.000E-01 NOPINONE + 1.480E-01 CH2OO + 1.980E-01 C8BC + 3.000E-01 NOPINDO2 + 1.020E-01 NOPINOO + ozone
+beta_pinene + ozone -> beta_pinene + 4.000E-01 NOPINONE + 1.480E-01 CH2OO + 1.980E-01 C8BC + 3.000E-01 NOPINDO2 + 1.020E-01 NOPINOO + ozone
 %1.35E-15*EXP(-1270/TEMP)
 KINETIC ARR 1.350E-15 0 1270.00
 %=========================6============================
-beta_pinene + hydroxyl -> 8.405E-01 BPINAO2 + 7.524E-02 BPINBO2 + 7.425E-02 BPINCO2 + 1.000E-02 C10H17O3O2 + hydroxyl
+beta_pinene + hydroxyl -> beta_pinene + 8.405E-01 BPINAO2 + 7.524E-02 BPINBO2 + 7.425E-02 BPINCO2 + 1.000E-02 C10H17O3O2 + hydroxyl
 %2.38E-11*EXP(357/TEMP)
 KINETIC ARR 2.380E-11 0 -357.00
 %=========================7============================
-limonene + nitrate_radical -> NLIMO2 + nitrate_radical
+limonene + nitrate_radical -> limonene + NLIMO2 + nitrate_radical
 %1.22E-11
 KINETIC ARR 1.220E-11 0 0
 %=========================8============================
-limonene + ozone -> 2.555E-01 LIMALAO2 + 2.555E-01 LIMALBO2 + 2.190E-01 C10H15O2O2 + 1.350E-01 C923O2 + 1.350E-01 LIMBOO + ozone
+limonene + ozone -> limonene + 2.555E-01 LIMALAO2 + 2.555E-01 LIMALBO2 + 2.190E-01 C10H15O2O2 + 1.350E-01 C923O2 + 1.350E-01 LIMBOO + ozone
 %2.80E-15*EXP(-770/TEMP)
 KINETIC ARR 2.800E-15 0 770.00
 %=========================9============================
-limonene + hydroxyl -> 4.039E-01 LIMAO2 + 2.198E-01 LIMBO2 + 3.663E-01 LIMCO2 + 1.000E-02 C10H17O3O2 + hydroxyl
+limonene + hydroxyl -> limonene + 4.039E-01 LIMAO2 + 2.198E-01 LIMBO2 + 3.663E-01 LIMCO2 + 1.000E-02 C10H17O3O2 + hydroxyl
 %4.28E-11*EXP(401/TEMP)
 KINETIC ARR 4.280E-11 0 -401.00
 %=========================10============================

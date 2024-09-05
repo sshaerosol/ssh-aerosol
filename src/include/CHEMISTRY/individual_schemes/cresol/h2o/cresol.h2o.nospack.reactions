@@ -12,7 +12,7 @@
 %
 %------------
 %--------------------211--------------------
-CRESp + hydroxyl       -> 0.73 MCAT + hydroxyl
+CRESp + hydroxyl       -> CRESp + 0.73 MCAT + hydroxyl
 KINETIC ARR 4.65E-10 0 0
 %
 %--------------------212--------------------

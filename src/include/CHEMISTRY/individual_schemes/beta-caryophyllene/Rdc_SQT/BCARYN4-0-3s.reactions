@@ -1,16 +1,16 @@
 SET UNIT GAS MOLCM3
 SET TABULATION 11 DEGREES 0. 10. 20. 30. 40. 50. 60. 70. 78. 86. 90.
 %=========================1============================
-beta-caryophyllene + nitrate_radical -> NBCO2 + nitrate_radical
+beta-caryophyllene + nitrate_radical -> beta-caryophyllene + NBCO2 + nitrate_radical
 %1.90E-11
 KINETIC ARR1 1.900E-11
 %=========================2============================
-beta-caryophyllene + ozone -> ozone + 8.700E-01 BCAOO //
+beta-caryophyllene + ozone -> beta-caryophyllene + ozone + 8.700E-01 BCAOO //
      + 7.200E-02 BCALBO2 + 3.300E-02 BCSOZO2 + 2.000E-02 C136OOH
 %1.20E-14
 KINETIC ARR1 1.200E-14
 %=========================3============================
-beta-caryophyllene + hydroxyl -> hydroxyl + 6.300E-01 BCBO2 //
+beta-caryophyllene + hydroxyl -> beta-caryophyllene + hydroxyl + 6.300E-01 BCBO2 //
      + 3.700E-01 BCSOZO2
 %1.97E-10
 KINETIC ARR1 1.970E-10

@@ -20,7 +20,7 @@ CAT + hydroxyl       -> 0.28 ACIDMAL + hydroxyl
 KINETIC ARR 9.90E-10 0 0
 %
 %--------------------210--------------------
-BENZ + hydroxyl       -> 0.53 PHEN + hydroxyl
+BENZ + hydroxyl       -> BENZ + 0.53 PHEN + hydroxyl
 KINETIC ARR 2.30E-12 0 190.0
 %
 %

@@ -1,17 +1,17 @@
 %==========1==========
-beta_caryophyllene + nitrate_radical -> NBCO2 + nitrate_radical
+beta_caryophyllene + nitrate_radical -> beta_caryophyllene + NBCO2 + nitrate_radical
 %1.90E-11
 KINETIC ARR 1.900E-11 0 0
 %==========2==========
-beta_caryophyllene + ozone -> 1.300E-02 BCALAO2 + 6.700E-02 BCALBO2 + 1.500E-02 BCALBOC + 1.980E-02 BCALCO2 + 4.350E-01 BCAOO + 4.350E-01 BCBOO + 5.000E-03 C136O2 + 5.100E-03 C141CO2H + 5.100E-03 C141O2 + 5.000E-03 CH3O2 + ozone
+beta_caryophyllene + ozone -> beta_caryophyllene + 1.300E-02 BCALAO2 + 6.700E-02 BCALBO2 + 1.500E-02 BCALBOC + 1.980E-02 BCALCO2 + 4.350E-01 BCAOO + 4.350E-01 BCBOO + 5.000E-03 C136O2 + 5.100E-03 C141CO2H + 5.100E-03 C141O2 + 5.000E-03 CH3O2 + ozone
 %1.20E-14
 KINETIC ARR 1.200E-14 0 0
 %==========3==========
-beta_caryophyllene + hydroxyl -> 4.080E-01 BCAO2 + 2.220E-01 BCBO2 + 3.700E-01 BCCO2 + hydroxyl
+beta_caryophyllene + hydroxyl -> beta_caryophyllene + 4.080E-01 BCAO2 + 2.220E-01 BCBO2 + 3.700E-01 BCCO2 + hydroxyl
 %1.97E-10
 KINETIC ARR 1.970E-10 0 0
 %==========4==========
-HO2 + NBCO2 -> hydroperoxy + NBCOOH
+hydroperoxy + NBCO2 -> hydroperoxy + NBCOOH
 %KRO2HO2*0.975
 KINETIC ARR 2.837E-13 0 -1300.00
 %==========5==========
@@ -323,7 +323,7 @@ C141CO3 -> 3.000E-01 C141CO2H + 7.000E-01 C141O2
 %1.00E-11*RO2
 KINETIC RO2 1 ARR 1.000E-11 0 0
 %==========82==========
-HO2 + NBCALO2 -> hydroperoxy + NBCALOOH
+hydroperoxy + NBCALO2 -> hydroperoxy + NBCALOOH
 %KRO2HO2*0.975
 KINETIC ARR 2.837E-13 0 -1300.00
 %==========83==========
@@ -1007,7 +1007,7 @@ C1311O2 -> 3.000E-01 C1311OH + 7.000E-01 C1312O2
 %6.70E-15*RO2
 KINETIC RO2 1 ARR 6.700E-15 0 0
 %==========253==========
-HO2 + NC1313O2 -> hydroperoxy + NC1313OOH
+hydroperoxy + NC1313O2 -> hydroperoxy + NC1313OOH
 %KRO2HO2*0.959
 KINETIC ARR 2.791E-13 0 -1300.00
 %==========254==========
@@ -1099,7 +1099,7 @@ C142O2 -> 3.000E-01 C142OH + 7.000E-01 C143O2
 %6.70E-15*RO2
 KINETIC RO2 1 ARR 6.700E-15 0 0
 %==========276==========
-HO2 + NBCKO2 -> hydroperoxy + NBCKOOH
+hydroperoxy + NBCKO2 -> hydroperoxy + NBCKOOH
 %KRO2HO2*0.968
 KINETIC ARR 2.817E-13 0 -1300.00
 %==========277==========
@@ -2503,7 +2503,7 @@ C1010OH + hydroxyl -> C736CO + CH3COCH3 + hydroxyl
 %7.82E-11
 KINETIC ARR 7.820E-11 0 0
 %==========627==========
-HO2 + HOCH2CH2O2 -> hydroperoxy + HYETHO2H
+hydroperoxy + HOCH2CH2O2 -> hydroperoxy + HYETHO2H
 %1.53E-13*EXP(1300/TEMP)
 KINETIC ARR 1.530E-13 0 -1300.00
 %==========628==========
@@ -2519,7 +2519,7 @@ HOCH2CH2O2 -> 2.000E-01 ETHGLY + 6.000E-01 HOCH2CH2O + 2.000E-01 HOCH2CHO
 %2*(KCH3O2*7.8E-14*EXP(1000/TEMP))@0.5*RO2
 KINETIC RO2 1 ARR 1.7926e-13 0 -682.5
 %==========631==========
-HO2 + HOC2H4CO3 -> hydroperoxy + 1.500E-01 HOC2H4CO2H + 4.100E-01 HOC2H4CO3H + 4.400E-01 HOCH2CH2O2
+hydroperoxy + HOC2H4CO3 -> hydroperoxy + 1.500E-01 HOC2H4CO2H + 4.100E-01 HOC2H4CO3H + 4.400E-01 HOCH2CH2O2
 %KAPHO2
 KINETIC ARR 5.200E-13 0 -980.00
 %==========632==========
@@ -2667,7 +2667,7 @@ CO2C4CO3H + hydroxyl -> CO2C4CO3 + hydroxyl
 %9.17E-12
 KINETIC ARR 9.170E-12 0 0
 %==========668==========
-HO2 + MEKAO2 -> hydroperoxy + MEKAOOH
+hydroperoxy + MEKAO2 -> hydroperoxy + MEKAOOH
 %KRO2HO2*0.625
 KINETIC ARR 1.819E-13 0 -1300.00
 %==========669==========
@@ -2747,7 +2747,7 @@ HCOCO -> HCOCO3
 %5.00E-12*O2*3.2*EXP(-550/TEMP)
 KINETIC TB O2 ARR 1.600E-11 0 550.00
 %==========688==========
-HO2 + HOCH2CO3 -> 4.400E-01 HCHO + hydroperoxy + 1.500E-01 HOCH2CO2H + 4.100E-01 HOCH2CO3H
+hydroperoxy + HOCH2CO3 -> 4.400E-01 HCHO + hydroperoxy + 1.500E-01 HOCH2CO2H + 4.100E-01 HOCH2CO3H
 %KAPHO2
 KINETIC ARR 5.200E-13 0 -980.00
 %==========689==========
@@ -4271,7 +4271,7 @@ C6145COO2 -> C6TRONOHO2
 %2.00E-12*RO2
 KINETIC RO2 1 ARR 2.000E-12 0 0
 %==========1069==========
-HO2 + MPRBNO3O2 -> hydroperoxy + MPRBNO3OOH
+hydroperoxy + MPRBNO3O2 -> hydroperoxy + MPRBNO3OOH
 %KRO2HO2*0.625
 KINETIC ARR 1.819E-13 0 -1300.00
 %==========1070==========
@@ -4287,7 +4287,7 @@ MPRBNO3O2 -> 2.000E-01 IBUTOLBNO3 + 2.000E-01 MPRBNO3CHO + 6.000E-01 MPRBNO3O
 %1.30E-12*RO2
 KINETIC RO2 1 ARR 1.300E-12 0 0
 %==========1073==========
-HO2 + TBUTOLO2 -> hydroperoxy + TBUTOLOOH
+hydroperoxy + TBUTOLO2 -> hydroperoxy + TBUTOLOOH
 %5.60E-14*EXP(1650/TEMP)
 KINETIC ARR 5.600E-14 0 -1650.00
 %==========1074==========
@@ -4595,7 +4595,7 @@ C6TRONOHO2 -> HCOCH2CHO + HOCH2CO3
 %8.80E-13*RO2
 KINETIC RO2 1 ARR 8.800E-13 0 0
 %==========1150==========
-HO2 + MPRBNO3CO3 -> 4.400E-01 CH3COCH3 + hydroperoxy + 1.500E-01 MPRNO3CO2H + 4.100E-01 MPRNO3CO3H
+hydroperoxy + MPRBNO3CO3 -> 4.400E-01 CH3COCH3 + hydroperoxy + 1.500E-01 MPRNO3CO2H + 4.100E-01 MPRNO3CO3H
 %KAPHO2
 KINETIC ARR 5.200E-13 0 -980.00
 %==========1151==========
@@ -4615,7 +4615,7 @@ MPRBNO3CO3 -> 7.000E-01 CH3COCH3 + 3.000E-01 MPRNO3CO2H
 %1.00E-11*RO2
 KINETIC RO2 1 ARR 1.000E-11 0 0
 %==========1155==========
-HO2 + IPRHOCO3 -> 4.400E-01 CH3COCH3 + hydroperoxy + 1.500E-01 IPRHOCO2H + 4.100E-01 IPRHOCO3H
+hydroperoxy + IPRHOCO3 -> 4.400E-01 CH3COCH3 + hydroperoxy + 1.500E-01 IPRHOCO2H + 4.100E-01 IPRHOCO3H
 %KAPHO2
 KINETIC ARR 5.200E-13 0 -980.00
 %==========1156==========
@@ -4655,7 +4655,7 @@ COO2C3CO3 -> MOCOCH2O2
 %1.00E-11*RO2
 KINETIC RO2 1 ARR 1.000E-11 0 0
 %==========1165==========
-HO2 + MOCOCH2O2 -> hydroperoxy + MOCOCH2OOH
+hydroperoxy + MOCOCH2O2 -> hydroperoxy + MOCOCH2OOH
 %KRO2HO2*0.52
 KINETIC ARR 1.513E-13 0 -1300.00
 %==========1166==========
@@ -4683,7 +4683,7 @@ HM22CO3H + hydroxyl -> HM22CO3 + hydroxyl
 %1.75E-11
 KINETIC ARR 1.750E-11 0 0
 %==========1172==========
-HO2 + IBUTOLBO2 -> hydroperoxy + IBUTOLBO2H
+hydroperoxy + IBUTOLBO2 -> hydroperoxy + IBUTOLBO2H
 %KRO2HO2*0.625
 KINETIC ARR 1.819E-13 0 -1300.00
 %==========1173==========

@@ -2,6 +2,7 @@ hydroxyl OH
 alpha_pinene API
 limonene LIM
 beta_pinene BPI
+beta_caryophyllene HUM
 ozone O3
 nitrate_radical NO3
 hydroperoxy HO2
@@ -12,9 +13,10 @@ nitric_oxide NO
 xylene XYL
 isoprene ISOP
 nitrogen_dioxide NO2
-beta_caryophyllene HUM
+humulene HUM
 sulfur_dioxide SO2
 formaldehyde FORM
 nitric_acid HNO3
-peroxynitric_acid HNO4
+peroxynitricacid HNO4
 carbon_monoxide CO
+methanol MEOH
