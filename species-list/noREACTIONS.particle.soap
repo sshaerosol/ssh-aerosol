@@ -1,0 +1,12 @@
+#Type reaction 0: irreversible 1st order transformation
+# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, catalyzed by water?, catalyzed by pH?, is the reaction mass conserving (=1) or mol conserving (=0)
+#Type reaction 1: reversible 2nd order bulk oligomerisation
+# Based on Couvidat et al. (2018),  https://doi.org/10.5194/acp-18-15743-2018
+# Parameters: number_of_the_reaction_type, name of the reacting species, name of the produced species, kinetic parameter of the reaction, moligo (number of monomer block in monomers, equal to 2 for lowly oxidized compounds, 3.35 for others), Keq (equilibrium constant), is reaction catalyzed by H+ (0=no, 1=yes)
+#Type reaction 2: hydratation
+# Parameters: 
+# number_of_the_reaction_type, name of the reacting species, name of the produced species, hydratation constant
+# example: hydrataion of aldehydes, aldehydes + H2O = diol
+#Type reaction 3: reaction with ions
+# number_of_the_reaction_type, name of the reacting species, name of the reaction ion, name of the produced species, kinetic (mol/L s-1), catalyzed by pH?, catalyzed by water?, catalyzed by the ion (if equal to 0 the ion is consumed, 1 not)?
+#Type reaction 4: Pun and Seigneur (2007) parameterization for BiAOD
