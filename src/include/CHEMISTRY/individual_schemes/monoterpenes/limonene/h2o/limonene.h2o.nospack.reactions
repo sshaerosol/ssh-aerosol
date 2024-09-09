@@ -16,7 +16,7 @@ limonene + hydroxyl ->  0.35 BiA0D + 0.20 BiA1D + 0.0035 BiA2D + limonene + hydr
 KINETIC ARR 4.20E-11 0 -401.0
 %
 %--------------------161--------------------
-limonene + ozone ->  0.09 BiA0D + 0.10 BiA1D  + 0.0002 RO2 +   0.9 RpO2 + limonene + ozone
+limonene + ozone ->  0.09 BiA0D + 0.10 BiA1D  + 0.3 RO2 +   0.6 RpO2 + limonene + ozone
 KINETIC ARR 2.95E-15 0 783.0
 %
 %--------------------162--------------------
