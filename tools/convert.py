@@ -124,8 +124,7 @@ def convert_reaction_file(old, new):
                             parts[ind+2], parts[ind+3] = parts[ind+3], parts[ind+2]
                             parts[ind+5], parts[ind+6] = parts[ind+6], parts[ind+5]
                         # Chage k0 (C1-C3) and kinf locations (C4-C6)
-                        parts[ind+1:ind+3], parts[ind+4:ind+6] = parts[ind+4:ind+6], parts[ind+1:ind+3]
-                        
+                        parts[ind+1:ind+4], parts[ind+4:ind+7] = parts[ind+4:ind+7], parts[ind+1:ind+4]
                         if key != 'TROE10': parts.append('0 0 0')
                         else: print('Check TROE10 coefficients order!!!')
                     elif key == 'SPEC' and len(parts) == ind + 2 and parts[ind+1] in spec_keys:
