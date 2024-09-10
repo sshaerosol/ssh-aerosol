@@ -231,13 +231,15 @@ contains
 	jesp=isorropia_species(s)
 	if (aerosol_species_interact(jesp).gt.0) then!& .and.rhop.gt.1.d3
 	  emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
-	  call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+          if (with_kelvin_effect == 1) then
+            call ssh_COMPUTE_KELVIN_COEFFICIENT(&
 		  Temp,&          ! temperature (Kelvin)
 		  emw_tmp,&       ! ext mol weight (g.mol-1)
 		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
 		  Wet_diam_used,&         ! wet aero diameter (µm)
 		  rhop_tmp,&      ! aerosol density (kg.m-3)
 		  Kelvin_effect(jesp) )   ! kelvin effect coef (adim)
+           endif
 	endif
       enddo
 
