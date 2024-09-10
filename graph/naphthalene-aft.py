@@ -31,37 +31,39 @@ aio_no2=np.zeros(shape)
 aio_visc=np.zeros(shape)
 aio_visc_no2=np.zeros(shape)
 
-with open (dir1+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  ide[j] = float(string_conc1[j])
+filename = 'Organic.txt'
+
+with open (dir1+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        ide[j] = float(string_conc1[j])
                   
-with open (dir2+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  ide_no2[j] = float(string_conc1[j])
+with open (dir2+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        ide_no2[j] = float(string_conc1[j])
 
 
-with open (dir3+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  aio[j] = float(string_conc1[j])
+with open (dir3+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        aio[j] = float(string_conc1[j])
                   
-with open (dir4+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  aio_no2[j] = float(string_conc1[j])
+with open (dir4+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        aio_no2[j] = float(string_conc1[j])
                   
                   
-with open (dir5+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  aio_visc[j] = float(string_conc1[j])
+with open (dir5+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        aio_visc[j] = float(string_conc1[j])
 
-with open (dir6+'Organic.5.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  aio_visc_no2[j] = float(string_conc1[j])
+with open (dir6+filename) as finit :
+    string_conc1 = finit.read().splitlines()
+    for j in range(Nt) :
+        aio_visc_no2[j] = float(string_conc1[j])
                                    
 
 time=range(5,(Nt+1)*5,5)
