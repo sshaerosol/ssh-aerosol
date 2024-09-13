@@ -53,15 +53,15 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 
 &gas_phase_species
 !use the Automatic generated link
-species_list_file = "./src/include/CHEMISTRY/Ref_SQT/Ref_SQT.species",
-reaction_list_file = "./src/include/CHEMISTRY/Ref_SQT/Ref_SQT.reactions"
+species_list_file = "./src/include/CHEMISTRY/individual_schemes/beta-caryophyllene/Ref_SQT/Ref_SQT.species",
+reaction_list_file = "./src/include/CHEMISTRY/individual_schemes/beta-caryophyllene/Ref_SQT/Ref_SQT.reactions"
 /
 
 &aerosol_species
 !option 1: the species list includes lists of functional groups
 !aerosol_species_list_file = "./species-list/species-list-aer-mcm-bcary-fgl.dat",        !Aerosol species list
 !option 2: the functional group lists are provided separately in another file
-aerosol_species_list_file = "./src/include/CHEMISTRY/Ref_SQT/Ref_SQT.aer",
+aerosol_species_list_file = "./src/include/CHEMISTRY/individual_schemes/beta-caryophyllene/Ref_SQT/Ref_SQT.aer",
 aerosol_structure_file = "./species-list/aerosol-structure-mcm-bcary.dat ",
 /
 

@@ -13,6 +13,8 @@ do
     # run simulation
     ./ssh-aerosol $namelist.$i >> toto$i
     # move
+    resultdir="results/mcm-wFGL-tag_RO2-$i/"
+    mkdir -p $resultdir
     mv $namelist.$i results/mcm-wFGL-tag_RO2-$i/
     mv toto$i results/mcm-wFGL-tag_RO2-$i/
     # print
