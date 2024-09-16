@@ -31,12 +31,12 @@ irr1=np.zeros(shape)
 irr2=np.zeros(shape)
 irr3=np.zeros(shape)
 
-with open (dir1+'/Organic.5.txt') as finit :
+with open (dir1+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org1[j] = org1[j] + float(string_conc1[j])
 
-with open (dir2+'/Organic.5.txt') as finit :
+with open (dir2+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org2[j] = org2[j] + float(string_conc1[j])
@@ -45,7 +45,7 @@ with open (dir2+'/PirrSOA_1.txt') as finit :
         for j in range(Nt) :
                   irr2[j] = irr2[j] + float(string_conc1[j])                                    
 
-with open (dir3+'/Organic.5.txt') as finit :
+with open (dir3+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org3[j] = org3[j] + float(string_conc1[j])

@@ -27,22 +27,22 @@ org2=np.zeros(shape)
 org3=np.zeros(shape)
 org4=np.zeros(shape)
 
-with open (dir1+'/Organic.5.txt') as finit :
+with open (dir1+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org1[j] = org1[j] + float(string_conc1[j])
 
-with open (dir2+'/Organic.5.txt') as finit :
+with open (dir2+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org2[j] = org2[j] + float(string_conc1[j])
 
-with open (dir3+'/Organic.5.txt') as finit :
+with open (dir3+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org3[j] = org3[j] + float(string_conc1[j])
 
-with open (dir4+'/Organic.5.txt') as finit :
+with open (dir4+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org4[j] = org4[j] + float(string_conc1[j])

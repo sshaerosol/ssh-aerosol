@@ -27,24 +27,24 @@ uni=np.zeros(shape)
 aio=np.zeros(shape)
 aio_visc=np.zeros(shape)
 
-with open (dir1+'Organic.5.txt') as finit :
+with open (dir1+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   ide[j] = float(string_conc1[j])
 
 
-with open (dir2+'Organic.5.txt') as finit :
+with open (dir2+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   uni[j] = float(string_conc1[j])
 
 
-with open (dir3+'Organic.5.txt') as finit :
+with open (dir3+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   aio[j] = float(string_conc1[j])
                   
-with open (dir4+'Organic.5.txt') as finit :
+with open (dir4+'Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   aio_visc[j] = float(string_conc1[j])

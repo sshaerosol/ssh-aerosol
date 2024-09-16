@@ -8,6 +8,7 @@ from pylab import *
 from matplotlib.ticker import LogLocator, LogFormatter 
 from matplotlib import colors 
 from matplotlib import ticker
+import math
 # Turn interactive plotting off
 plt.ioff()
 
