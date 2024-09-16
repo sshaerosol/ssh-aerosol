@@ -56,7 +56,7 @@ contains
     double precision :: timestep_splitting,sub_timestep_splitting
     double precision :: initial_time_splitting,current_sub_time,final_sub_time
     double precision :: qaero(N_aerosol)
-    double precision :: watorg,organion,qgas(N_aerosol)
+    double precision :: watorg,organion,qgas(N_aerosol),other(6)
     double precision :: dry_density,wet_density,dry_mass,wmass,dry_to_wet
 
     lwcorg_nsize = 0.d0
@@ -298,7 +298,7 @@ contains
           endif
           call ssh_isoropia_drv(N_aerosol,&
                qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
-               liquid)
+               liquid,other)
           call ssh_redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.

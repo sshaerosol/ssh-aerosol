@@ -1484,7 +1484,7 @@ contains
 
   subroutine ssh_isoropia_drv(nesp_aer,&
        aero, gas, organion, watorg, ionic, proton, lwc, rh, Temp, &
-       liquid)
+       liquid,other)
 
     !------------------------------------------------------------------------
     !

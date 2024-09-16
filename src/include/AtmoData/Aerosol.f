@@ -299,7 +299,7 @@ c     coefficient - Kelvin effect coefficient.
       double precision coefficient
 
       coefficient = max(dexp(4.d3 * surf_tension * weight
-     $     / (8.314d0 * temp * density * wet_diam)),1.000001)
+     $     / (8.314d0 * temp * density * wet_diam)),1.0)
       
 
       end

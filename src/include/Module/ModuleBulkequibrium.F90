@@ -36,6 +36,8 @@ contains
     double precision::qaero(N_aerosol),qgas(N_aerosol),qgasold(N_aerosol)
     double precision:: Kelvin_effect(N_size,N_aerosol)
     double precision::ce_kernal_coef_tot(N_aerosol)
+    double precision::ce_kernal_coef_totho(N_aerosol),ce_kernal_coef_ho(N_size,N_aerosol)
+    double precision::ce_kernal_coef_tothi(N_aerosol),ce_kernal_coef_hi(N_size,N_aerosol)
     double precision organion, watorg, proton, lwc, d_ms
     double precision rhop_tmp,emw_tmp,wet_diam,aatoteq,qgasa,qgasi
     integer :: eq_species(nesp_eq)! species compute with equilibrium
@@ -44,7 +46,7 @@ contains
     double precision:: delta_t, produced, tot_mass
 
     !**** SOAP ****
-    double precision :: liquid(12), ionic
+    double precision :: liquid(12), ionic, other(6)
 !!    DOUBLE PRECISION :: q(N_size*(1+N_aerosol)+N_aerosol)
     double precision qaerona,qaerocl,qgascl
 
@@ -53,6 +55,8 @@ contains
     ! the hydrophilic ones are then stored in qaq
     double precision qaq(N_aerosol),qextaq(N_aerosol),dqaq(N_aerosol)
     double precision qextaqold(N_aerosol)
+    double precision orgmass_ho(N_size), orgmass_hi(N_size) 
+    double precision coef_ho,coef_hi
 
 !!     ******zero init
     do jesp=1,(N_aerosol-1)
@@ -65,10 +69,11 @@ contains
 	qextaq(jesp)=0.D0
 	qextaqold(jesp)=0.D0
 	qaq(jesp)=0.d0
-	ce_kernal_coef_tot(jesp)=0.D0!TINYA
+	ce_kernal_coef_totho(jesp)=0.D0
+	ce_kernal_coef_tothi(jesp)=0.D0
 	total_ms(jesp)=0.d0
     end do
-    Kelvin_effect=1.05
+    Kelvin_effect=1.0
 
   !     ****** allocate equilibrium species list      
 
@@ -77,51 +82,10 @@ contains
     enddo
 
     if (soap_inorg==1) then
-       !do s=1,nesp_eq
-       !   eq_species2(s)=aec_species(s)
-       !enddo
        do s=1,nesp_isorropia
           eq_species2(s)=isorropia_species(s)
        enddo
     endif
-
-
-  !compute local equi
-
-  !compute only c/e coefficients
-    do jesp=1,(N_aerosol-1)
-      if (aerosol_species_interact(jesp).GT.0) then
-	emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
-		  
-	do j = 1,N_size	!FOR OGANIC
- 	 wet_diam=wet_diameter(j)
-	 rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
-         if (with_kelvin_effect == 1) then
-        	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
-		  Temperature,&          ! temperature (Kelvin)
-		  emw_tmp,&       ! ext mol weight (g.mol-1)
-		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
-		  wet_diam,&         ! wet aero diameter (µm)
-		  rhop_tmp,&      ! aerosol density (kg.m-3)
- 		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
-          endif
-	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
-		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
-		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
-		accomodation_coefficient(jesp),& ! accomadation coef (adim)
-		wet_diameter(j),   & ! wet aero diameter (Âµm)
-		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
-          if (with_kelvin_effect == 1) then
-                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-                       +ce_kernal_coef(j,jesp)*concentration_number(j)&                
-	                *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
-          else
-                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-                       +ce_kernal_coef(j,jesp)*concentration_number(j)!&
-          endif
-	enddo
-      endif
-    enddo
 
     do s=1,(N_aerosol-1)
       jesp=index_species(s,1) !This index is used to differentiate hydrophobic from hydrophilic part
@@ -150,6 +114,31 @@ contains
        end do
     endif
     
+    do jesp=1,(N_aerosol-1)
+      if (aerosol_species_interact(jesp).GT.0) then
+	emw_tmp = molecular_weight_aer(jesp) * 1.D-6 ! g/mol
+	do j = 1,N_size
+ 	 wet_diam=wet_diameter(j)
+	 rhop_tmp = rho_wet_cell (j) * 1.d9 !1400 ! kg/m3
+         if (with_kelvin_effect == 1) then
+        	 call ssh_COMPUTE_KELVIN_COEFFICIENT(&
+		  Temperature,&          ! temperature (Kelvin)
+		  emw_tmp,&       ! ext mol weight (g.mol-1)
+		  surface_tension(jesp),&   ! surface tension (N.m-1) from INC
+		  wet_diam,&         ! wet aero diameter (µm)
+		  rhop_tmp,&      ! aerosol density (kg.m-3)
+ 		  Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+          endif
+	  call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
+		diffusion_coef(jesp), &! diffusion coef (m2.s-1)
+		quadratic_speed(jesp),& ! quadratic mean speed (m.s-1)
+		accomodation_coefficient(jesp),& ! accomadation coef (adim)
+		wet_diameter(j),   & ! wet aero diameter (Âµm)
+		ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
+        enddo
+       endif
+    enddo
+
     if (soap_inorg==1) then
        jesp=isorropia_species(2)
        qaero(jesp)=0.d0
@@ -182,7 +171,7 @@ contains
        endif
     endif
 
-    jesp=isorropia_species(2)
+    jesp=isorropia_species(2)  ! case of sulfate
     qgas(jesp)=0.d0
     qgas(EH2O)=0.0
     if (soap_inorg==1) then
@@ -211,10 +200,7 @@ contains
     if (soap_inorg==0) then
        call ssh_isoropia_drv(N_aerosol,&
             qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
-            liquid)
-    endif
-
-    if (soap_inorg==0) then
+            liquid,other)
        do s=1,nesp_isorropia
           jesp=isorropia_species(s)
           qextold(jesp)=qaero(jesp)
@@ -227,20 +213,64 @@ contains
             Temperature, qaero, qgas, liquid, delta_t, qaq)
     endif
 
+  ! compute total organic mass and partitioning coefficients 
+    if (with_kelvin_effect == 1) then
+      do j=1,N_size
+        orgmass_ho(j) = 0.d0
+        orgmass_hi(j) = 0.d0
+        do s=1,nesp_eq
+          jesp=index_species(eq_species(s),1) !This index is used to differentiate hydrophobic from hydrophilic part
+          orgmass_ho(j) = orgmass_ho(j) + concentration_mass(j,jesp)
+        enddo
+        if(i_hydrophilic == 1) then ! Initialise the aqueous part of organics
+          do s=1,nesp_eq
+            jesp=index_species(eq_species(s),2) !This index is used to differentiate hydrophobic from hydrophilic part
+            orgmass_hi(j) = orgmass_hi(j) + concentration_mass(j,jesp)
+          enddo
+        endif
+      enddo
+    endif
+
+  !compute only c/e coefficients
+    do jesp=1,(N_aerosol-1)
+      if (aerosol_species_interact(jesp).GT.0) then
+          if (with_kelvin_effect == 1) then
+              do j = 1,N_size
+                    coef_ho =  (Kelvin_effect(j,jesp) - 0.999999999d0) * orgmass_ho(j)
+                    if ((coef_ho.GT.0D0).AND.(inon_volatile(jesp).EQ.0)) then
+                       ce_kernal_coef_ho(j,jesp) = ce_kernal_coef(j,jesp) * coef_ho
+                    else
+                       ce_kernal_coef_ho(j,jesp) = 0.D0
+                    endif
+                    ce_kernal_coef_totho(jesp)= ce_kernal_coef_totho(jesp)&! compute total ce_kernal_coef coef
+                        +ce_kernal_coef_ho(j,jesp)*concentration_number(j)
+                    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                        +ce_kernal_coef(j,jesp)*concentration_number(j) !! for soap_inorg == 1
+                    if(i_hydrophilic == 1) then
+                        coef_hi =  (Kelvin_effect(j,jesp) - 0.999999999d0) * orgmass_hi(j)
+                        if ((coef_hi.GT.0D0).AND.(inon_volatile(jesp).EQ.0)) then
+                           ce_kernal_coef_hi(j,jesp) = ce_kernal_coef(j,jesp) * coef_hi
+                        else
+                           ce_kernal_coef_hi(j,jesp) = 0.D0
+                        endif
+                        ce_kernal_coef_tothi(jesp)= ce_kernal_coef_tothi(jesp)&! compute total ce_kernal_coef coef
+                          +ce_kernal_coef_hi(j,jesp)*concentration_number(j) 
+                     endif
+               enddo
+          else
+              do j = 1,N_size
+                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)!&
+               enddo
+          endif
+      endif
+    enddo
+
+    !!!!!! Reaction intra-particle  !!!!!!!!!!!!!!!!!!
     if (soap_inorg==0) then
        do s=1,nesp_isorropia
           jesp=isorropia_species(s)
           produced=qaero(jesp)-qextold(jesp)+qgas(jesp)-qgasold(jesp)
-          !print*,qgas
-          !print*,produced,qaero(jesp),qextold(jesp)
-          !print*,"gas avant: ",concentration_gas(jesp),qgasold(jesp)
-          !if (produced.ne.0.) then
-          !if(aerosol_species_interact(jesp).GT.0) then
-          !   if (inon_volatile(jesp).EQ.0) then
-          !      concentration_gas(jesp)=max(concentration_gas(jesp)+qgas(jesp)-qgasold(jesp),0.)
-          !   endif   
-          !endif
-          !print*,"gas apres: ",concentration_gas(jesp)
           tot_mass=0.
           if(aerosol_species_interact(jesp).GT.0) then
              if (inon_volatile(jesp).EQ.0) then
@@ -248,15 +278,8 @@ contains
              endif   
           endif
           do j=1,N_size
-             !if(concentration_index(j, 1) <= ICUT_org) then
              tot_mass=tot_mass+concentration_mass(j,jesp)
-             !endif
           enddo
-          !print*,produced,qgas(jesp)-qgasold(jesp),produced+qgas(jesp)-qgasold(jesp)
-          !if (produced+tot_mass<0.) then
-          !   print*,"err: ",produced,tot_mass,produced+tot_mass
-          !   stop
-          !endif
           produced=max(produced,-tot_mass)
 
           if (tot_mass>0) then
@@ -266,16 +289,13 @@ contains
                 endif
              endif
              do j=1,N_size
-                !if(concentration_index(j, 1) <= ICUT_org) then
                 concentration_mass(j,jesp)=concentration_mass(j,jesp)*(1.d0+produced/tot_mass) !*concentration_mass(j,jesp)
-                !endif
              enddo
           endif
-          !endif
        enddo
     endif
+    !!!!!! End reaction intra-particle  !!!!!!!!!!!!!!!!!!
     
-
     if (NACL_IN_THERMODYNAMICS==0) then
        qaero(ENa) = qaerona
        qaero(ECl) = qaerocl
@@ -330,10 +350,6 @@ contains
        concentration_gas(jesp)=qgasi-qgasa
     endif
 
-    !do s=1,N_aerosol
-    !   print*,aerosol_species_name(s),dq(s)
-    !enddo
-
     if(i_hydrophilic == 1) then
        do s=1,nesp_eq
           jesp = eq_species(s)
@@ -347,35 +363,26 @@ contains
     endif
 
 !     ******redistribute on each cell according to Rates
-    !call bulkequi_redistribution_anck(concentration_number,concentration_mass,&
-   ! nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,Kelvin_effect)
     if (soap_inorg==0) then
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_eq,eq_species,N_size,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            i_hydrophilic,dqaq,Kelvin_effect)
+            nesp_eq,eq_species,N_size,dq,ce_kernal_coef_ho,ce_kernal_coef_hi,ce_kernal_coef_totho,&
+            ce_kernal_coef_tothi,i_hydrophilic,dqaq,Kelvin_effect)
     else       
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            i_hydrophilic,dqaq,Kelvin_effect)
+            nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef_ho,ce_kernal_coef_hi,ce_kernal_coef_totho,&
+            ce_kernal_coef_tothi,i_hydrophilic,dqaq,Kelvin_effect)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef_tot,&
-            0,dqaq,Kelvin_effect)
+            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef,ce_kernal_coef_tot,&
+            ce_kernal_coef_tot,0,dqaq,Kelvin_effect)
 
        if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
           call ssh_redistribution_co3(qaero(ECO3),ICUT_org)
        endif
 
-       !do jesp=1,N_aerosol
-       !   print*,aerosol_species_name(jesp),concentration_mass(1,jesp)          
-       !enddo
-       
-       !call bulkequi_redistribution(concentration_number,concentration_mass,&
-       !     nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot)
     endif
 
   end subroutine ssh_bulkequi_org
 
-  ! subroutine bulkequi_inorg(nesp_eq, lwc, ionic, proton, liquid, lwc_nsize)
   subroutine ssh_bulkequi_inorg(nesp_eq, lwc, ionic, proton, liquid)
 !------------------------------------------------------------------------
 !
@@ -401,8 +408,9 @@ contains
     double precision rhop_tmp,emw_tmp,wet_diam    
     integer :: eq_species(nesp_eq)! species compute with equilibrium
     double precision:: total_ms(N_aerosol)
-    double precision :: liquid(12), ionic
-    double precision :: daq(N_aerosol)
+    double precision :: liquid(12), ionic, other(6)
+    double precision :: daq(N_aerosol),amm_to_be_redist,dqamm
+    double precision :: inorg_mass(N_size)
 
 !!     ******zero init
     do jesp=1, N_aerosol !nesp_isorropia
@@ -414,13 +422,20 @@ contains
       ce_kernal_coef_tot(jesp)=0.D0
       total_ms(jesp)=0.d0
     end do
-    Kelvin_effect=1.05
+    Kelvin_effect=1.0
   !     ****** if sulfate computed dynamically avoid it
   !     ****** allocate equilibrium species list
     do jesp=1,nesp_isorropia
       eq_species(jesp)=isorropia_species(jesp)
     enddo
 
+    do j=1,N_size
+      inorg_mass(j) = 0.d0
+      do s=1, nesp_isorropia
+         jesp=isorropia_species(s)
+         inorg_mass(j) = inorg_mass(j) + concentration_mass(j,jesp)
+      enddo
+    enddo
   !compute only c/e coefficients
 
     ce_kernal_coef=0.d0
@@ -439,10 +454,7 @@ contains
 
  	      wet_diam=wet_diameter(j)
 
-        ! if (wet_diam .lt. 1.d-3) then
-        !   write(*,*) "bulkequi_inorg: too small wet_diameter",wet_diam
-         ! endif 
-              if (with_kelvin_effect == 1) then
+              if (with_kelvin_effect == 1)  then
 	        call ssh_COMPUTE_KELVIN_COEFFICIENT(&
 		    Temperature,&          ! temperature (Kelvin)
 		    emw_tmp,&       ! ext mol weight (g.mol-1)
@@ -450,6 +462,8 @@ contains
 		    wet_diam,&         ! wet aero diameter (µm)
 		    rhop_tmp,&      ! aerosol density (kg.m-3)
 		    Kelvin_effect(j,jesp) )   ! kelvin effect coef (adim)
+                else
+                    Kelvin_effect(j,jesp) = 1.00d0
                 endif
  	        call ssh_COMPUTE_CONDENSATION_TRANSFER_RATE(&
 		    diffusion_coef(jesp), &! diffusion coef (m2.s-1)
@@ -458,9 +472,9 @@ contains
 		    wet_diameter(j),   & ! wet aero diameter (Âµm)
 		    ce_kernal_coef(j,jesp) ) ! c/e kernel coef (m3.s-1)
                 if (with_kelvin_effect == 1) then
+                   ce_kernal_coef(j,jesp) = ce_kernal_coef(j,jesp) * (Kelvin_effect(j,jesp)-0.999999999d0)*inorg_mass(j)
                    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-                       +ce_kernal_coef(j,jesp)*concentration_number(j)&                
-	                *(1.d0/(Kelvin_effect(j,jesp)-1.d0))
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)                
                 else
                    ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
                        +ce_kernal_coef(j,jesp)*concentration_number(j)!&
@@ -524,13 +538,14 @@ contains
   !eqilibirum for inorganic
     call ssh_isoropia_drv(N_aerosol,&
          qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
-         liquid)
+         liquid,other)
 
     qaero(N_aerosol)=lwc
     qgas(EH2O)=0.0
 
   !     ******redistribute on each cell according to Rates
-
+    amm_to_be_redist = 17. * other(3) * qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769
+    amm_to_be_redist = min(concentration_gas(eq_species(3))-qgas(eq_species(3)),amm_to_be_redist)
     do s=1, nesp_isorropia
       jesp=eq_species(s)
       if(aerosol_species_interact(jesp).GT.0) then      
@@ -545,22 +560,25 @@ contains
  	endif
       endif
    enddo
+   dqamm = min(amm_to_be_redist,dq(eq_species(3)))  !Ammonium to be redistributed according to mass
+   dq(eq_species(3)) = dq(eq_species(3)) - dqamm   ! Ammonium to be redistributed according to cond. dynamics
    
   ! give back initial SO4 gas conc
   ! minus that consumed by equi bins
-   jesp=isorropia_species(2)
-   concentration_gas(jesp)=qgasi-qgasa
+     jesp=isorropia_species(2)
+     concentration_gas(jesp)=qgasi-qgasa
 
     call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef_tot,0,daq,&
-      Kelvin_effect)
+      nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef,ce_kernal_coef_tot, &
+      ce_kernal_coef_tot,0,daq,Kelvin_effect)
+    call ssh_redistribution_amm(dqamm,ICUT)
 
   end subroutine ssh_bulkequi_inorg
 
 
   
   subroutine ssh_bulkequi_redistribution(c_number,c_mass,nesp_eq,eq_species,end_bin,dq, &
-                                AAi,ce_kernal_coef_tot,i_hydrophilic_tmp,dqaq,ck_ef)
+              AAiho,AAihi,ce_kernal_coef_totho,ce_kernal_coef_tothi,i_hydrophilic_tmp,dqaq,ck_ef)
 !------------------------------------------------------------------------
 !
 !     -- DESCRIPTION
@@ -584,10 +602,12 @@ contains
     integer::nesp_eq
     integer::eq_species(nesp_eq)
     double precision::totaer,temp_mass,totaa
-    double precision::ce_kernal_coef_tot(N_aerosol)
+    double precision::ce_kernal_coef_totho(N_aerosol)
+    double precision::ce_kernal_coef_tothi(N_aerosol)
     double precision::ck_ef(N_size,N_aerosol)
     double precision::dq(N_aerosol)
-    double precision::AAi(N_size,N_aerosol)
+    double precision::AAiho(N_size,N_aerosol)
+    double precision::AAihi(N_size,N_aerosol)
     double precision::frac(N_size,N_aerosol)
     double precision::c_number(N_size)
     double precision::c_mass(N_size,N_aerosol_layers)
@@ -600,23 +620,21 @@ contains
        if(i_hydrophilic_tmp == 1) then
           jespmass2 = index_species(jesp,2) !index of the species in the N_aerosol_layer list
        endif
-       !if (aerosol_species_interact(jesp).GT.0) then
-       !   if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
+       if (aerosol_species_interact(jesp).GT.0) then
+          if (inon_volatile(jesp).EQ.0) then ! Do not redistribute non-volatile species
              IF ((jesp.NE.ECl .and. jesp.ne.ENa).or.NACL_IN_THERMODYNAMICS==1) THEN
                 iclip=0
                 iclipaq=0
 
                 do j =1, N_size
                    if(concentration_index(j, 1) <= end_bin) then
-                      if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-                        if (with_kelvin_effect == 1) then
-                           frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
-                                 ce_kernal_coef_tot(jesp)
-                         else
-                           frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
-                         endif   
+                      if(ce_kernal_coef_totho(jesp).gt.0.d0) then
+                         frac(j,jesp)= AAiho(j,jesp)*c_number(j) /& 
+                                 ce_kernal_coef_totho(jesp) 
                          temp_mass=c_mass(j,jespmass)+dq(jesp)*frac(j,jesp)
                          if(i_hydrophilic_tmp == 1) then
+                            frac(j,jesp)= AAihi(j,jesp)*c_number(j) /& 
+                                 ce_kernal_coef_tothi(jesp) 
                             temp_mass_aq=c_mass(j,jespmass2)+dqaq(jesp)*frac(j,jesp)
                             if(temp_mass_aq.lt.0.d0) iclipaq=1!case of over evaporation
                          endif
@@ -643,13 +661,9 @@ contains
                 else !normal case
                    do j =1, N_size
                       if(concentration_index(j, 1) <= end_bin) then
-                         if(ce_kernal_coef_tot(jesp).gt.0.d0) then  
-                            if (with_kelvin_effect == 1) then
-                               frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
-                                    ce_kernal_coef_tot(jesp)
-                            else
-                              frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
-                            endif
+                         if(ce_kernal_coef_totho(jesp).gt.0.d0) then  
+                               frac(j,jesp)= AAiho(j,jesp)*c_number(j)/ &
+                                    ce_kernal_coef_totho(jesp) 
                             c_mass(j,jespmass)=c_mass(j,jespmass)+dq(jesp)*frac(j,jesp)
                          endif
                       endif
@@ -675,13 +689,8 @@ contains
                    else !normal case
                       do j =1, N_size
                          if(concentration_index(j, 1) <= end_bin) then
-                            if(ce_kernal_coef_tot(jesp).gt.0.d0) then
-                               if (with_kelvin_effect == 1) then
-                                  frac(j,jesp)= AAi(j,jesp)*c_number(j)*(1.d0/(ck_ef(j,jesp)-1.d0))/ &
-                                       ce_kernal_coef_tot(jesp) 
-                               else
-                                  frac(j,jesp)= AAi(j,jesp)*c_number(j)/ce_kernal_coef_tot(jesp)
-                               endif   
+                            if(ce_kernal_coef_tothi(jesp).gt.0.d0) then
+                               frac(j,jesp)= AAihi(j,jesp)*c_number(j)/ce_kernal_coef_tothi(jesp)
                                c_mass(j,jespmass2)=c_mass(j,jespmass2)+dqaq(jesp)*frac(j,jesp)
                             endif
                          endif
@@ -689,8 +698,8 @@ contains
                    endif
                 endif
              ENDIF
-       !   endif
-       !endif
+          endif
+       endif
     enddo
 
   end subroutine ssh_bulkequi_redistribution
@@ -740,6 +749,54 @@ contains
      endif
     enddo
   end subroutine ssh_redistribution_co3
+
+  subroutine ssh_redistribution_amm(dqamm,end_bin)
+!------------------------------------------------------------------------
+!
+!     -- DESCRIPTION
+!     This subroutine redistribute liquid water content (LWC)
+!     based on the fraction of inorganic aerosols.
+!
+!------------------------------------------------------------------------
+!
+!     -- INPUT VARIABLES
+!
+!    lwc: liquid water content (ug/m3)
+!
+!------------------------------------------------------------------------
+    implicit none
+
+    integer :: iredist,iso4,ina
+    double precision :: inorg_total, inorg_bin(N_size)
+    integer :: jesp, js,lay,end_bin
+    double precision :: dqamm
+
+    inorg_total = 0.D0
+    inorg_bin = 0.D0
+ 
+    do jesp=1,N_aerosol
+          do js=1,N_size
+             if(concentration_index(js, 1) <= end_bin) then
+                inorg_total = inorg_total + concentration_mass(js, ESO4)
+                inorg_bin(js) = inorg_bin(js) + concentration_mass(js, ESO4)
+                if (NACL_IN_THERMODYNAMICS==1) then
+                   inorg_total = inorg_total + concentration_mass(js, ENa)
+                   inorg_bin(js) = inorg_bin(js) + concentration_mass(js, ENa)
+                endif
+             endif
+          enddo
+    enddo
+    
+    do js=1,N_size
+     if(concentration_index(js, 1) <= end_bin) then
+        if (inorg_total .gt. 0.D0) then
+          concentration_mass(js, ENH4) = dqamm * inorg_bin(js)/inorg_total
+       else
+          concentration_mass(js, ENH4) = 0.d0
+       end if
+     endif
+    enddo
+  end subroutine ssh_redistribution_amm
 
 end Module iBulkequibrium
   
