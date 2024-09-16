@@ -1,0 +1,98 @@
+&setup_meteo
+latitude = 48.2,                ! Latitude
+longitude = 2.22,               ! Longitude
+Temperature = 273.16,    	! TEMP
+Pressure = 1.01325e05,         	! PRES
+Relative_Humidity = 0.6	! if 0, compute RH from specific humidity. if not, use it
+/
+
+
+&setup_time
+initial_time = 0.0,          ! in seconds from January 1st   
+final_time = 43200.0,             
+delta_t = 43200.0,                 
+time_emis = 0,        	 
+/
+
+&initial_condition
+with_init_num = 1,                ! 0 estimated from mass and diameter; 1 number conc. for each bin is read 
+tag_init = 0,                     ! initial method for aerosol species (0 internally mixed; 1 mixing_state resolved !! option 1 not yet available)
+tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
+N_sizebin = 50,                    ! Number of size bin
+init_gas_conc_file = "inputs/inputs-coag/init_gas_condkelv.dat",                     ! Initial data for gas
+init_aero_conc_mass_file = "inputs/inputs-coag/init_aero_condkelv.dat",        !  Initial data for aero mass  
+init_aero_conc_num_file = "inputs/inputs-coag/init_num_coag50.dat",     !  Initial data for aero number  
+/
+
+&initial_diam_distribution       
+diam_input = 1.0000000000000000E-03	1.2022644346174130E-03	1.4454397707459280E-03	1.7378008287493760E-03	2.0892961308540399E-03	2.5118864315095799E-03	3.0199517204020170E-03	3.6307805477010140E-03	4.3651583224016601E-03	5.2480746024977272E-03	6.3095734448019337E-03	7.5857757502918377E-03	9.1201083935590985E-03	1.0964781961431851E-02	1.3182567385564069E-02	1.5848931924611141E-02	1.9054607179632480E-02	2.2908676527677741E-02	2.7542287033381681E-02	3.3113112148259113E-02	3.9810717055349727E-02	4.7863009232263859E-02	5.7543993733715687E-02	6.9183097091893658E-02	8.3176377110267125E-02	1.0000000000000001E-01	1.2022644346174140E-01	1.4454397707459279E-01	1.7378008287493751E-01	2.0892961308540400E-01	2.5118864315095812E-01	3.0199517204020171E-01	3.6307805477010152E-01	4.3651583224016621E-01	5.2480746024977298E-01	6.3095734448019380E-01	7.5857757502918444E-01	9.1201083935590987E-01	1.0964781961431860E+00	1.3182567385564070E+00	1.5848931924611140E+00	1.9054607179632490E+00	2.2908676527677749E+00	2.7542287033381689E+00	3.3113112148259121E+00	3.9810717055349771E+00	4.7863009232263849E+00	5.7543993733715766E+00	6.9183097091893693E+00	8.3176377110267090E+00	1.0000000000000011E+01
+/ ! n_sizebin = 50 
+
+&emissions
+tag_emis = 0,                ! 0 Without emissions, 1 with internally-mixed emissions, 2 with externally-mixed emissions  !!KS Check when reading the mixing state that if tag_emis = 2 then tag_external = 1. The program needs to stop if tag_emis=2 and tag_external = 0  !!option 2 not yet available
+with_emis_num = 0,    ! 0 estimated from mass and diameter; 1 number conc. for each bin is read
+emis_gas_file = "./inputs/emis_gas.dat",
+emis_aero_mass_file = "./inputs/emis_aero.dat", 
+emis_aero_num_file = "./inputs/emis_aero_num.dat" 
+/
+
+&mixing_state
+tag_external = 0,             !Mixing state(0 for internally mixed, 1 for mixing-state resolved) !!! Initial concentrations are assumed to be internally mixed.
+N_groups = 1,                  !Nb of Specie group (internal within group, external between groups)
+N_frac = 1, 	                  ! Mass fraction sections for each species
+kind_composition = 1,          !Fraction discretization methods 1 for auto discretization and 0 for manual discretization
+/
+
+&fraction_distribution
+frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manully
+/
+
+&gas_phase_species
+species_list_file = "./species-list/species-list-cb05.dat"                    !Species list for CB05 
+/
+
+&aerosol_species
+aerosol_species_list_file = "./species-list/species-list-aer.dat",        !Aerosol species list
+/
+
+&physic_gas_chemistry
+tag_chem = 0,				!Tag of gas-phase chemistry
+with_heterogeneous = 0,                 !Tag of heterogeneous reaction 
+/
+
+
+&physic_particle_numerical_issues
+redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
+with_fixed_density = 1,       	!1 if density is fixed - 0 else
+fixed_density = 1.4D-06,        
+splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
+/
+
+&physic_coagulation
+with_coag = 0,                 		!Tag of coagulation
+i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
+i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
+Coefficient_file = "coef_s1_f1_b6.nc",  !Coagulation coefficient file
+Nmc = 2000                             ! Number of Monte Carlo points if repartition coeff are computed
+/
+
+&physic_condensation
+with_cond = 1,               !Tag of condensation/evaporation
+Cut_dim = 0.0,             ! KCUT	ICUT = 0
+ISOAPDYN = 0,                !0 = equilibrium, 1 = dynamic
+with_kelvin_effect = 0,                 ! 1 if kelvin effect is taken into account.
+coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
+activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
+SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
+reaction_soap_file="species-list/noREACTIONS.particle.soap",
+/
+
+&physic_nucleation
+with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
+/
+
+&output
+output_directory = "results/condkelv/nokelv-eq/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_type = 1               ! 1: text, 2: binary
+particles_composition_file = "INIT/fractions.txt"
+/
