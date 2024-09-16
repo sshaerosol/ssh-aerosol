@@ -41,7 +41,7 @@ mt3=np.zeros(shape)
 sulf3=np.zeros(shape)
 nit3=np.zeros(shape)
 
-with open (dir1+'/Organic.5.txt') as finit :
+with open (dir1+'/Organic.txt') as finit :
         string_conc1 = finit.read().splitlines()
         for j in range(Nt) :
                   org1[j] = org1[j] + float(string_conc1[j])
@@ -68,7 +68,7 @@ with open (dir1+'/PBiSULF_1.txt') as finit :
 
 
 
-with open (dir2+'/Organic.5.txt') as finit :
+with open (dir2+'/Organic.txt') as finit :
         string_conc2 = finit.read().splitlines()
         for j in range(Nt) :
                   org2[j] = org2[j] + float(string_conc2[j])
@@ -94,7 +94,7 @@ with open (dir2+'/PBiSULF_1.txt') as finit :
                   sulf2[j] = sulf2[j] + float(string_conc2[j])
 
       
-with open (dir3+'/Organic.5.txt') as finit :
+with open (dir3+'/Organic.txt') as finit :
         string_conc3 = finit.read().splitlines()
         for j in range(Nt) :
                   org3[j] = org3[j] + float(string_conc3[j])
@@ -130,7 +130,7 @@ fig = plt.figure(1,figsize = (15,15))
 plt.ylim(ymin=0.)
 plt.xlim(xmin=0.)
 plt.xlim(xmax=time[Nt-1])
-plt.ylim(ymax=14.)
+plt.ylim(ymax=17.)
 
 plt.plot(time, org1,'k',label='SOA (no NH$_3$)')
 #plt.plot(time, iepox1,'0.5',label='gas-phase IEPOX')
