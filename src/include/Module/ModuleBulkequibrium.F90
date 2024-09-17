@@ -410,7 +410,7 @@ contains
     double precision:: total_ms(N_aerosol)
     double precision :: liquid(12), ionic, other(6)
     double precision :: daq(N_aerosol),amm_to_be_redist,dqamm
-    double precision :: inorg_mass(N_size)
+    double precision :: inorg_mass(N_size), amm_sulfate
 
 !!     ******zero init
     do jesp=1, N_aerosol !nesp_isorropia
@@ -544,7 +544,10 @@ contains
     qgas(EH2O)=0.0
 
   !     ******redistribute on each cell according to Rates
-    amm_to_be_redist = 17. * other(3) * qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769
+    ! Ammonium that neutralises sulfate initially
+    amm_sulfate = min((qextold(eq_species(2))/96. - qextold(eq_species(1))/22.989769)*17*2., qextold(eq_species(3)))
+    ! Additional ammonium necessary to neutralise sulfate
+    amm_to_be_redist = max(17.*2. * (qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769) - amm_sulfate,0.0)
     amm_to_be_redist = min(concentration_gas(eq_species(3))-qgas(eq_species(3)),amm_to_be_redist)
     do s=1, nesp_isorropia
       jesp=eq_species(s)
