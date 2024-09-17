@@ -545,9 +545,9 @@ contains
 
   !     ******redistribute on each cell according to Rates
     ! Ammonium that neutralises sulfate initially
-    amm_sulfate = min((qextold(eq_species(2))/96. - qextold(eq_species(1))/22.989769)*17*2., qextold(eq_species(3)))
+    amm_sulfate = min((2.0*qextold(eq_species(2))/96. - qextold(eq_species(1))/22.989769)*17., qextold(eq_species(3)))
     ! Additional ammonium necessary to neutralise sulfate
-    amm_to_be_redist = max(17.*2. * (qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769) - amm_sulfate,0.0)
+    amm_to_be_redist = max(17.* (2.*qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769) - amm_sulfate,0.0)
     amm_to_be_redist = min(concentration_gas(eq_species(3))-qgas(eq_species(3)),amm_to_be_redist)
     do s=1, nesp_isorropia
       jesp=eq_species(s)
