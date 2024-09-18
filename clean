@@ -160,6 +160,7 @@ if [ $cleanall == "yes" ]; then
     rm -f `find -iname "user_defined_scheme.py"`
     rm -f `find -iname "user_defined_scheme_tmp.cfg"`
     rm -f `find -iname "ro2_species.dat"`
+    rm -rf user_defined/*
     cd $cwd
 fi
    
