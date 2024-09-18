@@ -1,7 +1,4 @@
-File for BCARYN4-0-3s (name and molar mass)
-# gaseous species # aqueous species
-35 0
----Gas-phase----
+# File for BCARYN4-0-3s (name and molar mass)
 NBCO2    298.35
 BCAOO    252.35
 BCALBO2    267.34

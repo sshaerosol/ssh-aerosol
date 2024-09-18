@@ -1,7 +1,4 @@
 # NAPHexp species-list (name and molar mass)
-# gaseous species # aqueous species
-420   0
----Gas-phase----
 4PhDOD     163.
 3PhOD      195.
 2PhOEst    195.

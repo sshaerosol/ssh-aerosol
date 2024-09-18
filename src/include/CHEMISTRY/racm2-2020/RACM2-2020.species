@@ -1,7 +1,4 @@
-File for chemical species RACM2 (name and molar mass)
-# gaseous species # aqueous species
-142   0
----Gas-phase----
+# File for chemical species RACM2 (name and molar mass)
 CO          28.
 H2O2        34.
 HNO3        63.

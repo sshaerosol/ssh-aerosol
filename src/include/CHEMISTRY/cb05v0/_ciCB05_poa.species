@@ -1,7 +1,4 @@
-File for chemical species CB05v0 (name and molar mass)
-# gaseous species # aqueous species
-86 0
----Gas-phase----
+# File for chemical species CB05v0 (name and molar mass)
 NO  30.
 NO2 46.
 O3  48.

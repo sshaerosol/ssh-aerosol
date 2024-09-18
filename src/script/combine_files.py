@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2023, CEREA
+# Copyright (C) 2024, CEREA
 #     Author(s): Youngseob Kim
 #
 from __future__ import with_statement
@@ -23,8 +23,8 @@ parser.add_argument('--matching', type = str)
 args = parser.parse_args()
 
 Ns = None
-Ns_gas = None
-Ns_aerosol = None
+Ns_gas = 0
+Ns_aerosol = 0
 species_name=[]
 species_weight=[]
 
@@ -98,15 +98,16 @@ reactions_out = "combined_reactions.dat"
 
 with open(species_gas,'r') as f:
     # Jumps the title line.
-    f.readline()
+    # f.readline()
     for line in f:
         line = line.strip()
         if not line or line[0] in "#%!-":
             continue # A comment,
         line=line.split()
-        if Ns_gas is None:
-            Ns_gas = int(line[0])
-            continue; # The first value is the number of species.
+        Ns_gas = Ns_gas + 1
+        # if Ns_gas is None:
+        #     Ns_gas = int(line[0])
+        #     continue; # The first value is the number of species.
         species_name.append(line[0])
         species_weight.append(line[1])
 
@@ -118,15 +119,16 @@ if (Ns_gas != len(species_name)):
 
 with open(species_precursor,'r') as f:
     # Jumps the title line.
-    f.readline()
+    # f.readline()
     for line in f:
         line = line.strip()
         if not line or line[0] in "#%!-":
             continue # A comment,
         line=line.split()
-        if Ns_aerosol is None:
-            Ns_aerosol = int(line[0])
-            continue; # The first value is the number of species.
+        Ns_aerosol = Ns_aerosol + 1
+        # if Ns_aerosol is None:
+        #     Ns_aerosol = int(line[0])
+        #     continue; # The first value is the number of species.
         species_name.append(line[0])
         species_weight.append(line[1])        
 
@@ -137,20 +139,20 @@ if (Ns != len(species_name)):
     sys.exit(1)
 
 
-""" Write a combined list of the species
-"""
-header = "File for chemical species CB05 (name and molar mass)\n" + \
-         "# gaseous species # aqueous species\n" + \
-         str(Ns) + "  0\n" + \
-         "---Gas-phase----"
+# """ Write a combined list of the species
+# """
+# header = "File for chemical species CB05 (name and molar mass)\n" + \
+#          "# gaseous species # aqueous species\n" + \
+#          str(Ns) + "  0\n" + \
+#          "---Gas-phase----"
 
-with open(species_out, "w") as f:
-    f.write(header)
-    for k, v in zip(species_name, species_weight):
-        k += " "
-        f.write("\n")
-        f.write(k.ljust(8))
-        f.write(v)
+# with open(species_out, "w") as f:
+#     f.write(header)
+#     for k, v in zip(species_name, species_weight):
+#         k += " "
+#         f.write("\n")
+#         f.write(k.ljust(8))
+#         f.write(v)
 
 """ Read reactions list of the mechanism.
 """
@@ -242,7 +244,7 @@ with open(output_filename,"a") as f, \
         f.write(line)
         f.write("\n")
 
-""" Write waterc aerosol species list. This should be called last.
+""" Write water aerosol species list. This should be called last.
 """
 with open(output_filename,"a") as f, \
      open(species_water_aerosol, "r") as f2:

@@ -1,7 +1,4 @@
-File for chemical species (name and molar mass)
-# gaseous species # aqueous species
-337   0
----Gas-phase----
+# File for chemical species (name and molar mass)
 AR0088  108.2 
 AR0098  107.1 
 AR0099  189.2 

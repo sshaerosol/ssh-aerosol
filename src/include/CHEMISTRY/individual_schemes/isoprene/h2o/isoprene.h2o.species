@@ -1,7 +1,4 @@
-File for chemical species CB05 (name and molar mass)
-# gaseous species # aqueous species
-10   0
----Gas-phase----
+# File for chemical species CB05 (name and molar mass)
 ISOR   117.
 MACR   70.
 ISON   147.

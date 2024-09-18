@@ -1,7 +1,4 @@
-File for chemical species CB05 (name and molar mass)
-# gaseous species # aqueous species
-89   0
----Gas-phase----
+# File for chemical species (name and molar mass)
 ACIDMAL    158.0
 AnA0D    142.
 AnA1D    168.

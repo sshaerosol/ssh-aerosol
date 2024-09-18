@@ -1,7 +1,4 @@
-File for chemical species MELCHIOR2 (name and molar mass)
-# gaseous species # aqueous species
-88      0
----Gas-phase----
+# File for chemical species MELCHIOR2 (name and molar mass)
 C2H4       28.
 C2H6       30.
 C3H6       42.

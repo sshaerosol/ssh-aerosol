@@ -1,7 +1,4 @@
-File for chemical species CB05 (name and molar mass)
-# gaseous species # aqueous species
-54   0
----Gas-phase----
+# File for chemical species (name and molar mass)
 BiBmP   236.
 BiBlP   298.
 POAlP 280.

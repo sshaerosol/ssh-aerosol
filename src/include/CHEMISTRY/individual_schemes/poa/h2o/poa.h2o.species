@@ -1,7 +1,4 @@
-File for chemical species CB05 (name and molar mass)
-# gaseous species # aqueous species
-6   0
----Gas-phase----
+# File for chemical species (name and molar mass)
 POAlP 280.
 POAmP 280.
 POAhP 280.

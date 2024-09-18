@@ -32,20 +32,22 @@ def read_species(file_name):
 
     species_name = []
     species_weight = []
-    ns = None
+    ns = 0
 
     with open(file_name, 'r') as f:
 
+        print("Read ", file_name)
         # Jump the title line
-        f.readline()
+        # f.readline()
         for line in f:
             line = line.strip()
             if not line or line[0] in "#%!-":
                 continue # comment
             line = line.split()
-            if ns is None:
-                ns = int(line[0])
-                continue # First value is the number of species.
+            ns = ns + 1
+            # if ns is None:
+            #     ns = int(line[0])
+            #     continue # First value is the number of species.
             species_name.append(line[0])
             species_weight.append(line[1])
 
@@ -234,10 +236,11 @@ def user_defined_scheme(options_list, configfile):
             
 
     # Write species file
-    species_header = "File for chemical species user-defined\n" + \
-        "# gaseous species # aqueous species\n" + \
-        str(len(species_name)) + " 0\n" + \
-        "---Gas-phase---"
+    species_header = "# File for chemical species user-defined"
+    # + \
+    #     "# gaseous species # aqueous species\n" + \
+    #     str(len(species_name)) + " 0\n" + \
+    #     "---Gas-phase---"
 
     with open(species_precursor, 'w') as f:
         f.write(species_header)
@@ -248,8 +251,8 @@ def user_defined_scheme(options_list, configfile):
             f.write(v)
 
 
-    # Write RO2 reactions file
-    header = "#==== User-definded RO2 reactions ===="
+    # Write RO2 species file
+    header = "#==== User-definded RO2 species ===="
     with open(ro2_species, 'w') as f:
         f.write(header)
         for k, v in zip(ro2_species_name, ro2_group_id):

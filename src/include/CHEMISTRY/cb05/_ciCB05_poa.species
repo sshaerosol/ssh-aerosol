@@ -1,7 +1,4 @@
-File for chemical species CB05 (name and molar mass)
-# gaseous species # aqueous species
-116   0
----Gas-phase----
+#File for chemical species CB05 (name and molar mass)
 HC8     114.
 NH3    17.
 HCL    36.5
