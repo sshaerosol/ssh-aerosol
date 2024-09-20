@@ -2144,6 +2144,7 @@ void activity_coefficients_aq_ssh(model_config &config, vector<species>& surroga
               if (surrogate[i].is_organic==false and i!=config.iH2O and surrogate[i].is_inorganic_precursor==false)
                 {
                   surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
+		  //cout << "ions g " << surrogate[i].name << " " << gamma_ions(iion)*gamma_molal << endl;
 		  //if (i==config.iHp)
 		  //  surrogate[i].gamma_aq=gamma_ions(iion)*gamma_molal;
                   iion++;
@@ -2251,10 +2252,12 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
         //molality(0)=0.0;
         //cout << surrogate[i].name << " " << surrogate[i].molality << endl;
       }
-  if (config.compute_inorganic)
+  
+  if (config.compute_inorganic or config.inorganic_chemistry)
     iH=-1;
   else
-    iH=surrogate[config.iHp].index_ion;  
+    iH=surrogate[config.iHp].index_ion;
+  
     
   //cout << "molal:" << molality << endl;
   //compute the molar fraction of solvent species used in aiomfac
@@ -2333,7 +2336,8 @@ void activity_coefficients_LR_MR_ssh(model_config &config, vector<species>& surr
       {
         surrogate[i].gamma_LR=config.gamma_LR_ions(surrogate[i].index_ion);
         surrogate[i].gamma_SRMR=surrogate[i].gamma_aq*config.gamma_MR_ions(surrogate[i].index_ion);	
-        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;		 
+        surrogate[i].gamma_aq=surrogate[i].gamma_LR*surrogate[i].gamma_SRMR;
+	//cout << "aiomfac: " << surrogate[i].name << " " << surrogate[i].gamma_aq << " " << config.gamma_LR_ions(surrogate[i].index_ion) << " " << config.gamma_MR_ions(surrogate[i].index_ion) << endl;
       }  
   
   for (i=0;i<n;++i)
