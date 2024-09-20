@@ -1,3 +1,4 @@
 # initial condition for test case COND PNA PSO4 PNH4 PNO3 PCL PH2O 
-PPOAlP 0.01
+PPOAlP 1.0
+PBiDER 1.0
 PSO4 3
