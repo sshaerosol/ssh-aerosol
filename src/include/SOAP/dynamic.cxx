@@ -4765,17 +4765,22 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
         if (i==config.iSO4mm) // and config.compute_inorganic)
           for (b=0;b<config.nbins;++b)
             {
-              double Keq=surrogate[config.iH2SO4].keqi/chp(b)*surrogate[config.iHSO4m].gamma_aq_bins(b)/
-                (surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));	     
+	      double Keq;
+	      if (config.isorropia_ph and surrogate[config.iHSO4m].Aaq_bins_init0(b)>0.)
+		Keq=surrogate[config.iSO4mm].Aaq_bins_init0(b)/surrogate[config.iSO4mm].MM/surrogate[config.iHSO4m].Aaq_bins_init0(b)*surrogate[config.iHSO4m].MM;
+	      else if (config.isorropia_ph)
+		Keq=1.e15;
+	      else
+		Keq=surrogate[config.iH2SO4].keqi/chp(b)*surrogate[config.iHSO4m].gamma_aq_bins(b)/
+		  (surrogate[config.iHp].gamma_aq_bins(b)*surrogate[config.iSO4mm].gamma_aq_bins(b));
+	     
               total2=surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM+surrogate[config.iSO4mm].Aaq_bins_init(b)/surrogate[config.iSO4mm].MM;
               total=(surrogate[config.iHSO4m].Aaq_bins_init0(b)+deltat*surrogate[config.iHSO4m].kprod_aq(b))/
                 (1.0+deltat*surrogate[config.iHSO4m].kloss_aq(b))/surrogate[config.iHSO4m].MM;
               total+=(surrogate[config.iSO4mm].Aaq_bins_init0(b)+deltat*surrogate[config.iSO4mm].kprod_aq(b))/
                 (1.0+deltat*surrogate[config.iSO4mm].kloss_aq(b))/surrogate[config.iSO4mm].MM;
 
-              //if (total2>tiny)
-              //  total=max(min(total,10.*total2),0.1*total2);	      
-              surrogate[config.iHSO4m].Aaq_bins_init(b)=total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq); //(1.0-factor)*surrogate[config.iHSO4m].Aaq_bins_init(b)+factor*total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq);
+	      surrogate[config.iHSO4m].Aaq_bins_init(b)=total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq); //(1.0-factor)*surrogate[config.iHSO4m].Aaq_bins_init(b)+factor*total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq);
               surrogate[config.iSO4mm].Aaq_bins_init(b)=total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq); //(1.0-factor)*surrogate[config.iSO4mm].Aaq_bins_init(b)+factor*total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq);
             }
 
