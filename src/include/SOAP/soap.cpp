@@ -986,7 +986,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		  }	      
 	    }
 	  
-	  if (config.compute_inorganic)
+	  if (config.compute_inorganic or config.chemistry)
 	    {
 	      if (surrogate[i].is_inorganic_precursor)
 		{
@@ -1038,7 +1038,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  q[iq_h2o + b] += LWC_bins(b);           
         }
       
-      if (config.compute_inorganic)
+      if (config.compute_inorganic or config.chemistry)
 	{
 	  for (b=0;b<config.nbins;++b)
 	    {

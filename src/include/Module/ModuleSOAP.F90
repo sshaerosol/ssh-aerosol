@@ -316,25 +316,32 @@ contains
          do js = 1, N_size
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
-            if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
-           ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))&
-           .or.(aerosol_type(s)==9)) then
+            ! Inorganic can change due to chemical reactions
+            if (aerosol_type(s)==4.or.aerosol_type(s)==3.or.aerosol_type(s)==9) then
                concentration_mass(js, jesp) = q_soap(N_size + i)
-            endif                       
+            endif
+           ! if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
+           !((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))&
+           !.or.(aerosol_type(s)==9)) then
+           !    concentration_mass(js, jesp) = q_soap(N_size + i)
+           ! endif
          enddo
       enddo
     
       do jesp = 1,N_aerosol
          if (inon_volatile(jesp).EQ.0) then
-            if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
-                 (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+            if (aerosol_type(jesp)==4.or.aerosol_type(jesp)==3) then
+            !if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
+               !     (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+               !print*,jesp,aerosol_species_name(jesp)
                concentration_gas(jesp) = q_soap(N_size*(1+N_aerosol_layers) + jesp)
             endif
          else
             if ( aerosol_species_interact(jesp).GT.0) then
                ! Add initial gas concentration that were not added to soap
-               if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
-                    (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+               if (aerosol_type(jesp)==4.or.aerosol_type(jesp)==3) then
+               !if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
+               !     (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                   concentration_gas(jesp) = concentration_gas(jesp) + q_soap(N_size*(1+N_aerosol_layers) + jesp)
                endif
             endif
@@ -513,23 +520,26 @@ contains
          do js = ICUT_org+1, N_size
             i = i + 1
             ! Need to redistribute the mass even for non volatile particles because layers may have changed
-            if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
-                 ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+            if (aerosol_type(s)==4.or.aerosol_type(s)==3.or.aerosol_type(s)==9) then
+            !if ((aerosol_type(s)==4.and.soap_inorg_loc>=0).or. &
+            !     ((aerosol_type(s)==3.or.s==EH2O).and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_mass(js, jesp) = q_soap(N_size + i - ICUT_org)
             endif           
-         enddo        
+         enddo
       enddo
     
       do jesp = 1,N_aerosol
          if (inon_volatile(jesp).EQ.0) then
-            if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
-                 (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+            if (aerosol_type(jesp)==4.or.aerosol_type(jesp)==3) then
+            !if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
+            !     (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_gas(jesp) = q_soap((N_size-ICUT_org)*(1+N_aerosol_layers) + jesp)
             endif
          else
             !Add initial gas concentration that were not added to soap
-            if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
-                 (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
+            if (aerosol_type(jesp)==4.or.aerosol_type(jesp)==3) then
+            !if ((aerosol_type(jesp)==4.and.soap_inorg_loc>=0).or. &
+            !     (aerosol_type(jesp)==3.and.(soap_inorg_loc==1.or.soap_inorg_loc==-1))) then
                concentration_gas(jesp) = concentration_gas(jesp) + q_soap((N_size-ICUT_org)*(1+N_aerosol_layers) + jesp)
             endif
          endif

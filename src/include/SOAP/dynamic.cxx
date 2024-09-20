@@ -1065,7 +1065,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                       surrogate[j].flux_chem_aq(b,index)+=fac2*flux;		
                       surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux;
                     }
-
+	      
               if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
                 for (jion=0;jion<surrogate[i].nion_chem;jion++)
                   {            
@@ -1155,7 +1155,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
 		      if (surrogate[i].time_aq(b)<config.tequilibrium)                                                  
 			if (surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)>0.0)
 			  fac=surrogate[i].Aaq_bins_init(b)/(surrogate[i].Ag+surrogate[i].Aaq_bins_init(b)); 
-		  
+
 		      surrogate[i].flux_chem_aq(b,index)+=-flux*fac;
 		      surrogate[i].flux_chem_gas(index)+=-flux*(1.0-fac);
 
@@ -1513,6 +1513,7 @@ void compute_flux_chem_ssh(model_config &config, vector<species>& surrogate,
                       surrogate[j].flux_chem_gas(index)+=(1.0-fac2)*flux*surrogate[j].MM/surrogate[i].MM;
                     }
 
+		
 		if (surrogate[i].is_organic)
 		  for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
 		    if (surrogate[i].i_irreversible[jmol]>=0)
@@ -1600,6 +1601,7 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			surrogate[j].kloss(b,ilayer,iphase)+=surrogate[i].koligo*surrogate[j].gamma_org_layer(b,ilayer,iphase)/Keq2;                      
 		      }
 
+		    
 		    for (jmol=0;jmol<surrogate[i].n_irreversible;jmol++)
 		      if (surrogate[i].i_irreversible[jmol]>=0)
 			{
@@ -1611,8 +1613,10 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			
 			  surrogate[i].kloss(b,ilayer,iphase)+=flux;
 			  if (surrogate[i].irr_mass_conserving[jmol]==false)
-			    flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
-			  if (surrogate[i].hydrophobic)
+			    {
+			      flux=flux*surrogate[surrogate[i].i_irreversible[jmol]].MM/surrogate[i].MM;
+			    }
+			  if (surrogate[surrogate[i].i_irreversible[jmol]].hydrophobic)
 			    surrogate[surrogate[i].i_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
 			  else
 			    surrogate[surrogate[i].i_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
@@ -1620,10 +1624,12 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			  if (surrogate[i].iother_irreversible[jmol]>=0)
 			    {
 			      flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
-			      if (surrogate[i].hydrophobic)
+			      if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophobic)
 				surrogate[surrogate[i].iother_irreversible[jmol]].kprod(b,ilayer,iphase)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
 			      else
-				surrogate[surrogate[i].iother_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+				{
+				  surrogate[surrogate[i].iother_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+				}
 			    }
 			}
 		  
@@ -1700,7 +1706,11 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			  if (surrogate[i].iother_irreversible[jmol]>=0)
 			    {
 			      ///
-			      flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			        
+			      if (surrogate[i].irr_mass_conserving[jmol]==false)
+				flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[surrogate[i].i_irreversible[jmol]].MM;
+			      else
+				flux=flux*surrogate[surrogate[i].iother_irreversible[jmol]].MM/surrogate[i].MM;
 			      if (surrogate[surrogate[i].iother_irreversible[jmol]].hydrophilic)
 				surrogate[surrogate[i].iother_irreversible[jmol]].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b);
 			      else
@@ -1710,7 +1720,9 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 			}
 		  }
 
-              if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0 and config.compute_inorganic)
+	      
+	      //cout << surrogate[i].name << " " << surrogate[i].rion << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].nion_chem << " " << config.compute_inorganic << endl;
+              if (surrogate[i].rion and surrogate[i].Aaq_bins_init(b)>0.0) // and config.compute_inorganic)
                 for (jion=0;jion<surrogate[i].nion_chem;jion++)
                   {            
                     double molality=surrogate[surrogate[i].iion(jion)].gamma_aq_bins(b)*surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b)/surrogate[i].MM/conc_org*1000.0;
@@ -1722,14 +1734,13 @@ void prodloss_chem_ssh(model_config &config, vector<species>& surrogate,
 		      
 		    if (surrogate[i].rion_water_catalyzed[jion])
 		      flux=flux*RH;
-		    
 		    j=surrogate[i].iproduct(jion);
 		    surrogate[i].kloss_aq(b)+=flux;
                     if (surrogate[i].rion_catalyzed[jion]==false and molality>0.)
                       {                                                  
 			surrogate[surrogate[i].iion(jion)].kloss_aq(b)+=flux*surrogate[i].Aaq_bins_init(b)/surrogate[i].MM*surrogate[surrogate[i].iion(jion)].MM/surrogate[surrogate[i].iion(jion)].Aaq_bins_init(b);
                       }                
-                    surrogate[j].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b)*surrogate[j].MM/surrogate[i].MM;		                    
+                    surrogate[j].kprod_aq(b)+=flux*surrogate[i].Aaq_bins_init(b)*surrogate[j].MM/surrogate[i].MM;
                   }
             }    
         }
@@ -4741,7 +4752,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
                 }
 
       if (LWCtot>config.LWClimit)
-	    if((surrogate[i].is_organic and config.compute_organic) or ((i==config.iClm or i==config.iNO3m or i==config.iNH4p) and config.compute_inorganic))
+	if((surrogate[i].is_organic and config.compute_organic) or ((i==config.iClm or i==config.iNO3m or i==config.iNH4p))) // and config.compute_inorganic))
 	      if (surrogate[i].hydrophilic)
 		for (b=0;b<config.nbins;++b)
 		  {
@@ -4751,7 +4762,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
 		  }
 
       if (LWCtot>config.LWClimit)
-        if (i==config.iSO4mm and config.compute_inorganic)
+        if (i==config.iSO4mm) // and config.compute_inorganic)
           for (b=0;b<config.nbins;++b)
             {
               double Keq=surrogate[config.iH2SO4].keqi/chp(b)*surrogate[config.iHSO4m].gamma_aq_bins(b)/
@@ -4766,7 +4777,6 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
               //  total=max(min(total,10.*total2),0.1*total2);	      
               surrogate[config.iHSO4m].Aaq_bins_init(b)=total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq); //(1.0-factor)*surrogate[config.iHSO4m].Aaq_bins_init(b)+factor*total*surrogate[config.iHSO4m].MM*1.0/(1.0+Keq);
               surrogate[config.iSO4mm].Aaq_bins_init(b)=total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq); //(1.0-factor)*surrogate[config.iSO4mm].Aaq_bins_init(b)+factor*total*surrogate[config.iSO4mm].MM*Keq/(1.0+Keq);
-		
             }
 
       
@@ -4908,7 +4918,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
               surrogate[i].Atot=atot;
             }
 
-      if (config.compute_inorganic)
+      if (config.compute_inorganic or config.chemistry)
 	for (i=0;i<n;i++)
 	  if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
 	    {
@@ -7098,7 +7108,7 @@ void dynamic_tot_ssh(model_config &config, vector<species>& surrogate,
       //if (config.compute_inorganic and facph>0)
       //  correct_flux_ph_ssh(config, surrogate, Temperature, AQinit, MOinit, chp, chp2, MMaq, ionic, LWC, tiny, DT2/facph, 0);
     }
-
+  
   if (config.chemistry)
     compute_flux_chem_ssh(config,surrogate,MOinit,MOW,AQinit,LWC,MMaq,chp,ionic,DT2,tiny,Temperature,0, RH);
 

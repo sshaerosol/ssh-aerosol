@@ -1488,7 +1488,8 @@ void solve_system_ssh(model_config &config, vector<species>& surrogate,
                               Temperature, RH);
 		
 		dt1=min(deltat-t,dt1);	 
-		dt2=dt1;            
+		dt2=dt1;
+		//cout << dt1 << endl;
 		integer_chem_ssh(config, surrogate, MOinit, MOW, MMaq, LWC, AQinit, ionic, chp, Temperature, RH, dt1, compute_activity_coefficients);
 
 		//compute the new time step so that changes are small
