@@ -471,10 +471,12 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
         
      ! liquid_water_content in kg/kg (QCLOUD from WRF)
      call ssh_dicarb_rate(i, j, irdi_ind(i), &
-              n_sizebin, temperature, pressure, option_cloud, &
+!              n_sizebin, temperature, pressure, option_cloud, &
+              n_sizebin, temperature, pressure, &
               wet_diameter, concentration_number, &
-              dsf_aero, lwc_cloud_threshold, &
-              cloud_water, concentration_gas_all(idOH),&
+!              dsf_aero, lwc_cloud_threshold, &
+!              cloud_water, concentration_gas_all(idOH),&
+              concentration_gas_all(idOH),&
               kinetic_rate(j))
         
      !else
@@ -1587,9 +1589,11 @@ end subroutine ssh_hetero_rate
 
 
 subroutine ssh_dicarb_rate(i, reaction_ind, irdi_ind, &
-                           nbin_aer, temp, press, icld, &
+!                           nbin_aer, temp, press, icld, &
+                           nbin_aer, temp, press, &
                            wetdiam, granulo, &
-                           dsf_aero, lwcmin, dllwc, OHgasmass,ktot)
+!                           dsf_aero, lwcmin, dllwc, OHgasmass,ktot)
+                           OHgasmass,ktot)
   
 !------------------------------------------------------------------------
 ! 
@@ -1626,29 +1630,27 @@ subroutine ssh_dicarb_rate(i, reaction_ind, irdi_ind, &
 
       integer :: reaction_ind, irdi_ind
       INTEGER i,js
-      DOUBLE PRECISION Ndroplet
+!      DOUBLE PRECISION Ndroplet
 
       DOUBLE PRECISION temp,press
       DOUBLE PRECISION vi
       DOUBLE PRECISION ktot
-      DOUBLE PRECISION avdiammeter
+!      DOUBLE PRECISION avdiammeter
 
       DOUBLE PRECISION WetDiam(Nbin_aer)
       DOUBLE PRECISION WetDiammeter(Nbin_aer)
       DOUBLE PRECISION granulo(Nbin_aer)
-      DOUBLE PRECISION dsf_aero(Nbin_aer)
+!      DOUBLE PRECISION dsf_aero(Nbin_aer)
 
-      DOUBLE PRECISION lwctmp, dllwc 
-
-      INTEGER ICLOUD
-      INTEGER ICLD
+!      DOUBLE PRECISION lwctmp, dllwc 
+!      INTEGER ICLOUD
+!      INTEGER ICLD
 
       DOUBLE PRECISION wmol_tmp, OHgasmass
-      DOUBLE PRECISION LWCmin
-
-      double precision dactiv, avdiam
-
-      DOUBLE PRECISION :: lwca
+      
+!      DOUBLE PRECISION LWCmin
+!      double precision dactiv, avdiam
+!      DOUBLE PRECISION :: lwca
       
       ! data for heterogeneous reactivity of dicarbonyls (GLY and MGLY)
       DOUBLE PRECISION     Rcst, Daq, alpha,ve,OHaq,OHgas,kaq,kl,HeffOH
@@ -1659,10 +1661,10 @@ subroutine ssh_dicarb_rate(i, reaction_ind, irdi_ind, &
       !     WET DIAMETERS OF THE TWO SECTIONS
       
 !     If bulk, diameter = avdiam
-      parameter (avdiam = 20)   ! in micro m   
+!      parameter (avdiam = 20)   ! in micro m   
 !     
 !     ACTIVATION DIAMETER (Dry)   
-      parameter (dactiv = 0.2D0) ! in micro m
+!      parameter (dactiv = 0.2D0) ! in micro m
 
       if (irdi_ind > 2) then
          write(*,*) "Index", i, "is not accepted for the dicarb. heterogenous reactions."
@@ -1671,16 +1673,16 @@ subroutine ssh_dicarb_rate(i, reaction_ind, irdi_ind, &
 
       
 !     Constants.
-      avdiammeter = 1.d-6 * avdiam
-      ICLOUD=0
-      
-      !C     Cloud liquid water content (g/m^3)
-      !  Converts from kg / kg to g / m^3.
-      lwctmp = DLLWC *1000.d0 *press /101325.d0 *28.97d0 /Pr /temp
-      
-      IF (ICLD.GE.1.AND.(lwctmp.GE.LWCmin)) THEN
-         ICLOUD=1
-      ENDIF
+!      avdiammeter = 1.d-6 * avdiam
+!      ICLOUD=0
+!      
+!      !C     Cloud liquid water content (g/m^3)
+!      !  Converts from kg / kg to g / m^3.
+!      lwctmp = DLLWC *1000.d0 *press /101325.d0 *28.97d0 /Pr /temp
+!      
+!      IF (ICLD.GE.1.AND.(lwctmp.GE.LWCmin)) THEN
+!         ICLOUD=1
+!      ENDIF
 
 ! PARAMETERS
 
@@ -1726,7 +1728,7 @@ kl = kaq * OHaq !first-order aqueous loss rate(s−1)
 ktot=0.d0 !effective uptake rate (s-1)
 !calculs en lien avec la taille des aerosols:
 do js=1,Nbin_aer
-  if ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
+!  if ((ICLOUD.NE.1).OR.(dsf_aero(js).lt.dactiv*1.d6)) then
     if (WetDiam(js).ne.0.0) then
       Rpart = 1.d-6 * WetDiam(js) / 2.d0         !particle radius (m)
       Asurf = 4.d0*pi*(Rpart**2.d0) * granulo(js)   !aerosol surface area density (m2 m−3): surface * nb_aero
@@ -1740,22 +1742,22 @@ do js=1,Nbin_aer
       ktot = ktot + (ve*gammad*Asurf)/4.d0 
 
     endif
-  endif
+!  endif
 enddo
          
-if (ICLOUD.EQ.1) then !     If we are in a cloud.
-  Ndroplet = lwctmp / (RHOwater * 1.d3 * pi / 6.d0 * avdiammeter**3.d0)
-  Rpart = avdiammeter / 2.d0              !particle radius (m)
-  Asurf = 4.d0*pi*(Rpart**2.d0) * Ndroplet   !aerosol surface area density (m2 m−3): surface * nb_aero
-  qp = Rpart / dsqrt(Daq/kl)              !parameter for measuring in-particle diffusion limitations ()
-  
-  !gammad = uptake coefficient ()
-  cothqp = cosh(qp)/sinh(qp)
-  gammad = 1.d0/( 1.d0/alpha + (ve/(4.d0*Rcst*temp*Heff*dsqrt(kaq*Daq)))/(cothqp - 1.d0/qp) )
-
-  ktot = ktot + (ve*gammad*Asurf)/4.d0 
-
-endif
+!if (ICLOUD.EQ.1) then !     If we are in a cloud.
+!  Ndroplet = lwctmp / (RHOwater * 1.d3 * pi / 6.d0 * avdiammeter**3.d0)
+!  Rpart = avdiammeter / 2.d0              !particle radius (m)
+!  Asurf = 4.d0*pi*(Rpart**2.d0) * Ndroplet   !aerosol surface area density (m2 m−3): surface * nb_aero
+!  qp = Rpart / dsqrt(Daq/kl)              !parameter for measuring in-particle diffusion limitations ()
+!  
+!  !gammad = uptake coefficient ()
+!  cothqp = cosh(qp)/sinh(qp)
+!  gammad = 1.d0/( 1.d0/alpha + (ve/(4.d0*Rcst*temp*Heff*dsqrt(kaq*Daq)))/(cothqp - 1.d0/qp) )
+!  
+!  ktot = ktot + (ve*gammad*Asurf)/4.d0 
+! 
+!endif
 
 
    
