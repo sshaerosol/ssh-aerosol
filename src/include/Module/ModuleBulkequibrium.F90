@@ -56,7 +56,7 @@ contains
     double precision qaq(N_aerosol),qextaq(N_aerosol),dqaq(N_aerosol)
     double precision qextaqold(N_aerosol)
     double precision orgmass_ho(N_size), orgmass_hi(N_size) 
-    double precision coef_ho,coef_hi
+    double precision coef_ho,coef_hi,amm_sulfate_2
 
     !!     ******zero init
     do jesp=1,(N_aerosol-1)
@@ -347,8 +347,9 @@ contains
        !     ******redistribute on each cell according to Rates
        ! Ammonium that neutralises sulfate initially
        amm_sulfate = min((2.0*qextold(eq_species2(2))/96. - qextold(eq_species2(1))/22.989769)*17., qextold(eq_species2(3)))
+       amm_sulfate_2 = 17.* (2.*qaero(eq_species2(2))/96.0 - qaero(eq_species2(1))/22.989769) - amm_sulfate
        ! Additional ammonium necessary to neutralise sulfate
-       amm_to_be_redist = max(17.* (2.*qaero(eq_species2(2))/96.0 - qaero(eq_species2(1))/22.989769) - amm_sulfate,0.0)
+       amm_to_be_redist = max(amm_sulfate_2,0.0)
        amm_to_be_redist = min(concentration_gas(eq_species2(3))-qgas(eq_species2(3)),amm_to_be_redist)
        do s=1, nesp_isorropia
           jesp=isorropia_species(s)
@@ -364,10 +365,12 @@ contains
              endif
           endif
        enddo
-       !print*,amm_to_be_redist,dq(eq_species2(3))
-       !dqamm = min(amm_to_be_redist,dq(eq_species2(3)))  !Ammonium to be redistributed according to mass
-       !dq(eq_species2(3)) = dq(eq_species2(3)) - dqamm   ! Ammonium to be redistributed according to cond. dynamics
-       !print*,dqamm,dq(eq_species2(3))
+       if(dq(eq_species2(3)).GT.0.d0) then  !Do not consider the case of evaporation for redistribution according to mass
+          dqamm = min(amm_to_be_redist,dq(eq_species2(3)))  !Ammonium to be redistributed according to mass
+          dq(eq_species2(3)) = dq(eq_species2(3)) - dqamm   ! Ammonium to be redistributed according to cond. dynamics
+       else
+          dqamm = 0.d0
+        endif
    
        ! give back initial SO4 gas conc
        ! minus that consumed by equi bins
@@ -399,7 +402,7 @@ contains
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
             nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef,ce_kernal_coef_tot,&
             ce_kernal_coef_tot,0,dqaq,Kelvin_effect)
-       !call ssh_redistribution_amm(dqamm,ICUT_org)
+       if(dqamm.GT.0.d0) call ssh_redistribution_amm(dqamm,ICUT_org)
 
        if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
           call ssh_redistribution_co3(qaero(ECO3),ICUT_org)
@@ -436,7 +439,7 @@ contains
     double precision:: total_ms(N_aerosol)
     double precision :: liquid(12), ionic, other(6)
     double precision :: daq(N_aerosol),amm_to_be_redist,dqamm
-    double precision :: inorg_mass(N_size), amm_sulfate
+    double precision :: inorg_mass(N_size), amm_sulfate, amm_sulfate_2
 
     !!     ******zero init
     do jesp=1, N_aerosol !nesp_isorropia
@@ -569,11 +572,12 @@ contains
     qaero(N_aerosol)=lwc
     qgas(EH2O)=0.0
 
-    !     ******redistribute on each cell according to Rates
+    !     ******redistribute on each cell according to mass of sulfates or Rates
     ! Ammonium that neutralises sulfate initially
     amm_sulfate = min((2.0*qextold(eq_species(2))/96. - qextold(eq_species(1))/22.989769)*17., qextold(eq_species(3)))
+    amm_sulfate_2 = 17.* (2.*qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769) - amm_sulfate
     ! Additional ammonium necessary to neutralise sulfate
-    amm_to_be_redist = max(17.* (2.*qaero(eq_species(2))/96.0 - qaero(eq_species(1))/22.989769) - amm_sulfate,0.0)
+    amm_to_be_redist = max(amm_sulfate_2,0.0)
     amm_to_be_redist = min(concentration_gas(eq_species(3))-qgas(eq_species(3)),amm_to_be_redist)
     do s=1, nesp_isorropia
        jesp=eq_species(s)
@@ -589,8 +593,12 @@ contains
           endif
        endif
     enddo
-    dqamm = min(amm_to_be_redist,dq(eq_species(3)))  !Ammonium to be redistributed according to mass
-    dq(eq_species(3)) = dq(eq_species(3)) - dqamm   ! Ammonium to be redistributed according to cond. dynamics
+    if(dq(eq_species(3)).GT.0.d0) then  !Do not consider the case of evaporation for redistribution according to mass
+       dqamm = min(amm_to_be_redist,dq(eq_species(3)))  !Ammonium to be redistributed according to mass
+       dq(eq_species(3)) = dq(eq_species(3)) - dqamm   ! Ammonium to be redistributed according to cond. dynamics
+    else
+       dqamm = 0.d0
+    endif
 
     ! give back initial SO4 gas conc
     ! minus that consumed by equi bins
@@ -600,7 +608,7 @@ contains
     call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
          nesp_isorropia,eq_species,ICUT,dq,ce_kernal_coef,ce_kernal_coef,ce_kernal_coef_tot, &
          ce_kernal_coef_tot,0,daq,Kelvin_effect)
-    call ssh_redistribution_amm(dqamm,ICUT)
+    if(dqamm.GT.0.d0) call ssh_redistribution_amm(dqamm,ICUT)
 
   end subroutine ssh_bulkequi_inorg
 
@@ -820,9 +828,7 @@ contains
     do js=1,N_size
        if(concentration_index(js, 1) <= end_bin) then
           if (inorg_total .gt. 0.D0) then
-             concentration_mass(js, ENH4) = dqamm * inorg_bin(js)/inorg_total
-          else
-             concentration_mass(js, ENH4) = 0.d0
+             concentration_mass(js, ENH4) = concentration_mass(js, ENH4) + dqamm * inorg_bin(js)/inorg_total
           end if
        endif
     enddo
