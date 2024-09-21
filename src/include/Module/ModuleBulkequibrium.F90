@@ -243,8 +243,8 @@ contains
     do jesp=1,(N_aerosol-1)
        if (aerosol_species_interact(jesp).GT.0) then
           ce_kernal_coef_tot(jesp)=0.d0
-          !if (with_kelvin_effect == 1) then
-          do j = 1,N_size
+          if (with_kelvin_effect == 1) then
+           do j = 1,N_size
              coef_ho =  (Kelvin_effect(j,jesp) - 0.999999999d0) * orgmass_ho(j)
              if ((coef_ho.GT.0D0).AND.(inon_volatile(jesp).EQ.0)) then
                 ce_kernal_coef_ho(j,jesp) = ce_kernal_coef(j,jesp) * coef_ho
@@ -270,12 +270,16 @@ contains
                      +ce_kernal_coef_hi(j,jesp)*concentration_number(j) 
              endif
           enddo
-          !else
-          !    do j = 1,N_size
-          !        ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
-          !             +ce_kernal_coef(j,jesp)*concentration_number(j)!&
-          !     enddo
-          !endif
+          else
+              do j = 1,N_size
+                  ce_kernal_coef_tot(jesp)= ce_kernal_coef_tot(jesp)&! compute total ce_kernal_coef coef
+                       +ce_kernal_coef(j,jesp)*concentration_number(j)!&
+                  ce_kernal_coef_hi(j,jesp) = ce_kernal_coef(j,jesp)
+                  ce_kernal_coef_ho(j,jesp) = ce_kernal_coef(j,jesp)
+               enddo
+               ce_kernal_coef_tothi(jesp)= ce_kernal_coef_tot(jesp)
+               ce_kernal_coef_totho(jesp)= ce_kernal_coef_tot(jesp)
+          endif
        endif
     enddo
 
