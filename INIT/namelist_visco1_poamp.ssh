@@ -12,7 +12,6 @@ initial_time = 0,
 !final_time = 6000,
 final_time = 2419200.0, !604800.0,             
 delta_t = 600,                 
-time_emis = 0,        	 
 /
 
 &initial_condition

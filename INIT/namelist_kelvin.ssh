@@ -11,7 +11,6 @@ Relative_Humidity = 0.1	! if 0, compute RH from specific humidity. if not, use i
 initial_time = 0,             
 final_time = 3600.,             
 delta_t = 1.,                 
-time_emis = 0,        	 
 /
 
 &initial_condition

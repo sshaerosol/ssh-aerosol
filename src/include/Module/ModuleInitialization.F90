@@ -201,7 +201,7 @@ module aInitialization
 
   !!part 4: System state parameters    
   ! time setting
-  double precision, save :: final_time,dt,time_emis,delta_t, initial_time  
+  double precision, save :: final_time,dt,delta_t, initial_time  
   double precision, save :: current_time
   double precision, save :: Temperature,Relative_Humidity,Pressure,Humidity, pH, pressure_sat
   double precision, save :: longitude, latitude
@@ -493,7 +493,7 @@ contains
     namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
          Humidity, Relative_Humidity, meteo_file, cloud_water
 
-    namelist /setup_time/ initial_time, final_time, delta_t,time_emis
+    namelist /setup_time/ initial_time, final_time, delta_t
 
     namelist /initial_condition/ with_init_num, tag_init, tag_dbd, N_sizebin,&
          wet_diam_estimation, init_gas_conc_file,&

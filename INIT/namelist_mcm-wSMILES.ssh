@@ -16,7 +16,6 @@ meteo_file ="./inputs/inputs-mcm/meteo.dat",
 initial_time = 15638400.0, !start at 06/01 00:00
 final_time = 15724800.0,   !end at 06/05 00:00
 delta_t = 3600,            !time step: 1 hour,  in total 1 day
-time_emis = 0,
 /
 
 &initial_condition
