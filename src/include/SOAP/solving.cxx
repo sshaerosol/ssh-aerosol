@@ -3178,7 +3178,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 	      }*/
     }
 
-  //cout << index << " " << error_tot << endl;
+  //cout << index << " " << error_tot << " " << deltat << endl;
   if (error_tot>config.relative_precision)
     {
       cout << "The model did not converged... " << RH << " " << Temperature << endl;
@@ -4516,7 +4516,61 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1);
 	  
 	  
-	  t+=deltat1;       
+	  t+=deltat1;
+
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
+	      {
+		surrogate[i].Atot=surrogate[i].Ag;
+		if (i==config.iNH3)
+		  {
+		    surrogate[i].Atot+=sum(surrogate[config.iNH4p].Aaq_bins_init)/surrogate[config.iNH4p].MM*surrogate[i].MM;
+		    surrogate[config.iNH4p].Atot=surrogate[i].Atot;
+		  }
+		else if (i==config.iHNO3)
+		  {
+		    surrogate[i].Atot+=sum(surrogate[config.iNO3m].Aaq_bins_init)/surrogate[config.iNO3m].MM*surrogate[i].MM;
+		    surrogate[config.iNO3m].Atot=surrogate[i].Atot;
+		  }
+		else if (i==config.iHCl)
+		  {
+		    surrogate[i].Atot+=sum(surrogate[config.iClm].Aaq_bins_init)/surrogate[config.iClm].MM*surrogate[i].MM;
+		    surrogate[config.iClm].Atot=surrogate[i].Atot;
+		  }
+		else if (i==config.iH2SO4)
+		  {
+		    surrogate[i].Atot+=sum(surrogate[config.iSO4mm].Aaq_bins_init)/surrogate[config.iSO4mm].MM*surrogate[i].MM+
+		      sum(surrogate[config.iHSO4m].Aaq_bins_init)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
+		    surrogate[config.iSO4mm].Atot=surrogate[i].Atot;
+		    surrogate[config.iHSO4m].Atot=surrogate[i].Atot;
+		  }
+
+		surrogate[i].Atot0=surrogate[i].Ag0;
+		if (i==config.iNH3)
+		  {
+		    surrogate[i].Atot0+=sum(surrogate[config.iNH4p].Aaq_bins_init0)/surrogate[config.iNH4p].MM*surrogate[i].MM;
+		    surrogate[config.iNH4p].Atot0=surrogate[i].Atot0;
+		  }
+		else if (i==config.iHNO3)
+		  {
+		    surrogate[i].Atot0+=sum(surrogate[config.iNO3m].Aaq_bins_init0)/surrogate[config.iNO3m].MM*surrogate[i].MM;
+		    surrogate[config.iNO3m].Atot0=surrogate[i].Atot0;
+		  }
+		else if (i==config.iHCl)
+		  {
+		    surrogate[i].Atot0+=sum(surrogate[config.iClm].Aaq_bins_init0)/surrogate[config.iClm].MM*surrogate[i].MM;
+		    surrogate[config.iClm].Atot0=surrogate[i].Atot0;
+		  }
+		else if (i==config.iH2SO4)
+		  {
+		    surrogate[i].Atot0+=sum(surrogate[config.iSO4mm].Aaq_bins_init0)/surrogate[config.iSO4mm].MM*surrogate[i].MM+
+		      sum(surrogate[config.iHSO4m].Aaq_bins_init0)/surrogate[config.iHSO4m].MM*surrogate[i].MM;
+		    surrogate[config.iSO4mm].Atot0=surrogate[i].Atot0;
+		    surrogate[config.iHSO4m].Atot0=surrogate[i].Atot0;
+		  }
+	      }
+
+	  
 
 	  double error_max=0.;
 	  for (i=0;i<n;i++)
@@ -4524,7 +4578,8 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      if (surrogate[i].is_organic or surrogate[i].is_inorganic_precursor)
 		{
 		  wk=atol+rtol*surrogate[i].Ag;
-		  error_max=max(error_max,(surrogate[i].Ag-surrogate[i].Ag0)/wk);
+		  wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
+		  error_max=max(error_max,abs(surrogate[i].Ag-surrogate[i].Ag0)/wk);
 
 		  //if ((surrogate[i].Ag-surrogate[i].Ag0)/wk>0.63)
 		  //   cout << surrogate[i].name << " gas " << error_max << endl;
@@ -4536,7 +4591,8 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      {
 			wk=atol+rtol*surrogate[i].Ap_layer_init(b,ilayer,iphase);
-			error_max=max(error_max,(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk);
+			wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
+			error_max=max(error_max,abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk);
 			//if ((surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk>0.63)
 			//if (surrogate[i].name=="GLYOHOH")
 			//  cout << surrogate[i].name << " org " << error_max << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[i].Ap_layer_init0(b,ilayer,iphase) << endl;
@@ -4552,12 +4608,43 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      for (b=0;b<config.nbins;++b)
 		{
 		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
-		  error_max=max(error_max,(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk);
+		  wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
+		  error_max=max(error_max,abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk);
 		  //if ((surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk>0.63)
 		  //  cout << surrogate[i].name << " aq  " << error_max << endl;
 		}	
 	    }
 
+	  //cout << t << " " << error_max << " " << deltat1 << endl;
+	  //double error_max2=0.0;
+	  /*
+	  for (i=0;i<n;i++)
+	    {
+	      if (surrogate[i].is_organic or surrogate[i].is_inorganic_precursor)
+		{
+		  wk=atol+rtol*surrogate[i].Ag;
+		  error_max2=abs(surrogate[i].Ag-surrogate[i].Ag0)/wk;
+		  if (error_max2>0.9*error_max)
+		    cout << surrogate[i].name << " gas " << error_max2 << " " << surrogate[i].Ag << " " << surrogate[i].Ag0 << endl;
+		}
+
+	      if (surrogate[i].is_organic and surrogate[i].hydrophobic)
+		for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		  for (b=0;b<config.nbins;++b)
+		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		      {
+			wk=atol+rtol*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			error_max2=abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk;
+			if (error_max2>0.9*error_max)
+			  cout << surrogate[i].name << " org " << error_max2 << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[i].Ap_layer_init0(b,ilayer,iphase) << endl;
+		      }
+	      
+	      for (b=0;b<config.nbins;++b)
+		{
+		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
+		  error_max2=abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk;
+		}	
+	    }*/
 	  /*
 	    for (i=0;i<n;i++)
 	    if ((surrogate[i].is_organic and surrogate[i].hydrophilic) or (surrogate[i].is_ion and i!=config.iHp))
