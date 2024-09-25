@@ -1386,6 +1386,12 @@ contains
        write(*,*) "physic_condensation data can not be read."
        stop
     else
+
+       if (soap_inorg==1.and.activity_model<3) then
+          print*,"soap_inorg=1 cannot be used with activity_model below 3"
+          stop
+       endif
+       
        ! nlayer = 1 by default
        ! if it is not given in namelist
        if (nlayer == -999) then
