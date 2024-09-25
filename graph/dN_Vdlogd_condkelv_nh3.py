@@ -17,6 +17,8 @@ pcase1= '../results/condkelv/inorgnh3-dyn/'
 pcase2 = '../results/condkelv/inorgnh3-nokelv-dyn/'
 pcase3 = '../results/condkelv/inorgnh3-eq/'
 pcase4 = '../results/condkelv/inorgnh3-nokelv-eq/'
+pcase5= '../results/condkelv/inorgnh3-eq-soapinorg/'
+pcase6 = '../results/condkelv/inorgnh3-dyn-soapinorg/'
 sizebin_ssh = 50
 density = 1.4 * 1e-6 #in ug um-3
 iredist = 0 #0 without redistribution; 1 with redistribution
@@ -49,8 +51,8 @@ for j in range(len(diam)-1) :
 
 ############################## extract results from simulation
 #### 
-cases = ['Kelvin Dynamic','No Kelvin Dynamic','Kelv Equilibrium','No Kelvin Equilibrium']
-case_lb = ['Kelvin Dynamic','No Kelvin Dynamic','Kelvin Equilibrium','No Kelvin Equilibrium'] 
+cases = ['Kelvin Dynamic','No Kelvin Dynamic','Kelv Equilibrium','No Kelvin Equilibrium','Kelvin Equilibrium soap_inorg=1','Kelvin Dynamic soap_inorg=1']
+case_lb = ['Kelvin Dynamic','No Kelvin Dynamic','Kelvin Equilibrium','No Kelvin Equilibrium','Kelvin Equilibrium soap_inorg=1','Kelvin Dynamic soap_inorg=1'] 
 #### get conc.
 num_init_sml = np.zeros((len(cases),sizebin_ssh))
 num_out_sml = np.zeros((len(cases),sizebin_ssh))
@@ -69,6 +71,10 @@ for i in cases :
                         pcase = pcase3
                 elif (cases.index(i) == 3):
                         pcase = pcase4
+                elif (cases.index(i) == 4):
+                        pcase = pcase5
+                elif (cases.index(i) == 5):
+                        pcase = pcase6
                 with open (pcase+'/number/NUMBER_' + str(j+1) + '.txt') as finit :
                         values = finit.read().splitlines()
                 num_init_sml[cases.index(i)][j] = float(values[0])
@@ -90,7 +96,7 @@ for i in cases :
 lists = []
 lbs = []
 stl = ['-','-','-','-','-']
-cols = ['c-+','m-+','b-','g-+','-','-']
+cols = ['c-+','m-+','b-','g-+','r-+','y-']
 for i in num_out_sml : lists.append(i)
 for i in case_lb : lbs.append(i)
 
@@ -134,7 +140,7 @@ plt.ylabel(r'dN/d log d (cm$^{-3}$)')
 plt.xscale('log')
 plt.yscale('log')
 plt.title( 'Particle Number Distribution')
-plt.legend(loc ='best')        	# show legend
+plt.legend(loc ='best',fontsize=10)        	# show legend
 plt.tight_layout()
 fig.savefig('dNdlogd_CONDKELV_NH3')
 
@@ -143,7 +149,7 @@ lists2 = []
 #for i in mass_init_sml : lists2.append(i)
 for i in mass_out_sml : lists2.append(i)
 lbs = []
-cols = ['c-+','m-+','b-','g-+','-','-']
+cols = ['c-+','m-+','b-','g-+','r-+','y-']
 for i in case_lb : lbs.append(i)
 plt.clf()
 num = len(deltalogd)
@@ -191,7 +197,7 @@ plt.xlabel(r'd ($\mu$m)')
 plt.ylabel(r'dV/d log d ($\mu$m$^3$ cm$^{-3}$)')
 plt.xscale('log')
 plt.title( 'Particle Volume Distribution')
-plt.legend(loc ='best')        	# show legend
+plt.legend(loc ='upper left',fontsize=10)        	# show legend
 plt.tight_layout()
 fig.savefig('dVdlogd_CONDKELV_NH3')
 

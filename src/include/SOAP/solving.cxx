@@ -2664,6 +2664,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
   double factor_old=factor;
   int m;
   double significant=1.0e-5;
+  double chp_max=10.;
   chp_save=chp;
   config.nh_max=7;
   
@@ -3000,7 +3001,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                  surrogate[config.iHp].gamma_aq_bins_old(b)*chp(b)>0.1 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)>0.1) and AQ(b)>1.0e-5)
               //if (AQ(b)>1.e-5)
               {
-                errloc=(chp(b)-chp_save(b))/chp(b)/factor_old;
+                errloc=(min(chp(b),chp_max)-min(chp_save(b),chp_max))/min(chp(b),chp_max)/factor_old;
                 if (abs(errloc)>abs(vec_error_chp(index)))
                   vec_error_chp(index)=errloc;
               }
@@ -3015,7 +3016,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                   
                   if (chp(b)>0. and config.compute_inorganic)
                     {
-                      errloc=(chp(b)-chp_save(b))/chp(b)/factor_old;
+                      errloc=(min(chp(b),chp_max)-min(chp_save(b),chp_max))/min(chp(b),chp_max)/factor_old;
                       if (abs(errloc)>abs(vec_error_chp(index)))
                         vec_error_chp(index)=errloc;
                     }
@@ -3163,6 +3164,21 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
         error_tot=max(error_tot,abs(vec_error_chp(index)));
       //cout << index << " " << vec_error_org(index) << " " << abs(vec_error_aq(index)) << " " << abs(vec_error_gas(index)) << " " << abs(vec_error_compo(index)) << endl;
       //cout << factor_max << " " << factor << " " << chp << endl;
+      /*
+      if (int(index/100)*100==index and index>0)
+	{
+	  //     if (config.compute_inorganic)
+	  for (b=0;b<config.nbins;++b)	  
+	    if ((surrogate[config.iHp].gamma_aq_bins(b)*chp(b)<1.e-7 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)<1.e-7 or
+		 surrogate[config.iHp].gamma_aq_bins_old(b)*chp(b)>0.1 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)>0.1) and AQ(b)>1.0e-5)
+              {
+                errloc=(min(chp(b),chp_max)-min(chp_save(b),chp_max))/min(chp(b),chp_max)/factor_old;
+                if (abs(errloc)>0.9*abs(error_tot))
+		  cout << "pH error " << b << " " << AQinit(b) << " " << chp(b) << " " << chp_save(b) << " " << errloc << endl;
+		    //vec_error_chp(index)=errloc;
+              }
+	  cout << index << " " << error_tot << " " << deltat << " " << vec_error_chp(index) << " " << vec_error_org(index) << " " << vec_error_aq(index) << " " << vec_error_gas(index) << " " << vec_error_compo(index) << endl;
+	}*/
       ++index;
       ++iiter;
 
@@ -3176,9 +3192,10 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 	    for (b=0;b<config.nbins;b++)
 	      cout << "error : " << b << " " << (surrogate[i].Asol_bins_init(b)-surrogate[i].Asol_bins(b))/factor << endl;
 	      }*/
-    }
 
-  //cout << index << " " << error_tot << " " << deltat << endl;
+    }
+  
+  //cout << "final " << index << " " << error_tot << " " << deltat << " " << vec_error_chp(index) << " " << vec_error_org(index) << " " << vec_error_aq(index) << " " << vec_error_gas(index) << " " << vec_error_compo(index) << endl;
   if (error_tot>config.relative_precision)
     {
       cout << "The model did not converged... " << RH << " " << Temperature << endl;
@@ -4574,6 +4591,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 
 	  double error_max=0.;
 	  for (i=0;i<n;i++)
+	    if (i!=config.iHp and i!=config.iHSO4m and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m)
 	    {
 	      if (surrogate[i].is_organic or surrogate[i].is_inorganic_precursor)
 		{
@@ -4608,6 +4626,9 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      for (b=0;b<config.nbins;++b)
 		{
 		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
+		  if (i==config.iSO4mm)
+		    wk+=rtol*surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM*surrogate[config.iSO4mm].MM;
+
 		  wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
 		  error_max=max(error_max,abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk);
 		  //if ((surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk>0.63)
@@ -4615,14 +4636,18 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		}	
 	    }
 
-	  //cout << t << " " << error_max << " " << deltat1 << endl;
-	  //double error_max2=0.0;
 	  /*
-	  for (i=0;i<n;i++)
+	  cout << t << " " << error_max << " " << deltat1 << endl;
+	  double error_max2=0.0;
+	  deltat2=0.8/pow(error_max,0.5)*deltat1;
+	  if (deltat2<0.5*deltat1)
+	    for (i=0;i<n;i++)
+	      if (i!=config.iHp and i!=config.iHSO4m and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m)
 	    {
 	      if (surrogate[i].is_organic or surrogate[i].is_inorganic_precursor)
 		{
 		  wk=atol+rtol*surrogate[i].Ag;
+		  wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
 		  error_max2=abs(surrogate[i].Ag-surrogate[i].Ag0)/wk;
 		  if (error_max2>0.9*error_max)
 		    cout << surrogate[i].name << " gas " << error_max2 << " " << surrogate[i].Ag << " " << surrogate[i].Ag0 << endl;
@@ -4634,6 +4659,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
 		      {
 			wk=atol+rtol*surrogate[i].Ap_layer_init(b,ilayer,iphase);
+			wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
 			error_max2=abs(surrogate[i].Ap_layer_init(b,ilayer,iphase)-surrogate[i].Ap_layer_init0(b,ilayer,iphase))/wk;
 			if (error_max2>0.9*error_max)
 			  cout << surrogate[i].name << " org " << error_max2 << " " << surrogate[i].Ap_layer_init(b,ilayer,iphase) << " " << surrogate[i].Ap_layer_init0(b,ilayer,iphase) << endl;
@@ -4642,9 +4668,14 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      for (b=0;b<config.nbins;++b)
 		{
 		  wk=atol+rtol*surrogate[i].Aaq_bins_init(b);
+		  if (i==config.iSO4mm)
+		    wk+=rtol*surrogate[config.iHSO4m].Aaq_bins_init(b)/surrogate[config.iHSO4m].MM*surrogate[config.iSO4mm].MM;
+		  wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
 		  error_max2=abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk;
-		}	
-	    }*/
+		  if (error_max2>0.9*error_max)
+		    cout << surrogate[i].name << " aq " << b << " " << error_max2 << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins_init0(b) << endl;
+		    }	
+		    }*/
 	  /*
 	    for (i=0;i<n;i++)
 	    if ((surrogate[i].is_organic and surrogate[i].hydrophilic) or (surrogate[i].is_ion and i!=config.iHp))
