@@ -2020,7 +2020,7 @@ contains
 
           !! Check if a precursor name is found in the list of gas-phase species.
           if ((ind .eq. 0) .and. (trim(precursor) .ne. "--")) then
-             if (ssh_standalone) write(*,*) "Error: wrong species name is given ",&
+             write(*,*) "Error: wrong species name is given ",&
                   trim(aerosol_species_list_file), ' ', trim(precursor)
              if (ssh_logger) write(logfile,*) "Error: wrong species name is given ",&
                   trim(aerosol_species_list_file), ' ', trim(precursor)
@@ -2040,12 +2040,12 @@ contains
     ! Safety check if index_groups is used
     if (tag_external.eq.1) then
        if (minval(Index_groups(1:N_aerosol_Layers-1)).lt.1) then
-          if (ssh_standalone) write(*,*) "Error: Incorrect group index in aerosol_species_list_file."    
+          write(*,*) "Error: Incorrect group index in aerosol_species_list_file."    
           if (ssh_logger) write(logfile,*) "Error: Incorrect group index in aerosol_species_list_file."  
           stop
        endif
        if (maxval(Index_groups(1:N_aerosol_Layers-1)).gt.N_groups) then
-          if (ssh_standalone) write(*,*) "Error: Increase N_groups in namelist file."
+          write(*,*) "Error: Increase N_groups in namelist file."
           if (ssh_logger) write(logfile,*) "Error: Increase N_groups in namelist file."
           stop
        endif
@@ -2623,7 +2623,7 @@ contains
             if (ssh_standalone) write(*,*) '  Use background + generated RO2 pool. tag_RO2 = ', tag_RO2
             if (ssh_logger) write(logfile,*) '  Use background + generated RO2 pool. tag_RO2 = ', tag_RO2
         else
-            if (ssh_standalone) write(*,*) 'Error: unknown input tag_RO2 = ',tag_RO2
+            write(*,*) 'Error: unknown input tag_RO2 = ',tag_RO2
             if (ssh_logger) write(logfile,*) 'Error: unknown input tag_RO2 = ',tag_RO2
             stop
         endif
@@ -2765,7 +2765,7 @@ contains
                         ! for now assume N_size == N_sizebin.
                         ! Need to be modified if use for external mixing
                         if (i.gt.N_sizebin) then
-                            if (ssh_standalone) write(*,*) 'Error: Input number of bin >= N_sizebin', &
+                            write(*,*) 'Error: Input number of bin >= N_sizebin', &
                                   i,N_sizebin,ic_name,' ',trim(cst_aero_file)
                             if (ssh_logger) write(logfile,*) 'Error: Input number of bin >= N_sizebin', &
                                   i,N_sizebin,ic_name,' ',trim(cst_aero_file)
@@ -2906,7 +2906,7 @@ contains
            enddo
 
            if (ind .eq. 0) then
-              if (ssh_standalone) write(*,*) "Error: wrong species name is given in ",&
+              write(*,*) "Error: wrong species name is given in ",&
                 trim(cst_gas_file),', species ', trim(ic_name)
               if (ssh_logger) write(logfile,*) "Error: wrong species name is given in ",&
                 trim(cst_gas_file),', species ', trim(ic_name)
@@ -2980,7 +2980,7 @@ contains
               if (ind == 1) exit
            enddo
            if (ind .eq. 0) then
-              if (ssh_standalone) write(*,*) "Error: wrong species name is given in ",&
+              write(*,*) "Error: wrong species name is given in ",&
                 trim(RO2_list_file)," ",trim(ic_name)
               if (ssh_logger) write(logfile,*) "Error: wrong species name is given in ",&
                 trim(RO2_list_file)," ", trim(ic_name)
@@ -2993,7 +2993,7 @@ contains
         if (nRO2_chem.gt.0) then
           ind = minval(TB_rcn(:,2)) !number read from reaction list
           if (ind.gt.0 .and. abs(ind).gt.nRO2_group) then
-            if (ssh_standalone) write(*,*)"Error: RO2 group no. < RO2 index read from reaction file", &
+            write(*,*)"Error: RO2 group no. < RO2 index read from reaction file", &
                                  abs(ind), nRO2_group
             if (ssh_logger) write(logfile,*) "Error: RO2 group no. < RO2 index read from reaction file", &
                                  abs(ind), nRO2_group
@@ -3003,7 +3003,7 @@ contains
 
         ! check nRO2_group with iRO2_cst
         if (tag_RO2.gt.1.and.nRO2_group.gt.1.and.iRO2_cst.gt.0) then
-          if (ssh_standalone) write(*,*)   "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
+          write(*,*)   "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
           if (ssh_logger) write(logfile,*) "Error: RO2 group no. > 1 & iRO2_cst exists", nRO2_group
           stop
         endif
@@ -3012,8 +3012,8 @@ contains
         if ( .not. allocated(RO2out_index)) allocate(RO2out_index(nRO2_group))
         
       else ! no RO2 file can be read
-          if (ssh_standalone) write(*,*) "Error: RO2 list info is needed but not given."
-          if (ssh_standalone) write(*,*) "Please check RO2_list_file in the namelist. tag_RO2 = ",&
+          write(*,*) "Error: RO2 list info is needed but not given."
+          write(*,*) "Please check RO2_list_file in the namelist. tag_RO2 = ",&
               tag_RO2, " ",trim(RO2_list_file)
           if (ssh_logger) write(logfile,*) "Error: RO2 list info is needed but not given."
           if (ssh_logger) write(logfile,*) "Please check RO2_list_file in the namelist. tag_RO2 = ",&
