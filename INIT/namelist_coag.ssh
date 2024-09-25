@@ -1,7 +1,7 @@
 &setup_meteo
 latitude = 48.2,                ! Latitude
 longitude = 2.22,               ! Longitude
-Temperature = 273.16,    	! TEMP
+Temperature = 283.16,    	! TEMP
 Pressure = 1.01325e05,         	! PRES
 Relative_Humidity = 0.6	! if 0, compute RH from specific humidity. if not, use it
 /
