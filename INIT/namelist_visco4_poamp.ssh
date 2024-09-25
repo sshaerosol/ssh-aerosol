@@ -103,7 +103,7 @@ dorg = 1.e-20,                          ! diffusion coefficient in the organic p
 coupled_phases = 1,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 1,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.01,                     ! relative error precision for time step adjustment
-epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
+epser_soap = 0.001,                 ! relative difference of ros2 in SOAP  
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
 reaction_soap_file="species-list/REACTIONS.particle.soap",
 /
