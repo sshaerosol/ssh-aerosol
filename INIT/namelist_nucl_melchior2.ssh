@@ -47,7 +47,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./species-list/species-list-melchior2.dat",                    !Species list for CB05 
+species_list_file = "./species-list/species-list-melchior2.dat",                    !Species list for CB05
+reaction_list_file = "./src/include/CHEMISTRY/melchior2/MELCHIOR2_poa.nospack.reactions",
 /
 
 &aerosol_species
@@ -120,7 +121,7 @@ name_org_h2so4_nucl_species = 'Monomer' 'Dimer',                  ! Species name
 /
 
 &output
-output_directory = "results/nucl_coupl/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/nucl_coupl_melchior2", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "INIT/fractions.txt"
 /

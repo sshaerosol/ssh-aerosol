@@ -1286,7 +1286,7 @@ subroutine ssh_spack_spec(ire, iex, label)
     xlw = humidity
 
     ! Label for different mechanisms
-    ! 10: cb05, 20: racm2, ... 
+    ! 10: cb05, 20: racm2, 30: melchior2 ... 
     ind = INT(extra_coeff(iex, 2)) ! 2nd level label
     
     if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
@@ -1429,7 +1429,26 @@ subroutine ssh_spack_spec(ire, iex, label)
           print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
                     label,ire,iex
           STOP
-      END SELECT
+       END SELECT
+    elseif (label .eq. 30) then ! MELCHIOR2 - rewrite from ssh_WSPEC_MELCHIOR2
+       SELECT CASE(ind)
+       CASE (1)
+          ! NO2 + OH --> HNO3
+          ka = 3.4d-30 * (3.d2 / temperature)**(3.d2) * SumMc
+          kb = ka / (4.77d-11 * (3.d2 / temperature)**1.4)
+          qfor = (ka / (1.0d0 + kb)) * 0.3 ** &
+               (1.0d0 / (1.0d0 + &
+               ((dlog10(kb) - 0.12) / 1.2)**2))
+       CASE (2)
+          ! N2O5 -> 2. HNO3
+          qfor = 2.0d-39 * YlH2O * YlH2O
+       CASE (3)
+          ! NO2 -> HONO + NO2
+          ka  = 15.0d0
+          kb = 0.00033d0
+          qfor = 0.5d0 * kb / ka
+          
+       END SELECT
     end if
   
   ! add a ratio
