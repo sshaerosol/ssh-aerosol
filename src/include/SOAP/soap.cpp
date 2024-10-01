@@ -261,7 +261,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       config.compute_organic=false;
       config.LWClimit=-1;
       LWC=0.;
-      config.MOmin=1.0e-5;
+      config.MOmin=1.0e-20;
       config.isorropia_ph=false;
     }
   else
@@ -274,6 +274,9 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       config.MOmin=1.0e-20;
       config.isorropia_ph=false;
     }
+
+  if (config.imethod>=2)
+    config.MOmin=1.0e-5;
 
   if (config.imethod==0)
     config.kp_low_volatility=0.001;

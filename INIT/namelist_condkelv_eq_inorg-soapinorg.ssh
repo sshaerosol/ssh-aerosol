@@ -18,7 +18,7 @@ with_init_num = 1,                ! 0 estimated from mass and diameter; 1 number
 tag_init = 0,                     ! initial method for aerosol species (0 internally mixed; 1 mixing_state resolved !! option 1 not yet available)
 tag_dbd = 1,	                  ! Method for defining particle size bounds (0 if they are auto generated, 1 if bounds are read)
 N_sizebin = 50,                    ! Number of size bin
-init_gas_conc_file = "inputs/inputs-coag/init_gas_condkelv_nh3.dat",                     ! Initial data for gas
+init_gas_conc_file = "inputs/inputs-coag/init_gas_condkelv_inorg.dat",                     ! Initial data for gas
 init_aero_conc_mass_file = "inputs/inputs-coag/init_aero_coag50.dat",        !  Initial data for aero mass  
 init_aero_conc_num_file = "inputs/inputs-coag/init_num_coag50.dat",     !  Initial data for aero number  
 /
@@ -61,7 +61,6 @@ with_heterogeneous = 0,                 !Tag of heterogeneous reaction
 
 
 &physic_particle_numerical_issues
-DTAEROMIN = 1.e-5,
 redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
 fixed_density = 1.4D-06,        
@@ -78,14 +77,13 @@ Nmc = 2000                             ! Number of Monte Carlo points if reparti
 
 &physic_condensation
 with_cond = 1,               !Tag of condensation/evaporation
-Cut_dim = 0.0,             ! KCUT	ICUT = 0
-ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
+Cut_dim = 10.0,             ! KCUT	ICUT = 0
+ISOAPDYN = 0,                !0 = equilibrium, 1 = dynamic
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
-tequilibrium = 0.1,                     ! time under which equilibrium is assumed.
+tequilibrium = 0.000001,                     ! time under which equilibrium is assumed.
 coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 3,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
-epser = 0.01,                 ! relative difference of ros2 in SOAP  
-epser_soap = 0.01,                 ! relative difference of ros2 in SOAP  
+epser_soap = 0.001,                 ! relative difference of ros2 in SOAP  
 SOAPlog = 1,                  !0=no text output (Henry + smiles decomposition) from SOAP, 1=on screen, 2=in written files
 reaction_soap_file="species-list/noREACTIONS.particle.soap",
 soap_inorg=1,
@@ -96,7 +94,7 @@ with_nucl = 0,                !Tag of nucleation - Need to have lower diameter a
 /
 
 &output
-output_directory = "results/condkelv/inorgnh3-dyn-soapinorg/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/condkelv/inorg-eq-soapinorg/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "INIT/fractions.txt"
 /

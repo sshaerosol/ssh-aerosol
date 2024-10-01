@@ -2189,6 +2189,8 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
         surrogate[i].Aaq_bins=0.0;*/
       surrogate[i].Ap_layer_init.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].Ap_layer_init0.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      surrogate[i].Ap_layer_init20.resize(config.nbins,config.nlayer,config.max_number_of_phases);
+      
       for (b=0;b<config.nbins;++b)		  
         for (ilayer=0;ilayer<config.nlayer;++ilayer)
           for (iphase=0;iphase<config.max_number_of_phases;++iphase)
@@ -2199,10 +2201,12 @@ void init_transfert_parameters_ssh(model_config &config, vector<species>& surrog
         surrogate[i].Ap_layer_init0(b,ilayer,iphase)=0.0;*/
       surrogate[i].Aaq_bins_init.resize(config.nbins);
       surrogate[i].Aaq_bins_init0.resize(config.nbins);
+      surrogate[i].Aaq_bins_init20.resize(config.nbins);
       surrogate[i].Aaq_bins_init2.resize(config.nbins);
       surrogate[i].Asol_bins_init.resize(config.nbins);
       surrogate[i].Asol_bins_init2.resize(config.nbins);
       surrogate[i].Asol_bins_init0.resize(config.nbins);
+      surrogate[i].Asol_bins_init20.resize(config.nbins);
       surrogate[i].Asol_bins.resize(config.nbins);
       surrogate[i].gamma_org_layer.resize(config.nbins,config.nlayer,config.max_number_of_phases);
       surrogate[i].gamma_org_layer0.resize(config.nbins,config.nlayer,config.max_number_of_phases);
