@@ -129,6 +129,8 @@ void compute_density_aqueous_phase_ssh(model_config &config, vector<species>& su
         surrogate[i].Waq=surrogate[i].Aaq+LWC;
         sumW+=surrogate[i].Waq;
       }
+
+  //cout << "la " << surrogate[config.iH2O].Waq/1000.0/sumW << endl;
   
   double avail_nh4,avail_na;
   if (config.iNH4p>=0)
@@ -156,7 +158,7 @@ void compute_density_aqueous_phase_ssh(model_config &config, vector<species>& su
   double waq_NaCl=0.0;
   double waq_NH4Cl=0.0;
   double waq_HCl=0.0;
-
+  
   if (config.iHSO4m>=0)
     {
       double avail_hso4=surrogate[config.iHSO4m].Aaq;
@@ -255,10 +257,10 @@ void compute_density_aqueous_phase_ssh(model_config &config, vector<species>& su
     }
 
   double waq_Na=avail_na;
-  double waq_NH3=17.0*avail_nh4/surrogate[config.iNH4p].MM;
+  double waq_NH3=0.; //17.0*avail_nh4/surrogate[config.iNH4p].MM;
 
   sumW+=waq_NaHSO4+waq_NH4HSO4+waq_H2SO4+waq_Na2SO4+waq_NH4NH4SO4+waq_NaNO3
-    +waq_NH4NO3+waq_HNO3+waq_NaCl+waq_NH4Cl+waq_HCl+waq_Na+waq_NH3+surrogate[config.iH2O].Aaq+LWC;
+    +waq_NH4NO3+waq_HNO3+waq_NaCl+waq_NH4Cl+waq_HCl+waq_Na+waq_NH3; //+surrogate[config.iH2O].Aaq+LWC;
 
   double Tr=(Temperature-273.15)/273.15;
   double temp_rho;
@@ -335,7 +337,7 @@ void compute_density_aqueous_phase_ssh(model_config &config, vector<species>& su
       temp+=waq_NH3/910.0/sumW;
 
       //H2O
-      temp+=(surrogate[i].Aaq+LWC)/1000.0/sumW;
+      //temp+=(surrogate[i].Aaq+LWC)/1000.0/sumW;
     }
   
 
@@ -353,22 +355,28 @@ void density_aqueous_phase_ssh(model_config &config, vector<species>& surrogate,
   //the volume of other compounds
   int n=surrogate.size();
   int b,i;
-  
-  if (config.compute_rho_aqueous)
+
+  if (config.fixed_density==false)
     {
-      for (b=0;b<config.nbins;++b)
-        {
-          for (i=0;i<n;++i)
-            if (surrogate[i].hydrophilic)
-              surrogate[i].Aaq=surrogate[i].Aaq_bins_init(b);
+      if (config.compute_rho_aqueous)
+	{
+	  for (b=0;b<config.nbins;++b)
+	    {
+	      for (i=0;i<n;++i)
+		if (surrogate[i].hydrophilic)
+		  surrogate[i].Aaq=surrogate[i].Aaq_bins_init(b);
    
-          compute_density_aqueous_phase_ssh(config, surrogate, LWC(b), Temperature);
-          config.AQrho(b)=config.rho_aqueous;
-        }
+	      compute_density_aqueous_phase_ssh(config, surrogate, LWC(b), Temperature);
+	      config.AQrho(b)=config.rho_aqueous;
+	    }
+	}
+      else
+	for (b=0;b<config.nbins;++b)
+	  config.AQrho(b)=config.rho_aqueous;
     }
   else
     for (b=0;b<config.nbins;++b)
-      config.AQrho(b)=config.rho_aqueous;
+      config.AQrho(b)=config.density;
 }
 
 void compute_viscosity_ssh(model_config &config, vector<species>& surrogate,

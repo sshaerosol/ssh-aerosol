@@ -14,6 +14,26 @@ void compute_kp_org_bins_ssh(model_config &config, vector<species>& surrogate,
   double kelvin_effect=1.e0;
   int ilayer,i,iphase,jphase;
   int n=surrogate.size();
+
+  if (config.fixed_density==false)
+    {
+      double tmp=0.;
+      double tmp2=0.;
+      ilayer=config.nlayer-1;
+      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+	for (i=0;i<n;++i)
+	  if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophobic)
+	    {
+	      tmp+=surrogate[i].Ap_layer_init(b,ilayer,iphase)/surrogate[i].rho;
+	      tmp2+=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+	    }
+
+      if (tmp>0)
+	config.rho_organic=tmp2/tmp;
+      else
+	config.rho_organic=1300.;
+    }
+  
   if (config.compute_kelvin_effect and config.diameters(b) > 0.0) //compute the kelvin_effect
     {
       //compute the mean molar mass of organic phases
@@ -8317,26 +8337,48 @@ void compute_diameters_ssh(model_config &config, vector<species>& surrogate,
   double pi=3.14159265358979323846;
   int n=surrogate.size();
 
-  for (b=0;b<config.nbins;++b)
-    {
-      if (number(b) > 0.0)
-        {
-          volume=(Vsol(b)+LWC(b)*1.0e-9/config.AQrho(b))/number(b);
-          for (ilayer=0;ilayer<config.nlayer;++ilayer)
-            for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-              for (i=0;i<n;i++)
-                if (surrogate[i].hydrophobic)
-                  volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
-                    /(number(b)*surrogate[i].rho);
+  if (config.fixed_density)
+    for (b=0;b<config.nbins;++b)
+      {
+	if (number(b) > 0.0)
+	  {
+	    volume=(Vsol(b)+LWC(b)*1.0e-9/config.density)/number(b);
+	    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		for (i=0;i<n;i++)
+		  if (surrogate[i].hydrophobic)
+		    volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
+		      /(number(b)*config.density);
 	  
-          for (i=0;i<n;i++)
-            if (surrogate[i].hydrophilic and LWCtot>config.LWClimit and surrogate[i].is_inorganic_precursor==false)
-              volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.AQrho(b));
+	    for (i=0;i<n;i++)
+	      if (surrogate[i].hydrophilic and LWCtot>config.LWClimit and surrogate[i].is_inorganic_precursor==false)
+		volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.density);
 	  
-          config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
-          if(config.diameters(b) < 1e-4) config.diameters(b) = 1e-4;
-        }
-    }
+	    config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
+	    if(config.diameters(b) < 1e-4) config.diameters(b) = 1e-4;
+	  }
+      }
+  else
+    for (b=0;b<config.nbins;++b)
+      {
+	if (number(b) > 0.0)
+	  {
+	    volume=(Vsol(b)+LWC(b)*1.0e-9/config.AQrho(b))/number(b);
+	    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+	      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+		for (i=0;i<n;i++)
+		  if (surrogate[i].hydrophobic)
+		    volume+=surrogate[i].Ap_layer_init(b,ilayer,iphase)*1.0e-9
+		      /(number(b)*surrogate[i].rho);
+	  
+	    for (i=0;i<n;i++)
+	      if (surrogate[i].hydrophilic and LWCtot>config.LWClimit and surrogate[i].is_inorganic_precursor==false)
+		volume+=surrogate[i].Aaq_bins_init(b)*1.0e-9/(number(b)*config.AQrho(b));
+	  
+	    config.diameters(b)=pow(6.0/pi*volume,1.0/3.0)*1.0e6;
+	    if(config.diameters(b) < 1e-4) config.diameters(b) = 1e-4;
+	  }
+      }
 }
 
 void phase_repartition_ssh(model_config &config,vector<species>& surrogate, double &Temperature,

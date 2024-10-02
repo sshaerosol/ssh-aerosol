@@ -25,7 +25,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[], double enthalpy_vaporization[],
                    int is_nonvolatile[],
                    double diffusion_coef[],
-		   double henry[], double t_ref[], double mass_density[],
+		   double henry[], double t_ref[], double mass_density[], double constant_density,
 		   int nlayer, int with_kelvin_effect,
 		   double tequilibrium, double dtaeromin, double dorg,
 		   int coupled_phases, int activity_model, double epser_soap, int i_hydrophilic,

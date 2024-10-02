@@ -32,7 +32,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       double* accomodation_coefficient, int* aerosol_type, 
 			       char* partitioning, char* smiles, double* saturation_vapor_pressure,
 			       double* enthalpy_vaporization, int *is_nonvolatile, double *diffusion_coef,
-			       double* henry, double* t_ref, double* mass_density,
+			       double* henry, double* t_ref, double* mass_density, double* constant_density, 
 			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
@@ -50,7 +50,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       accomodation_coefficient, aerosol_type,
 		       partitioning, smiles, saturation_vapor_pressure,
 		       enthalpy_vaporization, is_nonvolatile, diffusion_coef,
-		       henry, t_ref, mass_density,
+		       henry, t_ref, mass_density, *constant_density,
 		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
@@ -79,7 +79,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   double accomodation_coefficient[], int aerosol_type[], 
 		   char partitioning[], char smiles[], double saturation_vapor_pressure[],
 		   double enthalpy_vaporization[], int is_nonvolatile[], double diffusion_coef[],
-		   double henry[], double t_ref[], double mass_density[], 
+		   double henry[], double t_ref[], double mass_density[], double constant_density,
 		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
@@ -231,6 +231,20 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       compute_gamma_infini_ssh(config, surrogate);
     }
 
+  if (constant_density>0)
+    {
+      config.fixed_density=true;
+      config.density=constant_density*1.0e9;
+      config.compute_rho_aqueous=false;
+      config.rho_organic=config.density;
+    }
+  else
+     {
+       config.fixed_density=false;
+       config.compute_rho_aqueous=true;
+       config.rho_organic=1300.;
+     }
+  
   config.aqorg_repart=false;
   config.coupled_phases=false;
   for (i=0;i<int(surrogate.size());i++)

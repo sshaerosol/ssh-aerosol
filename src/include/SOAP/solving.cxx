@@ -4768,7 +4768,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 			    a20+=surrogate[config.iHSO4m].Aaq_bins_init20(b)/surrogate[config.iHSO4m].MM*surrogate[config.iSO4mm].MM;
 			  }
 		  
-			wk=rtol*a1;
+			wk=atol+rtol*a1;
 			wk=max(wk,config.EPSER*1.e-5*surrogate[i].Atot);
 			error_max=max(error_max,min(abs(a1-a20),abs(a1-a0))/wk);
 			//if ((surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins_init0(b))/wk>0.63)

@@ -124,7 +124,8 @@ namespace ssh_soap
     double chp_org_ref;
 
     string reaction_file;
-    bool inorganic_chemistry;
+    bool inorganic_chemistry,fixed_density;
+    double density;
 
   };
 

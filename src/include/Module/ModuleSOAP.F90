@@ -65,7 +65,7 @@ contains
       double precision q(N_size*(1+N_aerosol)+N_aerosol)
       DOUBLE PRECISION aero(N_aerosol),gas(N_aerosol)
       DOUBLE PRECISION lwc, lwcorg, rh, temp
-      DOUBLE PRECISION ionic, proton, chp
+      DOUBLE PRECISION ionic, proton, chp, constant_density
       DOUBLE PRECISION liquid(12)
       DOUBLE PRECISION delta_t
       DOUBLE PRECISION qaq(N_aerosol)
@@ -101,6 +101,11 @@ contains
          endif
       endif
 
+      if (with_fixed_density .eq. 1) then
+         constant_density = fixed_density
+      else
+         constant_density=-1
+      endif
       CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg, &
            DT2, DSD, csol, liquid,&
            N_aerosol, N_aerosol_layers, neq, q, aero, qaq, gas, &
@@ -110,7 +115,7 @@ contains
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, &
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
-           henry, t_ref, mass_density, &
+           henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
@@ -206,7 +211,7 @@ contains
       INTEGER jj,jesp,js,s
       INTEGER soap_inorg_loc2
       double precision qaero(N_aerosol), qgas(N_aerosol)
-      double precision deltat
+      double precision deltat, constant_density
       double precision DSD(N_size)
       double precision csol(N_size) !! Concentration of solid particles (PBC + PMD)
       DOUBLE PRECISION qaq(N_aerosol)
@@ -289,6 +294,12 @@ contains
       
       lwcorg=0.
 
+      if (with_fixed_density .eq. 1) then
+         constant_density = fixed_density
+      else
+         constant_density=-1
+      endif
+
       ! FCo: force this routine to be used only for organics. Condensation of inorganics have to be computed in the subroutine SSH_SOAP_DYN_ICUT
       soap_inorg_loc2=0      
       CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
@@ -300,7 +311,7 @@ contains
            accomodation_coefficient, aerosol_type, &
            partitioning, smiles, saturation_vapor_pressure, &
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
-           henry, t_ref, mass_density, &
+           henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
@@ -406,7 +417,7 @@ contains
       double precision q_soap((N_size-ICUT_org)*(1+N_aerosol_layers)+N_aerosol)
       INTEGER IQ(N_aerosol_layers, (N_size-ICUT_org))
       DOUBLE PRECISION lwc, lwcorg, rh, temp
-      DOUBLE PRECISION ionic, proton, chp
+      DOUBLE PRECISION ionic, proton, chp, constant_density
       DOUBLE PRECISION liquid(12)
 
       INTEGER jj,jesp,js,s,isoapdyn2
@@ -495,6 +506,12 @@ contains
       enddo
 
       lwcorg=0.
+      
+      if (with_fixed_density .eq. 1) then
+         constant_density = fixed_density
+      else
+         constant_density=-1
+      endif
 
       CALL soap_main_ssh(lwc, rh, temp, co2_conc_ppm, ionic, chp, lwcorg,&
            deltat,DSD,csol,liquid,&
@@ -505,7 +522,7 @@ contains
            aerosol_species_name, spec_name_len, molecular_weight_aer, accomodation_coefficient, &
            aerosol_type, partitioning, smiles, saturation_vapor_pressure, &
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
-           henry, t_ref, mass_density, &
+           henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
            coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog,reaction_soap_file)
