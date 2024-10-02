@@ -2715,13 +2715,15 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
         for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
           MOsave(b,ilayer,iphase)=MOinit(b,ilayer,iphase); 
     }
-  chp=chp_save;
+  //cout << "init0 " << chp << " " << chp_save << endl;
+  chp_save=chp;
 
   bool hygroscopicity_save=config.hygroscopicity;
   bool inorganic_save=config.compute_inorganic;
 
-  for (b=0;b<config.nbins;b++)
-    chp(b)=min(1.,max(chp(b),1.e-6));
+  if (config.isorropia_ph==false)
+    for (b=0;b<config.nbins;b++)
+      chp(b)=min(1.,max(chp(b),1.e-6));
 
   //cout << "index_max: " << index_max << endl;
   while ((error_tot>config.relative_precision and index < index_max) or index<2)
@@ -2849,7 +2851,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 		  surrogate[i].Asol_bins_init20(b)=surrogate[i].Asol_bins_init(b);
 	      }
 	  }
-       
+
       if (config.first_evaluation_activity_coefficients==false)
         {	  
           twostep_tot_ssh(config, surrogate, config.tequilibrium, AQinit, AQ, conc_inorganic,
@@ -2865,7 +2867,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                           MOW, Temperature, RH, MMaq, false, factor, t, deltat, index);
           if (config.compute_saturation and config.compute_organic)
             phase_repartition_ssh(config,surrogate,Temperature,MOinit,MO,MOW,factor);	  
-        }    
+        }
       
       //cout << surrogate[config.iCa].Aaq_bins_init << endl;
 
@@ -3879,19 +3881,18 @@ void solve_implicit_ssh(model_config config, vector<species> &surrogate,
     int m;
     chp_save=chp;*/
 
-  
   if (config.aqorg_repart)
     {
       solve_implicit_aqorg_repart_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                       conc_inorganic, ionic_organic, organion, MMaq, t, deltat);
     }
-  
+    
   if (config.imethod>=3 and config.hygroscopicity)
     {
       solve_implicit_water_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                                        conc_inorganic, ionic_organic, organion, MMaq, t, 0);
     }
-
+    
   bool hygroscopicity_save=config.hygroscopicity;
   bool compute_organic_save=config.compute_organic;
   if (config.imethod==3)
@@ -4632,8 +4633,8 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
       int index=config.max_iter;
       bool reject_step;
       //Array<double,1> diameters0;
-      //diameters0.resize(config.nbins);
-     while (t<deltatmax)
+      //diameters0.resize(config.nbins);      
+      while (t<deltatmax)
         {
 	  deltat1=min(deltatmax-t,deltat1);
 	  deltat2=deltat1;
@@ -4648,11 +4649,11 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	  //diameters0=config.diameters;
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
                              conc_inorganic, ionic_organic, organion, MMaq, t, deltat1, index, reject_step);
-	  //cout << "index: " << index << endl;
+	  
 	  //cout << config.diameters << endl;
 	  if (reject_step)
 	    {
-	      //cout << "rejected!!!" << endl;
+	      // cout << "rejected!!!" << endl;
 	      index=index_save;
 	      deltat1=max(deltat1/2,config.deltatmin);
 	      //exit(0);
@@ -4660,6 +4661,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	  else
 	    {	      
 	      t+=deltat1;
+	      
 	      for (i=0;i<n;i++)
 		if (surrogate[i].is_inorganic_precursor and surrogate[i].is_solid==false)
 		  {

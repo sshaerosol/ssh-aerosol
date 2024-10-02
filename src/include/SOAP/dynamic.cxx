@@ -924,7 +924,7 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 	    for (b=0;b<config.nbins;b++)
 	      cout << b << " " << 1.0/(surrogate[i].Kaq(b)*conc_org(b)*surrogate[i].tau_air(b));
 	      }*/
-
+	
 	if (imin>0 and i!=config.iCO2)
 	  for (b=imin-1;b>=0;b--)
 	    //if (surrogate[i].time_aq(b)>surrogate[i].time_aq(b+1))
