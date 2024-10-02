@@ -514,30 +514,36 @@ subroutine ssh_update_kinetic_pho(azi)
     do i=1, size(photo_rcn,1)
         j = photo_rcn(i,1) ! reaction index
         k = photo_rcn(i,2) ! pholysis index
-        tag = 0 ! tag for computing photolysis rate
-        do s=1, nsza-1 ! get photolysis rate
-            if (azi.ge.szas(s) .and. azi.lt.szas(s+1)) then ! find zone
-                if (k.lt.0) then ! spack
-                    ik = abs(k)
-                    photo = photo_ratio(ik,s,4)
-                    photo = photo_ratio(ik,s,3) + (azi-szas(s))*photo
-                    photo = photo_ratio(ik,s,2) + (azi-szas(s))*photo
-                    photo = photo_ratio(ik,s,1) + (azi-szas(s))*photo
-                else ! gck
-                    zp = (azi-szas(s))/(szas(s+1)-szas(s)) !zp=(xin-xp(i-1))/xp(i)-xp(i-1)
-                    photo =((zp*photo_ratio(k,s,1) + photo_ratio(k,s,2)) &
-                            *zp + photo_ratio(k,s,3))*zp + photo_ratio(k,s,4)
-                    photo = dabs(photo)
+        if (option_photolysis == 1) then
+            tag = 0 ! tag for computing photolysis rate
+            do s=1, nsza-1 ! get photolysis rate
+                if (azi.ge.szas(s) .and. azi.lt.szas(s+1)) then ! find zone
+                    if (k.lt.0) then ! spack
+                        ik = abs(k)
+                        photo = photo_ratio(ik,s,4)
+                        photo = photo_ratio(ik,s,3) + (azi-szas(s))*photo
+                        photo = photo_ratio(ik,s,2) + (azi-szas(s))*photo
+                        photo = photo_ratio(ik,s,1) + (azi-szas(s))*photo
+                    else ! gck
+                        zp = (azi-szas(s))/(szas(s+1)-szas(s)) !zp=(xin-xp(i-1))/xp(i)-xp(i-1)
+                        photo =((zp*photo_ratio(k,s,1) + photo_ratio(k,s,2)) &
+                                *zp + photo_ratio(k,s,3))*zp + photo_ratio(k,s,4)
+                        photo = dabs(photo)
+                    endif
+                    tag = 1
+                    exit
                 endif
-                tag = 1
-                exit
-            endif
-        enddo
-        if (tag.eq.0) then
-            print*, "Not find photolysis info: ",j,k,azi
-            stop 
+            enddo
+            if (tag.eq.0) then
+                print*, "Not find photolysis info: ",j,k,azi
+                stop 
+             endif
+        ! Read from binary files     
+        else if (option_photolysis == 2) then
+           photo = photolysis_rate(abs(k))
         endif
-       ! Cloud attenuation.
+        
+        ! Cloud attenuation.
        kinetic_rate(j) = Arrhenius(j,1) * max(photo*attenuation, 0.d0) ! add a ratio
     enddo
   else if (tag_genoa.eq.0 .and. azi .ge. 90.d0) then ! CAUTION: not for all photolysis kinetics
@@ -545,7 +551,11 @@ subroutine ssh_update_kinetic_pho(azi)
        j = photo_rcn(i,1) ! reaction index
        k = photo_rcn(i,2) ! pholysis index
        ik = abs(k)
-       kinetic_rate(j) = photo_ratio_read(ik,nsza) ! No photo_ratio_read for PHOT from file !
+       if (option_photolysis == 1) then
+          kinetic_rate(j) = photo_ratio_read(ik,nsza) ! No photo_ratio_read for PHOT from file !
+       else if (option_photolysis == 2) then
+          kinetic_rate(j) = photolysis_rate(ik)
+       end if
      enddo
   else ! no photolysis
     do i=1, size(photo_rcn,1) ! no.TB reactions
@@ -1286,7 +1296,7 @@ subroutine ssh_spack_spec(ire, iex, label)
     xlw = humidity
 
     ! Label for different mechanisms
-    ! 10: cb05, 20: racm2, ... 
+    ! 10: cb05, 20: racm2, 30: melchior2 ... 
     ind = INT(extra_coeff(iex, 2)) ! 2nd level label
     
     if (label .eq. 10) then ! CB05 - rewrite from ssh_WSPEC_CB0590
@@ -1429,7 +1439,26 @@ subroutine ssh_spack_spec(ire, iex, label)
           print*, '--error-- in ssh_spack_spec. RACM2 Type unknown: ', &
                     label,ire,iex
           STOP
-      END SELECT
+       END SELECT
+    elseif (label .eq. 30) then ! MELCHIOR2 - rewrite from ssh_WSPEC_MELCHIOR2
+       SELECT CASE(ind)
+       CASE (1)
+          ! NO2 + OH --> HNO3
+          ka = 3.4d-30 * (3.d2 / temperature)**(3.d2) * SumMc
+          kb = ka / (4.77d-11 * (3.d2 / temperature)**1.4)
+          qfor = (ka / (1.0d0 + kb)) * 0.3 ** &
+               (1.0d0 / (1.0d0 + &
+               ((dlog10(kb) - 0.12) / 1.2)**2))
+       CASE (2)
+          ! N2O5 -> 2. HNO3
+          qfor = 2.0d-39 * YlH2O * YlH2O
+       CASE (3)
+          ! NO2 -> HONO + NO2
+          ka  = 15.0d0
+          kb = 0.00033d0
+          qfor = 0.5d0 * kb / ka
+          
+       END SELECT
     end if
   
   ! add a ratio

@@ -166,16 +166,19 @@ rm -f $file
 # mode_fortran: strict or permissive (default: permissive)
 # openmp: yes or no (default: no)
 # mpi: yes or no (default: no)
+# cpp: C++ compiler (default: system default value)
+# c: C compiler (default: system default value)
+# fortran: Fortran compiler (default: system default value)
 #=============================
 
 cd src
 
-# Compiler options
+#=== Compiler options
 # cpp_compiler="g++"
 # c_compiler="gcc"
 # fortran_compiler="gfortran"
 
-scons -j8 profile=$profile openmp=$openmp sharedlib=$sharedlib line=yes # cpp=${cpp_compiler} c=${c_compiler} fortran=${fortran_compiler}
+scons -j8 profile=$profile openmp=$openmp sharedlib=$sharedlib # cpp=${cpp_compiler} c=${c_compiler} fortran=${fortran_compiler}
 
 cd ..
 ln -s src/ssh-aerosol ssh-aerosol

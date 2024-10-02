@@ -48,7 +48,8 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 /
 
 &gas_phase_species
-species_list_file = "./species-list/species-list-melchior2.dat",                    !Species list for CB05 
+species_list_file = "./species-list/species-list-melchior2.dat",                    !Species list for CB05
+reaction_list_file = "./src/include/CHEMISTRY/melchior2/MELCHIOR2_poa.nospack.reactions",
 /
 
 &aerosol_species
@@ -114,7 +115,7 @@ with_nucl = 0,                !Tag of nucleation - Need to have lower diameter a
 /
 
 &output
-output_directory = "results/cond-sulfate/r0/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/cond-sulfate/melchior2/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "INIT/fractions.txt"
 /
