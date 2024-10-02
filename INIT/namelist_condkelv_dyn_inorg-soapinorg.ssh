@@ -82,7 +82,7 @@ with_cond = 1,               !Tag of condensation/evaporation
 Cut_dim = 0.,             ! KCUT	ICUT = 0
 ISOAPDYN = 1,                !0 = equilibrium, 1 = dynamic
 with_kelvin_effect = 1,                 ! 1 if kelvin effect is taken into account.
-tequilibrium = 0.1,                     ! time under which equilibrium is assumed.
+tequilibrium = 0.2,                     ! time under which equilibrium is assumed.
 coupled_phases = 0,                       ! 1 if aqueous and organic phases are coupled
 activity_model = 3,               ! 1. "ideal", 2. "unifac", 3. "aiomfac"
 epser = 0.001,                 ! relative difference of ros2 in SOAP  
