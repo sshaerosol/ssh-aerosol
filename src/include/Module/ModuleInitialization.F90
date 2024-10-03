@@ -95,7 +95,6 @@ module aInitialization
   integer, save :: niter_water,niter_eqconc
   integer, save :: NACL_IN_THERMODYNAMICS
   integer, dimension(:), allocatable, save :: iter_eqconc,iter_water
-  integer, save :: option_cloud
   
   ! cut-off diameter
   integer, save :: ICUT,ICUT_org      ! section index
@@ -208,7 +207,6 @@ module aInitialization
   double precision, save :: attenuation
   double precision, save :: fixed_density
   double precision, save :: lwc_cloud_threshold
-  double precision, save :: cloud_water
 
   double precision, dimension(:), allocatable, save :: temperature_array
   double precision, dimension(:), allocatable, save :: humidity_array
@@ -491,7 +489,7 @@ contains
     ! namelists to read namelist.ssh file 
 
     namelist /setup_meteo/ latitude, longitude, Temperature, Pressure,&
-         Humidity, Relative_Humidity, meteo_file, cloud_water
+         Humidity, Relative_Humidity, meteo_file
 
     namelist /setup_time/ initial_time, final_time, delta_t
 
@@ -523,7 +521,7 @@ contains
          n_latitude, latitude_min, delta_latitude, &
          n_altitude, altitude_photolysis_input, & 
          tag_twostep, keep_gp, &
-         kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber, option_cloud
+         kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
 
     namelist /physic_particle_numerical_issues/ DTAEROMIN, redistribution_method,&
          with_fixed_density, fixed_density, splitting
@@ -574,7 +572,6 @@ contains
     Temperature = -999.d0
     Pressure = -999.d0
     Relative_humidity = -999.d0
-    cloud_water = -999.d0
     humidity = -999.d0
     
     meteo_file = ""
@@ -614,11 +611,6 @@ contains
        !    endif
        ! end if
 
-       ! cloud_water = 0.d0 by default
-       ! if it is not given in namelist
-       if (cloud_water == -999.d0) then
-          cloud_water = 0.d0 ! in kg/kg
-       endif
       
        if (ssh_standalone) write(*,*) ''
        if (ssh_logger) write(logfile,*) ''
@@ -1035,7 +1027,6 @@ contains
     surface_volume_ratio=0.d0
     kwp0=0.d0
     radius_chamber=0.d0
-    option_cloud = -999
 
     ! default genoa related paramters
     tag_twostep = 1 ! default option
@@ -1202,12 +1193,6 @@ contains
        endif
        if (kwall_particle>0.d0) then
           tag_twostep=1
-       endif
-
-       ! option_cloud = 0 by default
-       ! if it is not given in namelist
-       if (option_cloud == -999) then
-          option_cloud = 0
        endif
        
     endif

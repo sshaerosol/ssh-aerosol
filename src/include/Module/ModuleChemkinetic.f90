@@ -18,7 +18,7 @@ module mod_sshchemkinetic
                           lwc_cloud_threshold, mass_density, molecular_weight, n_aerosol, &
                           n_fracmax, n_size, wet_diameter, &
                           with_fixed_density, with_heterogeneous, &
-                          n_sizebin, option_cloud, cloud_water, &
+                          n_sizebin, &
                           wall_rcn, wall_coeff, & ! wall loss
                           irdi_rcn, irdi_ind ! irreversible dicarbonyl
 
@@ -418,10 +418,9 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
 
         ! liquid_water_content in kg/kg (QCLOUD from WRF)
         call ssh_hetero_rate(i, j, hetero_ind(i), &
-             n_gas, n_sizebin, temperature, pressure, option_cloud, &
+             n_gas, n_sizebin, temperature, pressure, &
              wet_diameter, concentration_number, &
              dsf_aero, molecular_weight, lwc_cloud_threshold, &
-             cloud_water, &
              kinetic_rate(j))
         
      else
@@ -1468,9 +1467,9 @@ end subroutine ssh_spack_spec
 
 
 subroutine ssh_hetero_rate(i, reaction_ind, hetero_ind, &
-     ns, nbin_aer, temp, press, icld, &
+     ns, nbin_aer, temp, press, &
      wetdiam, granulo, &
-     dsf_aero, wmol, lwcmin, dllwc, ktot)
+     dsf_aero, wmol, lwcmin, ktot)
   
 !------------------------------------------------------------------------
 !
