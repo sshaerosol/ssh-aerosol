@@ -1623,6 +1623,9 @@ contains
        if (ssh_logger) write(logfile,*) 'output directory :', trim(output_directory)
 
        output_conc_file = trim(output_directory)//"/concs.txt"
+
+       particles_composition_file = trim(output_directory)//"/" &
+            //trim(particles_composition_file)
        
        ! update output_conc_file and particles_composition_file with initID,chemID,resID
        ! get suffix
@@ -1640,10 +1643,11 @@ contains
            output_directory = trim(output_directory)//trim(tmpID0)
            particles_composition_file = trim(output_directory)//'.fac'
            output_conc_file = trim(output_directory)//'.concs'
-           ! Create directory if it does not exist.
-           call system("mkdir -p "// trim(output_directory))
        endif
 
+       ! Create directory if it does not exist.
+       call system("mkdir -p "// trim(output_directory))
+       
        if (ssh_standalone) write(*,*) 'Particles composition file : ', trim(particles_composition_file)
        if (ssh_logger) write(logfile,*) 'Particles composition file : ', trim(particles_composition_file)
 

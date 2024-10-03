@@ -85,7 +85,7 @@ fixed_density = 1.84D-06,
 splitting = 0,                  ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
 /
 
-&physic_coagulation
+        &physic_coagulation
 with_coag = 0,                 		!Tag of coagulation
 i_compute_repart = 1,                   ! 0 if repartition coeff are not computed but read from file, 1 if they are 
 i_write_repart = 0,                     ! 1 to write repartition coeff file, 0 otherwise
@@ -116,5 +116,5 @@ with_nucl = 0,                !Tag of nucleation - Need to have lower diameter a
 &output
 output_directory = "results/cond-sulfate/r0/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
-particles_composition_file = "INIT/fractions.txt"
+particles_composition_file = "fractions.txt",
 /

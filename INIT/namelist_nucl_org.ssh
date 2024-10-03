@@ -122,5 +122,5 @@ name_org_h2so4_nucl_species = 'Monomer' 'Dimer',                  ! Species name
 &output
 output_directory = "results/nucl_org/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
-particles_composition_file = "INIT/fractions.txt"
+particles_composition_file = "fractions.txt"
 /

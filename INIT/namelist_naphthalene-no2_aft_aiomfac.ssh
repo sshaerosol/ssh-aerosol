@@ -124,5 +124,5 @@ with_nucl = 0,                !Tag of nucleation - Need to have lower diameter a
 &output
 output_directory = "results/naphthalene-aft/naphthalene-aft-aiomfac-no2/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
-particles_composition_file = "INIT/fractions.txt"
+particles_composition_file = "fractions.txt"
 /
