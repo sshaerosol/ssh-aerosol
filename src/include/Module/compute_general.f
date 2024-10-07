@@ -217,11 +217,10 @@ C------------------------------------------------------------------------
       
       debye=0.d0
       DO i=1,niter
-         t=(i-0.5d0)*x/niter
+         t=min((i-0.5d0)*x/niter,200.d0)
          debye=debye+t**n/(exp(t)-1)*x/niter
       ENDDO      
       debye=debye*n/(x**n)     
-      
       RETURN
       END
       
