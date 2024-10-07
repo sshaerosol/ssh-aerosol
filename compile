@@ -57,7 +57,14 @@ case $i in
     matching="${i#*=}"
     shift
     ;;
-    
+
+# Read the option to debug.
+    -d)
+        profile="debug"
+        echo "=== DEBUG MODE ==="
+    shift
+    ;;
+
 esac
 done
 
