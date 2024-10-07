@@ -3935,6 +3935,9 @@ KINETIC ARR 3.40E-13 0 0
 %B8=============================================================%
 %
 %
+DD2000 -> IRDD2000
+KINETIC IRDICARB 1
+%
 DK3000 -> IRDK3000
 KINETIC IRDICARB 2
 %KINETIC EXTRA 20 12

@@ -1636,8 +1636,8 @@ iC3H7O + NO2 -> ACETNIT
 KINETIC ARR 0.400E-11 0 0
 %
 %--------------------IPN6--------------------%
-NO2              ->      0.5 HONO + 0.5 HNO3
-KINETIC ARR 3.11E-02 0 0
+%NO2              ->      0.5 HONO + 0.5 HNO3
+%KINETIC ARR 3.11E-02 0 0
 %
 %=============================================%
 %========== END OF IPN CHEMISTRY =============%
@@ -3923,6 +3923,8 @@ KINETIC ARR 3.40E-13 0 0
 %
 %
 %
+DD2000 -> IRDD2000
+KINETIC IRDICARB 1
 %
 DK3000 -> IRDK3000
 KINETIC IRDICARB 2
