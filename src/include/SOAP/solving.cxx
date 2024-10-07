@@ -1848,7 +1848,7 @@ void solve_local_equilibriums_coupled_ssh(model_config config, vector<species> &
   int n=surrogate.size();
   double error_tot=10.0;
   int index=0;
-  Array<double, 1> vec_error_org,vec_error_aq; 
+  Array<double, 1> vec_error_org,vec_error_aq;
   vec_error_org.resize(config.max_iter);
   vec_error_aq.resize(config.max_iter);
   bool non_convergence;
@@ -3973,6 +3973,10 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
   if (config.compute_viscosity)
     compute_pure_viscosity(config, surrogate, Temperature);
 
+  if (config.isorropia_ph)
+     for (b=0;b<config.nbins;++b)
+       chp(b)=max(chp(b),1.e-7);
+
   for (i=0;i<n;i++)
     {
       surrogate[i].gamma_aq_bins=1.;          
@@ -4517,6 +4521,11 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
 
   if (config.compute_viscosity)
     activity_coefficients_dyn_org_ssh(config, surrogate, Temperature, MOW);
+
+  characteristic_time_ssh(config, surrogate, MOinit, AQinit, LWCtot); 
+  if (LWCtot>config.LWClimit)
+    characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit, MMaq, ionic);
+
 }
 
 void dynamic_system_ssh(model_config &config, vector<species> &surrogate,

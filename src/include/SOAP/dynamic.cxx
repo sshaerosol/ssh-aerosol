@@ -626,7 +626,7 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 
 
   if(LWCtot>config.LWClimit) //if there is enough water to have an aqueous phase
-    {
+    {     
       //compute the total paticulate concentration
       for (i=0;i<n;++i)
         if((surrogate[i].is_organic or i==config.iH2O) and surrogate[i].hydrophilic)
@@ -684,11 +684,11 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
                 if (surrogate[i].Aaq_bins_init(b)>1.e-10)
 		  {
 		    AQ2=AQinit(b);
-		    //cout << surrogate[i].name << " " << AQ2 << " " << surrogate[i].tau_air(b) << " " << Kaq << " " << surrogate[i].Aaq << " " << surrogate[i].Aaq_bins_init(b) << endl;
 		    surrogate[i].time_aq(b)=
 		      (AQ2+sumMO)/AQ2*
 		      (Kaq*AQ2*surrogate[i].tau_air(b))
-		      /(1.0+Kaq*AQ2/surrogate[i].Aaq_bins_init(b)*surrogate[i].Aaq);		    
+		      /(1.0+Kaq*AQ2/surrogate[i].Aaq_bins_init(b)*surrogate[i].Aaq);
+
 		    if (i==config.iH2O)
 		      {		       
 		        a1=Kaq;
@@ -714,7 +714,8 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 		    surrogate[i].time_aq(b)=
 		      (AQ2+sumMO)/AQ2*
 		      (Kaq*AQ2*surrogate[i].tau_air(b))
-		      /(1.0+Kaq*AQ2);		    
+		      /(1.0+Kaq*AQ2);
+
 		    if (i==config.iH2O)
 		      {		       
 		        a1=Kaq;
@@ -801,7 +802,7 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
     for (i=0;i<n;++i)
       if(surrogate[i].hydrophilic)
         for (b=0;b<config.nbins;++b)
-          surrogate[i].time_aq(b)=0.0;
+          surrogate[i].time_aq(b)=config.tequilibrium;
 
   /*  
       if (config.compute_inorganic)
@@ -944,11 +945,13 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 	    for (b=0;b<config.nbins;b++)
 	      cout << b << " " << 1.0/(surrogate[i].Kaq(b)*conc_org(b)*surrogate[i].tau_air(b));
 	      }*/
-	
-	if (imin>0 and i!=config.iCO2)
-	  for (b=imin-1;b>=0;b--)
-	    //if (surrogate[i].time_aq(b)>surrogate[i].time_aq(b+1))
-	    surrogate[i].time_aq(b)=min(surrogate[i].time_aq(b),surrogate[i].time_aq(b+1)*surrogate[i].Kaq(b)*AQinit(b)/surrogate[i].Kaq(b+1)*AQinit(b+1));
+
+	if (i==config.iHNO3 or i==config.iNH3 or i==config.iHCl)
+	  if (imin>0 and i!=config.iCO2)
+	    for (b=imin-1;b>=0;b--)
+	      //if (surrogate[i].time_aq(b)>surrogate[i].time_aq(b+1))
+	      if (surrogate[i].Kaq(b)*AQinit(b)>0)
+		surrogate[i].time_aq(b)=min(surrogate[i].time_aq(b),surrogate[i].time_aq(b+1)*surrogate[i].Kaq(b)*AQinit(b)/surrogate[i].Kaq(b+1)*AQinit(b+1));
 	/*
 	  for (b=config.nbins-2;b>=0;b--)
 	    if (surrogate[i].time_aq(b)>surrogate[i].time_aq(b+1))
@@ -958,8 +961,6 @@ void characteristic_time_aq_ssh(model_config &config, vector<species>& surrogate
 	//if (i==config.iNH3 or i==config.iHNO3)
 	  //  cout << surrogate[i].name << " " << surrogate[i].time_aq << " " << surrogate[i].Kaq << endl;
       }
-  
-  //exit(0);
   /*
     for (b=0;b<config.nbins;++b)
     {
@@ -1916,8 +1917,6 @@ void prodloss_aq_ssh(model_config &config, vector<species>& surrogate, Array<dou
 		  double tau_airloc=surrogate[i].tau_air(b);
 		  if (surrogate[i].time_aq(b)<config.tequilibrium)
 		    tau_airloc=surrogate[i].tau_air(b)*config.tequilibrium/surrogate[i].time_aq(b);
-		  if (tau_airloc==0.)
-		    cout << tau_airloc << " is zero" << endl;
 		  //cout << b << " 1 " << surrogate[i].tau_air(b) << " " << tau_airloc << " " << surrogate[i].time_aq(b) << endl;
                   Kaq=surrogate[i].Kaq(b);
 		  //cout << "Kaq " << surrogate[i].Kaq(b) << endl;
@@ -4787,7 +4786,9 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
     }
 
   //compute kinetic rates
-  prodloss_aq_ssh(config, surrogate, AQinit, LWC, MMaq, chp, ionic, MOinit, 1, Temperature, deltat);
+  if (LWCtot>config.LWClimit)
+    prodloss_aq_ssh(config, surrogate, AQinit, LWC, MMaq, chp, ionic, MOinit, 1, Temperature, deltat);
+  
   if (config.compute_organic)
     {
       if (index==0)
