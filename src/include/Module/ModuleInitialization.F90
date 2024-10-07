@@ -1218,11 +1218,13 @@ contains
        if (with_fixed_density == -999) then
           with_fixed_density = 1
        endif
-       ! fixed_density = 1.84d-06 by default
        ! if it is not given in namelist
        if (fixed_density == -999.d0) then
-          fixed_density = 1.4d-06
+          fixed_density = 1.4d03 ! in kg/m3
        endif
+       ! Conversion from kg/m3 to ug/um3 (x 1.0d-9)
+       fixed_density = fixed_density * 1.0d-9
+       
        ! splitting = 1 by default
        ! if it is not given in namelist
        if (splitting == -999) then
@@ -1269,8 +1271,8 @@ contains
        END SELECT
 
        if (with_fixed_density == 1) then
-          if (ssh_standalone) write(*,*) 'fixed density is used.', fixed_density, 'kg/m^3'
-          if (ssh_logger) write(logfile,*) 'fixed density is used.', fixed_density, 'kg/m^3'
+          if (ssh_standalone) write(*,*) 'fixed density is used.', fixed_density  * 1.0d9, 'kg/m^3'
+          if (ssh_logger) write(logfile,*) 'fixed density is used.', fixed_density  * 1.0d9, 'kg/m^3'
        else
           if (ssh_standalone) write(*,*) 'real density is computed.'
           if (ssh_logger) write(logfile,*) 'real density is computed.'
@@ -1960,7 +1962,8 @@ contains
           molecular_diameter(s)=molecular_diameter_tmp
           surface_tension(s)=surface_tension_tmp
           accomodation_coefficient(s)=accomodation_coefficient_tmp
-          mass_density(s)=mass_density_tmp
+          ! Conversion from kg/m3 to ug/um3 (x 1.0d-9)
+          mass_density(s)=mass_density_tmp * 1.0d-9
           inon_volatile(s)=inon_volatile_tmp
           partitioning(s)=partitioning_tmp
           smiles(s)=smiles_tmp

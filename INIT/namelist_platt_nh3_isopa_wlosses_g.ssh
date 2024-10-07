@@ -95,7 +95,7 @@ radius_chamber=1.,                 !Radius of the chamber (m). Used to calculate
 DTAEROMIN = 1E-5,              	!Minimum time step
 redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
-fixed_density = 1.4D-06,        
+fixed_density = 1.4D3,        
 splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
 /
 
