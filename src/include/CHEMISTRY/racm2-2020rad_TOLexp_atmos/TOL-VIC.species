@@ -477,6 +477,7 @@ WHOM2O  220.1
 WHOM2ONO2  267.1
 WHOM2OOH  238.1
 IRDK3000   72.1
+IRDD2000   58.1
 % Molar mass of XO2 is not available but taken from ciRACM.
 % Adundant stable species are not taken into account: N2, O2, H2O, H2.
 % CO2 is only product so that it's not considered

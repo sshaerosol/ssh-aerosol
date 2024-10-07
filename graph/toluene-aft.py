@@ -11,7 +11,7 @@ plt.ioff()
 dir1 = '../results/toluene-aft/toluene-aft-ideal/aero/'
 dir2 = '../results/toluene-aft/toluene-aft-unifac/aero/'
 dir3 = '../results/toluene-aft/toluene-aft-aiomfac/aero/'
-dir4 = '../results/toluene-aft/toluene-aft-aiomfac_visc/aero/'
+#dir4 = '../results/toluene-aft/toluene-aft-aiomfac_visc/aero/'
 
 Nt= 156
 #####################################################################
@@ -44,10 +44,10 @@ with open (dir3+'Organic.txt') as finit :
         for j in range(Nt) :
                   aio[j] = float(string_conc1[j])
                   
-with open (dir4+'Organic.txt') as finit :
-        string_conc1 = finit.read().splitlines()
-        for j in range(Nt) :
-                  aio_visc[j] = float(string_conc1[j])
+#with open (dir4+'Organic.txt') as finit :
+#        string_conc1 = finit.read().splitlines()
+#        for j in range(Nt) :
+#                  aio_visc[j] = float(string_conc1[j])
                   
 
 time=range(5,(Nt+1)*5,5)
@@ -62,7 +62,7 @@ plt.grid()
 plt.plot(time,ide,'k-',label='Ideal')
 plt.plot(time,uni,'b--',label='UNIFAC')
 plt.plot(time,aio,'r-.',label='AIOMFAC')
-plt.plot(time,aio_visc,'g-.',label='AIOMFAC-visc')
+#plt.plot(time,aio_visc,'g-.',label='AIOMFAC-visc')
 plt.ylabel("SOA [$\mu g.m^{-3}$]", fontsize=18)
 plt.xlabel("time [min]", fontsize=18)
 plt.legend(loc=2)
