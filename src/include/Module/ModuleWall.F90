@@ -245,18 +245,18 @@ contains
           if (wet_diameter(Jb)>0.d0) then
              DP=wet_diameter(Jb)*1.0e-6
           else
-             DP=diam_bound(idx_bs(Jb))*diam_bound(idx_bs(Jb)+1)**0.5*1.0e-6
+             DP=(diam_bound(idx_bs(Jb))*diam_bound(idx_bs(Jb)+1))**0.5*1.0e-6
           endif
           rho_tmp=rho_dry(Jb)*1.d18
           call ssh_compute_CC(air_free_mean_path,DP,CC)         
           call ssh_compute_VSTOKES(DP,rho_tmp,CC,viscosity,vset(Jb))
           dif_part=1.39d-23*DLtemp/(3.d0*pi*viscosity*DP)
+
           call SSH_DEBYE_N(pi*vset(Jb) &
                /(2*(eddy_turbulence*dif_part)**0.5) &
                ,1,debye)
           kwall_particle=kwp0+vset(Jb)*3.d0/4.d0/8.314d0+debye* &
                6*(eddy_turbulence*dif_part)**0.5/pi/radius_chamber
-          !print*,kwall_particle
           wloss=exp(-kwall_particle*delta_t)
           DLnumconc_aer(Jb)=DLnumconc_aer(Jb)*wloss
           DO Jsp = 1, Ns_aer
