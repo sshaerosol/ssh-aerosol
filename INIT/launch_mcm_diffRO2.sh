@@ -11,12 +11,12 @@ do
     # change result folder
     sed -i "s/output_directory = \"results\/mcm-wFGL\",/output_directory = \"results\/mcm-wFGL-tag_RO2-$i\",/1" $namelist.$i
     # run simulation
-    ./ssh-aerosol $namelist.$i >> toto$i
+    ./ssh-aerosol $namelist.$i >> ssh_log_$i
     # move
     resultdir="results/mcm-wFGL-tag_RO2-$i/"
     mkdir -p $resultdir
     mv $namelist.$i results/mcm-wFGL-tag_RO2-$i/
-    mv toto$i results/mcm-wFGL-tag_RO2-$i/
+    mv ssh_log_$i results/mcm-wFGL-tag_RO2-$i/
     # print
     echo "Finish mcm simulation with tag_RO2 = $i. Results see: results/mcm-wFGL-tag_RO2-$i/"
 done

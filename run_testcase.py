@@ -23,12 +23,41 @@ arg_run = True
 arg_figure = True
 multiproc_run = True
 
+# Choice of cases
+# 0: all
+# 1: condensation
+# 2: coagulation
+# 3: nucleation
+# 4: viscosity
+# 5: caco3
+# 6: mono-terpene
+# 7: mcm
+# 8: user-defined 
+case_type = 8
+
 # if use_current_directory = True,
 # input_directory and output_directory are ignored. 
 # use_current_directory = True
 # input_directory = "/cerea_raid/users/kimy/work/ssh-aerosol/ssh-aerosol.git/"
 # output_directory = "/net/libre/merida/kimy/ssh-aerosol-testcase/"
 # ==
+
+if case_type == 1:
+    keyword = 'cond'
+elif case_type == 2:
+    keyword = 'coag'
+elif case_type == 3:
+    keyword = 'nucl'
+elif case_type == 4:
+    keyword = 'visc'
+elif case_type == 5:  
+    keyword = 'caco3'
+elif case_type == 6:  
+    keyword = 'monoterpene'
+elif case_type == 7:  
+    keyword = 'mcm'
+elif case_type == 8:  
+    keyword = 'vocox'    
 
 """
 Get date and time as a string
@@ -39,6 +68,15 @@ def get_now():
     now = datetime.now()
     dt_string = now.strftime("%Y%m%d_%H%M%S")
     return dt_string
+
+
+def write_status(status, cmd):
+
+    if (status == 0):
+        message = ' => Success'
+    else:
+        message = ' => Fail'
+    logging.info(cmd.ljust(50) + message.ljust(20))
 
 
 def run_monoterpene_cases():
@@ -53,13 +91,27 @@ def run_monoterpene_cases():
     os.system(cmd)
 
     cmd = "compile -g=fast"
-    os.system(cmd)
-
-    cmd = "./ssh-aerosol INIT/namelist_mt_ref.ssh 1"
-    os.system(cmd)
-
-    cmd = "./ssh-aerosol INIT/namelist_mt_rdc.ssh 1"
-    os.system(cmd)
+    logging.getLogger(cmd)
+    status = os.system(cmd)
+    write_status(status, cmd)
+    
+    namelist = "namelist_mt_ref.ssh"
+    print("Run: namelist file : " + namelist)
+    logging.getLogger("Run: namelist file : " + namelist)
+    
+    cmd = "./ssh-aerosol INIT/" + namelist + " 1" + \
+        " > results/ssh_log_" + namelist + " 2>&1"
+    status = os.system(cmd)
+    write_status(status, cmd)
+    
+    namelist = "namelist_mt_rdc.ssh"
+    print("Run: namelist file : " + namelist)
+    logging.getLogger("Run: namelist file : " + namelist)
+    
+    cmd = "./ssh-aerosol INIT/" + namelist + " 1" + \
+        " > results/ssh_log_" + namelist + " 2>&1"
+    status = os.system(cmd)
+    write_status(status, cmd)    
 
     os.chdir(ssh_dir)
 
@@ -68,6 +120,13 @@ def run_mcm_cases():
     os.system("bash INIT/launch_mcm_diffRO2.sh")
     os.system("bash INIT/launch_mcm_diffRO2_smiles.sh")
 
+def run_case(namelist):
+
+    cmd = "./ssh-aerosol INIT/" + namelist + \
+        " > results/ssh_log_" + namelist + " 2>&1"
+    status = os.system(cmd)
+    write_status(status, cmd)   
+    
 def run_user_defined_cases():
 
     ssh_dir = "./"
@@ -79,17 +138,19 @@ def run_user_defined_cases():
     os.system(cmd)
 
     cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme.cfg -m=species_matching.dat"
-    os.system(cmd)
+    logging.getLogger(cmd)
+    status = os.system(cmd)
+    write_status(status, cmd)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_dNO2.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox_dNO2.ssh"
+    run_case(namelist)    
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_mNO2.ssh"
-    os.system(cmd)
-
+    namelist = "namelist_vocox_mNO2.ssh"
+    run_case(namelist)
+    
     # Run the EXPL case
 
     print ("=== Run EXPL case ===")
@@ -97,17 +158,18 @@ def run_user_defined_cases():
     os.system(cmd)
 
     cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme_expl.cfg -m=species_matching_expl.dat"
-    os.system(cmd)
+    logging.getLogger(cmd)
+    status = os.system(cmd)
+    write_status(status, cmd)   
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_expl.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox_expl.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_expl_dNO2.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox_expl_dNO2.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_expl_mNO2.ssh"
-    os.system(cmd)
-
+    namelist = "namelist_vocox_expl_mNO2.ssh"
+    run_case(namelist)
 
     # Run the RDC case
 
@@ -115,17 +177,19 @@ def run_user_defined_cases():
     os.system(cmd)
 
     cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme_rdc.cfg -m=species_matching_rdc.dat"
-    os.system(cmd)
+    logging.getLogger(cmd)
+    status = os.system(cmd)
+    write_status(status, cmd)   
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_rdc.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox_rdc.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_rdc_dNO2.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox_rdc_dNO2.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox_rdc_mNO2.ssh"
-    os.system(cmd)
-
+    namelist = "namelist_vocox_rdc_mNO2.ssh"
+    run_case(namelist)
+    
     # Run the noautox case
 
     print ("=== Run noautox case ===")
@@ -134,120 +198,158 @@ def run_user_defined_cases():
     os.system(cmd)
 
     cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme_h2o-noautox.cfg -m=species_matching_h2o-autox.dat"
-    os.system(cmd)
+    logging.getLogger(cmd)
+    status = os.system(cmd)
+    write_status(status, cmd)   
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox-h2onoautox.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox-h2onoautox.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox-h2onoautox_dNO2.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox-h2onoautox_dNO2.ssh"
+    run_case(namelist)
 
-    cmd = "./ssh-aerosol INIT/namelist_vocox-h2onoautox_mNO2.ssh"
-    os.system(cmd)
+    namelist = "namelist_vocox-h2onoautox_mNO2.ssh"
+    run_case(namelist)
     
     os.chdir(cwd)
 
 
 def multiprocessing_func(k):
-        if k[-4:] == '.ssh':
-            print("Run: namelist file : " + k)
-            logging.getLogger("Run: namelist file : " + k)
+
+    status = -999
+    
+    if k[-4:] == '.ssh':
+
+        print("Run: namelist file : " + k)
+        logging.getLogger("Run: namelist file : " + k)
             
-            # run simulations
-            cmd = "time ./ssh-aerosol INIT/" + k + \
+        # run simulations
+        cmd = "time ./ssh-aerosol INIT/" + k + \
             " > results/ssh_log_" + k[:-4] + " 2>&1"
-            os.system(cmd)
+        status = os.system(cmd)
+
+    if (status != 0):
+        sys.exit(1)
+        
+    return status
 
 if __name__ == '__main__':
-        starttime = time.time()
-        processes = []
 
-        simulation_dir = './'
-
-        # Make logfile    
-        logging.basicConfig(filename = simulation_dir + '/run_testcase.log',
-                            level = logging.DEBUG,
-                            format='%(asctime)s %(message)s',
-                            datefmt='%d/%m/%Y %H:%M:%S')
-        console = logging.StreamHandler()
-        console.setLevel(logging.ERROR)
-        logging.getLogger("").addHandler(console)
+    starttime = time.time()
+    processes = []
+    processes_name = []
+    simulation_dir = './'
+    
+    # Make logfile
+    logfile = "run_testcase.log"
+    try:
+        os.remove(logfile)
+        print("Remove the existing logfile " + logfile)
+    except OSError:
+        pass
+    
+    logging.basicConfig(filename = simulation_dir + "/" + logfile,
+                        level = logging.DEBUG,
+                        format='%(asctime)s %(message)s',
+                        datefmt='%d/%m/%Y %H:%M:%S')
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    logging.getLogger("").addHandler(console)
 
         
-        ssh_dir = simulation_dir
-        os.chdir(ssh_dir)
+    ssh_dir = simulation_dir
+    os.chdir(ssh_dir)
 
-        if (os.path.isfile('./ssh-aerosol') == False):
+    if (os.path.isfile('./ssh-aerosol') == False):
             logging.info("IOError: did you compile the program?")
             sys.exit()
         
-        if (arg_run):
-            # remove all result files.
-            subprocess.run(['rm', '-rf', 'results/*'])
+    if (arg_run):
+        # remove all result files.
+        subprocess.run(['rm', '-rf', 'results/*'])
 
-            # get all file names in the folder INIT
-            all_files = True
-            if all_files:
-                initfile = os.listdir(ssh_dir+ 'INIT/')
-            else:
-                keyword = 'monomer' # 'soalp'
-                initfile = [f for f in os.listdir(ssh_dir+ 'INIT/') if re.search(keyword,f)]
+        # get all file names in the folder INIT
+        if case_type == 0:
+            initfile = os.listdir(ssh_dir+ 'INIT/')
+        else:
+            initfile = [f for f in os.listdir(ssh_dir+ 'INIT/') if re.search(keyword,f)]
 
-            for i in range(len(initfile)):
-                if (initfile[i][-4:]==".ssh"):
+        for i in range(len(initfile)):
+            if (initfile[i][-4:]==".ssh"):
 
-                    case_name = initfile[i] 
+                case_name = initfile[i] 
 
-                    # Skip some test cases. They are launched after.
-                    if (case_name == "namelist_mt_ref.ssh" or \
-                        case_name == "namelist_mt_rdc.ssh" or \
-                        case_name == "namelist_mcm-wFGL.ssh" or \
-                        case_name == "namelist_mcm-wSMILES.ssh" or \
-                        case_name[9:14] == "vocox"):
-                        continue
+                # Skip some test cases. They are launched after.
+                if (case_name == "namelist_mt_ref.ssh" or \
+                    case_name == "namelist_mt_rdc.ssh" or \
+                    case_name == "namelist_mcm-wFGL.ssh" or \
+                    case_name == "namelist_mcm-wSMILES.ssh" or \
+                    case_name[9:14] == "vocox"):
+                    continue
                     
-                    logging.info("run the case " + initfile[i])
+                logging.info("run the case " + initfile[i])
                         
-                    if (multiproc_run):
-                        p = multiprocessing.Process(target = multiprocessing_func, args = (initfile[i],))
-                        processes.append(p)
-                        p.start()
+                if (multiproc_run):
+                    p = multiprocessing.Process(target = multiprocessing_func, args = (initfile[i],))
+                    processes.append(p)
+                    processes_name.append(initfile[i])
+                    p.start()
+                else:
+                    status = multiprocessing_func(initfile[i])
+                    if (status == 0):
+                        message = ' => Success'
                     else:
-                        multiprocessing_func(initfile[i])
+                        message = ' => Fail'
+                    logging.info(initfile[i].ljust(50) + message.ljust(20))
 
-            if (multiproc_run):                    
-                for process in processes:
-                    process.join()
-
-            # Run monoterpene cases
+        if (multiproc_run):                    
+            for process, process_name in zip(processes, processes_name):
+                process.join()
+                status = process.exitcode
+                if (status == 0):
+                    message = ' => Success'
+                else:
+                    message = ' => Fail'
+                logging.info(process_name.ljust(50) + message.ljust(20))
+                
+        # Run monoterpene cases
+        if case_type == 6:
             run_monoterpene_cases()
 
-            # Run MCM cases
+        # Run MCM cases
+        if case_type == 7:                
             run_mcm_cases()
 
-            # Run user-defined cases
+        # Run user-defined cases
+        if case_type == 8:
             run_user_defined_cases()
 
-            logging.info('That took {} seconds'.format(time.time() - starttime))
+        logging.info('That took {} seconds'.format(time.time() - starttime))
 
-            logging.info('! ! All simulations are done, ')
+        logging.info('! ! All simulations are done, ')
 
-            logging.info('! Run all postprocessing python scripts in graph folder: ')
+        logging.info('! Run all postprocessing python scripts in graph folder: ')
 
-        if (arg_figure):
-            # record the number of python scripts
-            num = 0
+    if (arg_figure):
+        # record the number of python scripts
+        num = 0
+
+        if case_type == 0:
             # get all file names in the folder graph
             graphfile =  os.listdir(ssh_dir+ 'graph/')
-            os.chdir('graph')
-            for k in graphfile :
-	            if k[-3:] == '.py':
+        else:
+            graphfile = [f for f in os.listdir(ssh_dir+ 'graph/') if re.search(keyword,f)]                
 
-	                num = num + 1
-	                logging.info("Run "+str(num) + ", python script : " + k)
-                        # run python script
-	                os.system('python3 ' + k)
-            logging.info('! ! All processing file are done, ' + 'number of .py files : ' + str(num))
+        os.chdir('graph')
+        for k in graphfile :
+                
+	        if k[-3:] == '.py':
+
+	            num = num + 1
+	            logging.info("Run "+str(num) + ", python script : " + k)
+                # run python script
+	            os.system('python3 ' + k)
+        logging.info('! ! All processing file are done, ' + 'number of .py files : ' + str(num))
 
 
             
