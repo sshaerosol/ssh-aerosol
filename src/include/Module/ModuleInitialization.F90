@@ -919,18 +919,21 @@ contains
 
         rewind 11
         
-        if (icmt .gt. 0) then ! read comment lines if needed
-            if (ssh_standalone) write(*,*) 'read comment lines from gas-phase species list',icmt
-            if (ssh_logger) write(logfile,*) 'read comment lines from gas-phase species list',icmt
-          do s = 1, icmt
-            read(11, *)
-          enddo
-        endif
-
         idOH=0;idHO2=0;idNO=0;idNO2=0;idO3=0;idNO3=0
 
-        do s = 1, N_gas
-           read(11, *) species_name(s), molecular_weight(s)
+        ierr = 0  ! reset ierr
+        s = 0
+        do while(ierr .eq. 0)
+           read(11, '(A)', iostat=ierr) tmp_name
+           if (ierr /= 0) exit ! no line to read
+           tmp_name = adjustl(tmp_name)
+
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. &
+                tmp_name(1:1) == "#" .or. tmp_name(1:1) == "!" ) &
+                cycle  ! Skip comment lines
+
+           s = s + 1
+           read(tmp_name,*) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
              print*,'Error: input MWs <= 0',s, species_name(s),&
                      molecular_weight(s)
@@ -943,7 +946,8 @@ contains
            if  (species_name(s) .eq. "NO2") idNO2 = s
            if  (species_name(s) .eq. "O3")  idO3  = s
            if  (species_name(s) .eq. "NO3") idNO3 = s           
-        enddo
+        end do
+
         close(11)
         
         if (ssh_standalone) then
