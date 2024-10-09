@@ -83,7 +83,7 @@ if user_defined == True:
 
 else:
     species_precursor = "../h2o/h2o.species"
-    reactions_precursor = "../h2o/h2o.nospack.reactions"
+    reactions_precursor = "../h2o/h2o.reactions"
     species_aerosol = "../h2o/species-list-aer-h2o.dat"
 
 
