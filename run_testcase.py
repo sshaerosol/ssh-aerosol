@@ -33,7 +33,7 @@ multiproc_run = True
 # 6: mono-terpene
 # 7: mcm
 # 8: user-defined 
-case_type = 8
+case_type = 0
 
 # if use_current_directory = True,
 # input_directory and output_directory are ignored. 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     simulation_dir = './'
     
     # Make logfile
-    logfile = "run_testcase.log"
+    logfile = "run_testcase.log." + get_now() 
     try:
         os.remove(logfile)
         print("Remove the existing logfile " + logfile)
@@ -259,12 +259,17 @@ if __name__ == '__main__':
         
     ssh_dir = simulation_dir
     os.chdir(ssh_dir)
-
-    if (os.path.isfile('./ssh-aerosol') == False):
-            logging.info("IOError: did you compile the program?")
-            sys.exit()
-        
+       
     if (arg_run):
+
+        cmd = "clean -a"
+        os.system(cmd)
+
+        cmd = "compile"
+        logging.getLogger(cmd)
+        status = os.system(cmd)
+        write_status(status, cmd)   
+        
         # remove all result files.
         subprocess.run(['rm', '-rf', 'results/*'])
 
@@ -313,15 +318,15 @@ if __name__ == '__main__':
                 logging.info(process_name.ljust(50) + message.ljust(20))
                 
         # Run monoterpene cases
-        if case_type == 6:
+        if case_type == 0 or case_type == 6:
             run_monoterpene_cases()
 
         # Run MCM cases
-        if case_type == 7:                
+        if case_type == 0 or case_type == 7:                
             run_mcm_cases()
 
         # Run user-defined cases
-        if case_type == 8:
+        if case_type == 0 or case_type == 8:
             run_user_defined_cases()
 
         logging.info('That took {} seconds'.format(time.time() - starttime))
@@ -342,14 +347,17 @@ if __name__ == '__main__':
 
         os.chdir('graph')
         for k in graphfile :
-                
-	        if k[-3:] == '.py':
 
-	            num = num + 1
-	            logging.info("Run "+str(num) + ", python script : " + k)
+            if k[-3:] == '.py':
+
+                num = num + 1
+                logging.info("Run "+str(num) + ", python script : " + k)
                 # run python script
-	            os.system('python3 ' + k)
-        logging.info('! ! All processing file are done, ' + 'number of .py files : ' + str(num))
+                cmd = 'python3 ' + k
+                status = os.system(cmd)
+                write_status(status, cmd)   
+                
+        logging.info('! ! All scripts are done, ' + 'number of .py files : ' + str(num))
 
 
             
