@@ -50,7 +50,7 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 
 &gas_phase_species
 species_list_file = "./src/include/CHEMISTRY/racm2/RACM2.species",                    !Species list for RACM2 
-reaction_list_file = "./src/include/CHEMISTRY/racm2/RACM2-AEC_poa-nospack.reactions",
+reaction_list_file = "./src/include/CHEMISTRY/racm2/RACM2.reactions",
 /
 
 &aerosol_species
