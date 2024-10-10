@@ -97,12 +97,6 @@ nexp_org = 3,              ! Exponent of the power law
 nesp_org_nucl = 2,         ! number of organics involved in organic nucleation
 name_org_nucl_species = 'PMonomer' 'PDimer',  ! Species names involved in organic nucleation
 /
-/
-
-
-&physic_organic
-with_oligomerization = 1      
-/
 
 &output
 output_directory = "results/nucl_org_only_d25/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/

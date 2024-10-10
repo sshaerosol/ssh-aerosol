@@ -197,7 +197,7 @@ def run_user_defined_cases():
     cmd = "clean -a"
     os.system(cmd)
 
-    cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme_h2o-noautox.cfg -m=species_matching_h2o-autox.dat"
+    cmd = "compile -b=user -c=cb05-ozone -u=user_defined_scheme_h2o-noautox.cfg -m=species_matching_h2o-noautox.dat"
     logging.getLogger(cmd)
     status = os.system(cmd)
     write_status(status, cmd)   

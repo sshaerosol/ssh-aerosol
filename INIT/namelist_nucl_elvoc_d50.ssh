@@ -93,12 +93,6 @@ scal_hetero = 1,              ! Scaling factor for heteromolecular nucleation ra
 nesp_org_h2so4_nucl = 2,      ! number of organics involved in heteromolecular nucleation
 name_org_h2so4_nucl_species = 'PMonomer' 'PDimer',  ! Species names involved in heteromolecular nucleation
 /
-/
-
-
-&physic_organic
-with_oligomerization = 1      
-/
 
 &output
 output_directory = "results/nucl_elvoc_d50/", ! modfy result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/

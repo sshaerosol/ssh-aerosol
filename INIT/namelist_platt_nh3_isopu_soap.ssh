@@ -112,13 +112,8 @@ epser_soap = 0.01,                 ! relative difference of ros2 in SOAP
 with_nucl = 0,                !Tag of nucleation - Need to have lower diameter about 1nm.
 /
 
-
-&physic_organic
-with_oligomerization = 1      
-/
-
 &output
-output_directory = "results/aerosol-platt-nh3-isopu_iso/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
+output_directory = "results/aerosol-platt-nh3-isopu_soap/", ! modify result saving paths : basic/ cond/ coag/ icut0/ ISOAPDYN/
 output_type = 1               ! 1: text, 2: binary
 particles_composition_file = "fractions.txt"
 /
