@@ -82,10 +82,10 @@ module aInitialization
   double precision, save :: scal_ternary, scal_hetero, scal_org, nexp_org
   double precision, save :: co2_conc_ppm
   integer, save :: nesp_org_h2so4_nucl, nesp_org_nucl
-  integer, dimension(2), save :: org_h2so4_nucl_species
-  character (len=40), dimension(2) :: name_org_h2so4_nucl_species
-  integer, dimension(10), save :: org_nucl_species
-  character (len=40), dimension(10) :: name_org_nucl_species
+  integer, dimension(500), save :: org_h2so4_nucl_species
+  character (len=40), dimension(500) :: name_org_h2so4_nucl_species
+  integer, dimension(500), save :: org_nucl_species
+  character (len=40), dimension(500) :: name_org_nucl_species
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic
   integer, save :: SOAPlog     ! 0=no text output from SOAP, 1=on screen, 2=written on files
