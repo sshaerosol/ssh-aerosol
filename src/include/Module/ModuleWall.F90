@@ -36,65 +36,72 @@ contains
     ns = n_gas
     ns_aer = n_aerosol
 
-    ! allocate arrays
-    allocate (klossg(ns_aer))
-    allocate (psat(ns_aer))
-    allocate (tref(ns_aer))
-    allocate (dhvap(ns_aer))    
-    allocate (krevg(ns_aer))
-    allocate (dif_air(ns_aer))
-    allocate (velocity(ns_aer))   
-    allocate (wmol(ns))
-
-    ! global variables to local
-    psat = saturation_vapor_pressure
-    tref = t_ref
-    dhvap = enthalpy_vaporization
-    dltemp = temperature
-    dif_air = diffusion_coef
-    wmol = molecular_weight
-    velocity = quadratic_speed
-    
-    ! 
-    IF (kwall_gas>0.d0) THEN
+    if (with_cond.eq.0) then
+       allocate (klossg(ns_aer))
+       allocate (krevg(ns_aer))
        klossg(:)=0.d0
-       DO Jsp=1,ns_aer
-          IF (aerosol_type(Jsp)==4 .and. psat(Jsp)>0) THEN
-             Jsp2=aerosol_species_interact(Jsp)
-             if (Tref(Jsp)>0) then
-                psat_loc=psat(Jsp) &
-                     *exp(-1000.0*dhvap(Jsp)/8.314d0* &
-                     (1.0/DLtemp-1.0/Tref(Jsp)))
-             else 
-                psat_loc=psat(Jsp) & !*
-                     *exp(-1000.0*dhvap(Jsp)/8.314d0* &
-                     (1.0/DLtemp-1.0/298.d0))
-             endif
-             kploc=760.d0*8.202d-5*DLtemp/(1.d6*Wmol(Jsp2)*psat_loc)
-             gamloc=10.d0**(3.299d0)*kploc**0.6407d0
-             krevg(Jsp)=gamloc/kploc/Cwall*200.d0/Wmol(Jsp2)
+       krevg(:)=0.d0
+    else
+       ! allocate arrays
+       allocate (klossg(ns_aer))
+       allocate (psat(ns_aer))
+       allocate (tref(ns_aer))
+       allocate (dhvap(ns_aer))    
+       allocate (krevg(ns_aer))
+       allocate (dif_air(ns_aer))
+       allocate (velocity(ns_aer))   
+       allocate (wmol(ns))
 
-             klossg(Jsp)=kwall_gas
-             if (eddy_turbulence>0.d0.and.Cwall>0.d0.and. &
-                  surface_volume_ratio>0.d0) then
-                accom=min(10.d0**(-2.744d0)*kploc**1.407d0,1.0d0)
-                klossg(Jsp)=surface_volume_ratio/(pi/2*1.d0/ &
-                     (eddy_turbulence*dif_air(Jsp))**0.5d0+ &
-                     4.d0/(accom*velocity(Jsp)))
-             endif
-             krevg(Jsp)=krevg(Jsp)*klossg(Jsp)
-             kwall_gas=maxval(klossg)
-          ENDIF
-       ENDDO
-    ENDIF
-    
-    ! deallocate
-    if (allocated(psat)) deallocate(psat)
-    if (allocated(tref)) deallocate(tref)
-    if (allocated(dhvap)) deallocate(dhvap)      
-    if (allocated(dif_air)) deallocate(dif_air)
-    if (allocated(velocity)) deallocate(velocity)      
-    if (allocated(wmol)) deallocate(wmol)            
+       ! global variables to local
+       psat = saturation_vapor_pressure
+       tref = t_ref
+       dhvap = enthalpy_vaporization
+       dltemp = temperature
+       dif_air = diffusion_coef
+       wmol = molecular_weight
+       velocity = quadratic_speed
+
+       ! 
+       IF (kwall_gas>0.d0) THEN
+          klossg(:)=0.d0
+          DO Jsp=1,ns_aer
+             IF (aerosol_type(Jsp)==4 .and. psat(Jsp)>0) THEN
+                Jsp2=aerosol_species_interact(Jsp)
+                if (Tref(Jsp)>0) then
+                   psat_loc=psat(Jsp) &
+                        *exp(-1000.0*dhvap(Jsp)/8.314d0* &
+                        (1.0/DLtemp-1.0/Tref(Jsp)))
+                else 
+                   psat_loc=psat(Jsp) & !*
+                        *exp(-1000.0*dhvap(Jsp)/8.314d0* &
+                        (1.0/DLtemp-1.0/298.d0))
+                endif
+                kploc=760.d0*8.202d-5*DLtemp/(1.d6*Wmol(Jsp2)*psat_loc)
+                gamloc=10.d0**(3.299d0)*kploc**0.6407d0
+                krevg(Jsp)=gamloc/kploc/Cwall*200.d0/Wmol(Jsp2)
+
+                klossg(Jsp)=kwall_gas
+                if (eddy_turbulence>0.d0.and.Cwall>0.d0.and. &
+                     surface_volume_ratio>0.d0) then
+                   accom=min(10.d0**(-2.744d0)*kploc**1.407d0,1.0d0)
+                   klossg(Jsp)=surface_volume_ratio/(pi/2*1.d0/ &
+                        (eddy_turbulence*dif_air(Jsp))**0.5d0+ &
+                        4.d0/(accom*velocity(Jsp)))
+                endif
+                krevg(Jsp)=krevg(Jsp)*klossg(Jsp)
+                kwall_gas=maxval(klossg)
+             ENDIF
+          ENDDO
+       ENDIF
+
+       ! deallocate
+       if (allocated(psat)) deallocate(psat)
+       if (allocated(tref)) deallocate(tref)
+       if (allocated(dhvap)) deallocate(dhvap)      
+       if (allocated(dif_air)) deallocate(dif_air)
+       if (allocated(velocity)) deallocate(velocity)      
+       if (allocated(wmol)) deallocate(wmol)
+    endif
     
   end subroutine ssh_init_wall_gas_loss
 
