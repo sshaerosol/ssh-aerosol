@@ -1,0 +1,35 @@
+% Converted from guaiacol.h2o.reactions to guaiacol.h2o.nospack.reactions
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for guaiacol SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------217-----------------
+GUAI + hydroxyl       -> 0.47 RADGUAI + hydroxyl
+KINETIC ARR 7.53E-11 0 0
+%
+%--------------------218-----------------
+RADGUAI + hydroperoxy   -> 0.27 GHDPerox + hydroperoxy
+KINETIC ARR 2.91E-13 0 -1300.0
+%
+%--------------------219-----------------
+RADGUAI + nitric_oxide    -> 0.40 GHDPerox + nitric_oxide
+KINETIC ARR 2.71E-12 0 -360.0
+%
+%--------------------220-----------------
+RADGUAI + nitrate_radical   -> 0.40 GHDPerox + nitrate_radical
+KINETIC ARR 2.30E-12 0 0
+%
+%
+%
+END
+
+
+

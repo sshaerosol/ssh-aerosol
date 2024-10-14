@@ -1,4 +1,4 @@
-image: debian
+image: ubuntu
 
 before_script:
     - apt update

@@ -1,0 +1,2126 @@
+% Converted from TOL-VIC_atmos.reactions to TOL-VIC_atmos_nospack.reactions.reactions
+%=============================================================================%
+%=============================================================================%
+%=================== SSH-AEROSOL CHEMICAL MECHANISM ==========================%
+%=============================================================================%
+%=============================================================================%
+%                                                                             %
+%  -ATMOS PHOTOLYSIS                                                          %
+%                                                                             %
+%  -DETAILED SOA MECHANISM: TOL-VIC                                           %
+%       -no wall losses                                                       %
+%       -irreversible partitioning of MGLY                                    %
+%                                                                             %
+%                                                                             %
+%=============================================================================%
+%=============================================================================%
+%
+%
+%
+%
+%
+%=============================================%
+%========= TOLUENE IN-DVP CHEMISTRY ==========%
+%=============================================%
+
+% Nb of reactions: 462
+% reparties en X blocs
+% Bloc 0: toluene reaction (1)
+% Bloc 1: voie attaque du gp methyl (30)
+% Bloc 2: voie addition sur cycle/cresol ()
+% Bloc 3: voie addition pont O-O sur cycle et HOM ()
+% Bloc 4: voie ouverture cycle - epoxide ()
+% Bloc 5: voie ouverture cycle - alcene ()
+% Bloc 6: reaction formation methylgly et malahy
+% Bloc 7: puits
+%
+%
+%B0=============================================================%
+% BLOC 0 : TOLUENE
+%
+%-------------------GEC000--(J&K-Zay-Lan-Atk)%
+TOL + hydroxyl         ->  0.556 AR0086 + 0.065 AR0085 + .157 AR0088 + 0.0465 AR0087 + 0.093 UU7000 + .011718 NTOL + 0.065 iBPR  + TOL    +      hydroxyl
+KINETIC ARR 1.814E-12 0 -338.
+%
+%B0=============================================================%
+%
+%
+%B1=============================================================%
+% BLOC 1 : ATTAQUE DU METHYL
+%
+%-------------------B1-001-------------------%
+AR0085 + nitric_oxide      ->       nitric_oxide     + 0.89 AR0089 + 0.11 AR0090
+KINETIC ARR 2.537E-12 0 -360.
+%
+%-------------------B1-002-------------------%
+AR0085 + nitrate_radical     ->       nitrate_radical    +      AR0089
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------B1-003-------------------%
+AR0085 + hydroperoxy     ->       AR0091 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------B1-004-------------------%
+AR0089           ->       AR0102
+KINETIC TB O2 ARR 0.370E-13 0 460.
+%
+%-------------------B1-005-------------------%
+AR0090           ->       AR0089
+KINETIC PHOTOLYSIS  2.3428E-06  2.2921E-06  2.1428E-06  1.9015E-06  1.5810E-06  1.2023E-06  7.9880E-07  4.2341E-07  1.9324E-07  5.2977E-08  0.0000E+00
+%
+%-------------------B1-006-------------------%
+AR0090 + hydroxyl      ->       hydroxyl     +      AR0102
+KINETIC ARR 0.603E-11 0 0
+%
+%-------------------B1-007-------------------%
+AR0091           ->       AR0089
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------B1-008-------------------%
+AR0091 + hydroxyl      ->       hydroxyl     +      AR0102
+KINETIC ARR 0.205E-10 0 0
+%
+%-------------------B1-009-------------------%
+AR0102 + hydroxyl      ->       AR0120 +      hydroxyl
+KINETIC ARR 0.129E-10 0 0
+%
+%-------------------B1-010-------------------%
+AR0102 + nitrate_radical     ->       nitrate_radical    +      AR0120
+KINETIC ARR 0.240E-14 0 0
+%
+%-------------------B1-011-------------------%
+AR0102           ->       AR0028
+KINETIC PHOTOLYSIS  4.9477E-06  4.8766E-06  4.6626E-06  4.2997E-06  3.7803E-06  3.0985E-06  2.2631E-06  1.3382E-06  6.6756E-07  2.0257E-07  0.0000E+00
+%
+%-------------------B1-012-------------------%
+AR0102           ->       AR0120
+KINETIC PHOTOLYSIS  4.9470E-06  4.8759E-06  4.6620E-06  4.2992E-06  3.7800E-06  3.0984E-06  2.2630E-06  1.3382E-06  6.6755E-07  2.0257E-07  0.0000E+00
+%
+%-------------------B1-013-------------------%
+AR0120 + nitric_oxide      ->       nitric_oxide     +      AR0028
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------B1-014-------------------%
+AR0120 + nitrate_radical     ->       nitrate_radical    +      AR0028
+KINETIC ARR 0.400E-11 0 0
+%
+%-------------------B1-015-------------------%
+AR0120 + nitrogen_dioxide     ->       AR0130 +      nitrogen_dioxide
+KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
+%
+%-------------------B1-016-------------------%
+AR0120 + hydroperoxy     ->  0.71 AR0131 + 0.29 AR0132 +     hydroperoxy
+KINETIC ARR 0.430E-12 0 -1040.
+%
+%-------------------B1-017-------------------%
+AR0130           ->       AR0120
+KINETIC FALLOFF 0.268E+17 -0.0 12100. 0.328E-02 -0.0 13600. 0.3 0 0 0 1.0
+%
+%-------------------B1-018-------------------%
+AR0130 + hydroxyl      ->       hydroxyl     +      AR0043
+KINETIC ARR 0.106E-11 0 0
+%
+%-------------------B1-019-------------------%
+AR0131           ->       AR0028
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------B1-020-------------------%
+AR0131 + hydroxyl      ->       AR0120 +      hydroxyl
+KINETIC ARR 0.466E-11 0 0
+%
+%-------------------B1-021-------------------%
+AR0028 + nitric_oxide      ->       nitric_oxide     +      AR0013
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------B1-022-------------------%
+AR0028 + nitrate_radical     ->       nitrate_radical    +      AR0013
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------B1-023-------------------%
+AR0028 + hydroperoxy     ->       AR0043 +     hydroperoxy
+KINETIC ARR 0.224E-12 -1300. 0 0
+%
+%-------------------B1-024-------------------%
+AR0043           ->       AR0013
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------B1-025-------------------%
+AR0043 + hydroxyl      ->       AR0028 +      hydroxyl
+KINETIC ARR 0.360E-11 0 0
+%
+%-------------------B1-026-------------------%
+AR0013 + nitrogen_dioxide     ->       AR0027 +      nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------B1-027-------------------%
+AR0013 + ozone      ->       AR0028 +      ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------B1-028-------------------%
+AR0027 + hydroxyl      ->       AR0042 +      hydroxyl
+KINETIC ARR 0.900E-12 0 0
+%
+%-------------------B1-029-------------------%
+AR0027 + nitrate_radical     ->       nitrate_radical    +      AR0042
+KINETIC ARR 0.900E-13 0 0
+%
+%-------------------B1-030-------------------%
+AR0132 + hydroxyl      ->       AR0028 +      hydroxyl
+KINETIC ARR 0.110E-11 0 0
+%
+%B1=============================================================%
+%
+%
+%B2=============================================================%
+% BLOC 2 : ADDITION SUR CYCLE (cresol)
+%
+%-------------------GEC000--(J&K)------------%
+AR0088 + hydroxyl      -> 0.068 AR0098 + 0.186 AR0099 + 0.676 AR0100 + hydroxyl     + 0.07  BZALDOH
+KINETIC ARR 4.649E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0088 + nitrate_radical     -> 0.39  AR0098 + 0.10 AR0099 + 0.51  AR0101 + nitrate_radical
+KINETIC ARR 1.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0098 + ozone      ->       AR0112 +      ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------GEC000-------------------%
+AR0098 + nitrogen_dioxide     ->       AR0113 +      nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0099 + nitric_oxide      ->       nitric_oxide     +      AR0114
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0099 + nitrate_radical     ->       nitrate_radical    +      AR0114
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+AR0099 + hydroperoxy     ->  0.35 AR0115 + 0.65 AR0114 +   hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0112 + nitric_oxide      ->       nitric_oxide     +      AR0098
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0112 + nitrate_radical     ->       nitrate_radical    +      AR0098
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0112 + hydroperoxy     ->       AR0125 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0125 + hydroxyl      ->       AR0112 +      hydroxyl
+KINETIC ARR 0.465E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0125           ->       AR0098
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0113 + nitrate_radical     ->       nitrate_radical    +      AR0126
+KINETIC ARR 0.313E-12 0 0
+%
+%-------------------GEC000-------------------%
+AR0113 + hydroxyl      ->       AR0126 +      hydroxyl
+KINETIC ARR 0.153E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0126 + nitrogen_dioxide       ->     AR0138 +      nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+AR0114     -> 0.32 AR0127   + 0.68 BTOL2OH1O
+KINETIC ARR 1.0E+06 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL2OH1O -> 0.350 AU5002 + 0.350 DD2000 + 0.140 UD5002 + 0.140 DD2000 + 0.250 UD5000 + 0.250 AD2000 + 0.095 UD4000 + 0.095 AK3000 + 0.090 AU5000 + 0.090 DD2000 + 0.075 AU4000 + 0.075 DK3000
+KINETIC ARR 1.0E+07 0 0
+% 1ere ligne: MCM
+% autres: voies sup de schwantes (fig5 left)
+% coeff adaptés de gecko 2020
+%
+%-------------------GEC000-------------------%
+AR0115 + hydroxyl      ->       AR0099 +      hydroxyl
+KINETIC ARR 0.115E-09 0 0
+%
+%-------------------GEC000-------------------%
+AR0115           ->       AR0114
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0101 + nitric_oxide      ->       nitric_oxide     +      AR0118
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0101 + nitrate_radical     ->       nitrate_radical    +      AR0118
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0101 + hydroperoxy     ->       AR0119 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0119           ->       AR0118
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0119 + hydroxyl      ->       AR0101 +      hydroxyl
+KINETIC ARR 0.107E-09 0 0
+%
+%-------------------GEC000-------------------%
+AR0119           ->       AR0114
+KINETIC PHOTOLYSIS  2.6247E-06  2.5603E-06  2.3712E-06  2.0683E-06  1.6725E-06  1.2176E-06  7.5613E-07  3.6238E-07  1.4906E-07  3.4614E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0118           ->       DD2000 +      AU5002
+KINETIC ARR 0.100E+07 0 0
+%
+%-------------------GEC000--(J&K)------------%
+AR0127 + hydroxyl      ->  0.93 AR0140 + 0.07 Me6Cy1U3K +        hydroxyl
+KINETIC ARR 0.235E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0140 + hydroperoxy     ->       AR0140OOH +  hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0140 + nitric_oxide      ->       AR01401O  +   nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0140OOH + hydroxyl   ->       MBQN1K1OH +   hydroxyl
+KINETIC ARR 1.42E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR01401O         ->       C73K1OH2O
+KINETIC ARR 1.00E+6 0 0
+%
+%-------------------GEC000-------------------%
+C73K1OH2O + hydroperoxy  ->  0.44 DD5002 + 0.56 C73K1OHOOH +   hydroperoxy
+KINETIC ARR 5.20E-13 0 -980.
+%
+%-------------------GEC000-------------------%
+C73K1OHOOH + hydroxyl  ->       C73K1OH2O +   hydroxyl
+KINETIC ARR 9.29E-11 0 0
+%
+%-------------------GEC000-------------------%
+C73K1OH2O + nitric_oxide   ->       DD5002 +      nitric_oxide
+KINETIC ARR 7.50E-12 0 -290.
+%
+%-------------------GEC000--(Sch)------------%
+AR0100 + hydroxyl -> 0.07  AR0116 + 0.065 MBQN1OH + 0.73 TOL3OH + 0.135 BTOL3OH2O + hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000-------------------%
+AR0100 + nitrate_radical     ->       nitrate_radical    +      AR0116
+KINETIC ARR 0.201E-09 0 0
+%
+%-------------------GEC000-------------------%
+AR0100 + ozone      ->       AR0117 +      ozone
+KINETIC ARR 0.281E-16 0 0
+%
+%-------------------GEC000-------------------%
+AR0116 + nitrogen_dioxide     ->       AR0128 +      nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0116 + ozone      ->       AR0129 +      ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------GEC000-------------------%
+AR0128 + hydroxyl      ->       AR0142 +      hydroxyl
+KINETIC ARR 0.683E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AR0128 + nitrate_radical     ->       AR0142 +      nitrate_radical
+KINETIC ARR 0.503E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0129 + hydroperoxy     ->       AR0144 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0129 + nitric_oxide      ->       nitric_oxide     +      AR0116
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0129 + nitrate_radical     ->       nitrate_radical    +      AR0116
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0144           ->       AR0116
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0144 + hydroxyl      ->       AR0129 +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000-------------------%
+AR0142 + nitric_oxide      ->       nitric_oxide     +      AR0152
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0142 + nitrate_radical     ->       nitrate_radical    +      AR0152
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0142 + hydroperoxy     ->       AR0153 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0153           ->       AR0152
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0153 + hydroxyl      ->       AR0142 +      hydroxyl
+KINETIC ARR 0.190E-11 0 -190.
+%
+%-------------------GEC000-------------------%
+AR0152           ->       AD2000 +      AU50DN
+KINETIC ARR 1.00E+6 0 0
+%
+%-------------------GEC000-------------------%
+AU50DN + hydroxyl      ->       FURR6 + hydroxyl
+KINETIC ARR 0.190E-11 0 -190.
+%
+%-------------------GEC000-------------------%
+FURR6 + hydroxyl     ->       radFURR6 + hydroxyl
+KINETIC ARR 0.150E-11 0 0
+%
+%-------------------GEC000-------------------%
+radFURR6 + hydroperoxy ->     FURR6OHOOH + hydroperoxy
+KINETIC ARR 0.204E-12 0 -1300.
+%
+%-------------------GEC000--(Lan)------------%
+radFURR6 + nitric_oxide  ->     DK3000       + nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000--(Lan)------------%
+radFURR6 + nitrate_radical ->     DK3000       + nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+FURR6OHOOH + hydroxyl ->    radFURR6   + hydroxyl
+KINETIC ARR 1.700E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+TOL3OH + hydroxyl -> 0.07 TOL2OH1O + 0.07  MBQN2OH + 0.73 TOL4OH + 0.13 BTOL4OH2O + hydroxyl
+KINETIC ARR 2.5E-10 0 0
+%
+%-------------------GEC000--(Sch)------------%
+TOL4OH + hydroxyl -> 0.07 TOL3OH1O + 0.07  MBQN3OH + 0.73 TOL5OH + 0.13 BTOL5OH2O  + hydroxyl
+KINETIC ARR 2.5E-10 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OH1O + nitrogen_dioxide -> TOL3OH1NO2 + nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OH1O + ozone  -> TOL2OH2O +      ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OH2O + hydroperoxy     ->       TOL2OHOOH +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OH2O + nitric_oxide      ->       nitric_oxide     +      TOL2OH1O
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OH2O + nitrate_radical     ->       nitrate_radical    +      TOL2OH1O
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OHOOH           ->       TOL2OH1O
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL2OHOOH + hydroxyl      ->       TOL2OH2O +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH1O + nitrogen_dioxide -> TOL4OH1NO2 + nitrogen_dioxide
+KINETIC ARR 0.208E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH1O + ozone  -> TOL3OH2O +      ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH2O + hydroperoxy     ->       TOL3OHOOH +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH2O + nitric_oxide      ->       nitric_oxide     +      TOL3OH1O
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH2O + nitrate_radical     ->       nitrate_radical    +      TOL3OH1O
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OHOOH           ->       TOL3OH1O
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OHOOH + hydroxyl      ->       TOL3OH2O +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL3OH2O + hydroperoxy -> 0.65 BTOL3OH1O + 0.35 BTOL3OHOOH + hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(Sch)------------%
+BTOL3OH2O + nitrate_radical ->      BTOL3OH1O + nitrate_radical
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL3OH2O + nitric_oxide  ->      BTOL3OH1O + nitric_oxide
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL3OH1O -> 0.165 AD5000 + 0.165 DD2000 + 0.165 UD5000 + 0.165 AA2000 + 0.165 AU5000 + 0.165 AD2000 + 0.165 DK5000 + 0.165 DD2000 + 0.165 AD4000 + 0.165 DK3000 + 0.165 AU4000 + 0.165 AK3000
+KINETIC ARR 1.0E+06 0 0
+% lignes correspondent aux voies sup de schwantes (fig5 right)
+% coeff. arbitraires
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL3OHOOH           ->       BTOL3OH1O
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL3OHOOH + hydroxyl      ->       BTOL3OH2O +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL4OH2O + hydroperoxy -> 0.65 BTOL4OH1O + 0.35 BTOL4OHOOH + hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(Sch)------------%
+BTOL4OH2O + nitrate_radical ->      BTOL4OH1O + nitrate_radical
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL4OH2O + nitric_oxide  ->      BTOL4OH1O + nitric_oxide
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL4OH1O -> 0.250 AD4001 + 0.250 DK3000 + 0.250 AD5000 + 0.250 AD2000 + 0.250 AU5000 + 0.250 AA2000 + 0.250 AK5000 + 0.250 DD2000
+KINETIC ARR 1.0E+06 0 0
+% lignes correspondent aux voies sup de schwantes (fig6 left)
+% coeff. arbitraires
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL4OHOOH           ->       BTOL4OH1O
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL4OHOOH + hydroxyl      ->       BTOL4OH2O +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL5OH2O + hydroperoxy -> 0.65 BTOL5OH1O + 0.35 BTOL5OHOOH + hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(Sch)------------%
+BTOL5OH2O + nitrate_radical ->      BTOL5OH1O + nitrate_radical
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+BTOL5OH2O + nitric_oxide  ->      BTOL5OH1O + nitric_oxide
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL5OH1O -> 0.250 AD5000 + 0.250 AA2000 + 0.250 AA4000 + 0.250 DK3000 + 0.250 AD4001 + 0.250 AK3000 + 0.250 AK5000 + 0.250 AD2000
+KINETIC ARR 1.0E+06 0 0
+% lignes correspondent aux voies sup de schwantes (fig6 right)
+% coeff. arbitraires
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL5OHOOH           ->       BTOL5OH1O
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+BTOL5OHOOH + hydroxyl      ->       BTOL5OH2O +      hydroxyl
+KINETIC ARR 0.205E-09 0 0
+%
+%B2=============================================================%
+%
+%
+%
+%
+%B3=============================================================%
+% BLOC 3 : ADDITION PONT O-O SUR CYCLE
+%
+%-------------------GEC000-------------------%
+AR0086 + nitric_oxide      ->       nitric_oxide     + 0.89 AR0092 + 0.11 AR0093
+KINETIC ARR 2.542E-12 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0086 + nitrate_radical     ->       nitrate_radical    +      AR0092
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0086 + hydroperoxy     ->       AR0094 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000--(HOM-Lan)--------%
+AR0086           ->       radHOM7O
+KINETIC ARR 1.297E+03 0 3920.
+%
+%-------------------GEC000--(HOM-Lan)--------%
+radHOM7O         ->       radHOM9O
+KINETIC ARR 0.5 0 0
+%
+%-------------------GEC000--(HOM-Lan)--------%
+radHOM7O + nitric_oxide     ->  0.80 HOM1O + 0.20 HOM1ONO2 + nitric_oxide
+KINETIC ARR 2.7E-12 0 360.
+%
+%-------------------GEC000--(HOM-Lan)--------%
+radHOM7O + hydroperoxy    ->       HOM1OOH + hydroperoxy
+KINETIC ARR 2.6E-13 0 1300.
+%
+%-------------------GEC000--(HOM-Lan)--------%
+%radHOM9O          ->       radHOM11O
+%KINETIC ARR1  0.5
+radHOM9O + nitric_oxide     ->  0.80 HOM2O + 0.20 HOM2ONO2 + nitric_oxide
+KINETIC ARR 2.7E-12 0 360.
+%
+%-------------------GEC000--(HOM-Lan)--------%
+radHOM9O + hydroperoxy    ->       HOM2OOH + hydroperoxy
+KINETIC ARR 2.6E-13 0 1300.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AR0092           ->  0.15 UD5001 + 0.15 DD2000 + 0.15 UD5000 + 0.15 DD2000 + 0.00 FURON  + 0.00 DK3000 + 0.05 MFUR   + 0.05 DD2000 + 0.20 UD4000 + 0.20 DK3000 + 0.30 FURR5  +  0.15 FURR3  + 0.15 D02000
+KINETIC ARR 1.00E+06 0 0
+% coeff. ajustes pour coller aux exp
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR5 + hydroxyl        ->       hydroxyl + 1.0 FUROH
+KINETIC ARR 1.570E-10 0 0
+% modif pour former hydroxymethylfurfural m/z 127 (sort de nullepart)
+%
+%-------------------GEC000-------------------%
+AR0094           ->       AR0092
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0094 + hydroxyl      ->       hydroxyl     +      AR0104
+KINETIC ARR 0.964E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0093           ->       AR0092
+KINETIC PHOTOLYSIS  2.6247E-06  2.5603E-06  2.3712E-06  2.0683E-06  1.6725E-06  1.2176E-06  7.5613E-07  3.6238E-07  1.4906E-07  3.4614E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0093 + hydroxyl      ->       hydroxyl     +      AR0104
+KINETIC ARR 0.716E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0104           ->       DD2000 +      3U5002
+KINETIC PHOTOLYSIS  3.5040E-06  3.4163E-06  3.1587E-06  2.7458E-06  2.2064E-06  1.5881E-06  9.6628E-07  4.4655E-07  1.7521E-07  3.7601E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0104 + hydroxyl      ->       DD2000 +      3U5002 +      hydroxyl
+KINETIC ARR 0.900E-10 0 0
+%
+%-------------------GEC000-------------------%
+MFUR + hydroxyl        ->       AR0121 +      hydroxyl
+KINETIC ARR 0.690E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MFUR + nitrate_radical       ->       AR0121 +      nitrate_radical
+KINETIC ARR 0.100E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MFUR + ozone        ->       AR0121 +      ozone
+KINETIC ARR 0.800E-18 0 0
+%
+%-------------------GEC000-------------------%
+FURON + hydroxyl       ->       AR0035 +      hydroxyl
+KINETIC ARR 0.445E-10 0 0
+%
+%-------------------GEC000-------------------%
+FURON + nitrate_radical      ->       AR0035 +      nitrate_radical
+KINETIC ARR 0.300E-12 0 0
+%
+%-------------------GEC000-------------------%
+FURON + ozone       ->       AR0035 +      ozone
+KINETIC ARR 0.220E-18 0 0
+%
+%-------------------GEC000-------------------%
+AR0121 + nitric_oxide      ->       nitric_oxide     +      ED5000
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0121 + nitrate_radical     ->       nitrate_radical    +      ED5000
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0121 + hydroperoxy     ->       AR0134 +     hydroperoxy
+KINETIC ARR 0.205E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0134           ->       ED5000
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0134 + hydroxyl      ->       AR0121 +      hydroxyl
+KINETIC ARR 0.253E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+ED5000 + hydroxyl      ->       radED5000 +      hydroxyl
+KINETIC ARR 0.344E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+radED5000 + nitric_oxide   ->       radED5002 +      nitric_oxide
+KINETIC ARR 0.750E-11 0 -290.
+%
+%-------------------GEC000--(Lan)------------%
+radED5000 + hydroperoxy  ->  0.56 ED5000OOH + 0.44 radED5002 + hydroperoxy
+KINETIC ARR 5.2E-13 0 -980.
+%
+%-------------------GEC000--(Lan)------------%
+ED5000OOH + hydroxyl      ->    radED5000 +      hydroxyl
+KINETIC ARR 3.59E-12 0 0
+%
+%-------------------GEC000--(Lan)------------%
+radED5002 + nitric_oxide      ->    3K2000    +      nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000--(Lan)------------%
+radED5002 + hydroperoxy  ->       ED5002OOH +     hydroperoxy
+KINETIC ARR 0.182E-12 0 -1300.
+%
+%-------------------GEC000--(Lan)------------%
+ED5002OOH + hydroxyl   ->       radED5002 +      hydroxyl
+KINETIC ARR 3.59E-12 0 0
+%
+%-------------------GEC000-------------------%
+AR0035 + nitric_oxide      ->       nitric_oxide     +      ED4001
+KINETIC ARR 0.254E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0035 + nitrate_radical     ->       nitrate_radical    +      ED4001
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0035 + hydroperoxy     ->       AR0048 +     hydroperoxy
+KINETIC ARR 0.205E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0048           ->       ED4001
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0048 + hydroxyl      ->       AR0035 +      hydroxyl
+KINETIC ARR 0.368E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+ED4001 + hydroxyl      ->       radED4001 +   hydroxyl
+KINETIC ARR 0.344E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+radED4001 + nitric_oxide   ->       nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000--(Lan)------------%
+radED4001 + hydroperoxy  ->       HD2000 +     hydroperoxy
+KINETIC ARR 1.126E-13 0 -1300.
+%
+%-------------------GEC000--(Lan)------------%
+HD2000 + hydroxyl      ->       DD2000 +      hydroxyl
+KINETIC ARR 2.91E-11 0 0
+%
+%B3=============================================================%
+%
+%
+%
+%
+%B4=============================================================%
+% BLOC 4 : OUVERTURE CYCLE (EPOX)
+%
+%-------------------GEC000-------------------%
+AR0087           ->  0.5  AR0010 + 0.5  3K2000 + 0.5 2U6000
+KINETIC PHOTOLYSIS  8.4267E-03  8.3233E-03  8.0108E-03  7.4755E-03  6.6957E-03  5.6413E-03  4.2839E-03  2.6546E-03  1.3481E-03  4.1896E-04  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0087 + nitrate_radical     ->       nitrate_radical    +      AR0095
+KINETIC ARR 0.396E-11 0 1862.
+%
+%-------------------GEC000-------------------%
+AR0087 + hydroxyl      ->  0.69 AR0096 + 0.31 AR0095 +      hydroxyl
+KINETIC ARR 0.800E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0087 + ozone      ->       AR0010 +      AR0097 +      ozone
+KINETIC ARR 0.500E-17 0 0
+%
+%-------------------GEC000-------------------%
+AR0095 + nitric_oxide      ->       nitric_oxide     +      2U6000
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+AR0095 + nitrogen_dioxide     ->       AR0105 +      nitrogen_dioxide
+KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+AR0095 + nitrate_radical     ->       nitrate_radical    +      2U6000
+KINETIC ARR 0.400E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0095 + hydroperoxy     ->  0.71 AR0106 + 0.29 AR0107 +     hydroperoxy
+KINETIC ARR 0.430E-12 0 -1040.
+%
+%-------------------GEC000-------------------%
+AR0105           ->       AR0095
+KINETIC FALLOFF 0.540E+17 -0.0 12100. 0.490E-02 -0.0 13830. 0.3 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+AR0105 + hydroxyl      ->       hydroxyl     +      UD5000
+KINETIC ARR 0.596E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0106           ->       2U6000
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0106           ->       2U6000
+KINETIC PHOTOLYSIS  4.9477E-06  4.8766E-06  4.6626E-06  4.2997E-06  3.7803E-06  3.0985E-06  2.2631E-06  1.3382E-06  6.6756E-07  2.0257E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0106           ->       2U6000
+KINETIC PHOTOLYSIS  4.9470E-06  4.8759E-06  4.6620E-06  4.2992E-06  3.7800E-06  3.0984E-06  2.2630E-06  1.3382E-06  6.6755E-07  2.0257E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0106 + hydroxyl      ->       AR0095 +      hydroxyl
+KINETIC ARR 0.629E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0107           ->       2U6000
+KINETIC PHOTOLYSIS  4.9477E-06  4.8766E-06  4.6626E-06  4.2997E-06  3.7803E-06  3.0985E-06  2.2631E-06  1.3382E-06  6.6756E-07  2.0257E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0107           ->       2U6000
+KINETIC PHOTOLYSIS  4.9470E-06  4.8759E-06  4.6620E-06  4.2992E-06  3.7800E-06  3.0984E-06  2.2630E-06  1.3382E-06  6.6755E-07  2.0257E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0107 + hydroxyl      ->       2U6000 +      hydroxyl
+KINETIC ARR 0.598E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0096 + nitric_oxide      ->       nitric_oxide     + 0.89 AR0108 + 0.11 AR0109
+KINETIC ARR 2.537E-12 0 -360.
+%
+%-------------------GEC000-------------------%
+AR0096 + nitrate_radical     ->       nitrate_radical    +      AR0108
+KINETIC ARR 0.250E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0096 + hydroperoxy     ->       AR0110 +     hydroperoxy
+KINETIC ARR 0.239E-12 0 -1300.
+%
+%-------------------GEC000-------------------%
+AR0108           ->   0.5 DK4000 +  0.5 DK3000 + 0.5 AR0010
+KINETIC ARR 1.000E+06 0 0
+%
+%-------------------GEC000-------------------%
+AR0109 + hydroxyl      ->       hydroxyl     +      AR0124
+KINETIC ARR 0.306E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0109           ->       AR0010 +      3K2000
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0109           ->       AR0010
+KINETIC PHOTOLYSIS  3.5040E-06  3.4163E-06  3.1587E-06  2.7458E-06  2.2064E-06  1.5881E-06  9.6628E-07  4.4655E-07  1.7521E-07  3.7601E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0110           ->       AR0108
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0110           ->       AR0108
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0110           ->       AR0108
+KINETIC PHOTOLYSIS  3.5040E-06  3.4163E-06  3.1587E-06  2.7458E-06  2.2064E-06  1.5881E-06  9.6628E-07  4.4655E-07  1.7521E-07  3.7601E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0110 + hydroxyl      ->       hydroxyl     +      AR0124
+KINETIC ARR 0.704E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0010 + hydroxyl      ->       AR0020 +      hydroxyl
+KINETIC ARR 0.432E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0010 + nitrate_radical     ->       nitrate_radical    +      AR0020
+KINETIC ARR 0.115E-10 0 1862.
+%
+%-------------------GEC000-------------------%
+AR0124           ->       AR0010 +      3K2000
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0124           ->       AR0010 +      3K2000
+KINETIC PHOTOLYSIS  2.3733E-04  2.3449E-04  2.2592E-04  2.1124E-04  1.8985E-04  1.6085E-04  1.2324E-04  7.7278E-05  3.9313E-05  1.2097E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0124 + hydroxyl      ->       hydroxyl     +      AR0010 +      3K2000
+KINETIC ARR 0.406E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0020 + nitrogen_dioxide     ->       AR0038 +      nitrogen_dioxide
+KINETIC FALLOFF 0.120E-10 -0.9 0 0.270E-27 -7.1 0 0.3 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+AR0020 + hydroperoxy     ->  0.71 AR0039 + 0.29 AR0040 +     hydroperoxy
+KINETIC ARR 0.430E-12 0 -1040.
+%
+%-------------------GEC000-------------------%
+AR0038           ->       AR0020
+KINETIC FALLOFF 0.540E+17 -0.0 12100. 0.490E-02 -0.0 13830. 0.3 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+AR0038 + hydroxyl      ->       hydroxyl     +      DD3001
+KINETIC ARR 0.229E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0039 + hydroxyl      ->       AR0020 +      hydroxyl
+KINETIC ARR 0.262E-10 0 0
+%
+%-------------------GEC000-------------------%
+AR0097           ->  0.18 AR0111 + .125 D02000 +      3K2000
+KINETIC ARR 1.000E+06 0 0
+%
+%-------------------GEC000-------------------%!!!!!SO2
+AR0111 + sulfur_dioxide     ->       SULF   +      DK3000 +      sulfur_dioxide
+KINETIC ARR 0.700E-13 0 0
+%
+%-------------------GEC000-------------------%!!!!!CO
+AR0111 + CO      ->       DK3000 +      CO
+KINETIC ARR 0.120E-14 0 0
+%
+%-------------------GEC000-------------------%
+AR0111 + nitric_oxide      ->       nitric_oxide     +      DK3000
+KINETIC ARR 0.100E-13 0 0
+%
+%-------------------GEC000-------------------%
+AR0111 + nitrogen_dioxide     ->       nitrogen_dioxide    +      DK3000
+KINETIC ARR 0.100E-14 0 0
+%
+%-------------------GEC000-------------------%
+AR0111           ->  .375 DK3000 + .625 AK3000
+KINETIC ARR 1.600E-17 0 0
+%
+%B4=============================================================%
+%
+%
+%
+%
+%B5=============================================================%
+% BLOC 5 : OUVERTURE CYCLE (ALCENE) kamens
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UU7000 + hydroxyl        ->   0.32 3U7000 + 0.68 2U7000 +      hydroxyl
+KINETIC ARR 0.644E-10 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UU7000 + nitrate_radical       ->   0.08 3U7000 + 0.92 2U7000 +      nitrate_radical
+KINETIC ARR 2.0E-13 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UU7000             ->   0.5  1U6000 +  0.5 3U7000
+KINETIC PHOTOLYSIS  6.1120E-05  5.9787E-05  5.5856E-05  4.9496E-05  4.1040E-05  3.1045E-05  2.0431E-05  1.0667E-05  4.8105E-06  1.2849E-06  0.0000E+00
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2U7000 + nitric_oxide        ->        1U7000 +       nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2U7000 + nitrate_radical       ->        1U7000 +       nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+1U7000     ->  0.125 UD7000 + 0.500 UD6000 + 0.125 UD4000 + 0.125 DK3000 + 0.125 UD5000 + 0.125 DD2000 + 0.125 UD5001 + 0.125 A02000
+KINETIC ARR 0.112E+10 1.7 2851.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+3U7000 + nitric_oxide     ->       1U6000 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+3U7000 + nitrate_radical    ->       1U6000 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UD7000 + hydroxyl     ->      2D7000 +      hydroxyl
+KINETIC ARR 0.426E-10 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AU7000 + hydroxyl     ->      2D7000 +      hydroxyl
+KINETIC ARR 8.73E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D7000 + nitric_oxide        ->        1D7000 +       nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D7000 + hydroperoxy       ->        AU7000 +     hydroperoxy
+KINETIC ARR 0.281E-12  -1250.   0.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D7000 + nitrate_radical       ->        1D7000 +       nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+1D7000     ->  0.05 AU5002 + 0.05 AD2000 + 0.35 AU4000 + 0.35 AK3000 + 0.35 DK4000 + 0.35 DK3000 + 0.25 DD3000 + 0.25 DK4001
+KINETIC ARR 0.112E+10 1.7 2851.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AU6000 + hydroxyl ->      2D6000 +      hydroxyl
+KINETIC ARR 2.89E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UD6000 + hydroxyl ->      2D6001 +      hydroxyl
+KINETIC ARR 1.09E-10 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6000 + nitric_oxide      ->       1D6000 +      nitric_oxide
+KINETIC ARR 2.703E-11 0 -360.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6000 + hydroperoxy     ->       DK4000 +      AD2000 +     hydroperoxy
+KINETIC ARR 0.264E-12 0 -1250.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6000 + nitrate_radical     ->       1D6000 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6001 + nitric_oxide      ->       1D6001 +      nitric_oxide
+KINETIC ARR 2.703E-11 0 -360.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6001 + hydroperoxy     ->       AU6000 +     hydroperoxy
+KINETIC ARR 0.264E-12 0 -1250.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2D6001 + nitrate_radical     ->       1D6001 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+1D6000           ->       AD2000 +      DK4000
+KINETIC ARR 0.112E+10 1.7 2451.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+1D6001           ->       DK3000 +      DD3000
+KINETIC ARR 0.112E+10 1.7 2451.
+%
+%B5=============================================================%
+%
+%
+%
+%
+%B6=============================================================%
+% BLOC 6 : FORMATION MALAHY mgly et PAN
+%
+%-------------------GEC000-------------------%
+UD4000 + hydroxyl      ->  .144 2D4000 +      hydroxyl
+KINETIC ARR 5.207E-11 0 0
+%
+%-------------------GEC000-------------------%
+UD4000 + ozone      ->       DD2000 +      ozone
+KINETIC ARR 1.600E-18 0 0
+%
+%-------------------GEC000-------------------%
+UD4000           ->       FURON
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+UD4000           ->       MALAHY
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2U6000 + nitric_oxide      ->  0.90 1U6000 +      nitric_oxide
+KINETIC ARR 2.703E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2U6000 + nitrate_radical     ->       1U6000 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+2U6000 + methylperoxy     ->  0.34 1U6000 + 0.33 UD6000 + methylperoxy
+KINETIC ARR 0.565E-13 0 -845.
+%
+%-------------------GEC000-------------------%
+2U6000 + acetylperoxy  ->  0.65 1U6000 +      acetylperoxy
+KINETIC ARR 0.100E-10 0 0
+%
+%-------------------GEC000-------------------%
+1U6000           ->       UD5000
+KINETIC ARR 0.112E+10 1.7 2451.
+%
+%-------------------GEC000-------------------%
+UD6000           ->       UD5000
+KINETIC PHOTOLYSIS  9.4770E-06  9.2366E-06  8.5314E-06  7.4036E-06  5.9347E-06  4.2580E-06  2.5810E-06  1.1880E-06  4.6507E-07  9.9632E-08  0.0000E+00
+%
+%-------------------GEC000--(J&K-Lan)--------%
+UD5000 + hydroxyl      ->  0.54 3U5002 + 0.23 FURR6  + 0.23 2D5003 + hydroxyl
+KINETIC ARR 0.558E-10 0 0
+%
+%-------------------GEC000-------------------%
+UD5000 + ozone      ->  0.50 DD2000 +      ozone     + 0.50 DK3000 + 3K2000
+KINETIC ARR 0.480E-17 0 0
+%
+%-------------------GEC000-------------------%
+UD5000 + nitrate_radical     ->       3U5002 +      nitrate_radical
+KINETIC ARR 0.107E-13 0 0
+%
+%-------------------GEC000-------------------%
+UD5000           ->       MFUR
+KINETIC PHOTOLYSIS  6.6571E-04  6.5754E-04  6.3285E-04  5.9056E-04  5.2896E-04  4.4566E-04  3.3843E-04  2.0971E-04  1.0650E-04  3.3098E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+UD5000           ->       MALAHY
+KINETIC PHOTOLYSIS  6.6571E-04  6.5754E-04  6.3285E-04  5.9056E-04  5.2896E-04  4.4566E-04  3.3843E-04  2.0971E-04  1.0650E-04  3.3098E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+UD5001 + hydroxyl      ->  0.40 3U5000 + 0.40 3U5001 + 0.10 2D5000 + 0.10 2D5001 +      hydroxyl
+KINETIC ARR 5.168E-11 0 0
+%
+%-------------------GEC000-------------------%
+UD5001 + ozone      ->  0.30 DK3000 +      ozone     + 0.70 DD2000 + 3K2000
+KINETIC ARR 1.600E-18 0 0
+%
+%-------------------GEC000-------------------%
+UD5001 + nitrate_radical     ->  0.50 3U5000 + 0.50 3U5001 +      nitrate_radical
+KINETIC ARR 0.222E-13 0 0
+%
+%-------------------GEC000-------------------%
+UD5001           ->       FURON
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+UD5001           ->       MALAHY
+KINETIC PHOTOLYSIS  4.8875E-04  4.8275E-04  4.6463E-04  4.3358E-04  3.8835E-04  3.2719E-04  2.4847E-04  1.5397E-04  7.8188E-05  2.4300E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+MALAHY + hydroxyl       ->      AR0080 +      hydroxyl
+KINETIC ARR 0.150E-11 0 0
+%
+%-------------------GEC000-------------------%
+3U5001 + nitric_oxide      ->       1D4001 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3U5001 + nitrogen_dioxide     ->       PU5001 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+3U5001 + nitrate_radical     ->       1D4001 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+3U5001 + methylperoxy     ->  0.68 1D4001 + 0.31 AU5002 +      methylperoxy
+KINETIC ARR 0.100E-10 0 0
+%
+%-------------------GEC000-------------------%
+3U5001 + acetylperoxy    ->       1D4001 +      acetylperoxy
+KINETIC ARR 0.500E-11 0 -500.
+%
+%-------------------GEC000-------------------%
+1D4001           ->       DK3000
+KINETIC ARR 0.224E+10 1.7 2567.
+%
+%-------------------GEC000-------------------%
+2D5001 + nitric_oxide      ->  .967 1D5001 +      nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2D5001 + hydroperoxy     ->       HD5001 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+2D5001 + nitrate_radical     ->       1D5001 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+1D5001           ->       DK3000 +      DD2000
+KINETIC ARR 0.112E+10 1.7 1890.
+%
+%-------------------GEC000-------------------%
+2D5000 + nitric_oxide      ->  .967 1D5000 +      nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2D5000 + hydroperoxy     ->       HD5000 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+2D5000 + nitrate_radical     ->       1D5000 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+2D5000 + methylperoxy     ->  0.69 1D5000 +       methylperoxy
+KINETIC ARR 0.338E-12 0 415.
+%
+%-------------------GEC000-------------------%
+2D5000 + acetylperoxy    ->       1D5000 +      acetylperoxy
+KINETIC ARR 0.100E-10 0 0
+%
+%-------------------GEC000-------------------%
+1D5000           ->       DK3000 +      DD2000
+KINETIC ARR 0.112E+10 1.7 1734.
+%
+%-------------------GEC000-------------------%
+DK3000          ->       3K2000
+KINETIC PHOTOLYSIS   7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+DK3000 + nitrate_radical    ->       nitrate_radical    +      3K2000
+KINETIC ARR 3.76E-12 0 1900.0
+%
+%-------------------GEC000-------------------%
+DK3000 + hydroxyl     ->       hydroxyl     +      3K2000
+KINETIC ARR 9.26E-13 0 -830.
+%
+%-------------------GEC000-------------------%
+PU5001          ->       3U5001
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PU5001 + ozone     ->  0.30 DK3000 +      ozone     + 3K2000
+KINETIC ARR 0.480E-17 0 0
+%
+%-------------------GEC000-------------------%
+PU5001          ->       3U5001
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3K2000 + nitrogen_dioxide    ->       P02000 +      nitrogen_dioxide
+KINETIC FALLOFF 0.110E-10 -1.0 0 0.850E-28 -6.5 0 0.6 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+P02000          ->       3K2000
+KINETIC FALLOFF 0.280E+17 -0.0 12175. 0.190E-02 -0.0 13580. 0.6 0 0 0 1.0
+%
+%-------------------GEC000-------------------%
+P02000          ->       3K2000
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+1D4000          ->       3K2000 +      DD2000
+KINETIC ARR 0.112E+10 1.7 2768.
+%
+%-------------------GEC000-------------------%
+2D5003 + nitric_oxide     ->       1D5003 +      nitric_oxide
+KINETIC ARR 0.261E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2D5003 + nitrate_radical    ->       1D5003 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+1D5003          ->       3K2000
+KINETIC ARR 0.112E+10 1.7 2158.
+%
+%-------------------GEC000-------------------%
+1D5003          ->       DK3000 +      DD2000
+KINETIC ARR 0.112E+10 1.7 3197.
+%
+%B6=============================================================%
+%
+%
+%
+%
+%B7=============================================================%
+% BLOC 7 : FORMATION DES SOA MAJOR CONTRIBUTORS GECKO
+%
+%-------------------GEC000-------------------%
+3U5002 + nitrogen_dioxide     ->       PU5002 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+3U5002 + hydroperoxy     ->  0.80 GU5002 + 0.20 AU5002 +     hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3U5002 + nitric_oxide      ->       1D4000 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3U5002 + nitrate_radical     ->       1D4000 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PU5002           ->       3U5002
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PU5002 + hydroxyl      ->   0.5 2P5006 +      hydroxyl
+KINETIC ARR 1.364E-11 0 0
+%
+%-------------------GEC000-------------------%
+PU5002 + ozone     ->        ozone     + 0.50 DK3000 + 0.50 3K2000
+KINETIC ARR 0.360E-17 0 0
+%
+%-------------------GEC000-------------------%
+PU5002          ->       3K2000
+KINETIC PHOTOLYSIS  4.7467E-07  4.6782E-07  4.4722E-07  4.1230E-07  3.6239E-07  2.9696E-07  2.1687E-07  1.2826E-07  6.3971E-08  1.9414E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PU5002          ->       3U5002
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2P5006 + hydroperoxy     ->       PH5002 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+2P5006 + nitric_oxide      ->  .967 1P5006 +      nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2P5006 + nitrate_radical     ->       1P5006 +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+PH5002           ->       3H5004
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PH5002 + hydroxyl      ->  .926 PK5001 +      hydroxyl
+KINETIC ARR 7.439E-11 0 0
+%
+%-------------------GEC000-------------------%
+PH5002           ->       3H5004
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PH5002           ->       3K2000
+KINETIC PHOTOLYSIS  3.2931E-06  3.2172E-06  2.9944E-06  2.6364E-06  2.1655E-06  1.6171E-06  1.0461E-06  5.3456E-07  2.3663E-07  6.1208E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PH5002           ->       1P5006
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+1P5006           ->       2P500A
+KINETIC ARR 0.120E+12 0 3936.
+%
+%-------------------GEC000-------------------%
+1P5006           ->       PK5001
+KINETIC TB O2 ARR 0.250E-13 0 300.
+%
+%-------------------GEC000-------------------%
+1P5006           ->       DK3000
+KINETIC ARR 0.112E+10 1.7 5234.
+%
+%-------------------GEC000-------------------%
+PK5001           ->       3K2000
+KINETIC PHOTOLYSIS  3.2931E-06  3.2172E-06  2.9944E-06  2.6364E-06  2.1655E-06  1.6171E-06  1.0461E-06  5.3456E-07  2.3663E-07  6.1208E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2P500A + hydroperoxy     ->       PH5004 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+2P500A + nitric_oxide      ->  .967 1P500A +      nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2P500A + nitrate_radical     ->       1P500A +      nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+3H5004 + nitrogen_dioxide     ->       PH5002 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+3H5004 + hydroperoxy     ->  0.80 GH5002 +     hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3H5004 + nitric_oxide      ->       DK4000 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3H5004 + nitrate_radical     ->       DK4000 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+3H5009 + nitrogen_dioxide     ->       PH5004 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+PH5004           ->       3H5009
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PH5004 + hydroxyl      ->  .266 PD5002 +      hydroxyl
+KINETIC ARR 3.708E-11 0 0
+%
+%-------------------GEC000-------------------%
+PH5004 + hydroxyl      ->       2P500A +      hydroxyl
+KINETIC ARR 0.191E-11 0 -190.
+%
+%-------------------GEC000-------------------%
+PH5004           ->       3H5009
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PH5004           ->       1P500A
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3U5000 + nitrogen_dioxide    ->       PU5000 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+3U5000 + nitric_oxide     ->       1D4000 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3U5000 + nitrate_radical    ->       1D4000 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PU5000 + hydroxyl     ->  0.13 2P5000 +      hydroxyl
+KINETIC ARR 0.283E-11 0 0
+%
+%-------------------GEC000-------------------%
+PU5000          ->       3U5000
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PU5000 + ozone     ->       ozone     + 0.70 DD2000
+KINETIC ARR 0.480E-17 0 0
+%
+%-------------------GEC000-------------------%
+PU5000          ->       3U5000
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2P5000 + hydroperoxy     ->       PH5000 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+3H5000 + nitrogen_dioxide     ->       PH5000 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+3H5000 + nitric_oxide      ->       DK4000 +      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3H5000 + nitrate_radical     ->       DK4000 +      nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PH5000           ->       3H5000
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PH5000 + hydroxyl      ->       2P5000 +      hydroxyl
+KINETIC ARR 0.192E-11 0 -190.
+%
+%-------------------GEC000-------------------%
+PH5000           ->       3H5000
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+GU5002 + hydroxyl      ->  0.39 2G5006 +      hydroxyl
+KINETIC ARR 1.744E-11 0 0
+%
+%-------------------GEC000-------------------%
+GU5002 + ozone      ->   0.5 DK3000 +  0.5 3K2000 +      ozone
+KINETIC ARR 0.360E-17 0 0
+%
+%-------------------GEC000-------------------%
+GU5002           ->      3K2000
+KINETIC PHOTOLYSIS  4.7467E-07  4.6782E-07  4.4722E-07  4.1230E-07  3.6239E-07  2.9696E-07  2.1687E-07  1.2826E-07  6.3971E-08  1.9414E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+GU5002           ->      1D4000
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2G5006 + hydroperoxy     ->       GH5002 +     hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+GH5002           ->       3K2000
+KINETIC PHOTOLYSIS  3.2931E-06  3.2172E-06  2.9944E-06  2.6364E-06  2.1655E-06  1.6171E-06  1.0461E-06  5.3456E-07  2.3663E-07  6.1208E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+GH5002           ->       DK4000
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AU5002 + ozone      ->  0.5 DK3000 + 0.5 3K2000 +      ozone
+KINETIC ARR 0.360E-17 0 0
+%
+%-------------------GEC000-------------------%
+1P500A           ->       3P4000 
+KINETIC ARR 0.112E+10 1.7 3065.
+%
+%-------------------GEC000-------------------%
+1P500A           ->       PK5003
+KINETIC ARR 0.400E+11 0 1661.
+%
+%-------------------GEC000-------------------%
+PK5003           ->       3K5003
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+3K5003 + nitrogen_dioxide     ->       PK5003 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+PD5002 + hydroxyl      ->  0.43 3P4000 +      hydroxyl
+KINETIC ARR 0.481E-10 0 0
+%
+%-------------------GEC000-------------------%
+PD5002 + nitrate_radical     ->  0.64 3P4000 +      nitrate_radical
+KINETIC ARR 1.005E-14 0 0
+%
+%-------------------GEC000-------------------%
+PD5002           ->       3P4000
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3P4000 + nitrogen_dioxide    ->       PP4000 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+PP4000           ->       3P4000
+KINETIC ARR 0.400E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PP4000 + hydroxyl      ->       PP4004 +      hydroxyl
+KINETIC ARR 0.273E-10 0 0
+%
+%-------------------GEC000-------------------%
+PP4000           ->       3P4000
+KINETIC PHOTOLYSIS  1.606E-06  1.571E-06  1.467E-06  1.300E-06  1.074E-06  8.100E-07  5.303E-07  2.740E-07  1.220E-07  3.175E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PP4004          ->       3P400X
+KINETIC ARR 0.400E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+3P400X + nitrogen_dioxide    ->       PP4004 +      nitrogen_dioxide
+KINETIC ARR 0.330E-08 -1.0 0.
+%
+%-------------------GEC000-------------------%
+PP4004          ->       3P400X
+KINETIC PHOTOLYSIS  8.0298E-07  7.8532E-07  7.3328E-07  6.4911E-07  5.3727E-07  4.0517E-07  2.6517E-07  1.3707E-07  6.0989E-08  1.5874E-08  0.0000E+00
+%
+%B7=============================================================%
+%
+%
+%
+%
+%B8=============================================================%
+% BLOC 8 : REGULATION DES CONCENTRATIONS
+%          (PUIT ou PATHWAYS ALTERNATIFS)
+%          ET REACTIONS SUPPLEMENTAIRES
+%
+%-------------------GEC000--(Lan)------------%
+NTOL + hydroxyl ->  hydroxyl
+KINETIC ARR 1.0E-12 0 0
+%
+%-------------------B1-031--(Sch)------------%
+AR0027 ->
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000--(J&K)------------%
+BZALDOH + hydroxyl     ->       hydroxyl
+KINETIC ARR 2.03E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+AR0113             ->
+KINETIC PHOTOLYSIS   2.3733E-04  2.3449E-04  2.2592E-04  2.1124E-04  1.8985E-04  1.6085E-04  1.2324E-04  7.7278E-05  3.9313E-05  1.2097E-05  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0126 + ozone        ->     ozone
+KINETIC ARR 0.286E-12 0 0
+%
+%-------------------GEC000-------------------%
+AR0138 + hydroxyl      ->       hydroxyl
+KINETIC ARR 5.10E-14 0 0
+%
+%-------------------GEC000-------------------%
+AR0138 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 7.83E-15 0 0
+%
+%-------------------GEC000--(J&K)------------%
+Me6Cy1U3K + hydroxyl   ->       hydroxyl
+KINETIC ARR 4.78E-11 0 0
+%
+%-------------------GEC000--(Sch)------------%
+AR0128             ->
+KINETIC PHOTOLYSIS   2.3733E-04  2.3449E-04  2.2592E-04  2.1124E-04  1.8985E-04  1.6085E-04  1.2324E-04  7.7278E-05  3.9313E-05  1.2097E-05  0.0000E+00
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH1NO2 + hydroxyl      ->      hydroxyl
+KINETIC ARR 0.683E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL3OH1NO2 + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.503E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL4OH1NO2 + hydroxyl      ->      hydroxyl
+KINETIC ARR 0.683E-11 0 0
+%
+%-------------------GEC000--(Sch-Lan)--------%
+TOL4OH1NO2 + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.503E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN1OH + hydroxyl      ->      hydroxyl
+KINETIC ARR 0.235E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN2OH + hydroxyl      ->      hydroxyl
+KINETIC ARR 0.235E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN3OH + hydroxyl      ->      hydroxyl
+KINETIC ARR 0.235E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN1OH + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.100E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN2OH + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.100E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN3OH + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.100E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+TOL5OH  + hydroxyl      ->      hydroxyl
+KINETIC ARR 2.5E-10 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AU5000 + hydroxyl       ->      hydroxyl
+KINETIC ARR 4.51E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AU5000 + ozone       ->      ozone
+KINETIC ARR 4.80E-18 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AU5000 + nitrate_radical      ->      nitrate_radical
+KINETIC ARR 1.91E-14 0 0
+%
+%-------------------GEC000--(Lan)------------%
+UD5002 + hydroxyl       ->      hydroxyl
+KINETIC ARR 4.51E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+UD5002 + ozone       ->      ozone
+KINETIC ARR 4.80E-18 0 0
+%
+%-------------------GEC000--(Lan)------------%
+UD5002 + nitrate_radical      ->      nitrate_radical
+KINETIC ARR 1.91E-14 0 0
+%
+%-------------------GEC000--(Lan)------------%
+DD5002 + hydroxyl       ->      hydroxyl
+KINETIC ARR 1.84E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AD5000 + hydroxyl       ->      hydroxyl
+KINETIC ARR 3.82E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AD5000 + ozone       ->      ozone
+KINETIC ARR 3.60E-18 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AD5000 + nitrate_radical      ->      nitrate_radical
+KINETIC ARR 8.35E-12 0 0
+%
+%-------------------GEC000--(Lan)------------%
+DK5000 + hydroxyl       ->      hydroxyl
+KINETIC ARR 3.82E-11 0 0
+%
+%-------------------GEC000--(Lan)------------%
+DK5000 + ozone       ->      ozone
+KINETIC ARR 3.60E-18 0 0
+%
+%-------------------GEC000--(Lan)------------%
+DK5000 + nitrate_radical      ->      nitrate_radical
+KINETIC ARR 8.35E-12 0 0
+%
+%-------------------GEC000--(Lan)------------%
+MBQN1K1OH + hydroxyl    ->      hydroxyl
+KINETIC ARR 6.33E-11 0 0
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM1O + hydroxyl        ->       hydroxyl
+KINETIC ARR 1.68E-10 0 0
+% P:-7.4 H:10.55 Mw:188
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM2O + hydroxyl        ->       hydroxyl
+KINETIC ARR 2.16E-10 0 0
+% P:-10.9 H:15.41 Mw:220
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM1OOH + hydroxyl      ->       hydroxyl
+KINETIC ARR 2.50E-10 0 0
+% P:-9.7 H:12.31 Mw:206
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM2OOH + hydroxyl      ->       hydroxyl
+KINETIC ARR 3.00E-10 0 0
+% P:-13.6 H:15.44 Mw:238
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM1ONO2 + hydroxyl     ->       hydroxyl
+KINETIC ARR 1.72E-10 0 0
+% P:-8.7 H:9.63 Mw:235
+%
+%-------------------GEC000--(HOM-Lan)--------%
+HOM2ONO2 + hydroxyl     ->       hydroxyl
+KINETIC ARR 1.76E-10 0 0
+% P:-12.4 H:12.45 Mw:267
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR5 + nitrate_radical       ->       nitrate_radical
+KINETIC ARR 4.500E-12 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR5 + ozone        ->       ozone
+KINETIC ARR 7.000E-15 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR3 + hydroxyl        ->       hydroxyl
+KINETIC ARR 1.330E-10 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR3 + nitrate_radical       ->       nitrate_radical
+KINETIC ARR 4.800E-12 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FURR3 + ozone        ->       ozone
+KINETIC ARR 7.000E-15 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FUROH + hydroxyl        ->       hydroxyl
+KINETIC ARR 1.570E-10 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FUROH + nitrate_radical       ->       nitrate_radical
+KINETIC ARR 4.500E-12 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+FUROH + ozone        ->       ozone
+KINETIC ARR 7.000E-15 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AR0104 + ozone      ->       ozone
+KINETIC ARR 3.23E-17 0 0
+%
+%-------------------GEC000--(Lan)------------%
+AR0104 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 4.27E-14 0 0
+%
+%-------------------GEC000-------------------%
+AR0010           ->
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0020 + nitric_oxide       ->      nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+AR0020 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.400E-11 0 0
+%
+%-------------------GEC000-------------------%
+AR0039           ->
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AR0039           ->
+KINETIC PHOTOLYSIS  4.7518E-05  4.6558E-05  4.3706E-05  3.9012E-05  3.2618E-05  2.4837E-05  1.6330E-05  8.3723E-06  3.6409E-06  8.8371E-07  0.0000E+00
+%
+%-------------------GEC000--(J&K-Lan)--------%
+2U7000 + hydroperoxy       ->       hydroperoxy
+KINETIC ARR 0.281E-12  -1250. 0.0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+3U7000 + hydroperoxy    ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AU5002 + hydroxyl ->       hydroxyl
+KINETIC ARR 2.19E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AU4000 + hydroxyl ->       hydroxyl
+KINETIC ARR 3.28E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+A02000 + hydroxyl ->       hydroxyl
+KINETIC ARR 4.00E-14 0 -850.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AK3000 + hydroxyl ->       hydroxyl
+KINETIC ARR 4.90E-14 0 -276.
+%
+%-------------------GEC000--(J&K-Lan)--------%
+DK4000 + hydroxyl ->       hydroxyl
+KINETIC ARR 2.60E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+DD3000 + hydroxyl ->       hydroxyl
+KINETIC ARR 3.10E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+DK4001 + hydroxyl ->       hydroxyl
+KINETIC ARR 1.30E-11 0 0
+%
+%-------------------GEC000--(J&K-Lan)--------%
+AD2000 + hydroxyl ->       hydroxyl
+KINETIC ARR 1.34E-11 0 0
+%
+%-------------------GEC000-------------------%
+UD4000 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.149E-13 0 0
+%
+%-------------------GEC000-------------------%
+2U6000 + hydroperoxy     ->      hydroperoxy
+KINETIC ARR 0.264E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+HD5000 + hydroxyl      ->       hydroxyl
+KINETIC ARR 0.510E-10 0 0
+%
+%-------------------GEC000-------------------%
+HD5000 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.579E-12 0 0
+%
+%-------------------GEC000-------------------%
+HD5001 + hydroxyl      ->       hydroxyl
+KINETIC ARR 1.111E-10 0 0
+%
+%-------------------GEC000-------------------%
+HD5001 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.683E-13 0 0
+%
+%-------------------GEC000-------------------%
+PU5002 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 0.680E-14 0 0
+%
+%-------------------GEC000-------------------%
+PU5002          ->
+KINETIC PHOTOLYSIS  4.7467E-06  4.6782E-06  4.4722E-06  4.1230E-06  3.6239E-06  2.9696E-06  2.1687E-06  1.2826E-06  6.3971E-07  1.9414E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PK5001           ->
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PK5001 + hydroxyl      ->       hydroxyl
+KINETIC ARR 0.342E-11 0 0
+%
+%-------------------GEC000-------------------%
+PK5001           ->
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3H5009 + hydroperoxy     ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3H5009 + nitric_oxide      ->       nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3H5009 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PH5004           ->
+KINETIC PHOTOLYSIS  3.2931E-06  3.2172E-06  2.9944E-06  2.6364E-06  2.1655E-06  1.6171E-06  1.0461E-06  5.3456E-07  2.3663E-07  6.1208E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3U5000 + hydroperoxy    ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+PU5000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 0.941E-13 0 0
+%
+%-------------------GEC000-------------------%
+PU5000          ->
+KINETIC PHOTOLYSIS  2.9336E-06  2.8914E-06  2.7643E-06  2.5488E-06  2.2406E-06  1.8363E-06  1.3410E-06  7.9317E-07  3.9615E-07  1.2047E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PU5000          ->
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PU5000          ->
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2P5000 + nitric_oxide      ->       nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2P5000 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+3H5000 + hydroperoxy     ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+PH5000 + hydroxyl      ->       hydroxyl
+KINETIC ARR 2.626E-11 0  0
+%
+%-------------------GEC000-------------------%
+PH5000 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.558E-12 0 0
+%
+%-------------------GEC000-------------------%
+PH5000           ->
+KINETIC PHOTOLYSIS  1.4450E-05  4.8931E-06  4.6217E-06  4.1728E-06  3.5555E-06  2.7902E-06  1.9238E-06  1.0604E-06  4.9945E-07  1.3959E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PH5000           ->
+KINETIC PHOTOLYSIS  9.4770E-06  9.2366E-06  8.5314E-06  7.4036E-06  5.9347E-06  4.2580E-06  2.5810E-06  1.1880E-06  4.6507E-07  9.9632E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+GU5002 + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.680E-14 0 0
+%
+%-------------------GEC000-------------------%
+GU5002           ->
+KINETIC PHOTOLYSIS  4.7467E-06  4.6782E-06  4.4722E-06  4.1230E-06  3.6239E-06  2.9696E-06  2.1687E-06  1.2826E-06  6.3971E-07  1.9414E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+2G5006 + nitric_oxide      ->       nitric_oxide
+KINETIC ARR 0.270E-11 0 -360.
+%
+%-------------------GEC000-------------------%
+2G5006 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.230E-11 0 0
+%
+%-------------------GEC000-------------------%
+GH5002 + hydroxyl      ->       hydroxyl
+KINETIC ARR 7.795E-11 0 0
+%
+%-------------------GEC000-------------------%
+GH5002           ->
+KINETIC PHOTOLYSIS  5.0785E-06  4.9861E-06  4.7112E-06  4.2564E-06  3.6304E-06  2.8533E-06  1.9717E-06  1.0900E-06  5.1457E-07  1.4442E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+AU5002 + nitrate_radical     ->      nitrate_radical
+KINETIC ARR 0.680E-14 0 0
+%
+%-------------------GEC000-------------------%
+PK5003 + hydroxyl      ->       hydroxyl
+KINETIC ARR 0.550E-11 0 0
+%
+%-------------------GEC000-------------------%
+PK5003           ->
+KINETIC PHOTOLYSIS  3.2931E-06  3.2172E-06  2.9944E-06  2.6364E-06  2.1655E-06  1.6171E-06  1.0461E-06  5.3456E-07  2.3663E-07  6.1208E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PK5003           ->
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3K5003 + hydroperoxy     ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3K5003 + nitric_oxide      ->       nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3K5003 + nitrate_radical     ->       nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PD5002           ->
+KINETIC ARR 0.200E+16 0 12800.
+%
+%-------------------GEC000-------------------%
+PD5002           ->
+KINETIC PHOTOLYSIS    8.540E-06  8.420E-06  8.050E-06  7.420E-06  6.530E-06  5.400E-06  4.000E-06  2.400E-06  1.190E-06  3.500E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3P4000 + hydroperoxy    ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3P4000 + nitric_oxide     ->       nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3P4000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+PP4004 + hydroxyl     ->       hydroxyl
+KINETIC ARR 0.331E-11 0 0
+%
+%-------------------GEC000-------------------%
+PP4004          ->
+KINETIC PHOTOLYSIS  7.6968E-05  7.5838E-05  7.2455E-05  6.6780E-05  5.8776E-05  4.8426E-05  3.5847E-05  2.1662E-05  1.0736E-05  3.1607E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+DD2000           ->
+KINETIC PHOTOLYSIS   4.4037E-06  4.3088E-06  4.0280E-06  3.5702E-06  2.9552E-06  2.2207E-06  1.4365E-06  7.2308E-07  3.1019E-07  7.4586E-08  0.0000E+00
+%
+%-------------------GEC000-------------------%
+DD2000          ->
+KINETIC PHOTOLYSIS   3.2716E-05  3.2197E-05  3.0644E-05  2.8043E-05  2.4392E-05  1.9722E-05  1.4180E-05  8.2364E-06  3.9854E-06  1.1449E-06  0.0000E+00
+%
+%-------------------GEC000-------------------%
+DD2000          ->
+KINETIC PHOTOLYSIS   1.8343E-05  1.7972E-05  1.6870E-05  1.5061E-05  1.2604E-05  9.6214E-06  6.3626E-06  3.2994E-06  1.4538E-06  3.6451E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+DD2000 +  nitrate_radical   ->       nitrate_radical
+KINETIC ARR 2.90E-12 0 1900.0
+%
+%-------------------GEC000-------------------%
+DD2000 +  hydroxyl    ->       hydroxyl
+KINETIC ARR 1.10E-11 0 0
+%
+%-------------------GEC000-------------------%
+PU5001 + hydroxyl     ->       hydroxyl
+KINETIC ARR 0.283E-10 0 0
+%
+%-------------------GEC000-------------------%
+PU5001 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 0.941E-13 0 0
+%
+%-------------------GEC000-------------------%
+PU5001          ->
+KINETIC PHOTOLYSIS  2.9336E-06  2.8914E-06  2.7643E-06  2.5488E-06  2.2406E-06  1.8363E-06  1.3410E-06  7.9317E-07  3.9615E-07  1.2047E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PU5001          ->
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+PU5001          ->
+KINETIC PHOTOLYSIS  2.8473E-06  2.8063E-06  2.6830E-06  2.4738E-06  2.1747E-06  1.7823E-06  1.3016E-06  7.6984E-07  3.8450E-07  1.1692E-07  0.0000E+00
+%
+%-------------------GEC000-------------------%
+3K2000 + hydroperoxy    ->      hydroperoxy
+KINETIC ARR 0.640E-12 0 -925.
+%
+%-------------------GEC000-------------------%
+3K2000 + nitric_oxide     ->       nitric_oxide
+KINETIC ARR 0.810E-11 0 -270.
+%
+%-------------------GEC000-------------------%
+3K2000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 0.500E-11 0 0
+%
+%-------------------GEC000-------------------%
+P02000 + hydroxyl     ->       hydroxyl
+KINETIC ARR 0.102E-12 0 0
+%
+%-------------------GEC000-------------------%
+2D5003 + hydroperoxy    ->       hydroperoxy
+KINETIC ARR 0.242E-12 0 -1250.
+%
+%-------------------GEC000-------------------%
+AA2000 + hydroxyl     ->       hydroxyl
+KINETIC ARR 5.740E-14 0 -880.
+%
+%-------------------GEC000-------------------%
+AD4000 + hydroxyl     ->       hydroxyl
+KINETIC ARR 2.58E-11 0 0
+%
+%-------------------GEC000-------------------%
+AD4000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 3.40E-13 0 0
+%
+%-------------------GEC000-------------------%
+AD4001 + hydroxyl     ->       hydroxyl
+KINETIC ARR 2.58E-11 0 0
+%
+%-------------------GEC000-------------------%
+AD4001 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 3.40E-13 0 0
+%
+%-------------------GEC000-------------------%
+AK5000 + hydroxyl     ->       hydroxyl
+KINETIC ARR 4.69E-11 0 0
+%
+%-------------------GEC000-------------------%
+AK5000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 8.03E-15 0 0
+%
+%-------------------GEC000-------------------%
+AA4000 + hydroxyl     ->      hydroxyl 
+KINETIC ARR 2.58E-11 0 0
+%
+%-------------------GEC000-------------------%
+AA4000 + nitrate_radical    ->       nitrate_radical
+KINETIC ARR 3.40E-13 0 0
+%
+%B8=============================================================%
+%
+%
+DK3000 -> IRDK3000
+KINETIC IRDICARB 2 
+%
+%=========================18============================
+iBPR + nitric_oxide -> nitric_oxide
+%2.542E-12*EXP(360./TEMP)
+KINETIC ARR 2.542E-12 0 -360.
+%=========================19============================
+iBPR + hydroperoxy -> hydroperoxy
+%0.239E-12*EXP(1300./TEMP)
+KINETIC ARR 0.239E-12 0 -1300.
+%=========================44============================
+iBPR -> PC2
+%1.85X10^13*exp(-9310/T)
+KINETIC ARR 1.85E13 0 9310.
+%=========================45============================
+PC2 -> R1bRO2
+KINETIC ARR 2.3E2 0 0
+%KINETIC ARR1 2.3E2
+%=========================46============================
+R1bRO2 -> C7H9O9RO2
+KINETIC ARR 2.3E2 0 0
+%KINETIC ARR1 2.3E2
+%=========================47============================
+C7H9O9RO2 -> C7H9O9
+KINETIC ARR 2E2 0 0
+%
+%=============================================%
+%===== END OF TOLUENE IN-DVP CHEMISTRY =======%
+%=============================================%
+%
+%
+%
+END

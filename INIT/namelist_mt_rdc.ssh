@@ -78,7 +78,7 @@ tag_RO2 = 1, ! 0 no RO2 reaction, 1 only generated RO2, 2 only background RO2, 3
 DTAEROMIN = 0.1,              	!Minimum time step
 redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
-fixed_density = 1.6D-06,        
+fixed_density = 1.6D3,        
 splitting = 1,             ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
 /
 

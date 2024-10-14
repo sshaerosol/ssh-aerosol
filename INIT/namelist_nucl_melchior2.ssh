@@ -48,7 +48,7 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 
 &gas_phase_species
 species_list_file = "./species-list/species-list-melchior2.dat",                    !Species list for CB05
-reaction_list_file = "./src/include/CHEMISTRY/melchior2/MELCHIOR2_poa.nospack.reactions",
+reaction_list_file = "./src/include/CHEMISTRY/melchior2/MELCHIOR2.reactions",
 /
 
 &aerosol_species
@@ -81,7 +81,7 @@ altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0
 DTAEROMIN = 0.1,               	!Minimum time step
 redistribution_method = 12,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 6 euler_coupled, 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 1,       	!1 if density is fixed - 0 else
-fixed_density = 1.56D-06,        
+fixed_density = 1.56D3,        
 splitting = 1,             ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
 /
 

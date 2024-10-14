@@ -49,7 +49,7 @@ frac_input= 0.0 1.0,          !Manual discretization, set fraction bounds manull
 
 &gas_phase_species
 species_list_file = "./species-list/species-list-TOLexp.dat",                    !Species list
-reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber/TOL-VIC_chamber_nospack.reactions",
+reaction_list_file = "./src/include/CHEMISTRY/racm2-2020rad_TOLexp_chamber/TOL-VIC_chamber.reactions",
 /
 
 &aerosol_species
@@ -89,7 +89,7 @@ eddy_turbulence=4.28d-3,
 DTAEROMIN = 1E-5,              	!Minimum time step
 redistribution_method = 0,   	!tag of Redistibution methods /3 euler_mass 4 euler_number 5 hemen 10 Moving Diameter, 11 SIREAM, 12 euler_couple_siream,  0 without redistribution
 with_fixed_density = 0,       	!1 if density is fixed - 0 else
-fixed_density = 1.382887162E-06,        
+fixed_density = 1.382887162E3,        
 splitting = 0,             ! 0 if coagulation and (condensation/evaporation+nucleation) are splitted - 1 if they are not
 /
 

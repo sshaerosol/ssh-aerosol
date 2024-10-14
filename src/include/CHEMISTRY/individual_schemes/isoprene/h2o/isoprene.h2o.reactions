@@ -1,0 +1,83 @@
+% Converted from isoprene.h2o.reactions to isoprene.h2o.nospack.reactions
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for isoprene SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+isoprene + hydroxyl -> ISOR + isoprene + hydroxyl
+KINETIC ARR 2.54E-11 0 -407.6
+%--------
+isoprene + nitrate_radical -> ISON + isoprene + nitrate_radical
+KINETIC ARR 3.03E-12 0 448.0
+%--------------------173--------------------
+ISOR + hydroperoxy -> 0.2818 BiPER + 0.02970 BiDER + hydroperoxy
+KINETIC ARR 2.05E-13 0 -1300.
+%
+%--------------------174--------------------
+ISOR + methylperoxy -> 0.0256 BiMT + methylperoxy + 0.219 MACR
+KINETIC ARR 3.40E-14 0 -221.
+%
+%--------------------175--------------------
+ISOR + acetylperoxy -> 0.0256 BiMT + acetylperoxy + 0.219 MACR
+KINETIC ARR 8.40E-14 0 -221.
+%
+%--------------------176--------------------
+ISOR + nitrate_radical -> .438 MACR + nitrate_radical
+KINETIC ARR 1.20E-12 0 0
+%
+%--------------------177--------------------
+ISOR + nitric_oxide -> .418 MACR + 0.046 ISON + nitric_oxide
+KINETIC ARR 1.20E-12 0 0
+%
+%--------------------178--------------------
+ISON + hydroxyl -> hydroxyl
+KINETIC ARR 1.30E-11 0 0
+%
+%--------------------179--------------------
+ISON + nitrate_radical -> 0.07385 BiNIT3 + nitrate_radical
+KINETIC ARR 6.61E-13 0 0
+%
+%--------------------180--------------------
+MACR + nitric_oxide -> nitric_oxide
+KINETIC ARR 2.54E-12 0 -360.
+%
+%--------------------181--------------------
+MACR + hydroperoxy -> hydroperoxy
+KINETIC ARR 1.82E-13 0 -1300.
+%
+%--------------------182--------------------
+MACR + methylperoxy -> methylperoxy
+KINETIC ARR 3.40E-14 0 -221.
+%
+%--------------------183--------------------
+MACR + nitrogen_dioxide  -> MPAN + nitrogen_dioxide
+KINETIC ARR 2.80E-12 0 -181.
+%
+%--------------------184--------------------
+MPAN -> MACR
+KINETIC ARR 1.60E+16 0 13486.
+%
+%--------------------185--------------------
+MPAN + hydroxyl -> hydroxyl + 0.06741 BiMGA + 0.04706 BiNGA
+KINETIC ARR 3.20E-11 0 0
+%
+%--------------------186--------------------
+MPAN + nitrate_radical -> MACR + nitrate_radical
+KINETIC ARR 3.20E-11 0 0
+%
+%--------------------187--------------------
+BiPER    ->
+KINETIC PHOTOLYSIS   3.47E-4   3.42E-4  3.23E-4  2.92-4  2.50E-4  1.97E-4  1.36E-4  7.48E-5  3.49E-5  9.16E-6  2.59E-6
+%
+%
+END
+
+
+

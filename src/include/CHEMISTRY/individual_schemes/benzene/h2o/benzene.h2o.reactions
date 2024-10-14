@@ -1,0 +1,30 @@
+% Converted from benzene.h2o.reactions to benzene.h2o.nospack.reactions
+%-----------------------------------------------------------------------
+%     Copyright (C) 2019 CEREA (ENPC) - INERIS
+%     SSH-aerosol is distributed under the GNU General Public License v3
+%-----------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Reactions added for benzene SOA modules
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%------------
+%--------------------208--------------------
+PHEN + hydroxyl       -> 0.75 CAT + hydroxyl
+KINETIC ARR 4.70E-13 0 -1220.0
+%
+%--------------------209--------------------
+CAT + hydroxyl       -> 0.28 ACIDMAL + hydroxyl
+KINETIC ARR 9.90E-10 0 0
+%
+%--------------------210--------------------
+BENZ + hydroxyl       -> BENZ + 0.53 PHEN + hydroxyl
+KINETIC ARR 2.30E-12 0 190.0
+%
+%
+END
+
+
+

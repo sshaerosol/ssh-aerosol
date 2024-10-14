@@ -317,7 +317,8 @@ contains
     double precision :: mass_nucl,mass_nucl1,mass_nucl2
     double precision :: mass_density_nucl
     double precision :: org_terp, org_terp_tmp(nesp_org_h2so4_nucl)
-    double precision :: xterp(nesp_org_h2so4_nucl)
+    double precision :: org_terp_tmpo(nesp_org_nucl)
+    double precision :: xterp(nesp_org_h2so4_nucl),xterpo(nesp_org_nucl)
 
     if(nucl_model_binary.eq.1) then   !sulfuric-acid-water nucl'n   
           !     Compute H2SO4 threshold concentration
@@ -507,14 +508,14 @@ contains
           isection = 1
           org_terp = 0.0
           Do iterp = 1,nesp_org_nucl
-            org_terp_tmp(iterp) = c_gas(List_species(org_nucl_species(iterp)))*1.D-06&    ! convert to ug.cm-3
+            org_terp_tmpo(iterp) = c_gas(List_species(org_nucl_species(iterp)))*1.D-06&    ! convert to ug.cm-3
                /molecular_weight_aer(List_species(org_nucl_species(iterp)))&     ! to mol.m-3
                 *Navog         ! to #molec.cm-3
-            org_terp = org_terp + org_terp_tmp(iterp)
+            org_terp = org_terp + org_terp_tmpo(iterp)
           Enddo
           if (org_terp > 1.d5) then
              Do iterp = 1,nesp_org_nucl
-               xterp(iterp) = org_terp_tmp(iterp)/org_terp
+               xterpo(iterp) = org_terp_tmpo(iterp)/org_terp
              Enddo
           !   if(org_terp > 1.d8) then ! Set max value to max observed value in experiments
                 org_terp = 1.d8
@@ -527,14 +528,14 @@ contains
                dpnucl = size_diam_av(isection) 
                mass_nucl = 0.0 
                Do iterp = 1,nesp_org_nucl
-                 mass_nucl = mass_nucl + xterp(iterp) * molecular_weight_aer(List_species(org_nucl_species(iterp)))
+                 mass_nucl = mass_nucl + xterpo(iterp) * molecular_weight_aer(List_species(org_nucl_species(iterp)))
                Enddo
                mass_density_nucl = mass_density(List_species(org_nucl_species(1)))
                dmdt = jnucl * PI/6.0 * mass_density_nucl * dpnucl**3
                dndt(isection) = dndt(isection) +jnucl  ! #part.m-3.s-1
                Do iterp = 1,nesp_org_nucl
                  dqdt(isection,org_nucl_species(iterp)) = dqdt(isection,org_nucl_species(iterp)) &
-                     + dmdt * xterp(iterp) * &
+                     + dmdt * xterpo(iterp) * &
                       molecular_weight_aer(List_species(org_nucl_species(iterp))) / mass_nucl
                Enddo
              endif

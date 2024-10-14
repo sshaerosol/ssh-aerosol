@@ -82,10 +82,10 @@ module aInitialization
   double precision, save :: scal_ternary, scal_hetero, scal_org, nexp_org
   double precision, save :: co2_conc_ppm
   integer, save :: nesp_org_h2so4_nucl, nesp_org_nucl
-  integer, dimension(2), save :: org_h2so4_nucl_species
-  character (len=40), dimension(2) :: name_org_h2so4_nucl_species
-  integer, dimension(10), save :: org_nucl_species
-  character (len=40), dimension(10) :: name_org_nucl_species
+  integer, dimension(500), save :: org_h2so4_nucl_species
+  character (len=40), dimension(500) :: name_org_h2so4_nucl_species
+  integer, dimension(500), save :: org_nucl_species
+  character (len=40), dimension(500) :: name_org_nucl_species
   integer, save :: ISOAPDYN    ! organic equilibrium  = 0 or dynamic = 1
   integer, save :: IMETHOD     ! numerical method for SOAP, 0= explicit, 1= implicit, 2=implicit semi-dynamic
   integer, save :: SOAPlog     ! 0=no text output from SOAP, 1=on screen, 2=written on files
@@ -919,18 +919,21 @@ contains
 
         rewind 11
         
-        if (icmt .gt. 0) then ! read comment lines if needed
-            if (ssh_standalone) write(*,*) 'read comment lines from gas-phase species list',icmt
-            if (ssh_logger) write(logfile,*) 'read comment lines from gas-phase species list',icmt
-          do s = 1, icmt
-            read(11, *)
-          enddo
-        endif
-
         idOH=0;idHO2=0;idNO=0;idNO2=0;idO3=0;idNO3=0
 
-        do s = 1, N_gas
-           read(11, *) species_name(s), molecular_weight(s)
+        ierr = 0  ! reset ierr
+        s = 0
+        do while(ierr .eq. 0)
+           read(11, '(A)', iostat=ierr) tmp_name
+           if (ierr /= 0) exit ! no line to read
+           tmp_name = adjustl(tmp_name)
+
+           if (trim(tmp_name) == "" .or. tmp_name(1:1) == "%" .or. &
+                tmp_name(1:1) == "#" .or. tmp_name(1:1) == "!" ) &
+                cycle  ! Skip comment lines
+
+           s = s + 1
+           read(tmp_name,*) species_name(s), molecular_weight(s)
            if (molecular_weight(s).le. 0.d0) then
              print*,'Error: input MWs <= 0',s, species_name(s),&
                      molecular_weight(s)
@@ -943,7 +946,8 @@ contains
            if  (species_name(s) .eq. "NO2") idNO2 = s
            if  (species_name(s) .eq. "O3")  idO3  = s
            if  (species_name(s) .eq. "NO3") idNO3 = s           
-        enddo
+        end do
+
         close(11)
         
         if (ssh_standalone) then
@@ -976,7 +980,7 @@ contains
           ! get n_reaction, n_photolysis from the first line
           ! call ssh_read_reaction_file()
        else
-         reaction_list_file = "./src/include/CHEMISTRY/cb05/CB05_poa_nospack.reactions" 
+         reaction_list_file = "./src/include/CHEMISTRY/cb05/CB05.reactions" 
          print*, "Not reaction file is provided"
          print*, "Default file is used: ", trim(reaction_list_file)
        endif   
@@ -1218,11 +1222,13 @@ contains
        if (with_fixed_density == -999) then
           with_fixed_density = 1
        endif
-       ! fixed_density = 1.84d-06 by default
        ! if it is not given in namelist
        if (fixed_density == -999.d0) then
-          fixed_density = 1.4d-06
+          fixed_density = 1.4d03 ! in kg/m3
        endif
+       ! Conversion from kg/m3 to ug/um3 (x 1.0d-9)
+       fixed_density = fixed_density * 1.0d-9
+       
        ! splitting = 1 by default
        ! if it is not given in namelist
        if (splitting == -999) then
@@ -1269,8 +1275,8 @@ contains
        END SELECT
 
        if (with_fixed_density == 1) then
-          if (ssh_standalone) write(*,*) 'fixed density is used.', fixed_density, 'kg/m^3'
-          if (ssh_logger) write(logfile,*) 'fixed density is used.', fixed_density, 'kg/m^3'
+          if (ssh_standalone) write(*,*) 'fixed density is used.', fixed_density  * 1.0d9, 'kg/m^3'
+          if (ssh_logger) write(logfile,*) 'fixed density is used.', fixed_density  * 1.0d9, 'kg/m^3'
        else
           if (ssh_standalone) write(*,*) 'real density is computed.'
           if (ssh_logger) write(logfile,*) 'real density is computed.'
@@ -1960,7 +1966,8 @@ contains
           molecular_diameter(s)=molecular_diameter_tmp
           surface_tension(s)=surface_tension_tmp
           accomodation_coefficient(s)=accomodation_coefficient_tmp
-          mass_density(s)=mass_density_tmp
+          ! Conversion from kg/m3 to ug/um3 (x 1.0d-9)
+          mass_density(s)=mass_density_tmp * 1.0d-9
           inon_volatile(s)=inon_volatile_tmp
           partitioning(s)=partitioning_tmp
           smiles(s)=smiles_tmp
