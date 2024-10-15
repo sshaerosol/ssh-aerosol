@@ -4693,7 +4693,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
     }
   */
 
- 
+  
   for (b=0;b<config.nbins;b++)
     {
       compute_conc_org_bins_ssh(config, surrogate, Temperature,  MMaq, AQinit, chp, ionic, LWC, b, conc_org);
@@ -4716,7 +4716,7 @@ void twostep_tot_ssh(model_config &config, vector<species>& surrogate, double &t
               organion(b)+=molality1+2*molality2;
             }
           
-      if (config.compute_inorganic==false)
+      if (config.compute_inorganic==false and config.isorropia_ph==false)
         { 
           double inorganion=0.0;
           for (i=0;i<n;++i)

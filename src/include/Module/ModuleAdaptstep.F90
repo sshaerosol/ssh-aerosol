@@ -296,10 +296,14 @@ contains
              qaero(ECl) = 0.d0
              qgas(ECl) = 0.d0
           endif
+        
           call ssh_isoropia_drv(N_aerosol,&
                qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
                liquid,other)
-          call ssh_redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          
+          if (soap_inorg<1) then
+             call ssh_redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          endif          
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.
           !
