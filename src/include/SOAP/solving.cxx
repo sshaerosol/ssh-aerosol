@@ -3044,8 +3044,8 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 
 
           if (config.compute_inorganic)
-            if ((surrogate[config.iHp].gamma_aq_bins(b)*chp(b)<1.e-7 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)<1.e-7 or
-                 surrogate[config.iHp].gamma_aq_bins_old(b)*chp(b)>0.1 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)>0.1) and AQ(b)>negligeable)
+            //if ((surrogate[config.iHp].gamma_aq_bins(b)*chp(b)<1.e-7 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)<1.e-7 or
+	    //    surrogate[config.iHp].gamma_aq_bins_old(b)*chp(b)>0.1 or surrogate[config.iHp].gamma_aq_bins_old(b)*chp_save(b)>0.1) and AQ(b)>negligeable)
               //if (AQ(b)>1.e-5)
               {
                 errloc=(min(max(chp(b),chp_min),chp_max)-min(max(chp_save(b),chp_min),chp_max))/min(max(chp_min,chp(b)),chp_max)/factor_old;
@@ -3055,47 +3055,41 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                   vec_error_chp(index)=errloc;
               }
           
-          if (abs(AQinit(b)-AQ(b))>config.precision)
-            {
-              if (AQ(b)>1.0e-5)
-                {
-                  errloc=(AQ(b)-AQinit(b))/AQ(b)/factor_old;
-                  if (abs(errloc)>abs(vec_error_aq(index)))
-                    vec_error_aq(index)=errloc;
-                  
-                  if (chp(b)>0. and config.compute_inorganic)
-                    {
-                      errloc=(min(max(chp(b),chp_min),chp_max)-min(max(chp_save(b),chp_min),chp_max))/min(max(chp_min,chp(b)),chp_max)/factor_old;
-		      //if (abs(errloc)>0.3)
-		      //cout << "errloc2 " << errloc << endl;
-                      if (abs(errloc)>abs(vec_error_chp(index)))
-                        vec_error_chp(index)=errloc;
-                    }
-                  //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
-                }
-       
-              for (i=0;i<n;i++)
-                if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm and i!=config.iHSO4m and i!=config.iSO4mm) // and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m)
-                  if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>significant or surrogate[i].Aaq_bins_init(b)>significant))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
-                    {
-                      /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
-                        cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b) << " " << surrogate[i].gamma_aq_bins(b) << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << b << endl;*/
-                      errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
-                      if (abs(errloc)>abs(vec_error_compo(index)))
-			{
-			  if (index>config.max_iter-5)
-			    cout << index << " errloc: " << surrogate[i].name << " " << errloc << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << factor << " " << AQinit(b) << " " << surrogate[i].Atot << " " << factor_min << " " << factor_max << endl;
-			  vec_error_compo(index)=errloc;
-			}
-                      /*
-                        if (abs(errloc)>1.e20)
-                        {
-                        cout << "errloc: " << surrogate[i].name << " " << errloc << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << factor << endl;
-                        //exit(1);
-                        }*/
-                      
-                    }
+          //if (abs(AQinit(b)-AQ(b))>0) //config.precision)
+          //  {
+	  if (AQ(b)>config.MOmin)
+	    {
+	      errloc=(AQ(b)-AQinit(b))/AQ(b)/factor_old;
+	      if (abs(errloc)>abs(vec_error_aq(index)))
+		vec_error_aq(index)=errloc;
+	      
+	      if (chp(b)>0. and config.compute_inorganic)
+		{
+		  errloc=(min(max(chp(b),chp_min),chp_max)-min(max(chp_save(b),chp_min),chp_max))/min(max(chp_min,chp(b)),chp_max)/factor_old;
+		  //if (abs(errloc)>0.3)
+		  //cout << "errloc2 " << errloc << endl;
+		  if (abs(errloc)>abs(vec_error_chp(index)))
+		    vec_error_chp(index)=errloc;
+		}
+	      //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
 	    }
+       
+	  for (i=0;i<n;i++)
+	    if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm and i!=config.iHSO4m and i!=config.iSO4mm) // and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m)
+	      if (surrogate[i].Aaq_bins(b)>0 and (surrogate[i].Aaq_bins(b)>significant or surrogate[i].Aaq_bins_init(b)>significant))// and abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))>config.precision)
+		{
+		  /*if (abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)>vec_error_aq(index))
+		    cout << surrogate[i].name << " " << abs(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b) << " " << surrogate[i].gamma_aq_bins(b) << b << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << b << endl;*/
+		  errloc=(surrogate[i].Aaq_bins_init(b)-surrogate[i].Aaq_bins(b))/surrogate[i].Aaq_bins(b)/factor_old;
+		  /*
+		    if (abs(errloc)>1.e20)
+		    {
+		    cout << "errloc: " << surrogate[i].name << " " << errloc << " " << surrogate[i].Aaq_bins_init(b) << " " << surrogate[i].Aaq_bins(b) << " " << factor << endl;
+		    //exit(1);
+		    }*/
+		  
+		}
+	  // }
 	      
 	  for (i=0;i<n;i++)
 	    if (surrogate[i].hydrophobic)

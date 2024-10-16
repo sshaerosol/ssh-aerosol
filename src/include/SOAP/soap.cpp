@@ -1060,7 +1060,10 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  for (b=0;b<config.nbins;++b)
 	    {
 	      lwc_Nsize[b] = surrogate[config.iH2O].Aaq_bins_init(b); //q[iq_h2o + b]; // or lwc_Nsize[b] - KS
-	      chp_Nsize[b]=chp_bins(b);
+	      if (config.compute_inorganic)
+		chp_Nsize[b]=chp_bins(b)*surrogate[config.iHp].gamma_aq_bins(b);
+	      else
+		chp_Nsize[b]=chp_bins(b);
 	      ionic_Nsize[b]=ionic_bins(b);
 	      liquid_Nsize[4,b]=surrogate[config.iSO4mm].Aaq_bins_init(b)/1.0e6/96.0; // SO4_2-
 	      liquid_Nsize[5,b]=surrogate[config.iHSO4m].Aaq_bins_init(b)/1.0e6/97.0; // HSO4-
