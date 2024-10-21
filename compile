@@ -78,6 +78,8 @@ ulimit -s unlimited
 # path to swig
 #export SWIG=/home/cereaadm/usr/local/bin/swig
 
+SWIG_PATH="$(which swig 2>&1)"
+export SWIG=$SWIG_PATH 
 
 if [ -z $chemistry ]; then
     chemistry="cb05-ozone"
