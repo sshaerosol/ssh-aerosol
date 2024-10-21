@@ -46,6 +46,15 @@ ETEP        77.
 ETH         30.
 ETHP        61.
 GLY         58.
+GLYOH       76.
+GLYOHOH     94.
+OligoGLY    116.0    
+OligoGLYOH    152.0        
+OligoGLYOHOH    188.0 
+OligoBiMT       272.0   
+OligoBiPER      336.0  
+OligoBiDER    272.0    
+OligoBiMGA    240.0  
 MCP        119.
 HC3         44.
 HC3P        75.
@@ -141,6 +150,15 @@ POAhP 280.
 SOAlP 392.
 SOAmP 392.
 SOAhP 392.
+Dimer 432.
+Monomer 278.
+BiA3D 204.
+ACIDMAL 158.
+DHMB  154.
+PSYR 186. 
+GHDPerox 174. 
+PAHlN 198.
+PAHhN 166.
 % IPN 89.1
 % iC3H7O 59.1
 % ACETNIT 105.1
