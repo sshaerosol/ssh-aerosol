@@ -11,7 +11,7 @@ else:
 env = Environment(SWIGFLAGS = ['-c++', '-python'],
                   CPPPATH = [distutils.sysconfig.get_python_inc()],
                   SHLIBPREFIX = "",
-		          SWIG = "/usr/bin/swig") # SWIGBIN)
+		          SWIG = SWIGBIN)
 
 cpp_compiler = ARGUMENTS.get("cpp", None)
 
