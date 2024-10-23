@@ -65,7 +65,7 @@ namespace ssh_soap
     Array<int, 2> nphase;  //number of phases in the particle
     double MOmin; //minimal concentrations of organics
     double tequilibrium;    //time under which equilibrium is assumed
-    double EPSER;           //relative difference of ros2
+    double EPSER,EPSER_hp;           //relative difference of ros2
     double deltatmin;       //minimal time step
     double surface_tension_org,surface_tension_aq; //surface tension of the organic
     //and aqueous phases

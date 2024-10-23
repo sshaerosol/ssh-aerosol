@@ -4397,7 +4397,7 @@ void activity_coefficients_dyn_aq_bins_ssh(model_config &config, vector<species>
 
 	      chp2(b)=min(max(chp2(b),0.5*chp_save),2*chp_save);
                     	     
-              chp2(b)=min(max(factor2*chp2(b)+(1-factor2)*chp_save,1.e-14),100.);
+              chp2(b)=min(max(factor2*chp2(b)+(1-factor2)*chp_save,1.e-14),10000.);
               //cout << index << " " << chp2(b) << " " << factor2 << " " << error_h << " " << chp_new << " " << derivative_h << endl;
             }
 	  //cout << chp2(b) << " " << surrogate[config.iOHm].gamma_aq_bins(b) << " " << surrogate[config.iHp].gamma_aq_bins(b) << endl;

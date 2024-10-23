@@ -117,7 +117,7 @@ contains
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
+           coupled_phases, activity_model, epser_soap, epser_soap_hp, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
 !     In case there is no gas-phase species.
@@ -313,7 +313,7 @@ contains
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
+           coupled_phases, activity_model, epser_soap, epser_soap_hp, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog, reaction_soap_file)
 
       ! Get the calculated values from SOAP
@@ -524,7 +524,7 @@ contains
            enthalpy_vaporization, inon_volatile_soap, diffusion_coef,&
            henry, t_ref, mass_density, constant_density, &
            nlayer, with_kelvin_effect, tequilibrium, dtaeromin, dorg,&
-           coupled_phases, activity_model, epser_soap, i_hydrophilic, N_inert, N_inorganic,&
+           coupled_phases, activity_model, epser_soap, epser_soap_hp, i_hydrophilic, N_inert, N_inorganic,&
            NACL_IN_THERMODYNAMICS, SOAPlog,reaction_soap_file)
 
       ! Get the calculated values from SOAP

@@ -36,7 +36,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       int* nlayer,
 			       int* with_kelvin_effect, double* tequilibrium,
 			       double* dtaeromin, double* dorg, int* coupled_phases,
-			       int* activity_model, double* epser_soap, int* i_hydrophilic,
+			       int* activity_model, double* epser_soap, double* epser_soap_hp, int* i_hydrophilic,
 			       int* N_inert, int* N_inorganic, int* NACL_IN_THERMODYNAMICS, int* SOAPlog, char* soap_reaction_file){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, *co2_conc_ppm,
@@ -54,7 +54,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 		       *nlayer,
 		       *with_kelvin_effect, *tequilibrium,
 		       *dtaeromin, *dorg, *coupled_phases,
-		       *activity_model, *epser_soap, *i_hydrophilic,
+		       *activity_model, *epser_soap, *epser_soap_hp, *i_hydrophilic,
 		       *N_inert, *N_inorganic, *NACL_IN_THERMODYNAMICS, *SOAPlog, soap_reaction_file);
 }
 
@@ -83,7 +83,7 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 		   int nlayer,
 		   int with_kelvin_effect, double tequilibrium, double dtaeromin,
 		   double dorg, int coupled_phases,
-		   int activity_model, double epser_soap, int i_hydrophilic,
+		   int activity_model, double epser_soap, double epser_soap_hp, int i_hydrophilic,
 		   int N_inert, int N_inorganic, int NACL_IN_THERMODYNAMICS, int SOAPlog, char soap_reaction_file[])
 {
 
@@ -178,7 +178,8 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
     config.compute_viscosity=true;
   config.deltatmin = dtaeromin;
   config.dtchem_min= dtaeromin;
-  config.EPSER = epser_soap;  
+  config.EPSER = epser_soap;
+  config.EPSER_hp = epser_soap_hp;
   config.nlayer=nlayer;
   if (with_kelvin_effect == 1)
     config.compute_kelvin_effect = true;

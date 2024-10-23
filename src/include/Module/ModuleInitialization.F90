@@ -70,6 +70,7 @@ module aInitialization
   double precision, save :: DTAEROMIN !Minimum time step for aerosol dynamics
   double precision, save :: epser !  Relative error for time step adjustment
   double precision, save :: epser_soap !  Relative difference of ros2 in SOAP
+  double precision, save :: epser_soap_hp !  Relative difference of ros2 for H+ concentrations in SOAP  
   integer, save :: dynamic_solver = 1 !KDSLV Tag type of solver
   integer, save :: redistribution_method !tag of redistribution method
   integer, save :: with_coag   !Tag gCoagulation
@@ -531,7 +532,8 @@ contains
     namelist /physic_condensation/ with_cond, tag_icut, Cut_dim, ISOAPDYN, IMETHOD, &
          soap_inorg, nlayer,&
          with_kelvin_effect, tequilibrium,&
-         dorg, coupled_phases, activity_model, epser, epser_soap, niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS, &
+         dorg, coupled_phases, activity_model, epser, epser_soap, epser_soap_hp, &
+         niter_eqconc, niter_water, co2_conc_ppm, NACL_IN_THERMODYNAMICS, &
          SOAPlog, reaction_soap_file
 
     namelist /physic_nucleation/ with_nucl, nucl_model_binary, nucl_model_ternary, &
@@ -1359,6 +1361,7 @@ contains
     coupled_phases = -999
     epser = -999.d0
     epser_soap = -999.d0
+    epser_soap_hp = 0.d0
     ICUT=0 !default in case no input of ICUT in namelist
     tag_icut=0 !default in case no input of tag_icut in namelist
     set_icut = 1 !default fix ICUT in the simulation

@@ -2600,7 +2600,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                                 double &Temperature, double &RH,
                                 Array<double, 1> &AQ, Array<double, 3> &MO,
                                 Array<double, 1> &conc_inorganic, Array<double, 1> &ionic_organic, Array<double, 1> &organion, Array<double, 1> &MMaq,
-                                double t, double deltat, int &index, bool &reject_step)
+                                double t, double deltat, int &index, bool &reject_step, Array<double, 1> &chp20)
 {
   int b,ilayer,iphase,i;
   int n=surrogate.size();
@@ -2705,6 +2705,7 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
 	    surrogate[i].Asol_bins_init20(b)=surrogate[i].Asol_bins_init(b);
         }
     }
+  chp20=chp;
 
   
 
@@ -2834,23 +2835,25 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
       //cout << " AVANT " << sum(surrogate[config.iNO3m].Aaq_bins_init)+surrogate[config.iHNO3].Ag/63*62 << " " << surrogate[config.iHNO3].Ag << " " << surrogate[config.iNO3m].Aaq_bins_init <<  endl;
 
       if (index<20 and index>15)
-	for (i=0;i<n;i++)
-	  {
-
-	    surrogate[i].Atot20=surrogate[i].Atot;
-	    surrogate[i].Ag20=surrogate[i].Ag;
-	    for(b=0;b<config.nbins;b++)
-	      {
-		if (surrogate[i].hydrophilic)
-		  surrogate[i].Aaq_bins_init20(b)=surrogate[i].Aaq_bins_init(b);
-		if (surrogate[i].hydrophobic)
-		  for (ilayer=0;ilayer<config.nlayer;++ilayer)
-		    for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
-		      surrogate[i].Ap_layer_init20(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase);
-		if (surrogate[i].is_solid)
-		  surrogate[i].Asol_bins_init20(b)=surrogate[i].Asol_bins_init(b);
-	      }
-	  }
+	{
+	  chp20=chp;
+	  for (i=0;i<n;i++)
+	    {
+	      surrogate[i].Atot20=surrogate[i].Atot;
+	      surrogate[i].Ag20=surrogate[i].Ag;
+	      for(b=0;b<config.nbins;b++)
+		{
+		  if (surrogate[i].hydrophilic)
+		    surrogate[i].Aaq_bins_init20(b)=surrogate[i].Aaq_bins_init(b);
+		  if (surrogate[i].hydrophobic)
+		    for (ilayer=0;ilayer<config.nlayer;++ilayer)
+		      for (iphase=0;iphase<config.nphase(b,ilayer);++iphase)
+			surrogate[i].Ap_layer_init20(b,ilayer,iphase)=surrogate[i].Ap_layer_init(b,ilayer,iphase);
+		  if (surrogate[i].is_solid)
+		    surrogate[i].Asol_bins_init20(b)=surrogate[i].Asol_bins_init(b);
+		}
+	    }
+	}
 
       if (config.first_evaluation_activity_coefficients==false)
         {	  
@@ -3055,24 +3058,23 @@ void solve_implicit_coupled_ssh(model_config config, vector<species> &surrogate,
                   vec_error_chp(index)=errloc;
               }
           
-          //if (abs(AQinit(b)-AQ(b))>0) //config.precision)
-          //  {
-	  if (AQ(b)>config.MOmin)
-	    {
-	      errloc=(AQ(b)-AQinit(b))/AQ(b)/factor_old;
-	      if (abs(errloc)>abs(vec_error_aq(index)))
-		vec_error_aq(index)=errloc;
-	      
-	      if (chp(b)>0. and config.compute_inorganic)
-		{
-		  errloc=(min(max(chp(b),chp_min),chp_max)-min(max(chp_save(b),chp_min),chp_max))/min(max(chp_min,chp(b)),chp_max)/factor_old;
-		  //if (abs(errloc)>0.3)
-		  //cout << "errloc2 " << errloc << endl;
-		  if (abs(errloc)>abs(vec_error_chp(index)))
-		    vec_error_chp(index)=errloc;
-		}
-	      //vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
-	    }
+          //if (abs(AQinit(b)-AQ(b))>config.precision)
+	  if (AQ(b)>1.e-5) //config.MOmin)
+	      {
+		errloc=(AQ(b)-AQinit(b))/AQ(b)/factor_old;
+		if (abs(errloc)>abs(vec_error_aq(index)))
+		  vec_error_aq(index)=errloc;
+		
+		if (chp(b)>0. and config.compute_inorganic)
+		  {
+		    errloc=(min(max(chp(b),chp_min),chp_max)-min(max(chp_save(b),chp_min),chp_max))/min(max(chp_min,chp(b)),chp_max)/factor_old;
+		    //if (abs(errloc)>0.3)
+		    //cout << "errloc2 " << errloc << endl;
+		    if (abs(errloc)>abs(vec_error_chp(index)))
+		      vec_error_chp(index)=errloc;
+		  }
+		//vec_error_aq(index)=max(vec_error_aq(index),vec_error_chp(index));
+	      }
        
 	  for (i=0;i<n;i++)
 	    if (surrogate[i].hydrophilic and i!=config.iHp and i!=config.iOHm and i!=config.iHSO4m and i!=config.iSO4mm) // and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m)
@@ -3804,7 +3806,7 @@ void solve_implicit_ssh(model_config config, vector<species> &surrogate,
                         double &Temperature, double &RH,
                         Array<double, 1> &AQ, Array<double, 3> &MO,
                         Array<double, 1> &conc_inorganic, Array<double, 1> &ionic_organic, Array<double, 1> &organion, Array<double, 1> &MMaq,
-                        double t, double deltat, int &index, bool &reject_step)
+                        double t, double deltat, int &index, bool &reject_step, Array<double, 1> &chp20)
 {
   int b,ilayer,iphase,i;
   int n=surrogate.size();
@@ -3900,7 +3902,7 @@ void solve_implicit_ssh(model_config config, vector<species> &surrogate,
   int index2=index;
     
   solve_implicit_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
-                             conc_inorganic, ionic_organic, organion, MMaq, t, deltat, index1, reject_step);
+                             conc_inorganic, ionic_organic, organion, MMaq, t, deltat, index1, reject_step, chp20);
   index=index1;
 
   if (config.imethod==3 and config.compute_inorganic and compute_organic_save)
@@ -3911,7 +3913,7 @@ void solve_implicit_ssh(model_config config, vector<species> &surrogate,
       //config.compute_hygroscopicity=true;
       if (config.compute_organic)
         solve_implicit_coupled_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
-                                   conc_inorganic, ionic_organic, organion, MMaq, t, deltat, index2, reject_step2);
+                                   conc_inorganic, ionic_organic, organion, MMaq, t, deltat, index2, reject_step2, chp20);
       if (reject_step2)
 	reject_step=true;
       config.compute_inorganic=true;
@@ -4520,6 +4522,11 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
   if (LWCtot>config.LWClimit)
     characteristic_time_aq_ssh(config, surrogate, Temperature, chp, LWC, AQinit, MOinit, MMaq, ionic);
 
+  /*if (config.isorropia_ph==false)
+    for (b=0;b<config.nbins;b++)
+      chp(b)=min(1.,max(chp(b),1.e-6));
+  */
+
 }
 
 void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
@@ -4549,7 +4556,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   //double error_org=10.0;
   //double error_tot=10.0;
   MO.resize(config.nbins,config.nlayer,config.max_number_of_phases);  
-  Array<double,1> AQ,conc_inorganic,ionic_organic, organion,MMaq,chp1,chp0;
+  Array<double,1> AQ,conc_inorganic,ionic_organic, organion,MMaq,chp1,chp0,chp20;
   AQ.resize(config.nbins);
   ionic_organic.resize(config.nbins);
   conc_inorganic.resize(config.nbins);
@@ -4557,6 +4564,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
   MMaq.resize(config.nbins);
   chp1.resize(config.nbins);
   chp0.resize(config.nbins);
+  chp20.resize(config.nbins);
   int icycle;
   //config.MOmin=1.e-30;
 
@@ -4650,8 +4658,9 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	    index=config.max_iter;
 
 	  //diameters0=config.diameters;
+	  chp0=chp;
 	  solve_implicit_ssh(config, surrogate, MOinit, MOW, number, Vsol, LWC, AQinit, ionic, chp, Temperature, RH, AQ, MO,
-                             conc_inorganic, ionic_organic, organion, MMaq, t, deltat1, index, reject_step);
+                             conc_inorganic, ionic_organic, organion, MMaq, t, deltat1, index, reject_step, chp20);
 	  
 	  //cout << config.diameters << endl;
 	  if (reject_step)
@@ -4660,6 +4669,7 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 	      index=index_save;
 	      deltat1=max(deltat1/2,config.deltatmin);
 	      //exit(0);
+	      chp=chp0;
 	    }
 	  else
 	    {	      
@@ -4724,6 +4734,10 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		{
 		  error_max=max(error_max,abs(diameters0(b)-config.diameters(b))/diameters0(b)/0.1);
 		}*/
+	      if (config.EPSER_hp>0.)
+		for (b=0;b<config.nbins;++b)
+		  error_max=max(error_max,min(abs(chp0(b)-chp(b)),abs(chp20(b)-chp(b)))/chp(b)/config.EPSER_hp);
+	      
 	      for (i=0;i<n;i++)
 		if (i!=config.iHp and i!=config.iHSO4m and i!=config.iCa and i!=config.iCO3mm and i!=config.iHCO3m and i!=config.iOHm)
 		  {
@@ -4779,7 +4793,13 @@ void dynamic_system_ssh(model_config &config, vector<species> &surrogate,
 		      }	
 		  }
 
-	  
+	      /*	      double error_max2;
+	      for (b=0;b<config.nbins;++b)
+		{
+		  error_max2=min(abs(chp0(b)-chp(b)),abs(chp20(b)-chp(b)))/chp(b)/0.01;
+		  //if (error_max2>0.9*error_max)
+		  //  cout << b << " " << error_max2 << " " << min(abs(chp0(b)-chp(b)),abs(chp20(b)-chp(b)))/config.EPSER << " " << min(abs(chp0(b)-chp(b)),abs(chp20(b)-chp(b))) << " " << chp(b) << " " << chp0(b) << " " << chp20(b) << endl;
+		  }*/
 	      //cout << t << " " << error_max << " " << deltat1 << endl;
 	      /*double error_max2=0.0;
 	      deltat2=0.8/pow(error_max,0.5)*deltat1;
