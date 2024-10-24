@@ -506,51 +506,52 @@ subroutine ssh_update_kinetic_pho(azi)
 
   integer :: i,j,k,ik,s,tag
   double precision,INTENT(IN) :: azi
-  double precision :: photo, zp
+  double precision :: photo, zp,aziloc
 
   ! Photolysis
-  if (azi .lt. 9d1 .or. tag_genoa .eq. 0) then ! with photolysis
-    do i=1, size(photo_rcn,1)
-        j = photo_rcn(i,1) ! reaction index
-        k = photo_rcn(i,2) ! pholysis index
-        if (option_photolysis == 1) then
-            ! Get zone s in the range of [1, nsza-1]
-            if (azi .ge. szas(nsza)) then
-                s = nsza - 1
-            else
-                do s=1, nsza-1
-                  if (azi.ge.szas(s) .and. azi.lt.szas(s+1)) then
-                      exit
-                  endif
-                enddo
-            endif
-            ! Get photolysis rate in zone s
-            if (k.lt.0) then ! spack
-                ik = abs(k)
-                photo = photo_ratio(ik,s,4)
-                photo = photo_ratio(ik,s,3) + (azi-szas(s))*photo
-                photo = photo_ratio(ik,s,2) + (azi-szas(s))*photo
-                photo = photo_ratio(ik,s,1) + (azi-szas(s))*photo
-            else ! gck
-                zp = (azi-szas(s))/(szas(s+1)-szas(s)) !zp=(xin-xp(i-1))/xp(i)-xp(i-1)
-                photo =((zp*photo_ratio(k,s,1) + photo_ratio(k,s,2)) &
-                        *zp + photo_ratio(k,s,3))*zp + photo_ratio(k,s,4)
-                photo = dabs(photo)
-            endif
-        ! Read from binary files     
-        else if (option_photolysis == 2) then
-           photo = photolysis_rate(abs(k))
-        endif
 
-        ! Add cloud attenuation and a ratio (Arrhenius(j, 1)
-        kinetic_rate(j) = Arrhenius(j,1) * max(photo*attenuation, 0.d0)
-    enddo
-  else ! no photolysis
-    do i=1, size(photo_rcn,1) ! no.TB reactions
-        j = photo_rcn(i,1) ! reaction index
-        kinetic_rate(j) = 0.d0 ! set to zero
-    enddo
-  endif
+  aziloc=min(azi,90.d0)
+  do i=1, size(photo_rcn,1)
+     j = photo_rcn(i,1) ! reaction index
+     k = photo_rcn(i,2) ! pholysis index
+     if (option_photolysis == 1) then
+        ! Get zone s in the range of [1, nsza-1]
+        if (aziloc .ge. szas(nsza)) then
+           s = nsza - 1
+        else
+           do s=1, nsza-1
+              if (aziloc.ge.szas(s) .and. aziloc.lt.szas(s+1)) then
+                 exit
+              endif
+           enddo
+        endif
+        ! Get photolysis rate in zone s
+        if (k.lt.0) then ! spack
+           ik = abs(k)
+           photo = photo_ratio(ik,s,4)
+           photo = photo_ratio(ik,s,3) + (aziloc-szas(s))*photo
+           photo = photo_ratio(ik,s,2) + (aziloc-szas(s))*photo
+           photo = photo_ratio(ik,s,1) + (aziloc-szas(s))*photo
+        else ! gck
+           zp = (aziloc-szas(s))/(szas(s+1)-szas(s)) !zp=(xin-xp(i-1))/xp(i)-xp(i-1)
+           photo =((zp*photo_ratio(k,s,1) + photo_ratio(k,s,2)) &
+                *zp + photo_ratio(k,s,3))*zp + photo_ratio(k,s,4)
+           photo = dabs(photo)
+        endif
+        ! Read from binary files     
+     else if (option_photolysis == 2) then
+        photo = photolysis_rate(abs(k))
+     endif
+
+     ! Add cloud attenuation and a ratio (Arrhenius(j, 1)
+     kinetic_rate(j) = Arrhenius(j,1) * max(photo*attenuation, 0.d0)
+  enddo
+  !else ! no photolysis
+  !  do i=1, size(photo_rcn,1) ! no.TB reactions
+  !      j = photo_rcn(i,1) ! reaction index
+   !     kinetic_rate(j) = 0.d0 ! set to zero
+  !  enddo
+  !endif
   
   ! extra reactions - MCM photolysis
   do i=1, size(extra_rcn)
@@ -559,7 +560,7 @@ subroutine ssh_update_kinetic_pho(azi)
 
     ! MCM photolysis
     if (k == 91) then
-        call ssh_MCM_rate(j,i,k,azi)
+        call ssh_MCM_rate(j,i,k,aziloc)
     endif
   enddo
 
