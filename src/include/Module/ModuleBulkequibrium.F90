@@ -404,8 +404,8 @@ contains
             nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef_ho,ce_kernal_coef_hi,ce_kernal_coef_totho,&
             ce_kernal_coef_tothi,i_hydrophilic,dqaq,Kelvin_effect)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef,ce_kernal_coef,ce_kernal_coef_tot,&
-            ce_kernal_coef_tot,0,dqaq,Kelvin_effect)
+            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef_hi,ce_kernal_coef_hi,ce_kernal_coef_tothi,&
+            ce_kernal_coef_tothi,0,dqaq,Kelvin_effect)
        if(dqamm.GT.0.d0) call ssh_redistribution_amm(dqamm,ICUT_org)
 
        if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
