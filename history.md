@@ -2,6 +2,49 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
+# SSH-aerosol version 2.0 release (2024-10-XX)
+
+## Model
+
+- Added a wall loss module
+- Added a parameterization of Kelvin effect
+- Computed diffusion coefficient based on the viscosity
+- Added option to take into account multiple RO2 pool for GENOA
+- Added MCM and GECKO kinetic rates
+- New reactions between organic and inorganic ions
+- Modified ELVOC formation from monoterpenes
+- Updated SMILES to check the decomposition of a species into functional groups
+- Added new biogenic organic aerosol species
+
+
+## Test case
+
+- Added test cases for the oxidation of toluene, monoterpene, naphthalene, sesqui-terpene
+- Added test cases for AIOMFAC-VISC
+- Added GENOA and MCM test cases
+- Added a test case for IEPOX with particle-phase reaction
+- More size sections for test cases
+- Added a test case for HNO3 condensation onto CaCO3
+- Added a test case for soap_inorg = 1
+
+## Fixed bugs
+
+- Corrected redistribution option 12
+- Corrected mass of nucleated particles for heteromolecular nucleation
+
+## Interface
+
+- SPACK is not required to generate chemistry files.
+- Added netCDF-style output
+
+## Architecture
+
+- Installation with Ducker
+- O2 optimization used instead of Ofast
+
+## Papers
+
+
 
 # SSH-aerosol version 1.3 release (2022-06-27)
 

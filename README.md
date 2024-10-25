@@ -10,18 +10,7 @@ Installation
 Building
 --------
 
-> compile
-
-The arguement for the chemical mechanism can be used. 
-Default mechanism is cb05 and the available mechanisms are cb05, racm and racm2.
-    
--c or --chemisty
-    
-> compile -c=cb05
-
-or 
-
-> compile --chemistry=cb05
+> ./compile
 
 scons is needed to compile the program. Makefile for make is also provided. It
 is a preliminary version and therefore is not fully tested. 
