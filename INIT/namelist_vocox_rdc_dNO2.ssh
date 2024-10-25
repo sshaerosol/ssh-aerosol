@@ -77,7 +77,7 @@ delta_latitude = 10.d0,
 n_altitude = 9,
 altitude_photolysis_input = 0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 10000.0, 15000.0, 20000.0, 
 RO2_list_file = "src/include/CHEMISTRY/user_defined/ro2_species.dat",
-tag_RO2 = 3, ! 0 no RO2 reaction, 1 only generated RO2, 2 only background RO2, 3 background + generated RO2
+tag_RO2 = 0, ! 0 no RO2 reaction, 1 only generated RO2, 2 only background RO2, 3 background + generated RO2
 /
 
 
