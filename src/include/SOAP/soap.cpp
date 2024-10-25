@@ -21,7 +21,7 @@ using namespace blitz;
 //////////////
 
 extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, double* co2_conc_ppm,
-			       double* ionic, double& chp, double& LWCorg,
+			       double& ionic, double& chp, double& LWCorg,
 			       double& deltat, double* DSD, double* csol, double* liquid,
 			       int* ns_aer, int* ns_aer_layers, int* neq, double* q, double* qaero, 
 			       double* qaq, double* qgas, double* lwc_Nsize,
@@ -40,7 +40,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 			       int* N_inert, int* N_inorganic, int* NACL_IN_THERMODYNAMICS, int* SOAPlog, char* soap_reaction_file){
 
   return soap_main_ssh(*LWC, *RH, *Temperature, *co2_conc_ppm,
-		       *ionic, chp, LWCorg, 
+		       ionic, chp, LWCorg, 
 		       deltat,DSD,csol, liquid,
 		       *ns_aer, *ns_aer_layers, *neq, q, qaero, qaq, qgas,
 		       lwc_Nsize,ionic_Nsize,chp_Nsize,
@@ -68,7 +68,7 @@ extern "C" void soap_main_ssh_(double* LWC, double* RH, double* Temperature, dou
 */
 
 void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_ppm,
-		   double ionic, double& chp, double& LWCorg,
+		   double& ionic, double& chp, double& LWCorg,
 		   double& deltat, double DSD[], double csol[], double liquid[],
 		   int ns_aer, int ns_aer_layers, int neq, double q[], double qaero[], double qaq[],
 		   double qgas[],
@@ -422,7 +422,12 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  surrogate[config.iNO3m].Aaq = liquid[6]*1.0e6*62.0; // NO3-
 	  surrogate[config.iNH4p].Aaq = liquid[2]*1.0e6*18.0; // NH4+
 	  surrogate[config.iHp].Aaq = liquid[0]*1.0e6; // H+
-
+	  if (config.iNa>0)
+	    surrogate[config.iNa].Aaq=liquid[1]*1.0e6*surrogate[config.iNa].MM; // Na+
+	  if (config.iClm>0)
+	    surrogate[config.iClm].Aaq=liquid[3]*1.0e6*surrogate[config.iClm].MM; // Cl-
+	  if (config.iOHm>0)
+	    surrogate[config.iOHm].Aaq=liquid[11]*1.0e6*surrogate[config.iOHm].MM; // OH-
 	  if (NaCl)
 	    for (i = 0; i < n; ++i) // Na+ and Cl-
 	      if ((surrogate[i].name == "Na") or (surrogate[i].name == "Cl") or surrogate[i].name == "K" or surrogate[i].name == "Ca" or surrogate[i].name == "Mg" or surrogate[i].name=="CO3")
@@ -471,13 +476,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 
       if (config.compute_inorganic or config.inorganic_chemistry)
 	{
-	  liquid[1]=0.;
-	  liquid[3]=0.;
 	  liquid[4]=surrogate[config.iSO4mm].Aaq/1.0e6/96.0; // SO4_2-
 	  liquid[5]=surrogate[config.iHSO4m].Aaq/1.0e6/97.0; // HSO4-
 	  liquid[6]=surrogate[config.iNO3m].Aaq/1.0e6/62.0; // NO3-
 	  liquid[2]=surrogate[config.iNH4p].Aaq/1.0e6/18.0; // NH4+
 	  liquid[0]=surrogate[config.iHp].Aaq/1.0e6; // H+
+	  if (config.iNa>0)
+	    liquid[1]=surrogate[config.iNa].Aaq/1.0e6/surrogate[config.iNa].MM; // Na+
+	  if (config.iClm>0)
+	    liquid[3]=surrogate[config.iClm].Aaq/1.0e6/surrogate[config.iClm].MM; // Cl-
+	  liquid[7]=surrogate[config.iH2O].Aaq/1.0e6/18.0;
+	  if (config.iOHm>0)
+	    liquid[11]=surrogate[config.iOHm].Aaq/1.0e6/surrogate[config.iOHm].MM; // OH-
  
 	  //Multiply by gamma to output activity and compute pH. pH=-log10(activity(H+))
 	  chp=chp*surrogate[config.iHp].gamma_aq;
@@ -634,8 +644,13 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
       Array<double,1> number, vsol;
       number.resize(config.nbins);
       vsol.resize(config.nbins);
+
+
+     
+      
       for (b = 0; b < config.nbins; ++b)
         {
+	  //cout << "liquid_Nsize " << liquid_Nsize[0,b] << " " << liquid_Nsize[b,0] << endl;
 	  //cout << b << " " << DSD[b] << " " << config.nbins << endl;
 	  //cout << config.diameters << endl;
 	  config.diameters(b)=DSD[b];
@@ -644,11 +659,17 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	  if (config.compute_inorganic==false)
 	    {
 	      // Compute fractions of sulfate ions.
-	      surrogate[config.iSO4mm].Aaq_bins_init(b) = liquid_Nsize[4,b]*1.0e6*96.0; // SO4_2-
-	      surrogate[config.iHSO4m].Aaq_bins_init(b) = liquid_Nsize[5,b]*1.0e6*97.0; // HSO4-
-	      surrogate[config.iNO3m].Aaq_bins_init(b) = liquid_Nsize[6,b]*1.0e6*62.0; // NO3-
-	      surrogate[config.iNH4p].Aaq_bins_init(b) = liquid_Nsize[2,b]*1.0e6*18.0; // NH4+
-	      surrogate[config.iHp].Aaq_bins_init(b) = liquid_Nsize[0,b]*1.0e6; // H+
+	      surrogate[config.iSO4mm].Aaq_bins_init(b) = liquid_Nsize[b,4]*1.0e6*96.0; // SO4_2-
+	      surrogate[config.iHSO4m].Aaq_bins_init(b) = liquid_Nsize[b,5]*1.0e6*97.0; // HSO4-
+	      surrogate[config.iNO3m].Aaq_bins_init(b) = liquid_Nsize[b,6]*1.0e6*62.0; // NO3-
+	      surrogate[config.iNH4p].Aaq_bins_init(b) = liquid_Nsize[b,2]*1.0e6*18.0; // NH4+
+	      surrogate[config.iHp].Aaq_bins_init(b) = liquid_Nsize[b,0]*1.0e6; // H+
+	      if (config.iNa>0)
+		surrogate[config.iOHm].Aaq_bins_init(b)=liquid_Nsize[b,1]*1.0e6*surrogate[config.iNa].MM; // Na+
+	      if (config.iClm>0)
+		surrogate[config.iClm].Aaq_bins_init(b)=liquid_Nsize[b,3]*1.0e6*surrogate[config.iClm].MM; // Cl-
+	      if (config.iOHm>0)
+		surrogate[config.iOHm].Aaq_bins_init(b)=liquid_Nsize[b,11]*1.0e6*surrogate[config.iOHm].MM; // OH-
 	    }
 	}
 
@@ -1066,12 +1087,18 @@ void soap_main_ssh(double LWC, double RH, double Temperature, double co2_conc_pp
 	      else
 		chp_Nsize[b]=chp_bins(b);
 	      ionic_Nsize[b]=ionic_bins(b);
-	      liquid_Nsize[4,b]=surrogate[config.iSO4mm].Aaq_bins_init(b)/1.0e6/96.0; // SO4_2-
-	      liquid_Nsize[5,b]=surrogate[config.iHSO4m].Aaq_bins_init(b)/1.0e6/97.0; // HSO4-
-	      liquid_Nsize[6,b]=surrogate[config.iNO3m].Aaq_bins_init(b)/1.0e6/62.0; // NO3-
-	      liquid_Nsize[2,b]=surrogate[config.iNH4p].Aaq_bins_init(b)/1.0e6/18.0; // NH4+
-	      liquid_Nsize[0,b]=surrogate[config.iHp].Aaq_bins_init(b)/1.0e6; // H+
-	      
+	      liquid_Nsize[b,4]=surrogate[config.iSO4mm].Aaq_bins_init(b)/1.0e6/96.0; // SO4_2-
+	      liquid_Nsize[b,5]=surrogate[config.iHSO4m].Aaq_bins_init(b)/1.0e6/97.0; // HSO4-
+	      liquid_Nsize[b,6]=surrogate[config.iNO3m].Aaq_bins_init(b)/1.0e6/62.0; // NO3-
+	      liquid_Nsize[b,2]=surrogate[config.iNH4p].Aaq_bins_init(b)/1.0e6/18.0; // NH4+
+	      liquid_Nsize[b,0]=surrogate[config.iHp].Aaq_bins_init(b)/1.0e6; // H+
+	      if (config.iNa>0)
+		liquid_Nsize[b,1]=surrogate[config.iNa].Aaq_bins_init(b)/1.0e6/surrogate[config.iNa].MM; // Na+
+	      if (config.iClm>0)
+		liquid_Nsize[b,3]=surrogate[config.iClm].Aaq_bins_init(b)/1.0e6/surrogate[config.iClm].MM; // Cl-
+	      liquid_Nsize[b,7]=lwc_Nsize[b]/1.0e6/18.0;
+	      if (config.iOHm>0)
+		liquid_Nsize[b,11]=surrogate[config.iOHm].Aaq_bins_init(b)/1.0e6/surrogate[config.iOHm].MM; // OH-
 	    }
 	  
 	}

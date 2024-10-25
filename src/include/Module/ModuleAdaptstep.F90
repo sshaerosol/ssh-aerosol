@@ -269,7 +269,7 @@ contains
                   cell_diam_av(ICUT_org+1:N_size), neq, liquid)
           endif
        endif
-       
+        
        if (ISOAPDYN.eq.1) then
           if (soap_inorg==1) then
              soap_inorg_loc=0      !only compute organic
@@ -296,13 +296,30 @@ contains
              qaero(ECl) = 0.d0
              qgas(ECl) = 0.d0
           endif
-        
-          call ssh_isoropia_drv(N_aerosol,&
-               qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
-               liquid,other)
           
           if (soap_inorg<1) then
+             call ssh_isoropia_drv(N_aerosol,&
+                  qaero,qgas,organion, watorg, ionic, proton, lwc, Relative_Humidity, Temperature, &
+                  liquid,other)
              call ssh_redistribution_lwc(lwc,ionic,proton,liquid,1,N_size)
+          else
+             lwc=0.d0
+             proton=0.d0
+             ionic=0.d0
+             liquid=0.d0
+             do j1 = 1, N_size
+                lwc=lwc+lwc_Nsize(j1)
+                proton=proton+proton_Nsize(j1)*lwc_Nsize(j1)
+                do jesp=1,12
+                   liquid(jesp)=liquid(jesp)+liquid_Nsize(jesp,j1)
+                enddo
+                ionic=ionic+ionic_Nsize(j1)*lwc_Nsize(j1)
+             enddo
+
+             if (lwc>0.d0) then
+                proton=proton/lwc
+                ionic=ionic/lwc
+             endif
           endif          
 
           ! *** SOA are dynamically partitioned even if inorganic aerosols are estimated by equilibrium.

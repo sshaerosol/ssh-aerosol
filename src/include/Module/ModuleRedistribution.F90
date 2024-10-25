@@ -257,7 +257,7 @@ contains
           proton_Nsize(js) = proton * inorg_bin(js) / inorg_total
           ionic_Nsize(js) = ionic 
           do jesp=1,12
-            liquid_Nsize(jesp,js) = liquid(jesp)
+            liquid_Nsize(jesp,js) = liquid(jesp) * inorg_bin(js) / inorg_total
           enddo
        else
           if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = 0.d0
@@ -367,7 +367,7 @@ contains
              proton_Nsize(js) = proton * inorg_bin(js) / inorg_total
              ionic_Nsize(js) = ionic 
              do jesp=1,12
-                liquid_Nsize(jesp,js) = liquid(jesp)
+                liquid_Nsize(jesp,js) = liquid(jesp)*inorg_bin(js) / inorg_total
              enddo
           else
              if(iredist.EQ.0) concentration_mass(js, EH2O_layers) = 0.d0
