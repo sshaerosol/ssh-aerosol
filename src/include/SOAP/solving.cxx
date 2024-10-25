@@ -4068,8 +4068,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
           }
         else if (i==config.iNH3)
           {
-            deltaH_over_RT0=13.79;
-            deltaCp0_over_R=-5.39;
+            deltaH_over_RT0=-13.79;
+            deltaCp0_over_R=5.39;
             surrogate[i].kaqi=
               surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1.+log(T0/Temperature)-T0/Temperature))
               *R*Temperature/(1000.*1.0e6*1.013e5);
@@ -4077,8 +4077,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
           }
         else if (i==config.iHNO3)
           {
-            deltaH_over_RT0=29.17;
-            deltaCp0_over_R=16.83;
+            deltaH_over_RT0=-29.17;
+            deltaCp0_over_R=-16.83;
             surrogate[i].kaqi=
               surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1.+log(T0/Temperature)-T0/Temperature))
               *R*Temperature/(1000.*1.0e6*1.013e5);
@@ -4092,8 +4092,8 @@ void initialisation_ssh(model_config &config, vector<species> &surrogate,
         else if (i==config.iHCl)
           {
             
-            deltaH_over_RT0=30.20;
-            deltaCp0_over_R=19.91;
+            deltaH_over_RT0=-30.20;
+            deltaCp0_over_R=-19.91;
             surrogate[i].kaqi=surrogate[i].Henry*exp(-deltaH_over_RT0*(T0/Temperature-1.0)-deltaCp0_over_R*(1.+log(T0/Temperature)-T0/Temperature))
               *R*Temperature/(1000.*1.0e6*1.013e5);
             surrogate[i].keqi=surrogate[i].Kequilibrium_ssh(Temperature);
