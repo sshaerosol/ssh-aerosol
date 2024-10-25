@@ -96,7 +96,7 @@ for i in cases :
 lists = []
 lbs = []
 stl = ['-','-','-','-','-']
-cols = ['c-+','m-+','b-','g-+','r-+','y-']
+cols = ['c-','m-','b-+','g-','r-','y-+']
 for i in num_out_sml : lists.append(i)
 for i in case_lb : lbs.append(i)
 
@@ -105,7 +105,7 @@ num = len(deltalogd)
 tmp = np.zeros(num)
 for j in range(num) :
         tmp[j]= float(num_init_sml[0][j]) / deltalogd[j]* 1E-6 #in cm-3
-plt.plot(diam_mean, tmp,'k-+',label = 'Init')
+plt.plot(diam_mean, tmp,'k-',label = 'Init')
 
 for i in range(len(lists)) :
      if(iredist==1):
@@ -149,7 +149,7 @@ lists2 = []
 #for i in mass_init_sml : lists2.append(i)
 for i in mass_out_sml : lists2.append(i)
 lbs = []
-cols = ['c-+','m-+','b-','g-+','r-+','y-']
+cols = ['c-','m-','b-+','g-','r-+','y-+']
 for i in case_lb : lbs.append(i)
 plt.clf()
 num = len(deltalogd)
@@ -159,7 +159,7 @@ for j in range(num) :
         if(tmp[j] < 0.01) : tmp[j] = 0.0
         else:
                 tmp[j] = tmp[j] * 1E-6 #in cm-3
-plt.plot(diam_mean, tmp,'k-+',label = 'Init')
+plt.plot(diam_mean, tmp,'k-',label = 'Init')
 
 for i in range(len(lists2)) :
      if(iredist==1):

@@ -38,6 +38,7 @@ contains
     double precision::ce_kernal_coef_tot(N_aerosol)
     double precision::ce_kernal_coef_totho(N_aerosol),ce_kernal_coef_ho(N_size,N_aerosol)
     double precision::ce_kernal_coef_tothi(N_aerosol),ce_kernal_coef_hi(N_size,N_aerosol)
+    double precision::ce_kernal_coef_totinorg(N_aerosol),ce_kernal_coef_inorg(N_size,N_aerosol)
     double precision organion, watorg, proton, lwc, d_ms
     double precision rhop_tmp,emw_tmp,wet_diam,aatoteq,qgasa,qgasi
     integer :: eq_species(nesp_eq)! species compute with equilibrium
@@ -56,7 +57,8 @@ contains
     double precision qaq(N_aerosol),qextaq(N_aerosol),dqaq(N_aerosol)
     double precision qextaqold(N_aerosol)
     double precision orgmass_ho(N_size), orgmass_hi(N_size) 
-    double precision coef_ho,coef_hi,amm_sulfate_2
+    double precision orgmass_inorg(N_size)
+    double precision coef_ho,coef_hi,coef_inorg,amm_sulfate_2
 
     !!     ******zero init
     do jesp=1,(N_aerosol-1)
@@ -235,6 +237,19 @@ contains
           orgmass_hi(j)=1.d-10
        endif
     enddo
+
+    if(soap_inorg == 1) then
+      do j=1,N_size
+       orgmass_inorg(j) = 0.d0
+       do s=1,nesp_isorropia
+          jesp=index_species(eq_species2(s),1) !This index is used to differentiate hydrophobic from hydrophilic part
+          orgmass_inorg(j) = orgmass_inorg(j) + concentration_mass(j,jesp)
+       enddo
+       if (orgmass_inorg(j)==0.d0) then
+          orgmass_inorg(j)=1.d-10
+       endif
+      enddo
+    endif
     !else
     !   if (aerosol_hydrophobic(s)=1)
     !endif
@@ -269,6 +284,18 @@ contains
                 ce_kernal_coef_tothi(jesp)= ce_kernal_coef_tothi(jesp)&! compute total ce_kernal_coef coef
                      +ce_kernal_coef_hi(j,jesp)*concentration_number(j) 
              endif
+             if(soap_inorg == 1) then
+                coef_inorg =  (Kelvin_effect(j,jesp) - 0.999999999d0) * orgmass_inorg(j)
+                if ((coef_inorg.GT.0D0).AND.(inon_volatile(jesp).EQ.0)) then
+                   ce_kernal_coef_inorg(j,jesp) = ce_kernal_coef(j,jesp) * coef_inorg
+                else if (inon_volatile(jesp).EQ.1) then
+                   ce_kernal_coef_inorg(j,jesp) = ce_kernal_coef(j,jesp)
+                else
+                   ce_kernal_coef_inorg(j,jesp) = 0.D0
+                endif
+                ce_kernal_coef_totinorg(jesp)= ce_kernal_coef_totinorg(jesp)&! compute total ce_kernal_coef coef
+                     +ce_kernal_coef_inorg(j,jesp)*concentration_number(j) 
+             endif
           enddo
           else
               do j = 1,N_size
@@ -279,6 +306,12 @@ contains
                enddo
                ce_kernal_coef_tothi(jesp)= ce_kernal_coef_tot(jesp)
                ce_kernal_coef_totho(jesp)= ce_kernal_coef_tot(jesp)
+               if(soap_inorg == 1) then
+                  do j = 1,N_size
+                    ce_kernal_coef_inorg(j,jesp) = ce_kernal_coef(j,jesp)
+                  enddo
+                  ce_kernal_coef_totinorg(jesp)= ce_kernal_coef_tot(jesp)
+               endif
           endif
        endif
     enddo
@@ -404,8 +437,8 @@ contains
             nesp_eq,eq_species,ICUT_org,dq,ce_kernal_coef_ho,ce_kernal_coef_hi,ce_kernal_coef_totho,&
             ce_kernal_coef_tothi,i_hydrophilic,dqaq,Kelvin_effect)
        call ssh_bulkequi_redistribution(concentration_number,concentration_mass,&
-            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef_hi,ce_kernal_coef_hi,ce_kernal_coef_tothi,&
-            ce_kernal_coef_tothi,0,dqaq,Kelvin_effect)
+            nesp_isorropia,eq_species2,ICUT_org,dq,ce_kernal_coef_inorg,ce_kernal_coef_inorg, &
+            ce_kernal_coef_totinorg,ce_kernal_coef_totinorg,0,dqaq,Kelvin_effect)
        if(dqamm.GT.0.d0) call ssh_redistribution_amm(dqamm,ICUT_org)
 
        if (ECO3>0.and.NACL_IN_THERMODYNAMICS==1) then
