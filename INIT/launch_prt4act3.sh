@@ -2,7 +2,7 @@
 
 # This script modifies namelist_prt4act3.sh and runs generated namelists with ./ssh-aerosol
 
-namelist="INIT/namelist_prt4act3.sh"
+namelist="INIT/namelist_prt4act3.ssh"
 nml="INIT/prt4act3.nml"
 resf="results/prt4act3/"
 activity_models="1 2 3"
