@@ -2001,8 +2001,9 @@ contains
              write(*,*) "partitioning should be --, HPHO, HPHI or BOTH, aerspec nb ", s," : ", partitioning(s)
              stop
           endif
-
-          if(inon_volatile(s).eq.1.and.partitioning(s).eq."--".and.aerosol_species_name(s).ne."PSO4") then
+          
+          if(inon_volatile(s).eq.1.and.(partitioning(s).eq."--".or.partitioning(s).eq."BOTH").and. &
+               aerosol_species_name(s).ne."PSO4") then
              write(*,*) trim(aerosol_species_name_tmp)," is non volatile. partitioning should be defined: HPHO, HPHI"
              stop
           endif
@@ -2084,8 +2085,7 @@ contains
     if (ssh_logger) write(logfile,*) "   --- Index for water:", EH2O
 
     ! Allocate aerosol arrays
-    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water
-    print*,"i_hydrophilic: ",i_hydrophilic
+    N_nonorganics = N_aerosol - N_organics -1 ! Remove organics and water    
     N_aerosol_layers = N_organics * (nlayer-1 + i_hydrophilic) + N_aerosol
     EH2O_layers = N_aerosol_layers
     if ( .not. allocated(mass_density_layers)) allocate(mass_density_layers(N_aerosol_layers))
@@ -2455,8 +2455,7 @@ contains
         enddo
      endif
      do i = 1, N_aerosol
-        !print*,aerosol_species_name(i),inon_volatile(i),inon_volatile_soap(i)
-        if(partitioning(i)=="BOTH") inon_volatile(i) = 0
+        !print*,aerosol_species_name(i),inon_volatile(i),inon_volatile_soap(i)      
         if (aerosol_species_interact(i)==0.and.aerosol_type(i)==4) then
            !print*,aerosol_species_name(i)
            inon_volatile_soap(i)=1
@@ -2512,12 +2511,6 @@ contains
       enddo
       
    endif
-
-   do i = 1,N_aerosol_layers
-      jesp=List_species(i)
-      print*,aerosol_species_name(jesp)
-   enddo
-   
     
     if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl

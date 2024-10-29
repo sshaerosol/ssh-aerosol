@@ -479,8 +479,7 @@ contains
              jnucl=3.27*1.d-15*org_terp*na*na * scal_hetero ! in #.m-3 s-1 !!!SCALING FACTOR
              if(jnucl.gt.1.d10) then ! Prevent nucleation rate from being too large
                jnucl = 1.d10
-            endif
-            print*,"jnucl: ",jnucl
+            endif          
              if(jnucl > 1.d-6) then
                dpnucl = size_diam_av(isection) 
                mass_nucl1 = 2.D0 * molecular_weight_aer(ESO4)
@@ -499,8 +498,7 @@ contains
                Do iterp = 1,nesp_org_h2so4_nucl
                  dqdt(isection,org_h2so4_nucl_species(iterp)) = dqdt(isection,org_h2so4_nucl_species(iterp)) &
                      + dmdt * xterp(iterp) * &
-                     molecular_weight_aer(List_species(org_h2so4_nucl_species(iterp))) / mass_nucl
-                 print*,"dqdt ",iterp,dqdt(isection,org_h2so4_nucl_species(iterp))
+                     molecular_weight_aer(List_species(org_h2so4_nucl_species(iterp))) / mass_nucl              
                Enddo
              endif
           endif
