@@ -27,8 +27,8 @@ PSOAhP	4    3	        392.0   SOAhP        687.d0          8.39d0          30.D-
 PPOAlP	4    3	        280.0	POAlP        687.d0          8.39d0          30.D-03   1.0    1.30D3      0           HPHO          -       8.44e-8    106.   0.      0.
 PPOAmP	4    3	        280.0   POAmP        687.d0          8.39d0          30.D-03   1.0    1.30D3      0           HPHO          -       8.44e-6    91.    0.      0.
 PPOAhP	4    3	        280.0   POAhP        687.d0          8.39d0          30.D-03   1.0    1.30D3      0           HPHO          -       3.e-4      79.    0.      0.
-PMonomer 4   3	        278.0	Monomer      687.d0          8.39d0          30.D-03   1.0    1.30D3      1           BOTH          -       1.e-14     50.    0.      0.
-PDimer	 4   3	        432.0   Dimer        687.d0          8.39d0          30.D-03   1.0    1.30D3      1           BOTH          -       1.e-14     50.    0.      0.
+PMonomer 4   3	        278.0	Monomer      687.d0          8.39d0          30.D-03   1.0    1.30D3      1           HPHO          -       1.e-14     50.    0.      0.
+PDimer	 4   3	        432.0   Dimer        687.d0          8.39d0          30.D-03   1.0    1.30D3      1           HPHO          -       1.e-14     50.    0.      0.
 PBiA3D	 4   2	        204.0   BiA3D        687.d0          8.39d0          30.D-03   1.0    1.30D3      0           BOTH          -       3.25e-7    109.   0.      0.
 PACIDMAL 4   2          158.0   ACIDMAL      687.d0          8.39d0          30.D-03   1.0    1.30D3      0           BOTH          -       4.59e-8    50.    0.      0.
 PDHMB    4   2          154.0   DHMB         687.d0          8.39d0          30.D-03   1.0    1.30D3      0           BOTH          -       3.52e-6    50.    0.      0.
