@@ -52,11 +52,13 @@ elif case_type == 4:
     keyword = 'visc'
 elif case_type == 5:  
     keyword = 'caco3'
-elif case_type == 6:  
-    keyword = 'monoterpene'
+elif case_type == 6:
+    keyword = 'prt4act3'
 elif case_type == 7:  
-    keyword = 'mcm'
+    keyword = 'monoterpene'
 elif case_type == 8:  
+    keyword = 'mcm'
+elif case_type == 9:  
     keyword = 'vocox'    
 
 """
@@ -233,6 +235,27 @@ def multiprocessing_func(k):
         
     return status
 
+def run_prt4act3_case():
+    """This function runs the test case with namelist_prt4act3.ssh"""
+
+    # Check if files exist
+    filename = "INIT/namelist_prt4act3.ssh"
+    shellname = "INIT/launch_prt4act3.sh"
+    for f in [filename, shellname]:
+        if not os.path.exists(f):
+            logging.error(f"{f} does not exist.")
+            return
+
+    # Run the test case
+    print(f"\nRunning {shellname} ...")
+
+    cmd = f"time ./{shellname}"
+    status = os.system(cmd)
+    if status != 0:
+        logging.error(f"Failed to run the test case with {shellname}")
+        return
+
+
 if __name__ == '__main__':
 
     starttime = time.time()
@@ -288,6 +311,7 @@ if __name__ == '__main__':
                 if (case_name == "namelist_mt_ref.ssh" or \
                     case_name == "namelist_mt_rdc.ssh" or \
                     case_name == "namelist_mcm-wFGL.ssh" or \
+                    case_name == "namelist_prt4act3.ssh" or \
                     case_name == "namelist_mcm-wSMILES.ssh" or \
                     case_name[9:14] == "vocox"):
                     continue
@@ -316,17 +340,21 @@ if __name__ == '__main__':
                 else:
                     message = ' => Fail'
                 logging.info(process_name.ljust(50) + message.ljust(20))
-                
-        # Run monoterpene cases
+        
+        # Rub prt4act3 case
         if case_type == 0 or case_type == 6:
+            run_prt4act3_case()
+        
+        # Run monoterpene cases
+        if case_type == 0 or case_type == 7:
             run_monoterpene_cases()
 
         # Run MCM cases
-        if case_type == 0 or case_type == 7:                
+        if case_type == 0 or case_type == 8:                
             run_mcm_cases()
 
         # Run user-defined cases
-        if case_type == 0 or case_type == 8:
+        if case_type == 0 or case_type == 9:
             run_user_defined_cases()
 
         logging.info('That took {} seconds'.format(time.time() - starttime))
