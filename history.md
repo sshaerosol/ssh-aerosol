@@ -4,33 +4,26 @@ o---------------------o
 
 # SSH-aerosol version 2.0 release (2024-10-XX)
 
-## Model
+## Aerosol dynamics and thermodynamics
 
-- Added a wall loss module
-- Added a parameterization of Kelvin effect
-- Computed diffusion coefficient based on the viscosity
-- Added option to take into account multiple RO2 pool for GENOA
-- Added MCM and GECKO kinetic rates
-- New reactions between organic and inorganic ions
-- Modified ELVOC formation from monoterpenes
-- Updated SMILES to check the decomposition of a species into functional groups
-- Added new biogenic organic aerosol species
+- Consideration of the Kelvin effect to determine size distribution of condensing and evaporating species when assuming thermodynamic equilibrium
+- Faster computation of coagulation partition coefficients
+- For condensation/evaporation, computation of diffusion coefficients based on the viscosity (AIOMFAC-visc algorithm)
+- More nucleation schemes
+- Intra-particle reaction module (oligomerization, hydrolysis, reactions between organic and inorganic ions)
+- Automatic decomposition of species in UNIFAC functional groups when the SMILES code is provided
+- Coupled inorganic-organic thermodynamic module
 
 
-## Test case
+## Gas-phase chemistry
 
-- Added test cases for the oxidation of toluene, monoterpene, naphthalene, sesqui-terpene
-- Added test cases for AIOMFAC-VISC
-- Added GENOA and MCM test cases
-- Added a test case for IEPOX with particle-phase reaction
-- More size sections for test cases
-- Added a test case for HNO3 condensation onto CaCO3
-- Added a test case for soap_inorg = 1
+- Coupling to the GENerator of Reduced Organic Aerosol Mechanisms (GENOA) and Master Chemical Mechanism 
+- Option to take into account peroxy radical pools for chemical mechanisms
+- Treatment of specific MCM and GECKO-A kinetic rates
+- New organic aerosol mechanisms for toluene, naphtalene, terpenes and sesquiterpenes
 
-## Fixed bugs
+## Addition of a wall loss module and comparisons to chamber experiments
 
-- Corrected redistribution option 12
-- Corrected mass of nucleated particles for heteromolecular nucleation
 
 ## Interface
 
@@ -41,9 +34,6 @@ o---------------------o
 
 - Installation with Ducker
 - O2 optimization used instead of Ofast
-
-## Papers
-
 
 
 # SSH-aerosol version 1.3 release (2022-06-27)
