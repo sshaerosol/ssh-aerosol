@@ -1,5 +1,5 @@
 !!-----------------------------------------------------------------------
-!!     Copyright (C) 2019 CEREA (ENPC) - INERIS
+!!     Copyright (C) 2019-2024 CEREA (ENPC) - INERIS
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 !!
@@ -27,15 +27,15 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
-    !     c_mass: aerosol mass concentration (Âµg/m^3)
+    !     c_gas: aerosol gas phase concentration(µg/m^3)
+    !     c_mass: aerosol mass concentration (µg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !     ce_kernal_coef: c/e kernel coefficient          ([m3.s-1]).
     !
     !     -- OUTPUT VARIABLES
     !
-    !     dqdt: particle mass derivation(Âµg/m^3/s)
-    !     dndt: particle number derivation(Âµg/m^3/s)
+    !     dqdt: particle mass derivation(µg/m^3/s)
+    !     dndt: particle number derivation(µg/m^3/s)
     !     qH2O: mass of water absorbed by inorganics
     !     cond_time: the condensation/evaporation characteristic 
     !			timescales or the QSSA values for inorganic species
@@ -97,8 +97,8 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
-    !     c_mass: aerosol mass concentration (Âµg/m^3)
+    !     c_gas: aerosol gas phase concentration(µg/m^3)
+    !     c_mass: aerosol mass concentration (µg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !     ce_kernal_coef: c/e kernel coefficient          ([m3.s-1]).
     !
@@ -204,7 +204,7 @@ contains
                      diffusion_coef(s), &! diffusion coef (m2.s-1)
                      quadratic_speed(s),& ! quadratic mean speed (m.s-1)
                      accomodation_coefficient(s),& ! accomadation coef (adim)
-                     wet_diam(j),   & ! wet aero diameter (Âµm)
+                     wet_diam(j),   & ! wet aero diameter (µm)
                      ce_kernal_coef_i(s) ) ! c/e kernel coef (m3.s-1)
                 ce_kernal_coef(j,s)=ce_kernal_coef_i(s)    ! bulk gas conc (ug.m-3)
                 ce_kernel(s)=ce_kernal_coef_i(s) * c_gas(s)    ! bulk gas conc (ug.m-3)
@@ -235,14 +235,14 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
-    !     c_mass: aerosol mass concentration (Âµg/m^3)
+    !     c_gas: aerosol gas phase concentration(µg/m^3)
+    !     c_mass: aerosol mass concentration (µg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !
     !     -- OUTPUT VARIABLES
     !
-    !     rate_mass: particle mass derivation(Âµg/m^3/s)
-    !     rate_number: particle number derivation(Âµg/m^3/s)
+    !     rate_mass: particle mass derivation(µg/m^3/s)
+    !     rate_number: particle number derivation(µg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -292,14 +292,14 @@ contains
     !
     !     -- INPUT VARIABLES
     !
-    !     c_gas: aerosol gas phase concentration(Âµg/m^3)
-    !     c_mass: aerosol mass concentration (Âµg/m^3)
+    !     c_gas: aerosol gas phase concentration(µg/m^3)
+    !     c_mass: aerosol mass concentration (µg/m^3)
     !     c_number: aerosol number concentration (#/m^3)
     !
     !     -- OUTPUT VARIABLES
     !
-    !     dqdt: particle mass derivation(Âµg/m^3/s)
-    !     dndt: particle number derivation(Âµg/m^3/s)
+    !     dqdt: particle mass derivation(µg/m^3/s)
+    !     dndt: particle number derivation(µg/m^3/s)
     !
     !------------------------------------------------------------------------
     implicit none
@@ -326,13 +326,13 @@ contains
 
           qanucl= nanucl*1.D06&   ! convert to #molec.m-3
                /Navog&            ! to mol.m-3
-               *molecular_weight_aer(ESO4)        ! to Âµg.mol-1      
+               *molecular_weight_aer(ESO4)        ! to µg.mol-1      
 
           !     Compute nucleation kernel if qSO4 exceed qanucl  
 
           if (c_gas(ESO4).GE.qanucl) then
 
-             na= c_gas(ESO4)*1.D-06&    ! convert to Âµg.cm-3
+             na= c_gas(ESO4)*1.D-06&    ! convert to µg.cm-3
                   /molecular_weight_aer(ESO4)&     ! to mol.m-3
                   *Navog         ! to #molec.m-3
 
@@ -348,14 +348,14 @@ contains
              jnucl=jnucl*1.D06
 
              if(Navog.ne.0.d0.and.(.not.IsNaN(jnucl*0.d0))) then
-                ! h2so4 mass in nucleus (Âµg)
+                ! h2so4 mass in nucleus (µg)
                 mSO4= ntot&          ! #molec
                      /Navog&         ! Avogadro number (adim)
                      *xstar&         ! mol fraction of h2so4
-                     *molecular_weight_aer(ESO4)     ! mol weight Âµg.mol-1
+                     *molecular_weight_aer(ESO4)     ! mol weight µg.mol-1
 
                 dndt(1) =dndt(1) +jnucl ! #part.m-3.s-1
-                dqdt(1,ESO4)=dqdt(1,ESO4)+jnucl*mSO4! Âµg.m-3.s-1
+                dqdt(1,ESO4)=dqdt(1,ESO4)+jnucl*mSO4! µg.m-3.s-1
              endif
 
              if(IsNaN(dndt(1)*0.d0)) then
@@ -386,7 +386,7 @@ contains
        !     mr should be in ppt
        mr = c_gas(ENH4)/17. * 22.41d0 *273.d0/Temperature * Pressure/101300.d0
 
-       na= c_gas(ESO4)*1.D-06&       ! convert to Âµg.cm-3
+       na= c_gas(ESO4)*1.D-06&       ! convert to µg.cm-3
             /98.d6 &        ! to mol.cm-3
             *Navog            ! to #molec.cm-3      
 

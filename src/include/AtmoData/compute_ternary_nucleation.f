@@ -1,7 +1,7 @@
-C-----------------------------------------------------------------------
-C     Copyright (C) 2019 CEREA (ENPC) - INERIS
-C     SSH-aerosol is distributed under the GNU General Public License v3
-C-----------------------------------------------------------------------
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2019-2024, CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
 
 c     Function: compute_ternary_nucleation
 c

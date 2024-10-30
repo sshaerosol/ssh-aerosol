@@ -7,11 +7,11 @@
 
 - species list
 
-it should have the postfix ".species"
+it is recommended to use the postfix ".species"
 
 - reactions list
 
-it should have the postfix ".reactions"
+it is recommended to use the postfix ".reactions"
 
 ## Location of the input files :
 
@@ -21,8 +21,11 @@ it should have the postfix ".reactions"
 
 - put the file for species list and the file for reactions list into the new folder
  
+- modify namelist file using the path to the new input files
 
-## Compile with the new chemical kinetic mechanism
+&gas_phase_species
+species_list_file = "./src/include/CHEMISTRY/new_folder/new.species",
+reaction_list_file =    "./src/include/CHEMISTRY/new_folder/new.reactions",
 
-> compile -c=new_mechanism
+
 

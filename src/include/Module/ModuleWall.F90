@@ -1,3 +1,8 @@
+!!-----------------------------------------------------------------------
+!!     Copyright (C) 2024, CEREA (ENPC) - INERIS
+!!     SSH-aerosol is distributed under the GNU General Public License v3
+!!-----------------------------------------------------------------------
+
 module mod_wall
 
   use aInitialization

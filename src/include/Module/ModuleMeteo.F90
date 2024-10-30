@@ -1,5 +1,5 @@
 !!-----------------------------------------------------------------------
-!!     Copyright (C) 2020 CEREA (ENPC) - INERIS
+!!     Copyright (C) 2020-2024 CEREA (ENPC) - INERIS
 !!     SSH-aerosol is distributed under the GNU General Public License v3
 !!-----------------------------------------------------------------------
 !!
