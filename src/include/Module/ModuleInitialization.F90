@@ -2511,35 +2511,33 @@ contains
       enddo
       
    endif
-    
-    if(nucl_model_hetero == 1) then
+
+   if(nucl_model_hetero == 1) then
        do s=1,nesp_org_h2so4_nucl
-          do i = 1,N_aerosol_layers
-             jesp=List_species(i)
-             if(aerosol_species_name(jesp) == trim(name_org_h2so4_nucl_species(s))) then
+          do i = 1,N_aerosol
+              if(aerosol_species_name(i) == trim(name_org_h2so4_nucl_species(s))) then
                 org_h2so4_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Nucl. species found ",aerosol_species_name(jesp),i
-                if (ssh_logger) write(logfile,*) "Nucl. species found ",aerosol_species_name(jesp),i
+                if (ssh_standalone) write(*,*) "Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_logger) write(logfile,*) "Nucl. species found ",aerosol_species_name(i),i
                 exit
              endif
-          enddo
+           enddo
        enddo
     endif
 
     if(nucl_model_org == 1) then
        do s=1,nesp_org_nucl
-          do i = 1,N_aerosol_layers
-             jesp=List_species(i)
-             if(aerosol_species_name(jesp) == trim(name_org_nucl_species(s))) then
+           do i = 1,N_aerosol
+              if(aerosol_species_name(i) == trim(name_org_nucl_species(s))) then
                 org_nucl_species(s) = i
-                if (ssh_standalone) write(*,*) "Org. Nucl. species found ",aerosol_species_name(jesp),i
-                if (ssh_logger) write(logfile,*) "Org. Nucl. species found ",aerosol_species_name(jesp),i
+                if (ssh_standalone) write(*,*) "Org. Nucl. species found ",aerosol_species_name(i),i
+                if (ssh_logger) write(logfile,*) "Org. Nucl. species found ",aerosol_species_name(i),i
                 exit
              endif
-          enddo
+           enddo
        enddo
     endif
-
+ 
     !!!!!!!!!! genoa related treatments
 
     if (tag_chem .eq. 1) then

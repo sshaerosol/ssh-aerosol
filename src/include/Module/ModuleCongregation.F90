@@ -313,9 +313,9 @@ contains
     double precision	:: dpnucl,nanucl,qanucl
     double precision	:: xstar,mSO4,nanh3,dmdt
     double precision :: perc_so4, perc_nh4,tot_so4nh4
-    integer :: iterp,s,isection
+    integer :: iterp,s,isection,ilayer
     double precision :: mass_nucl,mass_nucl1,mass_nucl2
-    double precision :: mass_density_nucl
+    double precision :: mass_density_nucl, coeffmassnucl
     double precision :: org_terp, org_terp_tmp(nesp_org_h2so4_nucl)
     double precision :: org_terp_tmpo(nesp_org_nucl)
     double precision :: xterp(nesp_org_h2so4_nucl),xterpo(nesp_org_nucl)
@@ -461,8 +461,8 @@ contains
 		  *Navog           ! to #molec.cm-3
           org_terp = 0.0
           Do iterp = 1,nesp_org_h2so4_nucl
-            org_terp_tmp(iterp) = c_gas(List_species(org_h2so4_nucl_species(iterp)))*1.D-06&    ! convert to ug.cm-3
-               /molecular_weight_aer(List_species(org_h2so4_nucl_species(iterp)))&     ! to mol.m-3
+            org_terp_tmp(iterp) = c_gas(org_h2so4_nucl_species(iterp))*1.D-06&    ! convert to ug.cm-3
+               /molecular_weight_aer(org_h2so4_nucl_species(iterp))&     ! to mol.m-3
                 *Navog         ! to #molec.cm-3
             org_terp = org_terp + org_terp_tmp(iterp)
           Enddo
@@ -479,37 +479,41 @@ contains
              jnucl=3.27*1.d-15*org_terp*na*na * scal_hetero ! in #.m-3 s-1 !!!SCALING FACTOR
              if(jnucl.gt.1.d10) then ! Prevent nucleation rate from being too large
                jnucl = 1.d10
-            endif          
+             endif
              if(jnucl > 1.d-6) then
                dpnucl = size_diam_av(isection) 
                mass_nucl1 = 2.D0 * molecular_weight_aer(ESO4)
                mass_nucl2 = 0.D0
                Do iterp = 1,nesp_org_h2so4_nucl
-                 mass_nucl2 = mass_nucl2 + xterp(iterp) * molecular_weight_aer(List_species(org_h2so4_nucl_species(iterp)))
+                 mass_nucl2 = mass_nucl2 + xterp(iterp) * molecular_weight_aer(org_h2so4_nucl_species(iterp))
                Enddo
                mass_nucl = mass_nucl1 + mass_nucl2
                mass_density_nucl = mass_nucl /&
-                   (mass_nucl1/mass_density(ESO4) + mass_nucl2/mass_density(List_species(org_h2so4_nucl_species(1))))
+                   (mass_nucl1/mass_density(ESO4) + mass_nucl2/mass_density(org_h2so4_nucl_species(1)))
                dmdt = jnucl * PI/6.0 * mass_density_nucl * dpnucl**3
               ! Each cluster has 2 molec of SO4 et 1 of organics, so the mass fraction of
               ! organics and sulfate is proportionnel to
                dndt(isection) = dndt(isection) +jnucl  ! #part.m-3.s-1
                dqdt(isection,ESO4) = dqdt(isection,ESO4) + dmdt * mass_nucl1/mass_nucl
                Do iterp = 1,nesp_org_h2so4_nucl
-                 dqdt(isection,org_h2so4_nucl_species(iterp)) = dqdt(isection,org_h2so4_nucl_species(iterp)) &
-                     + dmdt * xterp(iterp) * &
-                     molecular_weight_aer(List_species(org_h2so4_nucl_species(iterp))) / mass_nucl              
+                 coeffmassnucl = dmdt * xterp(iterp) * &
+                      molecular_weight_aer(org_h2so4_nucl_species(iterp)) / mass_nucl
+                 do ilayer=1,nlayer
+                    dqdt(isection,index_species(org_h2so4_nucl_species(iterp),ilayer)) = &
+                         dqdt(isection,index_species(org_h2so4_nucl_species(iterp),ilayer)) &
+                          + coeffmassnucl * Vlayer(ilayer)
+                 enddo
                Enddo
              endif
           endif
     endif
     
-    if(nucl_model_org.eq.1) then ! heteromolecular nucl'n (Org-H2SO4)
+    if(nucl_model_org.eq.1) then ! heteromolecular nucl'n (Org)
           isection = 1
           org_terp = 0.0
           Do iterp = 1,nesp_org_nucl
-            org_terp_tmpo(iterp) = c_gas(List_species(org_nucl_species(iterp)))*1.D-06&    ! convert to ug.cm-3
-               /molecular_weight_aer(List_species(org_nucl_species(iterp)))&     ! to mol.m-3
+            org_terp_tmpo(iterp) = c_gas(org_nucl_species(iterp))*1.D-06&    ! convert to ug.cm-3
+               /molecular_weight_aer(org_nucl_species(iterp))&     ! to mol.m-3
                 *Navog         ! to #molec.cm-3
             org_terp = org_terp + org_terp_tmpo(iterp)
           Enddo
@@ -528,19 +532,24 @@ contains
                dpnucl = size_diam_av(isection) 
                mass_nucl = 0.0 
                Do iterp = 1,nesp_org_nucl
-                 mass_nucl = mass_nucl + xterpo(iterp) * molecular_weight_aer(List_species(org_nucl_species(iterp)))
+                 mass_nucl = mass_nucl + xterpo(iterp) * molecular_weight_aer(org_nucl_species(iterp))
                Enddo
-               mass_density_nucl = mass_density(List_species(org_nucl_species(1)))
+               mass_density_nucl = mass_density(org_nucl_species(1))
                dmdt = jnucl * PI/6.0 * mass_density_nucl * dpnucl**3
                dndt(isection) = dndt(isection) +jnucl  ! #part.m-3.s-1
                Do iterp = 1,nesp_org_nucl
-                 dqdt(isection,org_nucl_species(iterp)) = dqdt(isection,org_nucl_species(iterp)) &
-                     + dmdt * xterpo(iterp) * &
-                      molecular_weight_aer(List_species(org_nucl_species(iterp))) / mass_nucl
+                  coeffmassnucl = dmdt * xterpo(iterp) * &
+                         molecular_weight_aer(org_nucl_species(iterp)) / mass_nucl
+                  do ilayer=1,nlayer
+                     dqdt(isection,index_species(org_nucl_species(iterp),ilayer)) = &
+                          dqdt(isection,index_species(org_nucl_species(iterp),ilayer)) &
+                      + coeffmassnucl * Vlayer(ilayer)
+                  enddo
                Enddo
              endif
           endif
     endif
+    
   end subroutine ssh_fgde_nucl
 
 end module hCongregation
