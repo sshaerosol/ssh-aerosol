@@ -554,7 +554,8 @@ contains
         ssh_standalone = .true.
         ssh_logger = .false.
     else
-        ! And write to namelist.out
+       ! And write to namelist.out
+        initID = '-'
         nml_out = 101
         namelist_out = "namelist.out"
         open(nml_out, file = namelist_out)
