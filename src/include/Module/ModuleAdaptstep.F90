@@ -69,7 +69,8 @@ contains
     iter_water(:) = 0
     proton = 0.d0
     lwc = 0.d0
-
+    liquid(:) = 0.d0
+    
     ! Initialize the density of aerosols
     if (with_fixed_density.eq.0) then
 
