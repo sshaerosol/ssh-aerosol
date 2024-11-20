@@ -30,9 +30,10 @@ multiproc_run = True
 # 3: nucleation
 # 4: viscosity
 # 5: caco3
-# 6: mono-terpene
-# 7: mcm
-# 8: user-defined 
+# 6: prt4act3
+# 7: mono-terpene
+# 8: mcm
+# 9: user-defined
 case_type = 0
 
 # if use_current_directory = True,

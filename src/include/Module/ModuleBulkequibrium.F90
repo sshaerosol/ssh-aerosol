@@ -60,6 +60,8 @@ contains
     double precision orgmass_inorg(N_size)
     double precision coef_ho,coef_hi,coef_inorg,amm_sulfate_2
 
+    ce_kernal_coef_totinorg = 0.d0
+
     !!     ******zero init
     do jesp=1,(N_aerosol-1)
        dq(jesp)=0.D0

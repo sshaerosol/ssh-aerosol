@@ -897,6 +897,8 @@ contains
     double precision:: q2(N_size,N_aerosol_layers)!2d order mass concentration
 
     qh2o = 0.0
+    dn2dt = 0.0
+    c_gas_t = 0.0
     
     !for condensation or coagulation
    
