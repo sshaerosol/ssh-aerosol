@@ -47,7 +47,7 @@ C
 C *** VARIABLES FOR LIQUID AEROSOL PHASE *******************************
 C
       DOUBLE PRECISION MOLAL, MOLALR, M0
-      REAL IONIC
+      double precision ionic 
       LOGICAL CALAOU, CALAIN, FRST, DRYF
       COMMON /SSHIONS/ MOLAL(NIONS), MOLALR(NPAIR), GAMA(NPAIR),
      &              ZZ(NPAIR),

@@ -792,7 +792,7 @@ C
       SUBROUTINE SSH_INIT1 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+      double precision      IC,GII,GI0,XX,LN10
       PARAMETER (LN10=2.3025851)
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
@@ -1041,7 +1041,7 @@ C
       SUBROUTINE SSH_INIT2 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+      double precision      IC,GII,GI0,XX,LN10
       PARAMETER (LN10=2.3025851)
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
@@ -1309,7 +1309,7 @@ C
       SUBROUTINE SSH_ISOINIT3 (WI, RHI, TEMPI)
       INCLUDE 'isrpia.inc'
       DIMENSION WI(NCOMP)
-      REAL      IC,GII,GI0,XX,LN10
+      double precision IC,GII,GI0,XX,LN10
       PARAMETER (LN10=2.3025851)
 C
 C *** SAVE INPUT VARIABLES IN COMMON BLOCK ******************************
@@ -1747,7 +1747,8 @@ C
          EXNO3    = EXNO3  - CNH4NO3! reduce excess
          CNH4NO3  = ZERO            ! zero salt concentration
       ENDIF
-C
+
+C     
 C *** FOR CHLORIDE *****************************************************
 C
  30   IF (IPROB.EQ.0) THEN         ! Calculate excess (solution - input)
@@ -1801,6 +1802,7 @@ C
          MOLAL(5) = ZERO
       ENDIF
 C
+
       IF (CLC.GT.2d0*EXS4) THEN     ! Adjust (NH4)3H(SO4)2(s)
          CLC      = CLC - EXS4/2d0  ! more solid than excess
          GNH3     = GNH3 +1.5d0*EXS4! evaporate NH3 to gas phase
@@ -2014,8 +2016,8 @@ C
       DELT = 0.0d0
       IF (WATER.GT.TINY) THEN
          KAPA = MOLAL(1)
-         ALFA = XK3*R*TEMP*(WATER/GAMA(11))**2.0
-         DIAK = SQRT( (KAPA+ALFA)**2.0 + 4.0*ALFA*X)
+         ALFA = XK3*R*TEMP*(WATER/GAMA(11))**2.d0
+         DIAK = SQRT( (KAPA+ALFA)**2.d0 + 4.0*ALFA*X)
          DELT = 0.5*(-(KAPA+ALFA) + DIAK)
 CC         IF (DELT/KAPA.GT.0.1d0) THEN
 CC            WRITE (ERRINF,'(1PE10.3)') DELT/KAPA*100.0
@@ -2073,7 +2075,7 @@ C
 C *** CALCULATE HCL SPECIATION IN THE GAS PHASE *************************
 C
       CALL SSH_CALCCLAQ (MOLAL(4), MOLAL(1), DELT)
-      ALFA     = XK3*R*TEMP*(WATER/GAMA(11))**2.0
+      ALFA     = XK3*R*TEMP*(WATER/GAMA(11))**2.d0
       GASAQ(3) = DELT
       MOLAL(1) = MOLAL(1) - DELT
       MOLAL(4) = MOLAL(4) - DELT
@@ -2115,9 +2117,9 @@ C
       DELT = 0.0d0
       IF (WATER.GT.TINY) THEN
          KAPA = MOLAL(1)
-         ALFA = XK4*R*TEMP*(WATER/GAMA(10))**2.0
-         DIAK = SQRT( (KAPA+ALFA)**2.0 + 4.0*ALFA*X)
-         DELT = 0.5*(-(KAPA+ALFA) + DIAK)
+         ALFA = XK4*R*TEMP*(WATER/GAMA(10))**2.d0
+         DIAK = SQRT( (KAPA+ALFA)**2.d0 + 4.0*ALFA*X)
+         DELT = 0.5d0*(-(KAPA+ALFA) + DIAK)
 CC         IF (DELT/KAPA.GT.0.1d0) THEN
 CC            WRITE (ERRINF,'(1PE10.3)') DELT/KAPA*100.0
 CC            CALL SSH_PUSHERR (0019, ERRINF)    ! WARNING ERROR: NO SOLUTION
@@ -2171,7 +2173,7 @@ C
 C *** CALCULATE HNO3 SPECIATION IN THE GAS PHASE ************************
 C
       CALL SSH_CALCNIAQ (MOLAL(7), MOLAL(1), DELT)
-      ALFA     = XK4*R*TEMP*(WATER/GAMA(10))**2.0
+      ALFA     = XK4*R*TEMP*(WATER/GAMA(10))**2.d0
       GASAQ(3) = DELT
       MOLAL(1) = MOLAL(1) - DELT
       MOLAL(7) = MOLAL(7) - DELT
@@ -2213,7 +2215,7 @@ C
 C
 C *** CALCULATE NH3 SUBLIMATION *****************************************
 C
-      A1   = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2.0
+      A1   = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2.d0
       CHI1 = MOLAL(3)
       CHI2 = MOLAL(1)
 C
@@ -2267,9 +2269,10 @@ C
 C
 C *** CALCULATE NH3 GAS PHASE CONCENTRATION *****************************
 C
-      A1   = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2.0
+      A1   = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2.d0
       GNH3 = MOLAL(3)/MOLAL(1)/A1
-C 
+C
+      
       RETURN
 C
 C *** END OF SUBROUTINE SSH_CALCNH3P ****************************************
@@ -3341,8 +3344,8 @@ C
       SUBROUTINE SSH_CALCACT
       INCLUDE 'isrpia.inc'
 C
-      REAL EX10, URF
-      REAL G0(3,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(3),F2(4)
+      double precision EX10, URF
+      double precision G0(3,4),ZPL,ZMI,AGAMA,SION,H,CH,F1(3),F2(4)      
       DOUBLE PRECISION MPL, XIJ, YJI
 C      PARAMETER (URF=0.5)
       PARAMETER (LN10=2.30258509299404568402D0)
@@ -3351,6 +3354,7 @@ C
 C
 C *** SAVE ACTIVITIES IN OLD ARRAY *************************************
 C
+
       IF (FRST) THEN               ! Outer loop
          DO 10 I=1,NPAIR
             GAMOU(I) = GAMA(I)
@@ -3363,7 +3367,7 @@ C
 C
 C *** CALCULATE IONIC ACTIVITY OF SOLUTION *****************************
 C
-      IONIC=0.0
+      IONIC=0.d0
       DO 30 I=1,NIONS
          IONIC=IONIC + MOLAL(I)*Z(I)*Z(I)
 30    CONTINUE
@@ -3378,11 +3382,11 @@ C  G0(1,1)=G11;G0(1,2)=G07;G0(1,3)=G08;G0(1,4)=G10;G0(2,1)=G01;G0(2,2)=G02
 C  G0(2,3)=G12;G0(2,4)=G03;G0(3,1)=G06;G0(3,2)=G04;G0(3,3)=G09;G0(3,4)=G05
 C
       IF (IACALC.EQ.0) THEN              ! K.M.; FULL
-         CALL SSH_KMFUL (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
+         CALL SSH_KMFUL (IONIC, TEMP,G0(2,1),G0(2,2),G0(2,4),
      &               G0(3,2),G0(3,4),G0(3,1),G0(1,2),G0(1,3),G0(3,3),
      &               G0(1,4),G0(1,1),G0(2,3))
       ELSE                               ! K.M.; TABULATED
-         CALL SSH_KMTAB (IONIC, SNGL(TEMP),G0(2,1),G0(2,2),G0(2,4),
+         CALL SSH_KMTAB (IONIC, TEMP,G0(2,1),G0(2,2),G0(2,4),
      &               G0(3,2),G0(3,4),G0(3,1),G0(1,2),G0(1,3),G0(3,3),
      &               G0(1,4),G0(1,1),G0(2,3))
       ENDIF
@@ -3407,12 +3411,12 @@ C
             CH    = 0.25*(ZPL+ZMI)*(ZPL+ZMI)/IONIC
             XIJ   = CH*MPL
             YJI   = CH*MOLAL(J+3)/WATER
-            F1(I) = F1(I) + SNGL(YJI*(G0(I,J) + ZPL*ZMI*H))
-            F2(J) = F2(J) + SNGL(XIJ*(G0(I,J) + ZPL*ZMI*H))
-110   CONTINUE
+            F1(I) = F1(I) + (YJI*(G0(I,J) + ZPL*ZMI*H))
+            F2(J) = F2(J) + (XIJ*(G0(I,J) + ZPL*ZMI*H))
+110     CONTINUE
 C
 C *** LOG10 OF ACTIVITY COEFFICIENTS ***********************************
-C
+
       GAMA(01) = G(2,1)*ZZ(01)                     ! NACL
       GAMA(02) = G(2,2)*ZZ(02)                     ! NA2SO4
       GAMA(03) = G(2,4)*ZZ(03)                     ! NANO3
@@ -3507,7 +3511,9 @@ C=======================================================================
 C
       SUBROUTINE SSH_KMFUL (IONIC,TEMP,G01,G02,G03,G04,G05,G06,G07,
      &		        G08,G09,G10,G11,G12)
-      REAL Ionic, TEMP
+      double precision g01, g02, g03, G04, g05, g06, g07, g08
+      double precision g09, g10, g11, g12
+      double precision Ionic, TEMP      
       DATA Z01,Z02,Z03,Z04,Z05,Z06,Z07,Z08,Z10,Z11
      &    /1,  2,  1,  2,  1,  1,  2,  1,  1,  1/
 C
@@ -3515,16 +3521,16 @@ C
 C
 C *** Coefficients at 25 oC
 C
-      CALL SSH_MKBI(2.230, IONIC, SION, Z01, G01)
-      CALL SSH_MKBI(-0.19, IONIC, SION, Z02, G02)
-      CALL SSH_MKBI(-0.39, IONIC, SION, Z03, G03)
-      CALL SSH_MKBI(-0.25, IONIC, SION, Z04, G04)
-      CALL SSH_MKBI(-1.15, IONIC, SION, Z05, G05)
-      CALL SSH_MKBI(0.820, IONIC, SION, Z06, G06)
-      CALL SSH_MKBI(-.100, IONIC, SION, Z07, G07)
-      CALL SSH_MKBI(8.000, IONIC, SION, Z08, G08)
-      CALL SSH_MKBI(2.600, IONIC, SION, Z10, G10)
-      CALL SSH_MKBI(6.000, IONIC, SION, Z11, G11)
+      CALL SSH_MKBI(2.23d0, IONIC, SION, Z01, G01)
+      CALL SSH_MKBI(-0.19d0, IONIC, SION, Z02, G02)
+      CALL SSH_MKBI(-0.39d0, IONIC, SION, Z03, G03)
+      CALL SSH_MKBI(-0.25d0, IONIC, SION, Z04, G04)
+      CALL SSH_MKBI(-1.15d0, IONIC, SION, Z05, G05)
+      CALL SSH_MKBI(0.820d0, IONIC, SION, Z06, G06)
+      CALL SSH_MKBI(-.1d00, IONIC, SION, Z07, G07)
+      CALL SSH_MKBI(8.d000, IONIC, SION, Z08, G08)
+      CALL SSH_MKBI(2.6d00, IONIC, SION, Z10, G10)
+      CALL SSH_MKBI(6.d000, IONIC, SION, Z11, G11)
 C
 C *** Correct for T other than 298 K
 C
@@ -3569,14 +3575,14 @@ C=======================================================================
 C
       SUBROUTINE SSH_MKBI(Q,IONIC,SION,ZIP,BI)
 C
-      REAL IONIC
+      double precision IONIC, q, bi      
 C
       B=.75-.065*Q
       C= 1.0
       IF (IONIC.LT.6.0) C=1.+.055*Q*EXP(-.023*IONIC*IONIC*IONIC)
       XX=-0.5107*SION/(1.+C*SION)
       BI=(1.+B*(1.+.1*IONIC)**Q-B)
-      BI=ZIP*ALOG10(BI) + ZIP*XX
+      BI=ZIP*dLOG10(BI) + ZIP*XX
 C
       RETURN
       END
@@ -3598,8 +3604,10 @@ C=======================================================================
 C
       SUBROUTINE SSH_KMTAB (IN,TEMP,G01,G02,G03,G04,G05,G06,G07,G08,
      &                          G09,G10,G11,G12)
-      REAL IN, Temp
-C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+
+      double precision IN, Temp
+C     
 C *** Find temperature range
 C
       IND = NINT((TEMP-198.0)/25.0) + 1
@@ -3641,7 +3649,7 @@ C
 C     Chris Nolte, 6/16/05
 C
       implicit none
-      real IN
+      double precision IN
       IF (IN .LE. 0.300000E+02) THEN
          ssh_ibacpos = MIN(NINT( 0.200000E+02*IN) + 1, 600)
       ELSE
@@ -3670,17 +3678,19 @@ C
 C=======================================================================
 C
       SUBROUTINE SSH_KM198 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
-     &                     G11,G12)
+     &     G11,G12)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)      
 C
 C *** Common block definition
 C
+      
       COMMON /SSHKMC198/
      &BNC01M(  741),BNC02M(  741),BNC03M(  741),BNC04M(  741),
      &BNC05M(  741),BNC06M(  741),BNC07M(  741),BNC08M(  741),
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN      
       INTEGER ipos
       INTEGER SSH_IBACPOS
 C
@@ -3729,7 +3739,8 @@ C=======================================================================
 C
       SUBROUTINE SSH_KM223 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
-C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     
 C *** Common block definition
 C
       COMMON /SSHKMC223/
@@ -3738,7 +3749,7 @@ C
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN
       INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3787,7 +3798,8 @@ C=======================================================================
 C
       SUBROUTINE SSH_KM248 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
-C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     
 C *** Common block definition
 C
       COMMON /SSHKMC248/
@@ -3796,7 +3808,7 @@ C
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN
       INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3843,8 +3855,9 @@ C
 C=======================================================================
 C
       SUBROUTINE SSH_KM273 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
-     &                     G11,G12)
-C
+     &     G11,G12)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     
 C *** Common block definition
 C
       COMMON /SSHKMC273/
@@ -3853,7 +3866,7 @@ C
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN
       INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3901,7 +3914,8 @@ C=======================================================================
 C
       SUBROUTINE SSH_KM298 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
-C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     
 C *** Common block definition
 C
       COMMON /SSHKMC298/
@@ -3910,7 +3924,7 @@ C
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN
       INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3958,7 +3972,8 @@ C=======================================================================
 C
       SUBROUTINE SSH_KM323 (IN,G01,G02,G03,G04,G05,G06,G07,G08,G09,G10,
      &                     G11,G12)
-C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C     
 C *** Common block definition
 C
       COMMON /SSHKMC323/
@@ -3967,7 +3982,7 @@ C
      &BNC09M(  741),BNC10M(  741),BNC11M(  741),BNC12M(  741),
      &BNC13M(  741)
 
-      REAL IN
+      double precision IN      
       INTEGER SSH_IBACPOS
 C
 C *** Find position in arrays for binary activity coefficients
@@ -3999,6 +4014,7 @@ C
 C  *** TEMP = 198.0
 
       BLOCK DATA SSHKMCF198
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)      
 C
 C  *** Common block definition
 C
@@ -6198,6 +6214,7 @@ C
 C  *** TEMP = 223.0
 
       BLOCK DATA SSHKMCF223
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)      
 C
 C  *** Common block definition
 C
@@ -8397,6 +8414,7 @@ C
 C  *** TEMP = 248.0
 
       BLOCK DATA SSHKMCF248
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C  *** Common block definition
 C
@@ -10596,6 +10614,7 @@ C
 C  *** TEMP = 273.0
 
       BLOCK DATA SSHKMCF273
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)      
 C
 C  *** Common block definition
 C
@@ -12795,6 +12814,7 @@ C
 C  *** TEMP = 298.0
 
       BLOCK DATA SSHKMCF298
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C  *** Common block definition
 C
@@ -14994,6 +15014,7 @@ C
 C  *** TEMP = 323.0
 
       BLOCK DATA SSHKMCF323
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C  *** Common block definition
 C
@@ -17733,7 +17754,7 @@ C
 C=======================================================================
 C
       FUNCTION SSH_EX10(X,K)
-      REAL    X, SSH_EX10, Y, AINT10, ADEC10, K
+      double precision    X, SSH_EX10, Y, AINT10, ADEC10, K      
       INTEGER K1, K2
       COMMON /SSHEXPNC/ AINT10(20), ADEC10(200)
 
@@ -17775,7 +17796,7 @@ C
 C
 C *** Common block definition
 C
-      REAL AINT10, ADEC10
+      double precision AINT10, ADEC10      
       COMMON /SSHEXPNC/ AINT10(20), ADEC10(200)
 
 

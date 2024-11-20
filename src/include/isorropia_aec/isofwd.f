@@ -653,7 +653,7 @@ C
       MOLAL(3)   = W(3)   ! NH4I
 C
       DO 20 I=1,NSWEEP
-         AK1   = XK1*((GAMA(8)/GAMA(7))**2.)*(WATER/GAMA(7))
+         AK1   = XK1*((GAMA(8)/GAMA(7))**2.d0)*(WATER/GAMA(7))
          BET   = W(2)
          GAM   = MOLAL(3)
 C
@@ -850,10 +850,10 @@ C
       CALAIN = .TRUE.
       DO 20 I=1,NSWEEP
 C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
-         GRAT1 = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.
-         DD    = SQRT( (ZK+GRAT1+Y+ORGANION)**2. 
-     &        + 4.0*(Y*GRAT1 - ORGANION*(Y+ZK)) )
-         KK    = 0.5*(-(ZK+GRAT1+Y+ORGANION) + DD)
+         GRAT1 = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.d0
+         DD    = SQRT( (ZK+GRAT1+Y+ORGANION)**2.d0 
+     &        + 4.d0*(Y*GRAT1 - ORGANION*(Y+ZK)) )
+         KK    = 0.5d0*(-(ZK+GRAT1+Y+ORGANION) + DD)
 C
 C *** SPECIATION & WATER CONTENT ***************************************
 C
@@ -917,11 +917,11 @@ C
 C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
 C
       DO 20 I=1,NSWEEP
-         GRAT1 = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.
-C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
-         DD    = SQRT( (GRAT1+Y+ORGANION)**2. + 4.0* (
+         GRAT1 = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.d0
+CC *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
+         DD    = SQRT( (GRAT1+Y+ORGANION)**2.d0 + 4.d0* (
      &        (X+Y)*GRAT1 - Y * ORGANION))
-         KK    = 0.5*(-(GRAT1+Y+ORGANION) + DD )
+         KK    = 0.5d0*(-(GRAT1+Y+ORGANION) + DD )
 C
 C *** SPECIATION & WATER CONTENT ***************************************
 C
@@ -930,7 +930,7 @@ C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
          MOLAL (1) = KK + ORGANION        ! HI
          MOLAL (5) = Y+KK                 ! SO4I
          MOLAL (6) = MAX (X+Y-KK, TINY)   ! HSO4I
-         MOLAL (3) = 3.0*Y+X              ! NH4I
+         MOLAL (3) = 3.d0*Y+X              ! NH4I
          CALL SSH_CALCMR                      ! Water content
 C
 C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
@@ -1231,11 +1231,11 @@ C
       FRST   = .TRUE.
       CALAIN = .TRUE.
       DO 20 I=1,NSWEEP
-         GRAT2 = XK1*WATER*(GAMA(8)/GAMA(7))**2./GAMA(7)
-C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
+         GRAT2 = XK1*WATER*(GAMA(8)/GAMA(7))**2.d0/GAMA(7)
+CC *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
          PARM  = X+GRAT2+ORGANION
-         DELTA = PARM*PARM + 4.0*((X+TNH4HS4)*GRAT2-X*ORGANION)
-         OMEGA = 0.5*(-PARM + SQRT(DELTA))         ! Thetiki riza (ie:H+>0)
+         DELTA = PARM*PARM + 4.d0*((X+TNH4HS4)*GRAT2-X*ORGANION)
+         OMEGA = 0.5d0*(-PARM + SQRT(DELTA))         ! Thetiki riza (ie:H+>0)
 C
 C *** SPECIATION & WATER CONTENT ***************************************
 C
@@ -1468,11 +1468,11 @@ C
       LAMDA  = W(3)           ! NH4HSO4 INITIALLY IN SOLUTION
       PSI    = W(2)-W(3)      ! H2SO4 IN SOLUTION
       DO 20 I=1,NSWEEP
-         PARM  = WATER*XK1/GAMA(7)*(GAMA(8)/GAMA(7))**2.
+         PARM  = WATER*XK1/GAMA(7)*(GAMA(8)/GAMA(7))**2.d0
 C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
          BB    = PSI+PARM+ORGANION
          CC    =-PARM*(LAMDA+PSI)
-         KAPA  = 0.5*(-BB+SQRT(BB*BB-4.0*CC))
+         KAPA  = 0.5d0*(-BB+SQRT(BB*BB-4.d0*CC))
 C
 C *** SPECIATION & WATER CONTENT ***************************************
 C
@@ -1619,12 +1619,12 @@ C
 C
       PSI = W(2)-W(3)
       DO 20 I=1,NSWEEP
-         PAR1  = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.0
-         PAR2  = XK12*(WATER/GAMA(9))**2.0
-C *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
+         PAR1  = XK1*WATER/GAMA(7)*(GAMA(8)/GAMA(7))**2.d0
+         PAR2  = XK12*(WATER/GAMA(9))**2.d0
+CC *** FOR INTERACTION WITH HYDROPHILIC ORGANIC COMPOUNDS
          BB    = PSI + PAR1 + ORGANION
          CC    =-PAR1*(PSI+KAPA)
-         LAMDA = 0.5*(-BB+SQRT(BB*BB-4*CC))
+         LAMDA = 0.5d0*(-BB+SQRT(BB*BB-4.d0*CC))
 C
 C *** SAVE CONCENTRATIONS IN MOLAL ARRAY *******************************
 C
