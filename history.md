@@ -2,7 +2,7 @@ o---------------------o
 | SSH-AEROSOL HISTORY |
 o---------------------o
 
-# SSH-aerosol version 2.0 release (2024-10-XX)
+# SSH-aerosol version 2.0 release (2024-11-21)
 
 ## Aerosol dynamics and thermodynamics
 
