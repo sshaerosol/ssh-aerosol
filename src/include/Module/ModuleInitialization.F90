@@ -2033,8 +2033,10 @@ contains
 
     if (nspecies>0) then
        do s=1,nspecies
-          if (index_species_ssh(s)<0) print*,trim(name_input_species(s))," not found"
-          stop
+          if (index_species_ssh(s)<0) then
+                print*,trim(name_input_species(s))," not found"
+                stop
+          endif
        enddo
     endif
     
