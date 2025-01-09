@@ -118,7 +118,8 @@ module SSHaerosolAPI
     subroutine ssh_api_initialize(input_namelist_file) bind(c, name='api_sshaerosol_initialize_')
 
       use iso_c_binding
-      use aInitialization, only : ssh_read_namelist, ssh_read_inputs, N_gas, n_reaction, n_photolysis
+      use aInitialization, only : ssh_read_namelist, ssh_read_inputs, N_gas, n_reaction, n_photolysis, &
+           initID, chemID, chemID2, resID
       use lDiscretization, only : ssh_init_parameters, ssh_init_distributions
       use mod_meteo, only : ssh_read_meteo
 
@@ -132,8 +133,12 @@ module SSHaerosolAPI
       ! N_gas = 93; N_reaction = 206; N_photolysis = 24
       
       !call ssh_dimensions(N_gas, n_reaction, n_photolysis)  
-      
-      
+
+      ! Initialize input args used for genoa v3
+      initID = "-" ! initial set id
+      chemID = "-" ! chem id
+      chemID2= "-" ! chemID2 = chemID/chemID
+      resID  = "-" ! result id
       
       ! Read SSH simulation settings file
       namelist_file = transfer(input_namelist_file(1:size_namelist_file), &
