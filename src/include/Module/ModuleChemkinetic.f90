@@ -1462,7 +1462,7 @@ subroutine ssh_spack_spec(ire, iex, label, &
        SELECT CASE(ind)
        CASE (1)
           ! NO2 + OH --> HNO3
-          ka = 3.4d-30 * (3.d2 / temperature)**(3.d2) * SumMc
+          ka = 3.4d-30 * (3.d2 / temperature)**(3.2) * SumMc
           kb = ka / (4.77d-11 * (3.d2 / temperature)**1.4)
           qfor = (ka / (1.0d0 + kb)) * 0.3 ** &
                (1.0d0 / (1.0d0 + &
