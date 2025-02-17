@@ -201,8 +201,14 @@ contains
       enddo
       allocate(ro2_basic_rate(s))
 
+
+      ! Compute zenithal angles                                       
+      DLmuzero=ssh_muzero(tschem,longitude,latitude) 
+      Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
+      
       ! Compute basic kinetics
-      CALL ssh_basic_kinetic(ro2_basic_rate, s)
+      CALL ssh_basic_kinetic(ro2_basic_rate, s, &
+           Zangzen)
       
       !premier calcul de l'ordre 1                                      
       do j=1,m 
@@ -220,10 +226,7 @@ contains
          endif
          
         ! Update kinetic rate                                                  
-        ! aerosol_formation = F ! to use T option, change file to chem
-        ! Compute zenithal angles                                       
-        DLmuzero=ssh_muzero(tschem,longitude,latitude) 
-        Zangzen=dabs(DACOS(DLmuzero)*180.D0/PI)
+
         CALL ssh_update_kinetic_pho(Zangzen)
         ! Update rate for RO2 reaction
         if (tag_RO2.gt.0 .and. size(ro2_basic_rate).gt.0) then

@@ -279,7 +279,8 @@ END subroutine ssh_rates
 
 ! =================================================================
 
-subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
+subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s, &
+     Zangzen)
      
 !------------------------------------------------------------------------
 !
@@ -325,6 +326,8 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
   ! Irreversible dicarbonyl
   double precision :: facteur, xlw
 
+  double precision, intent(in) :: Zangzen
+  
   if (humidity == -999.d0) then
      call ssh_compute_sh(relative_humidity, temperature, &
           pressure, humidity)
@@ -368,8 +371,9 @@ subroutine ssh_basic_kinetic(ro2_basic_rate, nro2_s)
         call ssh_genoa_spec(j,i)
 
     ! From SPACK - need to be completed !!!
-    else if ((k .eq. 10) .or. (k .eq. 20)) then
-        call ssh_spack_spec(j,i,k)
+    else if ((k .eq. 10) .or. (k .eq. 20) .or. (k .eq. 30)) then
+       call ssh_spack_spec(j,i,k,&
+            Zangzen)
 
     else ! print label, ircn, iex
         print*, "EXTRA type unknown: ",k,j,i
@@ -568,10 +572,10 @@ subroutine ssh_update_kinetic_pho(azi)
         call ssh_MCM_rate(j,i,k,aziloc)
     endif
   enddo
-
+  
 END subroutine ssh_update_kinetic_pho 
 
-subroutine ssh_kinetic(azi,RO2s)
+subroutine ssh_kinetic(azi,RO2s,Zangzen)
      
 !------------------------------------------------------------------------
 !
@@ -614,6 +618,8 @@ subroutine ssh_kinetic(azi,RO2s)
   integer, PARAMETER ::geckoLabel(6) = (/100, 200, 500, 501, 502, 550/)
   integer, PARAMETER ::mcmLabel(4) = (/91, 92, 93, 94/)
 
+  double precision, intent(in) :: Zangzen
+  
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
   do i=1, size(kinetic_rate) ! reactions
     kinetic_rate(i) = Arrhenius(i,1) * (temperature**Arrhenius(i,2)) &
@@ -702,7 +708,7 @@ subroutine ssh_kinetic(azi,RO2s)
     ! From SPACK - need to be completed !!!
     else if (k .eq. 10) then
     
-        call ssh_spack_spec(j,i,k)
+        call ssh_spack_spec(j,i,k, Zangzen)
 
     else ! print label, ircn, iex
         print*, "EXTRA type unknown: ",k,j,i
@@ -1263,14 +1269,20 @@ subroutine ssh_genoa_spec(ire, iex)
 
 end subroutine ssh_genoa_spec
 
-subroutine ssh_spack_spec(ire, iex, label)
+subroutine ssh_spack_spec(ire, iex, label, &
+     Zangzen)
 
 !C------------------------------------------------------------------------
 !C
 !C     -- DESCRIPTION: define the reaction rates when
 !C                     the keyword EXTRA is used in the reactions list.
 !C
+!   - ire: index in the list of all reactions
+!   - iex: index in the list of the reactions with the 'EXTRA' keyword
+!   - label: 10 (cb05), 20 (racm2), 30 (melchior2), ...
 !C------------------------------------------------------------------------
+
+  USE mod_cubicspline
   
     IMPLICIT NONE 
 
@@ -1282,6 +1294,18 @@ subroutine ssh_spack_spec(ire, iex, label)
     double precision :: psat, facteur, xlw
     double precision :: masmol, cstar, aw, cbar, awc, denom, kwon !! Wall
 
+    ! For O3 photolysis in Melchior2
+    integer :: s, k
+    integer :: nsza_local
+    double precision :: photo_ratio_tab(12) ! nsza_local
+    double precision :: tmp_inter(4,11) ! ! nsza_local - 1
+    double precision :: photo_ratio_out(11,4) ! ! nsza_local - 1
+    double precision,INTENT(IN) :: Zangzen
+    double precision :: aziloc, photo, VH2O, VO2, VN2, factor
+    double precision :: szas_local(12) ! nsza_local
+
+    nsza_local = 12
+    
     if (humidity == -999.d0) then
        call ssh_compute_sh(relative_humidity, temperature, &
             pressure, humidity)
@@ -1451,13 +1475,90 @@ subroutine ssh_spack_spec(ire, iex, label)
           ka  = 15.0d0
           kb = 0.00033d0
           qfor = 0.5d0 * kb / ka
+
+       CASE (4)
+          ! O3 -> 2 OH
+
+          ! Tabulated photolysis constants
+          ! solar angles found in ModuleInitialization.F90
+          ! nsza = 12
+          ! szas = [90. 88. 86. 83. 80. 75. 70. 60. 45. 30. 15. 0.]
+
+          szas_local = [0.d0, 15.d0, 30.d0, &
+               45.d0, 60.d0, 70.d0, &
+               75.d0, 80.d0, 83.d0, &
+               86.d0, 88.d0, 90.d0]
+
+          
+          photo_ratio_tab = [5.62e-05, 5.22e-05, 4.09e-05, &
+               2.54e-05,  1.04e-05, 3.54e-06,  &
+               1.57e-06,  5.85e-07, 2.79e-07,   &
+               1.20e-07,  6.21e-08, 1.00e-15]
+
+          ! interpolation
+          call ssh_SPL3(nsza_local,szas_local,photo_ratio_tab,tmp_inter)
+          
+          do s=1, nsza_local-1
+             do k=1,4
+                photo_ratio_out(s,k) =  tmp_inter(k,s)
+             enddo
+          enddo
+
+          aziloc=min(Zangzen,90.d0)
+
+          ! Get zone s in the range of [1, nsza-1]
+          if (aziloc .ge. szas(nsza_local)) then
+             s = nsza_local - 1
+          else
+             do s=1, nsza_local-1
+                if (aziloc.ge.szas(s) .and. aziloc.lt.szas(s+1)) then
+                   exit
+                endif
+             enddo
+          endif
+          
+          ! Get photolysis rate in zone s
+          photo = photo_ratio_out(s,4)
+          photo = photo_ratio_out(s,3) + (aziloc-szas(s))*photo
+          photo = photo_ratio_out(s,2) + (aziloc-szas(s))*photo
+          photo = photo_ratio_out(s,1) + (aziloc-szas(s))*photo
+
+          ! Factor to take into account 
+          ! O1D -> 2 OH reaction
+          
+          ! Formulation from Chimere to add
+          ! factor = hu/(hu + ai*(0.02909d0*exp(70d0/te) + 0.06545d0*exp(110d0/te)))
+
+          ! Formulation from SPACK
+          VO2 = 3.2d-11 * dexp(70.d0 / temperature) * (0.21d0 * SumMc)
+          VN2 = 1.8d-11 * dexp(110.d0 / temperature) * (0.79d0 * SumMc)
+          VH2O = 2.2d-10 * YlH2O
+          factor = VH2O / (VH2O + VN2 + VO2)
+          
+          photo =  photo * factor
+          
+          ! Add cloud attenuation as done
+          ! for the other photolysis reactions
+          ! in ssh_update_kinetic_pho
+          qfor = max(photo*attenuation, 0.d0)
+          
+        CASE DEFAULT
+          print*, '--error-- in ssh_spack_spec. Melchior2 Type unknown: ', &
+                    label,ire,iex
+          STOP
           
        END SELECT
+
+    else
+       print*, '--error-- in ssh_spack_spec. Extra Type unknown: ', &
+            label,ire,iex
+       STOP
+       
     end if
   
   ! add a ratio
   kinetic_rate(ire) = qfor *  Arrhenius(ire,1)
-   
+  
 end subroutine ssh_spack_spec
 
 

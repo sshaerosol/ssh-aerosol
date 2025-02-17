@@ -166,12 +166,8 @@ module aInitialization
   ! photolysis
   double precision, dimension(:,:,:), allocatable, save :: photo_ratio
   double precision, dimension(:,:), allocatable, save :: photo_ratio_read
-  ! double precision, parameter :: szas(11) = (/0d0,1d1,2d1,3d1,4d1, &
-  !                                       5d1,6d1,7d1,7.8d1,8.6d1,9d1/)
-  ! integer, parameter :: nsza = 11! sza size 
   integer :: nsza
-  double precision, dimension(:), allocatable, save :: szas
-
+  double precision, save :: szas(30)
   
   ! Wall loss
   integer, dimension(:), allocatable, save :: wall_rcn  
@@ -518,9 +514,10 @@ contains
          adaptive_time_step_tolerance, min_adaptive_time_step, &
          RO2_list_file, tag_RO2, &
          photolysis_dir, photolysis_file, &
-         n_time_angle, nsza, time_angle_min, delta_time_angle, &
+         n_time_angle, time_angle_min, delta_time_angle, &
          n_latitude, latitude_min, delta_latitude, &
-         n_altitude, altitude_photolysis_input, & 
+         n_altitude, altitude_photolysis_input, &
+         nsza, szas, &
          tag_twostep, keep_gp, &
          kwall_gas, kwall_particle, Cwall, eddy_turbulence, surface_volume_ratio, kwp0,radius_chamber
 
@@ -1020,6 +1017,7 @@ contains
     photolysis_file = "---"
     n_time_angle = -999
     nsza = -999
+    szas = -999.d0
     time_angle_min = -999.d0
     delta_time_angle = -999.d0
     n_latitude = -999
@@ -1094,11 +1092,6 @@ contains
        if (n_time_angle == -999) then
           n_time_angle = 9
        endif
-       ! nsza = 11 by default
-       ! if it is not given in namelist
-       if (nsza == -999) then
-          nsza = 11
-       endif       
        ! time_angle_min = 0.d0 by default
        ! if it is not given in namelist
        if (time_angle_min == -999.d0) then
@@ -1135,6 +1128,26 @@ contains
           altitude_photolysis_input(1:9) = [0.0, 1000.0, 2000.0, 3000.0, &
                4000.0, 5000.0, 10000.0, 15000.0, 20000.0]
        endif       
+
+       
+
+       ! nsza = 11 by default
+       ! if it is not given in namelist
+       if (nsza == -999) then
+          nsza = 11
+       endif
+       
+       ! For the keyword "PHOT" in the reaction file.
+       if (nsza == 2) then
+          szas(1:2) = [0.0d0, 9.0d1]
+       end if
+       
+       ! szas: solar zenith angle
+       ! if it is not given in namelist
+       if (szas(1) == -999.d0) then
+          szas(1:11) = [0d0,1d1,2d1,3d1,4d1, &
+               5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
+       endif
        
        if (tag_chem == 0) then
           if (ssh_standalone) write(*,*) ''
@@ -3241,7 +3254,6 @@ contains
     allocate(photo_rcn(ipho,2)) ! code of photolysis
 
     allocate(photo_ratio_read(ipho_t,nsza)) ! read ratio
-    allocate(szas(nsza))
     
     allocate(TB_rcn(itb+iro2,2))  ! TBs & RO2-RO2 2. index(TB+,RO2-); 1. reaction index
     allocate(Arrhenius(iknc,3))   ! kinetic rate contants
@@ -3283,14 +3295,6 @@ contains
     extra_coeff = 0.d0
     hetero_ind = 0
     irdi_ind = 0    
-
-    !!!! (To do) Move to namelist
-    if (nsza == 2) then
-       szas = [0.0d0, 9.0d1]
-    else if (nsza == 11) then
-       szas = [0d0,1d1,2d1,3d1,4d1, &
-            5.0d1,6d1,7d1,7.8d1,8.6d1,9d1]
-    endif
 
     rewind(11)  ! Reset the file position
 
@@ -3752,7 +3756,7 @@ contains
                         stop
                     endif
                     
-                CASE(99, 10, 20) ! 99/10 C1 C2 (optional) 
+                CASE(99, 10, 20, 30) ! 99/10 C1 C2 (optional) 
                   ! Additional calculations that can be updated by the user.
                   ! Please ensure the label has not been used before if adding new labels. 
                   if (finish.eq.2 .or. finish.eq.3) then
@@ -3870,7 +3874,7 @@ contains
         else !write photo_ratio
             n = n + 1
             ! interpolation
-            call ssh_SPL3(nsza,szas,photo_ratio_read(-j,:),tmp_inter)
+            call ssh_SPL3(nsza,szas(1:nsza),photo_ratio_read(-j,:),tmp_inter)
             ! save in photo_ratio
             do s=1, nsza-1
               do k=1,4
